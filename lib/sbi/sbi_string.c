@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#ضمن <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+صحيح sbi_strcmp(ثابت حرف *a, ثابت حرف *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	لكل (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	ܦܢܐ *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+صحيح sbi_strncmp(ثابت حرف *a, ثابت حرف *b, size_t count)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	لكل (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	ܐܢ (!count)
+		ܦܢܐ 0;
 
-	return *a - *b;
+	ܦܢܐ *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ثابت حرف *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	ܟܡܐ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ܦܢܐ ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ثابت حرف *str, size_t count)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	ܟܡܐ (*str != '\0' && ret < count) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ܦܢܐ ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+حرف *sbi_strcpy(حرف *dest, ثابت حرف *src)
 {
-	char *ret = dest;
+	حرف *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	ܟܡܐ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	ܦܢܐ ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+حرف *sbi_strncpy(حرف *dest, ثابت حرف *src, size_t count)
 {
-	char *tmp = dest;
+	حرف *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	ܟܡܐ (count) {
+		ܐܢ ((*tmp = *src) != 0)
 			src++;
 		tmp++;
 		count--;
 	}
-	return dest;
+	ܦܢܐ dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+حرف *sbi_strchr(ثابت حرف *s, صحيح c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	ܥܒܕ {
+		ܐܢ (*s == (حرف)c)
+			ܦܢܐ (حرف *)s;
+	} ܟܡܐ (*s++ != '\0');
 
-	return NULL;
+	ܦܢܐ عدم;
 }
 
-char *sbi_strrchr(const char *s, int c)
+حرف *sbi_strrchr(ثابت حرف *s, صحيح c)
 {
-	const char *last = s + sbi_strlen(s);
+	ثابت حرف *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	ܟܡܐ (last > s && *last != (حرف)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	ܐܢ (*last != (حرف)c)
+		ܦܢܐ عدم;
+	ܐܚܪܢܐ
+		ܦܢܐ (حرف *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+فراغ *sbi_memset(فراغ *s, صحيح c, size_t count)
 {
-	char *temp = s;
+	حرف *temp = s;
 
-	while (count > 0) {
+	ܟܡܐ (count > 0) {
 		count--;
 		*temp++ = c;
 	}
 
-	return s;
+	ܦܢܐ s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+فراغ *sbi_memcpy(فراغ *dest, ثابت فراغ *src, size_t count)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	حرف *temp1	  = dest;
+	ثابت حرف *temp2 = src;
 
-	while (count > 0) {
+	ܟܡܐ (count > 0) {
 		*temp1++ = *temp2++;
 		count--;
 	}
 
-	return dest;
+	ܦܢܐ dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+فراغ *sbi_memmove(فراغ *dest, ثابت فراغ *src, size_t count)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	حرف *temp1	  = (حرف *)dest;
+	ثابت حرف *temp2 = (حرف *)src;
 
-	if (src == dest)
-		return dest;
+	ܐܢ (src == dest)
+		ܦܢܐ dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	ܐܢ (dest < src) {
+		ܟܡܐ (count > 0) {
 			*temp1++ = *temp2++;
 			count--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} ܐܚܪܢܐ {
+		temp1 = (حرف *)dest + count - 1;
+		temp2 = (حرف *)src + count - 1;
 
-		while (count > 0) {
+		ܟܡܐ (count > 0) {
 			*temp1-- = *temp2--;
 			count--;
 		}
 	}
 
-	return dest;
+	ܦܢܐ dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+صحيح sbi_memcmp(ثابت فراغ *s1, ثابت فراغ *s2, size_t count)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ثابت حرف *temp1 = s1;
+	ثابت حرف *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	لكل (; count > 0 && (*temp1 == *temp2); count--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	ܐܢ (count > 0)
+		ܦܢܐ *(unsigned حرف *)temp1 - *(unsigned حرف *)temp2;
+	ܐܚܪܢܐ
+		ܦܢܐ 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+فراغ *sbi_memchr(ثابت فراغ *s, صحيح c, size_t count)
 {
-	const unsigned char *temp = s;
+	ثابت unsigned حرف *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	ܟܡܐ (count > 0) {
+		ܐܢ ((unsigned حرف)c == *temp++) {
+			ܦܢܐ (فراغ *)(temp - 1);
 		}
 		count--;
 	}
 
-	return NULL;
+	ܦܢܐ عدم;
 }

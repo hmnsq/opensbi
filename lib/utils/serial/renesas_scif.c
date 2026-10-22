@@ -3,10 +3,10 @@
  * Copyright (C) 2022 Renesas Electronics Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/serial/renesas-scif.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi_utils/serial/renesas-scif.h>
 
 /* clang-format off */
 
@@ -48,29 +48,29 @@
 
 /* clang-format on */
 
-static volatile char *scif_base;
+ساكن متطاير حرف *scif_base;
 
-static u32 get_reg(u32 offset)
+ساكن u32 get_reg(u32 offset)
 {
-	if (SCIF_REG_8BIT(offset))
-		return readb(scif_base + offset);
+	ܐܢ (SCIF_REG_8BIT(offset))
+		ܦܢܐ readb(scif_base + offset);
 
-	return readw(scif_base + offset);
+	ܦܢܐ readw(scif_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+ساكن فراغ set_reg(u32 offset, u32 val)
 {
-	if (SCIF_REG_8BIT(offset))
+	ܐܢ (SCIF_REG_8BIT(offset))
 		writeb(val, scif_base + offset);
-	else
+	ܐܚܪܢܐ
 		writew(val, scif_base + offset);
 }
 
-static void renesas_scif_putc(char ch)
+ساكن فراغ renesas_scif_putc(حرف ch)
 {
 	uint16_t reg;
 
-	while (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
+	ܟܡܐ (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
 		;
 
 	set_reg(SCIF_REG_FTDR, ch);
@@ -79,16 +79,16 @@ static void renesas_scif_putc(char ch)
 	set_reg(SCIF_REG_FSR, reg);
 }
 
-static struct sbi_console_device renesas_scif_console = {
+ساكن بنية sbi_console_device renesas_scif_console = {
 	.name		= "renesas_scif",
 	.console_putc	= renesas_scif_putc,
 };
 
-int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
+صحيح renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	uint16_t data16;
 
-	scif_base = (volatile char *)base;
+	scif_base = (متطاير حرف *)base;
 
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_DIS);
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_ASSRT_RFTF);
@@ -112,5 +112,5 @@ int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&renesas_scif_console);
 
-	return 0;
+	ܦܢܐ 0;
 }

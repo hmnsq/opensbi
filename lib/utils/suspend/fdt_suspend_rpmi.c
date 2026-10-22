@@ -7,28 +7,28 @@
  *   Subrahmanya Lingappa <slingappa@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_system.h>
-#include <sbi/riscv_asm.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/mailbox/fdt_mailbox.h>
+#ضمن <sbi_utils/mailbox/mailbox.h>
+#ضمن <sbi_utils/mailbox/rpmi_mailbox.h>
 
-struct rpmi_syssusp {
-	struct mbox_chan *chan;
+بنية rpmi_syssusp {
+	بنية mbox_chan *chan;
 	bool cust_res_addr_supported;
 	bool suspend_supported;
 };
 
-static struct rpmi_syssusp syssusp_ctx;
+ساكن بنية rpmi_syssusp syssusp_ctx;
 
-static int rpmi_syssusp_attrs(uint32_t *attrs)
+ساكن صحيح rpmi_syssusp_attrs(uint32_t *attrs)
 {
-	int rc;
-	struct rpmi_syssusp_get_attr_resp resp;
-	struct rpmi_syssusp_get_attr_req req;
+	صحيح rc;
+	بنية rpmi_syssusp_get_attr_resp resp;
+	بنية rpmi_syssusp_get_attr_req req;
 
 	req.susp_type = SBI_SUSP_SLEEP_TYPE_SUSPEND;
 
@@ -36,19 +36,19 @@ static int rpmi_syssusp_attrs(uint32_t *attrs)
 		syssusp_ctx.chan, RPMI_SYSSUSP_SRV_GET_ATTRIBUTES,
 		&req, rpmi_u32_count(req), rpmi_u32_count(req),
 		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ܐܢ (rc)
+		ܦܢܐ rc;
 
 	*attrs = resp.flags;
 
-	return 0;
+	ܦܢܐ 0;
 }
 
-static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
+ساكن صحيح rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 {
-	int rc;
-	struct rpmi_syssusp_suspend_req req;
-	struct rpmi_syssusp_suspend_resp resp;
+	صحيح rc;
+	بنية rpmi_syssusp_suspend_req req;
+	بنية rpmi_syssusp_suspend_resp resp;
 
 	req.hartid = current_hartid();
 	req.suspend_type = suspend_type;
@@ -59,63 +59,63 @@ static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 			syssusp_ctx.chan, RPMI_SYSSUSP_SRV_SYSTEM_SUSPEND,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ܐܢ (rc)
+		ܦܢܐ rc;
 
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	ܦܢܐ 0;
 }
 
-static int rpmi_system_suspend_check(u32 sleep_type)
+ساكن صحيح rpmi_system_suspend_check(u32 sleep_type)
 {
-	return ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
+	ܦܢܐ ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
 		syssusp_ctx.suspend_supported) ? 0 : SBI_EINVAL;
 }
 
-static int rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
+ساكن صحيح rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
 {
-	int rc;
+	صحيح rc;
 
-	if (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
-		return SBI_ENOTSUPP;
+	ܐܢ (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
+		ܦܢܐ SBI_ENOTSUPP;
 
 	rc = rpmi_syssusp(sleep_type, resume_addr);
-	if (rc)
-		return rc;
+	ܐܢ (rc)
+		ܦܢܐ rc;
 
-	return 0;
+	ܦܢܐ 0;
 }
 
-static struct sbi_system_suspend_device rpmi_suspend_dev = {
+ساكن بنية sbi_system_suspend_device rpmi_suspend_dev = {
 	.name = "rpmi-system-suspend",
 	.system_suspend_check = rpmi_system_suspend_check,
 	.system_suspend = rpmi_system_suspend,
 };
 
-static int rpmi_suspend_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ساكن صحيح rpmi_suspend_init(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_match *match)
 {
-	int rc;
+	صحيح rc;
 	uint32_t attrs = 0;
 
 	/* If channel already available then do nothing. */
-	if (syssusp_ctx.chan)
-		return 0;
+	ܐܢ (syssusp_ctx.chan)
+		ܦܢܐ 0;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * suspend service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &syssusp_ctx.chan);
-	if (rc)
-		return SBI_ENODEV;
+	ܐܢ (rc)
+		ܦܢܐ SBI_ENODEV;
 
 	/* Get suspend attributes */
 	rc = rpmi_syssusp_attrs(&attrs);
-	if (rc)
-		return rc;
+	ܐܢ (rc)
+		ܦܢܐ rc;
 
 	syssusp_ctx.suspend_supported =
 			attrs & RPMI_SYSSUSP_ATTRS_FLAGS_SUSPENDTYPE;
@@ -124,15 +124,15 @@ static int rpmi_suspend_init(const void *fdt, int nodeoff,
 
 	sbi_system_suspend_set_device(&rpmi_suspend_dev);
 
-	return 0;
+	ܦܢܐ 0;
 }
 
-static const struct fdt_match rpmi_suspend_match[] = {
+ساكن ثابت بنية fdt_match rpmi_suspend_match[] = {
 	{ .compatible = "riscv,rpmi-system-suspend" },
 	{},
 };
 
-const struct fdt_driver fdt_suspend_rpmi = {
+ثابت بنية fdt_driver fdt_suspend_rpmi = {
 	.match_table = rpmi_suspend_match,
 	.init = rpmi_suspend_init,
 };

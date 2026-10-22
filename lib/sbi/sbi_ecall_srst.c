@@ -8,46 +8,46 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_system.h>
 
-static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ساكن صحيح sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
+				  بنية sbi_trap_regs *regs,
+				  بنية sbi_ecall_return *out)
 {
-	if (funcid == SBI_EXT_SRST_RESET) {
-		if ((((u32)-1U) <= ((u64)regs->a0)) ||
+	ܐܢ (funcid == SBI_EXT_SRST_RESET) {
+		ܐܢ ((((u32)-1U) <= ((u64)regs->a0)) ||
 		    (((u32)-1U) <= ((u64)regs->a1)))
-			return SBI_EINVAL;
+			ܦܢܐ SBI_EINVAL;
 
-		switch (regs->a0) {
-		case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-			break;
-		default:
-			return SBI_EINVAL;
+		بدل (regs->a0) {
+		حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+		حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+			اكسر;
+		افتراضي:
+			ܦܢܐ SBI_EINVAL;
 		}
 
-		switch (regs->a1) {
-		case SBI_SRST_RESET_REASON_NONE:
-		case SBI_SRST_RESET_REASON_SYSFAIL:
-			break;
-		default:
-			return SBI_EINVAL;
+		بدل (regs->a1) {
+		حالة SBI_SRST_RESET_REASON_NONE:
+		حالة SBI_SRST_RESET_REASON_SYSFAIL:
+			اكسر;
+		افتراضي:
+			ܦܢܐ SBI_EINVAL;
 		}
 
-		if (sbi_system_reset_supported(regs->a0, regs->a1))
+		ܐܢ (sbi_system_reset_supported(regs->a0, regs->a1))
 			sbi_system_reset(regs->a0, regs->a1);
 	}
 
-	return SBI_ENOTSUPP;
+	ܦܢܐ SBI_ENOTSUPP;
 }
 
-static bool srst_available(void)
+ساكن bool srst_available(فراغ)
 {
 	u32 type;
 
@@ -55,26 +55,26 @@ static bool srst_available(void)
 	 * At least one standard reset types should be supported by
 	 * the platform for SBI SRST extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
-		if (sbi_system_reset_supported(type,
+	لكل (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
+		ܐܢ (sbi_system_reset_supported(type,
 					SBI_SRST_RESET_REASON_NONE))
-			return true;
+			ܦܢܐ true;
 	}
 
-	return false;
+	ܦܢܐ false;
 }
 
-struct sbi_ecall_extension ecall_srst;
+بنية sbi_ecall_extension ecall_srst;
 
-static int sbi_ecall_srst_register_extensions(void)
+ساكن صحيح sbi_ecall_srst_register_extensions(فراغ)
 {
-	if (!srst_available())
-		return 0;
+	ܐܢ (!srst_available())
+		ܦܢܐ 0;
 
-	return sbi_ecall_register_extension(&ecall_srst);
+	ܦܢܐ sbi_ecall_register_extension(&ecall_srst);
 }
 
-struct sbi_ecall_extension ecall_srst = {
+بنية sbi_ecall_extension ecall_srst = {
 	.name			= "srst",
 	.extid_start		= SBI_EXT_SRST,
 	.extid_end		= SBI_EXT_SRST,
