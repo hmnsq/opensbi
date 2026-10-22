@@ -8,7 +8,7 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#അന്തര്ഭാവ <sbi/sbi_bitops.h>
 
 #define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
 
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
+unsigned long find_first_bit(സ്ഥിരം unsigned long *addr,
 			     unsigned long size)
 {
-	const unsigned long *p = addr;
+	സ്ഥിരം unsigned long *p = addr;
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
+	ആകുമ്പോൾ (size & ~(BITS_PER_LONG-1)) {
+		എങ്കിൽ ((tmp = *(p++)))
+			പോകുക found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	എങ്കിൽ (!size)
+		തിരികെ result;
 
 	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	എങ്കിൽ (tmp == 0UL)		/* Are any bits set? */
+		തിരികെ result + size;	/* Nope. */
 found:
-	return result + sbi_ffs(tmp);
+	തിരികെ result + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
+unsigned long find_first_zero_bit(സ്ഥിരം unsigned long *addr,
 				  unsigned long size)
 {
-	const unsigned long *p = addr;
+	സ്ഥിരം unsigned long *p = addr;
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
+	ആകുമ്പോൾ (size & ~(BITS_PER_LONG-1)) {
+		എങ്കിൽ (~(tmp = *(p++)))
+			പോകുക found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	എങ്കിൽ (!size)
+		തിരികെ result;
 
 	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	എങ്കിൽ (tmp == ~0UL)	/* Are any bits zero? */
+		തിരികെ result + size;	/* Nope. */
 found:
-	return result + sbi_ffz(tmp);
+	തിരികെ result + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
+unsigned long find_last_bit(സ്ഥിരം unsigned long *addr,
 			    unsigned long size)
 {
-	unsigned long words;
+	unsigned long വാക്കുകൾ;
 	unsigned long tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	വാക്കുകൾ = size / BITS_PER_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
+	എങ്കിൽ (size & (BITS_PER_LONG-1)) {
+		tmp = (addr[വാക്കുകൾ] & (~0UL >> (BITS_PER_LONG
 					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+		എങ്കിൽ (tmp)
+			പോകുക found;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
+	ആകുമ്പോൾ (വാക്കുകൾ) {
+		tmp = addr[--വാക്കുകൾ];
+		എങ്കിൽ (tmp) {
 found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+			തിരികെ വാക്കുകൾ * BITS_PER_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	തിരികെ size;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
+unsigned long find_next_bit(സ്ഥിരം unsigned long *addr,
 			    unsigned long size, unsigned long offset)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
+	സ്ഥിരം unsigned long *p = addr + BITOP_WORD(offset);
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	എങ്കിൽ (offset >= size)
+		തിരികെ size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	എങ്കിൽ (offset) {
 		tmp = *(p++);
 		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
+		എങ്കിൽ (size < BITS_PER_LONG)
+			പോകുക found_first;
+		എങ്കിൽ (tmp)
+			പോകുക found_നടുവ്;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
+	ആകുമ്പോൾ (size & ~(BITS_PER_LONG-1)) {
+		എങ്കിൽ ((tmp = *(p++)))
+			പോകുക found_നടുവ്;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	എങ്കിൽ (!size)
+		തിരികെ result;
 	tmp = *p;
 
 found_first:
 	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+	എങ്കിൽ (tmp == 0UL)		/* Are any bits set? */
+		തിരികെ result + size;	/* Nope. */
+found_നടുവ്:
+	തിരികെ result + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
+unsigned long find_next_zero_bit(സ്ഥിരം unsigned long *addr,
 				 unsigned long size,
 				 unsigned long offset)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
+	സ്ഥിരം unsigned long *p = addr + BITOP_WORD(offset);
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	എങ്കിൽ (offset >= size)
+		തിരികെ size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	എങ്കിൽ (offset) {
 		tmp = *(p++);
 		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
+		എങ്കിൽ (size < BITS_PER_LONG)
+			പോകുക found_first;
+		എങ്കിൽ (~tmp)
+			പോകുക found_നടുവ്;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
+	ആകുമ്പോൾ (size & ~(BITS_PER_LONG-1)) {
+		എങ്കിൽ (~(tmp = *(p++)))
+			പോകുക found_നടുവ്;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	എങ്കിൽ (!size)
+		തിരികെ result;
 	tmp = *p;
 
 found_first:
 	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+	എങ്കിൽ (tmp == ~0UL)	/* Are any bits zero? */
+		തിരികെ result + size;	/* Nope. */
+found_നടുവ്:
+	തിരികെ result + sbi_ffz(tmp);
 }

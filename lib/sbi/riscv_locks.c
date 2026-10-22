@@ -5,18 +5,18 @@
  * Copyright (c) 2021 Christoph Müllner <cmuellner@linux.com>
  */
 
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_locks.h>
+#അന്തര്ഭാവ <sbi/riscv_barrier.h>
+#അന്തര്ഭാവ <sbi/riscv_locks.h>
 
-static inline bool spin_lock_unlocked(spinlock_t lock)
+സ്ഥിതം വരിയിൽ bool spin_lock_unlocked(spinlock_t lock)
 {
-	return lock.owner == lock.next;
+	തിരികെ lock.owner == lock.next;
 }
 
 bool spin_lock_check(spinlock_t *lock)
 {
 	RISCV_FENCE(r, rw);
-	return !spin_lock_unlocked(*lock);
+	തിരികെ !spin_lock_unlocked(*lock);
 }
 
 bool spin_trylock(spinlock_t *lock)
@@ -42,10 +42,10 @@ bool spin_trylock(spinlock_t *lock)
 		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
 		: "memory");
 
-	return l0 == 0;
+	തിരികെ l0 == 0;
 }
 
-void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+ശൂന്യം spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 {
 	unsigned long inc = 1u << TICKET_SHIFT;
 	unsigned long mask = 0xffffu;
@@ -53,18 +53,18 @@ void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 
 	__asm__ __volatile__(
 		/* Atomically increment the next ticket. */
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#എങ്കിൽ defined(__riscv_atomic) || defined(__riscv_zaamo)
 		"	amoadd.w.aqrl	%0, %4, %3\n"
-#elif defined(__riscv_zalrsc)
+#അല്ലെങ്കിലെങ്കിൽ defined(__riscv_zalrsc)
 		"3:	lr.w.aqrl	%0, %3\n"
-#if __riscv_xlen == 64
+#എങ്കിൽ __riscv_xlen == 64
 		"	addw	%1, %0, %4\n"
-#elif __riscv_xlen == 32
+#അല്ലെങ്കിലെങ്കിൽ __riscv_xlen == 32
 		"	add	%1, %0, %4\n"
 #endif
 		"	sc.w.aqrl	%1, %1, %3\n"
 		"	bnez	%1, 3b\n"
-#else
+#അല്ലെങ്കിൽ
 #error "need A or Zaamo or Zalrsc"
 #endif
 
@@ -84,7 +84,7 @@ void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 		: "memory");
 }
 
-void spin_unlock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+ശൂന്യം spin_unlock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 {
 	__smp_store_release(&lock->owner, lock->owner + 1);
 }

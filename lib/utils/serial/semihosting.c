@@ -8,10 +8,10 @@
  *   Kautuk Consul <kconsul@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/serial/semihosting.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi_utils/serial/semihosting.h>
 
 #define SYSOPEN     0x01
 #define SYSWRITEC   0x03
@@ -20,12 +20,12 @@
 #define SYSREADC    0x07
 #define SYSERRNO	0x13
 
-static long semihosting_trap(int sysnum, void *addr)
+സ്ഥിതം long semihosting_trap(പൂർണ്ണസംഖ്യ sysnum, ശൂന്യം *addr)
 {
-	register int ret asm ("a0") = sysnum;
-	register void *param0 asm ("a1") = addr;
+	രജിസ്റ്റർ പൂർണ്ണസംഖ്യ ret asm ("a0") = sysnum;
+	രജിസ്റ്റർ ശൂന്യം *param0 asm ("a1") = addr;
 
-	asm volatile (
+	asm അസ്ഥിര (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -37,22 +37,22 @@ static long semihosting_trap(int sysnum, void *addr)
 		"	.option pop\n"
 		: "+r" (ret) : "r" (param0) : "memory");
 
-	return ret;
+	തിരികെ ret;
 }
 
-static bool _semihosting_enabled = true;
-static bool try_semihosting = true;
+സ്ഥിതം bool _semihosting_enabled = true;
+സ്ഥിതം bool try_semihosting = true;
 
-bool semihosting_enabled(void)
+bool semihosting_enabled(ശൂന്യം)
 {
-	register int ret asm ("a0") = SYSERRNO;
-	register void *param0 asm ("a1") = NULL;
+	രജിസ്റ്റർ പൂർണ്ണസംഖ്യ ret asm ("a0") = SYSERRNO;
+	രജിസ്റ്റർ ശൂന്യം *param0 asm ("a1") = ശൂന്യ;
 	unsigned long tmp = 0;
 
-	if (!try_semihosting)
-		return _semihosting_enabled;
+	എങ്കിൽ (!try_semihosting)
+		തിരികെ _semihosting_enabled;
 
-	asm volatile (
+	asm അസ്ഥിര (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -81,26 +81,26 @@ bool semihosting_enabled(void)
 		: "r" (param0) : "memory");
 
 	try_semihosting = false;
-	return _semihosting_enabled;
+	തിരികെ _semihosting_enabled;
 }
 
-static int semihosting_errno(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ semihosting_errno(ശൂന്യം)
 {
-	long ret = semihosting_trap(SYSERRNO, NULL);
+	long ret = semihosting_trap(SYSERRNO, ശൂന്യ);
 
-	if (ret > 0)
-		return -ret;
-	return SBI_EIO;
+	എങ്കിൽ (ret > 0)
+		തിരികെ -ret;
+	തിരികെ SBI_EIO;
 }
 
-static int semihosting_infd = SBI_ENODEV;
-static int semihosting_outfd = SBI_ENODEV;
+സ്ഥിതം പൂർണ്ണസംഖ്യ semihosting_infd = SBI_ENODEV;
+സ്ഥിതം പൂർണ്ണസംഖ്യ semihosting_outfd = SBI_ENODEV;
 
-static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
+സ്ഥിതം long semihosting_open(സ്ഥിരം അക്ഷരം *fname, എണ്ണൽ semihosting_open_mode mode)
 {
 	long fd;
-	struct semihosting_open_s {
-		const char *fname;
+	ഘടന semihosting_open_s {
+		സ്ഥിരം അക്ഷരം *fname;
 		unsigned long mode;
 		size_t len;
 	} open;
@@ -111,9 +111,9 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
 
 	/* Open the file on the host */
 	fd = semihosting_trap(SYSOPEN, &open);
-	if (fd == -1)
-		return semihosting_errno();
-	return fd;
+	എങ്കിൽ (fd == -1)
+		തിരികെ semihosting_errno();
+	തിരികെ fd;
 }
 
 /**
@@ -122,88 +122,88 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
  * @memp: Pointer to a buffer of memory of at least @len bytes
  * @len: The number of bytes to read or write
  */
-struct semihosting_rdwr_s {
+ഘടന semihosting_rdwr_s {
 	long fd;
-	void *memp;
+	ശൂന്യം *memp;
 	size_t len;
 };
 
-static long semihosting_read(long fd, void *memp, size_t len)
+സ്ഥിതം long semihosting_read(long fd, ശൂന്യം *memp, size_t len)
 {
 	long ret;
-	struct semihosting_rdwr_s read;
+	ഘടന semihosting_rdwr_s പഠ;
 
-	read.fd = fd;
-	read.memp = memp;
-	read.len = len;
+	പഠ.fd = fd;
+	പഠ.memp = memp;
+	പഠ.len = len;
 
-	ret = semihosting_trap(SYSREAD, &read);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ret = semihosting_trap(SYSREAD, &പഠ);
+	എങ്കിൽ (ret < 0)
+		തിരികെ semihosting_errno();
+	തിരികെ len - ret;
 }
 
-static long semihosting_write(long fd, const void *memp, size_t len)
+സ്ഥിതം long semihosting_write(long fd, സ്ഥിരം ശൂന്യം *memp, size_t len)
 {
 	long ret;
-	struct semihosting_rdwr_s write;
+	ഘടന semihosting_rdwr_s ലിഖ;
 
-	write.fd = fd;
-	write.memp = (void *)memp;
-	write.len = len;
+	ലിഖ.fd = fd;
+	ലിഖ.memp = (ശൂന്യം *)memp;
+	ലിഖ.len = len;
 
-	ret = semihosting_trap(SYSWRITE, &write);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ret = semihosting_trap(SYSWRITE, &ലിഖ);
+	എങ്കിൽ (ret < 0)
+		തിരികെ semihosting_errno();
+	തിരികെ len - ret;
 }
 
 /* clang-format on */
 
-static unsigned long semihosting_puts(const char *str, unsigned long len)
+സ്ഥിതം unsigned long semihosting_puts(സ്ഥിരം അക്ഷരം *str, unsigned long len)
 {
-	char ch;
+	അക്ഷരം ch;
 	long ret;
 	unsigned long i;
 
-	if (semihosting_outfd < 0) {
-		for (i = 0; i < len; i++) {
+	എങ്കിൽ (semihosting_outfd < 0) {
+		വേണ്ടി (i = 0; i < len; i++) {
 			ch = str[i];
 			semihosting_trap(SYSWRITEC, &ch);
 		}
 		ret = len;
-	} else
+	} അല്ലെങ്കിൽ
 		ret = semihosting_write(semihosting_outfd, str, len);
 
-	return (ret < 0) ? 0 : ret;
+	തിരികെ (ret < 0) ? 0 : ret;
 }
 
-static int semihosting_getc(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ semihosting_getc(ശൂന്യം)
 {
-	char ch = 0;
-	int ret;
+	അക്ഷരം ch = 0;
+	പൂർണ്ണസംഖ്യ ret;
 
-	if (semihosting_infd < 0)  {
-		ret = semihosting_trap(SYSREADC, NULL);
+	എങ്കിൽ (semihosting_infd < 0)  {
+		ret = semihosting_trap(SYSREADC, ശൂന്യ);
 		ret = ret < 0 ? -1 : ret;
-	} else
+	} അല്ലെങ്കിൽ
 		ret = semihosting_read(semihosting_infd, &ch, 1) > 0 ? ch : -1;
 
-	return ret;
+	തിരികെ ret;
 }
 
-static struct sbi_console_device semihosting_console = {
+സ്ഥിതം ഘടന sbi_console_device semihosting_console = {
 	.name = "semihosting",
 	.console_puts = semihosting_puts,
 	.console_getc = semihosting_getc
 };
 
-int semihosting_init(void)
+പൂർണ്ണസംഖ്യ semihosting_init(ശൂന്യം)
 {
 	semihosting_infd = semihosting_open(":tt", MODE_READ);
 	semihosting_outfd = semihosting_open(":tt", MODE_WRITE);
 
 	sbi_console_set_device(&semihosting_console);
 
-	return 0;
+	തിരികെ 0;
 }

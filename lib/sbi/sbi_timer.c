@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/riscv_barrier.h>
+#അന്തര്ഭാവ <sbi/riscv_encoding.h>
+#അന്തര്ഭാവ <sbi/riscv_locks.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_hart.h>
+#അന്തര്ഭാവ <sbi/sbi_hartmask.h>
+#അന്തര്ഭാവ <sbi/sbi_platform.h>
+#അന്തര്ഭാവ <sbi/sbi_pmu.h>
+#അന്തര്ഭാവ <sbi/sbi_scratch.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
 
-struct timer_state {
+ഘടന timer_state {
 	u64 time_delta;
 	spinlock_t event_list_lock;
-	struct sbi_dlist event_list GUARDED_BY(&event_list_lock);
-	struct sbi_timer_event smode_ev;
+	ഘടന sbi_dlist event_list GUARDED_BY(&event_list_lock);
+	ഘടന sbi_timer_event smode_ev;
 };
 
-static unsigned long timer_state_off;
-static u64 (*get_time_val)(void);
-static const struct sbi_timer_device *timer_dev = NULL;
+സ്ഥിതം unsigned long timer_state_off;
+സ്ഥിതം u64 (*get_time_val)(ശൂന്യം);
+സ്ഥിതം സ്ഥിരം ഘടന sbi_timer_device *timer_dev = ശൂന്യ;
 
-#if __riscv_xlen == 32
-static u64 get_ticks(void)
+#എങ്കിൽ __riscv_xlen == 32
+സ്ഥിതം u64 get_ticks(ശൂന്യം)
 {
 	u32 lo, hi, tmp;
 	__asm__ __volatile__("1:\n"
@@ -41,19 +41,19 @@ static u64 get_ticks(void)
 			     "rdtimeh %2\n"
 			     "bne %0, %2, 1b"
 			     : "=&r"(hi), "=&r"(lo), "=&r"(tmp));
-	return ((u64)hi << 32) | lo;
+	തിരികെ ((u64)hi << 32) | lo;
 }
-#else
-static u64 get_ticks(void)
+#അല്ലെങ്കിൽ
+സ്ഥിതം u64 get_ticks(ശൂന്യം)
 {
 	unsigned long n;
 
 	__asm__ __volatile__("rdtime %0" : "=r"(n));
-	return n;
+	തിരികെ n;
 }
 #endif
 
-static void nop_delay_fn(void *opaque)
+സ്ഥിതം ശൂന്യം nop_delay_fn(ശൂന്യം *opaque)
 {
 	cpu_relax();
 }
@@ -64,161 +64,161 @@ u64 sbi_timer_compute_delta(ulong units, u64 unit_freq)
 
 	delta = ((u64)timer_dev->timer_freq * (u64)units);
 	delta = delta / unit_freq;
-	return delta;
+	തിരികെ delta;
 }
 
-void sbi_timer_delay_loop(ulong units, u64 unit_freq,
-			  void (*delay_fn)(void *), void *opaque)
+ശൂന്യം sbi_timer_delay_loop(ulong units, u64 unit_freq,
+			  ശൂന്യം (*delay_fn)(ശൂന്യം *), ശൂന്യം *opaque)
 {
 	u64 start_val, delta;
 
 	/* Do nothing if we don't have timer device */
-	if (!timer_dev || !get_time_val) {
+	എങ്കിൽ (!timer_dev || !get_time_val) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return;
+		തിരികെ;
 	}
 
 	/* Save starting timer value */
 	start_val = get_time_val();
 
 	/* Use NOP delay function if delay function not available */
-	if (!delay_fn)
+	എങ്കിൽ (!delay_fn)
 		delay_fn = nop_delay_fn;
 
 	/* Busy loop until desired timer value delta reached */
 	delta = sbi_timer_compute_delta(units, unit_freq);
-	while ((get_time_val() - start_val) < delta)
+	ആകുമ്പോൾ ((get_time_val() - start_val) < delta)
 		delay_fn(opaque);
 }
 
-bool sbi_timer_waitms_until(bool (*predicate)(void *), void *arg,
+bool sbi_timer_waitms_until(bool (*predicate)(ശൂന്യം *), ശൂന്യം *arg,
 			    uint64_t timeout_ms)
 {
-	uint64_t start_time = sbi_timer_value();
+	uint64_t start_time = sbi_timer_മൂല്യം();
 	uint64_t ticks =
 		(sbi_timer_get_device()->timer_freq / 1000) *
 		timeout_ms;
-	while(!predicate(arg))
-		if (sbi_timer_value() - start_time  >= ticks)
-			return false;
-	return true;
+	ആകുമ്പോൾ(!predicate(arg))
+		എങ്കിൽ (sbi_timer_മൂല്യം() - start_time  >= ticks)
+			തിരികെ false;
+	തിരികെ true;
 }
 
-unsigned long sbi_timer_frequency(void)
+unsigned long sbi_timer_frequency(ശൂന്യം)
 {
-	const struct sbi_timer_device *timer_dev = sbi_timer_get_device();
+	സ്ഥിരം ഘടന sbi_timer_device *timer_dev = sbi_timer_get_device();
 
-	if (!timer_dev) {
+	എങ്കിൽ (!timer_dev) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return 0;
+		തിരികെ 0;
 	}
 
-	return timer_dev->timer_freq;
+	തിരികെ timer_dev->timer_freq;
 }
 
-u64 sbi_timer_value(void)
+u64 sbi_timer_മൂല്യം(ശൂന്യം)
 {
-	if (get_time_val)
-		return get_time_val();
-	return 0;
+	എങ്കിൽ (get_time_val)
+		തിരികെ get_time_val();
+	തിരികെ 0;
 }
 
-u64 sbi_timer_virt_value(void)
+u64 sbi_timer_virt_മൂല്യം(ശൂന്യം)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 
-	return sbi_timer_value() + tstate->time_delta;
+	തിരികെ sbi_timer_മൂല്യം() + tstate->time_delta;
 }
 
-u64 sbi_timer_get_delta(void)
+u64 sbi_timer_get_delta(ശൂന്യം)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 
-	return tstate->time_delta;
+	തിരികെ tstate->time_delta;
 }
 
-void sbi_timer_set_delta(ulong delta)
+ശൂന്യം sbi_timer_set_delta(ulong delta)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 
-#if __riscv_xlen == 32
+#എങ്കിൽ __riscv_xlen == 32
 	tstate->time_delta &= ~0xffffffffUL;
 	tstate->time_delta |= (u32)delta;
-#else
+#അല്ലെങ്കിൽ
 	tstate->time_delta = delta;
 #endif
 }
 
-#if __riscv_xlen == 32
-void sbi_timer_set_delta_upper(ulong delta_upper)
+#എങ്കിൽ __riscv_xlen == 32
+ശൂന്യം sbi_timer_set_delta_upper(ulong delta_upper)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 
 	tstate->time_delta &= 0xffffffffUL;
 	tstate->time_delta |= (u64)delta_upper << 32;
 }
 #endif
 
-static void __sbi_timer_update_device(struct timer_state *tstate)
+സ്ഥിതം ശൂന്യം __sbi_timer_update_device(ഘടന timer_state *tstate)
 	MUST_HOLD(&tstate->event_list_lock)
 {
-	struct sbi_timer_event *ev;
+	ഘടന sbi_timer_event *ev;
 
-	if (!timer_dev)
-		return;
+	എങ്കിൽ (!timer_dev)
+		തിരികെ;
 
-	if (sbi_list_empty(&tstate->event_list)) {
-		if (timer_dev->timer_event_stop)
+	എങ്കിൽ (sbi_list_empty(&tstate->event_list)) {
+		എങ്കിൽ (timer_dev->timer_event_stop)
 			timer_dev->timer_event_stop();
 		csr_clear(CSR_MIE, MIP_MTIP);
-	} else {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (timer_dev->timer_event_start)
+	} അല്ലെങ്കിൽ {
+		ev = sbi_list_first_entry(&tstate->event_list, ഘടന sbi_timer_event, head);
+		എങ്കിൽ (timer_dev->timer_event_start)
 			timer_dev->timer_event_start(ev->time_stamp);
 		csr_set(CSR_MIE, MIP_MTIP);
 	}
 }
 
-static void __sbi_timer_event_stop(struct sbi_timer_event *ev)
+സ്ഥിതം ശൂന്യം __sbi_timer_event_stop(ഘടന sbi_timer_event *ev)
 {
-	if (ev->hart_index > -1) {
+	എങ്കിൽ (ev->hart_index > -1) {
 		sbi_list_del(&ev->head);
 		ev->hart_index = -1;
 	}
 }
 
-static void __sbi_timer_event_start(struct timer_state *tstate,
-				    struct sbi_timer_event *ev, u64 next_event)
+സ്ഥിതം ശൂന്യം __sbi_timer_event_start(ഘടന timer_state *tstate,
+				    ഘടന sbi_timer_event *ev, u64 next_event)
 	MUST_HOLD(&tstate->event_list_lock)
 {
-	struct sbi_timer_event *tev, *next_ev = NULL;
+	ഘടന sbi_timer_event *tev, *next_ev = ശൂന്യ;
 
 	/* Find where to insert the event in per-HART event list */
 	sbi_list_for_each_entry(tev, &tstate->event_list, head) {
-		if (next_event < tev->time_stamp) {
+		എങ്കിൽ (next_event < tev->time_stamp) {
 			next_ev = tev;
-			break;
+			നിർത്തുക;
 		}
 	}
 
 	/* Insert the event in per-HART event list */
 	ev->hart_index = current_hartindex();
 	ev->time_stamp = next_event;
-	if (next_ev)
+	എങ്കിൽ (next_ev)
 		sbi_list_add(&ev->head, &next_ev->head);
-	else
+	അല്ലെങ്കിൽ
 		sbi_list_add_tail(&ev->head, &tstate->event_list);
 }
 
-void sbi_timer_event_start(struct sbi_timer_event *ev, u64 next_event)
+ശൂന്യം sbi_timer_event_start(ഘടന sbi_timer_event *ev, u64 next_event)
 {
-	struct timer_state *tstate;
+	ഘടന timer_state *tstate;
 
-	if (!ev)
-		return;
+	എങ്കിൽ (!ev)
+		തിരികെ;
 
 	/* Ensure that event is not on the per-HART event list */
-	if (ev->hart_index > -1) {
+	എങ്കിൽ (ev->hart_index > -1) {
 		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
 						timer_state_off);
 		spin_lock(&tstate->event_list_lock);
@@ -235,17 +235,17 @@ void sbi_timer_event_start(struct sbi_timer_event *ev, u64 next_event)
 	spin_unlock(&tstate->event_list_lock);
 }
 
-void sbi_timer_event_stop(struct sbi_timer_event *ev)
+ശൂന്യം sbi_timer_event_stop(ഘടന sbi_timer_event *ev)
 {
-	struct timer_state *tstate;
-	int ev_hart_index;
+	ഘടന timer_state *tstate;
+	പൂർണ്ണസംഖ്യ ev_hart_index;
 
-	if (!ev)
-		return;
+	എങ്കിൽ (!ev)
+		തിരികെ;
 
 	/* Ensure that event is not on the per-HART event list */
 	ev_hart_index = ev->hart_index;
-	if (ev->hart_index > -1) {
+	എങ്കിൽ (ev->hart_index > -1) {
 		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
 						timer_state_off);
 		spin_lock(&tstate->event_list_lock);
@@ -254,7 +254,7 @@ void sbi_timer_event_stop(struct sbi_timer_event *ev)
 	}
 
 	/* Re-program timer device on the current HART */
-	if (ev_hart_index == current_hartindex()) {
+	എങ്കിൽ (ev_hart_index == current_hartindex()) {
 		tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 		spin_lock(&tstate->event_list_lock);
 		__sbi_timer_update_device(tstate);
@@ -262,27 +262,27 @@ void sbi_timer_event_stop(struct sbi_timer_event *ev)
 	}
 }
 
-static void sbi_timer_smode_event_callback(struct sbi_timer_event *ev,
-					   struct sbi_timer_event_restart *restart)
+സ്ഥിതം ശൂന്യം sbi_timer_smode_event_callback(ഘടന sbi_timer_event *ev,
+					   ഘടന sbi_timer_event_restart *restart)
 {
 	/*
 	 * If sstc extension is available, supervisor can receive the timer
 	 * directly without M-mode come in between. This function should
 	 * only invoked if M-mode programs the timer for its own purpose.
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+	എങ്കിൽ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
 		csr_set(CSR_MIP, MIP_STIP);
 }
 
-static void sbi_timer_smode_event_cleanup(struct sbi_timer_event *ev)
+സ്ഥിതം ശൂന്യം sbi_timer_smode_event_cleanup(ഘടന sbi_timer_event *ev)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+	എങ്കിൽ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
 		csr_clear(CSR_MIP, MIP_STIP);
 }
 
-void sbi_timer_smode_event_start(u64 next_event)
+ശൂന്യം sbi_timer_smode_event_start(u64 next_event)
 {
-	struct timer_state *tstate = sbi_scratch_offset_ptr(sbi_scratch_thishart_ptr(),
+	ഘടന timer_state *tstate = sbi_scratch_offset_ptr(sbi_scratch_thishart_ptr(),
 							    timer_state_off);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SET_TIMER);
@@ -291,42 +291,42 @@ void sbi_timer_smode_event_start(u64 next_event)
 	 * Update the stimecmp directly if available. This allows
 	 * the older software to leverage sstc extension on newer hardware.
 	 */
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
+	എങ്കിൽ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
 		csr_write64(CSR_STIMECMP, next_event);
-	} else {
+	} അല്ലെങ്കിൽ {
 		csr_clear(CSR_MIP, MIP_STIP);
 		sbi_timer_event_start(&tstate->smode_ev, next_event);
 	}
 }
 
-void sbi_timer_process(void)
+ശൂന്യം sbi_timer_process(ശൂന്യം)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event_restart restart;
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന sbi_timer_event_restart restart;
 	SBI_LIST_HEAD(restart_list);
-	struct sbi_timer_event *ev;
+	ഘടന sbi_timer_event *ev;
 
 	spin_lock(&tstate->event_list_lock);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (ev->time_stamp > sbi_timer_value())
-			break;
+	ആകുമ്പോൾ (!sbi_list_empty(&tstate->event_list)) {
+		ev = sbi_list_first_entry(&tstate->event_list, ഘടന sbi_timer_event, head);
+		എങ്കിൽ (ev->time_stamp > sbi_timer_മൂല്യം())
+			നിർത്തുക;
 
 		__sbi_timer_event_stop(ev);
-		if (ev->callback) {
+		എങ്കിൽ (ev->callback) {
 			restart.required = false;
 			restart.next_event = 0;
 			ev->callback(ev, &restart);
-			if (restart.required) {
+			എങ്കിൽ (restart.required) {
 				ev->time_stamp = restart.next_event;
 				sbi_list_add_tail(&ev->head, &restart_list);
 			}
 		}
 	}
 
-	while (!sbi_list_empty(&restart_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
+	ആകുമ്പോൾ (!sbi_list_empty(&restart_list)) {
+		ev = sbi_list_first_entry(&tstate->event_list, ഘടന sbi_timer_event, head);
 		sbi_list_del(&ev->head);
 		__sbi_timer_event_start(tstate, ev, ev->time_stamp);
 	}
@@ -336,42 +336,42 @@ void sbi_timer_process(void)
 	spin_unlock(&tstate->event_list_lock);
 }
 
-const struct sbi_timer_device *sbi_timer_get_device(void)
+സ്ഥിരം ഘടന sbi_timer_device *sbi_timer_get_device(ശൂന്യം)
 {
-	return timer_dev;
+	തിരികെ timer_dev;
 }
 
-void sbi_timer_set_device(const struct sbi_timer_device *dev)
+ശൂന്യം sbi_timer_set_device(സ്ഥിരം ഘടന sbi_timer_device *dev)
 {
-	if (!dev || timer_dev)
-		return;
+	എങ്കിൽ (!dev || timer_dev)
+		തിരികെ;
 
 	timer_dev = dev;
-	if (!get_time_val && timer_dev->timer_value)
-		get_time_val = timer_dev->timer_value;
+	എങ്കിൽ (!get_time_val && timer_dev->timer_മൂല്യം)
+		get_time_val = timer_dev->timer_മൂല്യം;
 }
 
-int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)
+പൂർണ്ണസംഖ്യ sbi_timer_init(ഘടന sbi_scratch *scratch, bool cold_boot)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct timer_state *tstate;
-	int ret;
+	സ്ഥിരം ഘടന sbi_platform *plat = sbi_platform_ptr(scratch);
+	ഘടന timer_state *tstate;
+	പൂർണ്ണസംഖ്യ ret;
 
-	if (cold_boot) {
-		timer_state_off = sbi_scratch_alloc_offset(sizeof(*tstate));
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+	എങ്കിൽ (cold_boot) {
+		timer_state_off = sbi_scratch_alloc_offset(വലുപ്പം(*tstate));
+		എങ്കിൽ (!timer_state_off)
+			തിരികെ SBI_ENOMEM;
 
-		if (sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME))
+		എങ്കിൽ (sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME))
 			get_time_val = get_ticks;
 
 		ret = sbi_platform_timer_init(plat);
-		if (ret)
-			return ret;
-	} else {
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+		എങ്കിൽ (ret)
+			തിരികെ ret;
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (!timer_state_off)
+			തിരികെ SBI_ENOMEM;
 	}
 
 	tstate = sbi_scratch_offset_ptr(scratch, timer_state_off);
@@ -380,28 +380,28 @@ int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)
 	SBI_INIT_LIST_HEAD(&tstate->event_list);
 	SBI_INIT_TIMER_EVENT(&tstate->smode_ev,
 			     sbi_timer_smode_event_callback,
-			     sbi_timer_smode_event_cleanup, NULL);
+			     sbi_timer_smode_event_cleanup, ശൂന്യ);
 
-	if (timer_dev && timer_dev->warm_init) {
+	എങ്കിൽ (timer_dev && timer_dev->warm_init) {
 		ret = timer_dev->warm_init();
-		if (ret)
-			return ret;
+		എങ്കിൽ (ret)
+			തിരികെ ret;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
-void sbi_timer_exit(struct sbi_scratch *scratch)
+ശൂന്യം sbi_timer_exit(ഘടന sbi_scratch *scratch)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event *ev;
+	ഘടന timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ഘടന sbi_timer_event *ev;
 
 	spin_lock(&tstate->event_list_lock);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
+	ആകുമ്പോൾ (!sbi_list_empty(&tstate->event_list)) {
+		ev = sbi_list_first_entry(&tstate->event_list, ഘടന sbi_timer_event, head);
 		__sbi_timer_event_stop(ev);
-		if (ev->cleanup)
+		എങ്കിൽ (ev->cleanup)
 			ev->cleanup(ev);
 	}
 

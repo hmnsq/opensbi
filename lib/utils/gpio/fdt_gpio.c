@@ -7,85 +7,85 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#അന്തര്ഭാവ <libfdt.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/gpio/fdt_gpio.h>
 
 /* List of FDT gpio drivers generated at compile time */
-extern const struct fdt_driver *const fdt_gpio_drivers[];
+ബാഹ്യ സ്ഥിരം ഘടന fdt_driver *സ്ഥിരം fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_gpio_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	എങ്കിൽ (!fdt_getprop(fdt, nodeoff, "gpio-controller", ശൂന്യ))
+		തിരികെ SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	തിരികെ fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
-			      struct gpio_chip **out_chip)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_gpio_chip_find(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+			      ഘടന gpio_chip **out_chip)
 {
-	int rc;
-	struct gpio_chip *chip = gpio_chip_find(nodeoff);
+	പൂർണ്ണസംഖ്യ rc;
+	ഘടന gpio_chip *chip = gpio_chip_find(nodeoff);
 
-	if (!chip) {
+	എങ്കിൽ (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		എങ്കിൽ (rc)
+			തിരികെ rc;
 
 		/* Try to find GPIO chip again */
 		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		എങ്കിൽ (!chip)
+			തിരികെ SBI_ENOSYS;
 	}
 
-	if (out_chip)
+	എങ്കിൽ (out_chip)
 		*out_chip = chip;
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
-		     struct gpio_pin *out_pin)
+പൂർണ്ണസംഖ്യ fdt_gpio_pin_get(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff, പൂർണ്ണസംഖ്യ index,
+		     ഘടന gpio_pin *out_pin)
 {
-	int rc;
-	const struct fdt_gpio *drv;
-	struct gpio_chip *chip = NULL;
-	struct fdt_phandle_args pargs;
+	പൂർണ്ണസംഖ്യ rc;
+	സ്ഥിരം ഘടന fdt_gpio *drv;
+	ഘടന gpio_chip *chip = ശൂന്യ;
+	ഘടന fdt_phandle_args pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	എങ്കിൽ (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
+		തിരികെ SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
+	pargs.കണ്ണി_offset = pargs.args_എണ്ണം = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	rc = fdt_gpio_chip_find(fdt, pargs.കണ്ണി_offset, &chip);
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	എങ്കിൽ (!drv || !drv->xlate)
+		തിരികെ SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	തിരികെ drv->xlate(chip, &pargs, out_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
-			  const struct fdt_phandle_args *pargs,
-			  struct gpio_pin *out_pin)
+പൂർണ്ണസംഖ്യ fdt_gpio_simple_xlate(ഘടന gpio_chip *chip,
+			  സ്ഥിരം ഘടന fdt_phandle_args *pargs,
+			  ഘടന gpio_pin *out_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	എങ്കിൽ ((pargs->args_എണ്ണം < 2) || (chip->ngpio <= pargs->args[0]))
+		തിരികെ SBI_EINVAL;
 
 	out_pin->chip = chip;
 	out_pin->offset = pargs->args[0];
 	out_pin->flags = pargs->args[1];
-	return 0;
+	തിരികെ 0;
 }

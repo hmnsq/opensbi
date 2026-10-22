@@ -4,214 +4,214 @@
  * Copyright (c) 2025 Ventana Micro Systems Inc.
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_hart_protection.h>
+#അന്തര്ഭാവ <sbi/sbi_scratch.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
 
-static SBI_LIST_HEAD(hart_protection_list);
+സ്ഥിതം SBI_LIST_HEAD(hart_protection_list);
 
-static struct sbi_hart_protection *__hart_memory_protection_best(void)
+സ്ഥിതം ഘടന sbi_hart_protection *__hart_memory_protection_best(ശൂന്യം)
 {
-	struct sbi_hart_protection *pos;
+	ഘടന sbi_hart_protection *pos;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
-			return pos;
+		എങ്കിൽ (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
+			തിരികെ pos;
 	}
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-void sbi_hart_protection_get_str(char *out_str, int out_str_size)
+ശൂന്യം sbi_hart_protection_get_str(അക്ഷരം *out_str, പൂർണ്ണസംഖ്യ out_str_size)
 {
 	bool memory_protect_done = false;
-	struct sbi_hart_protection *pos;
-	int offset = 0;
+	ഘടന sbi_hart_protection *pos;
+	പൂർണ്ണസംഖ്യ offset = 0;
 
-	if (!out_str || out_str_size <= 0)
-		return;
+	എങ്കിൽ (!out_str || out_str_size <= 0)
+		തിരികെ;
 	sbi_memset(out_str, 0, out_str_size);
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
-			if (memory_protect_done)
-				continue;
+		എങ്കിൽ (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
+			എങ്കിൽ (memory_protect_done)
+				തുടരുക;
 			memory_protect_done = true;
 		}
 		sbi_snprintf(out_str + offset, out_str_size - offset, "%s,", pos->name);
 		offset = offset + sbi_strlen(pos->name) + 1;
 	}
 
-	if (offset)
+	എങ്കിൽ (offset)
 		out_str[offset - 1] = '\0';
-	else
+	അല്ലെങ്കിൽ
 		sbi_strncpy(out_str, "none", out_str_size);
 }
 
-int sbi_hart_protection_register(struct sbi_hart_protection *hprot)
+പൂർണ്ണസംഖ്യ sbi_hart_protection_register(ഘടന sbi_hart_protection *hprot)
 {
-	struct sbi_hart_protection *pos = NULL;
+	ഘടന sbi_hart_protection *pos = ശൂന്യ;
 	bool found_pos = false;
 
-	if (!hprot)
-		return SBI_EINVAL;
-	if (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
-		return SBI_EINVAL;
+	എങ്കിൽ (!hprot)
+		തിരികെ SBI_EINVAL;
+	എങ്കിൽ (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
+		തിരികെ SBI_EINVAL;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (hprot->rating > pos->rating) {
+		എങ്കിൽ (hprot->rating > pos->rating) {
 			found_pos = true;
-			break;
+			നിർത്തുക;
 		}
 	}
 
-	if (found_pos)
+	എങ്കിൽ (found_pos)
 		sbi_list_add_tail(&hprot->head, &pos->head);
-	else
+	അല്ലെങ്കിൽ
 		sbi_list_add_tail(&hprot->head, &hart_protection_list);
 
-	return 0;
+	തിരികെ 0;
 }
 
-void sbi_hart_protection_unregister(struct sbi_hart_protection *hprot)
+ശൂന്യം sbi_hart_protection_unregister(ഘടന sbi_hart_protection *hprot)
 {
-	if (!hprot)
-		return;
+	എങ്കിൽ (!hprot)
+		തിരികെ;
 
 	sbi_list_del(&hprot->head);
 }
 
-static int __hart_protection_configure(struct sbi_scratch *scratch,
-				       struct sbi_hart_protection *hprot,
-				       struct sbi_domain *dom)
+സ്ഥിതം പൂർണ്ണസംഖ്യ __hart_protection_configure(ഘടന sbi_scratch *scratch,
+				       ഘടന sbi_hart_protection *hprot,
+				       ഘടന sbi_domain *dom)
 {
-	if (!hprot)
-		return 0;
-	if (!hprot->configure)
-		return SBI_ENOSYS;
+	എങ്കിൽ (!hprot)
+		തിരികെ 0;
+	എങ്കിൽ (!hprot->configure)
+		തിരികെ SBI_ENOSYS;
 
-	return hprot->configure(scratch, dom);
+	തിരികെ hprot->configure(scratch, dom);
 }
 
-static void __hart_protection_unconfigure(struct sbi_scratch *scratch,
-					  struct sbi_hart_protection *hprot,
-					  struct sbi_domain *dom)
+സ്ഥിതം ശൂന്യം __hart_protection_unconfigure(ഘടന sbi_scratch *scratch,
+					  ഘടന sbi_hart_protection *hprot,
+					  ഘടന sbi_domain *dom)
 {
-	if (!hprot || !hprot->unconfigure)
-		return;
+	എങ്കിൽ (!hprot || !hprot->unconfigure)
+		തിരികെ;
 
 	hprot->unconfigure(scratch, dom);
 }
 
-int sbi_hart_protection_configure(struct sbi_scratch *scratch,
-				  struct sbi_domain *dom)
+പൂർണ്ണസംഖ്യ sbi_hart_protection_configure(ഘടന sbi_scratch *scratch,
+				  ഘടന sbi_domain *dom)
 {
 	bool do_configure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	ഘടന sbi_hart_protection *hprot;
+	പൂർണ്ണസംഖ്യ ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_configure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		തിരഞ്ഞെടുപ്പ് (hprot->type) {
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_configure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			നിർത്തുക;
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_ID:
 			do_configure = true;
-			break;
-		default:
-			break;
+			നിർത്തുക;
+		സ്ഥിരസ്ഥിതി:
+			നിർത്തുക;
 		}
-		if (!do_configure)
-			continue;
+		എങ്കിൽ (!do_configure)
+			തുടരുക;
 
 		ret = __hart_protection_configure(scratch, hprot, dom);
-		if (ret)
-			return ret;
+		എങ്കിൽ (ret)
+			തിരികെ ret;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
-void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+ശൂന്യം sbi_hart_protection_unconfigure(ഘടന sbi_scratch *scratch,
+				     ഘടന sbi_domain *dom)
 {
 
 	bool do_unconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
+	ഘടന sbi_hart_protection *hprot;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_unconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		തിരഞ്ഞെടുപ്പ് (hprot->type) {
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_unconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			നിർത്തുക;
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_ID:
 			do_unconfigure = true;
-			break;
-		default:
-			break;
+			നിർത്തുക;
+		സ്ഥിരസ്ഥിതി:
+			നിർത്തുക;
 		}
-		if (!do_unconfigure)
-			continue;
+		എങ്കിൽ (!do_unconfigure)
+			തുടരുക;
 
 		__hart_protection_unconfigure(scratch, hprot, dom);
 	}
 }
 
-int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
-				    struct sbi_domain *current_dom,
-				    struct sbi_domain *next_dom)
+പൂർണ്ണസംഖ്യ sbi_hart_protection_reconfigure(ഘടന sbi_scratch *scratch,
+				    ഘടന sbi_domain *current_dom,
+				    ഘടന sbi_domain *next_dom)
 {
 	bool do_reconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	ഘടന sbi_hart_protection *hprot;
+	പൂർണ്ണസംഖ്യ ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_reconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		തിരഞ്ഞെടുപ്പ് (hprot->type) {
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_reconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			നിർത്തുക;
+		അവസ്ഥ SBI_HART_PROTECTION_TYPE_ID:
 			do_reconfigure = true;
-			break;
-		default:
-			break;
+			നിർത്തുക;
+		സ്ഥിരസ്ഥിതി:
+			നിർത്തുക;
 		}
-		if (!do_reconfigure)
-			continue;
+		എങ്കിൽ (!do_reconfigure)
+			തുടരുക;
 
 		__hart_protection_unconfigure(scratch, hprot, current_dom);
 		ret = __hart_protection_configure(scratch, hprot, next_dom);
-		if (ret)
-			return ret;
+		എങ്കിൽ (ret)
+			തിരികെ ret;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
-int sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
+പൂർണ്ണസംഖ്യ sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	ഘടന sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_map_range)
-		return 0;
+	എങ്കിൽ (!hprot || !hprot->temp_map_range)
+		തിരികെ 0;
 
-	return hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
+	തിരികെ hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
 }
 
-int sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
+പൂർണ്ണസംഖ്യ sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	ഘടന sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_unmap_range)
-		return 0;
+	എങ്കിൽ (!hprot || !hprot->temp_unmap_range)
+		തിരികെ 0;
 
-	return hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
+	തിരികെ hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
 }

@@ -7,9 +7,9 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
@@ -29,46 +29,46 @@
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+സ്ഥിതം അസ്ഥിര അക്ഷരം *altr_juart_base;
 
-static u32 get_reg(u32 offset)
+സ്ഥിതം u32 get_reg(u32 offset)
 {
-	return readl(altr_juart_base + offset);
+	തിരികെ readl(altr_juart_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+സ്ഥിതം ശൂന്യം set_reg(u32 offset, u32 val)
 {
 	writel(val, altr_juart_base + offset);
 }
 
-static void altr_juart_putc(char ch)
+സ്ഥിതം ശൂന്യം altr_juart_putc(അക്ഷരം ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	ആകുമ്പോൾ(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	set_reg(JUART_DATA_OFFSET, (unsigned അക്ഷരം)ch);
 }
 
-static int altr_juart_getc(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ altr_juart_getc(ശൂന്യം)
 {
 	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	എങ്കിൽ (reg & JUART_DATA_RVALID)
+		തിരികെ reg & JUART_DATA_DATA_MASK;
 
-	return -1;
+	തിരികെ -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+സ്ഥിതം ഘടന sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+പൂർണ്ണസംഖ്യ altr_juart_init(unsigned long base)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_base = (അസ്ഥിര അക്ഷരം *)base;
 
 	sbi_console_set_device(&altr_juart_console);
 
-	return 0;
+	തിരികെ 0;
 }

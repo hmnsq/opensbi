@@ -7,11 +7,11 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/uart8250.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_domain.h>
+#അന്തര്ഭാവ <sbi_utils/serial/uart8250.h>
 
 /* clang-format off */
 
@@ -47,76 +47,76 @@
 
 /* clang-format on */
 
-static struct uart8250_device uart8250_dev;
+സ്ഥിതം ഘടന uart8250_device uart8250_dev;
 
-static u32 get_reg(struct uart8250_device *dev, u32 num)
+സ്ഥിതം u32 get_reg(ഘടന uart8250_device *dev, u32 അക്കം)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 offset = അക്കം << dev->reg_shift;
 
-	if (dev->reg_width == 1)
-		return readb(dev->base + offset);
-	else if (dev->reg_width == 2)
-		return readw(dev->base + offset);
-	else
-		return readl(dev->base + offset);
+	എങ്കിൽ (dev->reg_width == 1)
+		തിരികെ readb(dev->base + offset);
+	അല്ലെങ്കിൽ എങ്കിൽ (dev->reg_width == 2)
+		തിരികെ readw(dev->base + offset);
+	അല്ലെങ്കിൽ
+		തിരികെ readl(dev->base + offset);
 }
 
-static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
+സ്ഥിതം ശൂന്യം set_reg(ഘടന uart8250_device *dev, u32 അക്കം, u32 val)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 offset = അക്കം << dev->reg_shift;
 
-	if (dev->reg_width == 1)
+	എങ്കിൽ (dev->reg_width == 1)
 		writeb(val, dev->base + offset);
-	else if (dev->reg_width == 2)
+	അല്ലെങ്കിൽ എങ്കിൽ (dev->reg_width == 2)
 		writew(val, dev->base + offset);
-	else
+	അല്ലെങ്കിൽ
 		writel(val, dev->base + offset);
 }
 
-void uart8250_device_putc(struct uart8250_device *dev, char ch)
+ശൂന്യം uart8250_device_putc(ഘടന uart8250_device *dev, അക്ഷരം ch)
 {
-	while ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	ആകുമ്പോൾ ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
 		;
 
 	set_reg(dev, UART_THR_OFFSET, ch);
 }
 
-static void uart8250_putc(char ch)
+സ്ഥിതം ശൂന്യം uart8250_putc(അക്ഷരം ch)
 {
-	return uart8250_device_putc(&uart8250_dev, ch);
+	തിരികെ uart8250_device_putc(&uart8250_dev, ch);
 }
 
-int uart8250_device_getc(struct uart8250_device *dev)
+പൂർണ്ണസംഖ്യ uart8250_device_getc(ഘടന uart8250_device *dev)
 {
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(dev, UART_RBR_OFFSET);
-	return -1;
+	എങ്കിൽ (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+		തിരികെ get_reg(dev, UART_RBR_OFFSET);
+	തിരികെ -1;
 }
 
-static int uart8250_getc(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ uart8250_getc(ശൂന്യം)
 {
-	return uart8250_device_getc(&uart8250_dev);
+	തിരികെ uart8250_device_getc(&uart8250_dev);
 }
 
-static struct sbi_console_device uart8250_console = {
+സ്ഥിതം ഘടന sbi_console_device uart8250_console = {
 	.name = "uart8250",
 	.console_putc = uart8250_putc,
 	.console_getc = uart8250_getc
 };
 
-void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
+ശൂന്യം uart8250_device_init(ഘടന uart8250_device *dev, unsigned long base,
 			  u32 in_freq, u32 baudrate, u32 reg_shift,
 			  u32 reg_width, u32 reg_offset, u32 caps)
 {
 	u16 bdiv = 0;
 
-	dev->base      = (volatile char *)base + reg_offset;
+	dev->base      = (അസ്ഥിര അക്ഷരം *)base + reg_offset;
 	dev->reg_shift = reg_shift;
 	dev->reg_width = reg_width;
 	dev->in_freq   = in_freq;
 	dev->baudrate  = baudrate;
 
-	if (dev->baudrate) {
+	എങ്കിൽ (dev->baudrate) {
 		bdiv = (dev->in_freq + 8 * dev->baudrate) /
 		       (16 * dev->baudrate);
 	}
@@ -127,7 +127,7 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* Enable DLAB */
 	set_reg(dev, UART_LCR_OFFSET, 0x80);
 
-	if (bdiv) {
+	എങ്കിൽ (bdiv) {
 		/* Set divisor low byte */
 		set_reg(dev, UART_DLL_OFFSET, bdiv & 0xff);
 		/* Set divisor high byte */
@@ -141,13 +141,13 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* No modem control DTR RTS */
 	set_reg(dev, UART_MCR_OFFSET, 0x00);
 	/* Clear line status and read receive buffer */
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+	എങ്കിൽ (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
 		get_reg(dev, UART_RBR_OFFSET);
 	/* Set scratchpad */
 	set_reg(dev, UART_SCR_OFFSET, 0x00);
 }
 
-int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
+പൂർണ്ണസംഖ്യ uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 		  u32 reg_width, u32 reg_offset, u32 caps)
 {
 	uart8250_device_init(&uart8250_dev, base, in_freq, baudrate,
@@ -155,7 +155,7 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 
 	sbi_console_set_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	തിരികെ sbi_domain_വേര്_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

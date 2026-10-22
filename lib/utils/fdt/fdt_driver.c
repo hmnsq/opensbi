@@ -4,85 +4,85 @@
  * Copyright (c) 2024 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <libfdt.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_driver.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+പൂർണ്ണസംഖ്യ fdt_driver_init_by_offset(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+			      സ്ഥിരം ഘടന fdt_driver *സ്ഥിരം *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	സ്ഥിരം ഘടന fdt_driver *driver;
+	സ്ഥിരം ഘടന fdt_match *match;
+	പൂർണ്ണസംഖ്യ compat_len, prop_len, rc;
+	സ്ഥിരം അക്ഷരം *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	എങ്കിൽ (!fdt_കണ്ണി_is_enabled(fdt, nodeoff))
+		തിരികെ SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	എങ്കിൽ (!compat_str)
+		തിരികെ SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
-					goto found;
+	ആകുമ്പോൾ ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		വേണ്ടി (പൂർണ്ണസംഖ്യ i = 0; (driver = drivers[i]); i++)
+			വേണ്ടി (match = driver->match_table; match->compatible; match++)
+				എങ്കിൽ (!memcmp(match->compatible, compat_str, compat_len))
+					പോകുക found;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	തിരികെ SBI_ENODEV;
 
 found:
-	if (driver->experimental)
+	എങ്കിൽ (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
 			   match->compatible);
 
 	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	എങ്കിൽ (rc < 0) {
+		സ്ഥിരം അക്ഷരം *name;
 
-		name = fdt_get_name(fdt, nodeoff, NULL);
+		name = fdt_get_name(fdt, nodeoff, ശൂന്യ);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
 			   __func__, name, match->compatible, rc);
 	}
 
-	return rc;
+	തിരികെ rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_driver_init_scan(സ്ഥിരം ശൂന്യം *fdt,
+				സ്ഥിരം ഘടന fdt_driver *സ്ഥിരം *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	പൂർണ്ണസംഖ്യ nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	വേണ്ടി (nodeoff = fdt_next_കണ്ണി(fdt, -1, ശൂന്യ);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
+	     nodeoff = fdt_next_കണ്ണി(fdt, nodeoff, ശൂന്യ)) {
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
-			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+		എങ്കിൽ (rc == SBI_ENODEV)
+			തുടരുക;
+		എങ്കിൽ (rc < 0)
+			തിരികെ rc;
+		എങ്കിൽ (one)
+			തിരികെ 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	തിരികെ one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+പൂർണ്ണസംഖ്യ fdt_driver_init_all(സ്ഥിരം ശൂന്യം *fdt,
+			സ്ഥിരം ഘടന fdt_driver *സ്ഥിരം *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	തിരികെ fdt_driver_init_scan(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+പൂർണ്ണസംഖ്യ fdt_driver_init_one(സ്ഥിരം ശൂന്യം *fdt,
+			സ്ഥിരം ഘടന fdt_driver *സ്ഥിരം *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	തിരികെ fdt_driver_init_scan(fdt, drivers, true);
 }

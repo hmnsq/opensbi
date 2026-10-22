@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#അന്തര്ഭാവ <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+ശൂന്യം __bitmap_and(unsigned long *dst, സ്ഥിരം unsigned long *bitmap1,
+		  സ്ഥിരം unsigned long *bitmap2, പൂർണ്ണസംഖ്യ bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	പൂർണ്ണസംഖ്യ k;
+	പൂർണ്ണസംഖ്യ nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	വേണ്ടി (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+ശൂന്യം __bitmap_or(unsigned long *dst, സ്ഥിരം unsigned long *bitmap1,
+		 സ്ഥിരം unsigned long *bitmap2, പൂർണ്ണസംഖ്യ bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	പൂർണ്ണസംഖ്യ k;
+	പൂർണ്ണസംഖ്യ nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	വേണ്ടി (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+ശൂന്യം __bitmap_xor(unsigned long *dst, സ്ഥിരം unsigned long *bitmap1,
+		  സ്ഥിരം unsigned long *bitmap2, പൂർണ്ണസംഖ്യ bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	പൂർണ്ണസംഖ്യ k;
+	പൂർണ്ണസംഖ്യ nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	വേണ്ടി (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

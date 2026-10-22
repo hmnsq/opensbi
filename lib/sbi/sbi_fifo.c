@@ -7,16 +7,16 @@
  *   Atish Patra<atish.patra@wdc.com>
  *
  */
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/riscv_locks.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_fifo.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
 
-void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
+ശൂന്യം sbi_fifo_init(ഘടന sbi_fifo *fifo, ശൂന്യം *queue_mem, u16 entries,
 		   u16 entry_size) NO_THREAD_SAFETY_ANALYSIS
 {
 	fifo->queue	  = queue_mem;
-	fifo->num_entries = entries;
+	fifo->അക്കം_entries = entries;
 	fifo->entry_size  = entry_size;
 	SPIN_LOCK_INIT(fifo->qlock);
 	fifo->avail = fifo->tail = 0;
@@ -24,151 +24,151 @@ void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
+സ്ഥിതം വരിയിൽ bool __sbi_fifo_is_full(ഘടന sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	തിരികെ (fifo->avail == fifo->അക്കം_entries) ? true : false;
 }
 
-u16 sbi_fifo_avail(struct sbi_fifo *fifo)
+u16 sbi_fifo_avail(ഘടന sbi_fifo *fifo)
 {
 	u16 ret;
 
-	if (!fifo)
-		return 0;
+	എങ്കിൽ (!fifo)
+		തിരികെ 0;
 
 	spin_lock(&fifo->qlock);
 	ret = fifo->avail;
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	തിരികെ ret;
 }
 
-int sbi_fifo_is_full(struct sbi_fifo *fifo)
+പൂർണ്ണസംഖ്യ sbi_fifo_is_full(ഘടന sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	എങ്കിൽ (!fifo)
+		തിരികെ SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 	ret = __sbi_fifo_is_full(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	തിരികെ ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
+സ്ഥിതം വരിയിൽ ശൂന്യം __sbi_fifo_enqueue(ഘടന sbi_fifo *fifo, ശൂന്യം *data)
 	MUST_HOLD(&fifo->qlock)
 {
 	u32 head;
 
 	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
-		head = head - fifo->num_entries;
+	എങ്കിൽ (head >= fifo->അക്കം_entries)
+		head = head - fifo->അക്കം_entries;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)(fifo->queue + head * fifo->entry_size) = *(char *)data;
-		break;
-	case 2:
+	തിരഞ്ഞെടുപ്പ് (fifo->entry_size) {
+	അവസ്ഥ 1:
+		*(അക്ഷരം *)(fifo->queue + head * fifo->entry_size) = *(അക്ഷരം *)data;
+		നിർത്തുക;
+	അവസ്ഥ 2:
 		*(u16 *)(fifo->queue + head * fifo->entry_size) = *(u16 *)data;
-		break;
-	case 4:
+		നിർത്തുക;
+	അവസ്ഥ 4:
 		*(u32 *)(fifo->queue + head * fifo->entry_size) = *(u32 *)data;
-		break;
-#if __riscv_xlen > 32
-	case 8:
+		നിർത്തുക;
+#എങ്കിൽ __riscv_xlen > 32
+	അവസ്ഥ 8:
 		*(u64 *)(fifo->queue + head * fifo->entry_size) = *(u64 *)data;
-		break;
+		നിർത്തുക;
 #endif
-	default:
+	സ്ഥിരസ്ഥിതി:
 		sbi_memcpy(fifo->queue + head * fifo->entry_size,
 			   data, fifo->entry_size);
-		break;
+		നിർത്തുക;
 	}
 
 	fifo->avail++;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+സ്ഥിതം വരിയിൽ ശൂന്യം __sbi_fifo_dequeue(ഘടന sbi_fifo *fifo, ശൂന്യം *data)
 	MUST_HOLD(&fifo->qlock)
 {
-	if (!data)
-		goto skip_data_copy;
+	എങ്കിൽ (!data)
+		പോകുക skip_data_copy;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)data = *(char *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 2:
+	തിരഞ്ഞെടുപ്പ് (fifo->entry_size) {
+	അവസ്ഥ 1:
+		*(അക്ഷരം *)data = *(അക്ഷരം *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
+		നിർത്തുക;
+	അവസ്ഥ 2:
 		*(u16 *)data = *(u16 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 4:
+		നിർത്തുക;
+	അവസ്ഥ 4:
 		*(u32 *)data = *(u32 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#if __riscv_xlen > 32
-	case 8:
+		നിർത്തുക;
+#എങ്കിൽ __riscv_xlen > 32
+	അവസ്ഥ 8:
 		*(u64 *)data = *(u64 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
+		നിർത്തുക;
 #endif
-	default:
+	സ്ഥിരസ്ഥിതി:
 		sbi_memcpy(data, fifo->queue + (u32)fifo->tail * fifo->entry_size,
 			   fifo->entry_size);
-		break;
+		നിർത്തുക;
 	}
 
 skip_data_copy:
 	fifo->avail--;
 	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
+	എങ്കിൽ (fifo->tail >= fifo->അക്കം_entries)
 		fifo->tail = 0;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_empty(struct sbi_fifo *fifo)
+സ്ഥിതം വരിയിൽ bool __sbi_fifo_is_empty(ഘടന sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == 0) ? true : false;
+	തിരികെ (fifo->avail == 0) ? true : false;
 }
 
-int sbi_fifo_is_empty(struct sbi_fifo *fifo)
+പൂർണ്ണസംഖ്യ sbi_fifo_is_empty(ഘടന sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	എങ്കിൽ (!fifo)
+		തിരികെ SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 	ret = __sbi_fifo_is_empty(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	തിരികെ ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
+സ്ഥിതം വരിയിൽ ശൂന്യം __sbi_fifo_reset(ഘടന sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	size_t size = (size_t)fifo->num_entries * fifo->entry_size;
+	size_t size = (size_t)fifo->അക്കം_entries * fifo->entry_size;
 
 	fifo->avail = 0;
 	fifo->tail  = 0;
 	sbi_memset(fifo->queue, 0, size);
 }
 
-bool sbi_fifo_reset(struct sbi_fifo *fifo)
+bool sbi_fifo_reset(ഘടന sbi_fifo *fifo)
 {
-	if (!fifo)
-		return false;
+	എങ്കിൽ (!fifo)
+		തിരികെ false;
 
 	spin_lock(&fifo->qlock);
 	__sbi_fifo_reset(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return true;
+	തിരികെ true;
 }
 
 /**
@@ -178,76 +178,76 @@ bool sbi_fifo_reset(struct sbi_fifo *fifo)
  * **Do not** invoke any other fifo function from callback. Otherwise, it will
  * lead to deadlock.
  */
-int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
-			    int (*fptr)(void *in, void *data))
+പൂർണ്ണസംഖ്യ sbi_fifo_inplace_update(ഘടന sbi_fifo *fifo, ശൂന്യം *in,
+			    പൂർണ്ണസംഖ്യ (*fptr)(ശൂന്യം *in, ശൂന്യം *data))
 {
-	int i, index;
-	int ret = SBI_FIFO_UNCHANGED;
-	void *entry;
+	പൂർണ്ണസംഖ്യ i, index;
+	പൂർണ്ണസംഖ്യ ret = SBI_FIFO_UNCHANGED;
+	ശൂന്യം *entry;
 
-	if (!fifo || !in)
-		return ret;
+	എങ്കിൽ (!fifo || !in)
+		തിരികെ ret;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	എങ്കിൽ (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return ret;
+		തിരികെ ret;
 	}
 
-	for (i = 0; i < fifo->avail; i++) {
+	വേണ്ടി (i = 0; i < fifo->avail; i++) {
 		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
-			index -= fifo->num_entries;
-		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
+		എങ്കിൽ (index >= fifo->അക്കം_entries)
+			index -= fifo->അക്കം_entries;
+		entry = (അക്ഷരം *)fifo->queue + (u32)index * fifo->entry_size;
 		ret = fptr(in, entry);
 
-		if (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
-			break;
+		എങ്കിൽ (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
+			നിർത്തുക;
 		}
 	}
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	തിരികെ ret;
 }
 
-int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
+പൂർണ്ണസംഖ്യ sbi_fifo_enqueue(ഘടന sbi_fifo *fifo, ശൂന്യം *data, bool force)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	എങ്കിൽ (!fifo || !data)
+		തിരികെ SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_full(fifo)) {
-		if (!force) {
+	എങ്കിൽ (__sbi_fifo_is_full(fifo)) {
+		എങ്കിൽ (!force) {
 			spin_unlock(&fifo->qlock);
-			return SBI_ENOSPC;
+			തിരികെ SBI_ENOSPC;
 		}
-		__sbi_fifo_dequeue(fifo, NULL);
+		__sbi_fifo_dequeue(fifo, ശൂന്യ);
 	}
 
 	__sbi_fifo_enqueue(fifo, data);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	തിരികെ 0;
 }
 
-int sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+പൂർണ്ണസംഖ്യ sbi_fifo_dequeue(ഘടന sbi_fifo *fifo, ശൂന്യം *data)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	എങ്കിൽ (!fifo || !data)
+		തിരികെ SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	എങ്കിൽ (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return SBI_ENOENT;
+		തിരികെ SBI_ENOENT;
 	}
 
 	__sbi_fifo_dequeue(fifo, data);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	തിരികെ 0;
 }

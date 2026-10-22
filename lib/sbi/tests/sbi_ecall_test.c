@@ -1,14 +1,14 @@
-#include <sbi/sbi_unit_test.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
+#അന്തര്ഭാവ <sbi/sbi_unit_test.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall_interface.h>
 
-static void test_sbi_ecall_version(struct sbiunit_test_case *test)
+സ്ഥിതം ശൂന്യം test_sbi_ecall_version(ഘടന sbiunit_test_case *test)
 {
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_version_major(), SBI_ECALL_VERSION_MAJOR);
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_version_minor(), SBI_ECALL_VERSION_MINOR);
 }
 
-static void test_sbi_ecall_impid(struct sbiunit_test_case *test)
+സ്ഥിതം ശൂന്യം test_sbi_ecall_impid(ഘടന sbiunit_test_case *test)
 {
 	unsigned long old_impid = sbi_ecall_get_impid();
 	sbi_ecall_set_impid(42);
@@ -16,16 +16,16 @@ static void test_sbi_ecall_impid(struct sbiunit_test_case *test)
 	sbi_ecall_set_impid(old_impid);
 }
 
-static int dummy_handler(unsigned long extid, unsigned long funcid,
-			 struct sbi_trap_regs *regs,
-			 struct sbi_ecall_return *out)
+സ്ഥിതം പൂർണ്ണസംഖ്യ dummy_handler(unsigned long extid, unsigned long funcid,
+			 ഘടന sbi_trap_regs *regs,
+			 ഘടന sbi_ecall_return *out)
 {
-	return 0;
+	തിരികെ 0;
 }
 
-static void test_sbi_ecall_register_find_extension(struct sbiunit_test_case *test)
+സ്ഥിതം ശൂന്യം test_sbi_ecall_register_find_extension(ഘടന sbiunit_test_case *test)
 {
-	struct sbi_ecall_extension test_ext = {
+	ഘടന sbi_ecall_extension test_ext = {
 		/* Use experimental extension space for no overlap */
 		.extid_start = SBI_EXT_EXPERIMENTAL_START,
 		.extid_end = SBI_EXT_EXPERIMENTAL_START,
@@ -37,58 +37,58 @@ static void test_sbi_ecall_register_find_extension(struct sbiunit_test_case *tes
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_find_extension(SBI_EXT_EXPERIMENTAL_START), &test_ext);
 
 	sbi_ecall_unregister_extension(&test_ext);
-	SBIUNIT_EXPECT_EQ(test, sbi_ecall_find_extension(SBI_EXT_EXPERIMENTAL_START), NULL);
+	SBIUNIT_EXPECT_EQ(test, sbi_ecall_find_extension(SBI_EXT_EXPERIMENTAL_START), ശൂന്യ);
 }
 
-static void test_sbi_ecall_get_extensions_str_bounds(struct sbiunit_test_case *test)
+സ്ഥിതം ശൂന്യം test_sbi_ecall_get_extensions_str_bounds(ഘടന sbiunit_test_case *test)
 {
-	struct sbi_ecall_extension e1 = {
+	ഘടന sbi_ecall_extension e1 = {
 		.extid_start = SBI_EXT_EXPERIMENTAL_START,
 		.extid_end = SBI_EXT_EXPERIMENTAL_START,
 		.name = "Alpha",
 		.handle = dummy_handler,
 		.experimental = false,
 	};
-	struct sbi_ecall_extension e2 = {
+	ഘടന sbi_ecall_extension e2 = {
 		.extid_start = SBI_EXT_EXPERIMENTAL_START + 1,
 		.extid_end = SBI_EXT_EXPERIMENTAL_START + 1,
 		.name = "Bravo",
 		.handle = dummy_handler,
 		.experimental = false,
 	};
-	struct sbi_ecall_extension e3 = {
+	ഘടന sbi_ecall_extension e3 = {
 		.extid_start = SBI_EXT_EXPERIMENTAL_START + 2,
 		.extid_end = SBI_EXT_EXPERIMENTAL_START + 2,
 		.name = "Charli",
 		.handle = dummy_handler,
 		.experimental = false,
 	};
-	char storage[16 + 16];
-	char *buf = storage;
-	char big[128];
-	int i;
-	int found_alpha = 0;
+	അക്ഷരം storage[16 + 16];
+	അക്ഷരം *buf = storage;
+	അക്ഷരം big[128];
+	പൂർണ്ണസംഖ്യ i;
+	പൂർണ്ണസംഖ്യ found_alpha = 0;
 
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e1), 0);
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e2), 0);
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e3), 0);
 
-	for (i = 16; i < 32; i++)
-		storage[i] = (char)0xA5;
+	വേണ്ടി (i = 16; i < 32; i++)
+		storage[i] = (അക്ഷരം)0xA5;
 
 	/* Undersized buffer must not write past the caller-provided size. */
 	sbi_ecall_get_extensions_str(buf, 16, false);
 	SBIUNIT_EXPECT_EQ(test, buf[15], '\0');
-	for (i = 16; i < 32; i++)
-		SBIUNIT_EXPECT_EQ(test, (unsigned char)storage[i], 0xA5);
+	വേണ്ടി (i = 16; i < 32; i++)
+		SBIUNIT_EXPECT_EQ(test, (unsigned അക്ഷരം)storage[i], 0xA5);
 
 	/* Negative control: room for the full list, including registered names. */
-	sbi_ecall_get_extensions_str(big, sizeof(big), false);
+	sbi_ecall_get_extensions_str(big, വലുപ്പം(big), false);
 	SBIUNIT_EXPECT_NE(test, sbi_strlen(big), 0);
-	for (i = 0; big[i] != '\0'; i++) {
-		if (sbi_strncmp(&big[i], "Alpha", 5) == 0) {
+	വേണ്ടി (i = 0; big[i] != '\0'; i++) {
+		എങ്കിൽ (sbi_strncmp(&big[i], "Alpha", 5) == 0) {
 			found_alpha = 1;
-			break;
+			നിർത്തുക;
 		}
 	}
 	SBIUNIT_EXPECT_EQ(test, found_alpha, 1);
@@ -98,7 +98,7 @@ static void test_sbi_ecall_get_extensions_str_bounds(struct sbiunit_test_case *t
 	sbi_ecall_unregister_extension(&e3);
 }
 
-static struct sbiunit_test_case ecall_tests[] = {
+സ്ഥിതം ഘടന sbiunit_test_case ecall_tests[] = {
 	SBIUNIT_TEST_CASE(test_sbi_ecall_version),
 	SBIUNIT_TEST_CASE(test_sbi_ecall_impid),
 	SBIUNIT_TEST_CASE(test_sbi_ecall_register_find_extension),

@@ -7,24 +7,24 @@
  *	 Dave Patel <dave.patel@riscstar.com>
  */
 
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_vector.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/riscv_encoding.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/sbi_vector.h>
+#അന്തര്ഭാവ <sbi/sbi_types.h>
+#അന്തര്ഭാവ <sbi/sbi_hart.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
 
-size_t sbi_vector_context_size(void)
+size_t sbi_vector_context_size(ശൂന്യം)
 {
-	return sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
+	തിരികെ വലുപ്പം(ഘടന sbi_vector_context) + (32 * csr_read(CSR_VLENB));
 }
 
-void sbi_vector_save(struct sbi_vector_context *dst)
+ശൂന്യം sbi_vector_save(ഘടന sbi_vector_context *dst)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!dst)
-		return;
+	എങ്കിൽ (!dst)
+		തിരികെ;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -37,7 +37,7 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	/* Step 3: Save vector registers */
 #define SAVE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm അസ്ഥിര(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vs8r.v v" #i ", (%0)\n\t"			\
@@ -56,12 +56,12 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_vector_restore(const struct sbi_vector_context *src)
+ശൂന്യം sbi_vector_restore(സ്ഥിരം ഘടന sbi_vector_context *src)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!src)
-		return;
+	എങ്കിൽ (!src)
+		തിരികെ;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -70,7 +70,7 @@ void sbi_vector_restore(const struct sbi_vector_context *src)
 	/* Step 2: Restore vector registers */
 #define RESTORE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm അസ്ഥിര(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vl8r.v v" #i ", (%0)\n\t"			\

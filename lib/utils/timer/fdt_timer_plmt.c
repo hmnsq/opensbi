@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/timer/fdt_timer.h>
+#അന്തര്ഭാവ <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+ബാഹ്യ ഘടന plmt_data plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_plmt_cold_timer_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+				    സ്ഥിരം ഘടന fdt_match *match)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 	unsigned long plmt_base;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_കണ്ണി(fdt, nodeoff, &plmt_base, &plmt.size,
+				 &plmt.hart_എണ്ണം);
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
 	plmt.time_val = (u64 *)plmt_base;
 	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match timer_plmt_match[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
+സ്ഥിരം ഘടന fdt_driver fdt_timer_plmt = {
 	.match_table = timer_plmt_match,
 	.init = fdt_plmt_cold_timer_init,
 };

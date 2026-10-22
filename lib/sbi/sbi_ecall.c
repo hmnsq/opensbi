@@ -7,140 +7,140 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall_interface.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/sbi_trap.h>
 
-extern struct sbi_ecall_extension *const sbi_ecall_exts[];
+ബാഹ്യ ഘടന sbi_ecall_extension *സ്ഥിരം sbi_ecall_exts[];
 
-u16 sbi_ecall_version_major(void)
+u16 sbi_ecall_version_major(ശൂന്യം)
 {
-	return SBI_ECALL_VERSION_MAJOR;
+	തിരികെ SBI_ECALL_VERSION_MAJOR;
 }
 
-u16 sbi_ecall_version_minor(void)
+u16 sbi_ecall_version_minor(ശൂന്യം)
 {
-	return SBI_ECALL_VERSION_MINOR;
+	തിരികെ SBI_ECALL_VERSION_MINOR;
 }
 
-static unsigned long ecall_impid = SBI_OPENSBI_IMPID;
+സ്ഥിതം unsigned long ecall_impid = SBI_OPENSBI_IMPID;
 
-unsigned long sbi_ecall_get_impid(void)
+unsigned long sbi_ecall_get_impid(ശൂന്യം)
 {
-	return ecall_impid;
+	തിരികെ ecall_impid;
 }
 
-void sbi_ecall_set_impid(unsigned long impid)
+ശൂന്യം sbi_ecall_set_impid(unsigned long impid)
 {
 	ecall_impid = impid;
 }
 
-static SBI_LIST_HEAD(ecall_exts_list);
+സ്ഥിതം SBI_LIST_HEAD(ecall_exts_list);
 
-struct sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
+ഘടന sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
 {
-	struct sbi_ecall_extension *t, *ret = NULL;
+	ഘടന sbi_ecall_extension *t, *ret = ശൂന്യ;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t->extid_start <= extid && extid <= t->extid_end) {
+		എങ്കിൽ (t->extid_start <= extid && extid <= t->extid_end) {
 			ret = t;
-			break;
+			നിർത്തുക;
 		}
 	}
 
-	return ret;
+	തിരികെ ret;
 }
 
-void sbi_ecall_get_extensions_str(char *exts_str, int exts_str_size, bool experimental)
+ശൂന്യം sbi_ecall_get_extensions_str(അക്ഷരം *exts_str, പൂർണ്ണസംഖ്യ exts_str_size, bool experimental)
 {
-	struct sbi_ecall_extension *t;
-	int offset = 0;
+	ഘടന sbi_ecall_extension *t;
+	പൂർണ്ണസംഖ്യ offset = 0;
 
-	if (!exts_str || exts_str_size <= 0)
-		return;
+	എങ്കിൽ (!exts_str || exts_str_size <= 0)
+		തിരികെ;
 	sbi_memset(exts_str, 0, exts_str_size);
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (experimental != t->experimental)
-			continue;
-		if (offset + sbi_strlen(t->name) + 1 > exts_str_size)
-			break;
+		എങ്കിൽ (experimental != t->experimental)
+			തുടരുക;
+		എങ്കിൽ (offset + sbi_strlen(t->name) + 1 > exts_str_size)
+			നിർത്തുക;
 		sbi_snprintf(exts_str + offset, exts_str_size - offset,
 			     "%s,", t->name);
 		offset = offset + sbi_strlen(t->name) + 1;
 	}
 
-	if (offset)
+	എങ്കിൽ (offset)
 		exts_str[offset - 1] = '\0';
-	else
+	അല്ലെങ്കിൽ
 		sbi_strncpy(exts_str, "none", exts_str_size);
 }
 
-int sbi_ecall_register_extension(struct sbi_ecall_extension *ext)
+പൂർണ്ണസംഖ്യ sbi_ecall_register_extension(ഘടന sbi_ecall_extension *ext)
 {
-	struct sbi_ecall_extension *t;
+	ഘടന sbi_ecall_extension *t;
 
-	if (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
-		return SBI_EINVAL;
+	എങ്കിൽ (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
+		തിരികെ SBI_EINVAL;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
 		unsigned long start = t->extid_start;
 		unsigned long end = t->extid_end;
-		if (end < ext->extid_start || ext->extid_end < start)
+		എങ്കിൽ (end < ext->extid_start || ext->extid_end < start)
 			/* no overlap */;
-		else
-			return SBI_EINVAL;
+		അല്ലെങ്കിൽ
+			തിരികെ SBI_EINVAL;
 	}
 
 	sbi_list_add_tail(&ext->head, &ecall_exts_list);
 
-	return 0;
+	തിരികെ 0;
 }
 
-void sbi_ecall_unregister_extension(struct sbi_ecall_extension *ext)
+ശൂന്യം sbi_ecall_unregister_extension(ഘടന sbi_ecall_extension *ext)
 {
 	bool found = false;
-	struct sbi_ecall_extension *t;
+	ഘടന sbi_ecall_extension *t;
 
-	if (!ext)
-		return;
+	എങ്കിൽ (!ext)
+		തിരികെ;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t == ext) {
+		എങ്കിൽ (t == ext) {
 			found = true;
-			break;
+			നിർത്തുക;
 		}
 	}
 
-	if (found)
+	എങ്കിൽ (found)
 		sbi_list_del_init(&ext->head);
 }
 
-int sbi_ecall_handler(struct sbi_trap_context *tcntx)
+പൂർണ്ണസംഖ്യ sbi_ecall_handler(ഘടന sbi_trap_context *tcntx)
 {
-	int ret = 0;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_ecall_extension *ext;
+	പൂർണ്ണസംഖ്യ ret = 0;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
+	ഘടന sbi_ecall_extension *ext;
 	unsigned long extension_id = regs->a7;
 	unsigned long func_id = regs->a6;
-	struct sbi_ecall_return out = {0};
+	ഘടന sbi_ecall_return out = {0};
 	bool is_0_1_spec = 0;
 
 	ext = sbi_ecall_find_extension(extension_id);
-	if (ext && ext->handle) {
+	എങ്കിൽ (ext && ext->handle) {
 		ret = ext->handle(extension_id, func_id, regs, &out);
-		if (extension_id >= SBI_EXT_0_1_SET_TIMER &&
+		എങ്കിൽ (extension_id >= SBI_EXT_0_1_SET_TIMER &&
 		    extension_id <= SBI_EXT_0_1_SHUTDOWN)
 			is_0_1_spec = 1;
-	} else {
+	} അല്ലെങ്കിൽ {
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (!out.skip_regs_update) {
-		if (ret < SBI_LAST_ERR ||
+	എങ്കിൽ (!out.skip_regs_update) {
+		എങ്കിൽ (ret < SBI_LAST_ERR ||
 		    (extension_id != SBI_EXT_0_1_CONSOLE_GETCHAR &&
 		     SBI_SUCCESS < ret)) {
 			sbi_printf("%s: Invalid error %d for ext=0x%lx "
@@ -159,28 +159,28 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		 */
 		regs->mepc += 4;
 		regs->a0 = ret;
-		if (!is_0_1_spec)
-			regs->a1 = out.value;
+		എങ്കിൽ (!is_0_1_spec)
+			regs->a1 = out.മൂല്യം;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
-int sbi_ecall_init(void)
+പൂർണ്ണസംഖ്യ sbi_ecall_init(ശൂന്യം)
 {
-	int ret;
-	struct sbi_ecall_extension *ext;
+	പൂർണ്ണസംഖ്യ ret;
+	ഘടന sbi_ecall_extension *ext;
 	unsigned long i;
 
-	for (i = 0; sbi_ecall_exts[i]; i++) {
+	വേണ്ടി (i = 0; sbi_ecall_exts[i]; i++) {
 		ext = sbi_ecall_exts[i];
 		ret = SBI_ENODEV;
 
-		if (ext->register_extensions)
+		എങ്കിൽ (ext->register_extensions)
 			ret = ext->register_extensions();
-		if (ret)
-			return ret;
+		എങ്കിൽ (ret)
+			തിരികെ ret;
 	}
 
-	return 0;
+	തിരികെ 0;
 }

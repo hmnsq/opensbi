@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_driver.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+ബാഹ്യ ഘടന plicsw_data plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+പൂർണ്ണസംഖ്യ fdt_plicsw_cold_ipi_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+			     സ്ഥിരം ഘടന fdt_match *match)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_കണ്ണി(fdt, nodeoff, &plicsw.addr, &plicsw.size,
+				   &plicsw.hart_എണ്ണം);
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match ipi_plicsw_match[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
+സ്ഥിരം ഘടന fdt_driver fdt_ipi_plicsw = {
 	.match_table = ipi_plicsw_match,
 	.init = fdt_plicsw_cold_ipi_init,
 };

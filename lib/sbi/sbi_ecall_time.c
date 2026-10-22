@@ -8,38 +8,38 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall_interface.h>
+#അന്തര്ഭാവ <sbi/sbi_trap.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
+				  ഘടന sbi_trap_regs *regs,
+				  ഘടന sbi_ecall_return *out)
 {
-	int ret = 0;
+	പൂർണ്ണസംഖ്യ ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
+	എങ്കിൽ (funcid == SBI_EXT_TIME_SET_TIMER) {
+#എങ്കിൽ __riscv_xlen == 32
 		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
+#അല്ലെങ്കിൽ
 		sbi_timer_smode_event_start((u64)regs->a0);
 #endif
-	} else
+	} അല്ലെങ്കിൽ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	തിരികെ ret;
 }
 
-struct sbi_ecall_extension ecall_time;
+ഘടന sbi_ecall_extension ecall_time;
 
-static int sbi_ecall_time_register_extensions(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ecall_time_register_extensions(ശൂന്യം)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	തിരികെ sbi_ecall_register_extension(&ecall_time);
 }
 
-struct sbi_ecall_extension ecall_time = {
+ഘടന sbi_ecall_extension ecall_time = {
 	.name			= "time",
 	.extid_start		= SBI_EXT_TIME,
 	.extid_end		= SBI_EXT_TIME,

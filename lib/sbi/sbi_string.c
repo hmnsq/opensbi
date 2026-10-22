@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+പൂർണ്ണസംഖ്യ sbi_strcmp(സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	വേണ്ടി (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	തിരികെ *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+പൂർണ്ണസംഖ്യ sbi_strncmp(സ്ഥിരം അക്ഷരം *a, സ്ഥിരം അക്ഷരം *b, size_t എണ്ണം)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	വേണ്ടി (; എണ്ണം > 0 && *a == *b && *a != '\0'; a++, b++, എണ്ണം--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	എങ്കിൽ (!എണ്ണം)
+		തിരികെ 0;
 
-	return *a - *b;
+	തിരികെ *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(സ്ഥിരം അക്ഷരം *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	ആകുമ്പോൾ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	തിരികെ ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(സ്ഥിരം അക്ഷരം *str, size_t എണ്ണം)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	ആകുമ്പോൾ (*str != '\0' && ret < എണ്ണം) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	തിരികെ ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+അക്ഷരം *sbi_strcpy(അക്ഷരം *dest, സ്ഥിരം അക്ഷരം *src)
 {
-	char *ret = dest;
+	അക്ഷരം *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	ആകുമ്പോൾ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	തിരികെ ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+അക്ഷരം *sbi_strncpy(അക്ഷരം *dest, സ്ഥിരം അക്ഷരം *src, size_t എണ്ണം)
 {
-	char *tmp = dest;
+	അക്ഷരം *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	ആകുമ്പോൾ (എണ്ണം) {
+		എങ്കിൽ ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		എണ്ണം--;
 	}
-	return dest;
+	തിരികെ dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+അക്ഷരം *sbi_strchr(സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	ചെയ്യുക {
+		എങ്കിൽ (*s == (അക്ഷരം)c)
+			തിരികെ (അക്ഷരം *)s;
+	} ആകുമ്പോൾ (*s++ != '\0');
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-char *sbi_strrchr(const char *s, int c)
+അക്ഷരം *sbi_strrchr(സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ c)
 {
-	const char *last = s + sbi_strlen(s);
+	സ്ഥിരം അക്ഷരം *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	ആകുമ്പോൾ (last > s && *last != (അക്ഷരം)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	എങ്കിൽ (*last != (അക്ഷരം)c)
+		തിരികെ ശൂന്യ;
+	അല്ലെങ്കിൽ
+		തിരികെ (അക്ഷരം *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+ശൂന്യം *sbi_memset(ശൂന്യം *s, പൂർണ്ണസംഖ്യ c, size_t എണ്ണം)
 {
-	char *temp = s;
+	അക്ഷരം *temp = s;
 
-	while (count > 0) {
-		count--;
+	ആകുമ്പോൾ (എണ്ണം > 0) {
+		എണ്ണം--;
 		*temp++ = c;
 	}
 
-	return s;
+	തിരികെ s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+ശൂന്യം *sbi_memcpy(ശൂന്യം *dest, സ്ഥിരം ശൂന്യം *src, size_t എണ്ണം)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	അക്ഷരം *temp1	  = dest;
+	സ്ഥിരം അക്ഷരം *temp2 = src;
 
-	while (count > 0) {
+	ആകുമ്പോൾ (എണ്ണം > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		എണ്ണം--;
 	}
 
-	return dest;
+	തിരികെ dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+ശൂന്യം *sbi_memmove(ശൂന്യം *dest, സ്ഥിരം ശൂന്യം *src, size_t എണ്ണം)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	അക്ഷരം *temp1	  = (അക്ഷരം *)dest;
+	സ്ഥിരം അക്ഷരം *temp2 = (അക്ഷരം *)src;
 
-	if (src == dest)
-		return dest;
+	എങ്കിൽ (src == dest)
+		തിരികെ dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	എങ്കിൽ (dest < src) {
+		ആകുമ്പോൾ (എണ്ണം > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			എണ്ണം--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} അല്ലെങ്കിൽ {
+		temp1 = (അക്ഷരം *)dest + എണ്ണം - 1;
+		temp2 = (അക്ഷരം *)src + എണ്ണം - 1;
 
-		while (count > 0) {
+		ആകുമ്പോൾ (എണ്ണം > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			എണ്ണം--;
 		}
 	}
 
-	return dest;
+	തിരികെ dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+പൂർണ്ണസംഖ്യ sbi_memcmp(സ്ഥിരം ശൂന്യം *s1, സ്ഥിരം ശൂന്യം *s2, size_t എണ്ണം)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	സ്ഥിരം അക്ഷരം *temp1 = s1;
+	സ്ഥിരം അക്ഷരം *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	വേണ്ടി (; എണ്ണം > 0 && (*temp1 == *temp2); എണ്ണം--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	എങ്കിൽ (എണ്ണം > 0)
+		തിരികെ *(unsigned അക്ഷരം *)temp1 - *(unsigned അക്ഷരം *)temp2;
+	അല്ലെങ്കിൽ
+		തിരികെ 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+ശൂന്യം *sbi_memchr(സ്ഥിരം ശൂന്യം *s, പൂർണ്ണസംഖ്യ c, size_t എണ്ണം)
 {
-	const unsigned char *temp = s;
+	സ്ഥിരം unsigned അക്ഷരം *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	ആകുമ്പോൾ (എണ്ണം > 0) {
+		എങ്കിൽ ((unsigned അക്ഷരം)c == *temp++) {
+			തിരികെ (ശൂന്യം *)(temp - 1);
 		}
-		count--;
+		എണ്ണം--;
 	}
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 }

@@ -5,106 +5,106 @@
  *
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_cppc.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_cppc.h>
 
-static const struct sbi_cppc_device *cppc_dev = NULL;
+സ്ഥിതം സ്ഥിരം ഘടന sbi_cppc_device *cppc_dev = ശൂന്യ;
 
-const struct sbi_cppc_device *sbi_cppc_get_device(void)
+സ്ഥിരം ഘടന sbi_cppc_device *sbi_cppc_get_device(ശൂന്യം)
 {
-	return cppc_dev;
+	തിരികെ cppc_dev;
 }
 
-void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
+ശൂന്യം sbi_cppc_set_device(സ്ഥിരം ഘടന sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	എങ്കിൽ (!dev || cppc_dev)
+		തിരികെ;
 
 	cppc_dev = dev;
 }
 
-static bool sbi_cppc_is_reserved(unsigned long reg)
+സ്ഥിതം bool sbi_cppc_is_reserved(unsigned long reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	എങ്കിൽ ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
 	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+		തിരികെ true;
 
-	return false;
+	തിരികെ false;
 }
 
-static bool sbi_cppc_readable(unsigned long reg)
+സ്ഥിതം bool sbi_cppc_readable(unsigned long reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	തിരികെ true;
 }
 
-static bool sbi_cppc_writable(unsigned long reg)
+സ്ഥിതം bool sbi_cppc_writable(unsigned long reg)
 {
-	switch (reg) {
-	case SBI_CPPC_HIGHEST_PERF:
-	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
-	case SBI_CPPC_LOWEST_PERF:
-	case SBI_CPPC_GUARANTEED_PERF:
-	case SBI_CPPC_CTR_WRAP_TIME:
-	case SBI_CPPC_REFERENCE_CTR:
-	case SBI_CPPC_DELIVERED_CTR:
-	case SBI_CPPC_REFERENCE_PERF:
-	case SBI_CPPC_LOWEST_FREQ:
-	case SBI_CPPC_NOMINAL_FREQ:
-	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+	തിരഞ്ഞെടുപ്പ് (reg) {
+	അവസ്ഥ SBI_CPPC_HIGHEST_PERF:
+	അവസ്ഥ SBI_CPPC_NOMINAL_PERF:
+	അവസ്ഥ SBI_CPPC_താഴെയുള്ള_NON_LINEAR_PERF:
+	അവസ്ഥ SBI_CPPC_LOWEST_PERF:
+	അവസ്ഥ SBI_CPPC_GUARANTEED_PERF:
+	അവസ്ഥ SBI_CPPC_CTR_WRAP_TIME:
+	അവസ്ഥ SBI_CPPC_REFERENCE_CTR:
+	അവസ്ഥ SBI_CPPC_DELIVERED_CTR:
+	അവസ്ഥ SBI_CPPC_REFERENCE_PERF:
+	അവസ്ഥ SBI_CPPC_LOWEST_FREQ:
+	അവസ്ഥ SBI_CPPC_NOMINAL_FREQ:
+	അവസ്ഥ SBI_CPPC_TRANSITION_LATENCY:
+		തിരികെ false;
 	}
 
-	return true;
+	തിരികെ true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+പൂർണ്ണസംഖ്യ sbi_cppc_probe(unsigned long reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	എങ്കിൽ (!cppc_dev || !cppc_dev->cppc_probe)
+		തിരികെ SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	എങ്കിൽ (sbi_cppc_is_reserved(reg))
+		തിരികെ SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	തിരികെ cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+പൂർണ്ണസംഖ്യ sbi_cppc_read(unsigned long reg, uint64_t *val)
 {
-	int ret;
+	പൂർണ്ണസംഖ്യ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	എങ്കിൽ (!cppc_dev || !cppc_dev->cppc_read)
+		തിരികെ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	എങ്കിൽ (ret <= 0)
+		തിരികെ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	എങ്കിൽ (!sbi_cppc_readable(reg))
+		തിരികെ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	തിരികെ cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+പൂർണ്ണസംഖ്യ sbi_cppc_write(unsigned long reg, uint64_t val)
 {
-	int ret;
+	പൂർണ്ണസംഖ്യ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	എങ്കിൽ (!cppc_dev || !cppc_dev->cppc_write)
+		തിരികെ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	എങ്കിൽ (ret <= 0)
+		തിരികെ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	എങ്കിൽ (!sbi_cppc_writable(reg))
+		തിരികെ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	തിരികെ cppc_dev->cppc_write(reg, val);
 }

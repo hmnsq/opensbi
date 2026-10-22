@@ -7,130 +7,130 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/mailbox/mailbox.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi_utils/mailbox/mailbox.h>
 
-static SBI_LIST_HEAD(mbox_list);
+സ്ഥിതം SBI_LIST_HEAD(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+ഘടന mbox_controller *mbox_controller_find(unsigned പൂർണ്ണസംഖ്യ id)
 {
-	struct sbi_dlist *pos;
+	ഘടന sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
-		struct mbox_controller *mbox = to_mbox_controller(pos);
+		ഘടന mbox_controller *mbox = to_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		എങ്കിൽ (mbox->id == id)
+			തിരികെ mbox;
 	}
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+പൂർണ്ണസംഖ്യ mbox_controller_add(ഘടന mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	എങ്കിൽ (!mbox || !mbox->max_xfer_len)
+		തിരികെ SBI_EINVAL;
+	എങ്കിൽ (mbox_controller_find(mbox->id))
+		തിരികെ SBI_EALREADY;
 
 	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
 	SBI_INIT_LIST_HEAD(&mbox->chan_list);
-	sbi_list_add(&mbox->node, &mbox_list);
+	sbi_list_add(&mbox->കണ്ണി, &mbox_list);
 
-	return 0;
+	തിരികെ 0;
 }
 
-void mbox_controller_remove(struct mbox_controller *mbox)
+ശൂന്യം mbox_controller_remove(ഘടന mbox_controller *mbox)
 {
-	struct mbox_chan *chan;
+	ഘടന mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	എങ്കിൽ (!mbox)
+		തിരികെ;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
+	ആകുമ്പോൾ (!sbi_list_empty(&mbox->chan_list)) {
 		chan = sbi_list_first_entry(&mbox->chan_list,
-					    struct mbox_chan, node);
-		if (mbox->free_chan)
+					    ഘടന mbox_chan, കണ്ണി);
+		എങ്കിൽ (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
-		sbi_list_del(&chan->node);
+		sbi_list_del(&chan->കണ്ണി);
 	}
 
-	sbi_list_del(&mbox->node);
+	sbi_list_del(&mbox->കണ്ണി);
 }
 
-struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
+ഘടന mbox_chan *mbox_controller_request_chan(ഘടന mbox_controller *mbox,
 					       u32 *chan_args)
 {
-	struct mbox_chan *ret;
-	struct sbi_dlist *pos;
+	ഘടന mbox_chan *ret;
+	ഘടന sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	എങ്കിൽ (!chan_args || !mbox || !mbox->request_chan)
+		തിരികെ ശൂന്യ;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
 		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
-				sizeof(ret->chan_args)))
-			return ret;
+		എങ്കിൽ (!sbi_memcmp(ret->chan_args, chan_args,
+				വലുപ്പം(ret->chan_args)))
+			തിരികെ ret;
 	}
 
 	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	എങ്കിൽ (!ret)
+		തിരികെ ശൂന്യ;
 
 	ret->mbox = mbox;
-	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
-	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	sbi_memcpy(ret->chan_args, chan_args, വലുപ്പം(ret->chan_args));
+	sbi_list_add(&ret->കണ്ണി, &mbox->chan_list);
+	തിരികെ ret;
 }
 
-void mbox_controller_free_chan(struct mbox_chan *chan)
+ശൂന്യം mbox_controller_free_chan(ഘടന mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	എങ്കിൽ (!chan || !chan->mbox)
+		തിരികെ;
 
-	if (chan->mbox->free_chan)
+	എങ്കിൽ (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
-	sbi_list_del(&chan->node);
+	sbi_list_del(&chan->കണ്ണി);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+പൂർണ്ണസംഖ്യ mbox_chan_xfer(ഘടന mbox_chan *chan, ഘടന mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	എങ്കിൽ (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		തിരികെ SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	എങ്കിൽ (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		തിരികെ SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	എങ്കിൽ (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		തിരികെ SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
+	എങ്കിൽ (!(xfer->flags & MBOX_XFER_SEQ))
 		mbox_xfer_set_sequence(xfer,
 			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	തിരികെ chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+പൂർണ്ണസംഖ്യ mbox_chan_get_attribute(ഘടന mbox_chan *chan, പൂർണ്ണസംഖ്യ attr_id, ശൂന്യം *out_മൂല്യം)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	എങ്കിൽ (!chan || !chan->mbox || !out_മൂല്യം)
+		തിരികെ SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	എങ്കിൽ (!chan->mbox->get_attribute)
+		തിരികെ SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	തിരികെ chan->mbox->get_attribute(chan, attr_id, out_മൂല്യം);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+പൂർണ്ണസംഖ്യ mbox_chan_set_attribute(ഘടന mbox_chan *chan, പൂർണ്ണസംഖ്യ attr_id, ശൂന്യം *new_മൂല്യം)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	എങ്കിൽ (!chan || !chan->mbox || !new_മൂല്യം)
+		തിരികെ SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	എങ്കിൽ (!chan->mbox->set_attribute)
+		തിരികെ SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	തിരികെ chan->mbox->set_attribute(chan, attr_id, new_മൂല്യം);
 }

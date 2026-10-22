@@ -7,102 +7,102 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_domain.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi_utils/timer/andes_plmt.h>
 
-struct plmt_data plmt;
+ഘടന plmt_data plmt;
 
-static u64 plmt_timer_value(void)
+സ്ഥിതം u64 plmt_timer_മൂല്യം(ശൂന്യം)
 {
-#if __riscv_xlen == 64
-	return readq_relaxed(plmt.time_val);
-#else
+#എങ്കിൽ __riscv_xlen == 64
+	തിരികെ readq_relaxed(plmt.time_val);
+#അല്ലെങ്കിൽ
 	u32 lo, hi;
 
-	do {
-		hi = readl_relaxed((void *)plmt.time_val + 0x04);
+	ചെയ്യുക {
+		hi = readl_relaxed((ശൂന്യം *)plmt.time_val + 0x04);
 		lo = readl_relaxed(plmt.time_val);
-	} while (hi != readl_relaxed((void *)plmt.time_val + 0x04));
+	} ആകുമ്പോൾ (hi != readl_relaxed((ശൂന്യം *)plmt.time_val + 0x04));
 
-	return ((u64)hi << 32) | (u64)lo;
+	തിരികെ ((u64)hi << 32) | (u64)lo;
 #endif
 }
 
-static void plmt_timer_event_stop(void)
+സ്ഥിതം ശൂന്യം plmt_timer_event_stop(ശൂന്യം)
 {
 	u32 target_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	എങ്കിൽ (plmt.hart_എണ്ണം <= target_hart)
 		ebreak();
 
 	/* Clear PLMT Time Compare */
-#if __riscv_xlen == 64
+#എങ്കിൽ __riscv_xlen == 64
 	writeq_relaxed(-1ULL, &plmt.time_cmp[target_hart]);
-#else
+#അല്ലെങ്കിൽ
 	writel_relaxed(-1UL, &plmt.time_cmp[target_hart]);
-	writel_relaxed(-1UL, (void *)(&plmt.time_cmp[target_hart]) + 0x04);
+	writel_relaxed(-1UL, (ശൂന്യം *)(&plmt.time_cmp[target_hart]) + 0x04);
 #endif
 }
 
-static void plmt_timer_event_start(u64 next_event)
+സ്ഥിതം ശൂന്യം plmt_timer_event_start(u64 next_event)
 {
 	u32 target_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	എങ്കിൽ (plmt.hart_എണ്ണം <= target_hart)
 		ebreak();
 
 	/* Program PLMT Time Compare */
-#if __riscv_xlen == 64
+#എങ്കിൽ __riscv_xlen == 64
 	writeq_relaxed(next_event, &plmt.time_cmp[target_hart]);
-#else
+#അല്ലെങ്കിൽ
 	u32 mask = -1UL;
 
 	writel_relaxed(next_event & mask, &plmt.time_cmp[target_hart]);
 	writel_relaxed(next_event >> 32,
-		       (void *)(&plmt.time_cmp[target_hart]) + 0x04);
+		       (ശൂന്യം *)(&plmt.time_cmp[target_hart]) + 0x04);
 #endif
 }
 
-static int plmt_warm_timer_init(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ plmt_warm_timer_init(ശൂന്യം)
 {
-	if (!plmt.time_val)
-		return SBI_ENODEV;
+	എങ്കിൽ (!plmt.time_val)
+		തിരികെ SBI_ENODEV;
 
 	plmt_timer_event_stop();
 
-	return 0;
+	തിരികെ 0;
 }
 
-static struct sbi_timer_device plmt_timer = {
+സ്ഥിതം ഘടന sbi_timer_device plmt_timer = {
 	.name		   = "andes_plmt",
 	.timer_freq	   = DEFAULT_AE350_PLMT_FREQ,
-	.timer_value	   = plmt_timer_value,
+	.timer_മൂല്യം	   = plmt_timer_മൂല്യം,
 	.timer_event_start = plmt_timer_event_start,
 	.timer_event_stop  = plmt_timer_event_stop,
 	.warm_init	   = plmt_warm_timer_init,
 };
 
-int plmt_cold_timer_init(struct plmt_data *plmt)
+പൂർണ്ണസംഖ്യ plmt_cold_timer_init(ഘടന plmt_data *plmt)
 {
-	int rc;
+	പൂർണ്ണസംഖ്യ rc;
 
 	/* Add PLMT region to the root domain */
-	rc = sbi_domain_root_add_memrange(
+	rc = sbi_domain_വേര്_add_memrange(
 		(unsigned long)plmt->time_val, plmt->size,
 		PLMT_REGION_ALIGN,
 		SBI_DOMAIN_MEMREGION_MMIO |
 		SBI_DOMAIN_MEMREGION_M_READABLE |
 		SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
 	plmt_timer.timer_freq = plmt->timer_freq;
 
 	sbi_timer_set_device(&plmt_timer);
 
-	return 0;
+	തിരികെ 0;
 }

@@ -7,17 +7,17 @@
 #ifndef __SYS_TYPES_H__
 #define __SYS_TYPES_H__
 
-#include <sbi/sbi_types.h>
+#അന്തര്ഭാവ <sbi/sbi_types.h>
 
-typedef unsigned long u_long;
+തരനിർവചനം unsigned long u_long;
 
-typedef int64_t quad_t;
-typedef uint64_t u_quad_t;
+തരനിർവചനം int64_t quad_t;
+തരനിർവചനം uint64_t u_quad_t;
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#എങ്കിൽ __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define _QUAD_LOWWORD 1
 #define _QUAD_HIGHWORD 0
-#else
+#അല്ലെങ്കിൽ
 #define _QUAD_LOWWORD 0
 #define _QUAD_HIGHWORD 1
 #endif

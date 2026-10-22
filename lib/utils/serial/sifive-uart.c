@@ -7,10 +7,10 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_domain.h>
+#അന്തര്ഭാവ <sbi_utils/serial/sifive-uart.h>
 
 /* clang-format off */
 
@@ -30,9 +30,9 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+സ്ഥിതം അസ്ഥിര അക്ഷരം *uart_base;
+സ്ഥിതം u32 uart_in_freq;
+സ്ഥിതം u32 uart_baudrate;
 
 /**
  * Find minimum divisor divides in_freq to max_target_hz;
@@ -45,61 +45,61 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+സ്ഥിതം വരിയിൽ unsigned പൂർണ്ണസംഖ്യ uart_min_clk_ഹാരകം(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	എങ്കിൽ (quotient == 0)
+		തിരികെ 0;
+	അല്ലെങ്കിൽ
+		തിരികെ quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+സ്ഥിതം u32 get_reg(u32 അക്കം)
 {
-	return readl(uart_base + (num * 0x4));
+	തിരികെ readl(uart_base + (അക്കം * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+സ്ഥിതം ശൂന്യം set_reg(u32 അക്കം, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (അക്കം * 0x4));
 }
 
-static void sifive_uart_putc(char ch)
+സ്ഥിതം ശൂന്യം sifive_uart_putc(അക്ഷരം ch)
 {
-	while (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
+	ആകുമ്പോൾ (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
 		;
 
 	set_reg(UART_REG_TXFIFO, ch);
 }
 
-static int sifive_uart_getc(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sifive_uart_getc(ശൂന്യം)
 {
 	u32 ret = get_reg(UART_REG_RXFIFO);
 
-	if (!(ret & UART_RXFIFO_EMPTY))
-		return ret & UART_RXFIFO_DATA;
+	എങ്കിൽ (!(ret & UART_RXFIFO_EMPTY))
+		തിരികെ ret & UART_RXFIFO_DATA;
 
-	return -1;
+	തിരികെ -1;
 }
 
-static struct sbi_console_device sifive_console = {
+സ്ഥിതം ഘടന sbi_console_device sifive_console = {
 	.name = "sifive_uart",
 	.console_putc = sifive_uart_putc,
 	.console_getc = sifive_uart_getc
 };
 
-int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+പൂർണ്ണസംഖ്യ sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
-	uart_base     = (volatile char *)base;
+	uart_base     = (അസ്ഥിര അക്ഷരം *)base;
 	uart_in_freq  = in_freq;
 	uart_baudrate = baudrate;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+	എങ്കിൽ (in_freq && baudrate)
+		set_reg(UART_REG_DIV, uart_min_clk_ഹാരകം(in_freq, baudrate));
 
 	/* Disable interrupts */
 	set_reg(UART_REG_IE, 0);
@@ -112,7 +112,7 @@ int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	തിരികെ sbi_domain_വേര്_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

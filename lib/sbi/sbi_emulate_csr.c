@@ -7,109 +7,109 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_emulate_csr.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_trap.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/riscv_encoding.h>
+#അന്തര്ഭാവ <sbi/sbi_bitops.h>
+#അന്തര്ഭാവ <sbi/sbi_emulate_csr.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_hart.h>
+#അന്തര്ഭാവ <sbi/sbi_scratch.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi/sbi_trap.h>
 
-static bool hpm_allowed(int hpm_num, ulong prev_mode, bool virt)
+സ്ഥിതം bool hpm_allowed(പൂർണ്ണസംഖ്യ hpm_അക്കം, ulong prev_mode, bool virt)
 {
 	ulong cen = -1UL;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ഘടന sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (prev_mode <= PRV_S) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10) {
+	എങ്കിൽ (prev_mode <= PRV_S) {
+		എങ്കിൽ (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10) {
 			cen &= csr_read(CSR_MCOUNTEREN);
-			if (virt)
+			എങ്കിൽ (virt)
 				cen &= csr_read(CSR_HCOUNTEREN);
-		} else {
+		} അല്ലെങ്കിൽ {
 			cen = 0;
 		}
 	}
-	if (prev_mode == PRV_U) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	എങ്കിൽ (prev_mode == PRV_U) {
+		എങ്കിൽ (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
 			cen &= csr_read(CSR_SCOUNTEREN);
-		else
+		അല്ലെങ്കിൽ
 			cen = 0;
 	}
 
-	return ((cen >> hpm_num) & 1) ? true : false;
+	തിരികെ ((cen >> hpm_അക്കം) & 1) ? true : false;
 }
 
-int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
+പൂർണ്ണസംഖ്യ sbi_emulate_csr_read(പൂർണ്ണസംഖ്യ csr_അക്കം, ഘടന sbi_trap_regs *regs,
 			 ulong *csr_val)
 {
-	int ret = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	പൂർണ്ണസംഖ്യ ret = 0;
+	ഘടന sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
+	തിരഞ്ഞെടുപ്പ് (csr_അക്കം) {
+	അവസ്ഥ CSR_HTIMEDELTA:
+		എങ്കിൽ (prev_mode == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta();
-		else
+		അല്ലെങ്കിൽ
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLE:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		നിർത്തുക;
+	അവസ്ഥ CSR_CYCLE:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLE, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLE);
-		break;
-	case CSR_TIME:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		നിർത്തുക;
+	അവസ്ഥ CSR_TIME:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLE, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
 		/*
 		 * We emulate TIME CSR for both Host (HS/U-mode) and
 		 * Guest (VS/VU-mode).
 		 */
-		*csr_val = (virt) ? sbi_timer_virt_value():
-				    sbi_timer_value();
-		break;
-	case CSR_INSTRET:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_മൂല്യം():
+				    sbi_timer_മൂല്യം();
+		നിർത്തുക;
+	അവസ്ഥ CSR_INSTRET:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLE, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRET);
-		break;
+		നിർത്തുക;
 
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
+#എങ്കിൽ __riscv_xlen == 32
+	അവസ്ഥ CSR_HTIMEDELTAH:
+		എങ്കിൽ (prev_mode == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta() >> 32;
-		else
+		അല്ലെങ്കിൽ
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		നിർത്തുക;
+	അവസ്ഥ CSR_CYCLEH:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLEH, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLEH);
-		break;
-	case CSR_TIMEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
-		*csr_val = (virt) ? sbi_timer_virt_value() >> 32:
-				    sbi_timer_value() >> 32;
-		break;
-	case CSR_INSTRETH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		നിർത്തുക;
+	അവസ്ഥ CSR_TIMEH:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLEH, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_മൂല്യം() >> 32:
+				    sbi_timer_മൂല്യം() >> 32;
+		നിർത്തുക;
+	അവസ്ഥ CSR_INSTRETH:
+		എങ്കിൽ (!hpm_allowed(csr_അക്കം - CSR_CYCLEH, prev_mode, virt))
+			തിരികെ SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRETH);
-		break;
+		നിർത്തുക;
 #endif
 
 #define switchcase_hpm(__uref, __mref, __csr)				\
-	case __csr:							\
-		if (sbi_hart_mhpm_mask(scratch) & (1 << (__csr - __uref)))\
-			return SBI_ENOTSUPP;				\
-		if (!hpm_allowed(__csr - __uref, prev_mode, virt))	\
-			return SBI_ENOTSUPP;				\
+	അവസ്ഥ __csr:							\
+		എങ്കിൽ (sbi_hart_mhpm_mask(scratch) & (1 << (__csr - __uref)))\
+			തിരികെ SBI_ENOTSUPP;				\
+		എങ്കിൽ (!hpm_allowed(__csr - __uref, prev_mode, virt))	\
+			തിരികെ SBI_ENOTSUPP;				\
 		*csr_val = csr_read(__mref + __csr - __uref);		\
-		break;
+		നിർത്തുക;
 #define switchcase_hpm_2(__uref, __mref, __csr)			\
 	switchcase_hpm(__uref, __mref, __csr + 0)			\
 	switchcase_hpm(__uref, __mref, __csr + 1)
@@ -128,7 +128,7 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 	switchcase_hpm_8(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER8)
 	switchcase_hpm_16(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER16)
 
-#if __riscv_xlen == 32
+#എങ്കിൽ __riscv_xlen == 32
 	switchcase_hpm(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER3H)
 	switchcase_hpm_4(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER4H)
 	switchcase_hpm_8(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER8H)
@@ -141,40 +141,40 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 #undef switchcase_hpm_2
 #undef switchcase_hpm
 
-	default:
+	സ്ഥിരസ്ഥിതി:
 		ret = SBI_ENOTSUPP;
-		break;
+		നിർത്തുക;
 	}
 
-	return ret;
+	തിരികെ ret;
 }
 
-int sbi_emulate_csr_write(int csr_num, struct sbi_trap_regs *regs,
+പൂർണ്ണസംഖ്യ sbi_emulate_csr_write(പൂർണ്ണസംഖ്യ csr_അക്കം, ഘടന sbi_trap_regs *regs,
 			  ulong csr_val)
 {
-	int ret = 0;
+	പൂർണ്ണസംഖ്യ ret = 0;
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
+	തിരഞ്ഞെടുപ്പ് (csr_അക്കം) {
+	അവസ്ഥ CSR_HTIMEDELTA:
+		എങ്കിൽ (prev_mode == PRV_S && !virt)
 			sbi_timer_set_delta(csr_val);
-		else
+		അല്ലെങ്കിൽ
 			ret = SBI_ENOTSUPP;
-		break;
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
+		നിർത്തുക;
+#എങ്കിൽ __riscv_xlen == 32
+	അവസ്ഥ CSR_HTIMEDELTAH:
+		എങ്കിൽ (prev_mode == PRV_S && !virt)
 			sbi_timer_set_delta_upper(csr_val);
-		else
+		അല്ലെങ്കിൽ
 			ret = SBI_ENOTSUPP;
-		break;
+		നിർത്തുക;
 #endif
-	default:
+	സ്ഥിരസ്ഥിതി:
 		ret = SBI_ENOTSUPP;
-		break;
+		നിർത്തുക;
 	}
 
-	return ret;
+	തിരികെ ret;
 }

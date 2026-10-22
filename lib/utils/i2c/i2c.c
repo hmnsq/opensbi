@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+സ്ഥിതം SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+ഘടന i2c_adapter *i2c_adapter_find(പൂർണ്ണസംഖ്യ id)
 {
-	struct sbi_dlist *pos;
+	ഘടന sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		ഘടന i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		എങ്കിൽ (adap->id == id)
+			തിരികെ adap;
 	}
 
-	return NULL;
+	തിരികെ ശൂന്യ;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+പൂർണ്ണസംഖ്യ i2c_adapter_add(ഘടന i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	എങ്കിൽ (!ia)
+		തിരികെ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	എങ്കിൽ (i2c_adapter_find(ia->id))
+		തിരികെ SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_add(&(ia->കണ്ണി), &(i2c_adapters_list));
 
-	return 0;
+	തിരികെ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+ശൂന്യം i2c_adapter_remove(ഘടന i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	എങ്കിൽ (!ia)
+		തിരികെ;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->കണ്ണി));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+പൂർണ്ണസംഖ്യ i2c_adapter_write(ഘടന i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, പൂർണ്ണസംഖ്യ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	എങ്കിൽ (!ia)
+		തിരികെ SBI_EINVAL;
+	എങ്കിൽ (!ia->ലിഖ)
+		തിരികെ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	തിരികെ ia->ലിഖ(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+പൂർണ്ണസംഖ്യ i2c_adapter_read(ഘടന i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, പൂർണ്ണസംഖ്യ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	എങ്കിൽ (!ia)
+		തിരികെ SBI_EINVAL;
+	എങ്കിൽ (!ia->പഠ)
+		തിരികെ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	തിരികെ ia->പഠ(ia, addr, reg, buffer, len);
 }

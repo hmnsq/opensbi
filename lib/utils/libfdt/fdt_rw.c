@@ -3,17 +3,17 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#അന്തര്ഭാവ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#അന്തര്ഭാവ <fdt.h>
+#അന്തര്ഭാവ <libfdt.h>
 
-#include "libfdt_internal.h"
+#അന്തര്ഭാവ "libfdt_internal.h"
 
-static int fdt_blocks_misordered_(const void *fdt,
-				  int mem_rsv_size, int struct_size)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_blocks_misordered_(സ്ഥിരം ശൂന്യം *fdt,
+				  പൂർണ്ണസംഖ്യ mem_rsv_size, പൂർണ്ണസംഖ്യ struct_size)
 {
-	return (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(sizeof(struct fdt_header), 8))
+	തിരികെ (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(വലുപ്പം(ഘടന fdt_header), 8))
 		|| (fdt_off_dt_struct(fdt) <
 		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))
 		|| (fdt_off_dt_strings(fdt) <
@@ -22,97 +22,97 @@ static int fdt_blocks_misordered_(const void *fdt,
 		    (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));
 }
 
-static int fdt_rw_probe_(void *fdt)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_rw_probe_(ശൂന്യം *fdt)
 {
-	if (can_assume(VALID_DTB))
-		return 0;
+	എങ്കിൽ (can_assume(VALID_DTB))
+		തിരികെ 0;
 	FDT_RO_PROBE(fdt);
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 17)
-		return -FDT_ERR_BADVERSION;
-	if (fdt_blocks_misordered_(fdt, sizeof(struct fdt_reserve_entry),
+	എങ്കിൽ (!can_assume(LATEST) && fdt_version(fdt) < 17)
+		തിരികെ -FDT_ERR_BADVERSION;
+	എങ്കിൽ (fdt_blocks_misordered_(fdt, വലുപ്പം(ഘടന fdt_reserve_entry),
 				   fdt_size_dt_struct(fdt)))
-		return -FDT_ERR_BADLAYOUT;
-	if (!can_assume(LATEST) && fdt_version(fdt) > 17)
+		തിരികെ -FDT_ERR_BADLAYOUT;
+	എങ്കിൽ (!can_assume(LATEST) && fdt_version(fdt) > 17)
 		fdt_set_version(fdt, 17);
 
-	return 0;
+	തിരികെ 0;
 }
 
 #define FDT_RW_PROBE(fdt) \
 	{ \
-		int err_; \
-		if ((err_ = fdt_rw_probe_(fdt)) != 0) \
-			return err_; \
+		പൂർണ്ണസംഖ്യ err_; \
+		എങ്കിൽ ((err_ = fdt_rw_probe_(fdt)) != 0) \
+			തിരികെ err_; \
 	}
 
-static inline unsigned int fdt_data_size_(void *fdt)
+സ്ഥിതം വരിയിൽ unsigned പൂർണ്ണസംഖ്യ fdt_data_size_(ശൂന്യം *fdt)
 {
-	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
+	തിരികെ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 }
 
-static int fdt_splice_(void *fdt, void *splicepoint, int oldlen, int newlen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_splice_(ശൂന്യം *fdt, ശൂന്യം *splicepoint, പൂർണ്ണസംഖ്യ oldlen, പൂർണ്ണസംഖ്യ newlen)
 {
-	char *p = splicepoint;
-	unsigned int dsize = fdt_data_size_(fdt);
-	size_t soff = p - (char *)fdt;
+	അക്ഷരം *p = splicepoint;
+	unsigned പൂർണ്ണസംഖ്യ dsize = fdt_data_size_(fdt);
+	size_t soff = p - (അക്ഷരം *)fdt;
 
-	if ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
-		return -FDT_ERR_BADOFFSET;
-	if ((p < (char *)fdt) || (dsize + newlen < (unsigned)oldlen))
-		return -FDT_ERR_BADOFFSET;
-	if (dsize - oldlen + newlen > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
-	memmove(p + newlen, p + oldlen, ((char *)fdt + dsize) - (p + oldlen));
-	return 0;
+	എങ്കിൽ ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
+		തിരികെ -FDT_ERR_BADOFFSET;
+	എങ്കിൽ ((p < (അക്ഷരം *)fdt) || (dsize + newlen < (unsigned)oldlen))
+		തിരികെ -FDT_ERR_BADOFFSET;
+	എങ്കിൽ (dsize - oldlen + newlen > fdt_totalsize(fdt))
+		തിരികെ -FDT_ERR_NOSPACE;
+	memmove(p + newlen, p + oldlen, ((അക്ഷരം *)fdt + dsize) - (p + oldlen));
+	തിരികെ 0;
 }
 
-static int fdt_splice_mem_rsv_(void *fdt, struct fdt_reserve_entry *p,
-			       int oldn, int newn)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_splice_mem_rsv_(ശൂന്യം *fdt, ഘടന fdt_reserve_entry *p,
+			       പൂർണ്ണസംഖ്യ oldn, പൂർണ്ണസംഖ്യ newn)
 {
-	int delta = (newn - oldn) * sizeof(*p);
-	int err;
-	err = fdt_splice_(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
-	if (err)
-		return err;
+	പൂർണ്ണസംഖ്യ delta = (newn - oldn) * വലുപ്പം(*p);
+	പൂർണ്ണസംഖ്യ err;
+	err = fdt_splice_(fdt, p, oldn * വലുപ്പം(*p), newn * വലുപ്പം(*p));
+	എങ്കിൽ (err)
+		തിരികെ err;
 	fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
 	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	തിരികെ 0;
 }
 
-static int fdt_splice_struct_(void *fdt, void *p,
-			      int oldlen, int newlen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_splice_struct_(ശൂന്യം *fdt, ശൂന്യം *p,
+			      പൂർണ്ണസംഖ്യ oldlen, പൂർണ്ണസംഖ്യ newlen)
 {
-	int delta = newlen - oldlen;
-	int err;
+	പൂർണ്ണസംഖ്യ delta = newlen - oldlen;
+	പൂർണ്ണസംഖ്യ err;
 
-	if ((err = fdt_splice_(fdt, p, oldlen, newlen)))
-		return err;
+	എങ്കിൽ ((err = fdt_splice_(fdt, p, oldlen, newlen)))
+		തിരികെ err;
 
 	fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);
 	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	തിരികെ 0;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+സ്ഥിതം ശൂന്യം fdt_del_last_string_(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *s)
 {
-	int newlen = strlen(s) + 1;
+	പൂർണ്ണസംഖ്യ newlen = strlen(s) + 1;
 
 	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) - newlen);
 }
 
-static int fdt_splice_string_(void *fdt, int newlen)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_splice_string_(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ newlen)
 {
-	void *p = (char *)fdt
+	ശൂന്യം *p = (അക്ഷരം *)fdt
 		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
-	int err;
+	പൂർണ്ണസംഖ്യ err;
 
-	if ((err = fdt_splice_(fdt, p, 0, newlen)))
-		return err;
+	എങ്കിൽ ((err = fdt_splice_(fdt, p, 0, newlen)))
+		തിരികെ err;
 
 	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);
-	return 0;
+	തിരികെ 0;
 }
 
 /**
@@ -124,283 +124,283 @@ static int fdt_splice_string_(void *fdt, int newlen)
  *	allocated. Ignored if can_assume(NO_ROLLBACK)
  * @return offset of string in the string table (whether found or added)
  */
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_find_add_string_(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ *allocated)
 {
-	char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);
-	const char *p;
-	char *new;
-	int len = strlen(s) + 1;
-	int err;
+	അക്ഷരം *strtab = (അക്ഷരം *)fdt + fdt_off_dt_strings(fdt);
+	സ്ഥിരം അക്ഷരം *p;
+	അക്ഷരം *new;
+	പൂർണ്ണസംഖ്യ len = strlen(s) + 1;
+	പൂർണ്ണസംഖ്യ err;
 
-	if (!can_assume(NO_ROLLBACK))
+	എങ്കിൽ (!can_assume(NO_ROLLBACK))
 		*allocated = 0;
 
 	p = fdt_find_string_(strtab, fdt_size_dt_strings(fdt), s);
-	if (p)
+	എങ്കിൽ (p)
 		/* found it */
-		return (p - strtab);
+		തിരികെ (p - strtab);
 
 	new = strtab + fdt_size_dt_strings(fdt);
 	err = fdt_splice_string_(fdt, len);
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
-	if (!can_assume(NO_ROLLBACK))
+	എങ്കിൽ (!can_assume(NO_ROLLBACK))
 		*allocated = 1;
 
 	memcpy(new, s, len);
-	return (new - strtab);
+	തിരികെ (new - strtab);
 }
 
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
+പൂർണ്ണസംഖ്യ fdt_add_mem_rsv(ശൂന്യം *fdt, uint64_t address, uint64_t size)
 {
-	struct fdt_reserve_entry *re;
-	int err;
+	ഘടന fdt_reserve_entry *re;
+	പൂർണ്ണസംഖ്യ err;
 
 	FDT_RW_PROBE(fdt);
 
-	re = fdt_mem_rsv_w_(fdt, fdt_num_mem_rsv(fdt));
+	re = fdt_mem_rsv_w_(fdt, fdt_അക്കം_mem_rsv(fdt));
 	err = fdt_splice_mem_rsv_(fdt, re, 0, 1);
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
 	re->address = cpu_to_fdt64(address);
 	re->size = cpu_to_fdt64(size);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_del_mem_rsv(void *fdt, int n)
+പൂർണ്ണസംഖ്യ fdt_del_mem_rsv(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ n)
 {
-	struct fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
+	ഘടന fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
 
 	FDT_RW_PROBE(fdt);
 
-	if (n >= fdt_num_mem_rsv(fdt))
-		return -FDT_ERR_NOTFOUND;
+	എങ്കിൽ (n >= fdt_അക്കം_mem_rsv(fdt))
+		തിരികെ -FDT_ERR_NOTFOUND;
 
-	return fdt_splice_mem_rsv_(fdt, re, 1, 0);
+	തിരികെ fdt_splice_mem_rsv_(fdt, re, 1, 0);
 }
 
-static int fdt_resize_property_(void *fdt, int nodeoffset, const char *name,
-				int len, struct fdt_property **prop)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_resize_property_(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+				പൂർണ്ണസംഖ്യ len, ഘടന fdt_property **prop)
 {
-	int oldlen;
-	int err;
+	പൂർണ്ണസംഖ്യ oldlen;
+	പൂർണ്ണസംഖ്യ err;
 
 	*prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (!*prop)
-		return oldlen;
+	എങ്കിൽ (!*prop)
+		തിരികെ oldlen;
 
-	if ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
+	എങ്കിൽ ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
 				      FDT_TAGALIGN(len))))
-		return err;
+		തിരികെ err;
 
 	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	തിരികെ 0;
 }
 
-static int fdt_add_property_(void *fdt, int nodeoffset, const char *name,
-			     int len, struct fdt_property **prop)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_add_property_(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+			     പൂർണ്ണസംഖ്യ len, ഘടന fdt_property **prop)
 {
-	int proplen;
-	int nextoffset;
-	int namestroff;
-	int err;
-	int allocated;
+	പൂർണ്ണസംഖ്യ proplen;
+	പൂർണ്ണസംഖ്യ nextoffset;
+	പൂർണ്ണസംഖ്യ namestroff;
+	പൂർണ്ണസംഖ്യ err;
+	പൂർണ്ണസംഖ്യ allocated;
 
-	if ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return nextoffset;
+	എങ്കിൽ ((nextoffset = fdt_check_കണ്ണി_offset(fdt, nodeoffset)) < 0)
+		തിരികെ nextoffset;
 
 	namestroff = fdt_find_add_string_(fdt, name, &allocated);
-	if (namestroff < 0)
-		return namestroff;
+	എങ്കിൽ (namestroff < 0)
+		തിരികെ namestroff;
 
 	*prop = fdt_offset_ptr_w_(fdt, nextoffset);
-	proplen = sizeof(**prop) + FDT_TAGALIGN(len);
+	proplen = വലുപ്പം(**prop) + FDT_TAGALIGN(len);
 
 	err = fdt_splice_struct_(fdt, *prop, 0, proplen);
-	if (err) {
+	എങ്കിൽ (err) {
 		/* Delete the string if we failed to add it */
-		if (!can_assume(NO_ROLLBACK) && allocated)
+		എങ്കിൽ (!can_assume(NO_ROLLBACK) && allocated)
 			fdt_del_last_string_(fdt, name);
-		return err;
+		തിരികെ err;
 	}
 
 	(*prop)->tag = cpu_to_fdt32(FDT_PROP);
 	(*prop)->nameoff = cpu_to_fdt32(namestroff);
 	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+പൂർണ്ണസംഖ്യ fdt_set_name(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name)
 {
-	char *namep;
-	int oldlen, newlen;
-	int err;
+	അക്ഷരം *namep;
+	പൂർണ്ണസംഖ്യ oldlen, newlen;
+	പൂർണ്ണസംഖ്യ err;
 
 	FDT_RW_PROBE(fdt);
 
-	namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
-	if (!namep)
-		return oldlen;
+	namep = (അക്ഷരം *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
+	എങ്കിൽ (!namep)
+		തിരികെ oldlen;
 
 	newlen = strlen(name);
 
 	err = fdt_splice_struct_(fdt, namep, FDT_TAGALIGN(oldlen+1),
 				 FDT_TAGALIGN(newlen+1));
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
 	memcpy(namep, name, newlen+1);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data)
+പൂർണ്ണസംഖ്യ fdt_setprop_placeholder(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+			    പൂർണ്ണസംഖ്യ len, ശൂന്യം **prop_data)
 {
-	struct fdt_property *prop;
-	int err;
+	ഘടന fdt_property *prop;
+	പൂർണ്ണസംഖ്യ err;
 
 	FDT_RW_PROBE(fdt);
 
 	err = fdt_resize_property_(fdt, nodeoffset, name, len, &prop);
-	if (err == -FDT_ERR_NOTFOUND)
+	എങ്കിൽ (err == -FDT_ERR_NOTFOUND)
 		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
 	*prop_data = prop->data;
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len)
+പൂർണ്ണസംഖ്യ fdt_setprop(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+		സ്ഥിരം ശൂന്യം *val, പൂർണ്ണസംഖ്യ len)
 {
-	void *prop_data;
-	int err;
+	ശൂന്യം *prop_data;
+	പൂർണ്ണസംഖ്യ err;
 
 	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_data);
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
-	if (len)
+	എങ്കിൽ (len)
 		memcpy(prop_data, val, len);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len)
+പൂർണ്ണസംഖ്യ fdt_appendprop(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+		   സ്ഥിരം ശൂന്യം *val, പൂർണ്ണസംഖ്യ len)
 {
-	struct fdt_property *prop;
-	int err, oldlen, newlen;
+	ഘടന fdt_property *prop;
+	പൂർണ്ണസംഖ്യ err, oldlen, newlen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (prop) {
+	എങ്കിൽ (prop) {
 		newlen = len + oldlen;
 		err = fdt_splice_struct_(fdt, prop->data,
 					 FDT_TAGALIGN(oldlen),
 					 FDT_TAGALIGN(newlen));
-		if (err)
-			return err;
+		എങ്കിൽ (err)
+			തിരികെ err;
 		prop->len = cpu_to_fdt32(newlen);
 		memcpy(prop->data + oldlen, val, len);
-	} else {
+	} അല്ലെങ്കിൽ {
 		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-		if (err)
-			return err;
+		എങ്കിൽ (err)
+			തിരികെ err;
 		memcpy(prop->data, val, len);
 	}
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_delprop(void *fdt, int nodeoffset, const char *name)
+പൂർണ്ണസംഖ്യ fdt_delprop(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name)
 {
-	struct fdt_property *prop;
-	int len, proplen;
+	ഘടന fdt_property *prop;
+	പൂർണ്ണസംഖ്യ len, proplen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	എങ്കിൽ (!prop)
+		തിരികെ len;
 
-	proplen = sizeof(*prop) + FDT_TAGALIGN(len);
-	return fdt_splice_struct_(fdt, prop, proplen, 0);
+	proplen = വലുപ്പം(*prop) + FDT_TAGALIGN(len);
+	തിരികെ fdt_splice_struct_(fdt, prop, proplen, 0);
 }
 
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen)
+പൂർണ്ണസംഖ്യ fdt_add_subnode_namelen(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ parentoffset,
+			    സ്ഥിരം അക്ഷരം *name, പൂർണ്ണസംഖ്യ namelen)
 {
-	struct fdt_node_header *nh;
-	int offset, nextoffset;
-	int nodelen;
-	int err;
+	ഘടന fdt_കണ്ണി_header *nh;
+	പൂർണ്ണസംഖ്യ offset, nextoffset;
+	പൂർണ്ണസംഖ്യ nodelen;
+	പൂർണ്ണസംഖ്യ err;
 	uint32_t tag;
 	fdt32_t *endtag;
 
 	FDT_RW_PROBE(fdt);
 
 	offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);
-	if (offset >= 0)
-		return -FDT_ERR_EXISTS;
-	else if (offset != -FDT_ERR_NOTFOUND)
-		return offset;
+	എങ്കിൽ (offset >= 0)
+		തിരികെ -FDT_ERR_EXISTS;
+	അല്ലെങ്കിൽ എങ്കിൽ (offset != -FDT_ERR_NOTFOUND)
+		തിരികെ offset;
 
 	/* Try to place the new node after the parent's properties */
 	tag = fdt_next_tag(fdt, parentoffset, &nextoffset);
 	/* the fdt_subnode_offset_namelen() should ensure this never hits */
-	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
-		return -FDT_ERR_INTERNAL;
-	do {
+	എങ്കിൽ (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_കണ്ണി))
+		തിരികെ -FDT_ERR_INTERNAL;
+	ചെയ്യുക {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
-	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
+	} ആകുമ്പോൾ ((tag == FDT_PROP) || (tag == FDT_NOP));
 
 	nh = fdt_offset_ptr_w_(fdt, offset);
-	nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
+	nodelen = വലുപ്പം(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
 
 	err = fdt_splice_struct_(fdt, nh, 0, nodelen);
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_കണ്ണി);
 	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
 	memcpy(nh->name, name, namelen);
-	endtag = (fdt32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
-	*endtag = cpu_to_fdt32(FDT_END_NODE);
+	endtag = (fdt32_t *)((അക്ഷരം *)nh + nodelen - FDT_TAGSIZE);
+	*endtag = cpu_to_fdt32(FDT_END_കണ്ണി);
 
-	return offset;
+	തിരികെ offset;
 }
 
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name)
+പൂർണ്ണസംഖ്യ fdt_add_subnode(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ parentoffset, സ്ഥിരം അക്ഷരം *name)
 {
-	return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
+	തിരികെ fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_del_node(void *fdt, int nodeoffset)
+പൂർണ്ണസംഖ്യ fdt_del_കണ്ണി(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset)
 {
-	int endoffset;
+	പൂർണ്ണസംഖ്യ endoffset;
 
 	FDT_RW_PROBE(fdt);
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_കണ്ണി_end_offset(fdt, nodeoffset);
+	എങ്കിൽ (endoffset < 0)
+		തിരികെ endoffset;
 
-	return fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
+	തിരികെ fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
 				  endoffset - nodeoffset, 0);
 }
 
-static void fdt_packblocks_(const char *old, char *new,
-			    int mem_rsv_size,
-			    int struct_size,
-			    int strings_size)
+സ്ഥിതം ശൂന്യം fdt_packblocks_(സ്ഥിരം അക്ഷരം *old, അക്ഷരം *new,
+			    പൂർണ്ണസംഖ്യ mem_rsv_size,
+			    പൂർണ്ണസംഖ്യ struct_size,
+			    പൂർണ്ണസംഖ്യ strings_size)
 {
-	int mem_rsv_off, struct_off, strings_off;
+	പൂർണ്ണസംഖ്യ mem_rsv_off, struct_off, strings_off;
 
-	mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);
+	mem_rsv_off = FDT_ALIGN(വലുപ്പം(ഘടന fdt_header), 8);
 	struct_off = mem_rsv_off + mem_rsv_size;
 	strings_off = struct_off + struct_size;
 
@@ -416,59 +416,59 @@ static void fdt_packblocks_(const char *old, char *new,
 	fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));
 }
 
-int fdt_open_into(const void *fdt, void *buf, int bufsize)
+പൂർണ്ണസംഖ്യ fdt_open_into(സ്ഥിരം ശൂന്യം *fdt, ശൂന്യം *buf, പൂർണ്ണസംഖ്യ bufsize)
 {
-	int err;
-	int mem_rsv_size, struct_size;
-	int newsize;
-	const char *fdtstart = fdt;
-	const char *fdtend = fdtstart + fdt_totalsize(fdt);
-	char *tmp;
+	പൂർണ്ണസംഖ്യ err;
+	പൂർണ്ണസംഖ്യ mem_rsv_size, struct_size;
+	പൂർണ്ണസംഖ്യ newsize;
+	സ്ഥിരം അക്ഷരം *fdtstart = fdt;
+	സ്ഥിരം അക്ഷരം *fdtend = fdtstart + fdt_totalsize(fdt);
+	അക്ഷരം *tmp;
 
 	FDT_RO_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+	mem_rsv_size = (fdt_അക്കം_mem_rsv(fdt)+1)
+		* വലുപ്പം(ഘടന fdt_reserve_entry);
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+	എങ്കിൽ (can_assume(LATEST) || fdt_version(fdt) >= 17) {
 		struct_size = fdt_size_dt_struct(fdt);
-	} else if (fdt_version(fdt) == 16) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (fdt_version(fdt) == 16) {
 		struct_size = 0;
-		while (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
+		ആകുമ്പോൾ (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
 			;
-		if (struct_size < 0)
-			return struct_size;
-	} else {
-		return -FDT_ERR_BADVERSION;
+		എങ്കിൽ (struct_size < 0)
+			തിരികെ struct_size;
+	} അല്ലെങ്കിൽ {
+		തിരികെ -FDT_ERR_BADVERSION;
 	}
 
-	if (can_assume(LIBFDT_ORDER) ||
+	എങ്കിൽ (can_assume(LIBFDT_ORDER) ||
 	    !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
 		/* no further work necessary */
 		err = fdt_move(fdt, buf, bufsize);
-		if (err)
-			return err;
+		എങ്കിൽ (err)
+			തിരികെ err;
 		fdt_set_version(buf, 17);
 		fdt_set_size_dt_struct(buf, struct_size);
 		fdt_set_totalsize(buf, bufsize);
-		return 0;
+		തിരികെ 0;
 	}
 
 	/* Need to reorder */
-	newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
+	newsize = FDT_ALIGN(വലുപ്പം(ഘടന fdt_header), 8) + mem_rsv_size
 		+ struct_size + fdt_size_dt_strings(fdt);
 
-	if (bufsize < newsize)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (bufsize < newsize)
+		തിരികെ -FDT_ERR_NOSPACE;
 
 	/* First attempt to build converted tree at beginning of buffer */
 	tmp = buf;
 	/* But if that overlaps with the old tree... */
-	if (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
+	എങ്കിൽ (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
 		/* Try right after the old tree instead */
-		tmp = (char *)(uintptr_t)fdtend;
-		if ((tmp + newsize) > ((char *)buf + bufsize))
-			return -FDT_ERR_NOSPACE;
+		tmp = (അക്ഷരം *)(uintptr_t)fdtend;
+		എങ്കിൽ ((tmp + newsize) > ((അക്ഷരം *)buf + bufsize))
+			തിരികെ -FDT_ERR_NOSPACE;
 	}
 
 	fdt_packblocks_(fdt, tmp, mem_rsv_size, struct_size,
@@ -481,20 +481,20 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	fdt_set_last_comp_version(buf, 16);
 	fdt_set_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_pack(void *fdt)
+പൂർണ്ണസംഖ്യ fdt_pack(ശൂന്യം *fdt)
 {
-	int mem_rsv_size;
+	പൂർണ്ണസംഖ്യ mem_rsv_size;
 
 	FDT_RW_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+	mem_rsv_size = (fdt_അക്കം_mem_rsv(fdt)+1)
+		* വലുപ്പം(ഘടന fdt_reserve_entry);
 	fdt_packblocks_(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt),
 			fdt_size_dt_strings(fdt));
 	fdt_set_totalsize(fdt, fdt_data_size_(fdt));
 
-	return 0;
+	തിരികെ 0;
 }

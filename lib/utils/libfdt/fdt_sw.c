@@ -3,30 +3,30 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#അന്തര്ഭാവ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#അന്തര്ഭാവ <fdt.h>
+#അന്തര്ഭാവ <libfdt.h>
 
-#include "libfdt_internal.h"
+#അന്തര്ഭാവ "libfdt_internal.h"
 
-static int fdt_sw_probe_(void *fdt)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_sw_probe_(ശൂന്യം *fdt)
 {
-	if (!can_assume(VALID_INPUT)) {
-		if (fdt_magic(fdt) == FDT_MAGIC)
-			return -FDT_ERR_BADSTATE;
-		else if (fdt_magic(fdt) != FDT_SW_MAGIC)
-			return -FDT_ERR_BADMAGIC;
+	എങ്കിൽ (!can_assume(VALID_നിവേശം)) {
+		എങ്കിൽ (fdt_magic(fdt) == FDT_MAGIC)
+			തിരികെ -FDT_ERR_BADSTATE;
+		അല്ലെങ്കിൽ എങ്കിൽ (fdt_magic(fdt) != FDT_SW_MAGIC)
+			തിരികെ -FDT_ERR_BADMAGIC;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
 #define FDT_SW_PROBE(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_(fdt)) != 0) \
-			return err; \
+		പൂർണ്ണസംഖ്യ err; \
+		എങ്കിൽ ((err = fdt_sw_probe_(fdt)) != 0) \
+			തിരികെ err; \
 	}
 
 /* 'memrsv' state:	Initial state after fdt_create()
@@ -35,22 +35,22 @@ static int fdt_sw_probe_(void *fdt)
  *	fdt_add_reservemap_entry()
  *	fdt_finish_reservemap()		[moves to 'struct' state]
  */
-static int fdt_sw_probe_memrsv_(void *fdt)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_sw_probe_memrsv_(ശൂന്യം *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	പൂർണ്ണസംഖ്യ err = fdt_sw_probe_(fdt);
+	എങ്കിൽ (err)
+		തിരികെ err;
 
-	if (!can_assume(VALID_INPUT) && fdt_off_dt_strings(fdt) != 0)
-		return -FDT_ERR_BADSTATE;
-	return 0;
+	എങ്കിൽ (!can_assume(VALID_നിവേശം) && fdt_off_dt_strings(fdt) != 0)
+		തിരികെ -FDT_ERR_BADSTATE;
+	തിരികെ 0;
 }
 
 #define FDT_SW_PROBE_MEMRSV(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
-			return err; \
+		പൂർണ്ണസംഖ്യ err; \
+		എങ്കിൽ ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
+			തിരികെ err; \
 	}
 
 /* 'struct' state:	Enter this state after fdt_finish_reservemap()
@@ -61,29 +61,29 @@ static int fdt_sw_probe_memrsv_(void *fdt)
  *	fdt_property*()
  *	fdt_finish()			[moves to 'complete' state]
  */
-static int fdt_sw_probe_struct_(void *fdt)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_sw_probe_struct_(ശൂന്യം *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	പൂർണ്ണസംഖ്യ err = fdt_sw_probe_(fdt);
+	എങ്കിൽ (err)
+		തിരികെ err;
 
-	if (!can_assume(VALID_INPUT) &&
+	എങ്കിൽ (!can_assume(VALID_നിവേശം) &&
 	    fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
-		return -FDT_ERR_BADSTATE;
-	return 0;
+		തിരികെ -FDT_ERR_BADSTATE;
+	തിരികെ 0;
 }
 
 #define FDT_SW_PROBE_STRUCT(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_struct_(fdt)) != 0) \
-			return err; \
+		പൂർണ്ണസംഖ്യ err; \
+		എങ്കിൽ ((err = fdt_sw_probe_struct_(fdt)) != 0) \
+			തിരികെ err; \
 	}
 
-static inline uint32_t sw_flags(void *fdt)
+സ്ഥിതം വരിയിൽ uint32_t sw_flags(ശൂന്യം *fdt)
 {
 	/* assert: (fdt_magic(fdt) == FDT_SW_MAGIC) */
-	return fdt_last_comp_version(fdt);
+	തിരികെ fdt_last_comp_version(fdt);
 }
 
 /* 'complete' state:	Enter this state after fdt_finish()
@@ -91,32 +91,32 @@ static inline uint32_t sw_flags(void *fdt)
  * Allowed functions: none
  */
 
-static void *fdt_grab_space_(void *fdt, size_t len)
+സ്ഥിതം ശൂന്യം *fdt_grab_space_(ശൂന്യം *fdt, size_t len)
 {
-	unsigned int offset = fdt_size_dt_struct(fdt);
-	unsigned int spaceleft;
+	unsigned പൂർണ്ണസംഖ്യ offset = fdt_size_dt_struct(fdt);
+	unsigned പൂർണ്ണസംഖ്യ spaceleft;
 
 	spaceleft = fdt_totalsize(fdt) - fdt_off_dt_struct(fdt)
 		- fdt_size_dt_strings(fdt);
 
-	if ((offset + len < offset) || (offset + len > spaceleft))
-		return NULL;
+	എങ്കിൽ ((offset + len < offset) || (offset + len > spaceleft))
+		തിരികെ ശൂന്യ;
 
 	fdt_set_size_dt_struct(fdt, offset + len);
-	return fdt_offset_ptr_w_(fdt, offset);
+	തിരികെ fdt_offset_ptr_w_(fdt, offset);
 }
 
-int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
+പൂർണ്ണസംഖ്യ fdt_create_with_flags(ശൂന്യം *buf, പൂർണ്ണസംഖ്യ bufsize, uint32_t flags)
 {
-	const int hdrsize = FDT_ALIGN(sizeof(struct fdt_header),
-				      sizeof(struct fdt_reserve_entry));
-	void *fdt = buf;
+	സ്ഥിരം പൂർണ്ണസംഖ്യ hdrsize = FDT_ALIGN(വലുപ്പം(ഘടന fdt_header),
+				      വലുപ്പം(ഘടന fdt_reserve_entry));
+	ശൂന്യം *fdt = buf;
 
-	if (bufsize < hdrsize)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (bufsize < hdrsize)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	if (flags & ~FDT_CREATE_FLAGS_ALL)
-		return -FDT_ERR_BADFLAGS;
+	എങ്കിൽ (flags & ~FDT_CREATE_FLAGS_ALL)
+		തിരികെ -FDT_ERR_BADFLAGS;
 
 	memset(buf, 0, bufsize);
 
@@ -137,217 +137,217 @@ int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
 	fdt_set_off_dt_struct(fdt, fdt_off_mem_rsvmap(fdt));
 	fdt_set_off_dt_strings(fdt, 0);
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_create(void *buf, int bufsize)
+പൂർണ്ണസംഖ്യ fdt_create(ശൂന്യം *buf, പൂർണ്ണസംഖ്യ bufsize)
 {
-	return fdt_create_with_flags(buf, bufsize, 0);
+	തിരികെ fdt_create_with_flags(buf, bufsize, 0);
 }
 
-int fdt_resize(void *fdt, void *buf, int bufsize)
+പൂർണ്ണസംഖ്യ fdt_resize(ശൂന്യം *fdt, ശൂന്യം *buf, പൂർണ്ണസംഖ്യ bufsize)
 {
 	size_t headsize, tailsize;
-	char *oldtail, *newtail;
+	അക്ഷരം *oldtail, *newtail;
 
 	FDT_SW_PROBE(fdt);
 
-	if (bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (bufsize < 0)
+		തിരികെ -FDT_ERR_NOSPACE;
 
 	headsize = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
 	tailsize = fdt_size_dt_strings(fdt);
 
-	if (!can_assume(VALID_DTB) &&
+	എങ്കിൽ (!can_assume(VALID_DTB) &&
 	    headsize + tailsize > fdt_totalsize(fdt))
-		return -FDT_ERR_INTERNAL;
+		തിരികെ -FDT_ERR_INTERNAL;
 
-	if ((headsize + tailsize) > (unsigned)bufsize)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ ((headsize + tailsize) > (unsigned)bufsize)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	oldtail = (char *)fdt + fdt_totalsize(fdt) - tailsize;
-	newtail = (char *)buf + bufsize - tailsize;
+	oldtail = (അക്ഷരം *)fdt + fdt_totalsize(fdt) - tailsize;
+	newtail = (അക്ഷരം *)buf + bufsize - tailsize;
 
 	/* Two cases to avoid clobbering data if the old and new
 	 * buffers partially overlap */
-	if (buf <= fdt) {
+	എങ്കിൽ (buf <= fdt) {
 		memmove(buf, fdt, headsize);
 		memmove(newtail, oldtail, tailsize);
-	} else {
+	} അല്ലെങ്കിൽ {
 		memmove(newtail, oldtail, tailsize);
 		memmove(buf, fdt, headsize);
 	}
 
 	fdt_set_totalsize(buf, bufsize);
-	if (fdt_off_dt_strings(buf))
+	എങ്കിൽ (fdt_off_dt_strings(buf))
 		fdt_set_off_dt_strings(buf, bufsize);
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size)
+പൂർണ്ണസംഖ്യ fdt_add_reservemap_entry(ശൂന്യം *fdt, uint64_t addr, uint64_t size)
 {
-	struct fdt_reserve_entry *re;
-	int offset;
+	ഘടന fdt_reserve_entry *re;
+	പൂർണ്ണസംഖ്യ offset;
 
 	FDT_SW_PROBE_MEMRSV(fdt);
 
 	offset = fdt_off_dt_struct(fdt);
-	if ((offset + sizeof(*re)) > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ ((offset + വലുപ്പം(*re)) > fdt_totalsize(fdt))
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	re = (struct fdt_reserve_entry *)((char *)fdt + offset);
+	re = (ഘടന fdt_reserve_entry *)((അക്ഷരം *)fdt + offset);
 	re->address = cpu_to_fdt64(addr);
 	re->size = cpu_to_fdt64(size);
 
-	fdt_set_off_dt_struct(fdt, offset + sizeof(*re));
+	fdt_set_off_dt_struct(fdt, offset + വലുപ്പം(*re));
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_finish_reservemap(void *fdt)
+പൂർണ്ണസംഖ്യ fdt_finish_reservemap(ശൂന്യം *fdt)
 {
-	int err = fdt_add_reservemap_entry(fdt, 0, 0);
+	പൂർണ്ണസംഖ്യ err = fdt_add_reservemap_entry(fdt, 0, 0);
 
-	if (err)
-		return err;
+	എങ്കിൽ (err)
+		തിരികെ err;
 
 	fdt_set_off_dt_strings(fdt, fdt_totalsize(fdt));
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_begin_node(void *fdt, const char *name)
+പൂർണ്ണസംഖ്യ fdt_begin_കണ്ണി(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *name)
 {
-	struct fdt_node_header *nh;
-	int namelen;
+	ഘടന fdt_കണ്ണി_header *nh;
+	പൂർണ്ണസംഖ്യ namelen;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	namelen = strlen(name) + 1;
-	nh = fdt_grab_space_(fdt, sizeof(*nh) + FDT_TAGALIGN(namelen));
-	if (! nh)
-		return -FDT_ERR_NOSPACE;
+	nh = fdt_grab_space_(fdt, വലുപ്പം(*nh) + FDT_TAGALIGN(namelen));
+	എങ്കിൽ (! nh)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_കണ്ണി);
 	memcpy(nh->name, name, namelen);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_end_node(void *fdt)
+പൂർണ്ണസംഖ്യ fdt_end_കണ്ണി(ശൂന്യം *fdt)
 {
 	fdt32_t *en;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	en = fdt_grab_space_(fdt, FDT_TAGSIZE);
-	if (! en)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (! en)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	*en = cpu_to_fdt32(FDT_END_NODE);
-	return 0;
+	*en = cpu_to_fdt32(FDT_END_കണ്ണി);
+	തിരികെ 0;
 }
 
-static int fdt_add_string_(void *fdt, const char *s)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_add_string_(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *s)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	unsigned int strtabsize = fdt_size_dt_strings(fdt);
-	unsigned int len = strlen(s) + 1;
-	unsigned int struct_top, offset;
+	അക്ഷരം *strtab = (അക്ഷരം *)fdt + fdt_totalsize(fdt);
+	unsigned പൂർണ്ണസംഖ്യ strtabsize = fdt_size_dt_strings(fdt);
+	unsigned പൂർണ്ണസംഖ്യ len = strlen(s) + 1;
+	unsigned പൂർണ്ണസംഖ്യ struct_മുകൾ, offset;
 
 	offset = strtabsize + len;
-	struct_top = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	if (fdt_totalsize(fdt) - offset < struct_top)
-		return 0; /* no more room :( */
+	struct_മുകൾ = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
+	എങ്കിൽ (fdt_totalsize(fdt) - offset < struct_മുകൾ)
+		തിരികെ 0; /* no more room :( */
 
 	memcpy(strtab - offset, s, len);
 	fdt_set_size_dt_strings(fdt, strtabsize + len);
-	return -offset;
+	തിരികെ -offset;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+സ്ഥിതം ശൂന്യം fdt_del_last_string_(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *s)
 {
-	int strtabsize = fdt_size_dt_strings(fdt);
-	int len = strlen(s) + 1;
+	പൂർണ്ണസംഖ്യ strtabsize = fdt_size_dt_strings(fdt);
+	പൂർണ്ണസംഖ്യ len = strlen(s) + 1;
 
 	fdt_set_size_dt_strings(fdt, strtabsize - len);
 }
 
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_find_add_string_(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *s, പൂർണ്ണസംഖ്യ *allocated)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	int strtabsize = fdt_size_dt_strings(fdt);
-	const char *p;
+	അക്ഷരം *strtab = (അക്ഷരം *)fdt + fdt_totalsize(fdt);
+	പൂർണ്ണസംഖ്യ strtabsize = fdt_size_dt_strings(fdt);
+	സ്ഥിരം അക്ഷരം *p;
 
 	*allocated = 0;
 
 	p = fdt_find_string_(strtab - strtabsize, strtabsize, s);
-	if (p)
-		return p - strtab;
+	എങ്കിൽ (p)
+		തിരികെ p - strtab;
 
 	*allocated = 1;
 
-	return fdt_add_string_(fdt, s);
+	തിരികെ fdt_add_string_(fdt, s);
 }
 
-int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp)
+പൂർണ്ണസംഖ്യ fdt_property_placeholder(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *name, പൂർണ്ണസംഖ്യ len, ശൂന്യം **valp)
 {
-	struct fdt_property *prop;
-	int nameoff;
-	int allocated;
+	ഘടന fdt_property *prop;
+	പൂർണ്ണസംഖ്യ nameoff;
+	പൂർണ്ണസംഖ്യ allocated;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* String de-duplication can be slow, _NO_NAME_DEDUP skips it */
-	if (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
+	എങ്കിൽ (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
 		allocated = 1;
 		nameoff = fdt_add_string_(fdt, name);
-	} else {
+	} അല്ലെങ്കിൽ {
 		nameoff = fdt_find_add_string_(fdt, name, &allocated);
 	}
-	if (nameoff == 0)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (nameoff == 0)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	prop = fdt_grab_space_(fdt, sizeof(*prop) + FDT_TAGALIGN(len));
-	if (! prop) {
-		if (allocated)
+	prop = fdt_grab_space_(fdt, വലുപ്പം(*prop) + FDT_TAGALIGN(len));
+	എങ്കിൽ (! prop) {
+		എങ്കിൽ (allocated)
 			fdt_del_last_string_(fdt, name);
-		return -FDT_ERR_NOSPACE;
+		തിരികെ -FDT_ERR_NOSPACE;
 	}
 
 	prop->tag = cpu_to_fdt32(FDT_PROP);
 	prop->nameoff = cpu_to_fdt32(nameoff);
 	prop->len = cpu_to_fdt32(len);
 	*valp = prop->data;
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_property(void *fdt, const char *name, const void *val, int len)
+പൂർണ്ണസംഖ്യ fdt_property(ശൂന്യം *fdt, സ്ഥിരം അക്ഷരം *name, സ്ഥിരം ശൂന്യം *val, പൂർണ്ണസംഖ്യ len)
 {
-	void *ptr;
-	int ret;
+	ശൂന്യം *ptr;
+	പൂർണ്ണസംഖ്യ ret;
 
 	ret = fdt_property_placeholder(fdt, name, len, &ptr);
-	if (ret)
-		return ret;
+	എങ്കിൽ (ret)
+		തിരികെ ret;
 	memcpy(ptr, val, len);
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_finish(void *fdt)
+പൂർണ്ണസംഖ്യ fdt_finish(ശൂന്യം *fdt)
 {
-	char *p = (char *)fdt;
+	അക്ഷരം *p = (അക്ഷരം *)fdt;
 	fdt32_t *end;
-	int oldstroffset, newstroffset;
+	പൂർണ്ണസംഖ്യ oldstroffset, newstroffset;
 	uint32_t tag;
-	int offset, nextoffset;
+	പൂർണ്ണസംഖ്യ offset, nextoffset;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* Add terminator */
-	end = fdt_grab_space_(fdt, sizeof(*end));
-	if (! end)
-		return -FDT_ERR_NOSPACE;
+	end = fdt_grab_space_(fdt, വലുപ്പം(*end));
+	എങ്കിൽ (! end)
+		തിരികെ -FDT_ERR_NOSPACE;
 	*end = cpu_to_fdt32(FDT_END);
 
 	/* Relocate the string table */
@@ -358,11 +358,11 @@ int fdt_finish(void *fdt)
 
 	/* Walk the structure, correcting string offsets */
 	offset = 0;
-	while ((tag = fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
-		if (tag == FDT_PROP) {
-			struct fdt_property *prop =
+	ആകുമ്പോൾ ((tag = fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
+		എങ്കിൽ (tag == FDT_PROP) {
+			ഘടന fdt_property *prop =
 				fdt_offset_ptr_w_(fdt, offset);
-			int nameoff;
+			പൂർണ്ണസംഖ്യ nameoff;
 
 			nameoff = fdt32_to_cpu(prop->nameoff);
 			nameoff += fdt_size_dt_strings(fdt);
@@ -370,8 +370,8 @@ int fdt_finish(void *fdt)
 		}
 		offset = nextoffset;
 	}
-	if (nextoffset < 0)
-		return nextoffset;
+	എങ്കിൽ (nextoffset < 0)
+		തിരികെ nextoffset;
 
 	/* Finally, adjust the header */
 	fdt_set_totalsize(fdt, newstroffset + fdt_size_dt_strings(fdt));
@@ -380,5 +380,5 @@ int fdt_finish(void *fdt)
 	fdt_set_last_comp_version(fdt, FDT_LAST_COMPATIBLE_VERSION);
 	fdt_set_magic(fdt, FDT_MAGIC);
 
-	return 0;
+	തിരികെ 0;
 }

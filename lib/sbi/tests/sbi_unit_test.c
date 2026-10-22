@@ -3,33 +3,33 @@
  *
  * Author: Ivan Orlov <ivan.orlov0322@gmail.com>
  */
-#include <sbi/sbi_unit_test.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_unit_test.h>
+#അന്തര്ഭാവ <sbi/sbi_types.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
 
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-extern struct sbiunit_test_suite *const sbi_unit_tests[];
+ബാഹ്യ ഘടന sbiunit_test_suite *സ്ഥിരം sbi_unit_tests[];
 
-static void run_test_suite(struct sbiunit_test_suite *suite)
+സ്ഥിതം ശൂന്യം run_test_suite(ഘടന sbiunit_test_suite *suite)
 {
-	struct sbiunit_test_case *s_case;
-	u32 count_pass = 0, count_fail = 0;
+	ഘടന sbiunit_test_case *s_case;
+	u32 എണ്ണം_pass = 0, എണ്ണം_fail = 0;
 
 	sbi_printf("## Running test suite: %s\n", suite->name);
 
-	if (suite->init)
+	എങ്കിൽ (suite->init)
 		suite->init();
 
 	s_case = suite->cases;
-	while (s_case->test_func) {
+	ആകുമ്പോൾ (s_case->test_func) {
 		s_case->test_func(s_case);
-		if (s_case->failed)
-			count_fail++;
-		else
-			count_pass++;
+		എങ്കിൽ (s_case->failed)
+			എണ്ണം_fail++;
+		അല്ലെങ്കിൽ
+			എണ്ണം_pass++;
 		sbi_printf("%s[%s]%s %s\n",
 			   s_case->failed ? ANSI_COLOR_RED : ANSI_COLOR_GREEN,
 			   s_case->failed ? "FAILED" : "PASSED",
@@ -37,16 +37,16 @@ static void run_test_suite(struct sbiunit_test_suite *suite)
 		s_case++;
 	}
 
-	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", count_pass, count_fail,
-		   count_pass + count_fail);
+	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", എണ്ണം_pass, എണ്ണം_fail,
+		   എണ്ണം_pass + എണ്ണം_fail);
 }
 
-void run_all_tests(void)
+ശൂന്യം run_all_tests(ശൂന്യം)
 {
 	u32 i;
 
 	sbi_printf("\n# Running SBIUNIT tests #\n");
 
-	for (i = 0; sbi_unit_tests[i]; i++)
+	വേണ്ടി (i = 0; sbi_unit_tests[i]; i++)
 		run_test_suite(sbi_unit_tests[i]);
 }

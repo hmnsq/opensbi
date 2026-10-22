@@ -3,10 +3,10 @@
  * Copyright (C) 2022 Renesas Electronics Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/serial/renesas-scif.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi_utils/serial/renesas-scif.h>
 
 /* clang-format off */
 
@@ -44,33 +44,33 @@
 				 (reg == SCIF_REG_FTDR) || \
 				 (reg == SCIF_REG_SEMR))
 
-#define SCBRR_VALUE(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
+#define SCBRR_മൂല്യം(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
 
 /* clang-format on */
 
-static volatile char *scif_base;
+സ്ഥിതം അസ്ഥിര അക്ഷരം *scif_base;
 
-static u32 get_reg(u32 offset)
+സ്ഥിതം u32 get_reg(u32 offset)
 {
-	if (SCIF_REG_8BIT(offset))
-		return readb(scif_base + offset);
+	എങ്കിൽ (SCIF_REG_8BIT(offset))
+		തിരികെ readb(scif_base + offset);
 
-	return readw(scif_base + offset);
+	തിരികെ readw(scif_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+സ്ഥിതം ശൂന്യം set_reg(u32 offset, u32 val)
 {
-	if (SCIF_REG_8BIT(offset))
+	എങ്കിൽ (SCIF_REG_8BIT(offset))
 		writeb(val, scif_base + offset);
-	else
+	അല്ലെങ്കിൽ
 		writew(val, scif_base + offset);
 }
 
-static void renesas_scif_putc(char ch)
+സ്ഥിതം ശൂന്യം renesas_scif_putc(അക്ഷരം ch)
 {
 	uint16_t reg;
 
-	while (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
+	ആകുമ്പോൾ (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
 		;
 
 	set_reg(SCIF_REG_FTDR, ch);
@@ -79,16 +79,16 @@ static void renesas_scif_putc(char ch)
 	set_reg(SCIF_REG_FSR, reg);
 }
 
-static struct sbi_console_device renesas_scif_console = {
+സ്ഥിതം ഘടന sbi_console_device renesas_scif_console = {
 	.name		= "renesas_scif",
 	.console_putc	= renesas_scif_putc,
 };
 
-int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
+പൂർണ്ണസംഖ്യ renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	uint16_t data16;
 
-	scif_base = (volatile char *)base;
+	scif_base = (അസ്ഥിര അക്ഷരം *)base;
 
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_DIS);
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_ASSRT_RFTF);
@@ -105,12 +105,12 @@ int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	data16 = get_reg(SCIF_REG_SEMR);
 	set_reg(SCIF_REG_SEMR, data16 & (~SCIF_SEMR_MDDRS));
-	set_reg(SCIF_REG_BRR, SCBRR_VALUE(in_freq, baudrate));
+	set_reg(SCIF_REG_BRR, SCBRR_മൂല്യം(in_freq, baudrate));
 
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_NGATE_RFTF);
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_EN);
 
 	sbi_console_set_device(&renesas_scif_console);
 
-	return 0;
+	തിരികെ 0;
 }

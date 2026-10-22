@@ -4,134 +4,134 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <libfdt.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_scratch.h>
+#അന്തര്ഭാവ <sbi_utils/cache/fdt_cache.h>
+#അന്തര്ഭാവ <sbi_utils/cache/fdt_cmo_helper.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
 
-static unsigned long flc_offset;
+സ്ഥിതം unsigned long flc_offset;
 
 #define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
+	sbi_scratch_read_type(_s, ഘടന cache_device *, flc_offset)
 #define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+	sbi_scratch_write_type(_s, ഘടന cache_device *, flc_offset, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+പൂർണ്ണസംഖ്യ fdt_cmo_private_flc_flush_all(ശൂന്യം)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ഘടന cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	എങ്കിൽ (!flc || !flc->cpu_private)
+		തിരികെ SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	തിരികെ cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+പൂർണ്ണസംഖ്യ fdt_cmo_llc_flush_all(ശൂന്യം)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ഘടന cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	എങ്കിൽ (!llc)
+		തിരികെ SBI_ENODEV;
 
-	while (llc->next)
+	ആകുമ്പോൾ (llc->next)
 		llc = llc->next;
 
-	return cache_flush_all(llc);
+	തിരികെ cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+പൂർണ്ണസംഖ്യ fdt_cmo_private_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ഘടന cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	എങ്കിൽ (!flc || !flc->cpu_private)
+		തിരികെ SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	തിരികെ cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+പൂർണ്ണസംഖ്യ fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ഘടന cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	എങ്കിൽ (!llc)
+		തിരികെ SBI_ENODEV;
 
-	while (llc->next)
+	ആകുമ്പോൾ (llc->next)
 		llc = llc->next;
 
-	return cache_enable(llc, enable);
+	തിരികെ cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_cmo_cold_init(സ്ഥിരം ശൂന്യം *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	ഘടന sbi_scratch *scratch;
+	ഘടന cache_device *dev;
+	പൂർണ്ണസംഖ്യ cpu_offset, cpus_offset, rc;
 	u32 hartid;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	എങ്കിൽ (cpus_offset < 0)
+		തിരികെ SBI_EINVAL;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+		എങ്കിൽ (rc)
+			തുടരുക;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		എങ്കിൽ (!scratch)
+			തുടരുക;
 
 		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
-			dev = NULL;
+		എങ്കിൽ (rc && rc != SBI_ENOENT)
+			തിരികെ rc;
+		എങ്കിൽ (rc == SBI_ENOENT)
+			dev = ശൂന്യ;
 
 		set_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	തിരികെ SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ fdt_cmo_warm_init(ശൂന്യം)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	ഘടന cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	പൂർണ്ണസംഖ്യ rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	ആകുമ്പോൾ (cur) {
+		എങ്കിൽ (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			എങ്കിൽ (rc)
+				തിരികെ rc;
 		}
 
 		cur = cur->next;
 	}
 
-	return SBI_OK;
+	തിരികെ SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+പൂർണ്ണസംഖ്യ fdt_cmo_init(bool cold_boot)
 {
-	const void *fdt = fdt_get_address();
-	int rc;
+	സ്ഥിരം ശൂന്യം *fdt = fdt_get_address();
+	പൂർണ്ണസംഖ്യ rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	എങ്കിൽ (cold_boot) {
+		flc_offset = sbi_scratch_alloc_type_offset(ഘടന cache_device *);
+		എങ്കിൽ (!flc_offset)
+			തിരികെ SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		എങ്കിൽ (rc)
+			തിരികെ rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	return SBI_OK;
+	തിരികെ SBI_OK;
 }

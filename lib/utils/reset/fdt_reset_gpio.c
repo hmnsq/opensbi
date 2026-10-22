@@ -9,57 +9,57 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#അന്തര്ഭാവ <libfdt.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall_interface.h>
+#അന്തര്ഭാവ <sbi/sbi_hart.h>
+#അന്തര്ഭാവ <sbi/sbi_system.h>
+#അന്തര്ഭാവ <sbi/sbi_timer.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_driver.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/gpio/fdt_gpio.h>
 
-struct gpio_reset {
-	struct gpio_pin pin;
+ഘടന gpio_reset {
+	ഘടന gpio_pin pin;
 	u32 active_delay;
 	u32 inactive_delay;
 };
 
-static struct gpio_reset poweroff = {
+സ്ഥിതം ഘടന gpio_reset poweroff = {
 	.active_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset restart = {
+സ്ഥിതം ഘടന gpio_reset restart = {
 	.active_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset *gpio_reset_get(bool is_restart, u32 type)
+സ്ഥിതം ഘടന gpio_reset *gpio_reset_get(bool is_restart, u32 type)
 {
-	struct gpio_reset *reset = NULL;
+	ഘടന gpio_reset *reset = ശൂന്യ;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_restart)
+	തിരഞ്ഞെടുപ്പ് (type) {
+	അവസ്ഥ SBI_SRST_RESET_TYPE_SHUTDOWN:
+		എങ്കിൽ (!is_restart)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_restart)
+		നിർത്തുക;
+	അവസ്ഥ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	അവസ്ഥ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		എങ്കിൽ (is_restart)
 			reset = &restart;
-		break;
+		നിർത്തുക;
 	}
 
-	if (reset && !reset->pin.chip)
-		reset = NULL;
+	എങ്കിൽ (reset && !reset->pin.chip)
+		reset = ശൂന്യ;
 
-	return reset;
+	തിരികെ reset;
 }
 
-static void gpio_reset_exec(struct gpio_reset *reset)
+സ്ഥിതം ശൂന്യം gpio_reset_exec(ഘടന gpio_reset *reset)
 {
-	if (reset) {
+	എങ്കിൽ (reset) {
 		/* drive it active, also inactive->active edge */
 		gpio_direction_output(&reset->pin, 1);
 		sbi_timer_mdelay(reset->active_delay);
@@ -75,95 +75,95 @@ static void gpio_reset_exec(struct gpio_reset *reset)
 	sbi_hart_hang();
 }
 
-static int gpio_system_poweroff_check(u32 type, u32 reason)
+സ്ഥിതം പൂർണ്ണസംഖ്യ gpio_system_poweroff_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(false, type))
-		return 128;
+	എങ്കിൽ (gpio_reset_get(false, type))
+		തിരികെ 128;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static void gpio_system_poweroff(u32 type, u32 reason)
+സ്ഥിതം ശൂന്യം gpio_system_poweroff(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device gpio_poweroff = {
+സ്ഥിതം ഘടന sbi_system_reset_device gpio_poweroff = {
 	.name = "gpio-poweroff",
 	.system_reset_check = gpio_system_poweroff_check,
 	.system_reset = gpio_system_poweroff
 };
 
-static int gpio_system_restart_check(u32 type, u32 reason)
+സ്ഥിതം പൂർണ്ണസംഖ്യ gpio_system_restart_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(true, type))
-		return 128;
+	എങ്കിൽ (gpio_reset_get(true, type))
+		തിരികെ 128;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static void gpio_system_restart(u32 type, u32 reason)
+സ്ഥിതം ശൂന്യം gpio_system_restart(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device gpio_restart = {
+സ്ഥിതം ഘടന sbi_system_reset_device gpio_restart = {
 	.name = "gpio-restart",
 	.system_reset_check = gpio_system_restart_check,
 	.system_reset = gpio_system_restart
 };
 
-static int gpio_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+സ്ഥിതം പൂർണ്ണസംഖ്യ gpio_reset_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+			   സ്ഥിരം ഘടന fdt_match *match)
 {
-	int rc, len;
-	const fdt32_t *val;
+	പൂർണ്ണസംഖ്യ rc, len;
+	സ്ഥിരം fdt32_t *val;
 	bool is_restart = (ulong)match->data;
-	const char *dir_prop = (is_restart) ? "open-source" : "input";
-	struct gpio_reset *reset = (is_restart) ? &restart : &poweroff;
+	സ്ഥിരം അക്ഷരം *dir_prop = (is_restart) ? "open-source" : "input";
+	ഘടന gpio_reset *reset = (is_restart) ? &restart : &poweroff;
 
 	rc = fdt_gpio_pin_get(fdt, nodeoff, 0, &reset->pin);
-	if (rc)
-		return rc;
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
-		rc = gpio_direction_input(&reset->pin);
-		if (rc)
-			return rc;
+	എങ്കിൽ (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
+		rc = gpio_direction_നിവേശം(&reset->pin);
+		എങ്കിൽ (rc)
+			തിരികെ rc;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "active-delay-ms", &len);
-	if (len > 0)
+	എങ്കിൽ (len > 0)
 		reset->active_delay = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "inactive-delay-ms", &len);
-	if (len > 0)
+	എങ്കിൽ (len > 0)
 		reset->inactive_delay = fdt32_to_cpu(*val);
 
-	if (is_restart)
+	എങ്കിൽ (is_restart)
 		sbi_system_reset_add_device(&gpio_restart);
-	else
+	അല്ലെങ്കിൽ
 		sbi_system_reset_add_device(&gpio_poweroff);
 
-	return 0;
+	തിരികെ 0;
 }
 
-static const struct fdt_match gpio_poweroff_match[] = {
-	{ .compatible = "gpio-poweroff", .data = (const void *)false },
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match gpio_poweroff_match[] = {
+	{ .compatible = "gpio-poweroff", .data = (സ്ഥിരം ശൂന്യം *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_poweroff_gpio = {
+സ്ഥിരം ഘടന fdt_driver fdt_poweroff_gpio = {
 	.match_table = gpio_poweroff_match,
 	.init = gpio_reset_init,
 };
 
-static const struct fdt_match gpio_reset_match[] = {
-	{ .compatible = "gpio-restart", .data = (const void *)true },
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match gpio_reset_match[] = {
+	{ .compatible = "gpio-restart", .data = (സ്ഥിരം ശൂന്യം *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_gpio = {
+സ്ഥിരം ഘടന fdt_driver fdt_reset_gpio = {
 	.match_table = gpio_reset_match,
 	.init = gpio_reset_init,
 };

@@ -8,77 +8,77 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall.h>
+#അന്തര്ഭാവ <sbi/sbi_ecall_interface.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_trap.h>
+#അന്തര്ഭാവ <sbi/sbi_version.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
 {
-	struct sbi_ecall_extension *ext;
+	ഘടന sbi_ecall_extension *ext;
 
 	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
+	എങ്കിൽ (!ext) {
 		*out_val = 0;
-		return 0;
+		തിരികെ 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	എങ്കിൽ (ext->probe)
+		തിരികെ ext->probe(extid, out_val);
 
 	*out_val = 1;
-	return 0;
+	തിരികെ 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
+				  ഘടന sbi_trap_regs *regs,
+				  ഘടന sbi_ecall_return *out)
 {
-	int ret = 0;
+	പൂർണ്ണസംഖ്യ ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
+	തിരഞ്ഞെടുപ്പ് (funcid) {
+	അവസ്ഥ SBI_EXT_BASE_GET_SPEC_VERSION:
+		out->മൂല്യം = (SBI_ECALL_VERSION_MAJOR <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
 			     (SBI_SPEC_VERSION_MAJOR_MASK <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
-	default:
+		out->മൂല്യം = out->മൂല്യം | SBI_ECALL_VERSION_MINOR;
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_GET_IMP_ID:
+		out->മൂല്യം = sbi_ecall_get_impid();
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_GET_IMP_VERSION:
+		out->മൂല്യം = OPENSBI_VERSION;
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_GET_MVENDORID:
+		out->മൂല്യം = csr_read(CSR_MVENDORID);
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_GET_MARCHID:
+		out->മൂല്യം = csr_read(CSR_MARCHID);
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_GET_MIMPID:
+		out->മൂല്യം = csr_read(CSR_MIMPID);
+		നിർത്തുക;
+	അവസ്ഥ SBI_EXT_BASE_PROBE_EXT:
+		ret = sbi_ecall_base_probe(regs->a0, &out->മൂല്യം);
+		നിർത്തുക;
+	സ്ഥിരസ്ഥിതി:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	തിരികെ ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+ഘടന sbi_ecall_extension ecall_base;
 
-static int sbi_ecall_base_register_extensions(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ecall_base_register_extensions(ശൂന്യം)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	തിരികെ sbi_ecall_register_extension(&ecall_base);
 }
 
-struct sbi_ecall_extension ecall_base = {
+ഘടന sbi_ecall_extension ecall_base = {
 	.name			= "base",
 	.extid_start		= SBI_EXT_BASE,
 	.extid_end		= SBI_EXT_BASE,

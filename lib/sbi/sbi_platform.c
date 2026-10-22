@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi/sbi_platform.h>
+#അന്തര്ഭാവ <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+സ്ഥിതം വരിയിൽ അക്ഷരം *sbi_platform_feature_id2string(unsigned long feature)
 {
-	char *fstr = NULL;
+	അക്ഷരം *fstr = ശൂന്യ;
 
-	if (!feature)
-		return NULL;
+	എങ്കിൽ (!feature)
+		തിരികെ ശൂന്യ;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	തിരഞ്ഞെടുപ്പ് (feature) {
+	അവസ്ഥ SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		നിർത്തുക;
+	സ്ഥിരസ്ഥിതി:
+		നിർത്തുക;
 	}
 
-	return fstr;
+	തിരികെ fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+ശൂന്യം sbi_platform_get_features_str(സ്ഥിരം ഘടന sbi_platform *plat,
+				   അക്ഷരം *features_str, പൂർണ്ണസംഖ്യ nfstr)
 {
 	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	അക്ഷരം *temp;
+	പൂർണ്ണസംഖ്യ offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	എങ്കിൽ (!plat || !features_str || !nfstr)
+		തിരികെ;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	എങ്കിൽ (!features)
+		പോകുക done;
 
-	do {
-		if (features & feat) {
+	ചെയ്യുക {
+		എങ്കിൽ (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			എങ്കിൽ (temp) {
+				പൂർണ്ണസംഖ്യ len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
-					break;
+				എങ്കിൽ (len < 0)
+					നിർത്തുക;
 
-				if (offset + len >= nfstr) {
+				എങ്കിൽ (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
-					break;
-				} else
+					നിർത്തുക;
+				} അല്ലെങ്കിൽ
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} ആകുമ്പോൾ (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	എങ്കിൽ (offset)
 		features_str[offset - 1] = '\0';
-	else
+	അല്ലെങ്കിൽ
 		sbi_strncpy(features_str, "none", nfstr);
 }

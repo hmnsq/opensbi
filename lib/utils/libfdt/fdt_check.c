@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#അന്തര്ഭാവ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#അന്തര്ഭാവ <fdt.h>
+#അന്തര്ഭാവ <libfdt.h>
 
-#include "libfdt_internal.h"
+#അന്തര്ഭാവ "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+പൂർണ്ണസംഖ്യ fdt_check_full(സ്ഥിരം ശൂന്യം *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	പൂർണ്ണസംഖ്യ err;
+	പൂർണ്ണസംഖ്യ അക്കം_memrsv;
+	പൂർണ്ണസംഖ്യ offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
+	unsigned പൂർണ്ണസംഖ്യ depth = 0;
+	സ്ഥിരം ശൂന്യം *prop;
+	സ്ഥിരം അക്ഷരം *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	എങ്കിൽ (bufsize < FDT_V1_SIZE)
+		തിരികെ -FDT_ERR_TRUNCATED;
+	എങ്കിൽ (bufsize < fdt_header_size(fdt))
+		തിരികെ -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	എങ്കിൽ (err != 0)
+		തിരികെ err;
+	എങ്കിൽ (bufsize < fdt_totalsize(fdt))
+		തിരികെ -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	അക്കം_memrsv = fdt_അക്കം_mem_rsv(fdt);
+	എങ്കിൽ (അക്കം_memrsv < 0)
+		തിരികെ അക്കം_memrsv;
 
-	while (1) {
+	ആകുമ്പോൾ (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		എങ്കിൽ (nextoffset < 0)
+			തിരികെ nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		എങ്കിൽ (expect_end && tag != FDT_END)
+			തിരികെ -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		തിരഞ്ഞെടുപ്പ് (tag) {
+		അവസ്ഥ FDT_NOP:
+			നിർത്തുക;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		അവസ്ഥ FDT_END:
+			എങ്കിൽ (depth != 0)
+				തിരികെ -FDT_ERR_BADSTRUCTURE;
+			തിരികെ 0;
 
-		case FDT_BEGIN_NODE:
+		അവസ്ഥ FDT_BEGIN_കണ്ണി:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			എങ്കിൽ (depth > INT_MAX)
+				തിരികെ -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			എങ്കിൽ (depth == 1) {
+				സ്ഥിരം അക്ഷരം *name;
+				പൂർണ്ണസംഖ്യ len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				എങ്കിൽ (*name || len)
+					തിരികെ -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			നിർത്തുക;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		അവസ്ഥ FDT_END_കണ്ണി:
+			എങ്കിൽ (depth == 0)
+				തിരികെ -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			എങ്കിൽ (depth == 0)
 				expect_end = true;
-			break;
+			നിർത്തുക;
 
-		case FDT_PROP:
+		അവസ്ഥ FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			എങ്കിൽ (!prop)
+				തിരികെ err;
+			നിർത്തുക;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		സ്ഥിരസ്ഥിതി:
+			തിരികെ -FDT_ERR_INTERNAL;
 		}
 	}
 }

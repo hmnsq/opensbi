@@ -7,30 +7,30 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_fp.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap_ldst.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_platform.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/riscv_encoding.h>
+#അന്തര്ഭാവ <sbi/riscv_fp.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_trap_ldst.h>
+#അന്തര്ഭാവ <sbi/sbi_trap.h>
+#അന്തര്ഭാവ <sbi/sbi_unpriv.h>
+#അന്തര്ഭാവ <sbi/sbi_platform.h>
 
 /**
  * Load emulator callback:
  *   Refer to comments of `sbi_platform_emulate_load`.
  */
-typedef int (*sbi_trap_ld_emulator)(ulong insn, int rlen, ulong raddr,
-				    union sbi_ldst_data *out_val,
-				    struct sbi_trap_context *tcntx);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*sbi_trap_ld_emulator)(ulong insn, പൂർണ്ണസംഖ്യ rlen, ulong raddr,
+				    സംഘം sbi_ldst_data *out_val,
+				    ഘടന sbi_trap_context *tcntx);
 
 /**
  * Store emulator callback:
  *   Refer to comments of `sbi_platform_emulate_store`.
  */
-typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
-				    union sbi_ldst_data in_val,
-				    struct sbi_trap_context *tcntx);
+തരനിർവചനം പൂർണ്ണസംഖ്യ (*sbi_trap_st_emulator)(ulong insn, പൂർണ്ണസംഖ്യ wlen, ulong waddr,
+				    സംഘം sbi_ldst_data in_val,
+				    ഘടന sbi_trap_context *tcntx);
 
 /**
  * Handling of misaligned fault is done by a collection of smaller, but
@@ -40,9 +40,9 @@ typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
  * Specifically, fixup the offset field using the tval diff between the
  * new trap and the original one (if required).
  */
-static inline void sbi_misaligned_tinst_fixup(
-			const struct sbi_trap_info *orig_trap,
-			      struct sbi_trap_info *uptrap)
+സ്ഥിതം വരിയിൽ ശൂന്യം sbi_misaligned_tinst_fixup(
+			സ്ഥിരം ഘടന sbi_trap_info *orig_trap,
+			      ഘടന sbi_trap_info *uptrap)
 {
 	ulong offset = uptrap->tval - orig_trap->tval;
 
@@ -51,10 +51,10 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	എങ്കിൽ (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		തിരികെ;
 	/*
 	 * Only fixup if orig tinst is valid. Otherwise, discard the
 	 * new tinst to be on the safe side. Never use new tinst as-is!
@@ -62,13 +62,13 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * For vector, discard it regardless. It doesn't make sense to
 	 * have a transformed tinst
 	 */
-	else if (orig_trap->tinst == 0)
+	അല്ലെങ്കിൽ എങ്കിൽ (orig_trap->tinst == 0)
 		uptrap->tinst = 0;
-	else
+	അല്ലെങ്കിൽ
 		uptrap->tinst = orig_trap->tinst | (offset << SH_RS1);
 }
 
-static inline bool sbi_trap_tinst_valid(ulong tinst)
+സ്ഥിതം വരിയിൽ bool sbi_trap_tinst_valid(ulong tinst)
 {
 	/*
 	 * Bit[0] == 1 implies trapped instruction value is
@@ -76,29 +76,29 @@ static inline bool sbi_trap_tinst_valid(ulong tinst)
 	 * Also do proper checking per Privileged ISA 19.6.3,
 	 * and make sure high 32 bits of tinst is 0
 	 */
-	return tinst == (uint32_t)tinst && (tinst & 0x1);
+	തിരികെ tinst == (uint32_t)tinst && (tinst & 0x1);
 }
 
-static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_trap_emulate_load(ഘടന sbi_trap_context *tcntx,
 				 sbi_trap_ld_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn, insn_len, imm = 0, shift = 0, off = 0;
-	union sbi_ldst_data val = { 0 };
-	struct sbi_trap_info uptrap;
+	സംഘം sbi_ldst_data val = { 0 };
+	ഘടന sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_load = false, c_ldsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	പൂർണ്ണസംഖ്യ rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	എങ്കിൽ (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
 		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} അല്ലെങ്കിൽ {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		എങ്കിൽ (uptrap.cause) {
+			തിരികെ sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -108,63 +108,63 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *    lb, lbu, lh, lhu, lw, flw, flw
 	 *    c.lbu, c.lh, c.lhu, c.lw, c.lwsp, c.fld, c.fldsp
 	 */
-	if ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
+	എങ്കിൽ ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
 		len = -1;
-	} else if ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_LB_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
 		len = -2;
-	} else if ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
 		/* Zcb */
 		len = -2;
 		imm = RVC_LH_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_LH_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
 		len = -4;
-	} else if ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LW_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
-		GET_RD_NUM(insn)) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
+		GET_RD_അക്കം(insn)) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LWSP_IMM(insn);
 		c_ldsp = true;
 #ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LD_IMM(insn);
 		c_load = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LDSP_IMM(insn);
 		c_ldsp = true;
 		fp = true;
 #endif
-	} else {
+	} അല്ലെങ്കിൽ {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -174,34 +174,34 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *     c.ld in rv64 == c.flw in rv32
 	 *     c.ldsp in rv64 == c.flwsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	എങ്കിൽ (prev_xlen == 64) {
 		/* RV64 Only: lwu, ld, c.ld, c.ldsp  */
-		if ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
+		എങ്കിൽ ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
 			len = 4;
-		} else if ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LD_IMM(insn);
 			c_load = true;
-		} else if ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
-			GET_RD_NUM(insn)) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
+			GET_RD_അക്കം(insn)) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LDSP_IMM(insn);
 			c_ldsp = true;
 		}
 #ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (prev_xlen == 32) {
 		/* RV32 Only: c.flw, c.flwsp */
-		if ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
+		എങ്കിൽ ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LW_IMM(insn);
 			c_load = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LWSP_IMM(insn);
@@ -211,33 +211,33 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 #endif
 	}
 
-	if (len < 0) {
+	എങ്കിൽ (len < 0) {
 		len = -len;
-		shift = 8 * (sizeof(ulong) - len);
+		shift = 8 * (വലുപ്പം(ulong) - len);
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	എങ്കിൽ (!len) // Unknown instruction
+		പോകുക do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#എങ്കിൽ !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
-		goto do_emu;
+	എങ്കിൽ (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
+		പോകുക do_emu;
 #endif
 
-	if (xform)
+	എങ്കിൽ (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_load)
+		off = GET_RS1_അക്കം(insn);
+	അല്ലെങ്കിൽ എങ്കിൽ (c_load)
 		/* non SP-based compressed load */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_ldsp)
+	അല്ലെങ്കിൽ എങ്കിൽ (c_ldsp)
 		/* SP-based compressed load */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	അല്ലെങ്കിൽ
 		/* I-type non-compressed load */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_I(insn);
 	/**
@@ -248,28 +248,28 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, &val, tcntx);
-	if (rc <= 0)
-		return rc;
-	if (!len)
-		goto epc_fixup;
+	എങ്കിൽ (rc <= 0)
+		തിരികെ rc;
+	എങ്കിൽ (!len)
+		പോകുക epc_fixup;
 
-	if (!fp) {
+	എങ്കിൽ (!fp) {
 		ulong v = ((long)(val.data_ulong << shift)) >> shift;
 
-		if (c_load)
+		എങ്കിൽ (c_load)
 			SET_RDS(insn, regs, v);
-		else
+		അല്ലെങ്കിൽ
 			SET_RD(insn, regs, v);
 #ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_load)
+	} അല്ലെങ്കിൽ എങ്കിൽ (len == 8) {
+		എങ്കിൽ (c_load)
 			SET_F64_RDS(insn, regs, val.data_u64);
-		else
+		അല്ലെങ്കിൽ
 			SET_F64_RD(insn, regs, val.data_u64);
-	} else {
-		if (c_load)
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (c_load)
 			SET_F32_RDS(insn, regs, val.data_ulong);
-		else
+		അല്ലെങ്കിൽ
 			SET_F32_RD(insn, regs, val.data_ulong);
 #endif
 	}
@@ -277,29 +277,29 @@ do_emu:
 epc_fixup:
 	regs->mepc += insn_len;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_trap_emulate_store(ഘടന sbi_trap_context *tcntx,
 				  sbi_trap_st_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn, insn_len, imm = 0, off = 0;
-	union sbi_ldst_data val;
-	struct sbi_trap_info uptrap;
+	സംഘം sbi_ldst_data val;
+	ഘടന sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_store = false, c_stsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	പൂർണ്ണസംഖ്യ rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	എങ്കിൽ (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
 		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} അല്ലെങ്കിൽ {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		എങ്കിൽ (uptrap.cause) {
+			തിരികെ sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -309,53 +309,53 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *    sb, sh, sw, fsw, fsd
 	 *    c.sb, c.sh, c.sw, c.swsp, c.fsd, c.fsdsp
 	 */
-	if ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
+	എങ്കിൽ ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_SB_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_SH_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
 		len = 4;
-	} else if ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SW_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SWSP_IMM(insn);
 		c_stsp = true;
 #ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SD_IMM(insn);
 		c_store = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
+	} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SDSP_IMM(insn);
 		c_stsp = true;
 		fp = true;
 #endif
-	} else {
+	} അല്ലെങ്കിൽ {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -365,31 +365,31 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *     c.sd in rv64 == c.fsw in rv32
 	 *     c.sdsp in rv64 == c.fswsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	എങ്കിൽ (prev_xlen == 64) {
 		/* RV64 Only: sd, c.sd, c.sdsp */
-		if ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
+		എങ്കിൽ ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SD_IMM(insn);
 			c_store = true;
-		} else if ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SDSP_IMM(insn);
 			c_stsp = true;
 		}
 #ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+	} അല്ലെങ്കിൽ എങ്കിൽ (prev_xlen == 32) {
 		/* RV32 Only: c.fsw, c.fswsp */
-		if ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
+		എങ്കിൽ ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SW_IMM(insn);
 			c_store = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
+		} അല്ലെങ്കിൽ എങ്കിൽ ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SWSP_IMM(insn);
@@ -399,53 +399,53 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 #endif
 	}
 
-	if (!fp) {
-		if (c_store)
+	എങ്കിൽ (!fp) {
+		എങ്കിൽ (c_store)
 			val.data_ulong = GET_RS2S(insn, regs);
-		else if (c_stsp)
+		അല്ലെങ്കിൽ എങ്കിൽ (c_stsp)
 			val.data_ulong = GET_RS2C(insn, regs);
-		else
+		അല്ലെങ്കിൽ
 			val.data_ulong = GET_RS2(insn, regs);
 #ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_store)
+	} അല്ലെങ്കിൽ എങ്കിൽ (len == 8) {
+		എങ്കിൽ (c_store)
 			val.data_u64 = GET_F64_RS2S(insn, regs);
-		else if (c_stsp)
+		അല്ലെങ്കിൽ എങ്കിൽ (c_stsp)
 			val.data_u64 = GET_F64_RS2C(insn, regs);
-		else
+		അല്ലെങ്കിൽ
 			val.data_u64 = GET_F64_RS2(insn, regs);
-	} else {
-		if (c_store)
+	} അല്ലെങ്കിൽ {
+		എങ്കിൽ (c_store)
 			val.data_ulong = GET_F32_RS2S(insn, regs);
-		else if (c_stsp)
+		അല്ലെങ്കിൽ എങ്കിൽ (c_stsp)
 			val.data_ulong = GET_F32_RS2C(insn, regs);
-		else
+		അല്ലെങ്കിൽ
 			val.data_ulong = GET_F32_RS2(insn, regs);
 #endif
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	എങ്കിൽ (!len) // Unknown instruction
+		പോകുക do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#എങ്കിൽ !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_STORE)
-		goto do_emu;
+	എങ്കിൽ (orig_trap->cause == CAUSE_MISALIGNED_STORE)
+		പോകുക do_emu;
 #endif
 
-	if (xform)
+	എങ്കിൽ (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_store)
+		off = GET_RS1_അക്കം(insn);
+	അല്ലെങ്കിൽ എങ്കിൽ (c_store)
 		/* non SP-based compressed store */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_stsp)
+	അല്ലെങ്കിൽ എങ്കിൽ (c_stsp)
 		/* SP-based compressed store */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	അല്ലെങ്കിൽ
 		/* S-type non-compressed store */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_S(insn);
 	/**
@@ -456,128 +456,128 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, val, tcntx);
-	if (rc <= 0)
-		return rc;
+	എങ്കിൽ (rc <= 0)
+		തിരികെ rc;
 
 	regs->mepc += insn_len;
 
-	return 0;
+	തിരികെ 0;
 }
 
-static int sbi_misaligned_ld_emulator(ulong insn, int rlen, ulong addr,
-				      union sbi_ldst_data *out_val,
-				      struct sbi_trap_context *tcntx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_misaligned_ld_emulator(ulong insn, പൂർണ്ണസംഖ്യ rlen, ulong addr,
+				      സംഘം sbi_ldst_data *out_val,
+				      ഘടന sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
+	ഘടന sbi_trap_info uptrap;
 
-	if (!rlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_ld_emulator(insn, tcntx);
-		else
+	എങ്കിൽ (!rlen) {
+		എങ്കിൽ (IS_VECTOR_LOAD_STORE(insn))
+			തിരികെ sbi_misaligned_v_ld_emulator(insn, tcntx);
+		അല്ലെങ്കിൽ
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			തിരികെ sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	എങ്കിൽ (addr != orig_trap->tval)
+		തിരികെ SBI_EFAIL;
 
 	sbi_load_loop(out_val->data_bytes, addr, rlen, &uptrap);
-	if (uptrap.cause) {
+	എങ്കിൽ (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		തിരികെ sbi_trap_redirect(regs, &uptrap);
 	}
-	return rlen;
+	തിരികെ rlen;
 }
 
-int sbi_misaligned_load_handler(struct sbi_trap_context *tcntx)
+പൂർണ്ണസംഖ്യ sbi_misaligned_load_handler(ഘടന sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
+	തിരികെ sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
 }
 
-static int sbi_misaligned_st_emulator(ulong insn, int wlen, ulong addr,
-				      union sbi_ldst_data in_val,
-				      struct sbi_trap_context *tcntx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_misaligned_st_emulator(ulong insn, പൂർണ്ണസംഖ്യ wlen, ulong addr,
+				      സംഘം sbi_ldst_data in_val,
+				      ഘടന sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
+	ഘടന sbi_trap_info uptrap;
 
-	if (!wlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_st_emulator(insn, tcntx);
-		else
+	എങ്കിൽ (!wlen) {
+		എങ്കിൽ (IS_VECTOR_LOAD_STORE(insn))
+			തിരികെ sbi_misaligned_v_st_emulator(insn, tcntx);
+		അല്ലെങ്കിൽ
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			തിരികെ sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	എങ്കിൽ (addr != orig_trap->tval)
+		തിരികെ SBI_EFAIL;
 
 	sbi_store_loop(in_val.data_bytes, addr, wlen, &uptrap);
-	if (uptrap.cause) {
+	എങ്കിൽ (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		തിരികെ sbi_trap_redirect(regs, &uptrap);
 	}
-	return wlen;
+	തിരികെ wlen;
 }
 
-int sbi_misaligned_store_handler(struct sbi_trap_context *tcntx)
+പൂർണ്ണസംഖ്യ sbi_misaligned_store_handler(ഘടന sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
+	തിരികെ sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
 }
 
-static int sbi_ld_access_emulator(ulong insn, int rlen, ulong addr,
-				  union sbi_ldst_data *out_val,
-				  struct sbi_trap_context *tcntx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_ld_access_emulator(ulong insn, പൂർണ്ണസംഖ്യ rlen, ulong addr,
+				  സംഘം sbi_ldst_data *out_val,
+				  ഘടന sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
+	പൂർണ്ണസംഖ്യ rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	എങ്കിൽ (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
+		തിരികെ SBI_EINVAL;
 
 	rc = sbi_platform_emulate_load(sbi_platform_thishart_ptr(),
 				       insn, rlen, addr, out_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	എങ്കിൽ (rc < 0)
+		തിരികെ sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	തിരികെ rc;
 }
 
-int sbi_load_access_handler(struct sbi_trap_context *tcntx)
+പൂർണ്ണസംഖ്യ sbi_load_access_handler(ഘടന sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
+	തിരികെ sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
 }
 
-static int sbi_st_access_emulator(ulong insn, int wlen, ulong addr,
-				  union sbi_ldst_data in_val,
-				  struct sbi_trap_context *tcntx)
+സ്ഥിതം പൂർണ്ണസംഖ്യ sbi_st_access_emulator(ulong insn, പൂർണ്ണസംഖ്യ wlen, ulong addr,
+				  സംഘം sbi_ldst_data in_val,
+				  ഘടന sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	സ്ഥിരം ഘടന sbi_trap_info *orig_trap = &tcntx->trap;
+	ഘടന sbi_trap_regs *regs = &tcntx->regs;
+	പൂർണ്ണസംഖ്യ rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	എങ്കിൽ (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
+		തിരികെ SBI_EINVAL;
 
 	rc = sbi_platform_emulate_store(sbi_platform_thishart_ptr(),
 					insn, wlen, addr, in_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	എങ്കിൽ (rc < 0)
+		തിരികെ sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	തിരികെ rc;
 }
 
-int sbi_store_access_handler(struct sbi_trap_context *tcntx)
+പൂർണ്ണസംഖ്യ sbi_store_access_handler(ഘടന sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
+	തിരികെ sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
 }

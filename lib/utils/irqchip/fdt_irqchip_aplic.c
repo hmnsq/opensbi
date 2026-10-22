@@ -8,97 +8,97 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/aplic.h>
+#അന്തര്ഭാവ <libfdt.h>
+#അന്തര്ഭാവ <sbi/riscv_asm.h>
+#അന്തര്ഭാവ <sbi/sbi_error.h>
+#അന്തര്ഭാവ <sbi/sbi_heap.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/irqchip/fdt_irqchip.h>
+#അന്തര്ഭാവ <sbi_utils/irqchip/aplic.h>
 
-static int irqchip_aplic_update_idc_map(const void *fdt, int nodeoff,
-					struct aplic_data *pd)
+സ്ഥിതം പൂർണ്ണസംഖ്യ irqchip_aplic_update_idc_map(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+					ഘടന aplic_data *pd)
 {
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	പൂർണ്ണസംഖ്യ i, err, എണ്ണം, cpu_offset, cpu_intc_offset;
 	u32 phandle, hartid, hartindex;
-	const fdt32_t *val;
+	സ്ഥിരം fdt32_t *val;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &എണ്ണം);
+	എങ്കിൽ (!val || എണ്ണം < വലുപ്പം(fdt32_t))
+		തിരികെ SBI_EINVAL;
+	എണ്ണം = എണ്ണം / വലുപ്പം(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	വേണ്ടി (i = 0; i < എണ്ണം; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_offset = fdt_കണ്ണി_offset_by_phandle(fdt, phandle);
+		എങ്കിൽ (cpu_intc_offset < 0)
+			തുടരുക;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		എങ്കിൽ (cpu_offset < 0)
+			തുടരുക;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		എങ്കിൽ (err)
+			തുടരുക;
 
 		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		എങ്കിൽ (hartindex == -1U)
+			തുടരുക;
 
 		pd->idc_map[i / 2] = hartindex;
 	}
 
-	return 0;
+	തിരികെ 0;
 }
 
-static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+സ്ഥിതം പൂർണ്ണസംഖ്യ irqchip_aplic_cold_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+				   സ്ഥിരം ഘടന fdt_match *match)
 {
-	int rc;
-	struct aplic_data *pd;
+	പൂർണ്ണസംഖ്യ rc;
+	ഘടന aplic_data *pd;
 
-	pd = sbi_zalloc(sizeof(*pd));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(വലുപ്പം(*pd));
+	എങ്കിൽ (!pd)
+		തിരികെ SBI_ENOMEM;
 
-	rc = fdt_parse_aplic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_aplic_കണ്ണി(fdt, nodeoff, pd);
+	എങ്കിൽ (rc)
+		പോകുക fail_free_data;
 
-	if (pd->num_idc) {
-		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->num_idc);
-		if (!pd->idc_map) {
+	എങ്കിൽ (pd->അക്കം_idc) {
+		pd->idc_map = sbi_zalloc(വലുപ്പം(*pd->idc_map) * pd->അക്കം_idc);
+		എങ്കിൽ (!pd->idc_map) {
 			rc = SBI_ENOMEM;
-			goto fail_free_data;
+			പോകുക fail_free_data;
 		}
 
 		rc = irqchip_aplic_update_idc_map(fdt, nodeoff, pd);
-		if (rc)
-			goto fail_free_idc_map;
+		എങ്കിൽ (rc)
+			പോകുക fail_free_idc_map;
 	}
 
 	rc = aplic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_idc_map;
+	എങ്കിൽ (rc)
+		പോകുക fail_free_idc_map;
 
-	return 0;
+	തിരികെ 0;
 
 fail_free_idc_map:
-	if (pd->num_idc)
+	എങ്കിൽ (pd->അക്കം_idc)
 		sbi_free(pd->idc_map);
 fail_free_data:
 	sbi_free(pd);
-	return rc;
+	തിരികെ rc;
 }
 
-static const struct fdt_match irqchip_aplic_match[] = {
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match irqchip_aplic_match[] = {
 	{ .compatible = "riscv,aplic" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_aplic = {
+സ്ഥിരം ഘടന fdt_driver fdt_irqchip_aplic = {
 	.match_table = irqchip_aplic_match,
 	.init = irqchip_aplic_cold_init,
 };

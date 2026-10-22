@@ -7,9 +7,9 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#അന്തര്ഭാവ <sbi/riscv_io.h>
+#അന്തര്ഭാവ <sbi/sbi_console.h>
+#അന്തര്ഭാവ <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
@@ -29,48 +29,48 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
+സ്ഥിതം അസ്ഥിര അക്ഷരം *uart_base;
 
-static u32 get_reg(u32 num)
+സ്ഥിതം u32 get_reg(u32 അക്കം)
 {
-	return readl(uart_base + (num * 0x4));
+	തിരികെ readl(uart_base + (അക്കം * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+സ്ഥിതം ശൂന്യം set_reg(u32 അക്കം, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (അക്കം * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+സ്ഥിതം ശൂന്യം gaisler_uart_putc(അക്ഷരം ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	ആകുമ്പോൾ (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+സ്ഥിതം പൂർണ്ണസംഖ്യ gaisler_uart_getc(ശൂന്യം)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	എങ്കിൽ (!(ret & UART_STATUS_DATAREADY))
+		തിരികെ -1;
+	തിരികെ get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
-static struct sbi_console_device gaisler_console = {
+സ്ഥിതം ഘടന sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+പൂർണ്ണസംഖ്യ gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_base = (അസ്ഥിര അക്ഷരം *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	എങ്കിൽ (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	തിരികെ 0;
 }

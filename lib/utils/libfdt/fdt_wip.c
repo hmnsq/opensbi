@@ -3,92 +3,92 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#അന്തര്ഭാവ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#അന്തര്ഭാവ <fdt.h>
+#അന്തര്ഭാവ <libfdt.h>
 
-#include "libfdt_internal.h"
+#അന്തര്ഭാവ "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len)
+പൂർണ്ണസംഖ്യ fdt_setprop_inplace_namelen_partial(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset,
+					സ്ഥിരം അക്ഷരം *name, പൂർണ്ണസംഖ്യ namelen,
+					uint32_t idx, സ്ഥിരം ശൂന്യം *val,
+					പൂർണ്ണസംഖ്യ len)
 {
-	void *propval;
-	int proplen;
+	ശൂന്യം *propval;
+	പൂർണ്ണസംഖ്യ proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	എങ്കിൽ (!propval)
+		തിരികെ proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ ((unsigned)proplen < (len + idx))
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	memcpy((അക്ഷരം *)propval + idx, val, len);
+	തിരികെ 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+പൂർണ്ണസംഖ്യ fdt_setprop_inplace(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name,
+			സ്ഥിരം ശൂന്യം *val, പൂർണ്ണസംഖ്യ len)
 {
-	const void *propval;
-	int proplen;
+	സ്ഥിരം ശൂന്യം *propval;
+	പൂർണ്ണസംഖ്യ proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	എങ്കിൽ (!propval)
+		തിരികെ proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	എങ്കിൽ (proplen != len)
+		തിരികെ -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	തിരികെ fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+സ്ഥിതം ശൂന്യം fdt_nop_region_(ശൂന്യം *start, പൂർണ്ണസംഖ്യ len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	വേണ്ടി (p = start; (അക്ഷരം *)p < ((അക്ഷരം *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+പൂർണ്ണസംഖ്യ fdt_nop_property(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset, സ്ഥിരം അക്ഷരം *name)
 {
-	struct fdt_property *prop;
-	int len;
+	ഘടന fdt_property *prop;
+	പൂർണ്ണസംഖ്യ len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	എങ്കിൽ (!prop)
+		തിരികെ len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + വലുപ്പം(*prop));
 
-	return 0;
+	തിരികെ 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+പൂർണ്ണസംഖ്യ fdt_കണ്ണി_end_offset(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ offset)
 {
-	int depth = 0;
+	പൂർണ്ണസംഖ്യ depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
-		offset = fdt_next_node(fdt, offset, &depth);
+	ആകുമ്പോൾ ((offset >= 0) && (depth >= 0))
+		offset = fdt_next_കണ്ണി(fdt, offset, &depth);
 
-	return offset;
+	തിരികെ offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+പൂർണ്ണസംഖ്യ fdt_nop_കണ്ണി(ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoffset)
 {
-	int endoffset;
+	പൂർണ്ണസംഖ്യ endoffset;
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_കണ്ണി_end_offset(fdt, nodeoffset);
+	എങ്കിൽ (endoffset < 0)
+		തിരികെ endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	തിരികെ 0;
 }

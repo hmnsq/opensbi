@@ -7,29 +7,29 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#അന്തര്ഭാവ <sbi_utils/fdt/fdt_helper.h>
+#അന്തര്ഭാവ <sbi_utils/serial/fdt_serial.h>
+#അന്തര്ഭാവ <sbi_utils/serial/gaisler-uart.h>
 
-static int serial_gaisler_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+സ്ഥിതം പൂർണ്ണസംഖ്യ serial_gaisler_init(സ്ഥിരം ശൂന്യം *fdt, പൂർണ്ണസംഖ്യ nodeoff,
+			       സ്ഥിരം ഘടന fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	പൂർണ്ണസംഖ്യ rc;
+	ഘടന platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_gaisler_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_gaisler_uart_കണ്ണി(fdt, nodeoff, &uart);
+	എങ്കിൽ (rc)
+		തിരികെ rc;
 
-	return gaisler_uart_init(uart.addr, uart.freq, uart.baud);
+	തിരികെ gaisler_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_gaisler_match[] = {
+സ്ഥിതം സ്ഥിരം ഘടന fdt_match serial_gaisler_match[] = {
 	{ .compatible = "gaisler,apbuart" },
 	{},
 };
 
-const struct fdt_driver fdt_serial_gaisler = {
+സ്ഥിരം ഘടന fdt_driver fdt_serial_gaisler = {
 	.match_table = serial_gaisler_match,
 	.init = serial_gaisler_init
 };
