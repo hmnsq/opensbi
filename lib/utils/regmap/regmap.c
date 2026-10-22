@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+ساكن SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+بنية regmap *regmap_find(unsigned صحيح id)
 {
-	struct sbi_dlist *pos;
+	بنية sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		بنية regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		𐡄𐡍 (rmap->id == id)
+			أرجع rmap;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-int regmap_add(struct regmap *rmap)
+صحيح regmap_add(بنية regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	𐡄𐡍 (!rmap)
+		أرجع SBI_EINVAL;
+	𐡄𐡍 (regmap_find(rmap->id))
+		أرجع SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	أرجع 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+فراغ regmap_remove(بنية regmap *rmap)
 {
-	if (!rmap)
-		return;
+	𐡄𐡍 (!rmap)
+		أرجع;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+ساكن bool regmap_reg_valid(بنية regmap *rmap, unsigned صحيح reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	𐡄𐡍 ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		أرجع false;
+	أرجع true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+ساكن unsigned صحيح regmap_reg_addr(بنية regmap *rmap, unsigned صحيح reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	𐡄𐡍 (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	وإلا 𐡄𐡍 (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	أرجع reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+صحيح regmap_read(بنية regmap *rmap, unsigned صحيح reg, unsigned صحيح *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	𐡄𐡍 (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
+	𐡄𐡍 (!rmap->reg_read)
+		أرجع SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	أرجع rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+صحيح regmap_write(بنية regmap *rmap, unsigned صحيح reg, unsigned صحيح val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	𐡄𐡍 (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
+	𐡄𐡍 (!rmap->reg_write)
+		أرجع SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	أرجع rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+صحيح regmap_update_bits(بنية regmap *rmap, unsigned صحيح reg,
+		       unsigned صحيح mask, unsigned صحيح val)
 {
-	int rc;
-	unsigned int reg_val;
+	صحيح rc;
+	unsigned صحيح reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	𐡄𐡍 (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	𐡄𐡍 (rmap->reg_update_bits) {
+		أرجع rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} وإلا 𐡄𐡍 (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		𐡄𐡍 (rc)
+			أرجع rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		أرجع rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	أرجع SBI_ENOSYS;
 }

@@ -4,13 +4,13 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_barrier.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi_utils/cache/fdt_cache.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
 
 #define CCACHE_CFG_CSR			0
 #define CCACHE_CMD_CSR			0x280
@@ -38,24 +38,24 @@
 #define CCACHE_ALL_OP_REQ_BATCH_NUM	0x10
 #define CCACHE_ALL_OP_REQ_BATCH_MASK (CCACHE_CMD_QLEN + 1 - CCACHE_ALL_OP_REQ_BATCH_NUM)
 
-struct sifive_ccache {
-	struct cache_device dev;
-	void *addr;
+بنية sifive_ccache {
+	بنية cache_device dev;
+	فراغ *addr;
 	u64 total_lines;
 };
 
-#define to_ccache(_dev) container_of(_dev, struct sifive_ccache, dev)
+#define to_ccache(_dev) container_of(_dev, بنية sifive_ccache, dev)
 
-static inline unsigned int sifive_ccache_read_status(void *status_addr)
+ساكن مضمن unsigned صحيح sifive_ccache_read_status(فراغ *status_addr)
 {
-	return readl_relaxed(status_addr);
+	أرجع readl_relaxed(status_addr);
 }
 
-static inline void sifive_ccache_write_cmd(u64 cmd, void *cmd_csr_addr)
+ساكن مضمن فراغ sifive_ccache_write_cmd(u64 cmd, فراغ *cmd_csr_addr)
 {
-#if __riscv_xlen != 32
+#𐡄𐡍 __riscv_xlen != 32
 	writeq_relaxed(cmd, cmd_csr_addr);
-#else
+#وإلا
 	/*
 	 * The cache maintenance request is only generated when the "command"
 	 * field (part of the high word) is written.
@@ -65,19 +65,19 @@ static inline void sifive_ccache_write_cmd(u64 cmd, void *cmd_csr_addr)
 #endif
 }
 
-static int sifive_ccache_flush_all(struct cache_device *dev)
+ساكن صحيح sifive_ccache_flush_all(بنية cache_device *dev)
 {
-	struct sifive_ccache *ccache = to_ccache(dev);
-	void *status_addr = (char *)ccache->addr + CCACHE_STATUS_CSR;
-	void *cmd_csr_addr = (char *)ccache->addr + CCACHE_CMD_CSR;
+	بنية sifive_ccache *ccache = to_ccache(dev);
+	فراغ *status_addr = (حرف *)ccache->addr + CCACHE_STATUS_CSR;
+	فراغ *cmd_csr_addr = (حرف *)ccache->addr + CCACHE_CMD_CSR;
 	u64 total_cnt = ccache->total_lines;
 	u64 cmd = CFLUSH_SETWAY_CLEANINV << CMD_CSR_CMD_OFFSET;
-	int loop_cnt = CCACHE_CMD_QLEN & CCACHE_ALL_OP_REQ_BATCH_MASK;
+	صحيح loop_cnt = CCACHE_CMD_QLEN & CCACHE_ALL_OP_REQ_BATCH_MASK;
 
 	ccache_mb_b();
 send_cmd:
 	total_cnt -= loop_cnt;
-	while (loop_cnt > 0) {
+	طالما (loop_cnt > 0) {
 		sifive_ccache_write_cmd(cmd + (0 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (1 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (2 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
@@ -97,58 +97,58 @@ send_cmd:
 		cmd += CCACHE_ALL_OP_REQ_BATCH_NUM << CMD_CSR_BANK_OFFSET;
 		loop_cnt -= CCACHE_ALL_OP_REQ_BATCH_NUM;
 	}
-	if (!total_cnt)
-		goto done;
+	𐡄𐡍 (!total_cnt)
+		اذهب done;
 
 	/* Ensure the ccache is able receive more than 16 requests */
-	do {
+	𐡏𐡁𐡃 {
 		loop_cnt = (CCACHE_CMD_QLEN - sifive_ccache_read_status(status_addr));
-	} while (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_NUM);
+	} طالما (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_NUM);
 	loop_cnt &= CCACHE_ALL_OP_REQ_BATCH_MASK;
 
-	if (total_cnt < loop_cnt) {
+	𐡄𐡍 (total_cnt < loop_cnt) {
 		loop_cnt = (total_cnt + CCACHE_ALL_OP_REQ_BATCH_NUM) & CCACHE_ALL_OP_REQ_BATCH_MASK;
 		cmd -= ((loop_cnt - total_cnt) << CMD_CSR_BANK_OFFSET);
 		total_cnt = loop_cnt;
 	}
-	goto send_cmd;
+	اذهب send_cmd;
 done:
-	do {} while (sifive_ccache_read_status(status_addr));
+	𐡏𐡁𐡃 {} طالما (sifive_ccache_read_status(status_addr));
 	ccache_mb_a();
 
-	return 0;
+	أرجع 0;
 }
 
-static struct cache_ops sifive_ccache_ops = {
+ساكن بنية cache_ops sifive_ccache_ops = {
 	.cache_flush_all = sifive_ccache_flush_all,
 };
 
-static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساكن صحيح sifive_ccache_cold_init(ثابت فراغ *fdt, صحيح nodeoff, ثابت بنية fdt_match *match)
 {
-	struct sifive_ccache *ccache;
-	struct cache_device *dev;
+	بنية sifive_ccache *ccache;
+	بنية cache_device *dev;
 	u64 reg_addr = 0;
 	u32 config_csr, banks, sets, ways;
-	int rc;
+	صحيح rc;
 
 	/* find the ccache base control address */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 && reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, عدم);
+	𐡄𐡍 (rc < 0 && reg_addr)
+		أرجع SBI_ENODEV;
 
-	ccache = sbi_zalloc(sizeof(*ccache));
-	if (!ccache)
-		return SBI_ENOMEM;
+	ccache = sbi_zalloc(حجم(*ccache));
+	𐡄𐡍 (!ccache)
+		أرجع SBI_ENOMEM;
 
 	dev = &ccache->dev;
 	dev->ops = &sifive_ccache_ops;
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	𐡄𐡍 (rc) {
 		sbi_free(ccache);
-		return rc;
+		أرجع rc;
 	}
 
-	ccache->addr = (void *)(uintptr_t)reg_addr;
+	ccache->addr = (فراغ *)(uintptr_t)reg_addr;
 
 	/* get the info of ccache from config CSR */
 	config_csr = readl(ccache->addr + CCACHE_CFG_CSR);
@@ -161,15 +161,15 @@ static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fd
 
 	ccache->total_lines = sets * ways * banks;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static const struct fdt_match sifive_ccache_match[] = {
+ساكن ثابت بنية fdt_match sifive_ccache_match[] = {
 	{ .compatible = "sifive,ccache2" },
 	{},
 };
 
-const struct fdt_driver fdt_sifive_ccache = {
+ثابت بنية fdt_driver fdt_sifive_ccache = {
 	.match_table = sifive_ccache_match,
 	.init = sifive_ccache_cold_init,
 };
