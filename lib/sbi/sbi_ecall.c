@@ -7,140 +7,140 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi/sbi_trap.h>
 
-extern struct sbi_ecall_extension *const sbi_ecall_exts[];
+خارجي بنية sbi_ecall_extension *ثابت sbi_ecall_exts[];
 
-u16 sbi_ecall_version_major(void)
+u16 sbi_ecall_version_major(فراغ)
 {
-	return SBI_ECALL_VERSION_MAJOR;
+	أرجع SBI_ECALL_VERSION_MAJOR;
 }
 
-u16 sbi_ecall_version_minor(void)
+u16 sbi_ecall_version_minor(فراغ)
 {
-	return SBI_ECALL_VERSION_MINOR;
+	أرجع SBI_ECALL_VERSION_MINOR;
 }
 
-static unsigned long ecall_impid = SBI_OPENSBI_IMPID;
+ساكن unsigned long ecall_impid = SBI_OPENSBI_IMPID;
 
-unsigned long sbi_ecall_get_impid(void)
+unsigned long sbi_ecall_get_impid(فراغ)
 {
-	return ecall_impid;
+	أرجع ecall_impid;
 }
 
-void sbi_ecall_set_impid(unsigned long impid)
+فراغ sbi_ecall_set_impid(unsigned long impid)
 {
 	ecall_impid = impid;
 }
 
-static SBI_LIST_HEAD(ecall_exts_list);
+ساكن SBI_LIST_HEAD(ecall_exts_list);
 
-struct sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
+بنية sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
 {
-	struct sbi_ecall_extension *t, *ret = NULL;
+	بنية sbi_ecall_extension *t, *ret = عدم;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t->extid_start <= extid && extid <= t->extid_end) {
+		إذا (t->extid_start <= extid && extid <= t->extid_end) {
 			ret = t;
-			break;
+			اكسر;
 		}
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-void sbi_ecall_get_extensions_str(char *exts_str, int exts_str_size, bool experimental)
+فراغ sbi_ecall_get_extensions_str(حرف *exts_str, صحيح exts_str_size, bool experimental)
 {
-	struct sbi_ecall_extension *t;
-	int offset = 0;
+	بنية sbi_ecall_extension *t;
+	صحيح offset = 0;
 
-	if (!exts_str || exts_str_size <= 0)
-		return;
+	إذا (!exts_str || exts_str_size <= 0)
+		أرجع;
 	sbi_memset(exts_str, 0, exts_str_size);
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (experimental != t->experimental)
-			continue;
-		if (offset + sbi_strlen(t->name) + 1 > exts_str_size)
-			break;
+		إذا (experimental != t->experimental)
+			استمر;
+		إذا (offset + sbi_strlen(t->name) + 1 > exts_str_size)
+			اكسر;
 		sbi_snprintf(exts_str + offset, exts_str_size - offset,
 			     "%s,", t->name);
 		offset = offset + sbi_strlen(t->name) + 1;
 	}
 
-	if (offset)
+	إذا (offset)
 		exts_str[offset - 1] = '\0';
-	else
+	وإلا
 		sbi_strncpy(exts_str, "none", exts_str_size);
 }
 
-int sbi_ecall_register_extension(struct sbi_ecall_extension *ext)
+صحيح sbi_ecall_register_extension(بنية sbi_ecall_extension *ext)
 {
-	struct sbi_ecall_extension *t;
+	بنية sbi_ecall_extension *t;
 
-	if (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
-		return SBI_EINVAL;
+	إذا (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
+		أرجع SBI_EINVAL;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
 		unsigned long start = t->extid_start;
 		unsigned long end = t->extid_end;
-		if (end < ext->extid_start || ext->extid_end < start)
+		إذا (end < ext->extid_start || ext->extid_end < start)
 			/* no overlap */;
-		else
-			return SBI_EINVAL;
+		وإلا
+			أرجع SBI_EINVAL;
 	}
 
 	sbi_list_add_tail(&ext->head, &ecall_exts_list);
 
-	return 0;
+	أرجع 0;
 }
 
-void sbi_ecall_unregister_extension(struct sbi_ecall_extension *ext)
+فراغ sbi_ecall_unregister_extension(بنية sbi_ecall_extension *ext)
 {
 	bool found = false;
-	struct sbi_ecall_extension *t;
+	بنية sbi_ecall_extension *t;
 
-	if (!ext)
-		return;
+	إذا (!ext)
+		أرجع;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t == ext) {
+		إذا (t == ext) {
 			found = true;
-			break;
+			اكسر;
 		}
 	}
 
-	if (found)
+	إذا (found)
 		sbi_list_del_init(&ext->head);
 }
 
-int sbi_ecall_handler(struct sbi_trap_context *tcntx)
+صحيح sbi_ecall_handler(بنية sbi_trap_context *tcntx)
 {
-	int ret = 0;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_ecall_extension *ext;
+	صحيح ret = 0;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	بنية sbi_ecall_extension *ext;
 	unsigned long extension_id = regs->a7;
 	unsigned long func_id = regs->a6;
-	struct sbi_ecall_return out = {0};
+	بنية sbi_ecall_return out = {0};
 	bool is_0_1_spec = 0;
 
 	ext = sbi_ecall_find_extension(extension_id);
-	if (ext && ext->handle) {
+	إذا (ext && ext->handle) {
 		ret = ext->handle(extension_id, func_id, regs, &out);
-		if (extension_id >= SBI_EXT_0_1_SET_TIMER &&
+		إذا (extension_id >= SBI_EXT_0_1_SET_TIMER &&
 		    extension_id <= SBI_EXT_0_1_SHUTDOWN)
 			is_0_1_spec = 1;
-	} else {
+	} وإلا {
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (!out.skip_regs_update) {
-		if (ret < SBI_LAST_ERR ||
+	إذا (!out.skip_regs_update) {
+		إذا (ret < SBI_LAST_ERR ||
 		    (extension_id != SBI_EXT_0_1_CONSOLE_GETCHAR &&
 		     SBI_SUCCESS < ret)) {
 			sbi_printf("%s: Invalid error %d for ext=0x%lx "
@@ -159,28 +159,28 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		 */
 		regs->mepc += 4;
 		regs->a0 = ret;
-		if (!is_0_1_spec)
-			regs->a1 = out.value;
+		إذا (!is_0_1_spec)
+			regs->a1 = out.قىممەت;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_ecall_init(void)
+صحيح sbi_ecall_init(فراغ)
 {
-	int ret;
-	struct sbi_ecall_extension *ext;
+	صحيح ret;
+	بنية sbi_ecall_extension *ext;
 	unsigned long i;
 
-	for (i = 0; sbi_ecall_exts[i]; i++) {
+	لكل (i = 0; sbi_ecall_exts[i]; i++) {
 		ext = sbi_ecall_exts[i];
 		ret = SBI_ENODEV;
 
-		if (ext->register_extensions)
+		إذا (ext->register_extensions)
 			ret = ext->register_extensions();
-		if (ret)
-			return ret;
+		إذا (ret)
+			أرجع ret;
 	}
 
-	return 0;
+	أرجع 0;
 }

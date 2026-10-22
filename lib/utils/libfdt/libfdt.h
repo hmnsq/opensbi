@@ -6,11 +6,11 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
 
-#include <libfdt_env.h>
-#include <fdt.h>
+#ضمن <libfdt_env.h>
+#ضمن <fdt.h>
 
 #ifdef __cplusplus
-extern "C" {
+خارجي "C" {
 #endif
 
 #define FDT_FIRST_SUPPORTED_VERSION	0x02
@@ -117,45 +117,45 @@ extern "C" {
 /**********************************************************************/
 
 #ifndef SWIG /* This function is not useful in Python */
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int checklen);
+ثابت فراغ *fdt_offset_ptr(ثابت فراغ *fdt, صحيح offset, unsigned صحيح checklen);
 #endif
-static inline void *fdt_offset_ptr_w(void *fdt, int offset, int checklen)
+ساكن مضمن فراغ *fdt_offset_ptr_w(فراغ *fdt, صحيح offset, صحيح checklen)
 {
-	return (void *)(uintptr_t)fdt_offset_ptr(fdt, offset, checklen);
+	أرجع (فراغ *)(uintptr_t)fdt_offset_ptr(fdt, offset, checklen);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset);
+uint32_t fdt_next_tag(ثابت فراغ *fdt, صحيح offset, صحيح *nextoffset);
 
 /*
  * External helpers to access words from a device tree blob. They're built
  * to work even with unaligned pointers on platforms (such as ARMv5) that don't
  * like unaligned loads and stores.
  */
-static inline uint32_t fdt32_ld(const fdt32_t *p)
+ساكن مضمن uint32_t fdt32_ld(ثابت fdt32_t *p)
 {
-	const uint8_t *bp = (const uint8_t *)p;
+	ثابت uint8_t *bp = (ثابت uint8_t *)p;
 
-	return ((uint32_t)bp[0] << 24)
+	أرجع ((uint32_t)bp[0] << 24)
 		| ((uint32_t)bp[1] << 16)
 		| ((uint32_t)bp[2] << 8)
 		| bp[3];
 }
 
-static inline void fdt32_st(void *property, uint32_t value)
+ساكن مضمن فراغ fdt32_st(فراغ *property, uint32_t قىممەت)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 24;
-	bp[1] = (value >> 16) & 0xff;
-	bp[2] = (value >> 8) & 0xff;
-	bp[3] = value & 0xff;
+	bp[0] = قىممەت >> 24;
+	bp[1] = (قىممەت >> 16) & 0xff;
+	bp[2] = (قىممەت >> 8) & 0xff;
+	bp[3] = قىممەت & 0xff;
 }
 
-static inline uint64_t fdt64_ld(const fdt64_t *p)
+ساكن مضمن uint64_t fdt64_ld(ثابت fdt64_t *p)
 {
-	const uint8_t *bp = (const uint8_t *)p;
+	ثابت uint8_t *bp = (ثابت uint8_t *)p;
 
-	return ((uint64_t)bp[0] << 56)
+	أرجع ((uint64_t)bp[0] << 56)
 		| ((uint64_t)bp[1] << 48)
 		| ((uint64_t)bp[2] << 40)
 		| ((uint64_t)bp[3] << 32)
@@ -165,25 +165,25 @@ static inline uint64_t fdt64_ld(const fdt64_t *p)
 		| bp[7];
 }
 
-static inline void fdt64_st(void *property, uint64_t value)
+ساكن مضمن فراغ fdt64_st(فراغ *property, uint64_t قىممەت)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 56;
-	bp[1] = (value >> 48) & 0xff;
-	bp[2] = (value >> 40) & 0xff;
-	bp[3] = (value >> 32) & 0xff;
-	bp[4] = (value >> 24) & 0xff;
-	bp[5] = (value >> 16) & 0xff;
-	bp[6] = (value >> 8) & 0xff;
-	bp[7] = value & 0xff;
+	bp[0] = قىممەت >> 56;
+	bp[1] = (قىممەت >> 48) & 0xff;
+	bp[2] = (قىممەت >> 40) & 0xff;
+	bp[3] = (قىممەت >> 32) & 0xff;
+	bp[4] = (قىممەت >> 24) & 0xff;
+	bp[5] = (قىممەت >> 16) & 0xff;
+	bp[6] = (قىممەت >> 8) & 0xff;
+	bp[7] = قىممەت & 0xff;
 }
 
 /**********************************************************************/
 /* Traversal functions                                                */
 /**********************************************************************/
 
-int fdt_next_node(const void *fdt, int offset, int *depth);
+صحيح fdt_next_تۈگۈن(ثابت فراغ *fdt, صحيح offset, صحيح *depth);
 
 /**
  * fdt_first_subnode() - get offset of first direct subnode
@@ -192,7 +192,7 @@ int fdt_next_node(const void *fdt, int offset, int *depth);
  *
  * Return: offset of first subnode, or -FDT_ERR_NOTFOUND if there is none
  */
-int fdt_first_subnode(const void *fdt, int offset);
+صحيح fdt_first_subnode(ثابت فراغ *fdt, صحيح offset);
 
 /**
  * fdt_next_subnode() - get offset of next direct subnode
@@ -205,7 +205,7 @@ int fdt_first_subnode(const void *fdt, int offset);
  * Return: offset of next subnode, or -FDT_ERR_NOTFOUND if there are no more
  *         subnodes
  */
-int fdt_next_subnode(const void *fdt, int offset);
+صحيح fdt_next_subnode(ثابت فراغ *fdt, صحيح offset);
 
 /**
  * fdt_for_each_subnode - iterate over all subnodes of a parent
@@ -229,16 +229,16 @@ int fdt_next_subnode(const void *fdt, int offset);
  * iterator in the loop. The parent variable be constant or even a
  * literal.
  */
-#define fdt_for_each_subnode(node, fdt, parent)		\
-	for (node = fdt_first_subnode(fdt, parent);	\
-	     node >= 0;					\
-	     node = fdt_next_subnode(fdt, node))
+#define fdt_for_each_subnode(تۈگۈن, fdt, parent)		\
+	لكل (تۈگۈن = fdt_first_subnode(fdt, parent);	\
+	     تۈگۈن >= 0;					\
+	     تۈگۈن = fdt_next_subnode(fdt, تۈگۈن))
 
 /**********************************************************************/
 /* General functions                                                  */
 /**********************************************************************/
 #define fdt_get_header(fdt, field) \
-	(fdt32_ld(&((const struct fdt_header *)(fdt))->field))
+	(fdt32_ld(&((ثابت بنية fdt_header *)(fdt))->field))
 #define fdt_magic(fdt)			(fdt_get_header(fdt, magic))
 #define fdt_totalsize(fdt)		(fdt_get_header(fdt, totalsize))
 #define fdt_off_dt_struct(fdt)		(fdt_get_header(fdt, off_dt_struct))
@@ -251,9 +251,9 @@ int fdt_next_subnode(const void *fdt, int offset);
 #define fdt_size_dt_struct(fdt)		(fdt_get_header(fdt, size_dt_struct))
 
 #define fdt_set_hdr_(name) \
-	static inline void fdt_set_##name(void *fdt, uint32_t val) \
+	ساكن مضمن فراغ fdt_set_##name(فراغ *fdt, uint32_t val) \
 	{ \
-		struct fdt_header *fdth = (struct fdt_header *)fdt; \
+		بنية fdt_header *fdth = (بنية fdt_header *)fdt; \
 		fdth->name = cpu_to_fdt32(val); \
 	}
 fdt_set_hdr_(magic);
@@ -274,7 +274,7 @@ fdt_set_hdr_(size_dt_struct);
  *
  * Return: size of DTB header in bytes
  */
-size_t fdt_header_size(const void *fdt);
+size_t fdt_header_size(ثابت فراغ *fdt);
 
 /**
  * fdt_header_size_ - internal function to get header size from a version number
@@ -300,7 +300,7 @@ size_t fdt_header_size_(uint32_t version);
  *     -FDT_ERR_BADSTATE,
  *     -FDT_ERR_TRUNCATED, standard meanings, as above
  */
-int fdt_check_header(const void *fdt);
+صحيح fdt_check_header(ثابت فراغ *fdt);
 
 /**
  * fdt_move - move a device tree around in memory
@@ -321,13 +321,13 @@ int fdt_check_header(const void *fdt);
  *     -FDT_ERR_BADVERSION,
  *     -FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_move(const void *fdt, void *buf, int bufsize);
+صحيح fdt_move(ثابت فراغ *fdt, فراغ *buf, صحيح bufsize);
 
 /**********************************************************************/
 /* Read-only functions                                                */
 /**********************************************************************/
 
-int fdt_check_full(const void *fdt, size_t bufsize);
+صحيح fdt_check_full(ثابت فراغ *fdt, size_t bufsize);
 
 /**
  * fdt_get_string - retrieve a string from the strings block of a device tree
@@ -343,7 +343,7 @@ int fdt_check_full(const void *fdt, size_t bufsize);
  *     a pointer to the string, on success
  *     NULL, if stroffset is out of bounds, or doesn't point to a valid string
  */
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp);
+ثابت حرف *fdt_get_string(ثابت فراغ *fdt, صحيح stroffset, صحيح *lenp);
 
 /**
  * fdt_string - retrieve a string from the strings block of a device tree
@@ -357,7 +357,7 @@ const char *fdt_get_string(const void *fdt, int stroffset, int *lenp);
  *     a pointer to the string, on success
  *     NULL, if stroffset is out of bounds, or doesn't point to a valid string
  */
-const char *fdt_string(const void *fdt, int stroffset);
+ثابت حرف *fdt_string(ثابت فراغ *fdt, صحيح stroffset);
 
 /**
  * fdt_find_max_phandle - find and return the highest phandle in a tree
@@ -371,7 +371,7 @@ const char *fdt_string(const void *fdt, int stroffset);
  * returns:
  *     0 on success or a negative error code on failure
  */
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle);
+صحيح fdt_find_max_phandle(ثابت فراغ *fdt, uint32_t *phandle);
 
 /**
  * fdt_get_max_phandle - retrieves the highest phandle in a tree
@@ -388,16 +388,16 @@ int fdt_find_max_phandle(const void *fdt, uint32_t *phandle);
  *      0, if no phandle was found in the device tree
  *      -1, if an error occurred
  */
-static inline uint32_t fdt_get_max_phandle(const void *fdt)
+ساكن مضمن uint32_t fdt_get_max_phandle(ثابت فراغ *fdt)
 {
 	uint32_t phandle;
-	int err;
+	صحيح err;
 
 	err = fdt_find_max_phandle(fdt, &phandle);
-	if (err < 0)
-		return (uint32_t)-1;
+	إذا (err < 0)
+		أرجع (uint32_t)-1;
 
-	return phandle;
+	أرجع phandle;
 }
 
 /**
@@ -412,7 +412,7 @@ static inline uint32_t fdt_get_max_phandle(const void *fdt)
  *
  * Return: 0 on success or a negative error-code on failure
  */
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle);
+صحيح fdt_generate_phandle(ثابت فراغ *fdt, uint32_t *phandle);
 
 /**
  * fdt_num_mem_rsv - retrieve the number of memory reserve map entries
@@ -425,7 +425,7 @@ int fdt_generate_phandle(const void *fdt, uint32_t *phandle);
  * returns:
  *     the number of entries
  */
-int fdt_num_mem_rsv(const void *fdt);
+صحيح fdt_رەقەم_mem_rsv(ثابت فراغ *fdt);
 
 /**
  * fdt_get_mem_rsv - retrieve one memory reserve map entry
@@ -444,7 +444,7 @@ int fdt_num_mem_rsv(const void *fdt);
  *     -FDT_ERR_BADVERSION,
  *     -FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size);
+صحيح fdt_get_mem_rsv(ثابت فراغ *fdt, صحيح n, uint64_t *address, uint64_t *size);
 
 /**
  * fdt_subnode_offset_namelen - find a subnode based on substring
@@ -461,8 +461,8 @@ int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size);
  * Return: offset of the subnode or -FDT_ERR_NOTFOUND if name not found.
  */
 #ifndef SWIG /* Not available in Python */
-int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
-			       const char *name, int namelen);
+صحيح fdt_subnode_offset_namelen(ثابت فراغ *fdt, صحيح parentoffset,
+			       ثابت حرف *name, صحيح namelen);
 #endif
 /**
  * fdt_subnode_offset - find a subnode of a given node
@@ -488,7 +488,7 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
+صحيح fdt_subnode_offset(ثابت فراغ *fdt, صحيح parentoffset, ثابت حرف *name);
 
 /**
  * fdt_path_offset_namelen - find a tree node by its full path
@@ -502,7 +502,7 @@ int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
  * Return: offset of the node or negative libfdt error value otherwise
  */
 #ifndef SWIG /* Not available in Python */
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
+صحيح fdt_path_offset_namelen(ثابت فراغ *fdt, ثابت حرف *path, صحيح namelen);
 #endif
 
 /**
@@ -528,7 +528,7 @@ int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_path_offset(const void *fdt, const char *path);
+صحيح fdt_path_offset(ثابت فراغ *fdt, ثابت حرف *path);
 
 /**
  * fdt_get_name - retrieve the name of a given node
@@ -553,7 +553,7 @@ int fdt_path_offset(const void *fdt, const char *path);
  *		-FDT_ERR_BADVERSION,
  *		-FDT_ERR_BADSTATE, standard meanings
  */
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
+ثابت حرف *fdt_get_name(ثابت فراغ *fdt, صحيح nodeoffset, صحيح *lenp);
 
 /**
  * fdt_first_property_offset - find the offset of a node's first property
@@ -573,7 +573,7 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_first_property_offset(const void *fdt, int nodeoffset);
+صحيح fdt_first_property_offset(ثابت فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_next_property_offset - step through a node's properties
@@ -594,7 +594,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_next_property_offset(const void *fdt, int offset);
+صحيح fdt_next_property_offset(ثابت فراغ *fdt, صحيح offset);
 
 /**
  * fdt_for_each_property_offset - iterate over all properties of a node
@@ -618,8 +618,8 @@ int fdt_next_property_offset(const void *fdt, int offset);
  * iterator in the loop. The node variable can be constant or even a
  * literal.
  */
-#define fdt_for_each_property_offset(property, fdt, node)	\
-	for (property = fdt_first_property_offset(fdt, node);	\
+#define fdt_for_each_property_offset(property, fdt, تۈگۈن)	\
+	لكل (property = fdt_first_property_offset(fdt, تۈگۈن);	\
 	     property >= 0;					\
 	     property = fdt_next_property_offset(fdt, property))
 
@@ -650,9 +650,9 @@ int fdt_next_property_offset(const void *fdt, int offset);
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp);
+ثابت بنية fdt_property *fdt_get_property_by_offset(ثابت فراغ *fdt,
+						      صحيح offset,
+						      صحيح *lenp);
 
 /**
  * fdt_get_property_namelen - find a property based on substring
@@ -669,10 +669,10 @@ const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
  *         if not found
  */
 #ifndef SWIG /* Not available in Python */
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int nodeoffset,
-						    const char *name,
-						    int namelen, int *lenp);
+ثابت بنية fdt_property *fdt_get_property_namelen(ثابت فراغ *fdt,
+						    صحيح nodeoffset,
+						    ثابت حرف *name,
+						    صحيح namelen, صحيح *lenp);
 #endif
 
 /**
@@ -703,13 +703,13 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const struct fdt_property *fdt_get_property(const void *fdt, int nodeoffset,
-					    const char *name, int *lenp);
-static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
-						      const char *name,
-						      int *lenp)
+ثابت بنية fdt_property *fdt_get_property(ثابت فراغ *fdt, صحيح nodeoffset,
+					    ثابت حرف *name, صحيح *lenp);
+ساكن مضمن بنية fdt_property *fdt_get_property_w(فراغ *fdt, صحيح nodeoffset,
+						      ثابت حرف *name,
+						      صحيح *lenp)
 {
-	return (struct fdt_property *)(uintptr_t)
+	أرجع (بنية fdt_property *)(uintptr_t)
 		fdt_get_property(fdt, nodeoffset, name, lenp);
 }
 
@@ -745,8 +745,8 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
 #ifndef SWIG /* This function is not useful in Python */
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp);
+ثابت فراغ *fdt_getprop_by_offset(ثابت فراغ *fdt, صحيح offset,
+				  ثابت حرف **namep, صحيح *lenp);
 #endif
 
 /**
@@ -763,13 +763,13 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
  * Return: pointer to the property's value or NULL on error
  */
 #ifndef SWIG /* Not available in Python */
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp);
-static inline void *fdt_getprop_namelen_w(void *fdt, int nodeoffset,
-					  const char *name, int namelen,
-					  int *lenp)
+ثابت فراغ *fdt_getprop_namelen(ثابت فراغ *fdt, صحيح nodeoffset,
+				ثابت حرف *name, صحيح namelen, صحيح *lenp);
+ساكن مضمن فراغ *fdt_getprop_namelen_w(فراغ *fdt, صحيح nodeoffset,
+					  ثابت حرف *name, صحيح namelen,
+					  صحيح *lenp)
 {
-	return (void *)(uintptr_t)fdt_getprop_namelen(fdt, nodeoffset, name,
+	أرجع (فراغ *)(uintptr_t)fdt_getprop_namelen(fdt, nodeoffset, name,
 						      namelen, lenp);
 }
 #endif
@@ -802,12 +802,12 @@ static inline void *fdt_getprop_namelen_w(void *fdt, int nodeoffset,
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp);
-static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
-				  const char *name, int *lenp)
+ثابت فراغ *fdt_getprop(ثابت فراغ *fdt, صحيح nodeoffset,
+			ثابت حرف *name, صحيح *lenp);
+ساكن مضمن فراغ *fdt_getprop_w(فراغ *fdt, صحيح nodeoffset,
+				  ثابت حرف *name, صحيح *lenp)
 {
-	return (void *)(uintptr_t)fdt_getprop(fdt, nodeoffset, name, lenp);
+	أرجع (فراغ *)(uintptr_t)fdt_getprop(fdt, nodeoffset, name, lenp);
 }
 
 /**
@@ -822,7 +822,7 @@ static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
  *	the phandle of the node at nodeoffset, on success (!= 0, != -1)
  *	0, if the node has no phandle, or another error occurs
  */
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
+uint32_t fdt_get_phandle(ثابت فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_get_alias_namelen - get alias based on substring
@@ -837,8 +837,8 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
  *	   NULL otherwise
  */
 #ifndef SWIG /* Not available in Python */
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen);
+ثابت حرف *fdt_get_alias_namelen(ثابت فراغ *fdt,
+				  ثابت حرف *name, صحيح namelen);
 #endif
 
 /**
@@ -853,7 +853,7 @@ const char *fdt_get_alias_namelen(const void *fdt,
  *	a pointer to the expansion of the alias named 'name', if it exists
  *	NULL, if the given alias or the /aliases node does not exist
  */
-const char *fdt_get_alias(const void *fdt, const char *name);
+ثابت حرف *fdt_get_alias(ثابت فراغ *fdt, ثابت حرف *name);
 
 /**
  * fdt_get_path - determine the full path of a node
@@ -880,7 +880,7 @@ const char *fdt_get_alias(const void *fdt, const char *name);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
+صحيح fdt_get_path(ثابت فراغ *fdt, صحيح nodeoffset, حرف *buf, صحيح buflen);
 
 /**
  * fdt_supernode_atdepth_offset - find a specific ancestor of a node
@@ -912,8 +912,8 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth);
+صحيح fdt_supernode_atdepth_offset(ثابت فراغ *fdt, صحيح nodeoffset,
+				 صحيح supernodedepth, صحيح *nodedepth);
 
 /**
  * fdt_node_depth - find the depth of a given node
@@ -934,7 +934,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_depth(const void *fdt, int nodeoffset);
+صحيح fdt_تۈگۈن_depth(ثابت فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_parent_offset - find the parent of a given node
@@ -957,7 +957,7 @@ int fdt_node_depth(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_parent_offset(const void *fdt, int nodeoffset);
+صحيح fdt_parent_offset(ثابت فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_node_offset_by_prop_value - find nodes with a given property value
@@ -997,9 +997,9 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen);
+صحيح fdt_تۈگۈن_offset_by_prop_قىممەت(ثابت فراغ *fdt, صحيح startoffset,
+				  ثابت حرف *propname,
+				  ثابت فراغ *propval, صحيح proplen);
 
 /**
  * fdt_node_offset_by_phandle - find the node with a given phandle
@@ -1020,7 +1020,7 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
+صحيح fdt_تۈگۈن_offset_by_phandle(ثابت فراغ *fdt, uint32_t phandle);
 
 /**
  * fdt_node_check_compatible - check a node's compatible property
@@ -1043,8 +1043,8 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible);
+صحيح fdt_تۈگۈن_check_compatible(ثابت فراغ *fdt, صحيح nodeoffset,
+			      ثابت حرف *compatible);
 
 /**
  * fdt_node_offset_by_compatible - find nodes with a given 'compatible' value
@@ -1080,8 +1080,8 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible);
+صحيح fdt_تۈگۈن_offset_by_compatible(ثابت فراغ *fdt, صحيح startoffset,
+				  ثابت حرف *compatible);
 
 /**
  * fdt_stringlist_contains - check a string list property for a string
@@ -1095,7 +1095,7 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  *
  * Return: 1 if the string is found in the list, 0 not found, or invalid list
  */
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
+صحيح fdt_stringlist_contains(ثابت حرف *strlist, صحيح listlen, ثابت حرف *str);
 
 /**
  * fdt_stringlist_count - count the number of strings in a string list
@@ -1108,7 +1108,7 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
  *   -FDT_ERR_BADVALUE if the property value is not NUL-terminated
  *   -FDT_ERR_NOTFOUND if the property does not exist
  */
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
+صحيح fdt_stringlist_سانى(ثابت فراغ *fdt, صحيح nodeoffset, ثابت حرف *property);
 
 /**
  * fdt_stringlist_search - find a string in a string list and return its index
@@ -1129,8 +1129,8 @@ int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
  *   -FDT_ERR_NOTFOUND if the property does not exist or does not contain
  *                     the given string
  */
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string);
+صحيح fdt_stringlist_ئىزدەش(ثابت فراغ *fdt, صحيح nodeoffset, ثابت حرف *property,
+			  ثابت حرف *string);
 
 /**
  * fdt_stringlist_get() - obtain the string at a given index in a string list
@@ -1156,9 +1156,9 @@ int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
  *     -FDT_ERR_BADVALUE if the property value is not NUL-terminated
  *     -FDT_ERR_NOTFOUND if the property does not exist
  */
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int index,
-			       int *lenp);
+ثابت حرف *fdt_stringlist_get(ثابت فراغ *fdt, صحيح nodeoffset,
+			       ثابت حرف *property, صحيح index,
+			       صحيح *lenp);
 
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */
@@ -1193,7 +1193,7 @@ const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_address_cells(const void *fdt, int nodeoffset);
+صحيح fdt_address_cells(ثابت فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_size_cells - retrieve address range size for a bus represented in the
@@ -1214,7 +1214,7 @@ int fdt_address_cells(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_size_cells(const void *fdt, int nodeoffset);
+صحيح fdt_size_cells(ثابت فراغ *fdt, صحيح nodeoffset);
 
 
 /**********************************************************************/
@@ -1240,10 +1240,10 @@ int fdt_size_cells(const void *fdt, int nodeoffset);
  * Return: 0 on success, negative libfdt error value otherwise
  */
 #ifndef SWIG /* Not available in Python */
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len);
+صحيح fdt_setprop_inplace_namelen_partial(فراغ *fdt, صحيح nodeoffset,
+					ثابت حرف *name, صحيح namelen,
+					uint32_t idx, ثابت فراغ *val,
+					صحيح len);
 #endif
 
 /**
@@ -1275,8 +1275,8 @@ int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
 #ifndef SWIG /* Not available in Python */
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len);
+صحيح fdt_setprop_inplace(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+			ثابت فراغ *val, صحيح len);
 #endif
 
 /**
@@ -1307,11 +1307,11 @@ int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_inplace_u32(void *fdt, int nodeoffset,
-					  const char *name, uint32_t val)
+ساكن مضمن صحيح fdt_setprop_inplace_u32(فراغ *fdt, صحيح nodeoffset,
+					  ثابت حرف *name, uint32_t val)
 {
 	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1342,11 +1342,11 @@ static inline int fdt_setprop_inplace_u32(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_inplace_u64(void *fdt, int nodeoffset,
-					  const char *name, uint64_t val)
+ساكن مضمن صحيح fdt_setprop_inplace_u64(فراغ *fdt, صحيح nodeoffset,
+					  ثابت حرف *name, uint64_t val)
 {
 	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1359,10 +1359,10 @@ static inline int fdt_setprop_inplace_u64(void *fdt, int nodeoffset,
  * This is an alternative name for fdt_setprop_inplace_u32()
  * Return: 0 on success, negative libfdt error number otherwise.
  */
-static inline int fdt_setprop_inplace_cell(void *fdt, int nodeoffset,
-					   const char *name, uint32_t val)
+ساكن مضمن صحيح fdt_setprop_inplace_cell(فراغ *fdt, صحيح nodeoffset,
+					   ثابت حرف *name, uint32_t val)
 {
-	return fdt_setprop_inplace_u32(fdt, nodeoffset, name, val);
+	أرجع fdt_setprop_inplace_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1389,7 +1389,7 @@ static inline int fdt_setprop_inplace_cell(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
+صحيح fdt_nop_property(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name);
 
 /**
  * fdt_nop_node - replace a node (subtree) with nop tags
@@ -1413,7 +1413,7 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_nop_node(void *fdt, int nodeoffset);
+صحيح fdt_nop_تۈگۈن(فراغ *fdt, صحيح nodeoffset);
 
 /**********************************************************************/
 /* Sequential write functions                                         */
@@ -1443,7 +1443,7 @@ int fdt_nop_node(void *fdt, int nodeoffset);
  *	-FDT_ERR_NOSPACE, bufsize is insufficient for a minimal fdt
  *	-FDT_ERR_BADFLAGS, flags is not valid
  */
-int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags);
+صحيح fdt_create_with_flags(فراغ *buf, صحيح bufsize, uint32_t flags);
 
 /**
  * fdt_create - begin creation of a new fdt
@@ -1456,28 +1456,28 @@ int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags);
  *	0, on success
  *	-FDT_ERR_NOSPACE, bufsize is insufficient for a minimal fdt
  */
-int fdt_create(void *buf, int bufsize);
+صحيح fdt_create(فراغ *buf, صحيح bufsize);
 
-int fdt_resize(void *fdt, void *buf, int bufsize);
-int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size);
-int fdt_finish_reservemap(void *fdt);
-int fdt_begin_node(void *fdt, const char *name);
-int fdt_property(void *fdt, const char *name, const void *val, int len);
-static inline int fdt_property_u32(void *fdt, const char *name, uint32_t val)
+صحيح fdt_resize(فراغ *fdt, فراغ *buf, صحيح bufsize);
+صحيح fdt_add_reservemap_entry(فراغ *fdt, uint64_t addr, uint64_t size);
+صحيح fdt_finish_reservemap(فراغ *fdt);
+صحيح fdt_begin_تۈگۈن(فراغ *fdt, ثابت حرف *name);
+صحيح fdt_property(فراغ *fdt, ثابت حرف *name, ثابت فراغ *val, صحيح len);
+ساكن مضمن صحيح fdt_property_u32(فراغ *fdt, ثابت حرف *name, uint32_t val)
 {
 	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_property(fdt, name, &tmp, sizeof(tmp));
+	أرجع fdt_property(fdt, name, &tmp, حجم(tmp));
 }
-static inline int fdt_property_u64(void *fdt, const char *name, uint64_t val)
+ساكن مضمن صحيح fdt_property_u64(فراغ *fdt, ثابت حرف *name, uint64_t val)
 {
 	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_property(fdt, name, &tmp, sizeof(tmp));
+	أرجع fdt_property(fdt, name, &tmp, حجم(tmp));
 }
 
 #ifndef SWIG /* Not available in Python */
-static inline int fdt_property_cell(void *fdt, const char *name, uint32_t val)
+ساكن مضمن صحيح fdt_property_cell(فراغ *fdt, ثابت حرف *name, uint32_t val)
 {
-	return fdt_property_u32(fdt, name, val);
+	أرجع fdt_property_u32(fdt, name, val);
 }
 #endif
 
@@ -1494,20 +1494,20 @@ static inline int fdt_property_cell(void *fdt, const char *name, uint32_t val)
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_NOSPACE, standard meanings
  */
-int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp);
+صحيح fdt_property_placeholder(فراغ *fdt, ثابت حرف *name, صحيح len, فراغ **valp);
 
 #define fdt_property_string(fdt, name, str) \
 	fdt_property(fdt, name, str, strlen(str)+1)
-int fdt_end_node(void *fdt);
-int fdt_finish(void *fdt);
+صحيح fdt_end_تۈگۈن(فراغ *fdt);
+صحيح fdt_finish(فراغ *fdt);
 
 /**********************************************************************/
 /* Read-write functions                                               */
 /**********************************************************************/
 
-int fdt_create_empty_tree(void *buf, int bufsize);
-int fdt_open_into(const void *fdt, void *buf, int bufsize);
-int fdt_pack(void *fdt);
+صحيح fdt_create_empty_دەرەخ(فراغ *buf, صحيح bufsize);
+صحيح fdt_open_into(ثابت فراغ *fdt, فراغ *buf, صحيح bufsize);
+صحيح fdt_pack(فراغ *fdt);
 
 /**
  * fdt_add_mem_rsv - add one memory reserve map entry
@@ -1532,7 +1532,7 @@ int fdt_pack(void *fdt);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size);
+صحيح fdt_add_mem_rsv(فراغ *fdt, uint64_t address, uint64_t size);
 
 /**
  * fdt_del_mem_rsv - remove a memory reserve map entry
@@ -1556,7 +1556,7 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_del_mem_rsv(void *fdt, int n);
+صحيح fdt_del_mem_rsv(فراغ *fdt, صحيح n);
 
 /**
  * fdt_set_name - change the name of a given node
@@ -1582,7 +1582,7 @@ int fdt_del_mem_rsv(void *fdt, int n);
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_set_name(void *fdt, int nodeoffset, const char *name);
+صحيح fdt_set_name(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name);
 
 /**
  * fdt_setprop - create or change a property
@@ -1612,8 +1612,8 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len);
+صحيح fdt_setprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+		ثابت فراغ *val, صحيح len);
 
 /**
  * fdt_setprop_placeholder - allocate space for a property
@@ -1643,8 +1643,8 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data);
+صحيح fdt_setprop_placeholder(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+			    صحيح len, فراغ **prop_data);
 
 /**
  * fdt_setprop_u32 - set a property to a 32-bit integer
@@ -1674,11 +1674,11 @@ int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_u32(void *fdt, int nodeoffset, const char *name,
+ساكن مضمن صحيح fdt_setprop_u32(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
 				  uint32_t val)
 {
 	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_setprop(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1709,11 +1709,11 @@ static inline int fdt_setprop_u32(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_u64(void *fdt, int nodeoffset, const char *name,
+ساكن مضمن صحيح fdt_setprop_u64(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
 				  uint64_t val)
 {
 	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_setprop(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1727,10 +1727,10 @@ static inline int fdt_setprop_u64(void *fdt, int nodeoffset, const char *name,
  *
  * Return: 0 on success, negative libfdt error value otherwise.
  */
-static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
+ساكن مضمن صحيح fdt_setprop_cell(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
 				   uint32_t val)
 {
-	return fdt_setprop_u32(fdt, nodeoffset, name, val);
+	أرجع fdt_setprop_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1792,7 +1792,7 @@ static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
 #define fdt_setprop_empty(fdt, nodeoffset, name) \
-	fdt_setprop((fdt), (nodeoffset), (name), NULL, 0)
+	fdt_setprop((fdt), (nodeoffset), (name), عدم, 0)
 
 /**
  * fdt_appendprop - append to or create a property
@@ -1821,8 +1821,8 @@ static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len);
+صحيح fdt_appendprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+		   ثابت فراغ *val, صحيح len);
 
 /**
  * fdt_appendprop_u32 - append a 32-bit integer value to a property
@@ -1852,11 +1852,11 @@ int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_appendprop_u32(void *fdt, int nodeoffset,
-				     const char *name, uint32_t val)
+ساكن مضمن صحيح fdt_appendprop_u32(فراغ *fdt, صحيح nodeoffset,
+				     ثابت حرف *name, uint32_t val)
 {
 	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_appendprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_appendprop(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1887,11 +1887,11 @@ static inline int fdt_appendprop_u32(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_appendprop_u64(void *fdt, int nodeoffset,
-				     const char *name, uint64_t val)
+ساكن مضمن صحيح fdt_appendprop_u64(فراغ *fdt, صحيح nodeoffset,
+				     ثابت حرف *name, uint64_t val)
 {
 	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_appendprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	أرجع fdt_appendprop(fdt, nodeoffset, name, &tmp, حجم(tmp));
 }
 
 /**
@@ -1905,10 +1905,10 @@ static inline int fdt_appendprop_u64(void *fdt, int nodeoffset,
  *
  * Return: 0 on success, negative libfdt error value otherwise.
  */
-static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
-				      const char *name, uint32_t val)
+ساكن مضمن صحيح fdt_appendprop_cell(فراغ *fdt, صحيح nodeoffset,
+				      ثابت حرف *name, uint32_t val)
 {
-	return fdt_appendprop_u32(fdt, nodeoffset, name, val);
+	أرجع fdt_appendprop_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1975,8 +1975,8 @@ static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
  *		contain a new property
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size);
+صحيح fdt_appendprop_addrrange(فراغ *fdt, صحيح parent, صحيح nodeoffset,
+			     ثابت حرف *name, uint64_t addr, uint64_t size);
 
 /**
  * fdt_delprop - delete a property
@@ -2000,7 +2000,7 @@ int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_delprop(void *fdt, int nodeoffset, const char *name);
+صحيح fdt_delprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name);
 
 /**
  * fdt_add_subnode_namelen - creates a new node based on substring
@@ -2018,8 +2018,8 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name);
  *	   negative libfdt error value otherwise
  */
 #ifndef SWIG /* Not available in Python */
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen);
+صحيح fdt_add_subnode_namelen(فراغ *fdt, صحيح parentoffset,
+			    ثابت حرف *name, صحيح namelen);
 #endif
 
 /**
@@ -2053,7 +2053,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
+صحيح fdt_add_subnode(فراغ *fdt, صحيح parentoffset, ثابت حرف *name);
 
 /**
  * fdt_del_node - delete a node (subtree)
@@ -2076,7 +2076,7 @@ int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_del_node(void *fdt, int nodeoffset);
+صحيح fdt_del_تۈگۈن(فراغ *fdt, صحيح nodeoffset);
 
 /**
  * fdt_overlay_apply - Applies a DT overlay on a base DT
@@ -2107,13 +2107,13 @@ int fdt_del_node(void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_overlay_apply(void *fdt, void *fdto);
+صحيح fdt_overlay_apply(فراغ *fdt, فراغ *fdto);
 
 /**********************************************************************/
 /* Debugging / informational functions                                */
 /**********************************************************************/
 
-const char *fdt_strerror(int errval);
+ثابت حرف *fdt_strerror(صحيح errval);
 
 #ifdef __cplusplus
 }
