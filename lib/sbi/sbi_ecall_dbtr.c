@@ -7,65 +7,65 @@
  *   Himanshu Chauhan <hchauhan@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_dbtr.h>
+#অন্তর্ভাব <sbi/sbi_ecall.h>
+#অন্তর্ভাব <sbi/sbi_ecall_interface.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_trap.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_dbtr.h>
 
-static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+স্থির পূর্ণসংখ্যা sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
+				  কাঠামো sbi_trap_regs *regs,
+				  কাঠামো sbi_ecall_return *out)
 {
 	unsigned long smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
-	int ret = 0;
+	পূর্ণসংখ্যা ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_DBTR_NUM_TRIGGERS:
-		ret = sbi_dbtr_num_trig(regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_SETUP_SHMEM:
+	নির্বাচন (funcid) {
+	ক্ষেত্র SBI_EXT_DBTR_অঙ্ক_TRIGGERS:
+		ret = sbi_dbtr_অঙ্ক_trig(regs->a0, &out->মান);
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_SETUP_SHMEM:
 		ret = sbi_dbtr_setup_shmem(sbi_domain_thishart_ptr(), smode,
 					   regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_READ:
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_READ:
 		ret = sbi_dbtr_read_trig(smode, regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_INSTALL:
-		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UNINSTALL:
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_INSTALL:
+		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->মান);
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_UNINSTALL:
 		ret = sbi_dbtr_uninstall_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_ENABLE:
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_ENABLE:
 		ret = sbi_dbtr_enable_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UPDATE:
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_UPDATE:
 		ret = sbi_dbtr_update_trig(smode, regs->a0);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_DISABLE:
+		বিরতি;
+	ক্ষেত্র SBI_EXT_DBTR_TRIGGER_DISABLE:
 		ret = sbi_dbtr_disable_trig(regs->a0, regs->a1);
-		break;
-	default:
+		বিরতি;
+	পূর্বনির্ধারিত:
 		ret = SBI_ENOTSUPP;
 	};
 
-	return ret;
+	ফেরত ret;
 }
 
-struct sbi_ecall_extension ecall_dbtr;
+কাঠামো sbi_ecall_extension ecall_dbtr;
 
-static int sbi_ecall_dbtr_register_extensions(void)
+স্থির পূর্ণসংখ্যা sbi_ecall_dbtr_register_extensions(শূন্য)
 {
-	if (sbi_dbtr_get_total_triggers() == 0)
-		return 0;
+	যদি (sbi_dbtr_get_যোগ_triggers() == 0)
+		ফেরত 0;
 
-	return sbi_ecall_register_extension(&ecall_dbtr);
+	ফেরত sbi_ecall_register_extension(&ecall_dbtr);
 }
 
-struct sbi_ecall_extension ecall_dbtr = {
+কাঠামো sbi_ecall_extension ecall_dbtr = {
 	.name			= "dbtr",
 	.extid_start		= SBI_EXT_DBTR,
 	.extid_end		= SBI_EXT_DBTR,

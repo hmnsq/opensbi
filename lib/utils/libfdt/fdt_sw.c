@@ -3,30 +3,30 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#অন্তর্ভাব "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#অন্তর্ভাব <fdt.h>
+#অন্তর্ভাব <libfdt.h>
 
-#include "libfdt_internal.h"
+#অন্তর্ভাব "libfdt_internal.h"
 
-static int fdt_sw_probe_(void *fdt)
+স্থির পূর্ণসংখ্যা fdt_sw_probe_(শূন্য *fdt)
 {
-	if (!can_assume(VALID_INPUT)) {
-		if (fdt_magic(fdt) == FDT_MAGIC)
-			return -FDT_ERR_BADSTATE;
-		else if (fdt_magic(fdt) != FDT_SW_MAGIC)
-			return -FDT_ERR_BADMAGIC;
+	যদি (!can_assume(VALID_প্রবেশ)) {
+		যদি (fdt_magic(fdt) == FDT_MAGIC)
+			ফেরত -FDT_ERR_BADSTATE;
+		অন্যথা যদি (fdt_magic(fdt) != FDT_SW_MAGIC)
+			ফেরত -FDT_ERR_BADMAGIC;
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
 #define FDT_SW_PROBE(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_(fdt)) != 0) \
-			return err; \
+		পূর্ণসংখ্যা err; \
+		যদি ((err = fdt_sw_probe_(fdt)) != 0) \
+			ফেরত err; \
 	}
 
 /* 'memrsv' state:	Initial state after fdt_create()
@@ -35,22 +35,22 @@ static int fdt_sw_probe_(void *fdt)
  *	fdt_add_reservemap_entry()
  *	fdt_finish_reservemap()		[moves to 'struct' state]
  */
-static int fdt_sw_probe_memrsv_(void *fdt)
+স্থির পূর্ণসংখ্যা fdt_sw_probe_memrsv_(শূন্য *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	পূর্ণসংখ্যা err = fdt_sw_probe_(fdt);
+	যদি (err)
+		ফেরত err;
 
-	if (!can_assume(VALID_INPUT) && fdt_off_dt_strings(fdt) != 0)
-		return -FDT_ERR_BADSTATE;
-	return 0;
+	যদি (!can_assume(VALID_প্রবেশ) && fdt_off_dt_strings(fdt) != 0)
+		ফেরত -FDT_ERR_BADSTATE;
+	ফেরত 0;
 }
 
 #define FDT_SW_PROBE_MEMRSV(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
-			return err; \
+		পূর্ণসংখ্যা err; \
+		যদি ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
+			ফেরত err; \
 	}
 
 /* 'struct' state:	Enter this state after fdt_finish_reservemap()
@@ -61,29 +61,29 @@ static int fdt_sw_probe_memrsv_(void *fdt)
  *	fdt_property*()
  *	fdt_finish()			[moves to 'complete' state]
  */
-static int fdt_sw_probe_struct_(void *fdt)
+স্থির পূর্ণসংখ্যা fdt_sw_probe_struct_(শূন্য *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	পূর্ণসংখ্যা err = fdt_sw_probe_(fdt);
+	যদি (err)
+		ফেরত err;
 
-	if (!can_assume(VALID_INPUT) &&
+	যদি (!can_assume(VALID_প্রবেশ) &&
 	    fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
-		return -FDT_ERR_BADSTATE;
-	return 0;
+		ফেরত -FDT_ERR_BADSTATE;
+	ফেরত 0;
 }
 
 #define FDT_SW_PROBE_STRUCT(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_struct_(fdt)) != 0) \
-			return err; \
+		পূর্ণসংখ্যা err; \
+		যদি ((err = fdt_sw_probe_struct_(fdt)) != 0) \
+			ফেরত err; \
 	}
 
-static inline uint32_t sw_flags(void *fdt)
+স্থির অন্তঃরেখ uint32_t sw_flags(শূন্য *fdt)
 {
 	/* assert: (fdt_magic(fdt) == FDT_SW_MAGIC) */
-	return fdt_last_comp_version(fdt);
+	ফেরত fdt_last_comp_version(fdt);
 }
 
 /* 'complete' state:	Enter this state after fdt_finish()
@@ -91,32 +91,32 @@ static inline uint32_t sw_flags(void *fdt)
  * Allowed functions: none
  */
 
-static void *fdt_grab_space_(void *fdt, size_t len)
+স্থির শূন্য *fdt_grab_space_(শূন্য *fdt, size_t len)
 {
-	unsigned int offset = fdt_size_dt_struct(fdt);
-	unsigned int spaceleft;
+	unsigned পূর্ণসংখ্যা offset = fdt_আকার_dt_struct(fdt);
+	unsigned পূর্ণসংখ্যা spaceleft;
 
 	spaceleft = fdt_totalsize(fdt) - fdt_off_dt_struct(fdt)
-		- fdt_size_dt_strings(fdt);
+		- fdt_আকার_dt_strings(fdt);
 
-	if ((offset + len < offset) || (offset + len > spaceleft))
-		return NULL;
+	যদি ((offset + len < offset) || (offset + len > spaceleft))
+		ফেরত ফাঁকা;
 
-	fdt_set_size_dt_struct(fdt, offset + len);
-	return fdt_offset_ptr_w_(fdt, offset);
+	fdt_set_আকার_dt_struct(fdt, offset + len);
+	ফেরত fdt_offset_ptr_w_(fdt, offset);
 }
 
-int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
+পূর্ণসংখ্যা fdt_create_with_flags(শূন্য *buf, পূর্ণসংখ্যা bufsize, uint32_t flags)
 {
-	const int hdrsize = FDT_ALIGN(sizeof(struct fdt_header),
-				      sizeof(struct fdt_reserve_entry));
-	void *fdt = buf;
+	ধ্রুবক পূর্ণসংখ্যা hdrsize = FDT_ALIGN(আকার(কাঠামো fdt_header),
+				      আকার(কাঠামো fdt_reserve_entry));
+	শূন্য *fdt = buf;
 
-	if (bufsize < hdrsize)
-		return -FDT_ERR_NOSPACE;
+	যদি (bufsize < hdrsize)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	if (flags & ~FDT_CREATE_FLAGS_ALL)
-		return -FDT_ERR_BADFLAGS;
+	যদি (flags & ~FDT_CREATE_FLAGS_ALL)
+		ফেরত -FDT_ERR_BADFLAGS;
 
 	memset(buf, 0, bufsize);
 
@@ -137,248 +137,248 @@ int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
 	fdt_set_off_dt_struct(fdt, fdt_off_mem_rsvmap(fdt));
 	fdt_set_off_dt_strings(fdt, 0);
 
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_create(void *buf, int bufsize)
+পূর্ণসংখ্যা fdt_create(শূন্য *buf, পূর্ণসংখ্যা bufsize)
 {
-	return fdt_create_with_flags(buf, bufsize, 0);
+	ফেরত fdt_create_with_flags(buf, bufsize, 0);
 }
 
-int fdt_resize(void *fdt, void *buf, int bufsize)
+পূর্ণসংখ্যা fdt_resize(শূন্য *fdt, শূন্য *buf, পূর্ণসংখ্যা bufsize)
 {
 	size_t headsize, tailsize;
-	char *oldtail, *newtail;
+	অক্ষর *oldtail, *newtail;
 
 	FDT_SW_PROBE(fdt);
 
-	if (bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	যদি (bufsize < 0)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	headsize = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	tailsize = fdt_size_dt_strings(fdt);
+	headsize = fdt_off_dt_struct(fdt) + fdt_আকার_dt_struct(fdt);
+	tailsize = fdt_আকার_dt_strings(fdt);
 
-	if (!can_assume(VALID_DTB) &&
+	যদি (!can_assume(VALID_DTB) &&
 	    headsize + tailsize > fdt_totalsize(fdt))
-		return -FDT_ERR_INTERNAL;
+		ফেরত -FDT_ERR_INTERNAL;
 
-	if ((headsize + tailsize) > (unsigned)bufsize)
-		return -FDT_ERR_NOSPACE;
+	যদি ((headsize + tailsize) > (unsigned)bufsize)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	oldtail = (char *)fdt + fdt_totalsize(fdt) - tailsize;
-	newtail = (char *)buf + bufsize - tailsize;
+	oldtail = (অক্ষর *)fdt + fdt_totalsize(fdt) - tailsize;
+	newtail = (অক্ষর *)buf + bufsize - tailsize;
 
 	/* Two cases to avoid clobbering data if the old and new
 	 * buffers partially overlap */
-	if (buf <= fdt) {
+	যদি (buf <= fdt) {
 		memmove(buf, fdt, headsize);
 		memmove(newtail, oldtail, tailsize);
-	} else {
+	} অন্যথা {
 		memmove(newtail, oldtail, tailsize);
 		memmove(buf, fdt, headsize);
 	}
 
 	fdt_set_totalsize(buf, bufsize);
-	if (fdt_off_dt_strings(buf))
+	যদি (fdt_off_dt_strings(buf))
 		fdt_set_off_dt_strings(buf, bufsize);
 
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size)
+পূর্ণসংখ্যা fdt_add_reservemap_entry(শূন্য *fdt, uint64_t addr, uint64_t আকার_2)
 {
-	struct fdt_reserve_entry *re;
-	int offset;
+	কাঠামো fdt_reserve_entry *re;
+	পূর্ণসংখ্যা offset;
 
 	FDT_SW_PROBE_MEMRSV(fdt);
 
 	offset = fdt_off_dt_struct(fdt);
-	if ((offset + sizeof(*re)) > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
+	যদি ((offset + আকার(*re)) > fdt_totalsize(fdt))
+		ফেরত -FDT_ERR_NOSPACE;
 
-	re = (struct fdt_reserve_entry *)((char *)fdt + offset);
+	re = (কাঠামো fdt_reserve_entry *)((অক্ষর *)fdt + offset);
 	re->address = cpu_to_fdt64(addr);
-	re->size = cpu_to_fdt64(size);
+	re->আকার_2 = cpu_to_fdt64(আকার_2);
 
-	fdt_set_off_dt_struct(fdt, offset + sizeof(*re));
+	fdt_set_off_dt_struct(fdt, offset + আকার(*re));
 
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_finish_reservemap(void *fdt)
+পূর্ণসংখ্যা fdt_finish_reservemap(শূন্য *fdt)
 {
-	int err = fdt_add_reservemap_entry(fdt, 0, 0);
+	পূর্ণসংখ্যা err = fdt_add_reservemap_entry(fdt, 0, 0);
 
-	if (err)
-		return err;
+	যদি (err)
+		ফেরত err;
 
 	fdt_set_off_dt_strings(fdt, fdt_totalsize(fdt));
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_begin_node(void *fdt, const char *name)
+পূর্ণসংখ্যা fdt_begin_গ্রন্থি(শূন্য *fdt, ধ্রুবক অক্ষর *name)
 {
-	struct fdt_node_header *nh;
-	int namelen;
+	কাঠামো fdt_গ্রন্থি_header *nh;
+	পূর্ণসংখ্যা namelen;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	namelen = strlen(name) + 1;
-	nh = fdt_grab_space_(fdt, sizeof(*nh) + FDT_TAGALIGN(namelen));
-	if (! nh)
-		return -FDT_ERR_NOSPACE;
+	nh = fdt_grab_space_(fdt, আকার(*nh) + FDT_TAGALIGN(namelen));
+	যদি (! nh)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_গ্রন্থি);
 	memcpy(nh->name, name, namelen);
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_end_node(void *fdt)
+পূর্ণসংখ্যা fdt_end_গ্রন্থি(শূন্য *fdt)
 {
 	fdt32_t *en;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	en = fdt_grab_space_(fdt, FDT_TAGSIZE);
-	if (! en)
-		return -FDT_ERR_NOSPACE;
+	যদি (! en)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	*en = cpu_to_fdt32(FDT_END_NODE);
-	return 0;
+	*en = cpu_to_fdt32(FDT_END_গ্রন্থি);
+	ফেরত 0;
 }
 
-static int fdt_add_string_(void *fdt, const char *s)
+স্থির পূর্ণসংখ্যা fdt_add_string_(শূন্য *fdt, ধ্রুবক অক্ষর *s)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	unsigned int strtabsize = fdt_size_dt_strings(fdt);
-	unsigned int len = strlen(s) + 1;
-	unsigned int struct_top, offset;
+	অক্ষর *strtab = (অক্ষর *)fdt + fdt_totalsize(fdt);
+	unsigned পূর্ণসংখ্যা strtabsize = fdt_আকার_dt_strings(fdt);
+	unsigned পূর্ণসংখ্যা len = strlen(s) + 1;
+	unsigned পূর্ণসংখ্যা struct_শীর্ষ, offset;
 
 	offset = strtabsize + len;
-	struct_top = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	if (fdt_totalsize(fdt) - offset < struct_top)
-		return 0; /* no more room :( */
+	struct_শীর্ষ = fdt_off_dt_struct(fdt) + fdt_আকার_dt_struct(fdt);
+	যদি (fdt_totalsize(fdt) - offset < struct_শীর্ষ)
+		ফেরত 0; /* no more room :( */
 
 	memcpy(strtab - offset, s, len);
-	fdt_set_size_dt_strings(fdt, strtabsize + len);
-	return -offset;
+	fdt_set_আকার_dt_strings(fdt, strtabsize + len);
+	ফেরত -offset;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+স্থির শূন্য fdt_del_last_string_(শূন্য *fdt, ধ্রুবক অক্ষর *s)
 {
-	int strtabsize = fdt_size_dt_strings(fdt);
-	int len = strlen(s) + 1;
+	পূর্ণসংখ্যা strtabsize = fdt_আকার_dt_strings(fdt);
+	পূর্ণসংখ্যা len = strlen(s) + 1;
 
-	fdt_set_size_dt_strings(fdt, strtabsize - len);
+	fdt_set_আকার_dt_strings(fdt, strtabsize - len);
 }
 
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+স্থির পূর্ণসংখ্যা fdt_find_add_string_(শূন্য *fdt, ধ্রুবক অক্ষর *s, পূর্ণসংখ্যা *allocated)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	int strtabsize = fdt_size_dt_strings(fdt);
-	const char *p;
+	অক্ষর *strtab = (অক্ষর *)fdt + fdt_totalsize(fdt);
+	পূর্ণসংখ্যা strtabsize = fdt_আকার_dt_strings(fdt);
+	ধ্রুবক অক্ষর *p;
 
 	*allocated = 0;
 
 	p = fdt_find_string_(strtab - strtabsize, strtabsize, s);
-	if (p)
-		return p - strtab;
+	যদি (p)
+		ফেরত p - strtab;
 
 	*allocated = 1;
 
-	return fdt_add_string_(fdt, s);
+	ফেরত fdt_add_string_(fdt, s);
 }
 
-int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp)
+পূর্ণসংখ্যা fdt_property_placeholder(শূন্য *fdt, ধ্রুবক অক্ষর *name, পূর্ণসংখ্যা len, শূন্য **valp)
 {
-	struct fdt_property *prop;
-	int nameoff;
-	int allocated;
+	কাঠামো fdt_property *prop;
+	পূর্ণসংখ্যা nameoff;
+	পূর্ণসংখ্যা allocated;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* String de-duplication can be slow, _NO_NAME_DEDUP skips it */
-	if (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
+	যদি (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
 		allocated = 1;
 		nameoff = fdt_add_string_(fdt, name);
-	} else {
+	} অন্যথা {
 		nameoff = fdt_find_add_string_(fdt, name, &allocated);
 	}
-	if (nameoff == 0)
-		return -FDT_ERR_NOSPACE;
+	যদি (nameoff == 0)
+		ফেরত -FDT_ERR_NOSPACE;
 
-	prop = fdt_grab_space_(fdt, sizeof(*prop) + FDT_TAGALIGN(len));
-	if (! prop) {
-		if (allocated)
+	prop = fdt_grab_space_(fdt, আকার(*prop) + FDT_TAGALIGN(len));
+	যদি (! prop) {
+		যদি (allocated)
 			fdt_del_last_string_(fdt, name);
-		return -FDT_ERR_NOSPACE;
+		ফেরত -FDT_ERR_NOSPACE;
 	}
 
 	prop->tag = cpu_to_fdt32(FDT_PROP);
 	prop->nameoff = cpu_to_fdt32(nameoff);
 	prop->len = cpu_to_fdt32(len);
-	*valp = prop->data;
-	return 0;
+	*valp = prop->তথ্য;
+	ফেরত 0;
 }
 
-int fdt_property(void *fdt, const char *name, const void *val, int len)
+পূর্ণসংখ্যা fdt_property(শূন্য *fdt, ধ্রুবক অক্ষর *name, ধ্রুবক শূন্য *val, পূর্ণসংখ্যা len)
 {
-	void *ptr;
-	int ret;
+	শূন্য *ptr;
+	পূর্ণসংখ্যা ret;
 
 	ret = fdt_property_placeholder(fdt, name, len, &ptr);
-	if (ret)
-		return ret;
+	যদি (ret)
+		ফেরত ret;
 	memcpy(ptr, val, len);
-	return 0;
+	ফেরত 0;
 }
 
-int fdt_finish(void *fdt)
+পূর্ণসংখ্যা fdt_finish(শূন্য *fdt)
 {
-	char *p = (char *)fdt;
+	অক্ষর *p = (অক্ষর *)fdt;
 	fdt32_t *end;
-	int oldstroffset, newstroffset;
+	পূর্ণসংখ্যা oldstroffset, newstroffset;
 	uint32_t tag;
-	int offset, nextoffset;
+	পূর্ণসংখ্যা offset, nextoffset;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* Add terminator */
-	end = fdt_grab_space_(fdt, sizeof(*end));
-	if (! end)
-		return -FDT_ERR_NOSPACE;
+	end = fdt_grab_space_(fdt, আকার(*end));
+	যদি (! end)
+		ফেরত -FDT_ERR_NOSPACE;
 	*end = cpu_to_fdt32(FDT_END);
 
 	/* Relocate the string table */
-	oldstroffset = fdt_totalsize(fdt) - fdt_size_dt_strings(fdt);
-	newstroffset = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	memmove(p + newstroffset, p + oldstroffset, fdt_size_dt_strings(fdt));
+	oldstroffset = fdt_totalsize(fdt) - fdt_আকার_dt_strings(fdt);
+	newstroffset = fdt_off_dt_struct(fdt) + fdt_আকার_dt_struct(fdt);
+	memmove(p + newstroffset, p + oldstroffset, fdt_আকার_dt_strings(fdt));
 	fdt_set_off_dt_strings(fdt, newstroffset);
 
 	/* Walk the structure, correcting string offsets */
 	offset = 0;
-	while ((tag = fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
-		if (tag == FDT_PROP) {
-			struct fdt_property *prop =
+	যখন ((tag = fdt_পরবর্তী_tag(fdt, offset, &nextoffset)) != FDT_END) {
+		যদি (tag == FDT_PROP) {
+			কাঠামো fdt_property *prop =
 				fdt_offset_ptr_w_(fdt, offset);
-			int nameoff;
+			পূর্ণসংখ্যা nameoff;
 
 			nameoff = fdt32_to_cpu(prop->nameoff);
-			nameoff += fdt_size_dt_strings(fdt);
+			nameoff += fdt_আকার_dt_strings(fdt);
 			prop->nameoff = cpu_to_fdt32(nameoff);
 		}
 		offset = nextoffset;
 	}
-	if (nextoffset < 0)
-		return nextoffset;
+	যদি (nextoffset < 0)
+		ফেরত nextoffset;
 
 	/* Finally, adjust the header */
-	fdt_set_totalsize(fdt, newstroffset + fdt_size_dt_strings(fdt));
+	fdt_set_totalsize(fdt, newstroffset + fdt_আকার_dt_strings(fdt));
 
 	/* And fix up fields that were keeping intermediate state. */
 	fdt_set_last_comp_version(fdt, FDT_LAST_COMPATIBLE_VERSION);
 	fdt_set_magic(fdt, FDT_MAGIC);
 
-	return 0;
+	ফেরত 0;
 }

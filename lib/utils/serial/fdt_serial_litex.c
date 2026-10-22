@@ -7,33 +7,33 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/litex-uart.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/serial/fdt_serial.h>
+#অন্তর্ভাব <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা serial_litex_init(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff,
+			     ধ্রুবক কাঠামো fdt_match *match)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_আকার;
+	পূর্ণসংখ্যা rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	যদি (nodeoff < 0 || !fdt)
+		ফেরত SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_গ্রন্থি_addr_আকার(fdt, nodeoff, 0, &reg_addr, &reg_আকার);
+	যদি (rc < 0 || !reg_addr || !reg_আকার)
+		ফেরত SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	ফেরত litex_uart_init(reg_addr);
 }
 
-static const struct fdt_match serial_litex_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match serial_litex_match[] = {
 	{ .compatible = "litex,liteuart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_litex = {
+ধ্রুবক কাঠামো fdt_driver fdt_serial_litex = {
 	.match_table = serial_litex_match,
 	.init = serial_litex_init
 };

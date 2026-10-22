@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_platform.h>
+#অন্তর্ভাব <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+স্থির অন্তঃরেখ অক্ষর *sbi_platform_feature_id2string(unsigned long feature)
 {
-	char *fstr = NULL;
+	অক্ষর *fstr = ফাঁকা;
 
-	if (!feature)
-		return NULL;
+	যদি (!feature)
+		ফেরত ফাঁকা;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	নির্বাচন (feature) {
+	ক্ষেত্র SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		বিরতি;
+	পূর্বনির্ধারিত:
+		বিরতি;
 	}
 
-	return fstr;
+	ফেরত fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+শূন্য sbi_platform_get_features_str(ধ্রুবক কাঠামো sbi_platform *plat,
+				   অক্ষর *features_str, পূর্ণসংখ্যা nfstr)
 {
 	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	অক্ষর *অস্থায়ী;
+	পূর্ণসংখ্যা offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	যদি (!plat || !features_str || !nfstr)
+		ফেরত;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	যদি (!features)
+		যাও done;
 
-	do {
-		if (features & feat) {
-			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+	করো {
+		যদি (features & feat) {
+			অস্থায়ী = sbi_platform_feature_id2string(feat);
+			যদি (অস্থায়ী) {
+				পূর্ণসংখ্যা len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
-						       "%s,", temp);
-				if (len < 0)
-					break;
+						       "%s,", অস্থায়ী);
+				যদি (len < 0)
+					বিরতি;
 
-				if (offset + len >= nfstr) {
+				যদি (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
-					break;
-				} else
+					বিরতি;
+				} অন্যথা
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} যখন (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	যদি (offset)
 		features_str[offset - 1] = '\0';
-	else
+	অন্যথা
 		sbi_strncpy(features_str, "none", nfstr);
 }

@@ -7,10 +7,10 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi_utils/serial/sifive-uart.h>
 
 /* clang-format off */
 
@@ -24,15 +24,15 @@
 
 #define UART_TXFIFO_FULL	0x80000000
 #define UART_RXFIFO_EMPTY	0x80000000
-#define UART_RXFIFO_DATA	0x000000ff
+#define UART_RXFIFO_তথ্য	0x000000ff
 #define UART_TXCTRL_TXEN	0x1
 #define UART_RXCTRL_RXEN	0x1
 
 /* clang-format on */
 
-static volatile char *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+স্থির অস্থির অক্ষর *uart_base;
+স্থির u32 uart_in_freq;
+স্থির u32 uart_baudrate;
 
 /**
  * Find minimum divisor divides in_freq to max_target_hz;
@@ -45,61 +45,61 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+স্থির অন্তঃরেখ unsigned পূর্ণসংখ্যা uart_min_clk_ভাজক(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	যদি (quotient == 0)
+		ফেরত 0;
+	অন্যথা
+		ফেরত quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+স্থির u32 get_reg(u32 অঙ্ক)
 {
-	return readl(uart_base + (num * 0x4));
+	ফেরত readl(uart_base + (অঙ্ক * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+স্থির শূন্য set_reg(u32 অঙ্ক, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (অঙ্ক * 0x4));
 }
 
-static void sifive_uart_putc(char ch)
+স্থির শূন্য sifive_uart_putc(অক্ষর ch)
 {
-	while (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
+	যখন (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
 		;
 
 	set_reg(UART_REG_TXFIFO, ch);
 }
 
-static int sifive_uart_getc(void)
+স্থির পূর্ণসংখ্যা sifive_uart_getc(শূন্য)
 {
 	u32 ret = get_reg(UART_REG_RXFIFO);
 
-	if (!(ret & UART_RXFIFO_EMPTY))
-		return ret & UART_RXFIFO_DATA;
+	যদি (!(ret & UART_RXFIFO_EMPTY))
+		ফেরত ret & UART_RXFIFO_তথ্য;
 
-	return -1;
+	ফেরত -1;
 }
 
-static struct sbi_console_device sifive_console = {
+স্থির কাঠামো sbi_console_device sifive_console = {
 	.name = "sifive_uart",
 	.console_putc = sifive_uart_putc,
 	.console_getc = sifive_uart_getc
 };
 
-int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+পূর্ণসংখ্যা sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
-	uart_base     = (volatile char *)base;
+	uart_base     = (অস্থির অক্ষর *)base;
 	uart_in_freq  = in_freq;
 	uart_baudrate = baudrate;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+	যদি (in_freq && baudrate)
+		set_reg(UART_REG_DIV, uart_min_clk_ভাজক(in_freq, baudrate));
 
 	/* Disable interrupts */
 	set_reg(UART_REG_IE, 0);
@@ -112,7 +112,7 @@ int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	ফেরত sbi_domain_মূল_add_memrange(base, PAGE_আকার, PAGE_আকার,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

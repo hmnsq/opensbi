@@ -4,146 +4,146 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <andes/andes.h>
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#অন্তর্ভাব <andes/andes.h>
+#অন্তর্ভাব <libfdt.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_ecall_interface.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_hart.h>
+#অন্তর্ভাব <sbi/sbi_hsm.h>
+#অন্তর্ভাব <sbi/sbi_init.h>
+#অন্তর্ভাব <sbi/sbi_ipi.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-static unsigned long atcsmu_base;
+স্থির unsigned long atcsmu_base;
 
-void atcsmu_set_wakeup_events(u32 events, u32 hartid)
+শূন্য atcsmu_set_wakeup_events(u32 events, u32 hartid)
 {
-	writel_relaxed(events, (char *)atcsmu_base + PCSm_WE_OFFSET(hartid));
+	writel_relaxed(events, (অক্ষর *)atcsmu_base + PCSm_WE_OFFSET(hartid));
 }
 
 bool atcsmu_support_sleep_mode(u32 sleep_type, u32 hartid)
 {
 	u32 pcs_cfg;
 	u32 mask;
-	const char *sleep_mode;
+	ধ্রুবক অক্ষর *sleep_mode;
 
-	pcs_cfg = readl_relaxed((char *)atcsmu_base + PCSm_CFG_OFFSET(hartid));
-	switch (sleep_type) {
-	case SBI_SUSP_AE350_LIGHT_SLEEP:
+	pcs_cfg = readl_relaxed((অক্ষর *)atcsmu_base + PCSm_CFG_OFFSET(hartid));
+	নির্বাচন (sleep_type) {
+	ক্ষেত্র SBI_SUSP_AE350_LIGHT_SLEEP:
 		mask = PCS_CFG_LIGHT_SLEEP;
 		sleep_mode = "light sleep";
-		break;
-	case SBI_SUSP_SLEEP_TYPE_SUSPEND:
+		বিরতি;
+	ক্ষেত্র SBI_SUSP_SLEEP_TYPE_SUSPEND:
 		mask = PCS_CFG_DEEP_SLEEP;
 		sleep_mode = "deep sleep";
-		break;
-	default:
-		return false;
+		বিরতি;
+	পূর্বনির্ধারিত:
+		ফেরত false;
 	}
 
-	if (!EXTRACT_FIELD(pcs_cfg, mask)) {
+	যদি (!EXTRACT_FIELD(pcs_cfg, mask)) {
 		sbi_printf("ATCSMU: hart%d (PCS%d) does not support %s mode\n",
 			   hartid, hartid + 3, sleep_mode);
-		return false;
+		ফেরত false;
 	}
 
-	return true;
+	ফেরত true;
 }
 
-void atcsmu_set_command(u32 pcs_ctl, u32 hartid)
+শূন্য atcsmu_set_command(u32 pcs_ctl, u32 hartid)
 {
-	writel(pcs_ctl, (char *)atcsmu_base + PCSm_CTL_OFFSET(hartid));
+	writel(pcs_ctl, (অক্ষর *)atcsmu_base + PCSm_CTL_OFFSET(hartid));
 }
 
-int atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
+পূর্ণসংখ্যা atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
 {
 	u32 vec_lo;
 	u32 vec_hi;
 	u64 reset_vector;
 
-	writel((u32)wakeup_addr, (char *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
-	writel((u32)(wakeup_addr >> 32), (char *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
-	vec_lo = readl((char *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
-	vec_hi = readl((char *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
+	writel((u32)wakeup_addr, (অক্ষর *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
+	writel((u32)(wakeup_addr >> 32), (অক্ষর *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
+	vec_lo = readl((অক্ষর *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
+	vec_hi = readl((অক্ষর *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
 	reset_vector = (u64)vec_hi << 32 | vec_lo;
-	if (reset_vector != wakeup_addr) {
+	যদি (reset_vector != wakeup_addr) {
 		sbi_printf("ATCSMU: hart%d (PCS%d): failed to program the reset vector\n",
 			   hartid, hartid + 3);
-		return SBI_EFAIL;
+		ফেরত SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	ফেরত SBI_OK;
 }
 
 u32 atcsmu_get_sleep_type(u32 hartid)
 {
-	return readl_relaxed((char *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
+	ফেরত readl_relaxed((অক্ষর *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
 }
 
-void atcsmu_write_scratch(u32 value)
+শূন্য atcsmu_write_scratch(u32 মান)
 {
-	writel_relaxed(value, (char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	writel_relaxed(মান, (অক্ষর *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
-u32 atcsmu_read_scratch(void)
+u32 atcsmu_read_scratch(শূন্য)
 {
-	return readl_relaxed((char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	ফেরত readl_relaxed((অক্ষর *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
-bool atcsmu_hart_is_sleep(void *opaque)
+bool atcsmu_hart_is_sleep(শূন্য *opaque)
 {
-	struct atcsmu_sleep_arg *arg = opaque;
+	কাঠামো atcsmu_sleep_arg *arg = opaque;
 
-	u32 pcs_status = readl_relaxed((char *)atcsmu_base +
+	u32 pcs_status = readl_relaxed((অক্ষর *)atcsmu_base +
 				       PCSm_STATUS_OFFSET(arg->hartid));
 	u32 pd_status = arg->deep_sleep ? PD_STATUS_DEEP_SLEEP :
 					  PD_STATUS_LIGHT_SLEEP;
 
-	return EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
+	ফেরত EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
 	       EXTRACT_FIELD(pcs_status, PD_STATUS_MASK) == pd_status;
 }
 
-static int ae350_hart_start(u32 hartid, ulong saddr)
+স্থির পূর্ণসংখ্যা ae350_hart_start(u32 hartid, ulong saddr)
 {
 	u32 hartindex = sbi_hartid_to_hartindex(hartid);
 
-	return sbi_ipi_raw_send(hartindex, false);
+	ফেরত sbi_ipi_raw_send(hartindex, false);
 }
 
-static int ae350_hart_stop(void)
+স্থির পূর্ণসংখ্যা ae350_hart_stop(শূন্য)
 {
 	u32 hartid = current_hartid();
 	u32 sleep_type = atcsmu_get_sleep_type(hartid);
-	int rc;
+	পূর্ণসংখ্যা rc;
 
 	/*
 	 * For Andes AX25MP, the hart0 shares power domain with the last level
 	 * cache. Instead of turning it off, it should fall through and jump to
 	 * warmboot_addr.
 	 */
-	if (is_andes(25) && hartid == 0)
-		return SBI_ENOTSUPP;
+	যদি (is_andes(25) && hartid == 0)
+		ফেরত SBI_ENOTSUPP;
 
-	if (!atcsmu_support_sleep_mode(sleep_type, hartid))
-		return SBI_ENOTSUPP;
+	যদি (!atcsmu_support_sleep_mode(sleep_type, hartid))
+		ফেরত SBI_ENOTSUPP;
 
 	/* Prevent the core leaving the WFI mode unexpectedly */
 	csr_write(CSR_MIE, 0);
 
 	atcsmu_set_wakeup_events(PCS_WAKEUP_MSIP_MASK | PCS_WAKEUP_MEIP_MASK, hartid);
-	if (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
+	যদি (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
 		/* Clock-gated only: needs MSI or MEI set to resume past the WFI */
 		csr_set(CSR_MIE, MIP_MSIP | MIP_MEIP);
 		atcsmu_set_command(LIGHT_SLEEP_CMD, hartid);
-	} else if (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
+	} অন্যথা যদি (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
 		/* Power-gated: SMU wakes it via cold reset, interrupts not needed */
 		rc = atcsmu_set_reset_vector((ulong)ae350_enable_coherency_warmboot, hartid);
-		if (rc)
-			return SBI_EFAIL;
+		যদি (rc)
+			ফেরত SBI_EFAIL;
 
 		ae350_non_ret_save(sbi_scratch_thishart_ptr());
 		atcsmu_set_command(DEEP_SLEEP_CMD, hartid);
@@ -155,49 +155,49 @@ static int ae350_hart_stop(void)
 	/* Light sleep resumes here */
 	ae350_enable_coherency();
 
-	return SBI_ENOTSUPP;
+	ফেরত SBI_ENOTSUPP;
 }
 
-static const struct sbi_hsm_device hsm_andes_atcsmu = {
+স্থির ধ্রুবক কাঠামো sbi_hsm_device hsm_andes_atcsmu = {
 	.name = "andes_atcsmu",
 	.hart_start = ae350_hart_start,
 	.hart_stop = ae350_hart_stop,
 };
 
-static int hsm_andes_atcsmu_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা hsm_andes_atcsmu_probe(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff, ধ্রুবক কাঠামো fdt_match *match)
 {
-	int poff, rc;
-	u64 addr, size;
+	পূর্ণসংখ্যা poff, rc;
+	u64 addr, আকার_2;
 
 	/* Need to find the parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	যদি (poff < 0)
+		ফেরত SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, &size);
-	if (rc < 0 || !addr || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_গ্রন্থি_addr_আকার(fdt, poff, 0, &addr, &আকার_2);
+	যদি (rc < 0 || !addr || !আকার_2)
+		ফেরত SBI_ENODEV;
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)addr, (unsigned long)size, PAGE_SIZE,
+	যদি (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_মূল_add_memrange(
+			(unsigned long)addr, (unsigned long)আকার_2, PAGE_আকার,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		যদি (rc)
+			ফেরত rc;
 	}
 
 	atcsmu_base = addr;
 	sbi_hsm_set_device(&hsm_andes_atcsmu);
-	return 0;
+	ফেরত 0;
 }
 
-static const struct fdt_match hsm_andes_atcsmu_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match hsm_andes_atcsmu_match[] = {
 	{ .compatible = "andestech,atcsmu-hsm" },
 	{ },
 };
 
-const struct fdt_driver fdt_hsm_andes_atcsmu = {
+ধ্রুবক কাঠামো fdt_driver fdt_hsm_andes_atcsmu = {
 	.match_table = hsm_andes_atcsmu_match,
 	.init = hsm_andes_atcsmu_probe,
 };

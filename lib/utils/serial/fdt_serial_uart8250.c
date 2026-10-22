@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/uart8250.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/serial/fdt_serial.h>
+#অন্তর্ভাব <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা serial_uart8250_init(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff,
+				ধ্রুবক কাঠামো fdt_match *match)
 {
-	struct platform_uart_data uart = { 0 };
-	ulong caps = (ulong)match->data;
-	int rc;
+	কাঠামো platform_uart_তথ্য uart = { 0 };
+	ulong caps = (ulong)match->তথ্য;
+	পূর্ণসংখ্যা rc;
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_গ্রন্থি(fdt, nodeoff, &uart);
+	যদি (rc)
+		ফেরত rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
+	ফেরত uart8250_init(uart.addr, uart.freq, uart.baud,
 			     uart.reg_shift, uart.reg_io_width,
 			     uart.reg_offset, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match serial_uart8250_match[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "intel,xscale-uart",
-	  .data = (void *)UART_CAP_UUE },
+	  .তথ্য = (শূন্য *)UART_CAP_UUE },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
+ধ্রুবক কাঠামো fdt_driver fdt_serial_uart8250 = {
 	.match_table = serial_uart8250_match,
 	.init = serial_uart8250_init,
 };

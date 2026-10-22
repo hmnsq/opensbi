@@ -4,9 +4,9 @@
  * Copyright (c) 2020 Vijai Kumar K <vijai@behindbytes.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/shakti-uart.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi_utils/serial/shakti-uart.h>
 
 #define REG_BAUD	0x00
 #define REG_TX		0x04
@@ -22,39 +22,39 @@
 #define UART_RX_NOT_EMPTY 0x4
 #define UART_RX_FULL  0x8
 
-static volatile char *uart_base;
+স্থির অস্থির অক্ষর *uart_base;
 
-static void shakti_uart_putc(char ch)
+স্থির শূন্য shakti_uart_putc(অক্ষর ch)
 {
-	while ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
+	যখন ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
 		;
 	writeb(ch, uart_base + REG_TX);
 }
 
-static int shakti_uart_getc(void)
+স্থির পূর্ণসংখ্যা shakti_uart_getc(শূন্য)
 {
-	if (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
-		return readb(uart_base + REG_RX);
-	return -1;
+	যদি (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
+		ফেরত readb(uart_base + REG_RX);
+	ফেরত -1;
 }
 
-static struct sbi_console_device shakti_console = {
+স্থির কাঠামো sbi_console_device shakti_console = {
 	.name = "shakti_uart",
 	.console_putc = shakti_uart_putc,
 	.console_getc = shakti_uart_getc
 };
 
-int shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+পূর্ণসংখ্যা shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
-	uart_base = (volatile char *)base;
+	uart_base = (অস্থির অক্ষর *)base;
 	u16 baud;
 
-	if (baudrate) {
+	যদি (baudrate) {
 		baud = (u16)(in_freq / (16 * baudrate));
 		writew(baud, uart_base + REG_BAUD);
 	}
 
 	sbi_console_set_device(&shakti_console);
 
-	return 0;
+	ফেরত 0;
 }

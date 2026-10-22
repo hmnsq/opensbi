@@ -7,281 +7,281 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#অন্তর্ভাব <sbi/riscv_locks.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_list.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
 #define HEAP_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#define HEAP_গ্রন্থি_BATCH_আকার		8
 
-struct heap_node {
-	struct sbi_dlist head;
+কাঠামো heap_গ্রন্থি {
+	কাঠামো sbi_dlist শীর্ষ;
 	unsigned long addr;
-	unsigned long size;
+	unsigned long আকার_2;
 };
 
-struct sbi_heap_control {
+কাঠামো sbi_heap_control {
 	spinlock_t lock;
 	unsigned long base GUARDED_BY(&lock);
-	unsigned long size GUARDED_BY(&lock);
+	unsigned long আকার_2 GUARDED_BY(&lock);
 	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+	কাঠামো sbi_dlist free_গ্রন্থি_list GUARDED_BY(&lock);
+	কাঠামো sbi_dlist free_space_list GUARDED_BY(&lock);
+	কাঠামো sbi_dlist used_space_list GUARDED_BY(&lock);
+	কাঠামো heap_গ্রন্থি init_free_space_গ্রন্থি GUARDED_BY(&lock);
 };
 
-struct sbi_heap_control global_hpctrl;
+কাঠামো sbi_heap_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+স্থির bool alloc_nodes(কাঠামো sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t আকার_2 = HEAP_গ্রন্থি_BATCH_আকার * আকার(কাঠামো heap_গ্রন্থি);
+	কাঠামো heap_গ্রন্থি *n, *new = ফাঁকা;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	যদি (hpctrl->free_গ্রন্থি_list.পরবর্তী != hpctrl->free_গ্রন্থি_list.পূর্ব)
+		ফেরত true;
 
-	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
-			n->size -= size;
-			if (!n->size) {
-				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, শীর্ষ) {
+		যদি (n->আকার_2 >= আকার_2) {
+			n->আকার_2 -= আকার_2;
+			যদি (!n->আকার_2) {
+				sbi_list_del(&n->শীর্ষ);
+				sbi_list_add_লেজ(&n->শীর্ষ, &hpctrl->free_গ্রন্থি_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (শূন্য *)(n->addr + n->আকার_2);
+			বিরতি;
 		}
 	}
-	if (!new)
-		return false;
+	যদি (!new)
+		ফেরত false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
-	hpctrl->resv += size;
+	জন্য (size_t i = 0; i < HEAP_গ্রন্থি_BATCH_আকার; i++)
+		sbi_list_add_লেজ(&new[i].শীর্ষ, &hpctrl->free_গ্রন্থি_list);
+	hpctrl->resv += আকার_2;
 
-	return true;
+	ফেরত true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
-			      size_t size)
+স্থির শূন্য *alloc_with_align(কাঠামো sbi_heap_control *hpctrl, size_t align,
+			      size_t আকার_2)
 	MUST_NOT_HOLD(&hpctrl->lock)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
+	শূন্য *ret = ফাঁকা;
+	কাঠামো heap_গ্রন্থি *n, *np;
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	যদি (!আকার_2)
+		ফেরত ফাঁকা;
 
-	size += align - 1;
-	size &= ~((unsigned long)align - 1);
+	আকার_2 += align - 1;
+	আকার_2 &= ~((unsigned long)align - 1);
 
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	যদি (!alloc_nodes(hpctrl))
+		যাও out;
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
+	np = ফাঁকা;
+	sbi_list_for_each_entry(n, &hpctrl->free_space_list, শীর্ষ) {
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		যদি (আকার_2 + pad <= n->আকার_2) {
 			np = n;
-			break;
+			বিরতি;
 		}
 	}
-	if (!np)
-		goto out;
+	যদি (!np)
+		যাও out;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	যদি (pad) {
+		n = sbi_list_first_entry(&hpctrl->free_গ্রন্থি_list,
+					 কাঠামো heap_গ্রন্থি, শীর্ষ);
+		sbi_list_del(&n->শীর্ষ);
 
 		n->addr = np->addr;
-		n->size = pad;
-		sbi_list_add_tail(&n->head, &np->head);
+		n->আকার_2 = pad;
+		sbi_list_add_লেজ(&n->শীর্ষ, &np->শীর্ষ);
 
 		np->addr += pad;
-		np->size -= pad;
+		np->আকার_2 -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	যদি (আকার_2 < np->আকার_2) {
+		n = sbi_list_first_entry(&hpctrl->free_গ্রন্থি_list,
+					 কাঠামো heap_গ্রন্থি, শীর্ষ);
+		sbi_list_del(&n->শীর্ষ);
 
-		n->addr = np->addr + size;
-		n->size = np->size - size;
-		sbi_list_add(&n->head, &np->head);
+		n->addr = np->addr + আকার_2;
+		n->আকার_2 = np->আকার_2 - আকার_2;
+		sbi_list_add(&n->শীর্ষ, &np->শীর্ষ);
 
-		np->size = size;
+		np->আকার_2 = আকার_2;
 	}
 
-	sbi_list_del(&np->head);
-	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	sbi_list_del(&np->শীর্ষ);
+	sbi_list_add_লেজ(&np->শীর্ষ, &hpctrl->used_space_list);
+	ret = (শূন্য *)np->addr;
 
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	ফেরত ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+শূন্য *sbi_malloc_from(কাঠামো sbi_heap_control *hpctrl, size_t আকার_2)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	ফেরত alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, আকার_2);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
-			     size_t alignment, size_t size)
+শূন্য *sbi_aligned_alloc_from(কাঠামো sbi_heap_control *hpctrl,
+			     size_t alignment, size_t আকার_2)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	যদি (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	যদি ((alignment & (alignment - 1)) != 0)
+		ফেরত ফাঁকা;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	যদি (আকার_2 % alignment != 0)
+		ফেরত ফাঁকা;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	ফেরত alloc_with_align(hpctrl, alignment, আকার_2);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+শূন্য *sbi_zalloc_from(কাঠামো sbi_heap_control *hpctrl, size_t আকার_2)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	শূন্য *ret = sbi_malloc_from(hpctrl, আকার_2);
 
-	if (ret)
-		sbi_memset(ret, 0, size);
-	return ret;
+	যদি (ret)
+		sbi_memset(ret, 0, আকার_2);
+	ফেরত ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+শূন্য sbi_free_from(কাঠামো sbi_heap_control *hpctrl, শূন্য *ptr)
 {
-	struct heap_node *n, *np;
+	কাঠামো heap_গ্রন্থি *n, *np;
 
-	if (!ptr)
-		return;
+	যদি (!ptr)
+		ফেরত;
 
 	spin_lock(&hpctrl->lock);
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
-		    ((unsigned long)ptr < (n->addr + n->size))) {
+	np = ফাঁকা;
+	sbi_list_for_each_entry(n, &hpctrl->used_space_list, শীর্ষ) {
+		যদি ((n->addr <= (unsigned long)ptr) &&
+		    ((unsigned long)ptr < (n->addr + n->আকার_2))) {
 			np = n;
-			break;
+			বিরতি;
 		}
 	}
-	if (!np) {
+	যদি (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		ফেরত;
 	}
 
-	sbi_list_del(&np->head);
+	sbi_list_del(&np->শীর্ষ);
 
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+	sbi_list_for_each_entry(n, &hpctrl->free_space_list, শীর্ষ) {
+		যদি ((np->addr + np->আকার_2) == n->addr) {
 			n->addr = np->addr;
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
-			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			n->আকার_2 += np->আকার_2;
+			sbi_list_add_লেজ(&np->শীর্ষ, &hpctrl->free_গ্রন্থি_list);
+			np = ফাঁকা;
+			বিরতি;
+		} অন্যথা যদি (np->addr == (n->addr + n->আকার_2)) {
+			n->আকার_2 += np->আকার_2;
+			sbi_list_add_লেজ(&np->শীর্ষ, &hpctrl->free_গ্রন্থি_list);
+			np = ফাঁকা;
+			বিরতি;
+		} অন্যথা যদি ((n->addr + n->আকার_2) < np->addr) {
+			sbi_list_add(&np->শীর্ষ, &n->শীর্ষ);
+			np = ফাঁকা;
+			বিরতি;
 		}
 	}
-	if (np)
-		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
+	যদি (np)
+		sbi_list_add_লেজ(&np->শীর্ষ, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_free_space_from(কাঠামো sbi_heap_control *hpctrl)
 {
-	struct heap_node *n;
+	কাঠামো heap_গ্রন্থি *n;
 	unsigned long ret = 0;
 
 	spin_lock(&hpctrl->lock);
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head)
-		ret += n->size;
+	sbi_list_for_each_entry(n, &hpctrl->free_space_list, শীর্ষ)
+		ret += n->আকার_2;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	ফেরত ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_used_space_from(কাঠামো sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	ফেরত hpctrl->আকার_2 - hpctrl->resv - sbi_heap_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_reserved_space_from(কাঠামো sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	ফেরত hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
-		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
+পূর্ণসংখ্যা sbi_heap_init_new(কাঠামো sbi_heap_control *hpctrl, unsigned long base,
+		      unsigned long আকার_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	কাঠামো heap_গ্রন্থি *n;
 
 	/* Initialize heap control */
 	SPIN_LOCK_INIT(hpctrl->lock);
 	hpctrl->base = base;
-	hpctrl->size = size;
+	hpctrl->আকার_2 = আকার_2;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
+	SBI_INIT_LIST_শীর্ষ(&hpctrl->free_গ্রন্থি_list);
+	SBI_INIT_LIST_শীর্ষ(&hpctrl->free_space_list);
+	SBI_INIT_LIST_শীর্ষ(&hpctrl->used_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
+	n = &hpctrl->init_free_space_গ্রন্থি;
 	n->addr = base;
-	n->size = size;
-	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
+	n->আকার_2 = আকার_2;
+	sbi_list_add_লেজ(&n->শীর্ষ, &hpctrl->free_space_list);
 
-	return 0;
+	ফেরত 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+পূর্ণসংখ্যা sbi_heap_init(কাঠামো sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
-	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
+	যদি (!scratch->fw_heap_আকার ||
+	    (scratch->fw_heap_আকার & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
-	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
+	    (scratch->fw_আকার < (scratch->fw_heap_offset + scratch->fw_heap_আকার)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		ফেরত SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	ফেরত sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
-				  scratch->fw_heap_size);
+				  scratch->fw_heap_আকার);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+পূর্ণসংখ্যা sbi_heap_alloc_new(কাঠামো sbi_heap_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, আকার(কাঠামো sbi_heap_control));
+	ফেরত 0;
 }

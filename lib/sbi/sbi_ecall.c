@@ -7,140 +7,140 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_ecall.h>
+#অন্তর্ভাব <sbi/sbi_ecall_interface.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_string.h>
+#অন্তর্ভাব <sbi/sbi_trap.h>
 
-extern struct sbi_ecall_extension *const sbi_ecall_exts[];
+বাহ্যিক কাঠামো sbi_ecall_extension *ধ্রুবক sbi_ecall_exts[];
 
-u16 sbi_ecall_version_major(void)
+u16 sbi_ecall_version_major(শূন্য)
 {
-	return SBI_ECALL_VERSION_MAJOR;
+	ফেরত SBI_ECALL_VERSION_MAJOR;
 }
 
-u16 sbi_ecall_version_minor(void)
+u16 sbi_ecall_version_minor(শূন্য)
 {
-	return SBI_ECALL_VERSION_MINOR;
+	ফেরত SBI_ECALL_VERSION_MINOR;
 }
 
-static unsigned long ecall_impid = SBI_OPENSBI_IMPID;
+স্থির unsigned long ecall_impid = SBI_OPENSBI_IMPID;
 
-unsigned long sbi_ecall_get_impid(void)
+unsigned long sbi_ecall_get_impid(শূন্য)
 {
-	return ecall_impid;
+	ফেরত ecall_impid;
 }
 
-void sbi_ecall_set_impid(unsigned long impid)
+শূন্য sbi_ecall_set_impid(unsigned long impid)
 {
 	ecall_impid = impid;
 }
 
-static SBI_LIST_HEAD(ecall_exts_list);
+স্থির SBI_LIST_শীর্ষ(ecall_exts_list);
 
-struct sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
+কাঠামো sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
 {
-	struct sbi_ecall_extension *t, *ret = NULL;
+	কাঠামো sbi_ecall_extension *t, *ret = ফাঁকা;
 
-	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t->extid_start <= extid && extid <= t->extid_end) {
+	sbi_list_for_each_entry(t, &ecall_exts_list, শীর্ষ) {
+		যদি (t->extid_start <= extid && extid <= t->extid_end) {
 			ret = t;
-			break;
+			বিরতি;
 		}
 	}
 
-	return ret;
+	ফেরত ret;
 }
 
-void sbi_ecall_get_extensions_str(char *exts_str, int exts_str_size, bool experimental)
+শূন্য sbi_ecall_get_extensions_str(অক্ষর *exts_str, পূর্ণসংখ্যা exts_str_আকার, bool experimental)
 {
-	struct sbi_ecall_extension *t;
-	int offset = 0;
+	কাঠামো sbi_ecall_extension *t;
+	পূর্ণসংখ্যা offset = 0;
 
-	if (!exts_str || exts_str_size <= 0)
-		return;
-	sbi_memset(exts_str, 0, exts_str_size);
+	যদি (!exts_str || exts_str_আকার <= 0)
+		ফেরত;
+	sbi_memset(exts_str, 0, exts_str_আকার);
 
-	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (experimental != t->experimental)
-			continue;
-		if (offset + sbi_strlen(t->name) + 1 > exts_str_size)
-			break;
-		sbi_snprintf(exts_str + offset, exts_str_size - offset,
+	sbi_list_for_each_entry(t, &ecall_exts_list, শীর্ষ) {
+		যদি (experimental != t->experimental)
+			চালু;
+		যদি (offset + sbi_strlen(t->name) + 1 > exts_str_আকার)
+			বিরতি;
+		sbi_snprintf(exts_str + offset, exts_str_আকার - offset,
 			     "%s,", t->name);
 		offset = offset + sbi_strlen(t->name) + 1;
 	}
 
-	if (offset)
+	যদি (offset)
 		exts_str[offset - 1] = '\0';
-	else
-		sbi_strncpy(exts_str, "none", exts_str_size);
+	অন্যথা
+		sbi_strncpy(exts_str, "none", exts_str_আকার);
 }
 
-int sbi_ecall_register_extension(struct sbi_ecall_extension *ext)
+পূর্ণসংখ্যা sbi_ecall_register_extension(কাঠামো sbi_ecall_extension *ext)
 {
-	struct sbi_ecall_extension *t;
+	কাঠামো sbi_ecall_extension *t;
 
-	if (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
-		return SBI_EINVAL;
+	যদি (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
+		ফেরত SBI_EINVAL;
 
-	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
+	sbi_list_for_each_entry(t, &ecall_exts_list, শীর্ষ) {
 		unsigned long start = t->extid_start;
 		unsigned long end = t->extid_end;
-		if (end < ext->extid_start || ext->extid_end < start)
+		যদি (end < ext->extid_start || ext->extid_end < start)
 			/* no overlap */;
-		else
-			return SBI_EINVAL;
+		অন্যথা
+			ফেরত SBI_EINVAL;
 	}
 
-	sbi_list_add_tail(&ext->head, &ecall_exts_list);
+	sbi_list_add_লেজ(&ext->শীর্ষ, &ecall_exts_list);
 
-	return 0;
+	ফেরত 0;
 }
 
-void sbi_ecall_unregister_extension(struct sbi_ecall_extension *ext)
+শূন্য sbi_ecall_unregister_extension(কাঠামো sbi_ecall_extension *ext)
 {
 	bool found = false;
-	struct sbi_ecall_extension *t;
+	কাঠামো sbi_ecall_extension *t;
 
-	if (!ext)
-		return;
+	যদি (!ext)
+		ফেরত;
 
-	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t == ext) {
+	sbi_list_for_each_entry(t, &ecall_exts_list, শীর্ষ) {
+		যদি (t == ext) {
 			found = true;
-			break;
+			বিরতি;
 		}
 	}
 
-	if (found)
-		sbi_list_del_init(&ext->head);
+	যদি (found)
+		sbi_list_del_init(&ext->শীর্ষ);
 }
 
-int sbi_ecall_handler(struct sbi_trap_context *tcntx)
+পূর্ণসংখ্যা sbi_ecall_handler(কাঠামো sbi_trap_context *tcntx)
 {
-	int ret = 0;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_ecall_extension *ext;
+	পূর্ণসংখ্যা ret = 0;
+	কাঠামো sbi_trap_regs *regs = &tcntx->regs;
+	কাঠামো sbi_ecall_extension *ext;
 	unsigned long extension_id = regs->a7;
 	unsigned long func_id = regs->a6;
-	struct sbi_ecall_return out = {0};
+	কাঠামো sbi_ecall_return out = {0};
 	bool is_0_1_spec = 0;
 
 	ext = sbi_ecall_find_extension(extension_id);
-	if (ext && ext->handle) {
+	যদি (ext && ext->handle) {
 		ret = ext->handle(extension_id, func_id, regs, &out);
-		if (extension_id >= SBI_EXT_0_1_SET_TIMER &&
+		যদি (extension_id >= SBI_EXT_0_1_SET_TIMER &&
 		    extension_id <= SBI_EXT_0_1_SHUTDOWN)
 			is_0_1_spec = 1;
-	} else {
+	} অন্যথা {
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (!out.skip_regs_update) {
-		if (ret < SBI_LAST_ERR ||
+	যদি (!out.skip_regs_update) {
+		যদি (ret < SBI_LAST_ERR ||
 		    (extension_id != SBI_EXT_0_1_CONSOLE_GETCHAR &&
 		     SBI_SUCCESS < ret)) {
 			sbi_printf("%s: Invalid error %d for ext=0x%lx "
@@ -159,28 +159,28 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		 */
 		regs->mepc += 4;
 		regs->a0 = ret;
-		if (!is_0_1_spec)
-			regs->a1 = out.value;
+		যদি (!is_0_1_spec)
+			regs->a1 = out.মান;
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
-int sbi_ecall_init(void)
+পূর্ণসংখ্যা sbi_ecall_init(শূন্য)
 {
-	int ret;
-	struct sbi_ecall_extension *ext;
+	পূর্ণসংখ্যা ret;
+	কাঠামো sbi_ecall_extension *ext;
 	unsigned long i;
 
-	for (i = 0; sbi_ecall_exts[i]; i++) {
+	জন্য (i = 0; sbi_ecall_exts[i]; i++) {
 		ext = sbi_ecall_exts[i];
 		ret = SBI_ENODEV;
 
-		if (ext->register_extensions)
+		যদি (ext->register_extensions)
 			ret = ext->register_extensions();
-		if (ret)
-			return ret;
+		যদি (ret)
+			ফেরত ret;
 	}
 
-	return 0;
+	ফেরত 0;
 }

@@ -7,25 +7,25 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_hart_protection.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_ecall.h>
+#অন্তর্ভাব <sbi/sbi_ecall_interface.h>
+#অন্তর্ভাব <sbi/sbi_trap.h>
+#অন্তর্ভাব <sbi/riscv_asm.h>
+#অন্তর্ভাব <sbi/sbi_hart_protection.h>
 
-static int sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+স্থির পূর্ণসংখ্যা sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
+				  কাঠামো sbi_trap_regs *regs,
+				  কাঠামো sbi_ecall_return *out)
 {
 	ulong smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
 
-	switch (funcid) {
-	case SBI_EXT_DBCN_CONSOLE_WRITE:
-	case SBI_EXT_DBCN_CONSOLE_READ:
+	নির্বাচন (funcid) {
+	ক্ষেত্র SBI_EXT_DBCN_CONSOLE_WRITE:
+	ক্ষেত্র SBI_EXT_DBCN_CONSOLE_READ:
 		/*
 		 * On RV32, the M-mode can only access the first 4GB of
 		 * the physical address space because M-mode does not have
@@ -39,41 +39,41 @@ static int sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
 		 * physical address (i.e. a2 register) is non-zero on
 		 * RV64.
 		 */
-		if (regs->a2)
-			return SBI_ERR_FAILED;
+		যদি (regs->a2)
+			ফেরত SBI_ERR_FAILED;
 
-		if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+		যদি (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
 					regs->a1, regs->a0, smode,
 					SBI_DOMAIN_READ|SBI_DOMAIN_WRITE))
-			return SBI_ERR_INVALID_PARAM;
-		sbi_hart_protection_temp_map_range(regs->a1, regs->a0);
-		if (funcid == SBI_EXT_DBCN_CONSOLE_WRITE)
-			out->value = sbi_nputs((const char *)regs->a1, regs->a0);
-		else
-			out->value = sbi_ngets((char *)regs->a1, regs->a0);
-		sbi_hart_protection_temp_unmap_range(regs->a1, regs->a0);
-		return 0;
-	case SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:
+			ফেরত SBI_ERR_INVALID_PARAM;
+		sbi_hart_protection_অস্থায়ী_map_range(regs->a1, regs->a0);
+		যদি (funcid == SBI_EXT_DBCN_CONSOLE_WRITE)
+			out->মান = sbi_nputs((ধ্রুবক অক্ষর *)regs->a1, regs->a0);
+		অন্যথা
+			out->মান = sbi_ngets((অক্ষর *)regs->a1, regs->a0);
+		sbi_hart_protection_অস্থায়ী_unmap_range(regs->a1, regs->a0);
+		ফেরত 0;
+	ক্ষেত্র SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:
 		sbi_putc(regs->a0);
-		return 0;
-	default:
-		break;
+		ফেরত 0;
+	পূর্বনির্ধারিত:
+		বিরতি;
 	}
 
-	return SBI_ENOTSUPP;
+	ফেরত SBI_ENOTSUPP;
 }
 
-struct sbi_ecall_extension ecall_dbcn;
+কাঠামো sbi_ecall_extension ecall_dbcn;
 
-static int sbi_ecall_dbcn_register_extensions(void)
+স্থির পূর্ণসংখ্যা sbi_ecall_dbcn_register_extensions(শূন্য)
 {
-	if (!sbi_console_get_device())
-		return 0;
+	যদি (!sbi_console_get_device())
+		ফেরত 0;
 
-	return sbi_ecall_register_extension(&ecall_dbcn);
+	ফেরত sbi_ecall_register_extension(&ecall_dbcn);
 }
 
-struct sbi_ecall_extension ecall_dbcn = {
+কাঠামো sbi_ecall_extension ecall_dbcn = {
 	.name			= "dbcn",
 	.extid_start		= SBI_EXT_DBCN,
 	.extid_end		= SBI_EXT_DBCN,

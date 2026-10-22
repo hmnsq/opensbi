@@ -4,15 +4,15 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_hart.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi_utils/cache/fdt_cache.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাব <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
 #define LLCACHE_REG_CFG_OFFSET		0x0
 #define LLCACHE_REG_CTRL_OFFSET		0x8
@@ -26,42 +26,42 @@
 
 #define LLCACHE_WBINVAL_ALL		0x12
 
-struct andes_llcache {
-	struct cache_device dev;
-	void *base;
+কাঠামো andes_llcache {
+	কাঠামো cache_device dev;
+	শূন্য *base;
 	uint32_t cmd_stride;
 	uint32_t status_stride;
 	uint32_t status_core_stride;
 };
 
-#define to_llcache(_dev) container_of(_dev, struct andes_llcache, dev)
+#define to_llcache(_dev) container_of(_dev, কাঠামো andes_llcache, dev)
 
-static bool andes_llcache_init_done(struct andes_llcache *llcache)
+স্থির bool andes_llcache_init_done(কাঠামো andes_llcache *llcache)
 {
 	uint32_t llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	শূন্য *ctrl_addr = (অক্ষর *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	ফেরত !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
 }
 
-static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
+স্থির bool andes_llcache_cctl_done(কাঠামো andes_llcache *llcache, uint32_t hartid)
 {
 	uint32_t llcache_cctl_status;
-	void *cctl_status_addr = (char *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
+	শূন্য *cctl_status_addr = (অক্ষর *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
 				 hartid * llcache->status_stride;
 
 	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
+	ফেরত !EXTRACT_FIELD(llcache_cctl_status,
 			      LLCACHE_REG_CCTL_STATUS_MASK <<
 			      hartid * llcache->status_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+স্থির পূর্ণসংখ্যা andes_llcache_flush_all(কাঠামো cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
-	struct andes_llcache *llcache = to_llcache(dev);
-	void *cctl_cmd_addr = (char *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
+	কাঠামো andes_llcache *llcache = to_llcache(dev);
+	শূন্য *cctl_cmd_addr = (অক্ষর *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
 			      hartid * llcache->cmd_stride;
 
 	/*
@@ -71,17 +71,17 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	যখন (!andes_llcache_cctl_done(llcache, hartid))
 		;
 
-	return 0;
+	ফেরত 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+স্থির পূর্ণসংখ্যা andes_llcache_enable(কাঠামো cache_device *dev, bool enable)
 {
-	struct andes_llcache *llcache = to_llcache(dev);
+	কাঠামো andes_llcache *llcache = to_llcache(dev);
 	u32 llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	শূন্য *ctrl_addr = (অক্ষর *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
 
 	/*
 	 * To properly enable the last level cache to cache both instructions
@@ -94,88 +94,88 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	যদি (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
 		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+	} অন্যথা {
 		llcache_ctrl = readl(ctrl_addr);
 		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
 		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	যদি (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
+		ফেরত SBI_EFAIL;
 
-	return SBI_OK;
+	ফেরত SBI_OK;
 }
 
-static struct cache_ops andes_llcache_ops = {
+স্থির কাঠামো cache_ops andes_llcache_ops = {
 	.cache_flush_all = andes_llcache_flush_all,
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা andes_llcache_probe(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff, ধ্রুবক কাঠামো fdt_match *match)
 {
-	int rc;
-	u64 llcache_base = 0, size;
-	struct andes_llcache *llcache;
-	struct cache_device *dev;
+	পূর্ণসংখ্যা rc;
+	u64 llcache_base = 0, আকার_2;
+	কাঠামো andes_llcache *llcache;
+	কাঠামো cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_গ্রন্থি_addr_আকার(fdt, nodeoff, 0, &llcache_base, &আকার_2);
+	যদি (rc < 0 || !llcache_base || !আকার_2)
+		ফেরত SBI_ENODEV;
 
-	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	llcache = sbi_zalloc(আকার(*llcache));
+	যদি (!llcache)
+		ফেরত SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	যদি (rc) {
 		sbi_free(llcache);
-		return rc;
+		ফেরত rc;
 	}
 
-	llcache->base = (void *)(ulong)llcache_base;
-	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
+	llcache->base = (শূন্য *)(ulong)llcache_base;
+	llcache_cfg = readl_relaxed((অক্ষর *)llcache->base + LLCACHE_REG_CFG_OFFSET);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	যদি (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
 		llcache->cmd_stride = 0x1000;
 		llcache->status_stride = 0x1000;
 		llcache->status_core_stride = 0;
-	} else {
+	} অন্যথা {
 		llcache->cmd_stride = 0x10;
 		llcache->status_stride = 0x0;
 		llcache->status_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
+	যদি (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_মূল_add_memrange(
+			(unsigned long)llcache->base, (unsigned long)আকার_2, PAGE_আকার,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		যদি (rc)
+			ফেরত rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	যখন (!andes_llcache_init_done(llcache))
 		;
 
-	return SBI_OK;
+	ফেরত SBI_OK;
 }
 
-static const struct fdt_match andes_llcache_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match andes_llcache_match[] = {
 	{ .compatible = "andestech,llcache" },
 	{},
 };
 
-const struct fdt_driver fdt_andes_llcache = {
+ধ্রুবক কাঠামো fdt_driver fdt_andes_llcache = {
 	.match_table = andes_llcache_match,
 	.init = andes_llcache_probe,
 };

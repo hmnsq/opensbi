@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+বাহ্যিক কাঠামো plicsw_তথ্য plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+পূর্ণসংখ্যা fdt_plicsw_cold_ipi_init(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff,
+			     ধ্রুবক কাঠামো fdt_match *match)
 {
-	int rc;
+	পূর্ণসংখ্যা rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_গ্রন্থি(fdt, nodeoff, &plicsw.addr, &plicsw.আকার_2,
+				   &plicsw.hart_গুনতি);
+	যদি (rc)
+		ফেরত rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	যদি (rc)
+		ফেরত rc;
 
-	return 0;
+	ফেরত 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match ipi_plicsw_match[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
+ধ্রুবক কাঠামো fdt_driver fdt_ipi_plicsw = {
 	.match_table = ipi_plicsw_match,
 	.init = fdt_plicsw_cold_ipi_init,
 };

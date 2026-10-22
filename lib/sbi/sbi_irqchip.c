@@ -7,18 +7,18 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_hsm.h>
+#অন্তর্ভাব <sbi/sbi_irqchip.h>
+#অন্তর্ভাব <sbi/sbi_list.h>
+#অন্তর্ভাব <sbi/sbi_platform.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
 
 /** Internal irqchip hardware interrupt data */
-struct sbi_irqchip_hwirq_data {
+কাঠামো sbi_irqchip_hwirq_তথ্য {
 	/** raw hardware interrupt handler */
-	int (*raw_handler)(struct sbi_irqchip_device *chip, u32 hwirq);
+	পূর্ণসংখ্যা (*raw_handler)(কাঠামো sbi_irqchip_device *chip, u32 hwirq);
 
 #define IRQ_ENABLED	BIT(0)
 	/** interrupt state
@@ -26,587 +26,587 @@ struct sbi_irqchip_hwirq_data {
 	u32 irq_state;
 
 	/** target hart index */
-	u32 hart_index;
+	u32 hart_সূচক;
 
 	/** chip's private data */
-	void *priv;
+	শূন্য *priv;
 };
 
 /** Internal irqchip interrupt handler */
-struct sbi_irqchip_handler {
+কাঠামো sbi_irqchip_handler {
 	/** Node in the list of irqchip handlers (private) */
-	struct sbi_dlist node;
+	কাঠামো sbi_dlist গ্রন্থি;
 
 	/** First hardware IRQ handled by this handler */
 	u32 first_hwirq;
 
 	/** Number of consecutive hardware IRQs handled by this handler */
-	u32 num_hwirq;
+	u32 অঙ্ক_hwirq;
 
 	/** Write MSI function of this handler */
-	void (*write_msi)(u32 hwirq, const struct sbi_irqchip_msi_msg *msg, void *priv);
+	শূন্য (*write_msi)(u32 hwirq, ধ্রুবক কাঠামো sbi_irqchip_msi_বার্তা *বার্তা, শূন্য *priv);
 
 	/** Callback function of this handler */
-	int (*callback)(u32 hwirq, void *priv);
+	পূর্ণসংখ্যা (*callback)(u32 hwirq, শূন্য *priv);
 
 	/** Callback private data */
-	void *priv;
+	শূন্য *priv;
 };
 
-struct sbi_irqchip_hart_data {
-	struct sbi_irqchip_device *chip;
+কাঠামো sbi_irqchip_hart_তথ্য {
+	কাঠামো sbi_irqchip_device *chip;
 };
 
-static unsigned long irqchip_hart_data_off;
-static SBI_LIST_HEAD(irqchip_list);
+স্থির unsigned long irqchip_hart_তথ্য_off;
+স্থির SBI_LIST_শীর্ষ(irqchip_list);
 
-int sbi_irqchip_process(void)
+পূর্ণসংখ্যা sbi_irqchip_process(শূন্য)
 {
-	struct sbi_irqchip_hart_data *hd;
+	কাঠামো sbi_irqchip_hart_তথ্য *hd;
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (!hd || !hd->chip || !hd->chip->process_hwirqs)
-		return SBI_ENODEV;
+	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_তথ্য_off);
+	যদি (!hd || !hd->chip || !hd->chip->process_hwirqs)
+		ফেরত SBI_ENODEV;
 
-	return hd->chip->process_hwirqs(hd->chip);
+	ফেরত hd->chip->process_hwirqs(hd->chip);
 }
 
-int sbi_irqchip_process_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+পূর্ণসংখ্যা sbi_irqchip_process_hwirq(কাঠামো sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (!data->raw_handler)
-		return SBI_ENOENT;
+	তথ্য = &chip->hwirqs[hwirq];
+	যদি (!তথ্য->raw_handler)
+		ফেরত SBI_ENOENT;
 
-	return data->raw_handler(chip, hwirq);
+	ফেরত তথ্য->raw_handler(chip, hwirq);
 }
 
-static inline u32 sbi_irqchip_get_irq_state(struct sbi_irqchip_device *chip,
+স্থির অন্তঃরেখ u32 sbi_irqchip_get_irq_state(কাঠামো sbi_irqchip_device *chip,
 					     u32 hwirq)
 {
-	if (!chip || !chip->hwirqs || hwirq >= chip->num_hwirq)
-		return 0;
+	যদি (!chip || !chip->hwirqs || hwirq >= chip->অঙ্ক_hwirq)
+		ফেরত 0;
 
-	return chip->hwirqs[hwirq].irq_state;
+	ফেরত chip->hwirqs[hwirq].irq_state;
 }
 
-bool sbi_irqchip_is_hwirq_enabled(struct sbi_irqchip_device *chip,
+bool sbi_irqchip_is_hwirq_enabled(কাঠামো sbi_irqchip_device *chip,
 				   u32 hwirq)
 {
-	return !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
+	ফেরত !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
 }
 
-int sbi_irqchip_unmask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+পূর্ণসংখ্যা sbi_irqchip_unmask_hwirq(কাঠামো sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	তথ্য = &chip->hwirqs[hwirq];
+	যদি (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		ফেরত SBI_EALREADY;
 
-	if (chip->hwirq_unmask)
+	যদি (chip->hwirq_unmask)
 		chip->hwirq_unmask(chip, hwirq);
 
-	data->irq_state |= IRQ_ENABLED;
-	return 0;
+	তথ্য->irq_state |= IRQ_ENABLED;
+	ফেরত 0;
 }
 
-int sbi_irqchip_mask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+পূর্ণসংখ্যা sbi_irqchip_mask_hwirq(কাঠামো sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
-	if (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	যদি (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		ফেরত SBI_EALREADY;
 
-	if (chip->hwirq_mask)
+	যদি (chip->hwirq_mask)
 		chip->hwirq_mask(chip, hwirq);
 
-	data = &chip->hwirqs[hwirq];
-	data->irq_state &= ~IRQ_ENABLED;
-	return 0;
+	তথ্য = &chip->hwirqs[hwirq];
+	তথ্য->irq_state &= ~IRQ_ENABLED;
+	ফেরত 0;
 }
 
-static struct sbi_irqchip_handler *sbi_irqchip_find_handler(struct sbi_irqchip_device *chip,
+স্থির কাঠামো sbi_irqchip_handler *sbi_irqchip_find_handler(কাঠামো sbi_irqchip_device *chip,
 							    u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
+	কাঠামো sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return NULL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত ফাঁকা;
 
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq))
-			return h;
+	sbi_list_for_each_entry(h, &chip->handler_list, গ্রন্থি) {
+		যদি (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->অঙ্ক_hwirq))
+			ফেরত h;
 	}
 
-	return NULL;
+	ফেরত ফাঁকা;
 }
 
-int sbi_irqchip_set_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq, void *priv)
+পূর্ণসংখ্যা sbi_irqchip_set_hwirq_priv(কাঠামো sbi_irqchip_device *chip, u32 hwirq, শূন্য *priv)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-	     return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+	     ফেরত SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->priv = priv;
+	তথ্য = &chip->hwirqs[hwirq];
+	তথ্য->priv = priv;
 
-	return 0;
+	ফেরত 0;
 }
 
-void *sbi_irqchip_get_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq)
+শূন্য *sbi_irqchip_get_hwirq_priv(কাঠামো sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	if (!chip || chip->num_hwirq <= hwirq)
-	    return NULL;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+	    ফেরত ফাঁকা;
 
-	data = &chip->hwirqs[hwirq];
+	তথ্য = &chip->hwirqs[hwirq];
 
-	return data->priv;
+	ফেরত তথ্য->priv;
 }
 
-int sbi_irqchip_raw_handler_default(struct sbi_irqchip_device *chip, u32 hwirq)
+পূর্ণসংখ্যা sbi_irqchip_raw_handler_default(কাঠামো sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
-	int rc = SBI_OK;
+	কাঠামো sbi_irqchip_handler *h;
+	পূর্ণসংখ্যা rc = SBI_OK;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
 	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EINVAL;
+	যদি (!h)
+		ফেরত SBI_EINVAL;
 
-	if (h->callback)
+	যদি (h->callback)
 		rc = h->callback(hwirq, h->priv);
 
-	if (chip->hwirq_eoi)
+	যদি (chip->hwirq_eoi)
 		chip->hwirq_eoi(chip, hwirq);
 
-	return rc;
+	ফেরত rc;
 }
 
-int sbi_irqchip_set_raw_handler(struct sbi_irqchip_device *chip, u32 hwirq,
-				int (*raw_hndl)(struct sbi_irqchip_device *, u32))
+পূর্ণসংখ্যা sbi_irqchip_set_raw_handler(কাঠামো sbi_irqchip_device *chip, u32 hwirq,
+				পূর্ণসংখ্যা (*raw_hndl)(কাঠামো sbi_irqchip_device *, u32))
 {
-	struct sbi_irqchip_hwirq_data *data;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->raw_handler = raw_hndl;
-	return 0;
+	তথ্য = &chip->hwirqs[hwirq];
+	তথ্য->raw_handler = raw_hndl;
+	ফেরত 0;
 }
 
-int sbi_irqchip_write_msi(struct sbi_irqchip_device *chip, u32 hwirq,
-			  const struct sbi_irqchip_msi_msg *msg)
+পূর্ণসংখ্যা sbi_irqchip_write_msi(কাঠামো sbi_irqchip_device *chip, u32 hwirq,
+			  ধ্রুবক কাঠামো sbi_irqchip_msi_বার্তা *বার্তা)
 {
-	struct sbi_irqchip_handler *h;
+	কাঠামো sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq || !msg)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq || !বার্তা)
+		ফেরত SBI_EINVAL;
 
 	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EFAIL;
-	if (!h->write_msi)
-		return SBI_ENOTSUPP;
+	যদি (!h)
+		ফেরত SBI_EFAIL;
+	যদি (!h->write_msi)
+		ফেরত SBI_ENOTSUPP;
 
-	h->write_msi(hwirq, msg, h->priv);
-	return 0;
+	h->write_msi(hwirq, বার্তা, h->priv);
+	ফেরত 0;
 }
 
-int sbi_irqchip_get_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 *out_hart_index)
+পূর্ণসংখ্যা sbi_irqchip_get_affinity(কাঠামো sbi_irqchip_device *chip, u32 hwirq,
+			     u32 *out_hart_সূচক)
 {
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq)
+		ফেরত SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	যদি (!sbi_irqchip_find_handler(chip, hwirq))
+		ফেরত SBI_ENOTSUPP;
 
-	*out_hart_index = chip->hwirqs[hwirq].hart_index;
-	return 0;
+	*out_hart_সূচক = chip->hwirqs[hwirq].hart_সূচক;
+	ফেরত 0;
 }
 
-int sbi_irqchip_set_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 hart_index)
+পূর্ণসংখ্যা sbi_irqchip_set_affinity(কাঠামো sbi_irqchip_device *chip, u32 hwirq,
+			     u32 hart_সূচক)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	int rc;
+	কাঠামো sbi_irqchip_hwirq_তথ্য *তথ্য;
+	পূর্ণসংখ্যা rc;
 
-	if (!chip || chip->num_hwirq <= hwirq || sbi_hart_count() <= hart_index)
-		return SBI_EINVAL;
+	যদি (!chip || chip->অঙ্ক_hwirq <= hwirq || sbi_hart_গুনতি() <= hart_সূচক)
+		ফেরত SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	যদি (!sbi_irqchip_find_handler(chip, hwirq))
+		ফেরত SBI_ENOTSUPP;
 
-	data = &chip->hwirqs[hwirq];
-	if (data->hart_index != hart_index) {
-		if (chip->hwirq_set_affinity) {
-			rc = chip->hwirq_set_affinity(chip, hwirq, hart_index);
-			if (rc)
-				return rc;
+	তথ্য = &chip->hwirqs[hwirq];
+	যদি (তথ্য->hart_সূচক != hart_সূচক) {
+		যদি (chip->hwirq_set_affinity) {
+			rc = chip->hwirq_set_affinity(chip, hwirq, hart_সূচক);
+			যদি (rc)
+				ফেরত rc;
 		}
-		data->hart_index = hart_index;
+		তথ্য->hart_সূচক = hart_সূচক;
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
-static int __sbi_irqchip_handler_set_affinity(struct sbi_irqchip_device *chip,
-					      struct sbi_irqchip_handler *h,
-					      u32 compare_hart_index,
-					      u32 hart_index)
+স্থির পূর্ণসংখ্যা __sbi_irqchip_handler_set_affinity(কাঠামো sbi_irqchip_device *chip,
+					      কাঠামো sbi_irqchip_handler *h,
+					      u32 compare_hart_সূচক,
+					      u32 hart_সূচক)
 {
-	u32 i, current_hart_index;
-	int rc;
+	u32 i, current_hart_সূচক;
+	পূর্ণসংখ্যা rc;
 
-	for (i = 0; i < h->num_hwirq; i++) {
+	জন্য (i = 0; i < h->অঙ্ক_hwirq; i++) {
 		rc = sbi_irqchip_get_affinity(chip, h->first_hwirq + i,
-					      &current_hart_index);
-		if (rc)
-			return rc;
+					      &current_hart_সূচক);
+		যদি (rc)
+			ফেরত rc;
 
-		if (compare_hart_index != -1U &&
-		    current_hart_index != compare_hart_index)
-			continue;
+		যদি (compare_hart_সূচক != -1U &&
+		    current_hart_সূচক != compare_hart_সূচক)
+			চালু;
 
-		rc = sbi_irqchip_set_affinity(chip, h->first_hwirq + i, hart_index);
-		if (rc)
-			return rc;
+		rc = sbi_irqchip_set_affinity(chip, h->first_hwirq + i, hart_সূচক);
+		যদি (rc)
+			ফেরত rc;
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
-static int __sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-					  u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-					  void (*write_msi)(u32 hwirq,
-							    const struct sbi_irqchip_msi_msg *msg,
-							    void *priv),
-					  int (*callback)(u32 hwirq, void *priv), void *priv)
+স্থির পূর্ণসংখ্যা __sbi_irqchip_register_handler(কাঠামো sbi_irqchip_device *chip,
+					  u32 first_hwirq, u32 অঙ্ক_hwirq, u32 hwirq_flags,
+					  শূন্য (*write_msi)(u32 hwirq,
+							    ধ্রুবক কাঠামো sbi_irqchip_msi_বার্তা *বার্তা,
+							    শূন্য *priv),
+					  পূর্ণসংখ্যা (*callback)(u32 hwirq, শূন্য *priv), শূন্য *priv)
 {
-	struct sbi_irqchip_handler *h, *th, *nh;
+	কাঠামো sbi_irqchip_handler *h, *th, *nh;
 	u32 i, j;
-	int rc;
+	পূর্ণসংখ্যা rc;
 
-	for (i = first_hwirq; i < (first_hwirq + num_hwirq); i++) {
+	জন্য (i = first_hwirq; i < (first_hwirq + অঙ্ক_hwirq); i++) {
 		h = sbi_irqchip_find_handler(chip, i);
-		if (h)
-			return SBI_EALREADY;
+		যদি (h)
+			ফেরত SBI_EALREADY;
 	}
 
-	h = sbi_zalloc(sizeof(*h));
-	if (!h)
-		return SBI_ENOMEM;
+	h = sbi_zalloc(আকার(*h));
+	যদি (!h)
+		ফেরত SBI_ENOMEM;
 	h->first_hwirq = first_hwirq;
-	h->num_hwirq = num_hwirq;
+	h->অঙ্ক_hwirq = অঙ্ক_hwirq;
 	h->write_msi = write_msi;
 	h->callback = callback;
 	h->priv = priv;
 
-	nh = NULL;
-	sbi_list_for_each_entry(th, &chip->handler_list, node) {
-		if (h->first_hwirq < th->first_hwirq) {
+	nh = ফাঁকা;
+	sbi_list_for_each_entry(th, &chip->handler_list, গ্রন্থি) {
+		যদি (h->first_hwirq < th->first_hwirq) {
 			nh = th;
-			break;
+			বিরতি;
 		}
 	}
-	if (nh)
-		sbi_list_add(&h->node, &nh->node);
-	else
-		sbi_list_add_tail(&h->node, &chip->handler_list);
+	যদি (nh)
+		sbi_list_add(&h->গ্রন্থি, &nh->গ্রন্থি);
+	অন্যথা
+		sbi_list_add_লেজ(&h->গ্রন্থি, &chip->handler_list);
 
-	if (chip->hwirq_setup) {
-		for (i = 0; i < h->num_hwirq; i++) {
+	যদি (chip->hwirq_setup) {
+		জন্য (i = 0; i < h->অঙ্ক_hwirq; i++) {
 			rc = chip->hwirq_setup(chip, h->first_hwirq + i, hwirq_flags);
-			if (rc) {
-				if (chip->hwirq_cleanup) {
-					for (j = 0; j < i; j++)
+			যদি (rc) {
+				যদি (chip->hwirq_cleanup) {
+					জন্য (j = 0; j < i; j++)
 						chip->hwirq_cleanup(chip, h->first_hwirq + j);
 				}
-				sbi_list_del(&h->node);
+				sbi_list_del(&h->গ্রন্থি);
 				sbi_free(h);
-				return rc;
+				ফেরত rc;
 			}
 		}
 	}
 
 	rc = __sbi_irqchip_handler_set_affinity(chip, h, -1U, current_hartindex());
-	if (rc) {
-		if (chip->hwirq_cleanup) {
-			for (i = 0; i < h->num_hwirq; i++)
+	যদি (rc) {
+		যদি (chip->hwirq_cleanup) {
+			জন্য (i = 0; i < h->অঙ্ক_hwirq; i++)
 				chip->hwirq_cleanup(chip, h->first_hwirq + i);
 		}
-		sbi_list_del(&h->node);
+		sbi_list_del(&h->গ্রন্থি);
 		sbi_free(h);
-		return rc;
+		ফেরত rc;
 	}
 
-	if (chip->hwirq_unmask) {
-		for (i = 0; i < h->num_hwirq; i++)
+	যদি (chip->hwirq_unmask) {
+		জন্য (i = 0; i < h->অঙ্ক_hwirq; i++)
 			chip->hwirq_unmask(chip, h->first_hwirq + i);
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
-int sbi_irqchip_register_msi(struct sbi_irqchip_device *chip, u32 num_hwirq,
-			     void (*write_msi)(u32 hwirq,
-					       const struct sbi_irqchip_msi_msg *msg,
-					       void *priv),
-			     int (*callback)(u32 hwirq, void *priv), void *priv,
+পূর্ণসংখ্যা sbi_irqchip_register_msi(কাঠামো sbi_irqchip_device *chip, u32 অঙ্ক_hwirq,
+			     শূন্য (*write_msi)(u32 hwirq,
+					       ধ্রুবক কাঠামো sbi_irqchip_msi_বার্তা *বার্তা,
+					       শূন্য *priv),
+			     পূর্ণসংখ্যা (*callback)(u32 hwirq, শূন্য *priv), শূন্য *priv,
 			     u32 *out_first_hwirq)
 {
-	struct sbi_irqchip_handler *h;
+	কাঠামো sbi_irqchip_handler *h;
 	bool found;
 	u32 hwirq;
 
-	if (!chip || !chip->hwirq_set_affinity || !num_hwirq ||
+	যদি (!chip || !chip->hwirq_set_affinity || !অঙ্ক_hwirq ||
 	    !write_msi || !callback || !out_first_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq < num_hwirq)
-		return SBI_EBAD_RANGE;
+		ফেরত SBI_EINVAL;
+	যদি (chip->অঙ্ক_hwirq < অঙ্ক_hwirq)
+		ফেরত SBI_EBAD_RANGE;
 
 	hwirq = 0;
 	found = false;
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq)) {
-			hwirq = h->first_hwirq + h->num_hwirq;
-		} else if (hwirq < h->first_hwirq) {
-			if (h->first_hwirq - hwirq >= num_hwirq) {
+	sbi_list_for_each_entry(h, &chip->handler_list, গ্রন্থি) {
+		যদি (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->অঙ্ক_hwirq)) {
+			hwirq = h->first_hwirq + h->অঙ্ক_hwirq;
+		} অন্যথা যদি (hwirq < h->first_hwirq) {
+			যদি (h->first_hwirq - hwirq >= অঙ্ক_hwirq) {
 				found = true;
-				break;
-			} else {
-				hwirq = h->first_hwirq + h->num_hwirq;
+				বিরতি;
+			} অন্যথা {
+				hwirq = h->first_hwirq + h->অঙ্ক_hwirq;
 			}
 		}
 	}
-	if (!found && (chip->num_hwirq - hwirq) >= num_hwirq)
+	যদি (!found && (chip->অঙ্ক_hwirq - hwirq) >= অঙ্ক_hwirq)
 		found = true;
-	if (!found)
-		return SBI_ENOSPC;
+	যদি (!found)
+		ফেরত SBI_ENOSPC;
 	*out_first_hwirq = hwirq;
 
-	return __sbi_irqchip_register_handler(chip, *out_first_hwirq,
-					      num_hwirq, SBI_HWIRQ_FLAGS_NONE,
+	ফেরত __sbi_irqchip_register_handler(chip, *out_first_hwirq,
+					      অঙ্ক_hwirq, SBI_HWIRQ_FLAGS_NONE,
 					      write_msi, callback, priv);
 }
 
-int sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-				 u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-				 int (*callback)(u32 hwirq, void *priv), void *priv)
+পূর্ণসংখ্যা sbi_irqchip_register_handler(কাঠামো sbi_irqchip_device *chip,
+				 u32 first_hwirq, u32 অঙ্ক_hwirq, u32 hwirq_flags,
+				 পূর্ণসংখ্যা (*callback)(u32 hwirq, শূন্য *priv), শূন্য *priv)
 {
-	if (!chip || !num_hwirq || !callback)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	যদি (!chip || !অঙ্ক_hwirq || !callback)
+		ফেরত SBI_EINVAL;
+	যদি (chip->অঙ্ক_hwirq <= first_hwirq ||
+	    chip->অঙ্ক_hwirq <= (first_hwirq + অঙ্ক_hwirq - 1))
+		ফেরত SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq, hwirq_flags,
-					      NULL, callback, priv);
+	ফেরত __sbi_irqchip_register_handler(chip, first_hwirq, অঙ্ক_hwirq, hwirq_flags,
+					      ফাঁকা, callback, priv);
 }
 
-int sbi_irqchip_register_reserved(struct sbi_irqchip_device *chip,
-				  u32 first_hwirq, u32 num_hwirq)
+পূর্ণসংখ্যা sbi_irqchip_register_reserved(কাঠামো sbi_irqchip_device *chip,
+				  u32 first_hwirq, u32 অঙ্ক_hwirq)
 {
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	যদি (!chip || !অঙ্ক_hwirq)
+		ফেরত SBI_EINVAL;
+	যদি (chip->অঙ্ক_hwirq <= first_hwirq ||
+	    chip->অঙ্ক_hwirq <= (first_hwirq + অঙ্ক_hwirq - 1))
+		ফেরত SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq,
-					      SBI_HWIRQ_FLAGS_NONE, NULL, NULL, NULL);
+	ফেরত __sbi_irqchip_register_handler(chip, first_hwirq, অঙ্ক_hwirq,
+					      SBI_HWIRQ_FLAGS_NONE, ফাঁকা, ফাঁকা, ফাঁকা);
 }
 
-int sbi_irqchip_unregister_handler(struct sbi_irqchip_device *chip,
-				   u32 first_hwirq, u32 num_hwirq)
+পূর্ণসংখ্যা sbi_irqchip_unregister_handler(কাঠামো sbi_irqchip_device *chip,
+				   u32 first_hwirq, u32 অঙ্ক_hwirq)
 {
-	struct sbi_irqchip_handler *fh, *lh;
+	কাঠামো sbi_irqchip_handler *fh, *lh;
 	u32 i;
 
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	যদি (!chip || !অঙ্ক_hwirq)
+		ফেরত SBI_EINVAL;
+	যদি (chip->অঙ্ক_hwirq <= first_hwirq ||
+	    chip->অঙ্ক_hwirq <= (first_hwirq + অঙ্ক_hwirq - 1))
+		ফেরত SBI_EBAD_RANGE;
 
 	fh = sbi_irqchip_find_handler(chip, first_hwirq);
-	if (!fh || fh->first_hwirq != first_hwirq || fh->num_hwirq != num_hwirq)
-		return SBI_ENODEV;
-	lh = sbi_irqchip_find_handler(chip, first_hwirq + num_hwirq - 1);
-	if (!lh || lh != fh)
-		return SBI_ENODEV;
+	যদি (!fh || fh->first_hwirq != first_hwirq || fh->অঙ্ক_hwirq != অঙ্ক_hwirq)
+		ফেরত SBI_ENODEV;
+	lh = sbi_irqchip_find_handler(chip, first_hwirq + অঙ্ক_hwirq - 1);
+	যদি (!lh || lh != fh)
+		ফেরত SBI_ENODEV;
 
-	if (chip->hwirq_mask) {
-		for (i = 0; i < fh->num_hwirq; i++)
+	যদি (chip->hwirq_mask) {
+		জন্য (i = 0; i < fh->অঙ্ক_hwirq; i++)
 			chip->hwirq_mask(chip, fh->first_hwirq + i);
 	}
 
-	if (chip->hwirq_cleanup) {
-		for (i = 0; i < fh->num_hwirq; i++)
+	যদি (chip->hwirq_cleanup) {
+		জন্য (i = 0; i < fh->অঙ্ক_hwirq; i++)
 			chip->hwirq_cleanup(chip, fh->first_hwirq + i);
 	}
 
-	sbi_list_del(&fh->node);
-	return 0;
+	sbi_list_del(&fh->গ্রন্থি);
+	ফেরত 0;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device_by_caps(unsigned long caps,
-							   struct sbi_irqchip_device *first)
+কাঠামো sbi_irqchip_device *sbi_irqchip_find_device_by_caps(unsigned long caps,
+							   কাঠামো sbi_irqchip_device *first)
 {
-	struct sbi_irqchip_device *chip;
-	bool found = (first == NULL);
+	কাঠামো sbi_irqchip_device *chip;
+	bool found = (first == ফাঁকা);
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!found) {
-			if (first == chip)
+	sbi_list_for_each_entry(chip, &irqchip_list, গ্রন্থি) {
+		যদি (!found) {
+			যদি (first == chip)
 				found = true;
-			continue;
+			চালু;
 		}
-		if ((chip->caps & caps) == caps)
-			return chip;
+		যদি ((chip->caps & caps) == caps)
+			ফেরত chip;
 	}
 
-	return NULL;
+	ফেরত ফাঁকা;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device(u32 id)
+কাঠামো sbi_irqchip_device *sbi_irqchip_find_device(u32 id)
 {
-	struct sbi_irqchip_device *chip;
+	কাঠামো sbi_irqchip_device *chip;
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (chip->id == id)
-			return chip;
+	sbi_list_for_each_entry(chip, &irqchip_list, গ্রন্থি) {
+		যদি (chip->id == id)
+			ফেরত chip;
 	}
 
-	return NULL;
+	ফেরত ফাঁকা;
 }
 
-int sbi_irqchip_add_device(struct sbi_irqchip_device *chip)
+পূর্ণসংখ্যা sbi_irqchip_add_device(কাঠামো sbi_irqchip_device *chip)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_scratch *scratch;
+	কাঠামো sbi_irqchip_hart_তথ্য *hd;
+	কাঠামো sbi_scratch *scratch;
 	u32 i, h;
 
-	if (!chip || !chip->num_hwirq || !sbi_hartmask_weight(&chip->target_harts))
-		return SBI_EINVAL;
+	যদি (!chip || !chip->অঙ্ক_hwirq || !sbi_hartmask_weight(&chip->target_harts))
+		ফেরত SBI_EINVAL;
 
-	if (sbi_irqchip_find_device(chip->id))
-		return SBI_EALREADY;
+	যদি (sbi_irqchip_find_device(chip->id))
+		ফেরত SBI_EALREADY;
 
-	if (chip->process_hwirqs) {
+	যদি (chip->process_hwirqs) {
 		sbi_hartmask_for_each_hartindex(h, &chip->target_harts) {
 			scratch = sbi_hartindex_to_scratch(h);
-			if (!scratch)
-				continue;
+			যদি (!scratch)
+				চালু;
 
-			hd = sbi_scratch_offset_ptr(scratch, irqchip_hart_data_off);
-			if (hd->chip && hd->chip != chip)
-				return SBI_EINVAL;
+			hd = sbi_scratch_offset_ptr(scratch, irqchip_hart_তথ্য_off);
+			যদি (hd->chip && hd->chip != chip)
+				ফেরত SBI_EINVAL;
 
 			hd->chip = chip;
 		}
 	}
 
-	chip->hwirqs = sbi_zalloc(sizeof(*chip->hwirqs) * chip->num_hwirq);
-	if (!chip->hwirqs)
-		return SBI_ENOMEM;
-	for (i = 0; i < chip->num_hwirq; i++) {
+	chip->hwirqs = sbi_zalloc(আকার(*chip->hwirqs) * chip->অঙ্ক_hwirq);
+	যদি (!chip->hwirqs)
+		ফেরত SBI_ENOMEM;
+	জন্য (i = 0; i < chip->অঙ্ক_hwirq; i++) {
 		sbi_irqchip_set_raw_handler(chip, i, sbi_irqchip_raw_handler_default);
-		chip->hwirqs[i].hart_index = -1U;
+		chip->hwirqs[i].hart_সূচক = -1U;
 	}
 
-	SBI_INIT_LIST_HEAD(&chip->handler_list);
+	SBI_INIT_LIST_শীর্ষ(&chip->handler_list);
 
-	sbi_list_add_tail(&chip->node, &irqchip_list);
-	return 0;
+	sbi_list_add_লেজ(&chip->গ্রন্থি, &irqchip_list);
+	ফেরত 0;
 }
 
-int sbi_irqchip_init(struct sbi_scratch *scratch, bool cold_boot)
+পূর্ণসংখ্যা sbi_irqchip_init(কাঠামো sbi_scratch *scratch, bool cold_boot)
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	int rc;
+	ধ্রুবক কাঠামো sbi_platform *plat = sbi_platform_ptr(scratch);
+	কাঠামো sbi_irqchip_hart_তথ্য *hd;
+	কাঠামো sbi_irqchip_device *chip;
+	পূর্ণসংখ্যা rc;
 
-	if (cold_boot) {
-		irqchip_hart_data_off =
-			sbi_scratch_alloc_offset(sizeof(struct sbi_irqchip_hart_data));
-		if (!irqchip_hart_data_off)
-			return SBI_ENOMEM;
+	যদি (cold_boot) {
+		irqchip_hart_তথ্য_off =
+			sbi_scratch_alloc_offset(আকার(কাঠামো sbi_irqchip_hart_তথ্য));
+		যদি (!irqchip_hart_তথ্য_off)
+			ফেরত SBI_ENOMEM;
 		rc = sbi_platform_irqchip_init(plat);
-		if (rc)
-			return rc;
+		যদি (rc)
+			ফেরত rc;
 	}
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!chip->warm_init)
-			continue;
-		if (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->target_harts))
-			continue;
+	sbi_list_for_each_entry(chip, &irqchip_list, গ্রন্থি) {
+		যদি (!chip->warm_init)
+			চালু;
+		যদি (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->target_harts))
+			চালু;
 		rc = chip->warm_init(chip);
-		if (rc)
-			return rc;
+		যদি (rc)
+			ফেরত rc;
 	}
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
+	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_তথ্য_off);
+	যদি (hd && hd->chip && hd->chip->process_hwirqs)
 		csr_set(CSR_MIE, MIP_MEIP);
 
-	return 0;
+	ফেরত 0;
 }
 
-void sbi_irqchip_exit(struct sbi_scratch *scratch)
+শূন্য sbi_irqchip_exit(কাঠামো sbi_scratch *scratch)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	struct sbi_irqchip_handler *h;
+	কাঠামো sbi_irqchip_hart_তথ্য *hd;
+	কাঠামো sbi_irqchip_device *chip;
+	কাঠামো sbi_irqchip_handler *h;
 	u32 migrate_hidx = -1U;
 	bool migrate = false;
-	int rc;
+	পূর্ণসংখ্যা rc;
 
 	sbi_for_each_hartindex(i) {
-		if (i == current_hartindex())
-			continue;
-		if (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
+		যদি (i == current_hartindex())
+			চালু;
+		যদি (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
 		    __sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOP_PENDING)
-			continue;
+			চালু;
 		migrate_hidx = i;
 		migrate = true;
-		break;
+		বিরতি;
 	}
 
-	if (!migrate)
-		goto skip_migrate;
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		sbi_list_for_each_entry(h, &chip->handler_list, node) {
+	যদি (!migrate)
+		যাও skip_migrate;
+	sbi_list_for_each_entry(chip, &irqchip_list, গ্রন্থি) {
+		sbi_list_for_each_entry(h, &chip->handler_list, গ্রন্থি) {
 			rc = __sbi_irqchip_handler_set_affinity(chip, h,
 								current_hartindex(),
 								migrate_hidx);
-			if (rc) {
+			যদি (rc) {
 				sbi_printf("%s: chip 0x%x handler 0x%x set affinity (err %d)\n",
 					   __func__, chip->id, h->first_hwirq, rc);
 			}
@@ -614,7 +614,7 @@ void sbi_irqchip_exit(struct sbi_scratch *scratch)
 	}
 skip_migrate:
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
+	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_তথ্য_off);
+	যদি (hd && hd->chip && hd->chip->process_hwirqs)
 		csr_clear(CSR_MIE, MIP_MEIP);
 }

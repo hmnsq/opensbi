@@ -7,62 +7,62 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা ipi_mswi_cold_init(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff,
+			      ধ্রুবক কাঠামো fdt_match *match)
 {
-	int rc;
+	পূর্ণসংখ্যা rc;
 	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	কাঠামো aclint_mswi_তথ্য *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(আকার(*ms));
+	যদি (!ms)
+		ফেরত SBI_ENOMEM;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
-				   &ms->addr, &ms->size, NULL, NULL,
-				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	rc = fdt_parse_aclint_গ্রন্থি(fdt, nodeoff, false, false,
+				   &ms->addr, &ms->আকার_2, ফাঁকা, ফাঁকা,
+				   &ms->first_hartid, &ms->hart_গুনতি);
+	যদি (rc) {
 		sbi_free(ms);
-		return rc;
+		ফেরত rc;
 	}
 
-	if (match->data) {
+	যদি (match->তথ্য) {
 		/* Adjust MSWI address and size for CLINT device */
-		offset = *((unsigned long *)match->data);
+		offset = *((unsigned long *)match->তথ্য);
 		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
-		ms->size = ACLINT_MSWI_SIZE;
+		যদি ((ms->আকার_2 - offset) < ACLINT_MSWI_আকার)
+			ফেরত SBI_EINVAL;
+		ms->আকার_2 = ACLINT_MSWI_আকার;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	যদি (rc) {
 		sbi_free(ms);
-		return rc;
+		ফেরত rc;
 	}
 
-	return 0;
+	ফেরত 0;
 }
 
-static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
+স্থির ধ্রুবক unsigned long clint_offset = CLINT_MSWI_OFFSET;
 
-static const struct fdt_match ipi_mswi_match[] = {
-	{ .compatible = "riscv,clint0", .data = &clint_offset },
-	{ .compatible = "sifive,clint0", .data = &clint_offset },
-	{ .compatible = "thead,c900-clint", .data = &clint_offset },
+স্থির ধ্রুবক কাঠামো fdt_match ipi_mswi_match[] = {
+	{ .compatible = "riscv,clint0", .তথ্য = &clint_offset },
+	{ .compatible = "sifive,clint0", .তথ্য = &clint_offset },
+	{ .compatible = "thead,c900-clint", .তথ্য = &clint_offset },
 	{ .compatible = "thead,c900-aclint-mswi" },
 	{ .compatible = "mips,p8700-aclint-mswi" },
 	{ .compatible = "riscv,aclint-mswi" },
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
+ধ্রুবক কাঠামো fdt_driver fdt_ipi_mswi = {
 	.match_table = ipi_mswi_match,
 	.init = ipi_mswi_cold_init,
 };

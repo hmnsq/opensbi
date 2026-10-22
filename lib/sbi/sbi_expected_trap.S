@@ -20,7 +20,7 @@
 	 */
 
 	.align 3
-	.global __sbi_expected_trap
+	.বৈশ্বিক __sbi_expected_trap
 __sbi_expected_trap:
 	/* Without H-extension so, MTVAL2 and MTINST CSRs and GVA not available */
 	li	a4, MSTATUS_MPRV
@@ -38,7 +38,7 @@ __sbi_expected_trap:
 	mret
 
 	.align 3
-	.global __sbi_expected_trap_hext
+	.বৈশ্বিক __sbi_expected_trap_hext
 __sbi_expected_trap_hext:
 	/* With H-extension so, MTVAL2 and MTINST CSRs and GVA available */
 	li	a4, MSTATUS_MPRV

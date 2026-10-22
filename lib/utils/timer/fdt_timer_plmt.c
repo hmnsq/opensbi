@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/timer/fdt_timer.h>
+#অন্তর্ভাব <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+বাহ্যিক কাঠামো plmt_তথ্য plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+স্থির পূর্ণসংখ্যা fdt_plmt_cold_timer_init(ধ্রুবক শূন্য *fdt, পূর্ণসংখ্যা nodeoff,
+				    ধ্রুবক কাঠামো fdt_match *match)
 {
-	int rc;
+	পূর্ণসংখ্যা rc;
 	unsigned long plmt_base;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_গ্রন্থি(fdt, nodeoff, &plmt_base, &plmt.আকার_2,
+				 &plmt.hart_গুনতি);
+	যদি (rc)
+		ফেরত rc;
 
 	plmt.time_val = (u64 *)plmt_base;
 	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	যদি (rc)
+		ফেরত rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	যদি (rc)
+		ফেরত rc;
 
-	return 0;
+	ফেরত 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+স্থির ধ্রুবক কাঠামো fdt_match timer_plmt_match[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
+ধ্রুবক কাঠামো fdt_driver fdt_timer_plmt = {
 	.match_table = timer_plmt_match,
 	.init = fdt_plmt_cold_timer_init,
 };
