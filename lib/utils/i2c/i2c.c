@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+நிலையான SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+கட்டமைப்பு i2c_adapter *i2c_adapter_find(முழு id)
 {
-	struct sbi_dlist *pos;
+	கட்டமைப்பு sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		கட்டமைப்பு i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		எனில் (adap->id == id)
+			திரும்பு adap;
 	}
 
-	return NULL;
+	திரும்பு வெற்று;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+முழு i2c_adapter_add(கட்டமைப்பு i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	எனில் (!ia)
+		திரும்பு SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	எனில் (i2c_adapter_find(ia->id))
+		திரும்பு SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_add(&(ia->முனை), &(i2c_adapters_list));
 
-	return 0;
+	திரும்பு 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+வெறுமை i2c_adapter_remove(கட்டமைப்பு i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	எனில் (!ia)
+		திரும்பு;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->முனை));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+முழு i2c_adapter_write(கட்டமைப்பு i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, முழு len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	எனில் (!ia)
+		திரும்பு SBI_EINVAL;
+	எனில் (!ia->லிக)
+		திரும்பு SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	திரும்பு ia->லிக(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+முழு i2c_adapter_read(கட்டமைப்பு i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, முழு len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	எனில் (!ia)
+		திரும்பு SBI_EINVAL;
+	எனில் (!ia->பட)
+		திரும்பு SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	திரும்பு ia->பட(ia, addr, reg, buffer, len);
 }

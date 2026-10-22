@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi_utils/mailbox/mailbox.h>
+#அந்தர்பாவ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+முழு rpmi_xlate_error(எண்ணிக்கை rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	தேர்வு(error) {
+	நிலை RPMI_SUCCESS:
+		திரும்பு SBI_OK;
+	நிலை RPMI_ERR_FAILED:
+		திரும்பு SBI_EFAIL;
+	நிலை RPMI_ERR_NOTSUPP:
+		திரும்பு SBI_ENOTSUPP;
+	நிலை RPMI_ERR_INVALID_PARAM:
+		திரும்பு SBI_EINVAL;
+	நிலை RPMI_ERR_DENIED:
+		திரும்பு SBI_EDENIED;
+	நிலை RPMI_ERR_INVALID_ADDR:
+		திரும்பு SBI_EINVALID_ADDR;
+	நிலை RPMI_ERR_ALREADY:
+		திரும்பு SBI_EALREADY;
+	நிலை RPMI_ERR_EXTENSION:
+		திரும்பு SBI_EFAIL;
+	நிலை RPMI_ERR_HW_FAULT:
+		திரும்பு SBI_EIO;
+	நிலை RPMI_ERR_BUSY:
+		திரும்பு SBI_EFAIL;
+	நிலை RPMI_ERR_INVALID_STATE:
+		திரும்பு SBI_EINVALID_STATE;
+	நிலை RPMI_ERR_BAD_RANGE:
+		திரும்பு SBI_EBAD_RANGE;
+	நிலை RPMI_ERR_TIMEOUT:
+		திரும்பு SBI_ETIMEDOUT;
+	நிலை RPMI_ERR_IO:
+		திரும்பு SBI_EIO;
+	நிலை RPMI_ERR_NO_DATA:
+		திரும்பு SBI_EFAIL;
+	இயல்பு:
+		திரும்பு SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+முழு rpmi_normal_request_with_status(
+			கட்டமைப்பு mbox_chan *chan, u32 service_id,
+			வெறுமை *req, u32 req_சொற்கள், u32 req_endian_சொற்கள்,
+			வெறுமை *resp, u32 resp_சொற்கள், u32 resp_endian_சொற்கள்)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	முழு ret;
+	கட்டமைப்பு mbox_xfer xfer;
+	கட்டமைப்பு rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
+	args.type = RPMI_செய்தி_NORMAL_REQUEST;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
+	args.tx_endian_சொற்கள் = req_endian_சொற்கள்;
+	args.rx_endian_சொற்கள் = resp_endian_சொற்கள்;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, அளவு(u32) * req_சொற்கள், RPMI_DEF_TX_TIMEOUT,
+			resp, அளவு(u32) * resp_சொற்கள், RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	எனில் (ret)
+		திரும்பு ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	திரும்பு rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+முழு rpmi_posted_request(
+		கட்டமைப்பு mbox_chan *chan, u32 service_id,
+		வெறுமை *req, u32 req_சொற்கள், u32 req_endian_சொற்கள்)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	கட்டமைப்பு mbox_xfer xfer;
+	கட்டமைப்பு rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
+	args.type = RPMI_செய்தி_POSTED_REQUEST;
+	args.flags = RPMI_செய்தி_FLAGS_NO_RX;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
+	args.tx_endian_சொற்கள் = req_endian_சொற்கள்;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, அளவு(u32) * req_சொற்கள், RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	திரும்பு mbox_chan_xfer(chan, &xfer);
 }

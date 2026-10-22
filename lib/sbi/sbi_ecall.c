@@ -7,140 +7,140 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_ecall.h>
+#அந்தர்பாவ <sbi/sbi_ecall_interface.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi/sbi_trap.h>
 
-extern struct sbi_ecall_extension *const sbi_ecall_exts[];
+வெளி கட்டமைப்பு sbi_ecall_extension *மாறிலி sbi_ecall_exts[];
 
-u16 sbi_ecall_version_major(void)
+u16 sbi_ecall_version_major(வெறுமை)
 {
-	return SBI_ECALL_VERSION_MAJOR;
+	திரும்பு SBI_ECALL_VERSION_MAJOR;
 }
 
-u16 sbi_ecall_version_minor(void)
+u16 sbi_ecall_version_minor(வெறுமை)
 {
-	return SBI_ECALL_VERSION_MINOR;
+	திரும்பு SBI_ECALL_VERSION_MINOR;
 }
 
-static unsigned long ecall_impid = SBI_OPENSBI_IMPID;
+நிலையான unsigned long ecall_impid = SBI_OPENSBI_IMPID;
 
-unsigned long sbi_ecall_get_impid(void)
+unsigned long sbi_ecall_get_impid(வெறுமை)
 {
-	return ecall_impid;
+	திரும்பு ecall_impid;
 }
 
-void sbi_ecall_set_impid(unsigned long impid)
+வெறுமை sbi_ecall_set_impid(unsigned long impid)
 {
 	ecall_impid = impid;
 }
 
-static SBI_LIST_HEAD(ecall_exts_list);
+நிலையான SBI_LIST_HEAD(ecall_exts_list);
 
-struct sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
+கட்டமைப்பு sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
 {
-	struct sbi_ecall_extension *t, *ret = NULL;
+	கட்டமைப்பு sbi_ecall_extension *t, *ret = வெற்று;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t->extid_start <= extid && extid <= t->extid_end) {
+		எனில் (t->extid_start <= extid && extid <= t->extid_end) {
 			ret = t;
-			break;
+			நிறுத்து;
 		}
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
-void sbi_ecall_get_extensions_str(char *exts_str, int exts_str_size, bool experimental)
+வெறுமை sbi_ecall_get_extensions_str(எழுத்து *exts_str, முழு exts_str_size, bool experimental)
 {
-	struct sbi_ecall_extension *t;
-	int offset = 0;
+	கட்டமைப்பு sbi_ecall_extension *t;
+	முழு offset = 0;
 
-	if (!exts_str || exts_str_size <= 0)
-		return;
+	எனில் (!exts_str || exts_str_size <= 0)
+		திரும்பு;
 	sbi_memset(exts_str, 0, exts_str_size);
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (experimental != t->experimental)
-			continue;
-		if (offset + sbi_strlen(t->name) + 1 > exts_str_size)
-			break;
+		எனில் (experimental != t->experimental)
+			தொடர்;
+		எனில் (offset + sbi_strlen(t->name) + 1 > exts_str_size)
+			நிறுத்து;
 		sbi_snprintf(exts_str + offset, exts_str_size - offset,
 			     "%s,", t->name);
 		offset = offset + sbi_strlen(t->name) + 1;
 	}
 
-	if (offset)
+	எனில் (offset)
 		exts_str[offset - 1] = '\0';
-	else
+	இல்லையெனில்
 		sbi_strncpy(exts_str, "none", exts_str_size);
 }
 
-int sbi_ecall_register_extension(struct sbi_ecall_extension *ext)
+முழு sbi_ecall_register_extension(கட்டமைப்பு sbi_ecall_extension *ext)
 {
-	struct sbi_ecall_extension *t;
+	கட்டமைப்பு sbi_ecall_extension *t;
 
-	if (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
-		return SBI_EINVAL;
+	எனில் (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
+		திரும்பு SBI_EINVAL;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
 		unsigned long start = t->extid_start;
 		unsigned long end = t->extid_end;
-		if (end < ext->extid_start || ext->extid_end < start)
+		எனில் (end < ext->extid_start || ext->extid_end < start)
 			/* no overlap */;
-		else
-			return SBI_EINVAL;
+		இல்லையெனில்
+			திரும்பு SBI_EINVAL;
 	}
 
 	sbi_list_add_tail(&ext->head, &ecall_exts_list);
 
-	return 0;
+	திரும்பு 0;
 }
 
-void sbi_ecall_unregister_extension(struct sbi_ecall_extension *ext)
+வெறுமை sbi_ecall_unregister_extension(கட்டமைப்பு sbi_ecall_extension *ext)
 {
 	bool found = false;
-	struct sbi_ecall_extension *t;
+	கட்டமைப்பு sbi_ecall_extension *t;
 
-	if (!ext)
-		return;
+	எனில் (!ext)
+		திரும்பு;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t == ext) {
+		எனில் (t == ext) {
 			found = true;
-			break;
+			நிறுத்து;
 		}
 	}
 
-	if (found)
+	எனில் (found)
 		sbi_list_del_init(&ext->head);
 }
 
-int sbi_ecall_handler(struct sbi_trap_context *tcntx)
+முழு sbi_ecall_handler(கட்டமைப்பு sbi_trap_context *tcntx)
 {
-	int ret = 0;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_ecall_extension *ext;
+	முழு ret = 0;
+	கட்டமைப்பு sbi_trap_regs *regs = &tcntx->regs;
+	கட்டமைப்பு sbi_ecall_extension *ext;
 	unsigned long extension_id = regs->a7;
 	unsigned long func_id = regs->a6;
-	struct sbi_ecall_return out = {0};
+	கட்டமைப்பு sbi_ecall_return out = {0};
 	bool is_0_1_spec = 0;
 
 	ext = sbi_ecall_find_extension(extension_id);
-	if (ext && ext->handle) {
+	எனில் (ext && ext->handle) {
 		ret = ext->handle(extension_id, func_id, regs, &out);
-		if (extension_id >= SBI_EXT_0_1_SET_TIMER &&
+		எனில் (extension_id >= SBI_EXT_0_1_SET_TIMER &&
 		    extension_id <= SBI_EXT_0_1_SHUTDOWN)
 			is_0_1_spec = 1;
-	} else {
+	} இல்லையெனில் {
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (!out.skip_regs_update) {
-		if (ret < SBI_LAST_ERR ||
+	எனில் (!out.skip_regs_update) {
+		எனில் (ret < SBI_LAST_ERR ||
 		    (extension_id != SBI_EXT_0_1_CONSOLE_GETCHAR &&
 		     SBI_SUCCESS < ret)) {
 			sbi_printf("%s: Invalid error %d for ext=0x%lx "
@@ -159,28 +159,28 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		 */
 		regs->mepc += 4;
 		regs->a0 = ret;
-		if (!is_0_1_spec)
-			regs->a1 = out.value;
+		எனில் (!is_0_1_spec)
+			regs->a1 = out.மதிப்பு;
 	}
 
-	return 0;
+	திரும்பு 0;
 }
 
-int sbi_ecall_init(void)
+முழு sbi_ecall_init(வெறுமை)
 {
-	int ret;
-	struct sbi_ecall_extension *ext;
+	முழு ret;
+	கட்டமைப்பு sbi_ecall_extension *ext;
 	unsigned long i;
 
-	for (i = 0; sbi_ecall_exts[i]; i++) {
+	க்கு (i = 0; sbi_ecall_exts[i]; i++) {
 		ext = sbi_ecall_exts[i];
 		ret = SBI_ENODEV;
 
-		if (ext->register_extensions)
+		எனில் (ext->register_extensions)
 			ret = ext->register_extensions();
-		if (ret)
-			return ret;
+		எனில் (ret)
+			திரும்பு ret;
 	}
 
-	return 0;
+	திரும்பு 0;
 }

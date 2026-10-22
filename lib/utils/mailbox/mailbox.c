@@ -7,130 +7,130 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/mailbox/mailbox.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi_utils/mailbox/mailbox.h>
 
-static SBI_LIST_HEAD(mbox_list);
+நிலையான SBI_LIST_HEAD(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+கட்டமைப்பு mbox_controller *mbox_controller_find(unsigned முழு id)
 {
-	struct sbi_dlist *pos;
+	கட்டமைப்பு sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
-		struct mbox_controller *mbox = to_mbox_controller(pos);
+		கட்டமைப்பு mbox_controller *mbox = to_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		எனில் (mbox->id == id)
+			திரும்பு mbox;
 	}
 
-	return NULL;
+	திரும்பு வெற்று;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+முழு mbox_controller_add(கட்டமைப்பு mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	எனில் (!mbox || !mbox->max_xfer_len)
+		திரும்பு SBI_EINVAL;
+	எனில் (mbox_controller_find(mbox->id))
+		திரும்பு SBI_EALREADY;
 
 	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
 	SBI_INIT_LIST_HEAD(&mbox->chan_list);
-	sbi_list_add(&mbox->node, &mbox_list);
+	sbi_list_add(&mbox->முனை, &mbox_list);
 
-	return 0;
+	திரும்பு 0;
 }
 
-void mbox_controller_remove(struct mbox_controller *mbox)
+வெறுமை mbox_controller_remove(கட்டமைப்பு mbox_controller *mbox)
 {
-	struct mbox_chan *chan;
+	கட்டமைப்பு mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	எனில் (!mbox)
+		திரும்பு;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
+	போது (!sbi_list_empty(&mbox->chan_list)) {
 		chan = sbi_list_first_entry(&mbox->chan_list,
-					    struct mbox_chan, node);
-		if (mbox->free_chan)
+					    கட்டமைப்பு mbox_chan, முனை);
+		எனில் (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
-		sbi_list_del(&chan->node);
+		sbi_list_del(&chan->முனை);
 	}
 
-	sbi_list_del(&mbox->node);
+	sbi_list_del(&mbox->முனை);
 }
 
-struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
+கட்டமைப்பு mbox_chan *mbox_controller_request_chan(கட்டமைப்பு mbox_controller *mbox,
 					       u32 *chan_args)
 {
-	struct mbox_chan *ret;
-	struct sbi_dlist *pos;
+	கட்டமைப்பு mbox_chan *ret;
+	கட்டமைப்பு sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	எனில் (!chan_args || !mbox || !mbox->request_chan)
+		திரும்பு வெற்று;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
 		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
-				sizeof(ret->chan_args)))
-			return ret;
+		எனில் (!sbi_memcmp(ret->chan_args, chan_args,
+				அளவு(ret->chan_args)))
+			திரும்பு ret;
 	}
 
 	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	எனில் (!ret)
+		திரும்பு வெற்று;
 
 	ret->mbox = mbox;
-	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
-	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	sbi_memcpy(ret->chan_args, chan_args, அளவு(ret->chan_args));
+	sbi_list_add(&ret->முனை, &mbox->chan_list);
+	திரும்பு ret;
 }
 
-void mbox_controller_free_chan(struct mbox_chan *chan)
+வெறுமை mbox_controller_free_chan(கட்டமைப்பு mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	எனில் (!chan || !chan->mbox)
+		திரும்பு;
 
-	if (chan->mbox->free_chan)
+	எனில் (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
-	sbi_list_del(&chan->node);
+	sbi_list_del(&chan->முனை);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+முழு mbox_chan_xfer(கட்டமைப்பு mbox_chan *chan, கட்டமைப்பு mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	எனில் (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		திரும்பு SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	எனில் (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		திரும்பு SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	எனில் (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		திரும்பு SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
+	எனில் (!(xfer->flags & MBOX_XFER_SEQ))
 		mbox_xfer_set_sequence(xfer,
 			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	திரும்பு chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+முழு mbox_chan_get_attribute(கட்டமைப்பு mbox_chan *chan, முழு attr_id, வெறுமை *out_மதிப்பு)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	எனில் (!chan || !chan->mbox || !out_மதிப்பு)
+		திரும்பு SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	எனில் (!chan->mbox->get_attribute)
+		திரும்பு SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	திரும்பு chan->mbox->get_attribute(chan, attr_id, out_மதிப்பு);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+முழு mbox_chan_set_attribute(கட்டமைப்பு mbox_chan *chan, முழு attr_id, வெறுமை *new_மதிப்பு)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	எனில் (!chan || !chan->mbox || !new_மதிப்பு)
+		திரும்பு SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	எனில் (!chan->mbox->set_attribute)
+		திரும்பு SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	திரும்பு chan->mbox->set_attribute(chan, attr_id, new_மதிப்பு);
 }

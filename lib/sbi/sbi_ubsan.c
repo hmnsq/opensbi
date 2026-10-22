@@ -8,8 +8,8 @@
 
 #ifdef UBSAN_ENABLED
 
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_types.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
 
 /* Undefined Behavior specific defines and structures defined by the compiler ABI */
 
@@ -17,310 +17,310 @@
 #define KIND_FLOAT 1
 #define KIND_UNKNOWN UINT16_MAX
 
-volatile unsigned long sbi_ubsan_report_count;
+நிலையற்ற unsigned long sbi_ubsan_report_மொத்தம்;
 
-struct CSourceLocation {
-	char *mFilename;
-	uint32_t mLine;
+கட்டமைப்பு CSourceLocation {
+	எழுத்து *mFilename;
+	uint32_t m_வரி;
 	uint32_t mColumn;
 };
 
-struct CTypeDescriptor {
+கட்டமைப்பு CTypeDescriptor {
 	uint16_t mTypeKind;
 	uint16_t mTypeInfo;
 	uint8_t mTypeName[1];
 };
 
-struct COverflowData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு COverflowData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
-struct CUnreachableData {
-	struct CSourceLocation mLocation;
+கட்டமைப்பு CUnreachableData {
+	கட்டமைப்பு CSourceLocation mLocation;
 };
 
-struct CCFICheckFailData {
+கட்டமைப்பு CCFICheckFailData {
 	uint8_t mCheckKind;
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
-struct CDynamicTypeCacheMissData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
-	void *mTypeInfo;
+கட்டமைப்பு CDynamicTypeCacheMissData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
+	வெறுமை *mTypeInfo;
 	uint8_t mTypeCheckKind;
 };
 
-struct CFunctionTypeMismatchData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CFunctionTypeMismatchData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
-struct CInvalidBuiltinData {
-	struct CSourceLocation mLocation;
+கட்டமைப்பு CInvalidBuiltinData {
+	கட்டமைப்பு CSourceLocation mLocation;
 	uint8_t mKind;
 };
 
-struct CInvalidValueData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CInvalid_மதிப்பு_Data {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
-struct CNonNullArgData {
-	struct CSourceLocation mLocation;
-	struct CSourceLocation mAttributeLocation;
-	int mArgIndex;
+கட்டமைப்பு CNonNullArgData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CSourceLocation mAttributeLocation;
+	முழு mArgIndex;
 };
 
-struct CNonNullReturnData {
-	struct CSourceLocation mAttributeLocation;
+கட்டமைப்பு CNonNullReturnData {
+	கட்டமைப்பு CSourceLocation mAttributeLocation;
 };
 
-struct COutOfBoundsData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mArrayType;
-	struct CTypeDescriptor *mIndexType;
+கட்டமைப்பு COutOfBoundsData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mArrayType;
+	கட்டமைப்பு CTypeDescriptor *mIndexType;
 };
 
-struct CPointerOverflowData {
-	struct CSourceLocation mLocation;
+கட்டமைப்பு CPointerOverflowData {
+	கட்டமைப்பு CSourceLocation mLocation;
 };
 
-struct CShiftOutOfBoundsData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mLHSType;
-	struct CTypeDescriptor *mRHSType;
+கட்டமைப்பு CShiftOutOfBoundsData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mLHSType;
+	கட்டமைப்பு CTypeDescriptor *mRHSType;
 };
 
-struct CTypeMismatchData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CTypeMismatchData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 	unsigned long mLogAlignment;
 	uint8_t mTypeCheckKind;
 };
 
-struct CTypeMismatchData_v1 {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CTypeMismatchData_v1 {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 	uint8_t mLogAlignment;
 	uint8_t mTypeCheckKind;
 };
 
-struct CVLABoundData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CVLABoundData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
-struct CFloatCastOverflowData {
-	struct CSourceLocation
+கட்டமைப்பு CFloatCastOverflowData {
+	கட்டமைப்பு CSourceLocation
 		mLocation; /* This field exists in this struct since 2015 August 11th */
-	struct CTypeDescriptor *mFromType;
-	struct CTypeDescriptor *mToType;
+	கட்டமைப்பு CTypeDescriptor *mFromType;
+	கட்டமைப்பு CTypeDescriptor *mToType;
 };
 
-struct CImplicitConversionData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mFromType;
-	struct CTypeDescriptor *mToType;
+கட்டமைப்பு CImplicitConversionData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CTypeDescriptor *mFromType;
+	கட்டமைப்பு CTypeDescriptor *mToType;
 	uint8_t mKind;
 };
 
-struct CAlignmentAssumptionData {
-	struct CSourceLocation mLocation;
-	struct CSourceLocation mAssumptionLocation;
-	struct CTypeDescriptor *mType;
+கட்டமைப்பு CAlignmentAssumptionData {
+	கட்டமைப்பு CSourceLocation mLocation;
+	கட்டமைப்பு CSourceLocation mAssumptionLocation;
+	கட்டமைப்பு CTypeDescriptor *mType;
 };
 
 /* Public symbols used in the instrumentation of the code generation part */
-void __ubsan_handle_add_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_add_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_add_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_add_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS,
 				       unsigned long ulRHS);
-void __ubsan_handle_alignment_assumption(struct CAlignmentAssumptionData *pData,
+வெறுமை __ubsan_handle_alignment_assumption(கட்டமைப்பு CAlignmentAssumptionData *pData,
 					 unsigned long ulPointer,
 					 unsigned long ulAlignment,
 					 unsigned long ulOffset);
-void __ubsan_handle_alignment_assumption_abort(
-	struct CAlignmentAssumptionData *pData, unsigned long ulPointer,
+வெறுமை __ubsan_handle_alignment_assumption_abort(
+	கட்டமைப்பு CAlignmentAssumptionData *pData, unsigned long ulPointer,
 	unsigned long ulAlignment, unsigned long ulOffset);
-void __ubsan_handle_builtin_unreachable(struct CUnreachableData *pData);
-void __ubsan_handle_divrem_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_builtin_unreachable(கட்டமைப்பு CUnreachableData *pData);
+வெறுமை __ubsan_handle_divrem_overflow(கட்டமைப்பு COverflowData *pData,
 				    unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_divrem_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_divrem_overflow_abort(கட்டமைப்பு COverflowData *pData,
 					  unsigned long ulLHS,
 					  unsigned long ulRHS);
-void __ubsan_handle_function_type_mismatch(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction);
-void __ubsan_handle_function_type_mismatch_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction);
-void __ubsan_handle_function_type_mismatch_v1(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction,
+வெறுமை __ubsan_handle_function_type_mismatch(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction);
+வெறுமை __ubsan_handle_function_type_mismatch_abort(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction);
+வெறுமை __ubsan_handle_function_type_mismatch_v1(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction,
 	unsigned long ulCalleeRTTI, unsigned long ulFnRTTI);
-void __ubsan_handle_function_type_mismatch_v1_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction,
+வெறுமை __ubsan_handle_function_type_mismatch_v1_abort(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction,
 	unsigned long ulCalleeRTTI, unsigned long ulFnRTTI);
-void __ubsan_handle_invalid_builtin(struct CInvalidBuiltinData *pData);
-void __ubsan_handle_invalid_builtin_abort(struct CInvalidBuiltinData *pData);
-void __ubsan_handle_load_invalid_value(struct CInvalidValueData *pData,
+வெறுமை __ubsan_handle_invalid_builtin(கட்டமைப்பு CInvalidBuiltinData *pData);
+வெறுமை __ubsan_handle_invalid_builtin_abort(கட்டமைப்பு CInvalidBuiltinData *pData);
+வெறுமை __ubsan_handle_load_invalid_value(கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
 				       unsigned long ulVal);
-void __ubsan_handle_load_invalid_value_abort(struct CInvalidValueData *pData,
+வெறுமை __ubsan_handle_load_invalid_value_abort(கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
 					     unsigned long ulVal);
-void __ubsan_handle_missing_return(struct CUnreachableData *pData);
-void __ubsan_handle_mul_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_missing_return(கட்டமைப்பு CUnreachableData *pData);
+வெறுமை __ubsan_handle_mul_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_mul_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_mul_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS,
 				       unsigned long ulRHS);
-void __ubsan_handle_negate_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_negate_overflow(கட்டமைப்பு COverflowData *pData,
 				    unsigned long ulOldVal);
-void __ubsan_handle_negate_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_negate_overflow_abort(கட்டமைப்பு COverflowData *pData,
 					  unsigned long ulOldVal);
-void __ubsan_handle_nullability_arg(struct CNonNullArgData *pData);
-void __ubsan_handle_nullability_arg_abort(struct CNonNullArgData *pData);
-void __ubsan_handle_nullability_return_v1(
-	struct CNonNullReturnData *pData,
-	struct CSourceLocation *pLocationPointer);
-void __ubsan_handle_nullability_return_v1_abort(
-	struct CNonNullReturnData *pData,
-	struct CSourceLocation *pLocationPointer);
-void __ubsan_handle_out_of_bounds(struct COutOfBoundsData *pData,
+வெறுமை __ubsan_handle_nullability_arg(கட்டமைப்பு CNonNullArgData *pData);
+வெறுமை __ubsan_handle_nullability_arg_abort(கட்டமைப்பு CNonNullArgData *pData);
+வெறுமை __ubsan_handle_nullability_return_v1(
+	கட்டமைப்பு CNonNullReturnData *pData,
+	கட்டமைப்பு CSourceLocation *pLocationPointer);
+வெறுமை __ubsan_handle_nullability_return_v1_abort(
+	கட்டமைப்பு CNonNullReturnData *pData,
+	கட்டமைப்பு CSourceLocation *pLocationPointer);
+வெறுமை __ubsan_handle_out_of_bounds(கட்டமைப்பு COutOfBoundsData *pData,
 				  unsigned long ulIndex);
-void __ubsan_handle_out_of_bounds_abort(struct COutOfBoundsData *pData,
+வெறுமை __ubsan_handle_out_of_bounds_abort(கட்டமைப்பு COutOfBoundsData *pData,
 					unsigned long ulIndex);
-void __ubsan_handle_pointer_overflow(struct CPointerOverflowData *pData,
+வெறுமை __ubsan_handle_pointer_overflow(கட்டமைப்பு CPointerOverflowData *pData,
 				     unsigned long ulBase,
 				     unsigned long ulResult);
-void __ubsan_handle_pointer_overflow_abort(struct CPointerOverflowData *pData,
+வெறுமை __ubsan_handle_pointer_overflow_abort(கட்டமைப்பு CPointerOverflowData *pData,
 					   unsigned long ulBase,
 					   unsigned long ulResult);
-void __ubsan_handle_shift_out_of_bounds(struct CShiftOutOfBoundsData *pData,
+வெறுமை __ubsan_handle_shift_out_of_bounds(கட்டமைப்பு CShiftOutOfBoundsData *pData,
 					unsigned long ulLHS,
 					unsigned long ulRHS);
-void __ubsan_handle_shift_out_of_bounds_abort(
-	struct CShiftOutOfBoundsData *pData, unsigned long ulLHS,
+வெறுமை __ubsan_handle_shift_out_of_bounds_abort(
+	கட்டமைப்பு CShiftOutOfBoundsData *pData, unsigned long ulLHS,
 	unsigned long ulRHS);
-void __ubsan_handle_sub_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_sub_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_sub_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_sub_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS,
 				       unsigned long ulRHS);
-void __ubsan_handle_type_mismatch(struct CTypeMismatchData *pData,
+வெறுமை __ubsan_handle_type_mismatch(கட்டமைப்பு CTypeMismatchData *pData,
 				  unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_abort(struct CTypeMismatchData *pData,
+வெறுமை __ubsan_handle_type_mismatch_abort(கட்டமைப்பு CTypeMismatchData *pData,
 					unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_v1(struct CTypeMismatchData_v1 *pData,
+வெறுமை __ubsan_handle_type_mismatch_v1(கட்டமைப்பு CTypeMismatchData_v1 *pData,
 				     unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_v1_abort(struct CTypeMismatchData_v1 *pData,
+வெறுமை __ubsan_handle_type_mismatch_v1_abort(கட்டமைப்பு CTypeMismatchData_v1 *pData,
 					   unsigned long ulPointer);
-void __ubsan_handle_vla_bound_not_positive(struct CVLABoundData *pData,
+வெறுமை __ubsan_handle_vla_bound_not_positive(கட்டமைப்பு CVLABoundData *pData,
 					   unsigned long ulBound);
-void __ubsan_handle_vla_bound_not_positive_abort(struct CVLABoundData *pData,
+வெறுமை __ubsan_handle_vla_bound_not_positive_abort(கட்டமைப்பு CVLABoundData *pData,
 						 unsigned long ulBound);
-void __ubsan_get_current_report_data(const char **ppOutIssueKind,
-				     const char **ppOutMessage,
-				     const char **ppOutFilename,
-				     uint32_t *pOutLine, uint32_t *pOutCol,
-				     char **ppOutMemoryAddr);
-static void HandleOverflow(bool isFatal, struct COverflowData *pData,
+வெறுமை __ubsan_get_current_report_data(மாறிலி எழுத்து **ppOutIssueKind,
+				     மாறிலி எழுத்து **ppOutMessage,
+				     மாறிலி எழுத்து **ppOutFilename,
+				     uint32_t *p_Out_வரி, uint32_t *pOutCol,
+				     எழுத்து **ppOutMemoryAddr);
+நிலையான வெறுமை HandleOverflow(bool isFatal, கட்டமைப்பு COverflowData *pData,
 			   unsigned long ulLHS, unsigned long ulRHS,
-			   const char *szOperation);
-static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
-				 unsigned long ulOldValue);
-static void HandleBuiltinUnreachable(bool isFatal,
-				     struct CUnreachableData *pData);
-static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
-			       struct CTypeDescriptor *mType,
+			   மாறிலி எழுத்து *szOperation);
+நிலையான வெறுமை HandleNegateOverflow(bool isFatal, கட்டமைப்பு COverflowData *pData,
+				 unsigned long ul_Old_மதிப்பு);
+நிலையான வெறுமை HandleBuiltinUnreachable(bool isFatal,
+				     கட்டமைப்பு CUnreachableData *pData);
+நிலையான வெறுமை HandleTypeMismatch(bool isFatal, கட்டமைப்பு CSourceLocation *mLocation,
+			       கட்டமைப்பு CTypeDescriptor *mType,
 			       unsigned long mLogAlignment,
 			       uint8_t mTypeCheckKind, unsigned long ulPointer);
-static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
+நிலையான வெறுமை HandleVlaBoundNotPositive(bool isFatal, கட்டமைப்பு CVLABoundData *pData,
 				      unsigned long ulBound);
-static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
+நிலையான வெறுமை HandleOutOfBounds(bool isFatal, கட்டமைப்பு COutOfBoundsData *pData,
 			      unsigned long ulIndex);
-static void HandleShiftOutOfBounds(bool isFatal,
-				   struct CShiftOutOfBoundsData *pData,
+நிலையான வெறுமை HandleShiftOutOfBounds(bool isFatal,
+				   கட்டமைப்பு CShiftOutOfBoundsData *pData,
 				   unsigned long ulLHS, unsigned long ulRHS);
-static void HandleLoadInvalidValue(bool isFatal,
-				   struct CInvalidValueData *pData,
-				   unsigned long ulValue);
-static void HandleInvalidBuiltin(bool isFatal,
-				 struct CInvalidBuiltinData *pData);
-static void HandleFunctionTypeMismatch(bool isFatal,
-				       struct CFunctionTypeMismatchData *pData,
+நிலையான வெறுமை Handle_Load_Invalid_மதிப்பு(bool isFatal,
+				   கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
+				   unsigned long ul_மதிப்பு);
+நிலையான வெறுமை HandleInvalidBuiltin(bool isFatal,
+				 கட்டமைப்பு CInvalidBuiltinData *pData);
+நிலையான வெறுமை HandleFunctionTypeMismatch(bool isFatal,
+				       கட்டமைப்பு CFunctionTypeMismatchData *pData,
 				       unsigned long ulFunction);
-static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData);
-static void HandlePointerOverflow(bool isFatal,
-				  struct CPointerOverflowData *pData,
+நிலையான வெறுமை HandleMissingReturn(bool isFatal, கட்டமைப்பு CUnreachableData *pData);
+நிலையான வெறுமை HandlePointerOverflow(bool isFatal,
+				  கட்டமைப்பு CPointerOverflowData *pData,
 				  unsigned long ulBase, unsigned long ulResult);
-static void HandleAlignmentAssumption(bool isFatal,
-				      struct CAlignmentAssumptionData *pData,
+நிலையான வெறுமை HandleAlignmentAssumption(bool isFatal,
+				      கட்டமைப்பு CAlignmentAssumptionData *pData,
 				      unsigned long ulPointer,
 				      unsigned long ulAlignment,
 				      unsigned long ulOffset);
 
-#define NUMBER_SIGNED_BIT 1
-#define NUMBER_MAXLEN 128
-#define __arraycount(__a) (sizeof(__a) / sizeof(__a[0]))
+#define எண்_SIGNED_BIT 1
+#define எண்_MAXLEN 128
+#define __arraycount(__a) (அளவு(__a) / அளவு(__a[0]))
 #define __BIT(__n) (1UL << (__n))
 #define SEPARATOR sbi_printf("===========================================\n")
 #define ACK_REPORTED (1U << 31)
 
-static bool isAlreadyReported(struct CSourceLocation *pLocation)
+நிலையான bool isAlreadyReported(கட்டமைப்பு CSourceLocation *pLocation)
 {
-	uint32_t siOldValue;
-	volatile uint32_t *pLine;
+	uint32_t si_Old_மதிப்பு;
+	நிலையற்ற uint32_t *p_வரி;
 
-	if (!pLocation)
-		return false;
+	எனில் (!pLocation)
+		திரும்பு false;
 
-	pLine = &pLocation->mLine;
+	p_வரி = &pLocation->m_வரி;
 
-	do {
-		siOldValue = *pLine;
-	} while (__sync_val_compare_and_swap(pLine, siOldValue,
-					     siOldValue | ACK_REPORTED) !=
-		 siOldValue);
+	செய் {
+		si_Old_மதிப்பு = *p_வரி;
+	} போது (__sync_val_compare_and_swap(p_வரி, si_Old_மதிப்பு,
+					     si_Old_மதிப்பு | ACK_REPORTED) !=
+		 si_Old_மதிப்பு);
 
-	if (!(siOldValue & ACK_REPORTED)) {
+	எனில் (!(si_Old_மதிப்பு & ACK_REPORTED)) {
 
-		sbi_ubsan_report_count++;
+		sbi_ubsan_report_மொத்தம்++;
 
-		return false;
+		திரும்பு false;
 	}
 
-	return true;
+	திரும்பு true;
 }
 
-static void HandleOverflow(bool isFatal, struct COverflowData *pData,
+நிலையான வெறுமை HandleOverflow(bool isFatal, கட்டமைப்பு COverflowData *pData,
 			   unsigned long ulLHS, unsigned long ulRHS,
-			   const char *szOperation)
+			   மாறிலி எழுத்து *szOperation)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = pData->mType->mTypeInfo & எண்_SIGNED_BIT;
 
 	sbi_printf("UBSan: %s integer overflow: ",
 		   is_signed ? "signed" : "unsigned");
 
-	if (is_signed) {
+	எனில் (is_signed) {
 		sbi_printf("%ld %s %ld ", (long)ulLHS, szOperation,
 			   (long)ulRHS);
-	} else {
+	} இல்லையெனில் {
 		sbi_printf("%lu %s %lu ", ulLHS, szOperation, ulRHS);
 	}
 
@@ -330,31 +330,31 @@ static void HandleOverflow(bool isFatal, struct COverflowData *pData,
 	SEPARATOR;
 }
 
-static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
-				 unsigned long ulOldValue)
+நிலையான வெறுமை HandleNegateOverflow(bool isFatal, கட்டமைப்பு COverflowData *pData,
+				 unsigned long ul_Old_மதிப்பு)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = pData->mType->mTypeInfo & எண்_SIGNED_BIT;
 
 	sbi_printf("UBSan: Negation of ");
 
-	if (is_signed) {
-		sbi_printf("%ld", (long)ulOldValue);
-	} else {
-		sbi_printf("%lu", ulOldValue);
+	எனில் (is_signed) {
+		sbi_printf("%ld", (long)ul_Old_மதிப்பு);
+	} இல்லையெனில் {
+		sbi_printf("%lu", ul_Old_மதிப்பு);
 	}
 
 	sbi_printf("cannot be represented in type %s\n",
@@ -363,27 +363,27 @@ static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
 	SEPARATOR;
 }
 
-static void HandleBuiltinUnreachable(bool isFatal,
-				     struct CUnreachableData *pData)
+நிலையான வெறுமை HandleBuiltinUnreachable(bool isFatal,
+				     கட்டமைப்பு CUnreachableData *pData)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	SEPARATOR;
 }
 
-const char *rgczTypeCheckKinds[] = { "load of",
+மாறிலி எழுத்து *rgczTypeCheckKinds[] = { "load of",
 				     "store to",
 				     "reference binding to",
 				     "member access within",
@@ -396,72 +396,72 @@ const char *rgczTypeCheckKinds[] = { "load of",
 				     "_Nonnull binding to",
 				     "dynamic operation on" };
 
-static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
-			       struct CTypeDescriptor *mType,
+நிலையான வெறுமை HandleTypeMismatch(bool isFatal, கட்டமைப்பு CSourceLocation *mLocation,
+			       கட்டமைப்பு CTypeDescriptor *mType,
 			       unsigned long mLogAlignment,
 			       uint8_t mTypeCheckKind, unsigned long ulPointer)
 {
 
-	if ((!mLocation) || (!mType)) {
-		return;
+	எனில் ((!mLocation) || (!mType)) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(mLocation)) {
-		return;
+	எனில் (isAlreadyReported(mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   mLocation->mFilename, mLocation->mLine & ~ACK_REPORTED,
+		   mLocation->mFilename, mLocation->m_வரி & ~ACK_REPORTED,
 		   mLocation->mColumn);
 
-	const char *kind = (mTypeCheckKind < __arraycount(rgczTypeCheckKinds))
+	மாறிலி எழுத்து *kind = (mTypeCheckKind < __arraycount(rgczTypeCheckKinds))
 				   ? rgczTypeCheckKinds[mTypeCheckKind]
 				   : "access to";
 
-	if (ulPointer == 0) {
+	எனில் (ulPointer == 0) {
 		sbi_printf("%s null pointer of type %s\n", kind,
 			   mType->mTypeName);
-	} else if (
+	} இல்லையெனில் எனில் (
 		(mLogAlignment - 1) &
 		ulPointer) { //mLogAlignment is converted on the wrapper function call
 		sbi_printf(
 			"%s misaligned address %p for type %s which requires %ld byte alignment\n",
-			kind, (void *)ulPointer, mType->mTypeName,
+			kind, (வெறுமை *)ulPointer, mType->mTypeName,
 			mLogAlignment);
-	} else {
+	} இல்லையெனில் {
 		sbi_printf(
 			"%s address %p with insufficient space for an object of type %s\n",
-			kind, (void *)ulPointer, mType->mTypeName);
+			kind, (வெறுமை *)ulPointer, mType->mTypeName);
 	}
 	SEPARATOR;
 }
 
-static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
+நிலையான வெறுமை HandleVlaBoundNotPositive(bool isFatal, கட்டமைப்பு CVLABoundData *pData,
 				      unsigned long ulBound)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	sbi_printf("variable length array bound value ");
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = pData->mType->mTypeInfo & எண்_SIGNED_BIT;
 
-	if (is_signed) {
+	எனில் (is_signed) {
 		sbi_printf("%ld", (long)ulBound);
-	} else {
+	} இல்லையெனில் {
 		sbi_printf("%lu", ulBound);
 	}
 
@@ -470,28 +470,28 @@ static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
 	SEPARATOR;
 }
 
-static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
+நிலையான வெறுமை HandleOutOfBounds(bool isFatal, கட்டமைப்பு COutOfBoundsData *pData,
 			      unsigned long ulIndex)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	bool is_signed = pData->mIndexType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = pData->mIndexType->mTypeInfo & எண்_SIGNED_BIT;
 
-	if (is_signed) {
+	எனில் (is_signed) {
 		sbi_printf("index %ld", (long)ulIndex);
-	} else {
+	} இல்லையெனில் {
 		sbi_printf("index %lu", ulIndex);
 	}
 
@@ -501,50 +501,50 @@ static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
 	SEPARATOR;
 }
 
-static bool isNegativeNumber(struct CTypeDescriptor *pType, unsigned long ulVal)
+நிலையான bool is_Negative_எண்(கட்டமைப்பு CTypeDescriptor *pType, unsigned long ulVal)
 {
-	if (!(pType->mTypeInfo & NUMBER_SIGNED_BIT)) {
-		return false;
+	எனில் (!(pType->mTypeInfo & எண்_SIGNED_BIT)) {
+		திரும்பு false;
 	}
 
-	return (long)ulVal < 0;
+	திரும்பு (long)ulVal < 0;
 }
 
-static size_t type_width(struct CTypeDescriptor *pType)
+நிலையான size_t type_width(கட்டமைப்பு CTypeDescriptor *pType)
 {
-	return 1UL << (pType->mTypeInfo >> 1);
+	திரும்பு 1UL << (pType->mTypeInfo >> 1);
 }
 
-static void HandleShiftOutOfBounds(bool isFatal,
-				   struct CShiftOutOfBoundsData *pData,
+நிலையான வெறுமை HandleShiftOutOfBounds(bool isFatal,
+				   கட்டமைப்பு CShiftOutOfBoundsData *pData,
 				   unsigned long ulLHS, unsigned long ulRHS)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	if (isNegativeNumber(pData->mRHSType, ulRHS)) {
+	எனில் (is_Negative_எண்(pData->mRHSType, ulRHS)) {
 		sbi_printf("shift exponent %ld is negative\n", (long)ulRHS);
-	} else if (ulRHS >= type_width(pData->mLHSType)) {
+	} இல்லையெனில் எனில் (ulRHS >= type_width(pData->mLHSType)) {
 		sbi_printf(
 			"shift exponent %lu is too large for %lu-bit type %s\n",
 			ulRHS, (unsigned long)type_width(pData->mLHSType),
 			pData->mLHSType->mTypeName);
 
-	} else if (isNegativeNumber(pData->mLHSType, ulLHS)) {
+	} இல்லையெனில் எனில் (is_Negative_எண்(pData->mLHSType, ulLHS)) {
 		sbi_printf("left shift of negative value %ld\n", (long)ulLHS);
-	} else {
+	} இல்லையெனில் {
 		sbi_printf(
 			"left shift of %lu by %lu places cannot be represented in type %s\n",
 			ulLHS, ulRHS, pData->mLHSType->mTypeName);
@@ -553,33 +553,33 @@ static void HandleShiftOutOfBounds(bool isFatal,
 	SEPARATOR;
 }
 
-static void HandleLoadInvalidValue(bool isFatal,
-				   struct CInvalidValueData *pData,
-				   unsigned long ulValue)
+நிலையான வெறுமை Handle_Load_Invalid_மதிப்பு(bool isFatal,
+				   கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
+				   unsigned long ul_மதிப்பு)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = pData->mType->mTypeInfo & எண்_SIGNED_BIT;
 
 	sbi_printf("load of value ");
 
-	if (is_signed) {
-		sbi_printf("%ld ", (long)ulValue);
-	} else {
-		sbi_printf("%lu ", ulValue);
+	எனில் (is_signed) {
+		sbi_printf("%ld ", (long)ul_மதிப்பு);
+	} இல்லையெனில் {
+		sbi_printf("%lu ", ul_மதிப்பு);
 	}
 
 	sbi_printf("is not a valid value for type %s\n",
@@ -588,27 +588,27 @@ static void HandleLoadInvalidValue(bool isFatal,
 	SEPARATOR;
 }
 
-const char *rgczBuiltinCheckKinds[] = { "ctz()", "clz()" };
+மாறிலி எழுத்து *rgczBuiltinCheckKinds[] = { "ctz()", "clz()" };
 
-static void HandleInvalidBuiltin(bool isFatal,
-				 struct CInvalidBuiltinData *pData)
+நிலையான வெறுமை HandleInvalidBuiltin(bool isFatal,
+				 கட்டமைப்பு CInvalidBuiltinData *pData)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	const char *builtin =
+	மாறிலி எழுத்து *builtin =
 		(pData->mKind < __arraycount(rgczBuiltinCheckKinds))
 			? rgczBuiltinCheckKinds[pData->mKind]
 			: "unknown builtin";
@@ -619,23 +619,23 @@ static void HandleInvalidBuiltin(bool isFatal,
 	SEPARATOR;
 }
 
-static void HandleFunctionTypeMismatch(bool isFatal,
-				       struct CFunctionTypeMismatchData *pData,
+நிலையான வெறுமை HandleFunctionTypeMismatch(bool isFatal,
+				       கட்டமைப்பு CFunctionTypeMismatchData *pData,
 				       unsigned long ulFunction)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	sbi_printf(
@@ -645,21 +645,21 @@ static void HandleFunctionTypeMismatch(bool isFatal,
 	SEPARATOR;
 }
 
-static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData)
+நிலையான வெறுமை HandleMissingReturn(bool isFatal, கட்டமைப்பு CUnreachableData *pData)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	sbi_printf(
@@ -668,23 +668,23 @@ static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData)
 	SEPARATOR;
 }
 
-static void HandlePointerOverflow(bool isFatal,
-				  struct CPointerOverflowData *pData,
+நிலையான வெறுமை HandlePointerOverflow(bool isFatal,
+				  கட்டமைப்பு CPointerOverflowData *pData,
 				  unsigned long ulBase, unsigned long ulResult)
 {
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	sbi_printf("pointer expression with base %#lx overflowed to %#lx\n",
@@ -693,36 +693,36 @@ static void HandlePointerOverflow(bool isFatal,
 	SEPARATOR;
 }
 
-static void HandleAlignmentAssumption(bool isFatal,
-				      struct CAlignmentAssumptionData *pData,
+நிலையான வெறுமை HandleAlignmentAssumption(bool isFatal,
+				      கட்டமைப்பு CAlignmentAssumptionData *pData,
 				      unsigned long ulPointer,
 				      unsigned long ulAlignment,
 				      unsigned long ulOffset)
 {
 
-	if (!pData) {
-		return;
+	எனில் (!pData) {
+		திரும்பு;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	எனில் (isAlreadyReported(&pData->mLocation)) {
+		திரும்பு;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
 		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
+		   pData->mLocation.m_வரி & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
 	unsigned long ulRealPointer = ulPointer - ulOffset;
 	sbi_printf("alignment assumption of %lu for pointer %p (offset %p)",
-		   ulAlignment, (void *)ulRealPointer, (void *)ulOffset);
+		   ulAlignment, (வெறுமை *)ulRealPointer, (வெறுமை *)ulOffset);
 
-	if (pData->mAssumptionLocation.mFilename != NULL) {
+	எனில் (pData->mAssumptionLocation.mFilename != வெற்று) {
 		sbi_printf(", assumption made in %s:%u:%u",
 			   pData->mAssumptionLocation.mFilename,
-			   pData->mAssumptionLocation.mLine,
+			   pData->mAssumptionLocation.m_வரி,
 			   pData->mAssumptionLocation.mColumn);
 	}
 
@@ -732,68 +732,68 @@ static void HandleAlignmentAssumption(bool isFatal,
 }
 
 /* Definions of public symbols emitted by the instrumentation code */
-void __ubsan_handle_add_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_add_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(false, pData, ulLHS, ulRHS, "+");
 }
 
-void __ubsan_handle_add_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_add_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(true, pData, ulLHS, ulRHS, "+");
 }
 
-void __ubsan_handle_sub_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_sub_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(false, pData, ulLHS, ulRHS, "-");
 }
 
-void __ubsan_handle_sub_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_sub_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(true, pData, ulLHS, ulRHS, "-");
 }
 
-void __ubsan_handle_mul_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_mul_overflow(கட்டமைப்பு COverflowData *pData,
 				 unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(false, pData, ulLHS, ulRHS, "*");
 }
 
-void __ubsan_handle_mul_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_mul_overflow_abort(கட்டமைப்பு COverflowData *pData,
 				       unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(true, pData, ulLHS, ulRHS, "*");
 }
 
-void __ubsan_handle_negate_overflow(struct COverflowData *pData,
-				    unsigned long ulOldValue)
+வெறுமை __ubsan_handle_negate_overflow(கட்டமைப்பு COverflowData *pData,
+				    unsigned long ul_Old_மதிப்பு)
 {
-	HandleNegateOverflow(false, pData, ulOldValue);
+	HandleNegateOverflow(false, pData, ul_Old_மதிப்பு);
 }
 
-void __ubsan_handle_negate_overflow_abort(struct COverflowData *pData,
-					  unsigned long ulOldValue)
+வெறுமை __ubsan_handle_negate_overflow_abort(கட்டமைப்பு COverflowData *pData,
+					  unsigned long ul_Old_மதிப்பு)
 {
-	HandleNegateOverflow(true, pData, ulOldValue);
+	HandleNegateOverflow(true, pData, ul_Old_மதிப்பு);
 }
 
-void __ubsan_handle_divrem_overflow(struct COverflowData *pData,
+வெறுமை __ubsan_handle_divrem_overflow(கட்டமைப்பு COverflowData *pData,
 				    unsigned long ulLHS, unsigned long ulRHS)
 {
 	HandleOverflow(false, pData, ulLHS, ulRHS, "divrem");
 }
 
-void __ubsan_handle_divrem_overflow_abort(struct COverflowData *pData,
+வெறுமை __ubsan_handle_divrem_overflow_abort(கட்டமைப்பு COverflowData *pData,
 					  unsigned long ulLHS,
 					  unsigned long ulRHS)
 {
 	HandleOverflow(true, pData, ulLHS, ulRHS, "divrem");
 }
 
-void __ubsan_handle_type_mismatch_v1(struct CTypeMismatchData_v1 *pData,
+வெறுமை __ubsan_handle_type_mismatch_v1(கட்டமைப்பு CTypeMismatchData_v1 *pData,
 				     unsigned long ulPointer)
 {
 	HandleTypeMismatch(false, &pData->mLocation, pData->mType,
@@ -801,7 +801,7 @@ void __ubsan_handle_type_mismatch_v1(struct CTypeMismatchData_v1 *pData,
 			   ulPointer);
 }
 
-void __ubsan_handle_type_mismatch_v1_abort(struct CTypeMismatchData_v1 *pData,
+வெறுமை __ubsan_handle_type_mismatch_v1_abort(கட்டமைப்பு CTypeMismatchData_v1 *pData,
 					   unsigned long ulPointer)
 {
 	HandleTypeMismatch(true, &pData->mLocation, pData->mType,
@@ -809,47 +809,47 @@ void __ubsan_handle_type_mismatch_v1_abort(struct CTypeMismatchData_v1 *pData,
 			   ulPointer);
 }
 
-void __ubsan_handle_out_of_bounds(struct COutOfBoundsData *pData,
+வெறுமை __ubsan_handle_out_of_bounds(கட்டமைப்பு COutOfBoundsData *pData,
 				  unsigned long ulIndex)
 {
 	HandleOutOfBounds(false, pData, ulIndex);
 }
 
-void __ubsan_handle_out_of_bounds_abort(struct COutOfBoundsData *pData,
+வெறுமை __ubsan_handle_out_of_bounds_abort(கட்டமைப்பு COutOfBoundsData *pData,
 					unsigned long ulIndex)
 {
 	HandleOutOfBounds(true, pData, ulIndex);
 }
 
-void __ubsan_handle_shift_out_of_bounds(struct CShiftOutOfBoundsData *pData,
+வெறுமை __ubsan_handle_shift_out_of_bounds(கட்டமைப்பு CShiftOutOfBoundsData *pData,
 					unsigned long ulLHS,
 					unsigned long ulRHS)
 {
 	HandleShiftOutOfBounds(false, pData, ulLHS, ulRHS);
 }
 
-void __ubsan_handle_shift_out_of_bounds_abort(
-	struct CShiftOutOfBoundsData *pData, unsigned long ulLHS,
+வெறுமை __ubsan_handle_shift_out_of_bounds_abort(
+	கட்டமைப்பு CShiftOutOfBoundsData *pData, unsigned long ulLHS,
 	unsigned long ulRHS)
 {
 	HandleShiftOutOfBounds(true, pData, ulLHS, ulRHS);
 }
 
-void __ubsan_handle_pointer_overflow(struct CPointerOverflowData *pData,
+வெறுமை __ubsan_handle_pointer_overflow(கட்டமைப்பு CPointerOverflowData *pData,
 				     unsigned long ulBase,
 				     unsigned long ulResult)
 {
 	HandlePointerOverflow(false, pData, ulBase, ulResult);
 }
 
-void __ubsan_handle_pointer_overflow_abort(struct CPointerOverflowData *pData,
+வெறுமை __ubsan_handle_pointer_overflow_abort(கட்டமைப்பு CPointerOverflowData *pData,
 					   unsigned long ulBase,
 					   unsigned long ulResult)
 {
 	HandlePointerOverflow(true, pData, ulBase, ulResult);
 }
 
-void __ubsan_handle_alignment_assumption(struct CAlignmentAssumptionData *pData,
+வெறுமை __ubsan_handle_alignment_assumption(கட்டமைப்பு CAlignmentAssumptionData *pData,
 					 unsigned long ulPointer,
 					 unsigned long ulAlignment,
 					 unsigned long ulOffset)
@@ -858,66 +858,66 @@ void __ubsan_handle_alignment_assumption(struct CAlignmentAssumptionData *pData,
 				  ulOffset);
 }
 
-void __ubsan_handle_alignment_assumption_abort(
-	struct CAlignmentAssumptionData *pData, unsigned long ulPointer,
+வெறுமை __ubsan_handle_alignment_assumption_abort(
+	கட்டமைப்பு CAlignmentAssumptionData *pData, unsigned long ulPointer,
 	unsigned long ulAlignment, unsigned long ulOffset)
 {
 	HandleAlignmentAssumption(true, pData, ulPointer, ulAlignment,
 				  ulOffset);
 }
 
-void __ubsan_handle_builtin_unreachable(struct CUnreachableData *pData)
+வெறுமை __ubsan_handle_builtin_unreachable(கட்டமைப்பு CUnreachableData *pData)
 {
 	HandleBuiltinUnreachable(true, pData);
 }
 
-void __ubsan_handle_invalid_builtin(struct CInvalidBuiltinData *pData)
+வெறுமை __ubsan_handle_invalid_builtin(கட்டமைப்பு CInvalidBuiltinData *pData)
 {
 	HandleInvalidBuiltin(true, pData);
 }
 
-void __ubsan_handle_invalid_builtin_abort(struct CInvalidBuiltinData *pData)
+வெறுமை __ubsan_handle_invalid_builtin_abort(கட்டமைப்பு CInvalidBuiltinData *pData)
 {
 	HandleInvalidBuiltin(true, pData);
 }
 
-void __ubsan_handle_load_invalid_value(struct CInvalidValueData *pData,
-				       unsigned long ulValue)
+வெறுமை __ubsan_handle_load_invalid_value(கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
+				       unsigned long ul_மதிப்பு)
 {
-	HandleLoadInvalidValue(false, pData, ulValue);
+	Handle_Load_Invalid_மதிப்பு(false, pData, ul_மதிப்பு);
 }
 
-void __ubsan_handle_load_invalid_value_abort(struct CInvalidValueData *pData,
-					     unsigned long ulValue)
+வெறுமை __ubsan_handle_load_invalid_value_abort(கட்டமைப்பு CInvalid_மதிப்பு_Data *pData,
+					     unsigned long ul_மதிப்பு)
 {
-	HandleLoadInvalidValue(true, pData, ulValue);
+	Handle_Load_Invalid_மதிப்பு(true, pData, ul_மதிப்பு);
 }
 
-void __ubsan_handle_missing_return(struct CUnreachableData *pData)
+வெறுமை __ubsan_handle_missing_return(கட்டமைப்பு CUnreachableData *pData)
 {
 	HandleMissingReturn(true, pData);
 }
 
-void __ubsan_handle_vla_bound_not_positive(struct CVLABoundData *pData,
+வெறுமை __ubsan_handle_vla_bound_not_positive(கட்டமைப்பு CVLABoundData *pData,
 					   unsigned long ulBound)
 {
 	HandleVlaBoundNotPositive(false, pData, ulBound);
 }
 
-void __ubsan_handle_vla_bound_not_positive_abort(struct CVLABoundData *pData,
+வெறுமை __ubsan_handle_vla_bound_not_positive_abort(கட்டமைப்பு CVLABoundData *pData,
 						 unsigned long ulBound)
 {
 	HandleVlaBoundNotPositive(true, pData, ulBound);
 }
 
-void __ubsan_handle_function_type_mismatch(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction)
+வெறுமை __ubsan_handle_function_type_mismatch(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction)
 {
 	HandleFunctionTypeMismatch(false, pData, ulFunction);
 }
 
-void __ubsan_handle_function_type_mismatch_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction)
+வெறுமை __ubsan_handle_function_type_mismatch_abort(
+	கட்டமைப்பு CFunctionTypeMismatchData *pData, unsigned long ulFunction)
 {
 	HandleFunctionTypeMismatch(true, pData, ulFunction);
 }

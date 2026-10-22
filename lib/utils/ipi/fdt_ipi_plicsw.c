@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#அந்தர்பாவ <sbi/riscv_io.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_driver.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_helper.h>
+#அந்தர்பாவ <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+வெளி கட்டமைப்பு plicsw_data plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+முழு fdt_plicsw_cold_ipi_init(மாறிலி வெறுமை *fdt, முழு nodeoff,
+			     மாறிலி கட்டமைப்பு fdt_match *match)
 {
-	int rc;
+	முழு rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_முனை(fdt, nodeoff, &plicsw.addr, &plicsw.size,
+				   &plicsw.hart_மொத்தம்);
+	எனில் (rc)
+		திரும்பு rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	எனில் (rc)
+		திரும்பு rc;
 
-	return 0;
+	திரும்பு 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+நிலையான மாறிலி கட்டமைப்பு fdt_match ipi_plicsw_match[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
+மாறிலி கட்டமைப்பு fdt_driver fdt_ipi_plicsw = {
 	.match_table = ipi_plicsw_match,
 	.init = fdt_plicsw_cold_ipi_init,
 };

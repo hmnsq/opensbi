@@ -7,84 +7,84 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi/riscv_locks.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_fifo.h>
+#அந்தர்பாவ <sbi/sbi_hart.h>
+#அந்தர்பாவ <sbi/sbi_platform.h>
+#அந்தர்பாவ <sbi/sbi_scratch.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
 
 #define CONSOLE_TBUF_MAX 256
 
-static const struct sbi_console_device *console_dev = NULL;
-static char console_tbuf[CONSOLE_TBUF_MAX];
-static u32 console_tbuf_len;
-static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
+நிலையான மாறிலி கட்டமைப்பு sbi_console_device *console_dev = வெற்று;
+நிலையான எழுத்து console_tbuf[CONSOLE_TBUF_MAX];
+நிலையான u32 console_tbuf_len;
+நிலையான spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
 
 #ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
 #define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
+#இல்லையெனில்
 #define CONSOLE_EARLY_BUFFER_SIZE	256
 #endif
-static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
-static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
-		       CONSOLE_EARLY_BUFFER_SIZE, sizeof(char));
+நிலையான எழுத்து console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
+நிலையான SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
+		       CONSOLE_EARLY_BUFFER_SIZE, அளவு(எழுத்து));
 
-bool sbi_isprintable(char c)
+bool sbi_isprintable(எழுத்து c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	எனில் (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		திரும்பு true;
 	}
-	return false;
+	திரும்பு false;
 }
 
-int sbi_getc(void)
+முழு sbi_getc(வெறுமை)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	எனில் (console_dev && console_dev->console_getc)
+		திரும்பு console_dev->console_getc();
+	திரும்பு -1;
 }
 
-static unsigned long nputs(const char *str, unsigned long len)
+நிலையான unsigned long nputs(மாறிலி எழுத்து *str, unsigned long len)
 {
-	char ch;
+	எழுத்து ch;
 	unsigned long i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	எனில் (console_dev) {
+		எனில் (console_dev->console_puts)
+			திரும்பு console_dev->console_puts(str, len);
+		இல்லையெனில் எனில் (console_dev->console_putc) {
+			க்கு (i = 0; i < len; i++) {
+				எனில் (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} இல்லையெனில் {
+		க்கு (i = 0; i < len; i++) {
 			ch = str[i];
 			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	திரும்பு len;
 }
 
-static void nputs_all(const char *str, unsigned long len)
+நிலையான வெறுமை nputs_all(மாறிலி எழுத்து *str, unsigned long len)
 {
 	unsigned long p = 0;
 
-	while (p < len)
+	போது (p < len)
 		p += nputs(&str[p], len - p);
 }
 
-void sbi_putc(char ch)
+வெறுமை sbi_putc(எழுத்து ch)
 {
 	nputs_all(&ch, 1);
 }
 
-void sbi_puts(const char *str)
+வெறுமை sbi_puts(மாறிலி எழுத்து *str)
 {
 	unsigned long len = sbi_strlen(str);
 
@@ -93,7 +93,7 @@ void sbi_puts(const char *str)
 	spin_unlock(&console_out_lock);
 }
 
-unsigned long sbi_nputs(const char *str, unsigned long len)
+unsigned long sbi_nputs(மாறிலி எழுத்து *str, unsigned long len)
 {
 	unsigned long ret;
 
@@ -101,38 +101,38 @@ unsigned long sbi_nputs(const char *str, unsigned long len)
 	ret = nputs(str, len);
 	spin_unlock(&console_out_lock);
 
-	return ret;
+	திரும்பு ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+வெறுமை sbi_gets(எழுத்து *s, முழு maxwidth, எழுத்து endchar)
 {
-	int ch;
-	char *retval = s;
+	முழு ch;
+	எழுத்து *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
-		*retval = (char)ch;
+	போது ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+		*retval = (எழுத்து)ch;
 		retval++;
 		maxwidth--;
 	}
 	*retval = '\0';
 }
 
-unsigned long sbi_ngets(char *str, unsigned long len)
+unsigned long sbi_ngets(எழுத்து *str, unsigned long len)
 {
-	int ch;
+	முழு ch;
 	unsigned long i;
 
-	for (i = 0; i < len; i++) {
+	க்கு (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
-			break;
+		எனில் (ch < 0)
+			நிறுத்து;
 		str[i] = ch;
 	}
 
-	return i;
+	திரும்பு i;
 }
 
-#define PAD_RIGHT 1
+#define PAD_வலது 1
 #define PAD_ZERO 2
 #define PAD_ALTERNATE 4
 #define PAD_SIGN 8
@@ -142,25 +142,25 @@ unsigned long sbi_ngets(char *str, unsigned long len)
 #define va_start(v, l) __builtin_va_start((v), l)
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
-typedef __builtin_va_list va_list;
+வகைவரை __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+நிலையான வெறுமை printc(எழுத்து **out, u32 *out_len, எழுத்து ch, முழு flags)
 {
-	if (!out) {
+	எனில் (!out) {
 		sbi_putc(ch);
-		return;
+		திரும்பு;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
+	எனில் (!out_len || *out_len > 1) {
 		*(*out)++ = ch;
 		**out = '\0';
-		if (out_len) {
+		எனில் (out_len) {
 			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
+			எனில் ((flags & USE_TBUF) && *out_len == 1) {
 				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
 				*out = console_tbuf;
 				*out_len = CONSOLE_TBUF_MAX;
@@ -169,41 +169,41 @@ static void printc(char **out, u32 *out_len, char ch, int flags)
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+நிலையான முழு prints(எழுத்து **out, u32 *out_len, மாறிலி எழுத்து *string, முழு width,
+		  முழு flags)
 {
-	int pc = 0;
+	முழு pc = 0;
 	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
+	எனில் (!(flags & PAD_வலது)) {
+		க்கு (; width > 0; --width) {
 			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
+	க்கு (; *string; ++string) {
 		printc(out, out_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
+	க்கு (; width > 0; --width) {
 		printc(out, out_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	திரும்பு pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+நிலையான முழு printi(எழுத்து **out, u32 *out_len, long long i,
+		  முழு width, முழு flags, முழு type)
 {
-	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	முழு pc = 0;
+	எழுத்து *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
 	unsigned long long u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	எனில் (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	இல்லையெனில் எனில் (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	எனில் (type == 'i' || type == 'd') {
+		எனில் ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		எனில் (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,55 +223,55 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	எனில் (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} இல்லையெனில் {
+		போது (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			எனில் (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
+	எனில் (flags & PAD_ZERO) {
+		எனில் (sign) {
 			printc(out, out_len, sign, flags);
 			++pc;
 			--width;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
+		எனில் (i && (flags & PAD_ALTERNATE)) {
+			எனில் (b == 16 || b == 8) {
 				printc(out, out_len, '0', flags);
 				++pc;
 				--width;
 			}
-			if (b == 16) {
+			எனில் (b == 16) {
 				printc(out, out_len, 'x' - 'a' + letbase, flags);
 				++pc;
 				--width;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} இல்லையெனில் {
+		எனில் (i && (flags & PAD_ALTERNATE)) {
+			எனில் (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			எனில் (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		எனில் (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	திரும்பு pc + prints(out, out_len, s, width, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+நிலையான முழு print(எழுத்து **out, u32 *out_len, மாறிலி எழுத்து *format, va_list args)
 {
 	bool flags_done;
-	int width, flags, pc = 0;
-	char type, scr[2], *tout;
+	முழு width, flags, pc = 0;
+	எழுத்து type, scr[2], *tout;
 	bool use_tbuf = (!out) ? true : false;
 
 	/*
@@ -279,7 +279,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	எனில் (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
 		out = &tout;
@@ -287,82 +287,82 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
+	எனில் (out) {
+		எனில்(!out_len || *out_len)
 			**out = '\0';
 	}
 
-	for (; *format != 0; ++format) {
+	க்கு (; *format != 0; ++format) {
 		width = flags = 0;
-		if (use_tbuf)
+		எனில் (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		எனில் (*format == '%') {
 			++format;
-			if (*format == '\0')
-				break;
-			if (*format == '%')
-				goto literal;
+			எனில் (*format == '\0')
+				நிறுத்து;
+			எனில் (*format == '%')
+				செல் literal;
 			/* Get flags */
 			flags_done = false;
-			while (!flags_done) {
-				switch (*format) {
-				case '-':
-					flags |= PAD_RIGHT;
-					break;
-				case '+':
+			போது (!flags_done) {
+				தேர்வு (*format) {
+				நிலை '-':
+					flags |= PAD_வலது;
+					நிறுத்து;
+				நிலை '+':
 					flags |= PAD_SIGN;
-					break;
-				case '#':
+					நிறுத்து;
+				நிலை '#':
 					flags |= PAD_ALTERNATE;
-					break;
-				case '0':
+					நிறுத்து;
+				நிலை '0':
 					flags |= PAD_ZERO;
-					break;
-				case ' ':
-				case '\'':
+					நிறுத்து;
+				நிலை ' ':
+				நிலை '\'':
 					/* Ignored flags, do nothing */
-					break;
-				default:
+					நிறுத்து;
+				இயல்பு:
 					flags_done = true;
-					break;
+					நிறுத்து;
 				}
-				if (!flags_done)
+				எனில் (!flags_done)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			எனில் (flags & PAD_வலது)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
+			க்கு (; *format >= '0' && *format <= '9'; ++format) {
 				width *= 10;
 				width += *format - '0';
 			}
-			if (*format == 's') {
-				char *s = va_arg(args, char *);
+			எனில் (*format == 's') {
+				எழுத்து *s = va_arg(args, எழுத்து *);
 				pc += prints(out, out_len, s ? s : "(null)",
 					     width, flags);
-				continue;
+				தொடர்;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
+			எனில் ((*format == 'd') || (*format == 'i')) {
+				pc += printi(out, out_len, va_arg(args, முழு),
 					     width, flags, *format);
-				continue;
+				தொடர்;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			எனில் ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
+				pc += printi(out, out_len, va_arg(args, unsigned முழு),
 					     width, flags, *format);
-				continue;
+				தொடர்;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
+			எனில் ((*format == 'p') || (*format == 'P')) {
+				pc += printi(out, out_len, (uintptr_t)va_arg(args, வெறுமை*),
 					     width, flags, *format);
-				continue;
+				தொடர்;
 			}
-			if (*format == 'l') {
+			எனில் (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				எனில் (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					எனில் ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
@@ -370,63 +370,63 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 					}
 					pc += printi(out, out_len, va_arg(args, long long),
 						width, flags, type);
-					continue;
+					தொடர்;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				எனில் ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
+				எனில் ((type == 'd') || (type == 'i'))
 					pc += printi(out, out_len, va_arg(args, long),
 					     width, flags, type);
-				else
+				இல்லையெனில்
 					pc += printi(out, out_len, va_arg(args, unsigned long),
 					     width, flags, type);
-				continue;
+				தொடர்;
 			}
-			if (*format == 'c') {
+			எனில் (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(args, முழு);
 				scr[1] = '\0';
 				pc += prints(out, out_len, scr, width, flags);
-				continue;
+				தொடர்;
 			}
-		} else {
+		} இல்லையெனில் {
 literal:
 			printc(out, out_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	எனில் (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	திரும்பு pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+முழு sbi_sprintf(எழுத்து *out, மாறிலி எழுத்து *format, ...)
 {
 	va_list args;
-	int retval;
+	முழு retval;
 
-	if (unlikely(!out))
+	எனில் (unlikely(!out))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
 	va_start(args, format);
-	retval = print(&out, NULL, format, args);
+	retval = print(&out, வெற்று, format, args);
 	va_end(args);
 
-	return retval;
+	திரும்பு retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+முழு sbi_snprintf(எழுத்து *out, u32 out_sz, மாறிலி எழுத்து *format, ...)
 {
 	va_list args;
-	int retval;
+	முழு retval;
 
-	if (unlikely(!out && out_sz != 0))
+	எனில் (unlikely(!out && out_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
@@ -434,73 +434,73 @@ int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 	retval = print(&out, &out_sz, format, args);
 	va_end(args);
 
-	return retval;
+	திரும்பு retval;
 }
 
-int sbi_printf(const char *format, ...)
+முழு sbi_printf(மாறிலி எழுத்து *format, ...)
 {
 	va_list args;
-	int retval;
+	முழு retval;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
+	retval = print(வெற்று, வெற்று, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
-	return retval;
+	திரும்பு retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+முழு sbi_dprintf(மாறிலி எழுத்து *format, ...)
 {
 	va_list args;
-	int retval = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	முழு retval = 0;
+	கட்டமைப்பு sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+	எனில் (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
 		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
+		retval = print(வெற்று, வெற்று, format, args);
 		spin_unlock(&console_out_lock);
 	}
 	va_end(args);
 
-	return retval;
+	திரும்பு retval;
 }
 
-void sbi_panic(const char *format, ...)
+வெறுமை sbi_panic(மாறிலி எழுத்து *format, ...)
 {
 	va_list args;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	print(NULL, NULL, format, args);
+	print(வெற்று, வெற்று, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
 	sbi_hart_hang();
 }
 
-const struct sbi_console_device *sbi_console_get_device(void)
+மாறிலி கட்டமைப்பு sbi_console_device *sbi_console_get_device(வெறுமை)
 {
-	return console_dev;
+	திரும்பு console_dev;
 }
 
-void sbi_console_set_device(const struct sbi_console_device *dev)
+வெறுமை sbi_console_set_device(மாறிலி கட்டமைப்பு sbi_console_device *dev)
 {
-	char ch;
+	எழுத்து ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	எனில் (!dev)
+		திரும்பு;
 
-	if (!console_dev)
+	எனில் (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	எனில் (flush_early_fifo) {
+		போது (!sbi_fifo_dequeue(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

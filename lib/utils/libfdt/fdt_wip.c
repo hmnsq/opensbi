@@ -3,92 +3,92 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#அந்தர்பாவ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#அந்தர்பாவ <fdt.h>
+#அந்தர்பாவ <libfdt.h>
 
-#include "libfdt_internal.h"
+#அந்தர்பாவ "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len)
+முழு fdt_setprop_inplace_namelen_partial(வெறுமை *fdt, முழு nodeoffset,
+					மாறிலி எழுத்து *name, முழு namelen,
+					uint32_t idx, மாறிலி வெறுமை *val,
+					முழு len)
 {
-	void *propval;
-	int proplen;
+	வெறுமை *propval;
+	முழு proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	எனில் (!propval)
+		திரும்பு proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	எனில் ((unsigned)proplen < (len + idx))
+		திரும்பு -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	memcpy((எழுத்து *)propval + idx, val, len);
+	திரும்பு 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+முழு fdt_setprop_inplace(வெறுமை *fdt, முழு nodeoffset, மாறிலி எழுத்து *name,
+			மாறிலி வெறுமை *val, முழு len)
 {
-	const void *propval;
-	int proplen;
+	மாறிலி வெறுமை *propval;
+	முழு proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	எனில் (!propval)
+		திரும்பு proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	எனில் (proplen != len)
+		திரும்பு -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	திரும்பு fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+நிலையான வெறுமை fdt_nop_region_(வெறுமை *start, முழு len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	க்கு (p = start; (எழுத்து *)p < ((எழுத்து *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+முழு fdt_nop_property(வெறுமை *fdt, முழு nodeoffset, மாறிலி எழுத்து *name)
 {
-	struct fdt_property *prop;
-	int len;
+	கட்டமைப்பு fdt_property *prop;
+	முழு len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	எனில் (!prop)
+		திரும்பு len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + அளவு(*prop));
 
-	return 0;
+	திரும்பு 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+முழு fdt_முனை_end_offset(வெறுமை *fdt, முழு offset)
 {
-	int depth = 0;
+	முழு depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
-		offset = fdt_next_node(fdt, offset, &depth);
+	போது ((offset >= 0) && (depth >= 0))
+		offset = fdt_next_முனை(fdt, offset, &depth);
 
-	return offset;
+	திரும்பு offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+முழு fdt_nop_முனை(வெறுமை *fdt, முழு nodeoffset)
 {
-	int endoffset;
+	முழு endoffset;
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_முனை_end_offset(fdt, nodeoffset);
+	எனில் (endoffset < 0)
+		திரும்பு endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	திரும்பு 0;
 }

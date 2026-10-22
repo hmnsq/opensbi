@@ -33,13 +33,13 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
+#எனில் defined(LIBC_SCCS) && !defined(lint)
+நிலையான எழுத்து sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
-#include <sys/cdefs.h>
+#அந்தர்பாவ <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
-#include "quad.h"
+#அந்தர்பாவ "quad.h"
 
 /*
  * Return remainder after dividing two signed quads.
@@ -51,16 +51,16 @@ quad_t
 __moddi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, ur;
-	int neg;
+	முழு neg;
 
-	if (a < 0)
+	எனில் (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	இல்லையெனில்
 		ua = a, neg = 0;
-	if (b < 0)
+	எனில் (b < 0)
 		ub = -(u_quad_t)b;
-	else
+	இல்லையெனில்
 		ub = b;
-	(void)__qdivrem(ua, ub, &ur);
-	return (neg ? -ur : ur);
+	(வெறுமை)__qdivrem(ua, ub, &ur);
+	திரும்பு (neg ? -ur : ur);
 }

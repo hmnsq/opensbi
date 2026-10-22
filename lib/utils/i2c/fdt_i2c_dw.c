@@ -7,49 +7,49 @@
  *   Minda Chen <minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/dw_i2c.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#அந்தர்பாவ <sbi/riscv_io.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_heap.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_helper.h>
+#அந்தர்பாவ <sbi_utils/i2c/dw_i2c.h>
+#அந்தர்பாவ <sbi_utils/i2c/fdt_i2c.h>
 
-static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+நிலையான முழு fdt_dw_i2c_init(மாறிலி வெறுமை *fdt, முழு nodeoff,
+			   மாறிலி கட்டமைப்பு fdt_match *match)
 {
-	int rc;
-	struct dw_i2c_adapter *adapter;
+	முழு rc;
+	கட்டமைப்பு dw_i2c_adapter *adapter;
 	u64 addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(அளவு(*adapter));
+	எனில் (!adapter)
+		திரும்பு SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_முனை_addr_size(fdt, nodeoff, 0, &addr, வெற்று);
+	எனில் (rc) {
 		sbi_free(adapter);
-		return rc;
+		திரும்பு rc;
 	}
 
 	adapter->addr = addr;
 
 	rc = dw_i2c_init(&adapter->adapter, nodeoff);
-	if (rc) {
+	எனில் (rc) {
 		sbi_free(adapter);
-		return rc;
+		திரும்பு rc;
 	}
 
-	return 0;
+	திரும்பு 0;
 }
 
-static const struct fdt_match fdt_dw_i2c_match[] = {
+நிலையான மாறிலி கட்டமைப்பு fdt_match fdt_dw_i2c_match[] = {
 	{ .compatible = "snps,designware-i2c" },
 	{ .compatible = "starfive,jh7110-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_dw = {
+மாறிலி கட்டமைப்பு fdt_driver fdt_i2c_adapter_dw = {
 	.match_table = fdt_dw_i2c_match,
 	.init = fdt_dw_i2c_init,
 };

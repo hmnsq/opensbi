@@ -7,79 +7,79 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi/riscv_locks.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_heap.h>
+#அந்தர்பாவ <sbi/sbi_list.h>
+#அந்தர்பாவ <sbi/sbi_scratch.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
 #define HEAP_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#define HEAP_முனை_BATCH_SIZE		8
 
-struct heap_node {
-	struct sbi_dlist head;
+கட்டமைப்பு heap_முனை {
+	கட்டமைப்பு sbi_dlist head;
 	unsigned long addr;
 	unsigned long size;
 };
 
-struct sbi_heap_control {
+கட்டமைப்பு sbi_heap_control {
 	spinlock_t lock;
 	unsigned long base GUARDED_BY(&lock);
 	unsigned long size GUARDED_BY(&lock);
 	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+	கட்டமைப்பு sbi_dlist free_முனை_list GUARDED_BY(&lock);
+	கட்டமைப்பு sbi_dlist free_space_list GUARDED_BY(&lock);
+	கட்டமைப்பு sbi_dlist used_space_list GUARDED_BY(&lock);
+	கட்டமைப்பு heap_முனை init_free_space_முனை GUARDED_BY(&lock);
 };
 
-struct sbi_heap_control global_hpctrl;
+கட்டமைப்பு sbi_heap_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+நிலையான bool alloc_nodes(கட்டமைப்பு sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t size = HEAP_முனை_BATCH_SIZE * அளவு(கட்டமைப்பு heap_முனை);
+	கட்டமைப்பு heap_முனை *n, *new = வெற்று;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	எனில் (hpctrl->free_முனை_list.next != hpctrl->free_முனை_list.prev)
+		திரும்பு true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
+		எனில் (n->size >= size) {
 			n->size -= size;
-			if (!n->size) {
+			எனில் (!n->size) {
 				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+				sbi_list_add_tail(&n->head, &hpctrl->free_முனை_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (வெறுமை *)(n->addr + n->size);
+			நிறுத்து;
 		}
 	}
-	if (!new)
-		return false;
+	எனில் (!new)
+		திரும்பு false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
+	க்கு (size_t i = 0; i < HEAP_முனை_BATCH_SIZE; i++)
+		sbi_list_add_tail(&new[i].head, &hpctrl->free_முனை_list);
 	hpctrl->resv += size;
 
-	return true;
+	திரும்பு true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
+நிலையான வெறுமை *alloc_with_align(கட்டமைப்பு sbi_heap_control *hpctrl, size_t align,
 			      size_t size)
 	MUST_NOT_HOLD(&hpctrl->lock)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
+	வெறுமை *ret = வெற்று;
+	கட்டமைப்பு heap_முனை *n, *np;
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	எனில் (!size)
+		திரும்பு வெற்று;
 
 	size += align - 1;
 	size &= ~((unsigned long)align - 1);
@@ -87,25 +87,25 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	எனில் (!alloc_nodes(hpctrl))
+		செல் out;
 
-	np = NULL;
+	np = வெற்று;
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		எனில் (size + pad <= n->size) {
 			np = n;
-			break;
+			நிறுத்து;
 		}
 	}
-	if (!np)
-		goto out;
+	எனில் (!np)
+		செல் out;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+	எனில் (pad) {
+		n = sbi_list_first_entry(&hpctrl->free_முனை_list,
+					 கட்டமைப்பு heap_முனை, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr;
@@ -116,9 +116,9 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		np->size -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+	எனில் (size < np->size) {
+		n = sbi_list_first_entry(&hpctrl->free_முனை_list,
+					 கட்டமைப்பு heap_முனை, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr + size;
@@ -130,96 +130,96 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 
 	sbi_list_del(&np->head);
 	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	ret = (வெறுமை *)np->addr;
 
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	திரும்பு ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+வெறுமை *sbi_malloc_from(கட்டமைப்பு sbi_heap_control *hpctrl, size_t size)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	திரும்பு alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
+வெறுமை *sbi_aligned_alloc_from(கட்டமைப்பு sbi_heap_control *hpctrl,
 			     size_t alignment, size_t size)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	எனில் (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	எனில் ((alignment & (alignment - 1)) != 0)
+		திரும்பு வெற்று;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	எனில் (size % alignment != 0)
+		திரும்பு வெற்று;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	திரும்பு alloc_with_align(hpctrl, alignment, size);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+வெறுமை *sbi_zalloc_from(கட்டமைப்பு sbi_heap_control *hpctrl, size_t size)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	வெறுமை *ret = sbi_malloc_from(hpctrl, size);
 
-	if (ret)
+	எனில் (ret)
 		sbi_memset(ret, 0, size);
-	return ret;
+	திரும்பு ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+வெறுமை sbi_free_from(கட்டமைப்பு sbi_heap_control *hpctrl, வெறுமை *ptr)
 {
-	struct heap_node *n, *np;
+	கட்டமைப்பு heap_முனை *n, *np;
 
-	if (!ptr)
-		return;
+	எனில் (!ptr)
+		திரும்பு;
 
 	spin_lock(&hpctrl->lock);
 
-	np = NULL;
+	np = வெற்று;
 	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
+		எனில் ((n->addr <= (unsigned long)ptr) &&
 		    ((unsigned long)ptr < (n->addr + n->size))) {
 			np = n;
-			break;
+			நிறுத்து;
 		}
 	}
-	if (!np) {
+	எனில் (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		திரும்பு;
 	}
 
 	sbi_list_del(&np->head);
 
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+		எனில் ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
+			sbi_list_add_tail(&np->head, &hpctrl->free_முனை_list);
+			np = வெற்று;
+			நிறுத்து;
+		} இல்லையெனில் எனில் (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
+			sbi_list_add_tail(&np->head, &hpctrl->free_முனை_list);
+			np = வெற்று;
+			நிறுத்து;
+		} இல்லையெனில் எனில் ((n->addr + n->size) < np->addr) {
 			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			np = வெற்று;
+			நிறுத்து;
 		}
 	}
-	if (np)
+	எனில் (np)
 		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_free_space_from(கட்டமைப்பு sbi_heap_control *hpctrl)
 {
-	struct heap_node *n;
+	கட்டமைப்பு heap_முனை *n;
 	unsigned long ret = 0;
 
 	spin_lock(&hpctrl->lock);
@@ -227,61 +227,61 @@ unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 		ret += n->size;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	திரும்பு ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_used_space_from(கட்டமைப்பு sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	திரும்பு hpctrl->size - hpctrl->resv - sbi_heap_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_reserved_space_from(கட்டமைப்பு sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	திரும்பு hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
+முழு sbi_heap_init_new(கட்டமைப்பு sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	கட்டமைப்பு heap_முனை *n;
 
 	/* Initialize heap control */
 	SPIN_LOCK_INIT(hpctrl->lock);
 	hpctrl->base = base;
 	hpctrl->size = size;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
+	SBI_INIT_LIST_HEAD(&hpctrl->free_முனை_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
+	n = &hpctrl->init_free_space_முனை;
 	n->addr = base;
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
 
-	return 0;
+	திரும்பு 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+முழு sbi_heap_init(கட்டமைப்பு sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
+	எனில் (!scratch->fw_heap_size ||
 	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
 	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		திரும்பு SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	திரும்பு sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
 				  scratch->fw_heap_size);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+முழு sbi_heap_alloc_new(கட்டமைப்பு sbi_heap_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, அளவு(கட்டமைப்பு sbi_heap_control));
+	திரும்பு 0;
 }

@@ -7,9 +7,9 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#அந்தர்பாவ <sbi/riscv_io.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
@@ -29,48 +29,48 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
+நிலையான நிலையற்ற எழுத்து *uart_base;
 
-static u32 get_reg(u32 num)
+நிலையான u32 get_reg(u32 இலக்கம்)
 {
-	return readl(uart_base + (num * 0x4));
+	திரும்பு readl(uart_base + (இலக்கம் * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+நிலையான வெறுமை set_reg(u32 இலக்கம், u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (இலக்கம் * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+நிலையான வெறுமை gaisler_uart_putc(எழுத்து ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	போது (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+நிலையான முழு gaisler_uart_getc(வெறுமை)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	எனில் (!(ret & UART_STATUS_DATAREADY))
+		திரும்பு -1;
+	திரும்பு get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
-static struct sbi_console_device gaisler_console = {
+நிலையான கட்டமைப்பு sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+முழு gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_base = (நிலையற்ற எழுத்து *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	எனில் (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	திரும்பு 0;
 }

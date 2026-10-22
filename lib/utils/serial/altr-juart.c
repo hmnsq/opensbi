@@ -7,9 +7,9 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#அந்தர்பாவ <sbi/riscv_io.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
@@ -29,46 +29,46 @@
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+நிலையான நிலையற்ற எழுத்து *altr_juart_base;
 
-static u32 get_reg(u32 offset)
+நிலையான u32 get_reg(u32 offset)
 {
-	return readl(altr_juart_base + offset);
+	திரும்பு readl(altr_juart_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+நிலையான வெறுமை set_reg(u32 offset, u32 val)
 {
 	writel(val, altr_juart_base + offset);
 }
 
-static void altr_juart_putc(char ch)
+நிலையான வெறுமை altr_juart_putc(எழுத்து ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	போது(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	set_reg(JUART_DATA_OFFSET, (unsigned எழுத்து)ch);
 }
 
-static int altr_juart_getc(void)
+நிலையான முழு altr_juart_getc(வெறுமை)
 {
 	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	எனில் (reg & JUART_DATA_RVALID)
+		திரும்பு reg & JUART_DATA_DATA_MASK;
 
-	return -1;
+	திரும்பு -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+நிலையான கட்டமைப்பு sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+முழு altr_juart_init(unsigned long base)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_base = (நிலையற்ற எழுத்து *)base;
 
 	sbi_console_set_device(&altr_juart_console);
 
-	return 0;
+	திரும்பு 0;
 }

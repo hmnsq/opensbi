@@ -5,13 +5,13 @@
  *
  * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
  */
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_unit_test.h>
+#அந்தர்பாவ <sbi/sbi_math.h>
+#அந்தர்பாவ <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+நிலையான வெறுமை log2roundup_test(கட்டமைப்பு sbiunit_test_case *test)
 {
-    struct {
-        unsigned long input;
+    கட்டமைப்பு {
+        unsigned long உள்ளீடு;
         unsigned long expected;
     } cases[] = {
         {1, 0},
@@ -32,13 +32,13 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
+    க்கு (முழு i = 0; i < அளவு(cases)/அளவு(cases[0]); i++) {
+        unsigned long result = log2roundup(cases[i].உள்ளீடு);
         SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+நிலையான கட்டமைப்பு sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
     SBIUNIT_END_CASE,
 };

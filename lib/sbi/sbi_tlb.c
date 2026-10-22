@@ -8,36 +8,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
+#அந்தர்பாவ <sbi/riscv_asm.h>
+#அந்தர்பாவ <sbi/riscv_atomic.h>
+#அந்தர்பாவ <sbi/riscv_barrier.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_fifo.h>
+#அந்தர்பாவ <sbi/sbi_hart.h>
+#அந்தர்பாவ <sbi/sbi_heap.h>
+#அந்தர்பாவ <sbi/sbi_ipi.h>
+#அந்தர்பாவ <sbi/sbi_scratch.h>
+#அந்தர்பாவ <sbi/sbi_tlb.h>
+#அந்தர்பாவ <sbi/sbi_hfence.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_platform.h>
+#அந்தர்பாவ <sbi/sbi_pmu.h>
 
-static unsigned long tlb_sync_off;
-static unsigned long tlb_fifo_off;
-static unsigned long tlb_fifo_mem_off;
-static unsigned long tlb_range_flush_limit;
+நிலையான unsigned long tlb_sync_off;
+நிலையான unsigned long tlb_fifo_off;
+நிலையான unsigned long tlb_fifo_mem_off;
+நிலையான unsigned long tlb_range_flush_limit;
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_fence_i(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_sfence_vma(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_sfence_vma_asid(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_hfence_gvma_vmid(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_hfence_gvma(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_hfence_vvma_asid(கட்டமைப்பு sbi_tlb_info *tinfo);
+நிலையான வெறுமை sbi_tlb_local_hfence_vvma(கட்டமைப்பு sbi_tlb_info *tinfo);
 
-static struct sbi_tlb_local_operations default_tlb_local_ops = {
+நிலையான கட்டமைப்பு sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_fence_i = sbi_tlb_local_fence_i,
 	.local_sfence_vma = sbi_tlb_local_sfence_vma,
 	.local_sfence_vma_asid = sbi_tlb_local_sfence_vma_asid,
@@ -47,26 +47,26 @@ static struct sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_hfence_vvma = sbi_tlb_local_hfence_vvma
 };
 
-static const struct sbi_tlb_local_operations *tlb_local_ops =
+நிலையான மாறிலி கட்டமைப்பு sbi_tlb_local_operations *tlb_local_ops =
 	&default_tlb_local_ops;
 
-const struct sbi_tlb_local_operations *sbi_tlb_get_local_operations(void)
+மாறிலி கட்டமைப்பு sbi_tlb_local_operations *sbi_tlb_get_local_operations(வெறுமை)
 {
-	return tlb_local_ops;
+	திரும்பு tlb_local_ops;
 }
 
-void sbi_tlb_set_local_operations(
-		const struct sbi_tlb_local_operations *ops)
+வெறுமை sbi_tlb_set_local_operations(
+		மாறிலி கட்டமைப்பு sbi_tlb_local_operations *ops)
 {
 	tlb_local_ops = ops;
 }
 
-void __sbi_sfence_vma_all(void)
+வெறுமை __sbi_sfence_vma_all(வெறுமை)
 {
 	__asm__ __volatile("sfence.vma");
 }
 
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_hfence_vvma(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -78,12 +78,12 @@ static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo)
 	hgatp = csr_swap(CSR_HGATP,
 			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_all();
-		goto done;
+		செல் done;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__sbi_hfence_vvma_va(start+i);
 	}
 
@@ -91,7 +91,7 @@ done:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_hfence_gvma(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -99,17 +99,17 @@ static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo)
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_all();
-		return;
+		திரும்பு;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__sbi_hfence_gvma_gpa((start + i) >> 2);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_sfence_vma(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -117,12 +117,12 @@ static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__sbi_sfence_vma_all();
-		return;
+		திரும்பு;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__asm__ __volatile__("sfence.vma %0"
 				     :
 				     : "r"(start + i)
@@ -130,7 +130,7 @@ static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
 	}
 }
 
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_hfence_vvma_asid(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -143,12 +143,12 @@ static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo)
 	hgatp = csr_swap(CSR_HGATP,
 			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_asid(asid);
-		goto done;
+		செல் done;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__sbi_hfence_vvma_asid_va(start + i, asid);
 	}
 
@@ -156,7 +156,7 @@ done:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_hfence_gvma_vmid(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -165,17 +165,17 @@ static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo)
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_VMID_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_vmid(vmid);
-		return;
+		திரும்பு;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__sbi_hfence_gvma_vmid_gpa((start + i) >> 2, vmid);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_sfence_vma_asid(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	unsigned long start = tinfo->start;
 	unsigned long size  = tinfo->size;
@@ -185,15 +185,15 @@ static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_ASID_RCVD);
 
 	/* Flush entire MM context for a given ASID */
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	எனில் ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
 		__asm__ __volatile__("sfence.vma x0, %0"
 				     :
 				     : "r"(asid)
 				     : "memory");
-		return;
+		திரும்பு;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	க்கு (i = 0; i < size; i += PAGE_SIZE) {
 		__asm__ __volatile__("sfence.vma %0, %1"
 				     :
 				     : "r"(start + i), "r"(asid)
@@ -201,88 +201,88 @@ static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
 	}
 }
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை sbi_tlb_local_fence_i(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_FENCE_I_RECVD);
 
 	__asm__ __volatile("fence.i");
 }
 
-static void tlb_entry_local_process(struct sbi_tlb_info *data)
+நிலையான வெறுமை tlb_entry_local_process(கட்டமைப்பு sbi_tlb_info *data)
 {
-	if (unlikely(!data))
-		return;
+	எனில் (unlikely(!data))
+		திரும்பு;
 
-	switch (data->type) {
-	case SBI_TLB_FENCE_I:
+	தேர்வு (data->type) {
+	நிலை SBI_TLB_FENCE_I:
 		tlb_local_ops->local_fence_i(data);
-		break;
-	case SBI_TLB_SFENCE_VMA:
+		நிறுத்து;
+	நிலை SBI_TLB_SFENCE_VMA:
 		tlb_local_ops->local_sfence_vma(data);
-		break;
-	case SBI_TLB_SFENCE_VMA_ASID:
+		நிறுத்து;
+	நிலை SBI_TLB_SFENCE_VMA_ASID:
 		tlb_local_ops->local_sfence_vma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA_VMID:
+		நிறுத்து;
+	நிலை SBI_TLB_HFENCE_GVMA_VMID:
 		tlb_local_ops->local_hfence_gvma_vmid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA:
+		நிறுத்து;
+	நிலை SBI_TLB_HFENCE_GVMA:
 		tlb_local_ops->local_hfence_gvma(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA_ASID:
+		நிறுத்து;
+	நிலை SBI_TLB_HFENCE_VVMA_ASID:
 		tlb_local_ops->local_hfence_vvma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA:
+		நிறுத்து;
+	நிலை SBI_TLB_HFENCE_VVMA:
 		tlb_local_ops->local_hfence_vvma(data);
-		break;
-	default:
-		break;
+		நிறுத்து;
+	இயல்பு:
+		நிறுத்து;
 	};
 }
 
-static void tlb_entry_process(struct sbi_tlb_info *tinfo)
+நிலையான வெறுமை tlb_entry_process(கட்டமைப்பு sbi_tlb_info *tinfo)
 {
 	u32 rindex;
-	struct sbi_scratch *rscratch = NULL;
-	atomic_t *rtlb_sync = NULL;
+	கட்டமைப்பு sbi_scratch *rscratch = வெற்று;
+	atomic_t *rtlb_sync = வெற்று;
 
 	tlb_entry_local_process(tinfo);
 
 	sbi_hartmask_for_each_hartindex(rindex, &tinfo->smask) {
 		rscratch = sbi_hartindex_to_scratch(rindex);
-		if (!rscratch)
-			continue;
+		எனில் (!rscratch)
+			தொடர்;
 
 		rtlb_sync = sbi_scratch_offset_ptr(rscratch, tlb_sync_off);
 		atomic_sub_return(rtlb_sync, 1);
 	}
 }
 
-static bool tlb_process_once(struct sbi_scratch *scratch)
+நிலையான bool tlb_process_once(கட்டமைப்பு sbi_scratch *scratch)
 {
-	struct sbi_tlb_info tinfo;
-	struct sbi_fifo *tlb_fifo =
+	கட்டமைப்பு sbi_tlb_info tinfo;
+	கட்டமைப்பு sbi_fifo *tlb_fifo =
 			sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
 
-	if (!sbi_fifo_dequeue(tlb_fifo, &tinfo)) {
+	எனில் (!sbi_fifo_dequeue(tlb_fifo, &tinfo)) {
 		tlb_entry_process(&tinfo);
-		return true;
+		திரும்பு true;
 	}
 
-	return false;
+	திரும்பு false;
 }
 
-static void tlb_process(struct sbi_scratch *scratch)
+நிலையான வெறுமை tlb_process(கட்டமைப்பு sbi_scratch *scratch)
 {
-	while (tlb_process_once(scratch));
+	போது (tlb_process_once(scratch));
 }
 
-static void tlb_sync(struct sbi_scratch *scratch)
+நிலையான வெறுமை tlb_sync(கட்டமைப்பு sbi_scratch *scratch)
 {
 	atomic_t *tlb_sync =
 			sbi_scratch_offset_ptr(scratch, tlb_sync_off);
 
-	while (atomic_read(tlb_sync) > 0) {
+	போது (atomic_read(tlb_sync) > 0) {
 		/*
 		 * While we are waiting for remote hart to set the sync,
 		 * consume fifo requests to avoid deadlock.
@@ -290,32 +290,32 @@ static void tlb_sync(struct sbi_scratch *scratch)
 		tlb_process_once(scratch);
 	}
 
-	return;
+	திரும்பு;
 }
 
-static inline int tlb_range_check(struct sbi_tlb_info *curr,
-					struct sbi_tlb_info *next)
+நிலையான உள்வரி முழு tlb_range_check(கட்டமைப்பு sbi_tlb_info *curr,
+					கட்டமைப்பு sbi_tlb_info *next)
 {
 	unsigned long curr_end;
 	unsigned long next_end;
-	int ret = SBI_FIFO_UNCHANGED;
+	முழு ret = SBI_FIFO_UNCHANGED;
 
-	if (!curr || !next)
-		return ret;
+	எனில் (!curr || !next)
+		திரும்பு ret;
 
 	next_end = next->start + next->size;
 	curr_end = curr->start + curr->size;
-	if (next->start <= curr->start && next_end > curr_end) {
+	எனில் (next->start <= curr->start && next_end > curr_end) {
 		curr->start = next->start;
 		curr->size  = next->size;
 		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
 		ret = SBI_FIFO_UPDATED;
-	} else if (next->start >= curr->start && next_end <= curr_end) {
+	} இல்லையெனில் எனில் (next->start >= curr->start && next_end <= curr_end) {
 		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
 		ret = SBI_FIFO_SKIP;
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
 /**
@@ -336,54 +336,54 @@ static inline int tlb_range_check(struct sbi_tlb_info *curr,
  *	before continuing the while loop. This method is preferred over wfi/ipi because
  *	of MMIO cost involved in later method.
  */
-static int tlb_update_cb(void *in, void *data)
+நிலையான முழு tlb_update_cb(வெறுமை *in, வெறுமை *data)
 {
-	struct sbi_tlb_info *curr;
-	struct sbi_tlb_info *next;
-	int ret = SBI_FIFO_UNCHANGED;
+	கட்டமைப்பு sbi_tlb_info *curr;
+	கட்டமைப்பு sbi_tlb_info *next;
+	முழு ret = SBI_FIFO_UNCHANGED;
 
-	if (!in || !data)
-		return ret;
+	எனில் (!in || !data)
+		திரும்பு ret;
 
-	curr = (struct sbi_tlb_info *)data;
-	next = (struct sbi_tlb_info *)in;
+	curr = (கட்டமைப்பு sbi_tlb_info *)data;
+	next = (கட்டமைப்பு sbi_tlb_info *)in;
 
-	if (next->type == SBI_TLB_SFENCE_VMA_ASID &&
+	எனில் (next->type == SBI_TLB_SFENCE_VMA_ASID &&
 	    curr->type == SBI_TLB_SFENCE_VMA_ASID) {
-		if (next->asid == curr->asid)
+		எனில் (next->asid == curr->asid)
 			ret = tlb_range_check(curr, next);
-	} else if (next->type == SBI_TLB_SFENCE_VMA &&
+	} இல்லையெனில் எனில் (next->type == SBI_TLB_SFENCE_VMA &&
 		   curr->type == SBI_TLB_SFENCE_VMA) {
 		ret = tlb_range_check(curr, next);
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
-static int tlb_update(struct sbi_scratch *scratch,
-			  struct sbi_scratch *remote_scratch,
-			  u32 remote_hartindex, void *data)
+நிலையான முழு tlb_update(கட்டமைப்பு sbi_scratch *scratch,
+			  கட்டமைப்பு sbi_scratch *remote_scratch,
+			  u32 remote_hartindex, வெறுமை *data)
 {
-	int ret;
+	முழு ret;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_fifo_r;
-	struct sbi_tlb_info *tinfo = data;
+	கட்டமைப்பு sbi_fifo *tlb_fifo_r;
+	கட்டமைப்பு sbi_tlb_info *tinfo = data;
 	u32 curr_hartid = current_hartid();
 
 	/*
 	 * If the request is to queue a tlb flush entry for itself
 	 * then just do a local flush and return;
 	 */
-	if (sbi_hartindex_to_hartid(remote_hartindex) == curr_hartid) {
+	எனில் (sbi_hartindex_to_hartid(remote_hartindex) == curr_hartid) {
 		tlb_entry_local_process(tinfo);
-		return SBI_IPI_UPDATE_BREAK;
+		திரும்பு SBI_IPI_UPDATE_BREAK;
 	}
 
 	tlb_fifo_r = sbi_scratch_offset_ptr(remote_scratch, tlb_fifo_off);
 
 	ret = sbi_fifo_inplace_update(tlb_fifo_r, data, tlb_update_cb);
 
-	if (ret == SBI_FIFO_UNCHANGED &&
+	எனில் (ret == SBI_FIFO_UNCHANGED &&
 	    sbi_fifo_enqueue(tlb_fifo_r, data, false) < 0) {
 		/**
 		 * For now, Busy loop until there is space in the fifo.
@@ -396,25 +396,25 @@ static int tlb_update(struct sbi_scratch *scratch,
 		tlb_process_once(scratch);
 		sbi_dprintf("hart%d: hart%d tlb fifo full\n", curr_hartid,
 			    sbi_hartindex_to_hartid(remote_hartindex));
-		return SBI_IPI_UPDATE_RETRY;
+		திரும்பு SBI_IPI_UPDATE_RETRY;
 	}
 
 	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
 	atomic_add_return(tlb_sync, 1);
 
-	return SBI_IPI_UPDATE_SUCCESS;
+	திரும்பு SBI_IPI_UPDATE_SUCCESS;
 }
 
-static struct sbi_ipi_event_ops tlb_ops = {
+நிலையான கட்டமைப்பு sbi_ipi_event_ops tlb_ops = {
 	.name = "IPI_TLB",
 	.update = tlb_update,
 	.sync = tlb_sync,
 	.process = tlb_process,
 };
 
-static u32 tlb_event = SBI_IPI_EVENT_MAX;
+நிலையான u32 tlb_event = SBI_IPI_EVENT_MAX;
 
-static const u32 tlb_type_to_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
+நிலையான மாறிலி u32 tlb_type_to_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
 	[SBI_TLB_FENCE_I] = SBI_PMU_FW_FENCE_I_SENT,
 	[SBI_TLB_SFENCE_VMA] = SBI_PMU_FW_SFENCE_VMA_SENT,
 	[SBI_TLB_SFENCE_VMA_ASID] = SBI_PMU_FW_SFENCE_VMA_ASID_SENT,
@@ -424,82 +424,82 @@ static const u32 tlb_type_to_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
 	[SBI_TLB_HFENCE_VVMA] = SBI_PMU_FW_HFENCE_VVMA_SENT,
 };
 
-int sbi_tlb_request(ulong hmask, ulong hbase, struct sbi_tlb_info *tinfo)
+முழு sbi_tlb_request(ulong hmask, ulong hbase, கட்டமைப்பு sbi_tlb_info *tinfo)
 {
-	if (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
-		return SBI_EINVAL;
+	எனில் (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
+		திரும்பு SBI_EINVAL;
 
 	/*
 	 * If address range to flush is too big then simply
 	 * upgrade it to flush all because we can only flush
 	 * 4KB at a time.
 	 */
-	if (tinfo->size > tlb_range_flush_limit) {
+	எனில் (tinfo->size > tlb_range_flush_limit) {
 		tinfo->start = 0;
 		tinfo->size = SBI_TLB_FLUSH_ALL;
 	}
 
 	sbi_pmu_ctr_incr_fw(tlb_type_to_pmu_fw_event[tinfo->type]);
 
-	return sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
+	திரும்பு sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
 }
 
-int sbi_tlb_init(struct sbi_scratch *scratch, bool cold_boot)
+முழு sbi_tlb_init(கட்டமைப்பு sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	void *tlb_mem;
+	முழு ret;
+	வெறுமை *tlb_mem;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_q;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	கட்டமைப்பு sbi_fifo *tlb_q;
+	மாறிலி கட்டமைப்பு sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (cold_boot) {
-		tlb_sync_off = sbi_scratch_alloc_offset(sizeof(*tlb_sync));
-		if (!tlb_sync_off)
-			return SBI_ENOMEM;
-		tlb_fifo_off = sbi_scratch_alloc_offset(sizeof(*tlb_q));
-		if (!tlb_fifo_off) {
+	எனில் (cold_boot) {
+		tlb_sync_off = sbi_scratch_alloc_offset(அளவு(*tlb_sync));
+		எனில் (!tlb_sync_off)
+			திரும்பு SBI_ENOMEM;
+		tlb_fifo_off = sbi_scratch_alloc_offset(அளவு(*tlb_q));
+		எனில் (!tlb_fifo_off) {
 			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+			திரும்பு SBI_ENOMEM;
 		}
-		tlb_fifo_mem_off = sbi_scratch_alloc_offset(sizeof(tlb_mem));
-		if (!tlb_fifo_mem_off) {
+		tlb_fifo_mem_off = sbi_scratch_alloc_offset(அளவு(tlb_mem));
+		எனில் (!tlb_fifo_mem_off) {
 			sbi_scratch_free_offset(tlb_fifo_off);
 			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+			திரும்பு SBI_ENOMEM;
 		}
 		ret = sbi_ipi_event_create(&tlb_ops);
-		if (ret < 0) {
+		எனில் (ret < 0) {
 			sbi_scratch_free_offset(tlb_fifo_mem_off);
 			sbi_scratch_free_offset(tlb_fifo_off);
 			sbi_scratch_free_offset(tlb_sync_off);
-			return ret;
+			திரும்பு ret;
 		}
 		tlb_event = ret;
 		tlb_range_flush_limit = sbi_platform_tlbr_flush_limit(plat);
-	} else {
-		if (!tlb_sync_off ||
+	} இல்லையெனில் {
+		எனில் (!tlb_sync_off ||
 		    !tlb_fifo_off ||
 		    !tlb_fifo_mem_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= tlb_event)
-			return SBI_ENOSPC;
+			திரும்பு SBI_ENOMEM;
+		எனில் (SBI_IPI_EVENT_MAX <= tlb_event)
+			திரும்பு SBI_ENOSPC;
 	}
 
 	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
 	tlb_q = sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
-	tlb_mem = sbi_scratch_read_type(scratch, void *, tlb_fifo_mem_off);
-	if (!tlb_mem) {
+	tlb_mem = sbi_scratch_read_type(scratch, வெறுமை *, tlb_fifo_mem_off);
+	எனில் (!tlb_mem) {
 		tlb_mem = sbi_malloc(
-				sbi_platform_tlb_fifo_num_entries(plat) * SBI_TLB_INFO_SIZE);
-		if (!tlb_mem)
-			return SBI_ENOMEM;
-		sbi_scratch_write_type(scratch, void *, tlb_fifo_mem_off, tlb_mem);
+				sbi_platform_tlb_fifo_இலக்கம்_entries(plat) * SBI_TLB_INFO_SIZE);
+		எனில் (!tlb_mem)
+			திரும்பு SBI_ENOMEM;
+		sbi_scratch_write_type(scratch, வெறுமை *, tlb_fifo_mem_off, tlb_mem);
 	}
 
 	ATOMIC_INIT(tlb_sync, 0);
 
 	sbi_fifo_init(tlb_q, tlb_mem,
-		      sbi_platform_tlb_fifo_num_entries(plat), SBI_TLB_INFO_SIZE);
+		      sbi_platform_tlb_fifo_இலக்கம்_entries(plat), SBI_TLB_INFO_SIZE);
 
-	return 0;
+	திரும்பு 0;
 }

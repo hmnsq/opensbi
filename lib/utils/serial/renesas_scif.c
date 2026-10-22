@@ -3,10 +3,10 @@
  * Copyright (C) 2022 Renesas Electronics Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/serial/renesas-scif.h>
+#அந்தர்பாவ <sbi/riscv_io.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_timer.h>
+#அந்தர்பாவ <sbi_utils/serial/renesas-scif.h>
 
 /* clang-format off */
 
@@ -44,33 +44,33 @@
 				 (reg == SCIF_REG_FTDR) || \
 				 (reg == SCIF_REG_SEMR))
 
-#define SCBRR_VALUE(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
+#define SCBRR_மதிப்பு(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
 
 /* clang-format on */
 
-static volatile char *scif_base;
+நிலையான நிலையற்ற எழுத்து *scif_base;
 
-static u32 get_reg(u32 offset)
+நிலையான u32 get_reg(u32 offset)
 {
-	if (SCIF_REG_8BIT(offset))
-		return readb(scif_base + offset);
+	எனில் (SCIF_REG_8BIT(offset))
+		திரும்பு readb(scif_base + offset);
 
-	return readw(scif_base + offset);
+	திரும்பு readw(scif_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+நிலையான வெறுமை set_reg(u32 offset, u32 val)
 {
-	if (SCIF_REG_8BIT(offset))
+	எனில் (SCIF_REG_8BIT(offset))
 		writeb(val, scif_base + offset);
-	else
+	இல்லையெனில்
 		writew(val, scif_base + offset);
 }
 
-static void renesas_scif_putc(char ch)
+நிலையான வெறுமை renesas_scif_putc(எழுத்து ch)
 {
 	uint16_t reg;
 
-	while (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
+	போது (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
 		;
 
 	set_reg(SCIF_REG_FTDR, ch);
@@ -79,16 +79,16 @@ static void renesas_scif_putc(char ch)
 	set_reg(SCIF_REG_FSR, reg);
 }
 
-static struct sbi_console_device renesas_scif_console = {
+நிலையான கட்டமைப்பு sbi_console_device renesas_scif_console = {
 	.name		= "renesas_scif",
 	.console_putc	= renesas_scif_putc,
 };
 
-int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
+முழு renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	uint16_t data16;
 
-	scif_base = (volatile char *)base;
+	scif_base = (நிலையற்ற எழுத்து *)base;
 
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_DIS);
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_ASSRT_RFTF);
@@ -105,12 +105,12 @@ int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	data16 = get_reg(SCIF_REG_SEMR);
 	set_reg(SCIF_REG_SEMR, data16 & (~SCIF_SEMR_MDDRS));
-	set_reg(SCIF_REG_BRR, SCBRR_VALUE(in_freq, baudrate));
+	set_reg(SCIF_REG_BRR, SCBRR_மதிப்பு(in_freq, baudrate));
 
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_NGATE_RFTF);
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_EN);
 
 	sbi_console_set_device(&renesas_scif_console);
 
-	return 0;
+	திரும்பு 0;
 }

@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+நிலையான SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+கட்டமைப்பு gpio_chip *gpio_chip_find(unsigned முழு id)
 {
-	struct sbi_dlist *pos;
+	கட்டமைப்பு sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		கட்டமைப்பு gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		எனில் (chip->id == id)
+			திரும்பு chip;
 	}
 
-	return NULL;
+	திரும்பு வெற்று;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+முழு gpio_chip_add(கட்டமைப்பு gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	எனில் (!gc)
+		திரும்பு SBI_EINVAL;
+	எனில் (gpio_chip_find(gc->id))
+		திரும்பு SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->முனை), &(gpio_chip_list));
 
-	return 0;
+	திரும்பு 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+வெறுமை gpio_chip_remove(கட்டமைப்பு gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	எனில் (!gc)
+		திரும்பு;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->முனை));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+முழு gpio_get_direction(கட்டமைப்பு gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	எனில் (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		திரும்பு SBI_EINVAL;
+	எனில் (!gp->chip->get_direction)
+		திரும்பு SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	திரும்பு gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+முழு gpio_direction_உள்ளீடு(கட்டமைப்பு gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	எனில் (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		திரும்பு SBI_EINVAL;
+	எனில் (!gp->chip->direction_உள்ளீடு)
+		திரும்பு SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	திரும்பு gp->chip->direction_உள்ளீடு(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+முழு gpio_direction_output(கட்டமைப்பு gpio_pin *gp, முழு மதிப்பு)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	எனில் (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		திரும்பு SBI_EINVAL;
+	எனில் (!gp->chip->direction_output)
+		திரும்பு SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	எனில் (gp->flags & GPIO_FLAG_ACTIVE_கீழ்)
+		மதிப்பு = மதிப்பு == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	திரும்பு gp->chip->direction_output(gp, மதிப்பு);
 }
 
-int gpio_get(struct gpio_pin *gp)
+முழு gpio_get(கட்டமைப்பு gpio_pin *gp)
 {
-	int value;
+	முழு மதிப்பு;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	எனில் (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		திரும்பு SBI_EINVAL;
+	எனில் (!gp->chip->get)
+		திரும்பு SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	மதிப்பு = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	எனில் (gp->flags & GPIO_FLAG_ACTIVE_கீழ்)
+		மதிப்பு = மதிப்பு == 0 ? 1 : 0;
+	திரும்பு மதிப்பு;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+முழு gpio_set(கட்டமைப்பு gpio_pin *gp, முழு மதிப்பு)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	எனில் (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		திரும்பு SBI_EINVAL;
+	எனில் (!gp->chip->set)
+		திரும்பு SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	எனில் (gp->flags & GPIO_FLAG_ACTIVE_கீழ்)
+		மதிப்பு = மதிப்பு == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->set(gp, மதிப்பு);
+	திரும்பு 0;
 }

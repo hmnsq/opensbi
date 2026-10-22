@@ -7,115 +7,115 @@
  *   Subrahmanya Lingappa <slingappa@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_fixup.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#அந்தர்பாவ <libfdt.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_heap.h>
+#அந்தர்பாவ <sbi/sbi_hsm.h>
+#அந்தர்பாவ <sbi/sbi_scratch.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_driver.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_fixup.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_helper.h>
+#அந்தர்பாவ <sbi_utils/mailbox/fdt_mailbox.h>
+#அந்தர்பாவ <sbi_utils/mailbox/mailbox.h>
+#அந்தர்பாவ <sbi_utils/mailbox/rpmi_mailbox.h>
 
 #define MAX_HSM_SUPSEND_STATE_NAMELEN		16
 
-struct rpmi_hsm_suspend {
-	u32 num_states;
-	struct sbi_cpu_idle_state *states;
+கட்டமைப்பு rpmi_hsm_suspend {
+	u32 இலக்கம்_states;
+	கட்டமைப்பு sbi_cpu_idle_state *states;
 };
 
-struct rpmi_hsm {
-	struct mbox_chan *chan;
-	struct rpmi_hsm_suspend *susp;
+கட்டமைப்பு rpmi_hsm {
+	கட்டமைப்பு mbox_chan *chan;
+	கட்டமைப்பு rpmi_hsm_suspend *susp;
 };
 
-static unsigned long rpmi_hsm_offset;
+நிலையான unsigned long rpmi_hsm_offset;
 
-static struct rpmi_hsm *rpmi_hsm_get_pointer(u32 hartid)
+நிலையான கட்டமைப்பு rpmi_hsm *rpmi_hsm_get_pointer(u32 hartid)
 {
-	struct sbi_scratch *scratch;
+	கட்டமைப்பு sbi_scratch *scratch;
 
 	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch || !rpmi_hsm_offset)
-		return NULL;
+	எனில் (!scratch || !rpmi_hsm_offset)
+		திரும்பு வெற்று;
 
-	return sbi_scratch_offset_ptr(scratch, rpmi_hsm_offset);
+	திரும்பு sbi_scratch_offset_ptr(scratch, rpmi_hsm_offset);
 }
 
-static int rpmi_hsm_start(u32 hartid, ulong resume_addr)
+நிலையான முழு rpmi_hsm_start(u32 hartid, ulong resume_addr)
 {
-	struct rpmi_hsm_hart_start_req req;
-	struct rpmi_hsm_hart_start_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(hartid);
+	கட்டமைப்பு rpmi_hsm_hart_start_req req;
+	கட்டமைப்பு rpmi_hsm_hart_start_resp resp;
+	கட்டமைப்பு rpmi_hsm *rpmi = rpmi_hsm_get_pointer(hartid);
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	எனில் (!rpmi)
+		திரும்பு SBI_ENOSYS;
 
 	req.hartid = hartid;
 	req.start_addr_lo = resume_addr;
 	req.start_addr_hi = (u64)resume_addr  >> 32;
 
-	return rpmi_normal_request_with_status(
+	திரும்பு rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_START,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
 }
 
-static int rpmi_hsm_stop(void)
+நிலையான முழு rpmi_hsm_stop(வெறுமை)
 {
-	int rc;
-	struct rpmi_hsm_hart_stop_req req;
-	struct rpmi_hsm_hart_stop_resp resp;
-	void (*jump_warmboot)(void) =
-		(void (*)(void))sbi_scratch_thishart_ptr()->warmboot_addr;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	முழு rc;
+	கட்டமைப்பு rpmi_hsm_hart_stop_req req;
+	கட்டமைப்பு rpmi_hsm_hart_stop_resp resp;
+	வெறுமை (*jump_warmboot)(வெறுமை) =
+		(வெறுமை (*)(வெறுமை))sbi_scratch_thishart_ptr()->warmboot_addr;
+	கட்டமைப்பு rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	எனில் (!rpmi)
+		திரும்பு SBI_ENOSYS;
 
 	req.hartid = current_hartid();
 
 	rc = rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_STOP,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
+	எனில் (rc)
+		திரும்பு rc;
 
 	/* Wait for interrupt */
 	wfi();
 
 	jump_warmboot();
 
-	return 0;
+	திரும்பு 0;
 }
 
-static bool is_rpmi_hsm_susp_supported(struct rpmi_hsm_suspend *susp, u32 type)
+நிலையான bool is_rpmi_hsm_susp_supported(கட்டமைப்பு rpmi_hsm_suspend *susp, u32 type)
 {
-	int i;
+	முழு i;
 
-	for (i = 0; i < susp->num_states; i++)
-		if (type == susp->states[i].suspend_param)
-			return true;
+	க்கு (i = 0; i < susp->இலக்கம்_states; i++)
+		எனில் (type == susp->states[i].suspend_param)
+			திரும்பு true;
 
-	return false;
+	திரும்பு false;
 }
 
-static int rpmi_hsm_suspend(u32 type, ulong resume_addr)
+நிலையான முழு rpmi_hsm_suspend(u32 type, ulong resume_addr)
 {
-	int rc;
-	struct rpmi_hsm_hart_susp_req req;
-	struct rpmi_hsm_hart_susp_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	முழு rc;
+	கட்டமைப்பு rpmi_hsm_hart_susp_req req;
+	கட்டமைப்பு rpmi_hsm_hart_susp_resp resp;
+	கட்டமைப்பு rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	எனில் (!rpmi)
+		திரும்பு SBI_ENOSYS;
 
 	/* check if harts support this suspend type */
-	if (!is_rpmi_hsm_susp_supported(rpmi->susp, type))
-		return SBI_EINVAL;
+	எனில் (!is_rpmi_hsm_susp_supported(rpmi->susp, type))
+		திரும்பு SBI_EINVAL;
 
 	req.hartid = current_hartid();
 	req.suspend_type = type;
@@ -124,95 +124,95 @@ static int rpmi_hsm_suspend(u32 type, ulong resume_addr)
 
 	rc = rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_SUSPEND,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
+	எனில் (rc)
+		திரும்பு rc;
 
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	திரும்பு 0;
 }
 
-static struct sbi_hsm_device sbi_hsm_rpmi = {
+நிலையான கட்டமைப்பு sbi_hsm_device sbi_hsm_rpmi = {
 	.name		= "rpmi-hsm",
 	.hart_start	= rpmi_hsm_start,
 	.hart_stop	= rpmi_hsm_stop,
 	.hart_suspend	= rpmi_hsm_suspend,
 };
 
-static void rpmi_hsm_do_fixup(struct fdt_general_fixup *f, void *fdt)
+நிலையான வெறுமை rpmi_hsm_do_fixup(கட்டமைப்பு fdt_general_fixup *f, வெறுமை *fdt)
 {
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	கட்டமைப்பு rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
 
-	if (!rpmi || !rpmi->susp || !rpmi->susp->num_states)
-		return;
+	எனில் (!rpmi || !rpmi->susp || !rpmi->susp->இலக்கம்_states)
+		திரும்பு;
 
 	fdt_add_cpu_idle_states(fdt, rpmi->susp->states);
 }
 
-static struct fdt_general_fixup rpmi_hsm_fixup = {
+நிலையான கட்டமைப்பு fdt_general_fixup rpmi_hsm_fixup = {
 	.name = "rpmi-hsm-fixup",
 	.do_fixup = rpmi_hsm_do_fixup,
 };
 
-static int rpmi_hsm_get_num_suspend_states(struct mbox_chan *chan,
-					   struct rpmi_hsm_suspend *susp)
+நிலையான முழு rpmi_hsm_get_இலக்கம்_suspend_states(கட்டமைப்பு mbox_chan *chan,
+					   கட்டமைப்பு rpmi_hsm_suspend *susp)
 {
-	int rc;
-	struct rpmi_hsm_get_susp_types_req req;
-	struct rpmi_hsm_get_susp_types_resp resp;
+	முழு rc;
+	கட்டமைப்பு rpmi_hsm_get_susp_types_req req;
+	கட்டமைப்பு rpmi_hsm_get_susp_types_resp resp;
 
 	req.start_index = 0;
 	rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
+	எனில் (rc)
+		திரும்பு rc;
 
-	susp->num_states = resp.returned + resp.remaining;
-	return 0;
+	susp->இலக்கம்_states = resp.returned + resp.remaining;
+	திரும்பு 0;
 }
 
-static int rpmi_hsm_get_suspend_states(struct mbox_chan *chan,
-					struct rpmi_hsm_suspend *susp)
+நிலையான முழு rpmi_hsm_get_suspend_states(கட்டமைப்பு mbox_chan *chan,
+					கட்டமைப்பு rpmi_hsm_suspend *susp)
 {
-	int rc, i, cnt = 0;
-	struct rpmi_hsm_get_susp_types_req req;
-	struct rpmi_hsm_get_susp_types_resp resp;
-	struct rpmi_hsm_get_susp_info_req dreq;
-	struct rpmi_hsm_get_susp_info_resp dresp;
-	struct sbi_cpu_idle_state *state;
+	முழு rc, i, cnt = 0;
+	கட்டமைப்பு rpmi_hsm_get_susp_types_req req;
+	கட்டமைப்பு rpmi_hsm_get_susp_types_resp resp;
+	கட்டமைப்பு rpmi_hsm_get_susp_info_req dreq;
+	கட்டமைப்பு rpmi_hsm_get_susp_info_resp dresp;
+	கட்டமைப்பு sbi_cpu_idle_state *state;
 
-	if (!susp->num_states)
-		return 0;
+	எனில் (!susp->இலக்கம்_states)
+		திரும்பு 0;
 
 	req.start_index = 0;
-	do {
+	செய் {
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
+		எனில் (rc)
+			திரும்பு rc;
 
-		for (i = 0; i < resp.returned && cnt < susp->num_states; i++)
+		க்கு (i = 0; i < resp.returned && cnt < susp->இலக்கம்_states; i++)
 			susp->states[cnt++].suspend_param = resp.types[i];
 		req.start_index = i;
-	} while (resp.remaining);
+	} போது (resp.remaining);
 
-	for (i = 0; i < susp->num_states; i++) {
+	க்கு (i = 0; i < susp->இலக்கம்_states; i++) {
 		state = &susp->states[i];
 
 		dreq.suspend_type = state->suspend_param;
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_INFO,
-			&dreq, rpmi_u32_count(dreq), rpmi_u32_count(dreq),
-			&dresp, rpmi_u32_count(dresp), rpmi_u32_count(dresp));
-		if (rc)
-			return rc;
+			&dreq, rpmi_u32_மொத்தம்(dreq), rpmi_u32_மொத்தம்(dreq),
+			&dresp, rpmi_u32_மொத்தம்(dresp), rpmi_u32_மொத்தம்(dresp));
+		எனில் (rc)
+			திரும்பு rc;
 
 		state->local_timer_stop =
 			(dresp.flags & RPMI_HSM_SUSPEND_INFO_FLAGS_TIMER_STOP) ? true : false;
@@ -222,53 +222,53 @@ static int rpmi_hsm_get_suspend_states(struct mbox_chan *chan,
 		state->min_residency_us = dresp.min_residency_us;
 	}
 
-	return 0;
+	திரும்பு 0;
 }
 
-static int rpmi_hsm_update_hart_scratch(struct mbox_chan *chan,
-					struct rpmi_hsm_suspend *susp)
+நிலையான முழு rpmi_hsm_update_hart_scratch(கட்டமைப்பு mbox_chan *chan,
+					கட்டமைப்பு rpmi_hsm_suspend *susp)
 {
-	int rc, i;
-	struct rpmi_hsm_get_hart_list_req req;
-	struct rpmi_hsm_get_hart_list_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	முழு rc, i;
+	கட்டமைப்பு rpmi_hsm_get_hart_list_req req;
+	கட்டமைப்பு rpmi_hsm_get_hart_list_resp resp;
+	கட்டமைப்பு rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
 
 	req.start_index = 0;
-	do {
+	செய் {
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_HART_LIST,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+			&req, rpmi_u32_மொத்தம்(req), rpmi_u32_மொத்தம்(req),
+			&resp, rpmi_u32_மொத்தம்(resp), rpmi_u32_மொத்தம்(resp));
+		எனில் (rc)
+			திரும்பு rc;
 
-		for (i = 0; i < resp.returned; i++) {
+		க்கு (i = 0; i < resp.returned; i++) {
 			rpmi = rpmi_hsm_get_pointer(resp.hartid[i]);
-			if (!rpmi)
-				return SBI_ENOSYS;
+			எனில் (!rpmi)
+				திரும்பு SBI_ENOSYS;
 
 			rpmi->chan = chan;
 			rpmi->susp = susp;
 		}
 
 		req.start_index += resp.returned;
-	} while (resp.remaining);
+	} போது (resp.remaining);
 
-	return 0;
+	திரும்பு 0;
 }
 
-static int rpmi_hsm_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+நிலையான முழு rpmi_hsm_cold_init(மாறிலி வெறுமை *fdt, முழு nodeoff,
+			      மாறிலி கட்டமைப்பு fdt_match *match)
 {
-	int rc, i;
-	struct mbox_chan *chan;
-	struct rpmi_hsm_suspend *susp;
+	முழு rc, i;
+	கட்டமைப்பு mbox_chan *chan;
+	கட்டமைப்பு rpmi_hsm_suspend *susp;
 
-	if (!rpmi_hsm_offset) {
+	எனில் (!rpmi_hsm_offset) {
 		rpmi_hsm_offset =
-			sbi_scratch_alloc_type_offset(struct rpmi_hsm);
-		if (!rpmi_hsm_offset)
-			return SBI_ENOMEM;
+			sbi_scratch_alloc_type_offset(கட்டமைப்பு rpmi_hsm);
+		எனில் (!rpmi_hsm_offset)
+			திரும்பு SBI_ENOMEM;
 	}
 
 	/*
@@ -276,87 +276,87 @@ static int rpmi_hsm_cold_init(const void *fdt, int nodeoff,
 	 * HSM service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &chan);
-	if (rc)
-		return SBI_ENODEV;
+	எனில் (rc)
+		திரும்பு SBI_ENODEV;
 
 	/* Allocate context for HART suspend states */
-	susp = sbi_zalloc(sizeof(*susp));
-	if (!susp)
-		return SBI_ENOMEM;
+	susp = sbi_zalloc(அளவு(*susp));
+	எனில் (!susp)
+		திரும்பு SBI_ENOMEM;
 
 	/* Get number of HART suspend states */
-	rc = rpmi_hsm_get_num_suspend_states(chan, susp);
-	if (rc)
-		goto fail_free_susp;
+	rc = rpmi_hsm_get_இலக்கம்_suspend_states(chan, susp);
+	எனில் (rc)
+		செல் fail_free_susp;
 
 	/* Skip HART suspend state discovery for zero HART suspend states */
-	if (!susp->num_states)
-		goto skip_suspend_states;
+	எனில் (!susp->இலக்கம்_states)
+		செல் skip_suspend_states;
 
 	/* Allocate array of HART suspend states */
-	susp->states = sbi_calloc(susp->num_states + 1, sizeof(*susp->states));
-	if (!susp->states) {
+	susp->states = sbi_calloc(susp->இலக்கம்_states + 1, அளவு(*susp->states));
+	எனில் (!susp->states) {
 		rc = SBI_ENOMEM;
-		goto fail_free_susp;
+		செல் fail_free_susp;
 	}
 
 	/* Allocate name of each HART suspend state */
-	for (i = 0; i < susp->num_states; i++) {
+	க்கு (i = 0; i < susp->இலக்கம்_states; i++) {
 		susp->states[i].name =
 			sbi_zalloc(MAX_HSM_SUPSEND_STATE_NAMELEN);
-		if (!susp->states[i].name) {
-			do {
+		எனில் (!susp->states[i].name) {
+			செய் {
 				i--;
-				sbi_free((void *)susp->states[i].name);
-			} while (i > 0);
+				sbi_free((வெறுமை *)susp->states[i].name);
+			} போது (i > 0);
 
 			rc = SBI_ENOMEM;
-			goto fail_free_susp_states;
+			செல் fail_free_susp_states;
 		}
-		sbi_snprintf((char *)susp->states[i].name,
+		sbi_snprintf((எழுத்து *)susp->states[i].name,
 			     MAX_HSM_SUPSEND_STATE_NAMELEN, "cpu-susp%d", i);
 	}
 
 	/* Get details about each HART suspend state */
 	rc = rpmi_hsm_get_suspend_states(chan, susp);
-	if (rc)
-		goto fail_free_susp_state_names;
+	எனில் (rc)
+		செல் fail_free_susp_state_names;
 
 skip_suspend_states:
 	/* Update per-HART scratch space */
 	rc = rpmi_hsm_update_hart_scratch(chan, susp);
-	if (rc)
-		goto fail_free_susp_state_names;
+	எனில் (rc)
+		செல் fail_free_susp_state_names;
 
 	/* Register HSM fixup callback */
 	rc = fdt_register_general_fixup(&rpmi_hsm_fixup);
-	if (rc && rc != SBI_EALREADY)
-		goto fail_free_susp_state_names;
+	எனில் (rc && rc != SBI_EALREADY)
+		செல் fail_free_susp_state_names;
 
 	/* Register HSM device */
-	if (!susp->num_states)
-		sbi_hsm_rpmi.hart_suspend = NULL;
+	எனில் (!susp->இலக்கம்_states)
+		sbi_hsm_rpmi.hart_suspend = வெற்று;
 	sbi_hsm_set_device(&sbi_hsm_rpmi);
 
-	return 0;
+	திரும்பு 0;
 
 fail_free_susp_state_names:
-	for (i = 0; i < susp->num_states; i++)
-		sbi_free((void *)susp->states[i].name);
+	க்கு (i = 0; i < susp->இலக்கம்_states; i++)
+		sbi_free((வெறுமை *)susp->states[i].name);
 fail_free_susp_states:
-	if (susp->num_states)
+	எனில் (susp->இலக்கம்_states)
 		sbi_free(susp->states);
 fail_free_susp:
 	sbi_free(susp);
-	return rc;
+	திரும்பு rc;
 }
 
-static const struct fdt_match rpmi_hsm_match[] = {
+நிலையான மாறிலி கட்டமைப்பு fdt_match rpmi_hsm_match[] = {
 	{ .compatible = "riscv,rpmi-hsm" },
 	{},
 };
 
-const struct fdt_driver fdt_hsm_rpmi = {
+மாறிலி கட்டமைப்பு fdt_driver fdt_hsm_rpmi = {
 	.match_table = rpmi_hsm_match,
 	.init = rpmi_hsm_cold_init,
 };

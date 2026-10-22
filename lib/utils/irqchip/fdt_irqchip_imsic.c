@@ -8,91 +8,91 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/imsic.h>
+#அந்தர்பாவ <libfdt.h>
+#அந்தர்பாவ <sbi/riscv_asm.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_heap.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_helper.h>
+#அந்தர்பாவ <sbi_utils/irqchip/fdt_irqchip.h>
+#அந்தர்பாவ <sbi_utils/irqchip/imsic.h>
 
-static int irqchip_imsic_update_hartid_table(const void *fdt, int nodeoff,
-					     struct imsic_data *id)
+நிலையான முழு irqchip_imsic_update_hartid_table(மாறிலி வெறுமை *fdt, முழு nodeoff,
+					     கட்டமைப்பு imsic_data *id)
 {
-	const fdt32_t *val;
+	மாறிலி fdt32_t *val;
 	u32 phandle, hwirq, hartid;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	முழு i, err, மொத்தம், cpu_offset, cpu_intc_offset;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &மொத்தம்);
+	எனில் (!val || மொத்தம் < அளவு(fdt32_t))
+		திரும்பு SBI_EINVAL;
+	மொத்தம் = மொத்தம் / அளவு(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	க்கு (i = 0; i < மொத்தம்; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_offset = fdt_முனை_offset_by_phandle(fdt, phandle);
+		எனில் (cpu_intc_offset < 0)
+			தொடர்;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		எனில் (cpu_offset < 0)
+			தொடர்;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			return SBI_EINVAL;
+		எனில் (err)
+			திரும்பு SBI_EINVAL;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
+		தேர்வு (hwirq) {
+		நிலை IRQ_M_EXT:
 			err = imsic_map_hartid_to_data(hartid, id, i / 2);
-			if (err)
-				return err;
-			break;
-		default:
-			break;
+			எனில் (err)
+				திரும்பு err;
+			நிறுத்து;
+		இயல்பு:
+			நிறுத்து;
 		}
 	}
 
-	return 0;
+	திரும்பு 0;
 }
 
-static int irqchip_imsic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+நிலையான முழு irqchip_imsic_cold_init(மாறிலி வெறுமை *fdt, முழு nodeoff,
+				   மாறிலி கட்டமைப்பு fdt_match *match)
 {
-	int rc;
-	struct imsic_data *id;
+	முழு rc;
+	கட்டமைப்பு imsic_data *id;
 
-	id = sbi_zalloc(sizeof(*id));
-	if (!id)
-		return SBI_ENOMEM;
+	id = sbi_zalloc(அளவு(*id));
+	எனில் (!id)
+		திரும்பு SBI_ENOMEM;
 
-	rc = fdt_parse_imsic_node(fdt, nodeoff, id);
-	if (rc || !id->targets_mmode)
-		goto fail_free_data;
+	rc = fdt_parse_imsic_முனை(fdt, nodeoff, id);
+	எனில் (rc || !id->targets_mmode)
+		செல் fail_free_data;
 
 	rc = imsic_cold_irqchip_init(id);
-	if (rc)
-		goto fail_free_data;
+	எனில் (rc)
+		செல் fail_free_data;
 
 	rc = irqchip_imsic_update_hartid_table(fdt, nodeoff, id);
-	if (rc)
-		goto fail_free_data;
+	எனில் (rc)
+		செல் fail_free_data;
 
-	return 0;
+	திரும்பு 0;
 
 fail_free_data:
 	sbi_free(id);
-	return rc;
+	திரும்பு rc;
 }
 
-static const struct fdt_match irqchip_imsic_match[] = {
+நிலையான மாறிலி கட்டமைப்பு fdt_match irqchip_imsic_match[] = {
 	{ .compatible = "riscv,imsics" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_imsic = {
+மாறிலி கட்டமைப்பு fdt_driver fdt_irqchip_imsic = {
 	.match_table = irqchip_imsic_match,
 	.init = irqchip_imsic_cold_init,
 };

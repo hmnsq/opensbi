@@ -7,41 +7,41 @@
  *   Clément Léger <cleger@rivosinc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fwft.h>
-#include <sbi/sbi_trap.h>
+#அந்தர்பாவ <sbi/sbi_ecall.h>
+#அந்தர்பாவ <sbi/sbi_ecall_interface.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi/sbi_fwft.h>
+#அந்தர்பாவ <sbi/sbi_trap.h>
 
-static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+நிலையான முழு sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
+				 கட்டமைப்பு sbi_trap_regs *regs,
+				 கட்டமைப்பு sbi_ecall_return *out)
 {
-	int ret = 0;
+	முழு ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_FWFT_SET:
+	தேர்வு (funcid) {
+	நிலை SBI_EXT_FWFT_SET:
 		ret = sbi_fwft_set(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_FWFT_GET:
-		ret = sbi_fwft_get(regs->a0, &out->value);
-		break;
-	default:
+		நிறுத்து;
+	நிலை SBI_EXT_FWFT_GET:
+		ret = sbi_fwft_get(regs->a0, &out->மதிப்பு);
+		நிறுத்து;
+	இயல்பு:
 		ret = SBI_ENOTSUPP;
-		break;
+		நிறுத்து;
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
-struct sbi_ecall_extension ecall_fwft;
+கட்டமைப்பு sbi_ecall_extension ecall_fwft;
 
-static int sbi_ecall_fwft_register_extensions(void)
+நிலையான முழு sbi_ecall_fwft_register_extensions(வெறுமை)
 {
-	return sbi_ecall_register_extension(&ecall_fwft);
+	திரும்பு sbi_ecall_register_extension(&ecall_fwft);
 }
 
-struct sbi_ecall_extension ecall_fwft = {
+கட்டமைப்பு sbi_ecall_extension ecall_fwft = {
 	.name			= "fwft",
 	.extid_start		= SBI_EXT_FWFT,
 	.extid_end		= SBI_EXT_FWFT,

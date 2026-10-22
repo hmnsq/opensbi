@@ -3,333 +3,333 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#அந்தர்பாவ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#அந்தர்பாவ <fdt.h>
+#அந்தர்பாவ <libfdt.h>
 
-#include "libfdt_internal.h"
+#அந்தர்பாவ "libfdt_internal.h"
 
 /*
  * Minimal sanity check for a read-only tree. fdt_ro_probe_() checks
  * that the given buffer contains what appears to be a flattened
  * device tree with sane information in its header.
  */
-int32_t fdt_ro_probe_(const void *fdt)
+int32_t fdt_ro_probe_(மாறிலி வெறுமை *fdt)
 {
 	uint32_t totalsize = fdt_totalsize(fdt);
 
-	if (can_assume(VALID_DTB))
-		return totalsize;
+	எனில் (can_assume(VALID_DTB))
+		திரும்பு totalsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	எனில் ((uintptr_t)fdt & 7)
+		திரும்பு -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
+	எனில் (fdt_magic(fdt) == FDT_MAGIC) {
 		/* Complete tree */
-		if (!can_assume(LATEST)) {
-			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
-			if (fdt_last_comp_version(fdt) >
+		எனில் (!can_assume(LATEST)) {
+			எனில் (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+				திரும்பு -FDT_ERR_BADVERSION;
+			எனில் (fdt_last_comp_version(fdt) >
 					FDT_LAST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
+				திரும்பு -FDT_ERR_BADVERSION;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
+	} இல்லையெனில் எனில் (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
-		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
-			return -FDT_ERR_BADSTATE;
-	} else {
-		return -FDT_ERR_BADMAGIC;
+		எனில் (!can_assume(VALID_உள்ளீடு) && fdt_size_dt_struct(fdt) == 0)
+			திரும்பு -FDT_ERR_BADSTATE;
+	} இல்லையெனில் {
+		திரும்பு -FDT_ERR_BADMAGIC;
 	}
 
-	if (totalsize < INT32_MAX)
-		return totalsize;
-	else
-		return -FDT_ERR_TRUNCATED;
+	எனில் (totalsize < INT32_MAX)
+		திரும்பு totalsize;
+	இல்லையெனில்
+		திரும்பு -FDT_ERR_TRUNCATED;
 }
 
-static int check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
+நிலையான முழு check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
 {
-	return (off >= hdrsize) && (off <= totalsize);
+	திரும்பு (off >= hdrsize) && (off <= totalsize);
 }
 
-static int check_block_(uint32_t hdrsize, uint32_t totalsize,
+நிலையான முழு check_block_(uint32_t hdrsize, uint32_t totalsize,
 			uint32_t base, uint32_t size)
 {
-	if (!check_off_(hdrsize, totalsize, base))
-		return 0; /* block start out of bounds */
-	if ((base + size) < base)
-		return 0; /* overflow */
-	if (!check_off_(hdrsize, totalsize, base + size))
-		return 0; /* block end out of bounds */
-	return 1;
+	எனில் (!check_off_(hdrsize, totalsize, base))
+		திரும்பு 0; /* block start out of bounds */
+	எனில் ((base + size) < base)
+		திரும்பு 0; /* overflow */
+	எனில் (!check_off_(hdrsize, totalsize, base + size))
+		திரும்பு 0; /* block end out of bounds */
+	திரும்பு 1;
 }
 
 size_t fdt_header_size_(uint32_t version)
 {
-	if (version <= 1)
-		return FDT_V1_SIZE;
-	else if (version <= 2)
-		return FDT_V2_SIZE;
-	else if (version <= 3)
-		return FDT_V3_SIZE;
-	else if (version <= 16)
-		return FDT_V16_SIZE;
-	else
-		return FDT_V17_SIZE;
+	எனில் (version <= 1)
+		திரும்பு FDT_V1_SIZE;
+	இல்லையெனில் எனில் (version <= 2)
+		திரும்பு FDT_V2_SIZE;
+	இல்லையெனில் எனில் (version <= 3)
+		திரும்பு FDT_V3_SIZE;
+	இல்லையெனில் எனில் (version <= 16)
+		திரும்பு FDT_V16_SIZE;
+	இல்லையெனில்
+		திரும்பு FDT_V17_SIZE;
 }
 
-size_t fdt_header_size(const void *fdt)
+size_t fdt_header_size(மாறிலி வெறுமை *fdt)
 {
-	return can_assume(LATEST) ? FDT_V17_SIZE :
+	திரும்பு can_assume(LATEST) ? FDT_V17_SIZE :
 		fdt_header_size_(fdt_version(fdt));
 }
 
-int fdt_check_header(const void *fdt)
+முழு fdt_check_header(மாறிலி வெறுமை *fdt)
 {
 	size_t hdrsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	எனில் ((uintptr_t)fdt & 7)
+		திரும்பு -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) != FDT_MAGIC)
-		return -FDT_ERR_BADMAGIC;
-	if (!can_assume(LATEST)) {
-		if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+	எனில் (fdt_magic(fdt) != FDT_MAGIC)
+		திரும்பு -FDT_ERR_BADMAGIC;
+	எனில் (!can_assume(LATEST)) {
+		எனில் ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
 		    || (fdt_last_comp_version(fdt) >
 			FDT_LAST_SUPPORTED_VERSION))
-			return -FDT_ERR_BADVERSION;
-		if (fdt_version(fdt) < fdt_last_comp_version(fdt))
-			return -FDT_ERR_BADVERSION;
+			திரும்பு -FDT_ERR_BADVERSION;
+		எனில் (fdt_version(fdt) < fdt_last_comp_version(fdt))
+			திரும்பு -FDT_ERR_BADVERSION;
 	}
 	hdrsize = fdt_header_size(fdt);
-	if (!can_assume(VALID_DTB)) {
+	எனில் (!can_assume(VALID_DTB)) {
 
-		if ((fdt_totalsize(fdt) < hdrsize)
+		எனில் ((fdt_totalsize(fdt) < hdrsize)
 		    || (fdt_totalsize(fdt) > INT_MAX))
-			return -FDT_ERR_TRUNCATED;
+			திரும்பு -FDT_ERR_TRUNCATED;
 
 		/* Bounds check memrsv block */
-		if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		எனில் (!check_off_(hdrsize, fdt_totalsize(fdt),
 				fdt_off_mem_rsvmap(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			திரும்பு -FDT_ERR_TRUNCATED;
 	}
 
-	if (!can_assume(VALID_DTB)) {
+	எனில் (!can_assume(VALID_DTB)) {
 		/* Bounds check structure block */
-		if (!can_assume(LATEST) && fdt_version(fdt) < 17) {
-			if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		எனில் (!can_assume(LATEST) && fdt_version(fdt) < 17) {
+			எனில் (!check_off_(hdrsize, fdt_totalsize(fdt),
 					fdt_off_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
-		} else {
-			if (!check_block_(hdrsize, fdt_totalsize(fdt),
+				திரும்பு -FDT_ERR_TRUNCATED;
+		} இல்லையெனில் {
+			எனில் (!check_block_(hdrsize, fdt_totalsize(fdt),
 					  fdt_off_dt_struct(fdt),
 					  fdt_size_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
+				திரும்பு -FDT_ERR_TRUNCATED;
 		}
 
 		/* Bounds check strings block */
-		if (!check_block_(hdrsize, fdt_totalsize(fdt),
+		எனில் (!check_block_(hdrsize, fdt_totalsize(fdt),
 				  fdt_off_dt_strings(fdt),
 				  fdt_size_dt_strings(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			திரும்பு -FDT_ERR_TRUNCATED;
 	}
 
-	return 0;
+	திரும்பு 0;
 }
 
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
+மாறிலி வெறுமை *fdt_offset_ptr(மாறிலி வெறுமை *fdt, முழு offset, unsigned முழு len)
 {
-	unsigned int uoffset = offset;
-	unsigned int absoffset = offset + fdt_off_dt_struct(fdt);
+	unsigned முழு uoffset = offset;
+	unsigned முழு absoffset = offset + fdt_off_dt_struct(fdt);
 
-	if (offset < 0)
-		return NULL;
+	எனில் (offset < 0)
+		திரும்பு வெற்று;
 
-	if (!can_assume(VALID_INPUT))
-		if ((absoffset < uoffset)
+	எனில் (!can_assume(VALID_உள்ளீடு))
+		எனில் ((absoffset < uoffset)
 		    || ((absoffset + len) < absoffset)
 		    || (absoffset + len) > fdt_totalsize(fdt))
-			return NULL;
+			திரும்பு வெற்று;
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
-		if (((uoffset + len) < uoffset)
+	எனில் (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
+		எனில் (((uoffset + len) < uoffset)
 		    || ((offset + len) > fdt_size_dt_struct(fdt)))
-			return NULL;
+			திரும்பு வெற்று;
 
-	return fdt_offset_ptr_(fdt, offset);
+	திரும்பு fdt_offset_ptr_(fdt, offset);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
+uint32_t fdt_next_tag(மாறிலி வெறுமை *fdt, முழு startoffset, முழு *nextoffset)
 {
-	const fdt32_t *tagp, *lenp;
+	மாறிலி fdt32_t *tagp, *lenp;
 	uint32_t tag;
-	int offset = startoffset;
-	const char *p;
+	முழு offset = startoffset;
+	மாறிலி எழுத்து *p;
 
 	*nextoffset = -FDT_ERR_TRUNCATED;
 	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
-	if (!can_assume(VALID_DTB) && !tagp)
-		return FDT_END; /* premature end */
+	எனில் (!can_assume(VALID_DTB) && !tagp)
+		திரும்பு FDT_END; /* premature end */
 	tag = fdt32_to_cpu(*tagp);
 	offset += FDT_TAGSIZE;
 
 	*nextoffset = -FDT_ERR_BADSTRUCTURE;
-	switch (tag) {
-	case FDT_BEGIN_NODE:
+	தேர்வு (tag) {
+	நிலை FDT_BEGIN_முனை:
 		/* skip name */
-		do {
+		செய் {
 			p = fdt_offset_ptr(fdt, offset++, 1);
-		} while (p && (*p != '\0'));
-		if (!can_assume(VALID_DTB) && !p)
-			return FDT_END; /* premature end */
-		break;
+		} போது (p && (*p != '\0'));
+		எனில் (!can_assume(VALID_DTB) && !p)
+			திரும்பு FDT_END; /* premature end */
+		நிறுத்து;
 
-	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (!can_assume(VALID_DTB) && !lenp)
-			return FDT_END; /* premature end */
+	நிலை FDT_PROP:
+		lenp = fdt_offset_ptr(fdt, offset, அளவு(*lenp));
+		எனில் (!can_assume(VALID_DTB) && !lenp)
+			திரும்பு FDT_END; /* premature end */
 		/* skip-name offset, length and value */
-		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
+		offset += அளவு(கட்டமைப்பு fdt_property) - FDT_TAGSIZE
 			+ fdt32_to_cpu(*lenp);
-		if (!can_assume(LATEST) &&
+		எனில் (!can_assume(LATEST) &&
 		    fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
 		    ((offset - fdt32_to_cpu(*lenp)) % 8) != 0)
 			offset += 4;
-		break;
+		நிறுத்து;
 
-	case FDT_END:
-	case FDT_END_NODE:
-	case FDT_NOP:
-		break;
+	நிலை FDT_END:
+	நிலை FDT_END_முனை:
+	நிலை FDT_NOP:
+		நிறுத்து;
 
-	default:
-		return FDT_END;
+	இயல்பு:
+		திரும்பு FDT_END;
 	}
 
-	if (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
-		return FDT_END; /* premature end */
+	எனில் (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
+		திரும்பு FDT_END; /* premature end */
 
 	*nextoffset = FDT_TAGALIGN(offset);
-	return tag;
+	திரும்பு tag;
 }
 
-int fdt_check_node_offset_(const void *fdt, int offset)
+முழு fdt_check_முனை_offset(மாறிலி வெறுமை *fdt, முழு offset)
 {
-	if (!can_assume(VALID_INPUT)
+	எனில் (!can_assume(VALID_உள்ளீடு)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+		திரும்பு -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
-		return -FDT_ERR_BADOFFSET;
+	எனில் (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_முனை)
+		திரும்பு -FDT_ERR_BADOFFSET;
 
-	return offset;
+	திரும்பு offset;
 }
 
-int fdt_check_prop_offset_(const void *fdt, int offset)
+முழு fdt_check_prop_offset_(மாறிலி வெறுமை *fdt, முழு offset)
 {
-	if (!can_assume(VALID_INPUT)
+	எனில் (!can_assume(VALID_உள்ளீடு)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+		திரும்பு -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
-		return -FDT_ERR_BADOFFSET;
+	எனில் (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
+		திரும்பு -FDT_ERR_BADOFFSET;
 
-	return offset;
+	திரும்பு offset;
 }
 
-int fdt_next_node(const void *fdt, int offset, int *depth)
+முழு fdt_next_முனை(மாறிலி வெறுமை *fdt, முழு offset, முழு *depth)
 {
-	int nextoffset = 0;
+	முழு nextoffset = 0;
 	uint32_t tag;
 
-	if (offset >= 0)
-		if ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
-			return nextoffset;
+	எனில் (offset >= 0)
+		எனில் ((nextoffset = fdt_check_முனை_offset(fdt, offset)) < 0)
+			திரும்பு nextoffset;
 
-	do {
+	செய் {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		switch (tag) {
-		case FDT_PROP:
-		case FDT_NOP:
-			break;
+		தேர்வு (tag) {
+		நிலை FDT_PROP:
+		நிலை FDT_NOP:
+			நிறுத்து;
 
-		case FDT_BEGIN_NODE:
-			if (depth)
+		நிலை FDT_BEGIN_முனை:
+			எனில் (depth)
 				(*depth)++;
-			break;
+			நிறுத்து;
 
-		case FDT_END_NODE:
-			if (depth && ((--(*depth)) < 0))
-				return nextoffset;
-			break;
+		நிலை FDT_END_முனை:
+			எனில் (depth && ((--(*depth)) < 0))
+				திரும்பு nextoffset;
+			நிறுத்து;
 
-		case FDT_END:
-			if ((nextoffset >= 0)
+		நிலை FDT_END:
+			எனில் ((nextoffset >= 0)
 			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !depth))
-				return -FDT_ERR_NOTFOUND;
-			else
-				return nextoffset;
+				திரும்பு -FDT_ERR_NOTFOUND;
+			இல்லையெனில்
+				திரும்பு nextoffset;
 		}
-	} while (tag != FDT_BEGIN_NODE);
+	} போது (tag != FDT_BEGIN_முனை);
 
-	return offset;
+	திரும்பு offset;
 }
 
-int fdt_first_subnode(const void *fdt, int offset)
+முழு fdt_first_subnode(மாறிலி வெறுமை *fdt, முழு offset)
 {
-	int depth = 0;
+	முழு depth = 0;
 
-	offset = fdt_next_node(fdt, offset, &depth);
-	if (offset < 0 || depth != 1)
-		return -FDT_ERR_NOTFOUND;
+	offset = fdt_next_முனை(fdt, offset, &depth);
+	எனில் (offset < 0 || depth != 1)
+		திரும்பு -FDT_ERR_NOTFOUND;
 
-	return offset;
+	திரும்பு offset;
 }
 
-int fdt_next_subnode(const void *fdt, int offset)
+முழு fdt_next_subnode(மாறிலி வெறுமை *fdt, முழு offset)
 {
-	int depth = 1;
+	முழு depth = 1;
 
 	/*
 	 * With respect to the parent, the depth of the next subnode will be
 	 * the same as the last.
 	 */
-	do {
-		offset = fdt_next_node(fdt, offset, &depth);
-		if (offset < 0 || depth < 1)
-			return -FDT_ERR_NOTFOUND;
-	} while (depth > 1);
+	செய் {
+		offset = fdt_next_முனை(fdt, offset, &depth);
+		எனில் (offset < 0 || depth < 1)
+			திரும்பு -FDT_ERR_NOTFOUND;
+	} போது (depth > 1);
 
-	return offset;
+	திரும்பு offset;
 }
 
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
+மாறிலி எழுத்து *fdt_find_string_(மாறிலி எழுத்து *strtab, முழு tabsize, மாறிலி எழுத்து *s)
 {
-	int len = strlen(s) + 1;
-	const char *last = strtab + tabsize - len;
-	const char *p;
+	முழு len = strlen(s) + 1;
+	மாறிலி எழுத்து *last = strtab + tabsize - len;
+	மாறிலி எழுத்து *p;
 
-	for (p = strtab; p <= last; p++)
-		if (memcmp(p, s, len) == 0)
-			return p;
-	return NULL;
+	க்கு (p = strtab; p <= last; p++)
+		எனில் (memcmp(p, s, len) == 0)
+			திரும்பு p;
+	திரும்பு வெற்று;
 }
 
-int fdt_move(const void *fdt, void *buf, int bufsize)
+முழு fdt_move(மாறிலி வெறுமை *fdt, வெறுமை *buf, முழு bufsize)
 {
-	if (!can_assume(VALID_INPUT) && bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	எனில் (!can_assume(VALID_உள்ளீடு) && bufsize < 0)
+		திரும்பு -FDT_ERR_NOSPACE;
 
 	FDT_RO_PROBE(fdt);
 
-	if (fdt_totalsize(fdt) > (unsigned int)bufsize)
-		return -FDT_ERR_NOSPACE;
+	எனில் (fdt_totalsize(fdt) > (unsigned முழு)bufsize)
+		திரும்பு -FDT_ERR_NOSPACE;
 
 	memmove(buf, fdt, fdt_totalsize(fdt));
-	return 0;
+	திரும்பு 0;
 }

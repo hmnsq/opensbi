@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#அந்தர்பாவ <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+வெறுமை __bitmap_and(unsigned long *dst, மாறிலி unsigned long *bitmap1,
+		  மாறிலி unsigned long *bitmap2, முழு bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	முழு k;
+	முழு nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	க்கு (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+வெறுமை __bitmap_or(unsigned long *dst, மாறிலி unsigned long *bitmap1,
+		 மாறிலி unsigned long *bitmap2, முழு bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	முழு k;
+	முழு nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	க்கு (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+வெறுமை __bitmap_xor(unsigned long *dst, மாறிலி unsigned long *bitmap1,
+		  மாறிலி unsigned long *bitmap2, முழு bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	முழு k;
+	முழு nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	க்கு (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

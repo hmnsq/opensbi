@@ -3,47 +3,47 @@
  *
  * Author: Ivan Orlov <ivan.orlov0322@gmail.com>
  */
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_unit_test.h>
+#அந்தர்பாவ <sbi/riscv_locks.h>
+#அந்தர்பாவ <sbi/sbi_console.h>
+#அந்தர்பாவ <sbi/sbi_unit_test.h>
 
 #define TEST_CONSOLE_BUF_LEN 1024
 
-static const struct sbi_console_device *old_dev;
-static char test_console_buf[TEST_CONSOLE_BUF_LEN];
-static u32 test_console_buf_pos;
-static spinlock_t test_console_lock = SPIN_LOCK_INITIALIZER;
+நிலையான மாறிலி கட்டமைப்பு sbi_console_device *old_dev;
+நிலையான எழுத்து test_console_buf[TEST_CONSOLE_BUF_LEN];
+நிலையான u32 test_console_buf_pos;
+நிலையான spinlock_t test_console_lock = SPIN_LOCK_INITIALIZER;
 
-static void test_console_putc(char c)
+நிலையான வெறுமை test_console_putc(எழுத்து c)
 {
 	test_console_buf[test_console_buf_pos] = c;
 	test_console_buf_pos = (test_console_buf_pos + 1) % TEST_CONSOLE_BUF_LEN;
 }
 
-static void clear_test_console_buf(void)
+நிலையான வெறுமை clear_test_console_buf(வெறுமை)
 {
 	test_console_buf_pos = 0;
 	test_console_buf[0] = '\0';
 }
 
-static const struct sbi_console_device test_console_dev = {
+நிலையான மாறிலி கட்டமைப்பு sbi_console_device test_console_dev = {
 	.name = "Test console device",
 	.console_putc = test_console_putc,
 };
 
 /* Mock the console device */
-static inline void test_console_begin(const struct sbi_console_device *device)
+நிலையான உள்வரி வெறுமை test_console_begin(மாறிலி கட்டமைப்பு sbi_console_device *device)
 {
 	old_dev = sbi_console_get_device();
 	sbi_console_set_device(device);
 }
 
-static inline void test_console_end(void)
+நிலையான உள்வரி வெறுமை test_console_end(வெறுமை)
 {
 	sbi_console_set_device(old_dev);
 }
 
-static void putc_test(struct sbiunit_test_case *test)
+நிலையான வெறுமை putc_test(கட்டமைப்பு sbiunit_test_case *test)
 {
 	clear_test_console_buf();
 	test_console_begin(&test_console_dev);
@@ -52,7 +52,7 @@ static void putc_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_EQ(test, test_console_buf[0], 'a');
 }
 
-#define PUTS_TEST(test, expected, str) do {			\
+#define PUTS_TEST(test, expected, str) செய் {			\
 	spin_lock(&test_console_lock);				\
 	clear_test_console_buf();				\
 	test_console_begin(&test_console_dev);			\
@@ -61,15 +61,15 @@ static void putc_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} போது (0)
 
-static void puts_test(struct sbiunit_test_case *test)
+நிலையான வெறுமை puts_test(கட்டமைப்பு sbiunit_test_case *test)
 {
 	PUTS_TEST(test, "Hello, OpenSBI!", "Hello, OpenSBI!");
 	PUTS_TEST(test, "Hello,\r\nOpenSBI!", "Hello,\nOpenSBI!");
 }
 
-#define PRINTF_TEST(test, expected, format, ...) do {		\
+#define PRINTF_TEST(test, expected, format, ...) செய் {		\
 	spin_lock(&test_console_lock);				\
 	clear_test_console_buf();				\
 	test_console_begin(&test_console_dev);			\
@@ -79,9 +79,9 @@ static void puts_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} போது (0)
 
-static void printf_test(struct sbiunit_test_case *test)
+நிலையான வெறுமை printf_test(கட்டமைப்பு sbiunit_test_case *test)
 {
 	PRINTF_TEST(test, "Hello", "Hello");
 	PRINTF_TEST(test, "3 5 7", "%d %d %d", 3, 5, 7);
@@ -90,14 +90,14 @@ static void printf_test(struct sbiunit_test_case *test)
 	PRINTF_TEST(test, "FF", "%X", 255);
 	PRINTF_TEST(test, "ff", "%x", 255);
 	PRINTF_TEST(test, "A", "%c", 'A');
-	PRINTF_TEST(test, "1fe", "%p", (void *)0x1fe);
+	PRINTF_TEST(test, "1fe", "%p", (வெறுமை *)0x1fe);
 	PRINTF_TEST(test, "4294967295", "%u", 4294967295U);
 	PRINTF_TEST(test, "-2147483647", "%ld", -2147483647l);
 	PRINTF_TEST(test, "-9223372036854775807", "%lld", -9223372036854775807LL);
 	PRINTF_TEST(test, "18446744073709551615", "%llu", 18446744073709551615ULL);
 }
 
-static struct sbiunit_test_case console_test_cases[] = {
+நிலையான கட்டமைப்பு sbiunit_test_case console_test_cases[] = {
 	SBIUNIT_TEST_CASE(putc_test),
 	SBIUNIT_TEST_CASE(puts_test),
 	SBIUNIT_TEST_CASE(printf_test),

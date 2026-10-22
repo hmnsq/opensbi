@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#அந்தர்பாவ <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+முழு sbi_strcmp(மாறிலி எழுத்து *a, மாறிலி எழுத்து *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	க்கு (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	திரும்பு *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+முழு sbi_strncmp(மாறிலி எழுத்து *a, மாறிலி எழுத்து *b, size_t மொத்தம்)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	க்கு (; மொத்தம் > 0 && *a == *b && *a != '\0'; a++, b++, மொத்தம்--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	எனில் (!மொத்தம்)
+		திரும்பு 0;
 
-	return *a - *b;
+	திரும்பு *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(மாறிலி எழுத்து *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	போது (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(மாறிலி எழுத்து *str, size_t மொத்தம்)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	போது (*str != '\0' && ret < மொத்தம்) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	திரும்பு ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+எழுத்து *sbi_strcpy(எழுத்து *dest, மாறிலி எழுத்து *src)
 {
-	char *ret = dest;
+	எழுத்து *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	போது ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	திரும்பு ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+எழுத்து *sbi_strncpy(எழுத்து *dest, மாறிலி எழுத்து *src, size_t மொத்தம்)
 {
-	char *tmp = dest;
+	எழுத்து *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	போது (மொத்தம்) {
+		எனில் ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		மொத்தம்--;
 	}
-	return dest;
+	திரும்பு dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+எழுத்து *sbi_strchr(மாறிலி எழுத்து *s, முழு c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	செய் {
+		எனில் (*s == (எழுத்து)c)
+			திரும்பு (எழுத்து *)s;
+	} போது (*s++ != '\0');
 
-	return NULL;
+	திரும்பு வெற்று;
 }
 
-char *sbi_strrchr(const char *s, int c)
+எழுத்து *sbi_strrchr(மாறிலி எழுத்து *s, முழு c)
 {
-	const char *last = s + sbi_strlen(s);
+	மாறிலி எழுத்து *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	போது (last > s && *last != (எழுத்து)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	எனில் (*last != (எழுத்து)c)
+		திரும்பு வெற்று;
+	இல்லையெனில்
+		திரும்பு (எழுத்து *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+வெறுமை *sbi_memset(வெறுமை *s, முழு c, size_t மொத்தம்)
 {
-	char *temp = s;
+	எழுத்து *temp = s;
 
-	while (count > 0) {
-		count--;
+	போது (மொத்தம் > 0) {
+		மொத்தம்--;
 		*temp++ = c;
 	}
 
-	return s;
+	திரும்பு s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+வெறுமை *sbi_memcpy(வெறுமை *dest, மாறிலி வெறுமை *src, size_t மொத்தம்)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	எழுத்து *temp1	  = dest;
+	மாறிலி எழுத்து *temp2 = src;
 
-	while (count > 0) {
+	போது (மொத்தம் > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		மொத்தம்--;
 	}
 
-	return dest;
+	திரும்பு dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+வெறுமை *sbi_memmove(வெறுமை *dest, மாறிலி வெறுமை *src, size_t மொத்தம்)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	எழுத்து *temp1	  = (எழுத்து *)dest;
+	மாறிலி எழுத்து *temp2 = (எழுத்து *)src;
 
-	if (src == dest)
-		return dest;
+	எனில் (src == dest)
+		திரும்பு dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	எனில் (dest < src) {
+		போது (மொத்தம் > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			மொத்தம்--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} இல்லையெனில் {
+		temp1 = (எழுத்து *)dest + மொத்தம் - 1;
+		temp2 = (எழுத்து *)src + மொத்தம் - 1;
 
-		while (count > 0) {
+		போது (மொத்தம் > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			மொத்தம்--;
 		}
 	}
 
-	return dest;
+	திரும்பு dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+முழு sbi_memcmp(மாறிலி வெறுமை *s1, மாறிலி வெறுமை *s2, size_t மொத்தம்)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	மாறிலி எழுத்து *temp1 = s1;
+	மாறிலி எழுத்து *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	க்கு (; மொத்தம் > 0 && (*temp1 == *temp2); மொத்தம்--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	எனில் (மொத்தம் > 0)
+		திரும்பு *(unsigned எழுத்து *)temp1 - *(unsigned எழுத்து *)temp2;
+	இல்லையெனில்
+		திரும்பு 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+வெறுமை *sbi_memchr(மாறிலி வெறுமை *s, முழு c, size_t மொத்தம்)
 {
-	const unsigned char *temp = s;
+	மாறிலி unsigned எழுத்து *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	போது (மொத்தம் > 0) {
+		எனில் ((unsigned எழுத்து)c == *temp++) {
+			திரும்பு (வெறுமை *)(temp - 1);
 		}
-		count--;
+		மொத்தம்--;
 	}
 
-	return NULL;
+	திரும்பு வெற்று;
 }

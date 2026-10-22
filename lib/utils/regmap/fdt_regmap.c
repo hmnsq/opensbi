@@ -7,65 +7,65 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#அந்தர்பாவ <libfdt.h>
+#அந்தர்பாவ <sbi/sbi_error.h>
+#அந்தர்பாவ <sbi_utils/fdt/fdt_helper.h>
+#அந்தர்பாவ <sbi_utils/regmap/fdt_regmap.h>
 
 /* List of FDT regmap drivers generated at compile time */
-extern const struct fdt_driver *const fdt_regmap_drivers[];
+வெளி மாறிலி கட்டமைப்பு fdt_driver *மாறிலி fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
-			   struct regmap **out_rmap)
+நிலையான முழு fdt_regmap_find(மாறிலி வெறுமை *fdt, முழு nodeoff,
+			   கட்டமைப்பு regmap **out_rmap)
 {
-	int rc;
-	struct regmap *rmap = regmap_find(nodeoff);
+	முழு rc;
+	கட்டமைப்பு regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	எனில் (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		எனில் (rc)
+			திரும்பு rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		எனில் (!rmap)
+			திரும்பு SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	எனில் (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	திரும்பு 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
-			      struct regmap **out_rmap)
+முழு fdt_regmap_get_by_phandle(மாறிலி வெறுமை *fdt, u32 phandle,
+			      கட்டமைப்பு regmap **out_rmap)
 {
-	int pnodeoff;
+	முழு pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	எனில் (!fdt || !out_rmap)
+		திரும்பு SBI_EINVAL;
 
-	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	pnodeoff = fdt_முனை_offset_by_phandle(fdt, phandle);
+	எனில் (pnodeoff < 0)
+		திரும்பு pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	திரும்பு fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+முழு fdt_regmap_get(மாறிலி வெறுமை *fdt, முழு nodeoff, கட்டமைப்பு regmap **out_rmap)
 {
-	int len;
-	const fdt32_t *val;
+	முழு len;
+	மாறிலி fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	எனில் (!fdt || (nodeoff < 0) || !out_rmap)
+		திரும்பு SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	எனில் (!val)
+		திரும்பு SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	திரும்பு fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }
