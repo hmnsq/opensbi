@@ -7,65 +7,65 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/regmap/fdt_regmap.h>
 
 /* List of FDT regmap drivers generated at compile time */
-extern const struct fdt_driver *const fdt_regmap_drivers[];
+بیرونی ثابت ساختار fdt_driver *ثابت fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
-			   struct regmap **out_rmap)
+ایستا صحیح fdt_regmap_find(ثابت تهی *fdt, صحیح nodeoff,
+			   ساختار regmap **out_rmap)
 {
-	int rc;
-	struct regmap *rmap = regmap_find(nodeoff);
+	صحیح rc;
+	ساختار regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	اگر (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		اگر (rc)
+			بازگشت rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		اگر (!rmap)
+			بازگشت SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	اگر (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	بازگشت 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
-			      struct regmap **out_rmap)
+صحیح fdt_regmap_get_by_phandle(ثابت تهی *fdt, u32 phandle,
+			      ساختار regmap **out_rmap)
 {
-	int pnodeoff;
+	صحیح pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	اگر (!fdt || !out_rmap)
+		بازگشت SBI_EINVAL;
 
-	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	pnodeoff = fdt_گره_offset_by_phandle(fdt, phandle);
+	اگر (pnodeoff < 0)
+		بازگشت pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	بازگشت fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+صحیح fdt_regmap_get(ثابت تهی *fdt, صحیح nodeoff, ساختار regmap **out_rmap)
 {
-	int len;
-	const fdt32_t *val;
+	صحیح len;
+	ثابت fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	اگر (!fdt || (nodeoff < 0) || !out_rmap)
+		بازگشت SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	اگر (!val)
+		بازگشت SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	بازگشت fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }

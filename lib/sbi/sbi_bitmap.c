@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#شامل <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+تهی __bitmap_and(unsigned long *dst, ثابت unsigned long *bitmap1,
+		  ثابت unsigned long *bitmap2, صحیح bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	صحیح k;
+	صحیح nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	برای (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+تهی __bitmap_or(unsigned long *dst, ثابت unsigned long *bitmap1,
+		 ثابت unsigned long *bitmap2, صحیح bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	صحیح k;
+	صحیح nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	برای (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+تهی __bitmap_xor(unsigned long *dst, ثابت unsigned long *bitmap1,
+		  ثابت unsigned long *bitmap2, صحیح bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	صحیح k;
+	صحیح nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	برای (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

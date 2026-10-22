@@ -7,12 +7,12 @@
  *   Nikita Shubin <n.shubin@yadro.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi/sbi_timer.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/i2c/fdt_i2c.h>
 
 #define SIFIVE_I2C_PRELO	0x00
 #define SIFIVE_I2C_PREHI	0x04
@@ -41,52 +41,52 @@
 #define SIFIVE_I2C_WRITE_BIT	(0 << 0)
 #define SIFIVE_I2C_READ_BIT	(1 << 0)
 
-struct sifive_i2c_adapter {
+ساختار sifive_i2c_adapter {
 	unsigned long addr;
-	struct i2c_adapter adapter;
+	ساختار i2c_adapter adapter;
 };
 
-static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
-				     uint8_t reg, uint8_t value)
+ایستا درونخطی تهی sifive_i2c_setreg(ساختار sifive_i2c_adapter *adap,
+				     uint8_t reg, uint8_t مقدار)
 {
-	writel(value, (volatile char *)adap->addr + reg);
+	writel(مقدار, (فرار نویسه *)adap->addr + reg);
 }
 
-static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
+ایستا درونخطی uint8_t sifive_i2c_getreg(ساختار sifive_i2c_adapter *adap,
 					uint8_t reg)
 {
-	return readl((volatile char *)adap->addr + reg);
+	بازگشت readl((فرار نویسه *)adap->addr + reg);
 }
 
-static int sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
+ایستا صحیح sifive_i2c_adapter_rxack(ساختار sifive_i2c_adapter *adap)
 {
 	uint8_t val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
 
-	if (val & SIFIVE_I2C_STATUS_RXACK)
-		return SBI_EIO;
+	اگر (val & SIFIVE_I2C_STATUS_RXACK)
+		بازگشت SBI_EIO;
 
-	return 0;
+	بازگشت 0;
 }
 
-static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
+ایستا صحیح sifive_i2c_adapter_poll(ساختار sifive_i2c_adapter *adap,
 				   uint32_t mask)
 {
-	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	unsigned صحیح timeout = 1; // [msec]
+	صحیح شمار = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
 
-	do {
+	انجامبده {
 		val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
-		if (!(val & mask))
-			return 0;
+		اگر (!(val & mask))
+			بازگشت 0;
 
 		sbi_timer_udelay(1);
-		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		شمار += 1;
+		اگر (شمار == (timeout * 1000))
+			بازگشت SBI_ETIMEDOUT;
+	} وقتی (1);
 }
 
 #define sifive_i2c_adapter_poll_tip(adap)	\
@@ -94,7 +94,7 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 #define sifive_i2c_adapter_poll_busy(adap)	\
 sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_BUSY)
 
-static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
+ایستا صحیح sifive_i2c_adapter_start(ساختار sifive_i2c_adapter *adap,
 				    uint8_t addr, uint8_t bit)
 {
 	uint8_t val = (addr << 1) | bit;
@@ -103,48 +103,48 @@ static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 	val = SIFIVE_I2C_CMD_STA | SIFIVE_I2C_CMD_WR | SIFIVE_I2C_CMD_IACK;
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, val);
 
-	return sifive_i2c_adapter_poll_tip(adap);
+	بازگشت sifive_i2c_adapter_poll_tip(adap);
 }
 
-static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				    uint8_t reg, uint8_t *buffer, int len)
+ایستا صحیح sifive_i2c_adapter_write(ساختار i2c_adapter *ia, uint8_t addr,
+				    uint8_t reg, uint8_t *buffer, صحیح len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
+	ساختار sifive_i2c_adapter *adap =
+		container_of(ia, ساختار sifive_i2c_adapter, adapter);
+	صحیح rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
 
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	/* set register address */
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 				SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	/* set value */
-	while (len) {
+	وقتی (len) {
 		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *buffer);
 		sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 						       SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		اگر (rc)
+			بازگشت rc;
 
 		rc = sifive_i2c_adapter_rxack(adap);
-		if (rc)
-			return rc;
+		اگر (rc)
+			بازگشت rc;
 
 		buffer++;
 		len--;
@@ -155,64 +155,64 @@ static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
 
 	/* poll BUSY instead of ACK*/
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	بازگشت 0;
 }
 
-static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				   uint8_t reg, uint8_t *buffer, int len)
+ایستا صحیح sifive_i2c_adapter_read(ساختار i2c_adapter *ia, uint8_t addr,
+				   uint8_t reg, uint8_t *buffer, صحیح len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc;
+	ساختار sifive_i2c_adapter *adap =
+		container_of(ia, ساختار sifive_i2c_adapter, adapter);
+	صحیح rc;
 
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 					       SIFIVE_I2C_CMD_IACK);
 
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	/* setting addr with high 0 bit */
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_READ_BIT);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
-	while (len) {
-		if (len == 1)
+	وقتی (len) {
+		اگر (len == 1)
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_ACK |
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
-		else
+		وگرنه
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		اگر (rc)
+			بازگشت rc;
 
 		*buffer = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
 		buffer++;
@@ -222,50 +222,50 @@ static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_STO |
 					       SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	بازگشت 0;
 }
 
-static int sifive_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+ایستا صحیح sifive_i2c_init(ثابت تهی *fdt, صحیح nodeoff,
+			   ثابت ساختار fdt_match *match)
 {
-	int rc;
-	struct sifive_i2c_adapter *adapter;
+	صحیح rc;
+	ساختار sifive_i2c_adapter *adapter;
 	uint64_t addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(اندازه(*adapter));
+	اگر (!adapter)
+		بازگشت SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_گره_addr_size(fdt, nodeoff, 0, &addr, پوچ);
+	اگر (rc) {
 		sbi_free(adapter);
-		return rc;
+		بازگشت rc;
 	}
 
 	adapter->addr = addr;
 	adapter->adapter.id = nodeoff;
-	adapter->adapter.write = sifive_i2c_adapter_write;
-	adapter->adapter.read = sifive_i2c_adapter_read;
+	adapter->adapter.اكتب = sifive_i2c_adapter_write;
+	adapter->adapter.اقرأ = sifive_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	اگر (rc) {
 		sbi_free(adapter);
-		return rc;
+		بازگشت rc;
 	}
 
-	return 0;
+	بازگشت 0;
 }
 
-static const struct fdt_match sifive_i2c_match[] = {
+ایستا ثابت ساختار fdt_match sifive_i2c_match[] = {
 	{ .compatible = "sifive,i2c0" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_sifive = {
+ثابت ساختار fdt_driver fdt_i2c_adapter_sifive = {
 	.match_table = sifive_i2c_match,
 	.init = sifive_i2c_init,
 };

@@ -7,11 +7,11 @@
  *   Green Wan <green.wan@sifive.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/gpio/fdt_gpio.h>
 
 #define SIFIVE_GPIO_PINS_MIN	1
 #define SIFIVE_GPIO_PINS_MAX	32
@@ -21,62 +21,62 @@
 #define SIFIVE_GPIO_OUTVAL	0xc
 #define SIFIVE_GPIO_BIT(b)	(1U << (b))
 
-struct sifive_gpio_chip {
+ساختار sifive_gpio_chip {
 	unsigned long addr;
-	struct gpio_chip chip;
+	ساختار gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+ایستا صحیح sifive_gpio_direction_output(ساختار gpio_pin *gp, صحیح مقدار)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	unsigned صحیح v;
+	ساختار sifive_gpio_chip *chip =
+		container_of(gp->chip, ساختار sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v = readl((فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTEN));
 	v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	writel(v, (فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	v = readl((فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	اگر (!مقدار)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	وگرنه
 		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	writel(v, (فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 
-	return 0;
+	بازگشت 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+ایستا تهی sifive_gpio_set(ساختار gpio_pin *gp, صحیح مقدار)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	unsigned صحیح v;
+	ساختار sifive_gpio_chip *chip =
+		container_of(gp->chip, ساختار sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	v = readl((فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	اگر (!مقدار)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	وگرنه
 		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	writel(v, (فرار تهی *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_sifive;
+ثابت ساختار fdt_gpio fdt_gpio_sifive;
 
-static int sifive_gpio_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ایستا صحیح sifive_gpio_init(ثابت تهی *fdt, صحیح nodeoff,
+			    ثابت ساختار fdt_match *match)
 {
-	int rc;
-	struct sifive_gpio_chip *chip;
+	صحیح rc;
+	ساختار sifive_gpio_chip *chip;
 	uint64_t addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(اندازه(*chip));
+	اگر (!chip)
+		بازگشت SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_گره_addr_size(fdt, nodeoff, 0, &addr, پوچ);
+	اگر (rc) {
 		sbi_free(chip);
-		return rc;
+		بازگشت rc;
 	}
 
 	chip->addr = addr;
@@ -86,20 +86,20 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = sifive_gpio_direction_output;
 	chip->chip.set = sifive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	اگر (rc) {
 		sbi_free(chip);
-		return rc;
+		بازگشت rc;
 	}
 
-	return 0;
+	بازگشت 0;
 }
 
-static const struct fdt_match sifive_gpio_match[] = {
+ایستا ثابت ساختار fdt_match sifive_gpio_match[] = {
 	{ .compatible = "sifive,gpio0" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_sifive = {
+ثابت ساختار fdt_gpio fdt_gpio_sifive = {
 	.driver = {
 		.match_table = sifive_gpio_match,
 		.init = sifive_gpio_init,

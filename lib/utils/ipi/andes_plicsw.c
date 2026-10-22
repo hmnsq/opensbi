@@ -10,21 +10,21 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_ipi.h>
+#شامل <sbi_utils/ipi/andes_plicsw.h>
 
-struct plicsw_data plicsw;
+ساختار plicsw_data plicsw;
 
-static void plicsw_ipi_send(u32 hart_index)
+ایستا تهی plicsw_ipi_send(u32 hart_index)
 {
 	ulong pending_reg;
 	u32 interrupt_id, word_index, pending_bit;
 	u32 target_hart = sbi_hartindex_to_hartid(hart_index);
 
-	if (plicsw.hart_count <= target_hart)
+	اگر (plicsw.hart_شمار <= target_hart)
 		ebreak();
 
 	/*
@@ -38,69 +38,69 @@ static void plicsw_ipi_send(u32 hart_index)
 	pending_reg  = plicsw.addr + PLICSW_PENDING_BASE + word_index * 4;
 
 	/* Set target hart's mip.MSIP */
-	writel_relaxed(BIT(pending_bit), (void *)pending_reg);
+	writel_relaxed(BIT(pending_bit), (تهی *)pending_reg);
 }
 
-static void plicsw_ipi_clear(void)
+ایستا تهی plicsw_ipi_clear(تهی)
 {
 	u32 target_hart = current_hartid();
 	ulong reg = plicsw.addr + PLICSW_CONTEXT_BASE + PLICSW_CONTEXT_CLAIM +
 		    PLICSW_CONTEXT_STRIDE * target_hart;
 
-	if (plicsw.hart_count <= target_hart)
+	اگر (plicsw.hart_شمار <= target_hart)
 		ebreak();
 
 	/* Claim */
-	u32 source = readl((void *)reg);
+	u32 source = readl((تهی *)reg);
 
 	/* A successful claim will clear mip.MSIP */
 
 	/* Complete */
-	writel(source, (void *)reg);
+	writel(source, (تهی *)reg);
 }
 
-static struct sbi_ipi_device plicsw_ipi = {
+ایستا ساختار sbi_ipi_device plicsw_ipi = {
 	.name      = "andes_plicsw",
 	.rating    = 200,
 	.ipi_send  = plicsw_ipi_send,
 	.ipi_clear = plicsw_ipi_clear
 };
 
-int plicsw_cold_ipi_init(struct plicsw_data *plicsw)
+صحیح plicsw_cold_ipi_init(ساختار plicsw_data *plicsw)
 {
-	int rc;
+	صحیح rc;
 	u32 interrupt_id, word_index, enable_bit;
 	ulong enable_reg, priority_reg;
 
 	/* Setup source priority */
-	for (int i = 0; i < plicsw->hart_count; i++) {
+	برای (صحیح i = 0; i < plicsw->hart_شمار; i++) {
 		priority_reg = plicsw->addr + PLICSW_PRIORITY_BASE + i * 4;
-		writel(1, (void *)priority_reg);
+		writel(1, (تهی *)priority_reg);
 	}
 
 	/*
 	 * Setup enable for each hart, skip non-existent interrupt ID 0
 	 * which is hardwired to 0.
 	 */
-	for (int i = 0; i < plicsw->hart_count; i++) {
+	برای (صحیح i = 0; i < plicsw->hart_شمار; i++) {
 		interrupt_id = i + 1;
 		word_index   = interrupt_id / 32;
 		enable_bit   = interrupt_id % 32;
 		enable_reg   = plicsw->addr + PLICSW_ENABLE_BASE +
 			       PLICSW_ENABLE_STRIDE * i + 4 * word_index;
-		writel(BIT(enable_bit), (void *)enable_reg);
+		writel(BIT(enable_bit), (تهی *)enable_reg);
 	}
 
 	/* Add PLICSW region to the root domain */
-	rc = sbi_domain_root_add_memrange(plicsw->addr, plicsw->size,
+	rc = sbi_domain_ریشه_add_memrange(plicsw->addr, plicsw->size,
 					  PLICSW_REGION_ALIGN,
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	اگر (rc)
+		بازگشت rc;
 
 	sbi_ipi_add_device(&plicsw_ipi);
 
-	return 0;
+	بازگشت 0;
 }

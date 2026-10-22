@@ -4,85 +4,85 @@
  * Copyright (c) 2024 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+صحیح fdt_driver_init_by_offset(ثابت تهی *fdt, صحیح nodeoff,
+			      ثابت ساختار fdt_driver *ثابت *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	ثابت ساختار fdt_driver *driver;
+	ثابت ساختار fdt_match *match;
+	صحیح compat_len, prop_len, rc;
+	ثابت نویسه *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	اگر (!fdt_گره_is_enabled(fdt, nodeoff))
+		بازگشت SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	اگر (!compat_str)
+		بازگشت SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
-					goto found;
+	وقتی ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		برای (صحیح i = 0; (driver = drivers[i]); i++)
+			برای (match = driver->match_table; match->compatible; match++)
+				اگر (!memcmp(match->compatible, compat_str, compat_len))
+					برو found;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	بازگشت SBI_ENODEV;
 
 found:
-	if (driver->experimental)
+	اگر (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
 			   match->compatible);
 
 	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	اگر (rc < 0) {
+		ثابت نویسه *name;
 
-		name = fdt_get_name(fdt, nodeoff, NULL);
+		name = fdt_get_name(fdt, nodeoff, پوچ);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
 			   __func__, name, match->compatible, rc);
 	}
 
-	return rc;
+	بازگشت rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+ایستا صحیح fdt_driver_init_scan(ثابت تهی *fdt,
+				ثابت ساختار fdt_driver *ثابت *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	صحیح nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	برای (nodeoff = fdt_next_گره(fdt, -1, پوچ);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
+	     nodeoff = fdt_next_گره(fdt, nodeoff, پوچ)) {
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
-			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+		اگر (rc == SBI_ENODEV)
+			ادامه;
+		اگر (rc < 0)
+			بازگشت rc;
+		اگر (one)
+			بازگشت 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	بازگشت one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+صحیح fdt_driver_init_all(ثابت تهی *fdt,
+			ثابت ساختار fdt_driver *ثابت *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	بازگشت fdt_driver_init_scan(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+صحیح fdt_driver_init_one(ثابت تهی *fdt,
+			ثابت ساختار fdt_driver *ثابت *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	بازگشت fdt_driver_init_scan(fdt, drivers, true);
 }

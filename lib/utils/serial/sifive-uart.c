@@ -7,10 +7,10 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi_utils/serial/sifive-uart.h>
 
 /* clang-format off */
 
@@ -30,9 +30,9 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+ایستا فرار نویسه *uart_base;
+ایستا u32 uart_in_freq;
+ایستا u32 uart_baudrate;
 
 /**
  * Find minimum divisor divides in_freq to max_target_hz;
@@ -45,61 +45,61 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+ایستا درونخطی unsigned صحیح uart_min_clk_مقسوم_علیه(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	اگر (quotient == 0)
+		بازگشت 0;
+	وگرنه
+		بازگشت quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+ایستا u32 get_reg(u32 رقم)
 {
-	return readl(uart_base + (num * 0x4));
+	بازگشت readl(uart_base + (رقم * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ایستا تهی set_reg(u32 رقم, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (رقم * 0x4));
 }
 
-static void sifive_uart_putc(char ch)
+ایستا تهی sifive_uart_putc(نویسه ch)
 {
-	while (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
+	وقتی (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
 		;
 
 	set_reg(UART_REG_TXFIFO, ch);
 }
 
-static int sifive_uart_getc(void)
+ایستا صحیح sifive_uart_getc(تهی)
 {
 	u32 ret = get_reg(UART_REG_RXFIFO);
 
-	if (!(ret & UART_RXFIFO_EMPTY))
-		return ret & UART_RXFIFO_DATA;
+	اگر (!(ret & UART_RXFIFO_EMPTY))
+		بازگشت ret & UART_RXFIFO_DATA;
 
-	return -1;
+	بازگشت -1;
 }
 
-static struct sbi_console_device sifive_console = {
+ایستا ساختار sbi_console_device sifive_console = {
 	.name = "sifive_uart",
 	.console_putc = sifive_uart_putc,
 	.console_getc = sifive_uart_getc
 };
 
-int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+صحیح sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
-	uart_base     = (volatile char *)base;
+	uart_base     = (فرار نویسه *)base;
 	uart_in_freq  = in_freq;
 	uart_baudrate = baudrate;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+	اگر (in_freq && baudrate)
+		set_reg(UART_REG_DIV, uart_min_clk_مقسوم_علیه(in_freq, baudrate));
 
 	/* Disable interrupts */
 	set_reg(UART_REG_IE, 0);
@@ -112,7 +112,7 @@ int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	بازگشت sbi_domain_ریشه_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

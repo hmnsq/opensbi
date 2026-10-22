@@ -7,9 +7,9 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi_utils/serial/xlnx_uartlite.h>
 
 /* clang-format off */
 
@@ -31,37 +31,37 @@
 
 /* clang-format on */
 
-static volatile char *xlnx_uartlite_base;
+ایستا فرار نویسه *xlnx_uartlite_base;
 
-static void xlnx_uartlite_putc(char ch)
+ایستا تهی xlnx_uartlite_putc(نویسه ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	وقتی((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
 		;
 
 	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
 }
 
-static int xlnx_uartlite_getc(void)
+ایستا صحیح xlnx_uartlite_getc(تهی)
 {
 	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	اگر (status & UART_STATUS_RXVALID)
+		بازگشت readb(xlnx_uartlite_base + UART_RX_OFFSET);
 
-	return -1;
+	بازگشت -1;
 }
 
-static struct sbi_console_device xlnx_uartlite_console = {
+ایستا ساختار sbi_console_device xlnx_uartlite_console = {
 	.name = "xlnx-uartlite",
 	.console_putc = xlnx_uartlite_putc,
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+صحیح xlnx_uartlite_init(unsigned long base)
 {
-	xlnx_uartlite_base = (volatile char *)base;
+	xlnx_uartlite_base = (فرار نویسه *)base;
 
 	sbi_console_set_device(&xlnx_uartlite_console);
 
-	return 0;
+	بازگشت 0;
 }

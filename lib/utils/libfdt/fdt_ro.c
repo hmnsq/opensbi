@@ -3,568 +3,568 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#شامل "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#شامل <fdt.h>
+#شامل <libfdt.h>
 
-#include "libfdt_internal.h"
+#شامل "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+ایستا صحیح fdt_nodename_eq_(ثابت تهی *fdt, صحیح offset,
+			    ثابت نویسه *s, صحیح len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	صحیح olen;
+	ثابت نویسه *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	اگر (!p || olen < len)
 		/* short match */
-		return 0;
+		بازگشت 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	اگر (memcmp(p, s, len) != 0)
+		بازگشت 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	اگر (p[len] == '\0')
+		بازگشت 1;
+	وگرنه اگر (!memchr(s, '@', len) && (p[len] == '@'))
+		بازگشت 1;
+	وگرنه
+		بازگشت 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+ثابت نویسه *fdt_get_string(ثابت تهی *fdt, صحیح stroffset, صحیح *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
-	const char *s, *n;
+	صحیح err;
+	ثابت نویسه *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	اگر (can_assume(VALID_درون_داد)) {
+		s = (ثابت نویسه *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		اگر (lenp)
 			*lenp = strlen(s);
-		return s;
+		بازگشت s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
-		goto fail;
+	اگر (totalsize < 0)
+		برو fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
-		goto fail;
+	اگر (absoffset >= (unsigned)totalsize)
+		برو fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
-			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
-				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+	اگر (fdt_magic(fdt) == FDT_MAGIC) {
+		اگر (stroffset < 0)
+			برو fail;
+		اگر (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			اگر ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+				برو fail;
+			اگر ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} وگرنه اگر (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned صحیح sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		اگر ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
-			goto fail;
-		if (sw_stroffset < len)
+			برو fail;
+		اگر (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} وگرنه {
 		err = -FDT_ERR_INTERNAL;
-		goto fail;
+		برو fail;
 	}
 
-	s = (const char *)fdt + absoffset;
+	s = (ثابت نویسه *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	اگر (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
-		goto fail;
+		برو fail;
 	}
 
-	if (lenp)
+	اگر (lenp)
 		*lenp = n - s;
-	return s;
+	بازگشت s;
 
 fail:
-	if (lenp)
+	اگر (lenp)
 		*lenp = err;
-	return NULL;
+	بازگشت پوچ;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+ثابت نویسه *fdt_string(ثابت تهی *fdt, صحیح stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	بازگشت fdt_get_string(fdt, stroffset, پوچ);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+ایستا صحیح fdt_string_eq_(ثابت تهی *fdt, صحیح stroffset,
+			  ثابت نویسه *s, صحیح len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	صحیح slen;
+	ثابت نویسه *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	بازگشت p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+صحیح fdt_find_max_phandle(ثابت تهی *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	صحیح offset = -1;
 
-	while (true) {
-		uint32_t value;
+	وقتی (true) {
+		uint32_t مقدار;
 
-		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		offset = fdt_next_گره(fdt, offset, پوچ);
+		اگر (offset < 0) {
+			اگر (offset == -FDT_ERR_NOTFOUND)
+				بشکن;
 
-			return offset;
+			بازگشت offset;
 		}
 
-		value = fdt_get_phandle(fdt, offset);
+		مقدار = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
-			max = value;
+		اگر (مقدار > max)
+			max = مقدار;
 	}
 
-	if (phandle)
+	اگر (phandle)
 		*phandle = max;
 
-	return 0;
+	بازگشت 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+صحیح fdt_generate_phandle(ثابت تهی *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	صحیح err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	اگر (err < 0)
+		بازگشت err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	اگر (max == FDT_MAX_PHANDLE)
+		بازگشت -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	اگر (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	بازگشت 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+ایستا ثابت ساختار fdt_reserve_entry *fdt_mem_rsv(ثابت تهی *fdt, صحیح n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned صحیح offset = n * اندازه(ساختار fdt_reserve_entry);
+	unsigned صحیح absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	اگر (!can_assume(VALID_درون_داد)) {
+		اگر (absoffset < fdt_off_mem_rsvmap(fdt))
+			بازگشت پوچ;
+		اگر (absoffset > fdt_totalsize(fdt) -
+		    اندازه(ساختار fdt_reserve_entry))
+			بازگشت پوچ;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	بازگشت fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+صحیح fdt_get_mem_rsv(ثابت تهی *fdt, صحیح n, uint64_t *address, uint64_t *size)
 {
-	const struct fdt_reserve_entry *re;
+	ثابت ساختار fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	اگر (!can_assume(VALID_درون_داد) && !re)
+		بازگشت -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	بازگشت 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+صحیح fdt_رقم_mem_rsv(ثابت تهی *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	صحیح i;
+	ثابت ساختار fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	برای (i = 0; (re = fdt_mem_rsv(fdt, i)) != پوچ; i++) {
+		اگر (fdt64_ld_(&re->size) == 0)
+			بازگشت i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	بازگشت -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+ایستا صحیح nextprop_(ثابت تهی *fdt, صحیح offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	صحیح nextoffset;
 
-	do {
+	انجامبده {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		انتخاب (tag) {
+		حالت FDT_END:
+			اگر (nextoffset >= 0)
+				بازگشت -FDT_ERR_BADSTRUCTURE;
+			وگرنه
+				بازگشت nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		حالت FDT_PROP:
+			بازگشت offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} وقتی (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	بازگشت -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+صحیح fdt_subnode_offset_namelen(ثابت تهی *fdt, صحیح offset,
+			       ثابت نویسه *name, صحیح namelen)
 {
-	int depth;
+	صحیح depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	برای (depth = 0;
 	     (offset >= 0) && (depth >= 0);
-	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+	     offset = fdt_next_گره(fdt, offset, &depth))
+		اگر ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			بازگشت offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	اگر (depth < 0)
+		بازگشت -FDT_ERR_NOTFOUND;
+	بازگشت offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+صحیح fdt_subnode_offset(ثابت تهی *fdt, صحیح parentoffset,
+		       ثابت نویسه *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	بازگشت fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+صحیح fdt_path_offset_namelen(ثابت تهی *fdt, ثابت نویسه *path, صحیح namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	ثابت نویسه *end = path + namelen;
+	ثابت نویسه *p = path;
+	صحیح offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	اگر (*path != '/') {
+		ثابت نویسه *q = memchr(path, '/', end - p);
 
-		if (!q)
+		اگر (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		اگر (!p)
+			بازگشت -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	وقتی (p < end) {
+		ثابت نویسه *q;
 
-		while (*p == '/') {
+		وقتی (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			اگر (p == end)
+				بازگشت offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		اگر (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		اگر (offset < 0)
+			بازگشت offset;
 
 		p = q;
 	}
 
-	return offset;
+	بازگشت offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+صحیح fdt_path_offset(ثابت تهی *fdt, ثابت نویسه *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	بازگشت fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+ثابت نویسه *fdt_get_name(ثابت تهی *fdt, صحیح nodeoffset, صحیح *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	ثابت ساختار fdt_گره_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	ثابت نویسه *nameptr;
+	صحیح err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
-	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
-			goto fail;
+	اگر (((err = fdt_ro_probe_(fdt)) < 0)
+	    || ((err = fdt_check_گره_offset(fdt, nodeoffset)) < 0))
+			برو fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	اگر (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
+		ثابت نویسه *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		اگر (leaf == پوچ) {
 			err = -FDT_ERR_BADSTRUCTURE;
-			goto fail;
+			برو fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	اگر (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	بازگشت nameptr;
 
  fail:
-	if (len)
+	اگر (len)
 		*len = err;
-	return NULL;
+	بازگشت پوچ;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+صحیح fdt_first_property_offset(ثابت تهی *fdt, صحیح nodeoffset)
 {
-	int offset;
+	صحیح offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	اگر ((offset = fdt_check_گره_offset(fdt, nodeoffset)) < 0)
+		بازگشت offset;
 
-	return nextprop_(fdt, offset);
+	بازگشت nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+صحیح fdt_next_property_offset(ثابت تهی *fdt, صحیح offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	اگر ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		بازگشت offset;
 
-	return nextprop_(fdt, offset);
+	بازگشت nextprop_(fdt, offset);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+ایستا ثابت ساختار fdt_property *fdt_get_property_by_offset_(ثابت تهی *fdt,
+						              صحیح offset,
+						              صحیح *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	صحیح err;
+	ثابت ساختار fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	اگر (!can_assume(VALID_درون_داد) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		اگر (lenp)
 			*lenp = err;
-		return NULL;
+		بازگشت پوچ;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	اگر (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	بازگشت prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+ثابت ساختار fdt_property *fdt_get_property_by_offset(ثابت تهی *fdt,
+						      صحیح offset,
+						      صحیح *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	اگر (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		اگر (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		بازگشت پوچ;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	بازگشت fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+ایستا ثابت ساختار fdt_property *fdt_get_property_namelen_(ثابت تهی *fdt,
+						            صحیح offset,
+						            ثابت نویسه *name,
+						            صحیح namelen,
+							    صحیح *lenp,
+							    صحیح *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	برای (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+		ثابت ساختار fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		اگر (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
-			break;
+			بشکن;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		اگر (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			اگر (poffset)
 				*poffset = offset;
-			return prop;
+			بازگشت prop;
 		}
 	}
 
-	if (lenp)
+	اگر (lenp)
 		*lenp = offset;
-	return NULL;
+	بازگشت پوچ;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+ثابت ساختار fdt_property *fdt_get_property_namelen(ثابت تهی *fdt,
+						    صحیح offset,
+						    ثابت نویسه *name,
+						    صحیح namelen, صحیح *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	اگر (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		اگر (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		بازگشت پوچ;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
-					 NULL);
+	بازگشت fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+					 پوچ);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+ثابت ساختار fdt_property *fdt_get_property(ثابت تهی *fdt,
+					    صحیح nodeoffset,
+					    ثابت نویسه *name, صحیح *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	بازگشت fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+ثابت تهی *fdt_getprop_namelen(ثابت تهی *fdt, صحیح nodeoffset,
+				ثابت نویسه *name, صحیح namelen, صحیح *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	صحیح poffset;
+	ثابت ساختار fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	اگر (!prop)
+		بازگشت پوچ;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	اگر (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (poffset + اندازه(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		بازگشت prop->data + 4;
+	بازگشت prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+ثابت تهی *fdt_getprop_by_offset(ثابت تهی *fdt, صحیح offset,
+				  ثابت نویسه **namep, صحیح *lenp)
 {
-	const struct fdt_property *prop;
+	ثابت ساختار fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	اگر (!prop)
+		بازگشت پوچ;
+	اگر (namep) {
+		ثابت نویسه *name;
+		صحیح namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		اگر (!can_assume(VALID_درون_داد)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			اگر (!name) {
+				اگر (lenp)
 					*lenp = namelen;
-				return NULL;
+				بازگشت پوچ;
 			}
 			*namep = name;
-		} else {
+		} وگرنه {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	اگر (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (offset + اندازه(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		بازگشت prop->data + 4;
+	بازگشت prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+ثابت تهی *fdt_getprop(ثابت تهی *fdt, صحیح nodeoffset,
+			ثابت نویسه *name, صحیح *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	بازگشت fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(ثابت تهی *fdt, صحیح nodeoffset)
 {
-	const fdt32_t *php;
-	int len;
+	ثابت fdt32_t *php;
+	صحیح len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	اگر (!php || (len != اندازه(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		اگر (!php || (len != اندازه(*php)))
+			بازگشت 0;
 	}
 
-	return fdt32_ld_(php);
+	بازگشت fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+ثابت نویسه *fdt_get_alias_namelen(ثابت تهی *fdt,
+				  ثابت نویسه *name, صحیح namelen)
 {
-	int aliasoffset;
+	صحیح aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	اگر (aliasoffset < 0)
+		بازگشت پوچ;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	بازگشت fdt_getprop_namelen(fdt, aliasoffset, name, namelen, پوچ);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+ثابت نویسه *fdt_get_alias(ثابت تهی *fdt, ثابت نویسه *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	بازگشت fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+صحیح fdt_get_path(ثابت تهی *fdt, صحیح nodeoffset, نویسه *buf, صحیح buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	صحیح pdepth = 0, p = 0;
+	صحیح offset, depth, namelen;
+	ثابت نویسه *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	اگر (buflen < 2)
+		بازگشت -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	برای (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
-			do {
+	     offset = fdt_next_گره(fdt, offset, &depth)) {
+		وقتی (pdepth > depth) {
+			انجامبده {
 				p--;
-			} while (buf[p-1] != '/');
+			} وقتی (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		اگر (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			اگر (!name)
+				بازگشت namelen;
+			اگر ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		اگر (offset == nodeoffset) {
+			اگر (pdepth < (depth + 1))
+				بازگشت -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			اگر (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			بازگشت 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	اگر ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		بازگشت -FDT_ERR_BADOFFSET;
+	وگرنه اگر (offset == -FDT_ERR_BADOFFSET)
+		بازگشت -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	بازگشت offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+صحیح fdt_supernode_atdepth_offset(ثابت تهی *fdt, صحیح nodeoffset,
+				 صحیح supernodedepth, صحیح *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	صحیح offset, depth;
+	صحیح supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	اگر (supernodedepth < 0)
+		بازگشت -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	برای (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+	     offset = fdt_next_گره(fdt, offset, &depth)) {
+		اگر (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		اگر (offset == nodeoffset) {
+			اگر (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			اگر (supernodedepth > depth)
+				بازگشت -FDT_ERR_NOTFOUND;
+			وگرنه
+				بازگشت supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	اگر (!can_assume(VALID_درون_داد)) {
+		اگر ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			بازگشت -FDT_ERR_BADOFFSET;
+		وگرنه اگر (offset == -FDT_ERR_BADOFFSET)
+			بازگشت -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	بازگشت offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+صحیح fdt_گره_depth(ثابت تهی *fdt, صحیح nodeoffset)
 {
-	int nodedepth;
-	int err;
+	صحیح nodedepth;
+	صحیح err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	اگر (err)
+		بازگشت (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	بازگشت nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+صحیح fdt_parent_offset(ثابت تهی *fdt, صحیح nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	صحیح nodedepth = fdt_گره_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
-					    nodedepth - 1, NULL);
+	اگر (nodedepth < 0)
+		بازگشت nodedepth;
+	بازگشت fdt_supernode_atdepth_offset(fdt, nodeoffset,
+					    nodedepth - 1, پوچ);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+صحیح fdt_گره_offset_by_prop_مقدار(ثابت تهی *fdt, صحیح startoffset,
+				  ثابت نویسه *propname,
+				  ثابت تهی *propval, صحیح proplen)
 {
-	int offset;
-	const void *val;
-	int len;
+	صحیح offset;
+	ثابت تهی *val;
+	صحیح len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	برای (offset = fdt_next_گره(fdt, startoffset, پوچ);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
+	     offset = fdt_next_گره(fdt, offset, پوچ)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		اگر (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			بازگشت offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	بازگشت offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+صحیح fdt_گره_offset_by_phandle(ثابت تهی *fdt, uint32_t phandle)
 {
-	int offset;
+	صحیح offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	اگر ((phandle == 0) || (phandle == ~0U))
+		بازگشت -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	برای (offset = fdt_next_گره(fdt, -1, پوچ);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+	     offset = fdt_next_گره(fdt, offset, پوچ)) {
+		اگر (fdt_get_phandle(fdt, offset) == phandle)
+			بازگشت offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	بازگشت offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+صحیح fdt_stringlist_contains(ثابت نویسه *strlist, صحیح listlen, ثابت نویسه *str)
 {
-	int len = strlen(str);
-	const char *p;
+	صحیح len = strlen(str);
+	ثابت نویسه *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	وقتی (listlen >= len) {
+		اگر (memcmp(str, strlist, len+1) == 0)
+			بازگشت 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		اگر (!p)
+			بازگشت 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	بازگشت 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+صحیح fdt_stringlist_شمار(ثابت تهی *fdt, صحیح nodeoffset, ثابت نویسه *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	ثابت نویسه *list, *end;
+	صحیح length, شمار = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	اگر (!list)
+		بازگشت length;
 
 	end = list + length;
 
-	while (list < end) {
+	وقتی (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		اگر (list + length > end)
+			بازگشت -FDT_ERR_BADVALUE;
 
 		list += length;
-		count++;
+		شمار++;
 	}
 
-	return count;
+	بازگشت شمار;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+صحیح fdt_stringlist_جستجو(ثابت تهی *fdt, صحیح nodeoffset, ثابت نویسه *property,
+			  ثابت نویسه *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	صحیح length, len, idx = 0;
+	ثابت نویسه *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	اگر (!list)
+		بازگشت length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	وقتی (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		اگر (list + length > end)
+			بازگشت -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		اگر (length == len && memcmp(list, string, length) == 0)
+			بازگشت idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	بازگشت -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+ثابت نویسه *fdt_stringlist_get(ثابت تهی *fdt, صحیح nodeoffset,
+			       ثابت نویسه *property, صحیح idx,
+			       صحیح *lenp)
 {
-	const char *list, *end;
-	int length;
+	ثابت نویسه *list, *end;
+	صحیح length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	اگر (!list) {
+		اگر (lenp)
 			*lenp = length;
 
-		return NULL;
+		بازگشت پوچ;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	وقتی (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		اگر (list + length > end) {
+			اگر (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			بازگشت پوچ;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		اگر (idx == 0) {
+			اگر (lenp)
 				*lenp = length - 1;
 
-			return list;
+			بازگشت list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	اگر (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	بازگشت پوچ;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+صحیح fdt_گره_check_compatible(ثابت تهی *fdt, صحیح nodeoffset,
+			      ثابت نویسه *compatible)
 {
-	const void *prop;
-	int len;
+	ثابت تهی *prop;
+	صحیح len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	اگر (!prop)
+		بازگشت len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	بازگشت !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+صحیح fdt_گره_offset_by_compatible(ثابت تهی *fdt, صحیح startoffset,
+				  ثابت نویسه *compatible)
 {
-	int offset, err;
+	صحیح offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	برای (offset = fdt_next_گره(fdt, startoffset, پوچ);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+	     offset = fdt_next_گره(fdt, offset, پوچ)) {
+		err = fdt_گره_check_compatible(fdt, offset, compatible);
+		اگر ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			بازگشت err;
+		وگرنه اگر (err == 0)
+			بازگشت offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	بازگشت offset; /* error from fdt_next_node() */
 }

@@ -7,9 +7,9 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
@@ -29,48 +29,48 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
+ایستا فرار نویسه *uart_base;
 
-static u32 get_reg(u32 num)
+ایستا u32 get_reg(u32 رقم)
 {
-	return readl(uart_base + (num * 0x4));
+	بازگشت readl(uart_base + (رقم * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ایستا تهی set_reg(u32 رقم, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (رقم * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+ایستا تهی gaisler_uart_putc(نویسه ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	وقتی (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+ایستا صحیح gaisler_uart_getc(تهی)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	اگر (!(ret & UART_STATUS_DATAREADY))
+		بازگشت -1;
+	بازگشت get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
-static struct sbi_console_device gaisler_console = {
+ایستا ساختار sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+صحیح gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_base = (فرار نویسه *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	اگر (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	بازگشت 0;
 }

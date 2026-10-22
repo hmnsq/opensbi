@@ -7,25 +7,25 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_hart_protection.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/sbi_hart_protection.h>
 
-static int sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ایستا صحیح sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
+				  ساختار sbi_trap_regs *regs,
+				  ساختار sbi_ecall_return *out)
 {
 	ulong smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
 
-	switch (funcid) {
-	case SBI_EXT_DBCN_CONSOLE_WRITE:
-	case SBI_EXT_DBCN_CONSOLE_READ:
+	انتخاب (funcid) {
+	حالت SBI_EXT_DBCN_CONSOLE_WRITE:
+	حالت SBI_EXT_DBCN_CONSOLE_READ:
 		/*
 		 * On RV32, the M-mode can only access the first 4GB of
 		 * the physical address space because M-mode does not have
@@ -39,41 +39,41 @@ static int sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
 		 * physical address (i.e. a2 register) is non-zero on
 		 * RV64.
 		 */
-		if (regs->a2)
-			return SBI_ERR_FAILED;
+		اگر (regs->a2)
+			بازگشت SBI_ERR_FAILED;
 
-		if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+		اگر (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
 					regs->a1, regs->a0, smode,
 					SBI_DOMAIN_READ|SBI_DOMAIN_WRITE))
-			return SBI_ERR_INVALID_PARAM;
+			بازگشت SBI_ERR_INVALID_PARAM;
 		sbi_hart_protection_temp_map_range(regs->a1, regs->a0);
-		if (funcid == SBI_EXT_DBCN_CONSOLE_WRITE)
-			out->value = sbi_nputs((const char *)regs->a1, regs->a0);
-		else
-			out->value = sbi_ngets((char *)regs->a1, regs->a0);
+		اگر (funcid == SBI_EXT_DBCN_CONSOLE_WRITE)
+			out->مقدار = sbi_nputs((ثابت نویسه *)regs->a1, regs->a0);
+		وگرنه
+			out->مقدار = sbi_ngets((نویسه *)regs->a1, regs->a0);
 		sbi_hart_protection_temp_unmap_range(regs->a1, regs->a0);
-		return 0;
-	case SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:
+		بازگشت 0;
+	حالت SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:
 		sbi_putc(regs->a0);
-		return 0;
-	default:
-		break;
+		بازگشت 0;
+	پیشفرض:
+		بشکن;
 	}
 
-	return SBI_ENOTSUPP;
+	بازگشت SBI_ENOTSUPP;
 }
 
-struct sbi_ecall_extension ecall_dbcn;
+ساختار sbi_ecall_extension ecall_dbcn;
 
-static int sbi_ecall_dbcn_register_extensions(void)
+ایستا صحیح sbi_ecall_dbcn_register_extensions(تهی)
 {
-	if (!sbi_console_get_device())
-		return 0;
+	اگر (!sbi_console_get_device())
+		بازگشت 0;
 
-	return sbi_ecall_register_extension(&ecall_dbcn);
+	بازگشت sbi_ecall_register_extension(&ecall_dbcn);
 }
 
-struct sbi_ecall_extension ecall_dbcn = {
+ساختار sbi_ecall_extension ecall_dbcn = {
 	.name			= "dbcn",
 	.extid_start		= SBI_EXT_DBCN,
 	.extid_end		= SBI_EXT_DBCN,

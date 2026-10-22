@@ -5,45 +5,45 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include <fdt.h>
+#شامل <fdt.h>
 
 #define FDT_ALIGN(x, a)		(((x) + (a) - 1) & ~((a) - 1))
 #define FDT_TAGALIGN(x)		(FDT_ALIGN((x), FDT_TAGSIZE))
 
-int32_t fdt_ro_probe_(const void *fdt);
+int32_t fdt_ro_probe_(ثابت تهی *fdt);
 #define FDT_RO_PROBE(fdt)					\
 	{							\
 		int32_t totalsize_;				\
-		if ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
-			return totalsize_;			\
+		اگر ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
+			بازگشت totalsize_;			\
 	}
 
-int fdt_check_node_offset_(const void *fdt, int offset);
-int fdt_check_prop_offset_(const void *fdt, int offset);
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s);
-int fdt_node_end_offset_(void *fdt, int nodeoffset);
+صحیح fdt_check_گره_offset(ثابت تهی *fdt, صحیح offset);
+صحیح fdt_check_prop_offset_(ثابت تهی *fdt, صحیح offset);
+ثابت نویسه *fdt_find_string_(ثابت نویسه *strtab, صحیح tabsize, ثابت نویسه *s);
+صحیح fdt_گره_end_offset(تهی *fdt, صحیح nodeoffset);
 
-static inline const void *fdt_offset_ptr_(const void *fdt, int offset)
+ایستا درونخطی ثابت تهی *fdt_offset_ptr_(ثابت تهی *fdt, صحیح offset)
 {
-	return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;
+	بازگشت (ثابت نویسه *)fdt + fdt_off_dt_struct(fdt) + offset;
 }
 
-static inline void *fdt_offset_ptr_w_(void *fdt, int offset)
+ایستا درونخطی تهی *fdt_offset_ptr_w_(تهی *fdt, صحیح offset)
 {
-	return (void *)(uintptr_t)fdt_offset_ptr_(fdt, offset);
+	بازگشت (تهی *)(uintptr_t)fdt_offset_ptr_(fdt, offset);
 }
 
-static inline const struct fdt_reserve_entry *fdt_mem_rsv_(const void *fdt, int n)
+ایستا درونخطی ثابت ساختار fdt_reserve_entry *fdt_mem_rsv_(ثابت تهی *fdt, صحیح n)
 {
-	const struct fdt_reserve_entry *rsv_table =
-		(const struct fdt_reserve_entry *)
-		((const char *)fdt + fdt_off_mem_rsvmap(fdt));
+	ثابت ساختار fdt_reserve_entry *rsv_table =
+		(ثابت ساختار fdt_reserve_entry *)
+		((ثابت نویسه *)fdt + fdt_off_mem_rsvmap(fdt));
 
-	return rsv_table + n;
+	بازگشت rsv_table + n;
 }
-static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
+ایستا درونخطی ساختار fdt_reserve_entry *fdt_mem_rsv_w_(تهی *fdt, صحیح n)
 {
-	return (void *)(uintptr_t)fdt_mem_rsv_(fdt, n);
+	بازگشت (تهی *)(uintptr_t)fdt_mem_rsv_(fdt, n);
 }
 
 /*
@@ -55,14 +55,14 @@ static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
  * If not the external helpers fdtXX_ld() from libfdt.h can be used
  * instead.
  */
-static inline uint32_t fdt32_ld_(const fdt32_t *p)
+ایستا درونخطی uint32_t fdt32_ld_(ثابت fdt32_t *p)
 {
-	return fdt32_to_cpu(*p);
+	بازگشت fdt32_to_cpu(*p);
 }
 
-static inline uint64_t fdt64_ld_(const fdt64_t *p)
+ایستا درونخطی uint64_t fdt64_ld_(ثابت fdt64_t *p)
 {
-	return fdt64_to_cpu(*p);
+	بازگشت fdt64_to_cpu(*p);
 }
 
 #define FDT_SW_MAGIC		(~FDT_MAGIC)
@@ -86,7 +86,7 @@ static inline uint64_t fdt64_ld_(const fdt64_t *p)
  * For situations where security is not a concern it may be safe to enable
  * ASSUME_SANE.
  */
-enum {
+شمارش {
 	/*
 	 * This does essentially no checks. Only the latest device-tree
 	 * version is correctly handled. Inconsistencies or errors in the device
@@ -130,7 +130,7 @@ enum {
 	 * It doesn't make sense to enable this assumption unless
 	 * ASSUME_VALID_DTB is also enabled.
 	 */
-	ASSUME_VALID_INPUT	= 1 << 1,
+	ASSUME_VALID_درون_داد	= 1 << 1,
 
 	/*
 	 * This disables checks for device-tree version and removes all code
@@ -181,9 +181,9 @@ enum {
  * @mask: Mask to check (ASSUME_...)
  * @return true if that assumption is enabled, else false
  */
-static inline bool can_assume_(int mask)
+ایستا درونخطی bool can_assume_(صحیح mask)
 {
-	return FDT_ASSUME_MASK & mask;
+	بازگشت FDT_ASSUME_MASK & mask;
 }
 
 /** helper macros for checking assumptions */
