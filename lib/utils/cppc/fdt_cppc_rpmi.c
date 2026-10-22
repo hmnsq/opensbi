@@ -29,12 +29,12 @@
  */
 #define RPMI_CPPC_HART_FASTCHAN_SIZE		0x8
 
-struct rpmi_cppc {
-	struct mbox_chan *chan;
+sa_nracanaa rpmi_cppc {
+	sa_nracanaa mbox_chan *chan;
 	bool fc_supported;
 	bool fc_db_supported;
-	enum rpmi_cppc_fast_channel_db_width fc_db_width;
-	enum rpmi_cppc_fast_channel_cppc_mode mode;
+	ga_nanaa rpmi_cppc_fast_channel_db_width fc_db_width;
+	ga_nanaa rpmi_cppc_fast_channel_cppc_mode mode;
 	ulong fc_perf_request_addr;
 	ulong fc_perf_feedback_addr;
 	ulong fc_db_addr;
@@ -46,18 +46,18 @@ struct rpmi_cppc {
 
 static unsigned long rpmi_cppc_offset;
 
-static struct rpmi_cppc *rpmi_cppc_get_pointer(u32 hartid)
+static sa_nracanaa rpmi_cppc *rpmi_cppc_get_pointer(u32 hartid)
 {
-	struct sbi_scratch *scratch;
+	sa_nracanaa sbi_scratch *scratch;
 
 	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch || !rpmi_cppc_offset)
-		return NULL;
+	ប្រសិនបើ (!scratch || !rpmi_cppc_offset)
+		ត្រឡប់ NULL;
 
-	return sbi_scratch_offset_ptr(scratch, rpmi_cppc_offset);
+	ត្រឡប់ sbi_scratch_offset_ptr(scratch, rpmi_cppc_offset);
 }
 
-static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
+static void rpmi_cppc_fc_db_trigger(sa_nracanaa rpmi_cppc *cppc)
 {
 	u8 db_val_u8 = 0;
 	u16 db_val_u16 = 0;
@@ -65,35 +65,35 @@ static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
 	u64 db_val_u64 = 0;
 
 	switch (cppc->fc_db_width) {
-	case RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_8:
+	pak_sa RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_8:
 		db_val_u8 = readb((void *)cppc->fc_db_addr);
 		db_val_u8 = (u8)cppc->fc_db_setmask |
 				(db_val_u8 & (u8)cppc->fc_db_preservemask);
 
 		writeb(db_val_u8, (void *)cppc->fc_db_addr);
-		break;
-	case RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_16:
+		bha_nga;
+	pak_sa RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_16:
 		db_val_u16 = readw((void *)cppc->fc_db_addr);
 		db_val_u16 = (u16)cppc->fc_db_setmask |
 				(db_val_u16 & (u16)cppc->fc_db_preservemask);
 
 		writew(db_val_u16, (void *)cppc->fc_db_addr);
-		break;
-	case RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_32:
+		bha_nga;
+	pak_sa RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_32:
 		db_val_u32 = readl((void *)cppc->fc_db_addr);
 		db_val_u32 = (u32)cppc->fc_db_setmask |
 				(db_val_u32 & (u32)cppc->fc_db_preservemask);
 
 		writel(db_val_u32, (void *)cppc->fc_db_addr);
-		break;
-	case RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_64:
-#if __riscv_xlen != 32
+		bha_nga;
+	pak_sa RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_64:
+#ប្រសិនបើ __riscv_xlen != 32
 		db_val_u64 = readq((void *)cppc->fc_db_addr);
 		db_val_u64 = cppc->fc_db_setmask |
 				(db_val_u64 & cppc->fc_db_preservemask);
 
 		writeq(db_val_u64, (void *)cppc->fc_db_addr);
-#else
+#បើមិនដូច្នេះ
 		db_val_u64 = readl((void *)(cppc->fc_db_addr + 4));
 		db_val_u64 <<= 32;
 		db_val_u64 |= readl((void *)cppc->fc_db_addr);
@@ -102,28 +102,28 @@ static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
 		writel(db_val_u64, (void *)cppc->fc_db_addr);
 		writel(db_val_u64 >> 32, (void *)(cppc->fc_db_addr + 4));
 #endif
-		break;
+		bha_nga;
 	default:
-		break;
+		bha_nga;
 	}
 }
 
-static int rpmi_cppc_read(unsigned long reg, u64 *val)
+static ចំនួនគត់ rpmi_cppc_read(unsigned long reg, u64 *val)
 {
 	u64 curr_freq, curr_time_csr, time_csr_delta, freq;
-	int rc = SBI_SUCCESS;
-	struct rpmi_cppc_read_reg_req req;
-	struct rpmi_cppc_read_reg_resp resp;
-	struct rpmi_cppc *cppc;
+	ចំនួនគត់ rc = SBI_SUCCESS;
+	sa_nracanaa rpmi_cppc_read_reg_req req;
+	sa_nracanaa rpmi_cppc_read_reg_resp resp;
+	sa_nracanaa rpmi_cppc *cppc;
 
 	req.hart_id = current_hartid();
 	req.reg_id = reg;
 	cppc = rpmi_cppc_get_pointer(req.hart_id);
 
-	if ((reg == SBI_CPPC_DELIVERED_CTR) && cppc->fc_supported) {
-#if __riscv_xlen != 32
+	ប្រសិនបើ ((reg == SBI_CPPC_DELIVERED_CTR) && cppc->fc_supported) {
+#ប្រសិនបើ __riscv_xlen != 32
 		curr_freq = readq((void *)cppc->fc_perf_feedback_addr);
-#else
+#បើមិនដូច្នេះ
 		curr_freq = readl((void *)cppc->fc_perf_feedback_addr + 4);
 		curr_freq <<= 32;
 		curr_freq |= readl((void *)cppc->fc_perf_feedback_addr);
@@ -133,43 +133,43 @@ static int rpmi_cppc_read(unsigned long reg, u64 *val)
 		cppc->prev_time_csr = curr_time_csr;
 
 		freq = sbi_timer_frequency();
-		if (freq)
+		ប្រសិនបើ (freq)
 			cppc->prev_delivered_counter +=
 				curr_freq * (time_csr_delta / freq) +
 				(curr_freq * (time_csr_delta % freq)) / freq;
 
 		resp.data_lo = cpu_to_le32(cppc->prev_delivered_counter & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(cppc->prev_delivered_counter >> 32);
-	} else if (reg == SBI_CPPC_REFERENCE_CTR) {
+	} បើមិនដូច្នេះ ប្រសិនបើ (reg == SBI_CPPC_REFERENCE_CTR) {
 		curr_time_csr = sbi_timer_value();
 		resp.data_lo = cpu_to_le32(curr_time_csr & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(curr_time_csr >> 32);
-	} else {
+	} បើមិនដូច្នេះ {
 		rc = rpmi_normal_request_with_status(
 				cppc->chan, RPMI_CPPC_SRV_READ_REG,
 				&req, rpmi_u32_count(req), rpmi_u32_count(req),
 				&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+		ប្រសិនបើ (rc)
+			ត្រឡប់ rc;
 	}
 
-#if __riscv_xlen == 32
+#ប្រសិនបើ __riscv_xlen == 32
 	*val = resp.data_lo;
-#else
+#បើមិនដូច្នេះ
 	*val = (u64)resp.data_hi << 32 | resp.data_lo;
 #endif
-	return rc;
+	ត្រឡប់ rc;
 }
 
-static int rpmi_cppc_write(unsigned long reg, u64 val)
+static ចំនួនគត់ rpmi_cppc_write(unsigned long reg, u64 val)
 {
-	int rc = SBI_SUCCESS;
+	ចំនួនគត់ rc = SBI_SUCCESS;
 	u32 hart_id = current_hartid();
-	struct rpmi_cppc_write_reg_req req;
-	struct rpmi_cppc_write_reg_resp resp;
-	struct rpmi_cppc *cppc = rpmi_cppc_get_pointer(hart_id);
+	sa_nracanaa rpmi_cppc_write_reg_req req;
+	sa_nracanaa rpmi_cppc_write_reg_resp resp;
+	sa_nracanaa rpmi_cppc *cppc = rpmi_cppc_get_pointer(hart_id);
 
-	if (reg != SBI_CPPC_DESIRED_PERF || !cppc->fc_supported) {
+	ប្រសិនបើ (reg != SBI_CPPC_DESIRED_PERF || !cppc->fc_supported) {
 		req.hart_id = hart_id;
 		req.reg_id = reg;
 		req.data_lo = val & 0xFFFFFFFF;
@@ -179,61 +179,61 @@ static int rpmi_cppc_write(unsigned long reg, u64 val)
 			cppc->chan, RPMI_CPPC_SRV_WRITE_REG,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	} else {
+	} បើមិនដូច្នេះ {
 		/* use fast path writes for desired_perf in passive mode */
 		writel((u32)val, (void *)cppc->fc_perf_request_addr);
 
-		if (cppc->fc_db_supported)
+		ប្រសិនបើ (cppc->fc_db_supported)
 			rpmi_cppc_fc_db_trigger(cppc);
 	}
 
-	return rc;
+	ត្រឡប់ rc;
 }
 
-static int rpmi_cppc_probe(unsigned long reg)
+static ចំនួនគត់ rpmi_cppc_probe(unsigned long reg)
 {
-	int rc;
-	struct rpmi_cppc *cppc;
-	struct rpmi_cppc_probe_resp resp;
-	struct rpmi_cppc_probe_req req;
+	ចំនួនគត់ rc;
+	sa_nracanaa rpmi_cppc *cppc;
+	sa_nracanaa rpmi_cppc_probe_resp resp;
+	sa_nracanaa rpmi_cppc_probe_req req;
 
 	req.hart_id = current_hartid();
 	req.reg_id = reg;
 
 	cppc = rpmi_cppc_get_pointer(req.hart_id);
-	if (!cppc)
-		return SBI_ENOSYS;
+	ប្រសិនបើ (!cppc)
+		ត្រឡប់ SBI_ENOSYS;
 
 	rc = rpmi_normal_request_with_status(
 			cppc->chan, RPMI_CPPC_SRV_PROBE_REG,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ប្រសិនបើ (rc)
+		ត្រឡប់ rc;
 
-	return resp.reg_len;
+	ត្រឡប់ resp.reg_len;
 }
 
-static struct sbi_cppc_device sbi_rpmi_cppc = {
+static sa_nracanaa sbi_cppc_device sbi_rpmi_cppc = {
 	.name		= "rpmi-cppc",
 	.cppc_read	= rpmi_cppc_read,
 	.cppc_write	= rpmi_cppc_write,
 	.cppc_probe	= rpmi_cppc_probe,
 };
 
-static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
+static ចំនួនគត់ rpmi_cppc_update_hart_scratch(sa_nracanaa mbox_chan *chan)
 {
-	int rc, i;
+	ចំនួនគត់ rc, i;
 	bool fc_supported = false;
 	bool fc_db_supported = false;
-	struct rpmi_cppc_hart_list_req req;
-	struct rpmi_cppc_hart_list_resp resp;
-	struct rpmi_cppc_get_fastchan_offset_req hfreq;
-	struct rpmi_cppc_get_fastchan_offset_resp hfresp;
-	struct rpmi_cppc_get_fastchan_region_resp fresp;
-	enum rpmi_cppc_fast_channel_db_width fc_db_width = 0;
-	enum rpmi_cppc_fast_channel_cppc_mode cppc_mode = 0;
-	struct rpmi_cppc *cppc;
+	sa_nracanaa rpmi_cppc_hart_list_req req;
+	sa_nracanaa rpmi_cppc_hart_list_resp resp;
+	sa_nracanaa rpmi_cppc_get_fastchan_offset_req hfreq;
+	sa_nracanaa rpmi_cppc_get_fastchan_offset_resp hfresp;
+	sa_nracanaa rpmi_cppc_get_fastchan_region_resp fresp;
+	ga_nanaa rpmi_cppc_fast_channel_db_width fc_db_width = 0;
+	ga_nanaa rpmi_cppc_fast_channel_cppc_mode cppc_mode = 0;
+	sa_nracanaa rpmi_cppc *cppc;
 	unsigned long fc_region_addr = 0;
 	unsigned long fc_region_size = 0;
 	unsigned long fc_db_addr = 0;
@@ -244,8 +244,8 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 		chan, RPMI_CPPC_SRV_GET_FAST_CHANNEL_REGION,
 		NULL, 0, 0,
 		&fresp, rpmi_u32_count(fresp), rpmi_u32_count(fresp));
-	if (rc && rc != SBI_ENOTSUPP)
-		return rc;
+	ប្រសិនបើ (rc && rc != SBI_ENOTSUPP)
+		ត្រឡប់ rc;
 
 	/* At this point fast channel availability is confirmed */
 	fc_supported = (rc != SBI_ENOTSUPP)? true : false;
@@ -253,12 +253,12 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 	/* If fast channel is supported, add the fast channel
 	 * region in root domain as MMIO RW. And, get the doorbell
 	 * information from the response */
-	if (fc_supported) {
-#if __riscv_xlen == 32
+	ប្រសិនបើ (fc_supported) {
+#ប្រសិនបើ __riscv_xlen == 32
 		fc_region_addr = fresp.region_addr_lo;
 		fc_region_size = fresp.region_size_lo;
 		fc_db_addr = fresp.db_addr_lo;
-#else
+#បើមិនដូច្នេះ
 		fc_region_addr = (ulong)fresp.region_addr_hi << 32 |
 							fresp.region_addr_lo;
 		fc_region_size = (ulong)fresp.region_size_hi << 32 |
@@ -272,8 +272,8 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					SBI_DOMAIN_MEMREGION_M_READABLE |
 					SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		ប្រសិនបើ (rc)
+			ត្រឡប់ rc;
 
 		cppc_mode = (fresp.flags & RPMI_CPPC_FAST_CHANNEL_CPPC_MODE_MASK) >>
 					RPMI_CPPC_FAST_CHANNEL_CPPC_MODE_POS;
@@ -296,15 +296,15 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			chan, RPMI_CPPC_SRV_GET_HART_LIST,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+		ប្រសិនបើ (rc)
+			ត្រឡប់ rc;
 
 		/* For each returned harts, get their fastchan offset and
 		 * complete the initialization of per hart cppc structure */
-		for (i = 0; i < resp.returned; i++) {
+		សម្រាប់ (i = 0; i < resp.returned; i++) {
 			cppc = rpmi_cppc_get_pointer(resp.hartid[i]);
-			if (!cppc)
-				return SBI_ENOSYS;
+			ប្រសិនបើ (!cppc)
+				ត្រឡប់ SBI_ENOSYS;
 
 			cppc->prev_time_csr = 0;
 			cppc->prev_delivered_counter = 0;
@@ -312,7 +312,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			cppc->mode = cppc_mode;
 			cppc->fc_supported = fc_supported;
 
-			if (fc_supported) {
+			ប្រសិនបើ (fc_supported) {
 				hfreq.hart_id = resp.hartid[i];
 				rc = rpmi_normal_request_with_status(
 						chan,
@@ -323,15 +323,15 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 						&hfresp,
 						rpmi_u32_count(hfresp),
 						rpmi_u32_count(hfresp));
-				if (rc)
+				ប្រសិនបើ (rc)
 					continue;
 
-#if __riscv_xlen == 32
+#ប្រសិនបើ __riscv_xlen == 32
 				cppc->fc_perf_request_addr = fc_region_addr +
 							hfresp.fc_perf_request_offset_lo;
 				cppc->fc_perf_feedback_addr = fc_region_addr +
 							hfresp.fc_perf_feedback_offset_lo;
-#else
+#បើមិនដូច្នេះ
 				cppc->fc_perf_request_addr = fc_region_addr +
 					((ulong)hfresp.fc_perf_request_offset_hi << 32 |
 					hfresp.fc_perf_request_offset_lo);
@@ -347,7 +347,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 				cppc->fc_db_setmask = fc_db_setmask;
 				cppc->fc_db_preservemask = fc_db_preservemask;
 			}
-			else {
+			បើមិនដូច្នេះ {
 				cppc->fc_perf_request_addr = 0;
 				cppc->fc_perf_feedback_addr = 0;
 				cppc->fc_db_supported = 0;
@@ -358,22 +358,22 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			}
 		}
 		req.start_index += resp.returned;
-	} while (resp.remaining);
+	} ខណៈពេល (resp.remaining);
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-static int rpmi_cppc_cold_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+static ចំនួនគត់ rpmi_cppc_cold_init(const void *fdt, ចំនួនគត់ nodeoff,
+			       const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct mbox_chan *chan;
+	ចំនួនគត់ rc;
+	sa_nracanaa mbox_chan *chan;
 
-	if (!rpmi_cppc_offset) {
+	ប្រសិនបើ (!rpmi_cppc_offset) {
 		rpmi_cppc_offset =
-			sbi_scratch_alloc_type_offset(struct rpmi_cppc);
-		if (!rpmi_cppc_offset)
-			return SBI_ENOMEM;
+			sbi_scratch_alloc_type_offset(sa_nracanaa rpmi_cppc);
+		ប្រសិនបើ (!rpmi_cppc_offset)
+			ត្រឡប់ SBI_ENOMEM;
 	}
 
 	/*
@@ -381,25 +381,25 @@ static int rpmi_cppc_cold_init(const void *fdt, int nodeoff,
 	 * CPPC service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &chan);
-	if (rc)
-		return SBI_ENODEV;
+	ប្រសិនបើ (rc)
+		ត្រឡប់ SBI_ENODEV;
 
 	/* Update per-HART scratch space */
 	rc = rpmi_cppc_update_hart_scratch(chan);
-	if (rc)
-		return rc;
+	ប្រសិនបើ (rc)
+		ត្រឡប់ rc;
 
 	sbi_cppc_set_device(&sbi_rpmi_cppc);
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-static const struct fdt_match rpmi_cppc_match[] = {
+static const sa_nracanaa fdt_match rpmi_cppc_match[] = {
 	{ .compatible = "riscv,rpmi-cppc" },
 	{},
 };
 
-const struct fdt_driver fdt_cppc_rpmi = {
+const sa_nracanaa fdt_driver fdt_cppc_rpmi = {
 	.match_table = rpmi_cppc_match,
 	.init = rpmi_cppc_cold_init,
 };

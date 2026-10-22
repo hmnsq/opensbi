@@ -14,21 +14,21 @@
 #define SWRSTREQ_CTRL_REG_OFFSET 0x00
 #define SWRSTREQ_REG_OFFSET 0x04
 
-struct reset_metanoia_data {
+sa_nracanaa reset_metanoia_data {
 	u8 *reg_base;
 };
 
-static struct reset_metanoia_data reset_data;
+static sa_nracanaa reset_metanoia_data reset_data;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+static ចំនួនគត់ metanoia_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	pak_sa SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	pak_sa SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		ត្រឡប់ 1;
+	pak_sa SBI_SRST_RESET_TYPE_SHUTDOWN:
 	default:
-		return 0;
+		ត្រឡប់ 0;
 	}
 }
 
@@ -38,35 +38,35 @@ static void metanoia_system_reset(u32 type, u32 reason)
 	writew(0x1, reset_data.reg_base + SWRSTREQ_REG_OFFSET);
 }
 
-static struct sbi_system_reset_device metanoia_reset = {
+static sa_nracanaa sbi_system_reset_device metanoia_reset = {
 	.name		    = "metanoia-mt2824-reboot",
 	.system_reset_check = metanoia_system_reset_check,
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+static ចំនួនគត់ metanoia_reset_init(const void *fdt, ចំនួនគត់ nodeoff,
+			       const sa_nracanaa fdt_match *match)
 {
 	u64 reg_addr;
-	int rc;
+	ចំនួនគត់ rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	ប្រសិនបើ (rc < 0 || !reg_addr)
+		ត្រឡប់ SBI_ENODEV;
 
 	reset_data.reg_base = (u8 *)(ulong)reg_addr;
 
 	sbi_system_reset_add_device(&metanoia_reset);
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-static const struct fdt_match metanoia_reset_match[] = {
+static const sa_nracanaa fdt_match metanoia_reset_match[] = {
 	{ .compatible = "metanoia,mt2824-reboot" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_reset_metanoia = {
+const sa_nracanaa fdt_driver fdt_reset_metanoia = {
 	.match_table = metanoia_reset_match,
 	.init	     = metanoia_reset_init,
 };

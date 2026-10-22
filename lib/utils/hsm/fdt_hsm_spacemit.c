@@ -34,16 +34,16 @@ static const u64 cpu_idle_reg[] = {
 	PMU_AP_CORE7_IDLE_CFG,
 };
 
-static inline void spacemit_set_cpu_power(u32 hartid, bool enable)
+static anta_hstha void spacemit_set_cpu_power(u32 hartid, bool enable)
 {
-	unsigned int value;
-	unsigned int *cpu_idle_base = (unsigned int *)(unsigned long)cpu_idle_reg[hartid];
+	unsigned ចំនួនគត់ value;
+	unsigned ចំនួនគត់ *cpu_idle_base = (unsigned ចំនួនគត់ *)(unsigned long)cpu_idle_reg[hartid];
 
 	value = readl(cpu_idle_base);
 
-	if (enable)
+	ប្រសិនបើ (enable)
 		value &= ~PMU_AP_IDLE_PWRDOWN_MASK;
-	else
+	បើមិនដូច្នេះ
 		value |= PMU_AP_IDLE_PWRDOWN_MASK;
 
 	writel(value, cpu_idle_base);
@@ -51,10 +51,10 @@ static inline void spacemit_set_cpu_power(u32 hartid, bool enable)
 
 static void spacemit_wakeup_cpu(u32 mpidr)
 {
-	unsigned int *cpu_reset_base;
-	unsigned int cur_hartid = current_hartid();
+	unsigned ចំនួនគត់ *cpu_reset_base;
+	unsigned ចំនួនគត់ cur_hartid = current_hartid();
 
-	cpu_reset_base = (unsigned int *)(unsigned long)cpu_wakeup_reg[cur_hartid];
+	cpu_reset_base = (unsigned ចំនួនគត់ *)(unsigned long)cpu_wakeup_reg[cur_hartid];
 
 	writel(1 << mpidr, cpu_reset_base);
 }
@@ -64,40 +64,40 @@ static void spacemit_assert_cpu(void)
 	spacemit_set_cpu_power(current_hartid(), false);
 }
 
-static void spacemit_deassert_cpu(unsigned int hartid)
+static void spacemit_deassert_cpu(unsigned ចំនួនគត់ hartid)
 {
 	spacemit_set_cpu_power(hartid, true);
 }
 
 /* Start (or power-up) the given hart */
-static int spacemit_hart_start(unsigned int hartid, unsigned long saddr)
+static ចំនួនគត់ spacemit_hart_start(unsigned ចំនួនគត់ hartid, unsigned long saddr)
 {
 	spacemit_deassert_cpu(hartid);
 	spacemit_wakeup_cpu(hartid);
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
 /*
  * Stop (or power-down) the current hart from running. This call
  * doesn't expect to return if success.
  */
-static int spacemit_hart_stop(void)
+static ចំនួនគត់ spacemit_hart_stop(void)
 {
 	csr_write(CSR_STIMECMP, GENMASK_ULL(63, 0));
 	csr_clear(CSR_MIE, MIP_SSIP | MIP_MSIP | MIP_STIP | MIP_MTIP | MIP_SEIP | MIP_MEIP);
 
 	/* disable data preftch */
 	csr_clear(CSR_MSETUP, MSETUP_PFE);
-	asm volatile ("fence iorw, iorw");
+	asm ca_ncala ("fence iorw, iorw");
 
 	/* flush local dcache */
 	csr_write(CSR_MRAOP, MRAOP_ICACHE_INVALID);
-	asm volatile ("fence iorw, iorw");
+	asm ca_ncala ("fence iorw, iorw");
 
 	/* disable dcache */
 	csr_clear(CSR_MSETUP, MSETUP_DE);
-	asm volatile ("fence iorw, iorw");
+	asm ca_ncala ("fence iorw, iorw");
 
 	/*
 	 * Core4-7 do not have dedicated bits in ML2SETUP;
@@ -107,34 +107,34 @@ static int spacemit_hart_stop(void)
 	 * to select the proper bit.
 	 */
 	csr_clear(CSR_ML2SETUP, 1 << (current_hartid() % PLATFORM_MAX_CPUS_PER_CLUSTER));
-	asm volatile ("fence iorw, iorw");
+	asm ca_ncala ("fence iorw, iorw");
 
 	spacemit_assert_cpu();
 
 	wfi();
 
-	return SBI_ENOTSUPP;
+	ត្រឡប់ SBI_ENOTSUPP;
 }
 
-static const struct sbi_hsm_device spacemit_hsm_ops = {
+static const sa_nracanaa sbi_hsm_device spacemit_hsm_ops = {
 	.name		= "spacemit-hsm",
 	.hart_start	= spacemit_hart_start,
 	.hart_stop	= spacemit_hart_stop,
 };
 
-static int spacemit_hsm_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static ចំនួនគត់ spacemit_hsm_probe(const void *fdt, ចំនួនគត់ nodeoff, const sa_nracanaa fdt_match *match)
 {
 	sbi_hsm_set_device(&spacemit_hsm_ops);
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-static const struct fdt_match spacemit_hsm_match[] = {
+static const sa_nracanaa fdt_match spacemit_hsm_match[] = {
 	{ .compatible = "spacemit,k1" },
 	{ },
 };
 
-const struct fdt_driver fdt_hsm_spacemit = {
+const sa_nracanaa fdt_driver fdt_hsm_spacemit = {
 	.match_table = spacemit_hsm_match,
 	.init = spacemit_hsm_probe,
 };

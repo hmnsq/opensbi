@@ -15,47 +15,47 @@
 #include <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+static ចំនួនគត់ fdt_i2c_adapter_find(const void *fdt, ចំនួនគត់ nodeoff,
+				sa_nracanaa i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	ចំនួនគត់ rc;
+	sa_nracanaa i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	ប្រសិនបើ (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ប្រសិនបើ (rc)
+			ត្រឡប់ rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		ប្រសិនបើ (!adapter)
+			ត្រឡប់ SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	ប្រសិនបើ (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+ចំនួនគត់ fdt_i2c_adapter_get(const void *fdt, ចំនួនគត់ nodeoff,
+			sa_nracanaa i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	ចំនួនគត់ rc;
+	sa_nracanaa i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ប្រសិនបើ (!fdt || (nodeoff < 0) || !out_adapter)
+		ត្រឡប់ SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	ប្រសិនបើ (rc)
+		ត្រឡប់ rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	ត្រឡប់ 0;
 }

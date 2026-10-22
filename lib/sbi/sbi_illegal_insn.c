@@ -20,9 +20,9 @@
 #include <sbi/sbi_unpriv.h>
 #include <sbi/sbi_console.h>
 
-int truly_illegal_insn(ulong insn, struct sbi_trap_regs *regs)
+ចំនួនគត់ truly_illegal_insn(ulong insn, sa_nracanaa sbi_trap_regs *regs)
 {
-	struct sbi_trap_info trap;
+	sa_nracanaa sbi_trap_info trap;
 
 	trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
 	trap.tval = insn;
@@ -30,84 +30,84 @@ int truly_illegal_insn(ulong insn, struct sbi_trap_regs *regs)
 	trap.tinst = 0;
 	trap.gva   = 0;
 
-	return sbi_trap_redirect(regs, &trap);
+	ត្រឡប់ sbi_trap_redirect(regs, &trap);
 }
 
-static int misc_mem_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
+static ចំនួនគត់ misc_mem_opcode_insn(ulong insn, sa_nracanaa sbi_trap_regs *regs)
 {
 	/* Errata workaround: emulate `fence.tso` as `fence rw, rw`. */
-	if ((insn & INSN_MASK_FENCE_TSO) == INSN_MATCH_FENCE_TSO) {
+	ប្រសិនបើ ((insn & INSN_MASK_FENCE_TSO) == INSN_MATCH_FENCE_TSO) {
 		smp_mb();
 		regs->mepc += 4;
-		return 0;
+		ត្រឡប់ 0;
 	}
 
-	return truly_illegal_insn(insn, regs);
+	ត្រឡប់ truly_illegal_insn(insn, regs);
 }
 
-static int system_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
+static ចំនួនគត់ system_opcode_insn(ulong insn, sa_nracanaa sbi_trap_regs *regs)
 {
 	bool do_write	= false;
-	int rs1_num	= GET_RS1_NUM(insn);
+	ចំនួនគត់ rs1_num	= GET_RS1_NUM(insn);
 	ulong rs1_val	= GET_RS1(insn, regs);
-	int csr_num	= GET_CSR_NUM((u32)insn);
+	ចំនួនគត់ csr_num	= GET_CSR_NUM((u32)insn);
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	ulong csr_val, new_csr_val;
 
-	if (prev_mode == PRV_M) {
+	ប្រសិនបើ (prev_mode == PRV_M) {
 		sbi_printf("%s: Failed to access CSR %#x from M-mode",
 			__func__, csr_num);
-		return SBI_EFAIL;
+		ត្រឡប់ SBI_EFAIL;
 	}
 
 	/* Ensure that we got CSR read/write instruction */
-	int funct3 = GET_RM(insn);
-	if (funct3 == 0 || funct3 == 4) {
+	ចំនួនគត់ funct3 = GET_RM(insn);
+	ប្រសិនបើ (funct3 == 0 || funct3 == 4) {
 		sbi_printf("%s: Invalid opcode for CSR read/write instruction",
 			   __func__);
-		return truly_illegal_insn(insn, regs);
+		ត្រឡប់ truly_illegal_insn(insn, regs);
 	}
 
-	if (sbi_emulate_csr_read(csr_num, regs, &csr_val))
-		return truly_illegal_insn(insn, regs);
+	ប្រសិនបើ (sbi_emulate_csr_read(csr_num, regs, &csr_val))
+		ត្រឡប់ truly_illegal_insn(insn, regs);
 
 	switch (funct3) {
-	case CSRRW:
+	pak_sa CSRRW:
 		new_csr_val = rs1_val;
 		do_write    = true;
-		break;
-	case CSRRS:
+		bha_nga;
+	pak_sa CSRRS:
 		new_csr_val = csr_val | rs1_val;
 		do_write    = (rs1_num != 0);
-		break;
-	case CSRRC:
+		bha_nga;
+	pak_sa CSRRC:
 		new_csr_val = csr_val & ~rs1_val;
 		do_write    = (rs1_num != 0);
-		break;
-	case CSRRWI:
+		bha_nga;
+	pak_sa CSRRWI:
 		new_csr_val = rs1_num;
 		do_write    = true;
-		break;
-	case CSRRSI:
+		bha_nga;
+	pak_sa CSRRSI:
 		new_csr_val = csr_val | rs1_num;
 		do_write    = (rs1_num != 0);
-		break;
-	case CSRRCI:
+		bha_nga;
+	pak_sa CSRRCI:
 		new_csr_val = csr_val & ~rs1_num;
 		do_write    = (rs1_num != 0);
-		break;
+		bha_nga;
 	default:
-		return truly_illegal_insn(insn, regs);
+		ត្រឡប់ truly_illegal_insn(insn, regs);
 	}
 
-	if (do_write && sbi_emulate_csr_write(csr_num, regs, new_csr_val))
-		return truly_illegal_insn(insn, regs);
+	ប្រសិនបើ (do_write && sbi_emulate_csr_write(csr_num, regs, new_csr_val))
+		ត្រឡប់ truly_illegal_insn(insn, regs);
 
 	SET_RD(insn, regs, csr_val);
 
 	regs->mepc += 4;
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
 static const illegal_insn_func illegal_insn_table[32] = {
@@ -145,11 +145,11 @@ static const illegal_insn_func illegal_insn_table[32] = {
 	truly_illegal_insn  /* 31 */
 };
 
-int sbi_illegal_insn_handler(struct sbi_trap_context *tcntx)
+ចំនួនគត់ sbi_illegal_insn_handler(sa_nracanaa sbi_trap_context *tcntx)
 {
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	sa_nracanaa sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn = tcntx->trap.tval;
-	struct sbi_trap_info uptrap;
+	sa_nracanaa sbi_trap_info uptrap;
 
 	/*
 	 * We only deal with 32-bit (or longer) illegal instructions. If we
@@ -163,13 +163,13 @@ int sbi_illegal_insn_handler(struct sbi_trap_context *tcntx)
 	 */
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ILLEGAL_INSN);
-	if (unlikely((insn & 3) != 3)) {
+	ប្រសិនបើ (unlikely((insn & 3) != 3)) {
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause)
-			return sbi_trap_redirect(regs, &uptrap);
-		if ((insn & 3) != 3)
-			return truly_illegal_insn(insn, regs);
+		ប្រសិនបើ (uptrap.cause)
+			ត្រឡប់ sbi_trap_redirect(regs, &uptrap);
+		ប្រសិនបើ ((insn & 3) != 3)
+			ត្រឡប់ truly_illegal_insn(insn, regs);
 	}
 
-	return illegal_insn_table[(insn & 0x7c) >> 2](insn, regs);
+	ត្រឡប់ illegal_insn_table[(insn & 0x7c) >> 2](insn, regs);
 }

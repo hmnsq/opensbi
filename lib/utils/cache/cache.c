@@ -9,49 +9,49 @@
 
 static SBI_LIST_HEAD(cache_list);
 
-struct cache_device *cache_find(u32 id)
+sa_nracanaa cache_device *cache_find(u32 id)
 {
-	struct cache_device *dev;
+	sa_nracanaa cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		ប្រសិនបើ (dev->id == id)
+			ត្រឡប់ dev;
 	}
 
-	return NULL;
+	ត្រឡប់ NULL;
 }
 
-int cache_add(struct cache_device *dev)
+ចំនួនគត់ cache_add(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ប្រសិនបើ (!dev)
+		ត្រឡប់ SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ប្រសិនបើ (cache_find(dev->id))
+		ត្រឡប់ SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	ត្រឡប់ SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+ចំនួនគត់ cache_flush_all(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ប្រសិនបើ (!dev)
+		ត្រឡប់ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ប្រសិនបើ (!dev->ops || !dev->ops->cache_flush_all)
+		ត្រឡប់ SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	ត្រឡប់ dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+ចំនួនគត់ cache_enable(sa_nracanaa cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ប្រសិនបើ (!dev)
+		ត្រឡប់ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ប្រសិនបើ (!dev->ops || !dev->ops->cache_enable)
+		ត្រឡប់ SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	ត្រឡប់ dev->ops->cache_enable(dev, enable);
 }

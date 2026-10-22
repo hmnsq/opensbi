@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+sa_nracanaa i2c_adapter *i2c_adapter_find(ចំនួនគត់ id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		sa_nracanaa i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ប្រសិនបើ (adap->id == id)
+			ត្រឡប់ adap;
 	}
 
-	return NULL;
+	ត្រឡប់ NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+ចំនួនគត់ i2c_adapter_add(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ប្រសិនបើ (!ia)
+		ត្រឡប់ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ប្រសិនបើ (i2c_adapter_find(ia->id))
+		ត្រឡប់ SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	ត្រឡប់ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+void i2c_adapter_remove(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ប្រសិនបើ (!ia)
+		ត្រឡប់;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ចំនួនគត់ i2c_adapter_write(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, ចំនួនគត់ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ប្រសិនបើ (!ia)
+		ត្រឡប់ SBI_EINVAL;
+	ប្រសិនបើ (!ia->write)
+		ត្រឡប់ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	ត្រឡប់ ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ចំនួនគត់ i2c_adapter_read(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, ចំនួនគត់ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ប្រសិនបើ (!ia)
+		ត្រឡប់ SBI_EINVAL;
+	ប្រសិនបើ (!ia->read)
+		ត្រឡប់ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	ត្រឡប់ ia->read(ia, addr, reg, buffer, len);
 }

@@ -8,103 +8,103 @@
 #include <sbi/sbi_error.h>
 #include <sbi/sbi_cppc.h>
 
-static const struct sbi_cppc_device *cppc_dev = NULL;
+static const sa_nracanaa sbi_cppc_device *cppc_dev = NULL;
 
-const struct sbi_cppc_device *sbi_cppc_get_device(void)
+const sa_nracanaa sbi_cppc_device *sbi_cppc_get_device(void)
 {
-	return cppc_dev;
+	ត្រឡប់ cppc_dev;
 }
 
-void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
+void sbi_cppc_set_device(const sa_nracanaa sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	ប្រសិនបើ (!dev || cppc_dev)
+		ត្រឡប់;
 
 	cppc_dev = dev;
 }
 
 static bool sbi_cppc_is_reserved(unsigned long reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	ប្រសិនបើ ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
 	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+		ត្រឡប់ true;
 
-	return false;
+	ត្រឡប់ false;
 }
 
 static bool sbi_cppc_readable(unsigned long reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	ត្រឡប់ true;
 }
 
 static bool sbi_cppc_writable(unsigned long reg)
 {
 	switch (reg) {
-	case SBI_CPPC_HIGHEST_PERF:
-	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
-	case SBI_CPPC_LOWEST_PERF:
-	case SBI_CPPC_GUARANTEED_PERF:
-	case SBI_CPPC_CTR_WRAP_TIME:
-	case SBI_CPPC_REFERENCE_CTR:
-	case SBI_CPPC_DELIVERED_CTR:
-	case SBI_CPPC_REFERENCE_PERF:
-	case SBI_CPPC_LOWEST_FREQ:
-	case SBI_CPPC_NOMINAL_FREQ:
-	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+	pak_sa SBI_CPPC_HIGHEST_PERF:
+	pak_sa SBI_CPPC_NOMINAL_PERF:
+	pak_sa SBI_CPPC_LOW_NON_LINEAR_PERF:
+	pak_sa SBI_CPPC_LOWEST_PERF:
+	pak_sa SBI_CPPC_GUARANTEED_PERF:
+	pak_sa SBI_CPPC_CTR_WRAP_TIME:
+	pak_sa SBI_CPPC_REFERENCE_CTR:
+	pak_sa SBI_CPPC_DELIVERED_CTR:
+	pak_sa SBI_CPPC_REFERENCE_PERF:
+	pak_sa SBI_CPPC_LOWEST_FREQ:
+	pak_sa SBI_CPPC_NOMINAL_FREQ:
+	pak_sa SBI_CPPC_TRANSITION_LATENCY:
+		ត្រឡប់ false;
 	}
 
-	return true;
+	ត្រឡប់ true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+ចំនួនគត់ sbi_cppc_probe(unsigned long reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	ប្រសិនបើ (!cppc_dev || !cppc_dev->cppc_probe)
+		ត្រឡប់ SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	ប្រសិនបើ (sbi_cppc_is_reserved(reg))
+		ត្រឡប់ SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	ត្រឡប់ cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+ចំនួនគត់ sbi_cppc_read(unsigned long reg, uint64_t *val)
 {
-	int ret;
+	ចំនួនគត់ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	ប្រសិនបើ (!cppc_dev || !cppc_dev->cppc_read)
+		ត្រឡប់ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ប្រសិនបើ (ret <= 0)
+		ត្រឡប់ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	ប្រសិនបើ (!sbi_cppc_readable(reg))
+		ត្រឡប់ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	ត្រឡប់ cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+ចំនួនគត់ sbi_cppc_write(unsigned long reg, uint64_t val)
 {
-	int ret;
+	ចំនួនគត់ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	ប្រសិនបើ (!cppc_dev || !cppc_dev->cppc_write)
+		ត្រឡប់ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ប្រសិនបើ (ret <= 0)
+		ត្រឡប់ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	ប្រសិនបើ (!sbi_cppc_writable(reg))
+		ត្រឡប់ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	ត្រឡប់ cppc_dev->cppc_write(reg, val);
 }

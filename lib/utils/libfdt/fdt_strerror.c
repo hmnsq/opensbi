@@ -11,14 +11,14 @@
 
 #include "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
+sa_nracanaa fdt_errtabent {
+	const var_na *str;
 };
 
 #define FDT_ERRTABENT(val) \
 	[(val)] = { .str = #val, }
 
-static struct fdt_errtabent fdt_errtable[] = {
+static sa_nracanaa fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
 	FDT_ERRTABENT(FDT_ERR_EXISTS),
 	FDT_ERRTABENT(FDT_ERR_NOSPACE),
@@ -40,20 +40,20 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#define FDT_ERRTABSIZE	((ចំនួនគត់)(parimaa_na(fdt_errtable) / parimaa_na(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+const var_na *fdt_strerror(ចំនួនគត់ errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
+	ប្រសិនបើ (errval > 0)
+		ត្រឡប់ "<valid offset/length>";
+	បើមិនដូច្នេះ ប្រសិនបើ (errval == 0)
+		ត្រឡប់ "<no error>";
+	បើមិនដូច្នេះ ប្រសិនបើ (-errval < FDT_ERRTABSIZE) {
+		const var_na *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		ប្រសិនបើ (s)
+			ត្រឡប់ s;
 	}
 
-	return "<unknown error>";
+	ត្រឡប់ "<unknown error>";
 }
