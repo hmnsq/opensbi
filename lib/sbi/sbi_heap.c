@@ -7,79 +7,79 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/riscv_locks.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_list.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
 #define HEAP_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#define HEAP_نود_BATCH_SIZE		8
 
-struct heap_node {
-	struct sbi_dlist head;
+بنية heap_نود {
+	بنية sbi_dlist head;
 	unsigned long addr;
 	unsigned long size;
 };
 
-struct sbi_heap_control {
+بنية sbi_heap_control {
 	spinlock_t lock;
 	unsigned long base GUARDED_BY(&lock);
 	unsigned long size GUARDED_BY(&lock);
 	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+	بنية sbi_dlist free_نود_list GUARDED_BY(&lock);
+	بنية sbi_dlist free_space_list GUARDED_BY(&lock);
+	بنية sbi_dlist used_space_list GUARDED_BY(&lock);
+	بنية heap_نود init_free_space_نود GUARDED_BY(&lock);
 };
 
-struct sbi_heap_control global_hpctrl;
+بنية sbi_heap_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+ساكن bool alloc_nodes(بنية sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t size = HEAP_نود_BATCH_SIZE * حجم(بنية heap_نود);
+	بنية heap_نود *n, *new = عدم;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	إذا (hpctrl->free_نود_list.next != hpctrl->free_نود_list.prev)
+		أرجع true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
+		إذا (n->size >= size) {
 			n->size -= size;
-			if (!n->size) {
+			إذا (!n->size) {
 				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+				sbi_list_add_tail(&n->head, &hpctrl->free_نود_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (فراغ *)(n->addr + n->size);
+			اكسر;
 		}
 	}
-	if (!new)
-		return false;
+	إذا (!new)
+		أرجع false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
+	لكل (size_t i = 0; i < HEAP_نود_BATCH_SIZE; i++)
+		sbi_list_add_tail(&new[i].head, &hpctrl->free_نود_list);
 	hpctrl->resv += size;
 
-	return true;
+	أرجع true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
+ساكن فراغ *alloc_with_align(بنية sbi_heap_control *hpctrl, size_t align,
 			      size_t size)
 	MUST_NOT_HOLD(&hpctrl->lock)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
+	فراغ *ret = عدم;
+	بنية heap_نود *n, *np;
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	إذا (!size)
+		أرجع عدم;
 
 	size += align - 1;
 	size &= ~((unsigned long)align - 1);
@@ -87,25 +87,25 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	إذا (!alloc_nodes(hpctrl))
+		اذهب out;
 
-	np = NULL;
+	np = عدم;
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		إذا (size + pad <= n->size) {
 			np = n;
-			break;
+			اكسر;
 		}
 	}
-	if (!np)
-		goto out;
+	إذا (!np)
+		اذهب out;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+	إذا (pad) {
+		n = sbi_list_first_entry(&hpctrl->free_نود_list,
+					 بنية heap_نود, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr;
@@ -116,9 +116,9 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		np->size -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+	إذا (size < np->size) {
+		n = sbi_list_first_entry(&hpctrl->free_نود_list,
+					 بنية heap_نود, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr + size;
@@ -130,96 +130,96 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 
 	sbi_list_del(&np->head);
 	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	ret = (فراغ *)np->addr;
 
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	أرجع ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+فراغ *sbi_malloc_from(بنية sbi_heap_control *hpctrl, size_t size)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	أرجع alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
+فراغ *sbi_aligned_alloc_from(بنية sbi_heap_control *hpctrl,
 			     size_t alignment, size_t size)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	إذا (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	إذا ((alignment & (alignment - 1)) != 0)
+		أرجع عدم;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	إذا (size % alignment != 0)
+		أرجع عدم;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	أرجع alloc_with_align(hpctrl, alignment, size);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+فراغ *sbi_zalloc_from(بنية sbi_heap_control *hpctrl, size_t size)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	فراغ *ret = sbi_malloc_from(hpctrl, size);
 
-	if (ret)
+	إذا (ret)
 		sbi_memset(ret, 0, size);
-	return ret;
+	أرجع ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+فراغ sbi_free_from(بنية sbi_heap_control *hpctrl, فراغ *ptr)
 {
-	struct heap_node *n, *np;
+	بنية heap_نود *n, *np;
 
-	if (!ptr)
-		return;
+	إذا (!ptr)
+		أرجع;
 
 	spin_lock(&hpctrl->lock);
 
-	np = NULL;
+	np = عدم;
 	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
+		إذا ((n->addr <= (unsigned long)ptr) &&
 		    ((unsigned long)ptr < (n->addr + n->size))) {
 			np = n;
-			break;
+			اكسر;
 		}
 	}
-	if (!np) {
+	إذا (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		أرجع;
 	}
 
 	sbi_list_del(&np->head);
 
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+		إذا ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
+			sbi_list_add_tail(&np->head, &hpctrl->free_نود_list);
+			np = عدم;
+			اكسر;
+		} وإلا إذا (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
+			sbi_list_add_tail(&np->head, &hpctrl->free_نود_list);
+			np = عدم;
+			اكسر;
+		} وإلا إذا ((n->addr + n->size) < np->addr) {
 			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			np = عدم;
+			اكسر;
 		}
 	}
-	if (np)
+	إذا (np)
 		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_free_space_from(بنية sbi_heap_control *hpctrl)
 {
-	struct heap_node *n;
+	بنية heap_نود *n;
 	unsigned long ret = 0;
 
 	spin_lock(&hpctrl->lock);
@@ -227,61 +227,61 @@ unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 		ret += n->size;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	أرجع ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_used_space_from(بنية sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	أرجع hpctrl->size - hpctrl->resv - sbi_heap_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_reserved_space_from(بنية sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	أرجع hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
+صحيح sbi_heap_init_new(بنية sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	بنية heap_نود *n;
 
 	/* Initialize heap control */
 	SPIN_LOCK_INIT(hpctrl->lock);
 	hpctrl->base = base;
 	hpctrl->size = size;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
+	SBI_INIT_LIST_HEAD(&hpctrl->free_نود_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
+	n = &hpctrl->init_free_space_نود;
 	n->addr = base;
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+صحيح sbi_heap_init(بنية sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
+	إذا (!scratch->fw_heap_size ||
 	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
 	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		أرجع SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	أرجع sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
 				  scratch->fw_heap_size);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+صحيح sbi_heap_alloc_new(بنية sbi_heap_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, حجم(بنية sbi_heap_control));
+	أرجع 0;
 }
