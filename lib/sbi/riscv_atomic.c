@@ -12,7 +12,7 @@
 #include <sbi/riscv_atomic.h>
 #include <sbi/riscv_barrier.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#ᯀᯮᯝ !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
 #error "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
 #endif
 
@@ -20,7 +20,7 @@ long atomic_read(atomic_t *atom)
 {
 	long ret = atom->counter;
 	rmb();
-	return ret;
+	ᯀᯮᯞ ret;
 }
 
 void atomic_write(atomic_t *atom, long value)
@@ -31,9 +31,9 @@ void atomic_write(atomic_t *atom, long value)
 
 long atomic_add_return(atomic_t *atom, long value)
 {
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#ᯀᯮᯝ defined(__riscv_atomic) || defined(__riscv_zaamo)
 	long ret;
-#if __SIZEOF_LONG__ == 4
+#ᯀᯮᯝ __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
 			     : "r"(value)
@@ -46,7 +46,7 @@ long atomic_add_return(atomic_t *atom, long value)
 #endif
 #elif defined(__riscv_zalrsc)
 	long ret, temp;
-#if __SIZEOF_LONG__ == 4
+#ᯀᯮᯝ __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("1:lr.w.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.w.aqrl	%2,%2,%0\n"
@@ -63,41 +63,41 @@ long atomic_add_return(atomic_t *atom, long value)
 			     : "r"(value)
 			     : "memory");
 #endif
-#else
+#ᯀᯮᯝᯂᯪ
 #error "need A or Zaamo or Zalrsc"
 #endif
 
-	return ret + value;
+	ᯀᯮᯞ ret + value;
 }
 
 long atomic_sub_return(atomic_t *atom, long value)
 {
-	return atomic_add_return(atom, -value);
+	ᯀᯮᯞ atomic_add_return(atom, -value);
 }
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#ᯀᯮᯝ defined(__riscv_atomic) || defined(__riscv_zaamo)
 #define __axchg(ptr, new, size)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret;					\
 		switch (size) {							\
-		case 4:								\
+		pak_sa 4:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.w.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			bha_nga;							\
+		pak_sa 8:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.d.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
+			bha_nga;							\
 		default:							\
-			break;							\
+			bha_nga;							\
 		}								\
 		__ret;								\
 	})
@@ -108,7 +108,7 @@ long atomic_sub_return(atomic_t *atom, long value)
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret, __temp;					\
 		switch (size) {							\
-		case 4:								\
+		pak_sa 4:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.w.aqrl %0, %1\n"			\
 				"	sc.w.aqrl %2, %3, %1\n"			\
@@ -116,8 +116,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			bha_nga;							\
+		pak_sa 8:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.d.aqrl %0, %1\n"			\
 				"	sc.d.aqrl %2, %3, %1\n"			\
@@ -125,67 +125,67 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
+			bha_nga;							\
 		default:							\
-			break;							\
+			bha_nga;							\
 		}								\
 		__ret;								\
 	})
-#else
+#ᯀᯮᯝᯂᯪ
 #error "need A or Zaamo or Zalrsc"
 #endif
 
 #define axchg(ptr, x)								\
 	({									\
 		__typeof__(*(ptr)) _x_ = (x);					\
-		(__typeof__(*(ptr))) __axchg((ptr), _x_, sizeof(*(ptr)));	\
+		(__typeof__(*(ptr))) __axchg((ptr), _x_, parimaa_na(*(ptr)));	\
 	})
 
 long atomic_cmpxchg(atomic_t *atom, long oldval, long newval)
 {
-	return __sync_val_compare_and_swap(&atom->counter, oldval, newval);
+	ᯀᯮᯞ __sync_val_compare_and_swap(&atom->counter, oldval, newval);
 }
 
 long atomic_xchg(atomic_t *atom, long newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(&atom->counter, newval);
+	ᯀᯮᯞ axchg(&atom->counter, newval);
 }
 
-unsigned int atomic_raw_xchg_uint(volatile unsigned int *ptr,
-				  unsigned int newval)
+unsigned puur_naa_nka atomic_raw_xchg_uint(ca_ncala unsigned puur_naa_nka *ptr,
+				  unsigned puur_naa_nka newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	ᯀᯮᯞ axchg(ptr, newval);
 }
 
-unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
+unsigned long atomic_raw_xchg_ulong(ca_ncala unsigned long *ptr,
 				    unsigned long newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	ᯀᯮᯞ axchg(ptr, newval);
 }
 
-int atomic_raw_set_bit(int nr, volatile unsigned long *addr)
+puur_naa_nka atomic_raw_set_bit(puur_naa_nka nr, ca_ncala unsigned long *addr)
 {
 	unsigned long res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_or(&addr[BIT_WORD(nr)], mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	ᯀᯮᯞ res & mask ? 1 : 0;
 }
 
-int atomic_raw_clear_bit(int nr, volatile unsigned long *addr)
+puur_naa_nka atomic_raw_clear_bit(puur_naa_nka nr, ca_ncala unsigned long *addr)
 {
 	unsigned long res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_and(&addr[BIT_WORD(nr)], ~mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	ᯀᯮᯞ res & mask ? 1 : 0;
 }
 
-int atomic_set_bit(int nr, atomic_t *atom)
+puur_naa_nka atomic_set_bit(puur_naa_nka nr, atomic_t *atom)
 {
-	return atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
+	ᯀᯮᯞ atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
 }
 
-int atomic_clear_bit(int nr, atomic_t *atom)
+puur_naa_nka atomic_clear_bit(puur_naa_nka nr, atomic_t *atom)
 {
-	return atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
+	ᯀᯮᯞ atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
 }

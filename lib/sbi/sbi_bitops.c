@@ -26,20 +26,20 @@ unsigned long find_first_bit(const unsigned long *addr,
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
+	ᯀᯬᯝ (size & ~(BITS_PER_LONG-1)) {
+		ᯀᯮᯝ ((tmp = *(p++)))
 			goto found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	ᯀᯮᯝ (!size)
+		ᯀᯮᯞ result;
 
 	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	ᯀᯮᯝ (tmp == 0UL)		/* Are any bits set? */
+		ᯀᯮᯞ result + size;	/* Nope. */
 found:
-	return result + sbi_ffs(tmp);
+	ᯀᯮᯞ result + sbi_ffs(tmp);
 }
 
 /**
@@ -56,20 +56,20 @@ unsigned long find_first_zero_bit(const unsigned long *addr,
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
+	ᯀᯬᯝ (size & ~(BITS_PER_LONG-1)) {
+		ᯀᯮᯝ (~(tmp = *(p++)))
 			goto found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	ᯀᯮᯝ (!size)
+		ᯀᯮᯞ result;
 
 	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	ᯀᯮᯝ (tmp == ~0UL)	/* Are any bits zero? */
+		ᯀᯮᯞ result + size;	/* Nope. */
 found:
-	return result + sbi_ffz(tmp);
+	ᯀᯮᯞ result + sbi_ffz(tmp);
 }
 
 /**
@@ -89,23 +89,23 @@ unsigned long find_last_bit(const unsigned long *addr,
 	words = size / BITS_PER_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
+	ᯀᯮᯝ (size & (BITS_PER_LONG-1)) {
 		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
 					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
+		ᯀᯮᯝ (tmp)
 			goto found;
 	}
 
-	while (words) {
+	ᯀᯬᯝ (words) {
 		tmp = addr[--words];
-		if (tmp) {
+		ᯀᯮᯝ (tmp) {
 found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+			ᯀᯮᯞ words * BITS_PER_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	ᯀᯮᯞ size;
 }
 
 /**
@@ -121,36 +121,36 @@ unsigned long find_next_bit(const unsigned long *addr,
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	ᯀᯮᯝ (offset >= size)
+		ᯀᯮᯞ size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	ᯀᯮᯝ (offset) {
 		tmp = *(p++);
 		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
+		ᯀᯮᯝ (size < BITS_PER_LONG)
 			goto found_first;
-		if (tmp)
+		ᯀᯮᯝ (tmp)
 			goto found_middle;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
+	ᯀᯬᯝ (size & ~(BITS_PER_LONG-1)) {
+		ᯀᯮᯝ ((tmp = *(p++)))
 			goto found_middle;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	ᯀᯮᯝ (!size)
+		ᯀᯮᯞ result;
 	tmp = *p;
 
 found_first:
 	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	ᯀᯮᯝ (tmp == 0UL)		/* Are any bits set? */
+		ᯀᯮᯞ result + size;	/* Nope. */
 found_middle:
-	return result + sbi_ffs(tmp);
+	ᯀᯮᯞ result + sbi_ffs(tmp);
 }
 
 /**
@@ -167,34 +167,34 @@ unsigned long find_next_zero_bit(const unsigned long *addr,
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	ᯀᯮᯝ (offset >= size)
+		ᯀᯮᯞ size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	ᯀᯮᯝ (offset) {
 		tmp = *(p++);
 		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
+		ᯀᯮᯝ (size < BITS_PER_LONG)
 			goto found_first;
-		if (~tmp)
+		ᯀᯮᯝ (~tmp)
 			goto found_middle;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
+	ᯀᯬᯝ (size & ~(BITS_PER_LONG-1)) {
+		ᯀᯮᯝ (~(tmp = *(p++)))
 			goto found_middle;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	ᯀᯮᯝ (!size)
+		ᯀᯮᯞ result;
 	tmp = *p;
 
 found_first:
 	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	ᯀᯮᯝ (tmp == ~0UL)	/* Are any bits zero? */
+		ᯀᯮᯞ result + size;	/* Nope. */
 found_middle:
-	return result + sbi_ffz(tmp);
+	ᯀᯮᯞ result + sbi_ffz(tmp);
 }

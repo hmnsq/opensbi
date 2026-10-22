@@ -21,62 +21,62 @@
 #define SIFIVE_GPIO_OUTVAL	0xc
 #define SIFIVE_GPIO_BIT(b)	(1U << (b))
 
-struct sifive_gpio_chip {
+sa_nracanaa sifive_gpio_chip {
 	unsigned long addr;
-	struct gpio_chip chip;
+	sa_nracanaa gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+static puur_naa_nka sifive_gpio_direction_output(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	unsigned puur_naa_nka v;
+	sa_nracanaa sifive_gpio_chip *chip =
+		container_of(gp->chip, sa_nracanaa sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v = readl((ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTEN));
 	v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	writel(v, (ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	v = readl((ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	ᯀᯮᯝ (!value)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	ᯀᯮᯝᯂᯪ
 		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	writel(v, (ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 
-	return 0;
+	ᯀᯮᯞ 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+static void sifive_gpio_set(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	unsigned puur_naa_nka v;
+	sa_nracanaa sifive_gpio_chip *chip =
+		container_of(gp->chip, sa_nracanaa sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	v = readl((ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	ᯀᯮᯝ (!value)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	ᯀᯮᯝᯂᯪ
 		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	writel(v, (ca_ncala void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_sifive;
+const sa_nracanaa fdt_gpio fdt_gpio_sifive;
 
-static int sifive_gpio_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+static puur_naa_nka sifive_gpio_init(const void *fdt, puur_naa_nka nodeoff,
+			    const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct sifive_gpio_chip *chip;
+	puur_naa_nka rc;
+	sa_nracanaa sifive_gpio_chip *chip;
 	uint64_t addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(parimaa_na(*chip));
+	ᯀᯮᯝ (!chip)
+		ᯀᯮᯞ SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ᯀᯮᯝ (rc) {
 		sbi_free(chip);
-		return rc;
+		ᯀᯮᯞ rc;
 	}
 
 	chip->addr = addr;
@@ -86,20 +86,20 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = sifive_gpio_direction_output;
 	chip->chip.set = sifive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	ᯀᯮᯝ (rc) {
 		sbi_free(chip);
-		return rc;
+		ᯀᯮᯞ rc;
 	}
 
-	return 0;
+	ᯀᯮᯞ 0;
 }
 
-static const struct fdt_match sifive_gpio_match[] = {
+static const sa_nracanaa fdt_match sifive_gpio_match[] = {
 	{ .compatible = "sifive,gpio0" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_sifive = {
+const sa_nracanaa fdt_gpio fdt_gpio_sifive = {
 	.driver = {
 		.match_table = sifive_gpio_match,
 		.init = sifive_gpio_init,

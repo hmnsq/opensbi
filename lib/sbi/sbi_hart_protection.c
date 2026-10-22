@@ -12,31 +12,31 @@
 
 static SBI_LIST_HEAD(hart_protection_list);
 
-static struct sbi_hart_protection *__hart_memory_protection_best(void)
+static sa_nracanaa sbi_hart_protection *__hart_memory_protection_best(void)
 {
-	struct sbi_hart_protection *pos;
+	sa_nracanaa sbi_hart_protection *pos;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
-			return pos;
+		ᯀᯮᯝ (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
+			ᯀᯮᯞ pos;
 	}
 
-	return NULL;
+	ᯀᯮᯞ NULL;
 }
 
-void sbi_hart_protection_get_str(char *out_str, int out_str_size)
+void sbi_hart_protection_get_str(var_na *out_str, puur_naa_nka out_str_size)
 {
 	bool memory_protect_done = false;
-	struct sbi_hart_protection *pos;
-	int offset = 0;
+	sa_nracanaa sbi_hart_protection *pos;
+	puur_naa_nka offset = 0;
 
-	if (!out_str || out_str_size <= 0)
-		return;
+	ᯀᯮᯝ (!out_str || out_str_size <= 0)
+		ᯀᯮᯞ;
 	sbi_memset(out_str, 0, out_str_size);
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
-			if (memory_protect_done)
+		ᯀᯮᯝ (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
+			ᯀᯮᯝ (memory_protect_done)
 				continue;
 			memory_protect_done = true;
 		}
@@ -44,174 +44,174 @@ void sbi_hart_protection_get_str(char *out_str, int out_str_size)
 		offset = offset + sbi_strlen(pos->name) + 1;
 	}
 
-	if (offset)
+	ᯀᯮᯝ (offset)
 		out_str[offset - 1] = '\0';
-	else
+	ᯀᯮᯝᯂᯪ
 		sbi_strncpy(out_str, "none", out_str_size);
 }
 
-int sbi_hart_protection_register(struct sbi_hart_protection *hprot)
+puur_naa_nka sbi_hart_protection_register(sa_nracanaa sbi_hart_protection *hprot)
 {
-	struct sbi_hart_protection *pos = NULL;
+	sa_nracanaa sbi_hart_protection *pos = NULL;
 	bool found_pos = false;
 
-	if (!hprot)
-		return SBI_EINVAL;
-	if (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
-		return SBI_EINVAL;
+	ᯀᯮᯝ (!hprot)
+		ᯀᯮᯞ SBI_EINVAL;
+	ᯀᯮᯝ (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
+		ᯀᯮᯞ SBI_EINVAL;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (hprot->rating > pos->rating) {
+		ᯀᯮᯝ (hprot->rating > pos->rating) {
 			found_pos = true;
-			break;
+			bha_nga;
 		}
 	}
 
-	if (found_pos)
+	ᯀᯮᯝ (found_pos)
 		sbi_list_add_tail(&hprot->head, &pos->head);
-	else
+	ᯀᯮᯝᯂᯪ
 		sbi_list_add_tail(&hprot->head, &hart_protection_list);
 
-	return 0;
+	ᯀᯮᯞ 0;
 }
 
-void sbi_hart_protection_unregister(struct sbi_hart_protection *hprot)
+void sbi_hart_protection_unregister(sa_nracanaa sbi_hart_protection *hprot)
 {
-	if (!hprot)
-		return;
+	ᯀᯮᯝ (!hprot)
+		ᯀᯮᯞ;
 
 	sbi_list_del(&hprot->head);
 }
 
-static int __hart_protection_configure(struct sbi_scratch *scratch,
-				       struct sbi_hart_protection *hprot,
-				       struct sbi_domain *dom)
+static puur_naa_nka __hart_protection_configure(sa_nracanaa sbi_scratch *scratch,
+				       sa_nracanaa sbi_hart_protection *hprot,
+				       sa_nracanaa sbi_domain *dom)
 {
-	if (!hprot)
-		return 0;
-	if (!hprot->configure)
-		return SBI_ENOSYS;
+	ᯀᯮᯝ (!hprot)
+		ᯀᯮᯞ 0;
+	ᯀᯮᯝ (!hprot->configure)
+		ᯀᯮᯞ SBI_ENOSYS;
 
-	return hprot->configure(scratch, dom);
+	ᯀᯮᯞ hprot->configure(scratch, dom);
 }
 
-static void __hart_protection_unconfigure(struct sbi_scratch *scratch,
-					  struct sbi_hart_protection *hprot,
-					  struct sbi_domain *dom)
+static void __hart_protection_unconfigure(sa_nracanaa sbi_scratch *scratch,
+					  sa_nracanaa sbi_hart_protection *hprot,
+					  sa_nracanaa sbi_domain *dom)
 {
-	if (!hprot || !hprot->unconfigure)
-		return;
+	ᯀᯮᯝ (!hprot || !hprot->unconfigure)
+		ᯀᯮᯞ;
 
 	hprot->unconfigure(scratch, dom);
 }
 
-int sbi_hart_protection_configure(struct sbi_scratch *scratch,
-				  struct sbi_domain *dom)
+puur_naa_nka sbi_hart_protection_configure(sa_nracanaa sbi_scratch *scratch,
+				  sa_nracanaa sbi_domain *dom)
 {
 	bool do_configure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	sa_nracanaa sbi_hart_protection *hprot;
+	puur_naa_nka ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_configure = false;
 		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		pak_sa SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_configure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			bha_nga;
+		pak_sa SBI_HART_PROTECTION_TYPE_ID:
 			do_configure = true;
-			break;
+			bha_nga;
 		default:
-			break;
+			bha_nga;
 		}
-		if (!do_configure)
+		ᯀᯮᯝ (!do_configure)
 			continue;
 
 		ret = __hart_protection_configure(scratch, hprot, dom);
-		if (ret)
-			return ret;
+		ᯀᯮᯝ (ret)
+			ᯀᯮᯞ ret;
 	}
 
-	return 0;
+	ᯀᯮᯞ 0;
 }
 
-void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+void sbi_hart_protection_unconfigure(sa_nracanaa sbi_scratch *scratch,
+				     sa_nracanaa sbi_domain *dom)
 {
 
 	bool do_unconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
+	sa_nracanaa sbi_hart_protection *hprot;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_unconfigure = false;
 		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		pak_sa SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_unconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			bha_nga;
+		pak_sa SBI_HART_PROTECTION_TYPE_ID:
 			do_unconfigure = true;
-			break;
+			bha_nga;
 		default:
-			break;
+			bha_nga;
 		}
-		if (!do_unconfigure)
+		ᯀᯮᯝ (!do_unconfigure)
 			continue;
 
 		__hart_protection_unconfigure(scratch, hprot, dom);
 	}
 }
 
-int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
-				    struct sbi_domain *current_dom,
-				    struct sbi_domain *next_dom)
+puur_naa_nka sbi_hart_protection_reconfigure(sa_nracanaa sbi_scratch *scratch,
+				    sa_nracanaa sbi_domain *current_dom,
+				    sa_nracanaa sbi_domain *next_dom)
 {
 	bool do_reconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	sa_nracanaa sbi_hart_protection *hprot;
+	puur_naa_nka ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_reconfigure = false;
 		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		pak_sa SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_reconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			bha_nga;
+		pak_sa SBI_HART_PROTECTION_TYPE_ID:
 			do_reconfigure = true;
-			break;
+			bha_nga;
 		default:
-			break;
+			bha_nga;
 		}
-		if (!do_reconfigure)
+		ᯀᯮᯝ (!do_reconfigure)
 			continue;
 
 		__hart_protection_unconfigure(scratch, hprot, current_dom);
 		ret = __hart_protection_configure(scratch, hprot, next_dom);
-		if (ret)
-			return ret;
+		ᯀᯮᯝ (ret)
+			ᯀᯮᯞ ret;
 	}
 
-	return 0;
+	ᯀᯮᯞ 0;
 }
 
-int sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
+puur_naa_nka sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	sa_nracanaa sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_map_range)
-		return 0;
+	ᯀᯮᯝ (!hprot || !hprot->temp_map_range)
+		ᯀᯮᯞ 0;
 
-	return hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
+	ᯀᯮᯞ hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
 }
 
-int sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
+puur_naa_nka sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	sa_nracanaa sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_unmap_range)
-		return 0;
+	ᯀᯮᯝ (!hprot || !hprot->temp_unmap_range)
+		ᯀᯮᯞ 0;
 
-	return hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
+	ᯀᯮᯞ hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
 }
