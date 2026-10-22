@@ -27,40 +27,40 @@ const struct sbi_system_reset_device *sbi_system_reset_get_device(
 	struct sbi_system_reset_device *reset_dev = NULL;
 	struct sbi_dlist *pos;
 	/** lowest priority - any non zero is our candidate */
-	int priority = 0;
+	整数 priority = 0;
 
 	/* Check each reset device registered for supported reset type */
 	sbi_list_for_each(pos, &(reset_devices_list)) {
 		struct sbi_system_reset_device *dev =
 			to_system_reset_device(pos);
-		if (dev->system_reset_check) {
-			int status = dev->system_reset_check(reset_type,
+		如果 (dev->system_reset_check) {
+			整数 status = dev->system_reset_check(reset_type,
 							     reset_reason);
 			/** reset_type not supported */
-			if (status == 0)
+			如果 (status == 0)
 				continue;
 
-			if (status > priority) {
+			如果 (status > priority) {
 				reset_dev = dev;
 				priority = status;
 			}
 		}
 	}
 
-	return reset_dev;
+	返回 reset_dev;
 }
 
 void sbi_system_reset_add_device(struct sbi_system_reset_device *dev)
 {
-	if (!dev || !dev->system_reset_check)
-		return;
+	如果 (!dev || !dev->system_reset_check)
+		返回;
 
 	sbi_list_add(&(dev->node), &(reset_devices_list));
 }
 
 bool sbi_system_reset_supported(u32 reset_type, u32 reset_reason)
 {
-	return !!sbi_system_reset_get_device(reset_type, reset_reason);
+	返回 !!sbi_system_reset_get_device(reset_type, reset_reason);
 }
 
 void __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
@@ -75,10 +75,10 @@ void __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
 	sbi_hsm_hart_stop(scratch, false);
 
 	/* Platform specific reset if domain allowed system reset */
-	if (dom->system_reset_allowed) {
+	如果 (dom->system_reset_allowed) {
 		const struct sbi_system_reset_device *dev =
 			sbi_system_reset_get_device(reset_type, reset_reason);
-		if (dev)
+		如果 (dev)
 			dev->system_reset(reset_type, reset_reason);
 	}
 
@@ -91,34 +91,34 @@ static bool system_suspended;
 
 const struct sbi_system_suspend_device *sbi_system_suspend_get_device(void)
 {
-	return suspend_dev;
+	返回 suspend_dev;
 }
 
 void sbi_system_suspend_set_device(struct sbi_system_suspend_device *dev)
 {
-	if (!dev || suspend_dev)
-		return;
+	如果 (!dev || suspend_dev)
+		返回;
 
 	suspend_dev = dev;
 }
 
-static int sbi_system_suspend_test_check(u32 sleep_type)
+static 整数 sbi_system_suspend_test_check(u32 sleep_type)
 {
-	return sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? 0 : SBI_EINVAL;
+	返回 sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? 0 : SBI_EINVAL;
 }
 
-static int sbi_system_suspend_test_suspend(u32 sleep_type,
+static 整数 sbi_system_suspend_test_suspend(u32 sleep_type,
 					   unsigned long mmode_resume_addr)
 {
-	if (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
-		return SBI_EINVAL;
+	如果 (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
+		返回 SBI_EINVAL;
 
 	sbi_timer_mdelay(5000);
 
 	/* Wait for interrupt */
 	wfi();
 
-	return SBI_OK;
+	返回 SBI_OK;
 }
 
 static struct sbi_system_suspend_device sbi_system_suspend_test = {
@@ -134,66 +134,66 @@ void sbi_system_suspend_test_enable(void)
 
 bool sbi_system_suspend_supported(u32 sleep_type)
 {
-	return suspend_dev && suspend_dev->system_suspend_check &&
+	返回 suspend_dev && suspend_dev->system_suspend_check &&
 	       suspend_dev->system_suspend_check(sleep_type) == 0;
 }
 
 bool sbi_system_is_suspended(void)
 {
-	return system_suspended;
+	返回 system_suspended;
 }
 
 void sbi_system_resume(void)
 {
-	if (suspend_dev && suspend_dev->system_resume)
+	如果 (suspend_dev && suspend_dev->system_resume)
 		suspend_dev->system_resume();
 
 	system_suspended = false;
 }
 
-int sbi_system_suspend(u32 sleep_type, ulong resume_addr, ulong opaque)
+整数 sbi_system_suspend(u32 sleep_type, ulong resume_addr, ulong opaque)
 {
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	void (*jump_warmboot)(void) = (void (*)(void))scratch->warmboot_addr;
-	unsigned int hartindex = current_hartindex();
+	unsigned 整数 hartindex = current_hartindex();
 	unsigned long prev_mode;
 	unsigned long i;
-	int ret;
+	整数 ret;
 
-	if (!dom || !dom->system_suspend_allowed)
-		return SBI_EFAIL;
+	如果 (!dom || !dom->system_suspend_allowed)
+		返回 SBI_EFAIL;
 
-	if (!suspend_dev || !suspend_dev->system_suspend ||
+	如果 (!suspend_dev || !suspend_dev->system_suspend ||
 	    !suspend_dev->system_suspend_check)
-		return SBI_EFAIL;
+		返回 SBI_EFAIL;
 
 	ret = suspend_dev->system_suspend_check(sleep_type);
-	if (ret != SBI_OK)
-		return ret;
+	如果 (ret != SBI_OK)
+		返回 ret;
 
 	prev_mode = sbi_mstatus_prev_mode(csr_read(CSR_MSTATUS));
-	if (prev_mode != PRV_S && prev_mode != PRV_U)
-		return SBI_EFAIL;
+	如果 (prev_mode != PRV_S && prev_mode != PRV_U)
+		返回 SBI_EFAIL;
 
 	spin_lock(&dom->assigned_harts_lock);
 	sbi_hartmask_for_each_hartindex(i, &dom->assigned_harts) {
-		if (i == hartindex)
+		如果 (i == hartindex)
 			continue;
-		if (__sbi_hsm_hart_get_state(i) != SBI_HSM_STATE_STOPPED) {
+		如果 (__sbi_hsm_hart_get_state(i) != SBI_HSM_STATE_STOPPED) {
 			spin_unlock(&dom->assigned_harts_lock);
-			return SBI_ERR_DENIED;
+			返回 SBI_ERR_DENIED;
 		}
 	}
 	spin_unlock(&dom->assigned_harts_lock);
 
-	if (!sbi_domain_check_addr(dom, resume_addr, prev_mode,
+	如果 (!sbi_domain_check_addr(dom, resume_addr, prev_mode,
 				   SBI_DOMAIN_EXECUTE))
-		return SBI_EINVALID_ADDR;
+		返回 SBI_EINVALID_ADDR;
 
-	if (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_STARTED,
+	如果 (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_STARTED,
 				       SBI_HSM_STATE_SUSPENDED))
-		return SBI_EFAIL;
+		返回 SBI_EFAIL;
 
 	/* Prepare for resume */
 	scratch->next_mode = prev_mode;
@@ -205,13 +205,13 @@ int sbi_system_suspend(u32 sleep_type, ulong resume_addr, ulong opaque)
 	/* Suspend */
 	system_suspended = true;
 	ret = suspend_dev->system_suspend(sleep_type, scratch->warmboot_addr);
-	if (ret != SBI_OK) {
-		if (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_SUSPENDED,
+	如果 (ret != SBI_OK) {
+		如果 (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_SUSPENDED,
 					       SBI_HSM_STATE_STARTED))
 			sbi_hart_hang();
 
 		system_suspended = false;
-		return ret;
+		返回 ret;
 	}
 
 	/* Resume */

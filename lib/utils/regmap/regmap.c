@@ -12,103 +12,103 @@
 
 static SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+struct regmap *regmap_find(unsigned 整数 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
 		struct regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		如果 (rmap->id == id)
+			返回 rmap;
 	}
 
-	return NULL;
+	返回 NULL;
 }
 
-int regmap_add(struct regmap *rmap)
+整数 regmap_add(struct regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	如果 (!rmap)
+		返回 SBI_EINVAL;
+	如果 (regmap_find(rmap->id))
+		返回 SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	返回 0;
 }
 
 void regmap_remove(struct regmap *rmap)
 {
-	if (!rmap)
-		return;
+	如果 (!rmap)
+		返回;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+static bool regmap_reg_valid(struct regmap *rmap, unsigned 整数 reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	如果 ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		返回 false;
+	返回 true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+static unsigned 整数 regmap_reg_addr(struct regmap *rmap, unsigned 整数 reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	如果 (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	否则 如果 (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	返回 reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+整数 regmap_read(struct regmap *rmap, unsigned 整数 reg, unsigned 整数 *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	如果 (!rmap || !regmap_reg_valid(rmap, reg))
+		返回 SBI_EINVAL;
+	如果 (!rmap->reg_read)
+		返回 SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	返回 rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+整数 regmap_write(struct regmap *rmap, unsigned 整数 reg, unsigned 整数 val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	如果 (!rmap || !regmap_reg_valid(rmap, reg))
+		返回 SBI_EINVAL;
+	如果 (!rmap->reg_write)
+		返回 SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	返回 rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+整数 regmap_update_bits(struct regmap *rmap, unsigned 整数 reg,
+		       unsigned 整数 mask, unsigned 整数 val)
 {
-	int rc;
-	unsigned int reg_val;
+	整数 rc;
+	unsigned 整数 reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	如果 (!rmap || !regmap_reg_valid(rmap, reg))
+		返回 SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	如果 (rmap->reg_update_bits) {
+		返回 rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} 否则 如果 (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		返回 rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	返回 SBI_ENOSYS;
 }

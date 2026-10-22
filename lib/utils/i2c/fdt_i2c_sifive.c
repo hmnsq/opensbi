@@ -55,38 +55,38 @@ static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
 static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
 					uint8_t reg)
 {
-	return readl((volatile char *)adap->addr + reg);
+	返回 readl((volatile char *)adap->addr + reg);
 }
 
-static int sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
+static 整数 sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
 {
 	uint8_t val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
 
-	if (val & SIFIVE_I2C_STATUS_RXACK)
-		return SBI_EIO;
+	如果 (val & SIFIVE_I2C_STATUS_RXACK)
+		返回 SBI_EIO;
 
-	return 0;
+	返回 0;
 }
 
-static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
+static 整数 sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 				   uint32_t mask)
 {
-	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	unsigned 整数 timeout = 1; // [msec]
+	整数 count = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
 
 	do {
 		val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
-		if (!(val & mask))
-			return 0;
+		如果 (!(val & mask))
+			返回 0;
 
 		sbi_timer_udelay(1);
 		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		如果 (count == (timeout * 1000))
+			返回 SBI_ETIMEDOUT;
+	} 当 (1);
 }
 
 #define sifive_i2c_adapter_poll_tip(adap)	\
@@ -94,7 +94,7 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 #define sifive_i2c_adapter_poll_busy(adap)	\
 sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_BUSY)
 
-static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
+static 整数 sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 				    uint8_t addr, uint8_t bit)
 {
 	uint8_t val = (addr << 1) | bit;
@@ -103,48 +103,48 @@ static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 	val = SIFIVE_I2C_CMD_STA | SIFIVE_I2C_CMD_WR | SIFIVE_I2C_CMD_IACK;
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, val);
 
-	return sifive_i2c_adapter_poll_tip(adap);
+	返回 sifive_i2c_adapter_poll_tip(adap);
 }
 
-static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				    uint8_t reg, uint8_t *buffer, int len)
+static 整数 sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
+				    uint8_t reg, uint8_t *buffer, 整数 len)
 {
 	struct sifive_i2c_adapter *adap =
 		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
+	整数 rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
 
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	/* set register address */
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 				SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	/* set value */
-	while (len) {
+	当 (len) {
 		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *buffer);
 		sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 						       SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		rc = sifive_i2c_adapter_rxack(adap);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		buffer++;
 		len--;
@@ -155,64 +155,64 @@ static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
 
 	/* poll BUSY instead of ACK*/
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	返回 0;
 }
 
-static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				   uint8_t reg, uint8_t *buffer, int len)
+static 整数 sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
+				   uint8_t reg, uint8_t *buffer, 整数 len)
 {
 	struct sifive_i2c_adapter *adap =
 		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc;
+	整数 rc;
 
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 					       SIFIVE_I2C_CMD_IACK);
 
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	/* setting addr with high 0 bit */
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_READ_BIT);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
-	while (len) {
-		if (len == 1)
+	当 (len) {
+		如果 (len == 1)
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_ACK |
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
-		else
+		否则
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		*buffer = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
 		buffer++;
@@ -222,29 +222,29 @@ static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_STO |
 					       SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	返回 0;
 }
 
-static int sifive_i2c_init(const void *fdt, int nodeoff,
+static 整数 sifive_i2c_init(const void *fdt, 整数 nodeoff,
 			   const struct fdt_match *match)
 {
-	int rc;
+	整数 rc;
 	struct sifive_i2c_adapter *adapter;
 	uint64_t addr;
 
 	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	如果 (!adapter)
+		返回 SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	如果 (rc) {
 		sbi_free(adapter);
-		return rc;
+		返回 rc;
 	}
 
 	adapter->addr = addr;
@@ -252,12 +252,12 @@ static int sifive_i2c_init(const void *fdt, int nodeoff,
 	adapter->adapter.write = sifive_i2c_adapter_write;
 	adapter->adapter.read = sifive_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	如果 (rc) {
 		sbi_free(adapter);
-		return rc;
+		返回 rc;
 	}
 
-	return 0;
+	返回 0;
 }
 
 static const struct fdt_match sifive_i2c_match[] = {

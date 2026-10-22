@@ -20,7 +20,7 @@
  * Load emulator callback:
  *   Refer to comments of `sbi_platform_emulate_load`.
  */
-typedef int (*sbi_trap_ld_emulator)(ulong insn, int rlen, ulong raddr,
+typedef 整数 (*sbi_trap_ld_emulator)(ulong insn, 整数 rlen, ulong raddr,
 				    union sbi_ldst_data *out_val,
 				    struct sbi_trap_context *tcntx);
 
@@ -28,7 +28,7 @@ typedef int (*sbi_trap_ld_emulator)(ulong insn, int rlen, ulong raddr,
  * Store emulator callback:
  *   Refer to comments of `sbi_platform_emulate_store`.
  */
-typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
+typedef 整数 (*sbi_trap_st_emulator)(ulong insn, 整数 wlen, ulong waddr,
 				    union sbi_ldst_data in_val,
 				    struct sbi_trap_context *tcntx);
 
@@ -51,10 +51,10 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	如果 (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		返回;
 	/*
 	 * Only fixup if orig tinst is valid. Otherwise, discard the
 	 * new tinst to be on the safe side. Never use new tinst as-is!
@@ -62,9 +62,9 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * For vector, discard it regardless. It doesn't make sense to
 	 * have a transformed tinst
 	 */
-	else if (orig_trap->tinst == 0)
+	否则 如果 (orig_trap->tinst == 0)
 		uptrap->tinst = 0;
-	else
+	否则
 		uptrap->tinst = orig_trap->tinst | (offset << SH_RS1);
 }
 
@@ -76,10 +76,10 @@ static inline bool sbi_trap_tinst_valid(ulong tinst)
 	 * Also do proper checking per Privileged ISA 19.6.3,
 	 * and make sure high 32 bits of tinst is 0
 	 */
-	return tinst == (uint32_t)tinst && (tinst & 0x1);
+	返回 tinst == (uint32_t)tinst && (tinst & 0x1);
 }
 
-static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
+static 整数 sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 				 sbi_trap_ld_emulator emu)
 {
 	const struct sbi_trap_info *orig_trap = &tcntx->trap;
@@ -88,17 +88,17 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	union sbi_ldst_data val = { 0 };
 	struct sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_load = false, c_ldsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	整数 rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	如果 (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
 		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} 否则 {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		如果 (uptrap.cause) {
+			返回 sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -108,63 +108,63 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *    lb, lbu, lh, lhu, lw, flw, flw
 	 *    c.lbu, c.lh, c.lhu, c.lw, c.lwsp, c.fld, c.fldsp
 	 */
-	if ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
+	如果 ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
 		len = -1;
-	} else if ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
+	} 否则 如果 ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
+	} 否则 如果 ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_LB_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
+	} 否则 如果 ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
 		len = -2;
-	} else if ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
+	} 否则 如果 ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
 		/* Zcb */
 		len = -2;
 		imm = RVC_LH_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
+	} 否则 如果 ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
+	} 否则 如果 ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_LH_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
+	} 否则 如果 ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
 		len = -4;
-	} else if ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
+	} 否则 如果 ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LW_IMM(insn);
 		c_load = true;
-	} else if ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
+	} 否则 如果 ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
 		GET_RD_NUM(insn)) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LWSP_IMM(insn);
 		c_ldsp = true;
 #ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
+	} 否则 如果 ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
+	} 否则 如果 ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
+	} 否则 如果 ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LD_IMM(insn);
 		c_load = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
+	} 否则 如果 ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LDSP_IMM(insn);
 		c_ldsp = true;
 		fp = true;
 #endif
-	} else {
+	} 否则 {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -174,18 +174,18 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *     c.ld in rv64 == c.flw in rv32
 	 *     c.ldsp in rv64 == c.flwsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	如果 (prev_xlen == 64) {
 		/* RV64 Only: lwu, ld, c.ld, c.ldsp  */
-		if ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
+		如果 ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
 			len = 4;
-		} else if ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
+		} 否则 如果 ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
+		} 否则 如果 ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LD_IMM(insn);
 			c_load = true;
-		} else if ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
+		} 否则 如果 ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
 			GET_RD_NUM(insn)) {
 			/* Zca */
 			len = 8;
@@ -193,15 +193,15 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 			c_ldsp = true;
 		}
 #ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+	} 否则 如果 (prev_xlen == 32) {
 		/* RV32 Only: c.flw, c.flwsp */
-		if ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
+		如果 ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LW_IMM(insn);
 			c_load = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
+		} 否则 如果 ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LWSP_IMM(insn);
@@ -211,33 +211,33 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 #endif
 	}
 
-	if (len < 0) {
+	如果 (len < 0) {
 		len = -len;
 		shift = 8 * (sizeof(ulong) - len);
 	}
 
-	if (!len) // Unknown instruction
+	如果 (!len) // Unknown instruction
 		goto do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#如果 !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
+	如果 (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
 		goto do_emu;
 #endif
 
-	if (xform)
+	如果 (xform)
 		/* Transformed insn */
 		off = GET_RS1_NUM(insn);
-	else if (c_load)
+	否则 如果 (c_load)
 		/* non SP-based compressed load */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_ldsp)
+	否则 如果 (c_ldsp)
 		/* SP-based compressed load */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	否则
 		/* I-type non-compressed load */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_I(insn);
 	/**
@@ -248,28 +248,28 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, &val, tcntx);
-	if (rc <= 0)
-		return rc;
-	if (!len)
+	如果 (rc <= 0)
+		返回 rc;
+	如果 (!len)
 		goto epc_fixup;
 
-	if (!fp) {
+	如果 (!fp) {
 		ulong v = ((long)(val.data_ulong << shift)) >> shift;
 
-		if (c_load)
+		如果 (c_load)
 			SET_RDS(insn, regs, v);
-		else
+		否则
 			SET_RD(insn, regs, v);
 #ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_load)
+	} 否则 如果 (len == 8) {
+		如果 (c_load)
 			SET_F64_RDS(insn, regs, val.data_u64);
-		else
+		否则
 			SET_F64_RD(insn, regs, val.data_u64);
-	} else {
-		if (c_load)
+	} 否则 {
+		如果 (c_load)
 			SET_F32_RDS(insn, regs, val.data_ulong);
-		else
+		否则
 			SET_F32_RD(insn, regs, val.data_ulong);
 #endif
 	}
@@ -277,10 +277,10 @@ do_emu:
 epc_fixup:
 	regs->mepc += insn_len;
 
-	return 0;
+	返回 0;
 }
 
-static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
+static 整数 sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 				  sbi_trap_st_emulator emu)
 {
 	const struct sbi_trap_info *orig_trap = &tcntx->trap;
@@ -289,17 +289,17 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	union sbi_ldst_data val;
 	struct sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_store = false, c_stsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	整数 rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	如果 (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
 		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} 否则 {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		如果 (uptrap.cause) {
+			返回 sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -309,53 +309,53 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *    sb, sh, sw, fsw, fsd
 	 *    c.sb, c.sh, c.sw, c.swsp, c.fsd, c.fsdsp
 	 */
-	if ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
+	如果 ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
+	} 否则 如果 ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_SB_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
+	} 否则 如果 ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
+	} 否则 如果 ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_SH_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
+	} 否则 如果 ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
 		len = 4;
-	} else if ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
+	} 否则 如果 ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SW_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
+	} 否则 如果 ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SWSP_IMM(insn);
 		c_stsp = true;
 #ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
+	} 否则 如果 ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
+	} 否则 如果 ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
+	} 否则 如果 ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SD_IMM(insn);
 		c_store = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
+	} 否则 如果 ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SDSP_IMM(insn);
 		c_stsp = true;
 		fp = true;
 #endif
-	} else {
+	} 否则 {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -365,31 +365,31 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *     c.sd in rv64 == c.fsw in rv32
 	 *     c.sdsp in rv64 == c.fswsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	如果 (prev_xlen == 64) {
 		/* RV64 Only: sd, c.sd, c.sdsp */
-		if ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
+		如果 ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
+		} 否则 如果 ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SD_IMM(insn);
 			c_store = true;
-		} else if ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
+		} 否则 如果 ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SDSP_IMM(insn);
 			c_stsp = true;
 		}
 #ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+	} 否则 如果 (prev_xlen == 32) {
 		/* RV32 Only: c.fsw, c.fswsp */
-		if ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
+		如果 ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SW_IMM(insn);
 			c_store = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
+		} 否则 如果 ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SWSP_IMM(insn);
@@ -399,53 +399,53 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 #endif
 	}
 
-	if (!fp) {
-		if (c_store)
+	如果 (!fp) {
+		如果 (c_store)
 			val.data_ulong = GET_RS2S(insn, regs);
-		else if (c_stsp)
+		否则 如果 (c_stsp)
 			val.data_ulong = GET_RS2C(insn, regs);
-		else
+		否则
 			val.data_ulong = GET_RS2(insn, regs);
 #ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_store)
+	} 否则 如果 (len == 8) {
+		如果 (c_store)
 			val.data_u64 = GET_F64_RS2S(insn, regs);
-		else if (c_stsp)
+		否则 如果 (c_stsp)
 			val.data_u64 = GET_F64_RS2C(insn, regs);
-		else
+		否则
 			val.data_u64 = GET_F64_RS2(insn, regs);
-	} else {
-		if (c_store)
+	} 否则 {
+		如果 (c_store)
 			val.data_ulong = GET_F32_RS2S(insn, regs);
-		else if (c_stsp)
+		否则 如果 (c_stsp)
 			val.data_ulong = GET_F32_RS2C(insn, regs);
-		else
+		否则
 			val.data_ulong = GET_F32_RS2(insn, regs);
 #endif
 	}
 
-	if (!len) // Unknown instruction
+	如果 (!len) // Unknown instruction
 		goto do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#如果 !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_STORE)
+	如果 (orig_trap->cause == CAUSE_MISALIGNED_STORE)
 		goto do_emu;
 #endif
 
-	if (xform)
+	如果 (xform)
 		/* Transformed insn */
 		off = GET_RS1_NUM(insn);
-	else if (c_store)
+	否则 如果 (c_store)
 		/* non SP-based compressed store */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_stsp)
+	否则 如果 (c_stsp)
 		/* SP-based compressed store */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	否则
 		/* S-type non-compressed store */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_S(insn);
 	/**
@@ -456,15 +456,15 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, val, tcntx);
-	if (rc <= 0)
-		return rc;
+	如果 (rc <= 0)
+		返回 rc;
 
 	regs->mepc += insn_len;
 
-	return 0;
+	返回 0;
 }
 
-static int sbi_misaligned_ld_emulator(ulong insn, int rlen, ulong addr,
+static 整数 sbi_misaligned_ld_emulator(ulong insn, 整数 rlen, ulong addr,
 				      union sbi_ldst_data *out_val,
 				      struct sbi_trap_context *tcntx)
 {
@@ -472,31 +472,31 @@ static int sbi_misaligned_ld_emulator(ulong insn, int rlen, ulong addr,
 	struct sbi_trap_regs *regs = &tcntx->regs;
 	struct sbi_trap_info uptrap;
 
-	if (!rlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_ld_emulator(insn, tcntx);
-		else
+	如果 (!rlen) {
+		如果 (IS_VECTOR_LOAD_STORE(insn))
+			返回 sbi_misaligned_v_ld_emulator(insn, tcntx);
+		否则
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			返回 sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	如果 (addr != orig_trap->tval)
+		返回 SBI_EFAIL;
 
 	sbi_load_loop(out_val->data_bytes, addr, rlen, &uptrap);
-	if (uptrap.cause) {
+	如果 (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		返回 sbi_trap_redirect(regs, &uptrap);
 	}
-	return rlen;
+	返回 rlen;
 }
 
-int sbi_misaligned_load_handler(struct sbi_trap_context *tcntx)
+整数 sbi_misaligned_load_handler(struct sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
+	返回 sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
 }
 
-static int sbi_misaligned_st_emulator(ulong insn, int wlen, ulong addr,
+static 整数 sbi_misaligned_st_emulator(ulong insn, 整数 wlen, ulong addr,
 				      union sbi_ldst_data in_val,
 				      struct sbi_trap_context *tcntx)
 {
@@ -504,80 +504,80 @@ static int sbi_misaligned_st_emulator(ulong insn, int wlen, ulong addr,
 	struct sbi_trap_regs *regs = &tcntx->regs;
 	struct sbi_trap_info uptrap;
 
-	if (!wlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_st_emulator(insn, tcntx);
-		else
+	如果 (!wlen) {
+		如果 (IS_VECTOR_LOAD_STORE(insn))
+			返回 sbi_misaligned_v_st_emulator(insn, tcntx);
+		否则
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			返回 sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	如果 (addr != orig_trap->tval)
+		返回 SBI_EFAIL;
 
 	sbi_store_loop(in_val.data_bytes, addr, wlen, &uptrap);
-	if (uptrap.cause) {
+	如果 (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		返回 sbi_trap_redirect(regs, &uptrap);
 	}
-	return wlen;
+	返回 wlen;
 }
 
-int sbi_misaligned_store_handler(struct sbi_trap_context *tcntx)
+整数 sbi_misaligned_store_handler(struct sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
+	返回 sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
 }
 
-static int sbi_ld_access_emulator(ulong insn, int rlen, ulong addr,
+static 整数 sbi_ld_access_emulator(ulong insn, 整数 rlen, ulong addr,
 				  union sbi_ldst_data *out_val,
 				  struct sbi_trap_context *tcntx)
 {
 	const struct sbi_trap_info *orig_trap = &tcntx->trap;
 	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	整数 rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	如果 (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
+		返回 SBI_EINVAL;
 
 	rc = sbi_platform_emulate_load(sbi_platform_thishart_ptr(),
 				       insn, rlen, addr, out_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	如果 (rc < 0)
+		返回 sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	返回 rc;
 }
 
-int sbi_load_access_handler(struct sbi_trap_context *tcntx)
+整数 sbi_load_access_handler(struct sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
+	返回 sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
 }
 
-static int sbi_st_access_emulator(ulong insn, int wlen, ulong addr,
+static 整数 sbi_st_access_emulator(ulong insn, 整数 wlen, ulong addr,
 				  union sbi_ldst_data in_val,
 				  struct sbi_trap_context *tcntx)
 {
 	const struct sbi_trap_info *orig_trap = &tcntx->trap;
 	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	整数 rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	如果 (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
+		返回 SBI_EINVAL;
 
 	rc = sbi_platform_emulate_store(sbi_platform_thishart_ptr(),
 					insn, wlen, addr, in_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	如果 (rc < 0)
+		返回 sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	返回 rc;
 }
 
-int sbi_store_access_handler(struct sbi_trap_context *tcntx)
+整数 sbi_store_access_handler(struct sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
+	返回 sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
 }

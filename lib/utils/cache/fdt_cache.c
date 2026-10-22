@@ -14,76 +14,76 @@
 /* List of FDT cache drivers generated at compile time */
 extern const struct fdt_driver *const fdt_cache_drivers[];
 
-int fdt_cache_add(const void *fdt, int noff, struct cache_device *dev)
+整数 fdt_cache_add(const void *fdt, 整数 noff, struct cache_device *dev)
 {
-	int rc;
+	整数 rc;
 
 	dev->id = noff;
 	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, NULL), sizeof(dev->name) - 1);
 	sbi_dprintf("%s: %s\n", __func__, dev->name);
 
 	rc = fdt_next_cache_get(fdt, noff, &dev->next);
-	if (rc == SBI_ENOENT)
+	如果 (rc == SBI_ENOENT)
 		dev->next = NULL;
-	else if (rc)
-		return rc;
+	否则 如果 (rc)
+		返回 rc;
 
-	return cache_add(dev);
+	返回 cache_add(dev);
 }
 
-static int fdt_cache_add_generic(const void *fdt, int noff)
+static 整数 fdt_cache_add_generic(const void *fdt, 整数 noff)
 {
 	struct cache_device *dev;
-	int rc;
+	整数 rc;
 
 	dev = sbi_zalloc(sizeof(*dev));
-	if (!dev)
-		return SBI_ENOMEM;
+	如果 (!dev)
+		返回 SBI_ENOMEM;
 
 	rc = fdt_cache_add(fdt, noff, dev);
-	if (rc) {
+	如果 (rc) {
 		sbi_free(dev);
-		return rc;
+		返回 rc;
 	}
 
-	return 0;
+	返回 0;
 }
 
-static int fdt_cache_find(const void *fdt, int noff, struct cache_device **out_dev)
+static 整数 fdt_cache_find(const void *fdt, 整数 noff, struct cache_device **out_dev)
 {
 	struct cache_device *dev = cache_find(noff);
-	int rc;
+	整数 rc;
 
-	if (!dev) {
+	如果 (!dev) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_cache_drivers);
-		if (rc == SBI_ENODEV)
+		如果 (rc == SBI_ENODEV)
 			rc = fdt_cache_add_generic(fdt, noff);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		dev = cache_find(noff);
-		if (!dev)
-			return SBI_EFAIL;
+		如果 (!dev)
+			返回 SBI_EFAIL;
 	}
 
-	if (out_dev)
+	如果 (out_dev)
 		*out_dev = dev;
 
-	return SBI_OK;
+	返回 SBI_OK;
 }
 
-int fdt_next_cache_get(const void *fdt, int noff, struct cache_device **out_dev)
+整数 fdt_next_cache_get(const void *fdt, 整数 noff, struct cache_device **out_dev)
 {
 	const fdt32_t *val;
-	int len;
+	整数 len;
 
 	val = fdt_getprop(fdt, noff, "next-level-cache", &len);
-	if (!val || len < sizeof(*val))
-		return SBI_ENOENT;
+	如果 (!val || len < sizeof(*val))
+		返回 SBI_ENOENT;
 
 	noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
-	if (noff < 0)
-		return noff;
+	如果 (noff < 0)
+		返回 noff;
 
-	return fdt_cache_find(fdt, noff, out_dev);
+	返回 fdt_cache_find(fdt, noff, out_dev);
 }

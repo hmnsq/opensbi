@@ -14,44 +14,44 @@ struct cache_device *cache_find(u32 id)
 	struct cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		如果 (dev->id == id)
+			返回 dev;
 	}
 
-	return NULL;
+	返回 NULL;
 }
 
-int cache_add(struct cache_device *dev)
+整数 cache_add(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	如果 (!dev)
+		返回 SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	如果 (cache_find(dev->id))
+		返回 SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	返回 SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+整数 cache_flush_all(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	如果 (!dev)
+		返回 SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	如果 (!dev->ops || !dev->ops->cache_flush_all)
+		返回 SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	返回 dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+整数 cache_enable(struct cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	如果 (!dev)
+		返回 SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	如果 (!dev->ops || !dev->ops->cache_enable)
+		返回 SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	返回 dev->ops->cache_enable(dev, enable);
 }

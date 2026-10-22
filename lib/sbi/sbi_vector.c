@@ -16,15 +16,15 @@
 
 size_t sbi_vector_context_size(void)
 {
-	return sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
+	返回 sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
 }
 
 void sbi_vector_save(struct sbi_vector_context *dst)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!dst)
-		return;
+	如果 (!dst)
+		返回;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -60,8 +60,8 @@ void sbi_vector_restore(const struct sbi_vector_context *src)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!src)
-		return;
+	如果 (!src)
+		返回;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);

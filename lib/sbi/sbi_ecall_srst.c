@@ -14,14 +14,14 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_system.h>
 
-static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
+static 整数 sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	if (funcid == SBI_EXT_SRST_RESET) {
-		if ((((u32)-1U) <= ((u64)regs->a0)) ||
+	如果 (funcid == SBI_EXT_SRST_RESET) {
+		如果 ((((u32)-1U) <= ((u64)regs->a0)) ||
 		    (((u32)-1U) <= ((u64)regs->a1)))
-			return SBI_EINVAL;
+			返回 SBI_EINVAL;
 
 		switch (regs->a0) {
 		case SBI_SRST_RESET_TYPE_SHUTDOWN:
@@ -29,7 +29,7 @@ static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
 		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
 			break;
 		default:
-			return SBI_EINVAL;
+			返回 SBI_EINVAL;
 		}
 
 		switch (regs->a1) {
@@ -37,14 +37,14 @@ static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
 		case SBI_SRST_RESET_REASON_SYSFAIL:
 			break;
 		default:
-			return SBI_EINVAL;
+			返回 SBI_EINVAL;
 		}
 
-		if (sbi_system_reset_supported(regs->a0, regs->a1))
+		如果 (sbi_system_reset_supported(regs->a0, regs->a1))
 			sbi_system_reset(regs->a0, regs->a1);
 	}
 
-	return SBI_ENOTSUPP;
+	返回 SBI_ENOTSUPP;
 }
 
 static bool srst_available(void)
@@ -55,23 +55,23 @@ static bool srst_available(void)
 	 * At least one standard reset types should be supported by
 	 * the platform for SBI SRST extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
-		if (sbi_system_reset_supported(type,
+	为 (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
+		如果 (sbi_system_reset_supported(type,
 					SBI_SRST_RESET_REASON_NONE))
-			return true;
+			返回 true;
 	}
 
-	return false;
+	返回 false;
 }
 
 struct sbi_ecall_extension ecall_srst;
 
-static int sbi_ecall_srst_register_extensions(void)
+static 整数 sbi_ecall_srst_register_extensions(void)
 {
-	if (!srst_available())
-		return 0;
+	如果 (!srst_available())
+		返回 0;
 
-	return sbi_ecall_register_extension(&ecall_srst);
+	返回 sbi_ecall_register_extension(&ecall_srst);
 }
 
 struct sbi_ecall_extension ecall_srst = {

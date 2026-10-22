@@ -12,30 +12,30 @@ static const struct sbi_cppc_device *cppc_dev = NULL;
 
 const struct sbi_cppc_device *sbi_cppc_get_device(void)
 {
-	return cppc_dev;
+	返回 cppc_dev;
 }
 
 void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	如果 (!dev || cppc_dev)
+		返回;
 
 	cppc_dev = dev;
 }
 
 static bool sbi_cppc_is_reserved(unsigned long reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	如果 ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
 	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+		返回 true;
 
-	return false;
+	返回 false;
 }
 
 static bool sbi_cppc_readable(unsigned long reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	返回 true;
 }
 
 static bool sbi_cppc_writable(unsigned long reg)
@@ -53,58 +53,58 @@ static bool sbi_cppc_writable(unsigned long reg)
 	case SBI_CPPC_LOWEST_FREQ:
 	case SBI_CPPC_NOMINAL_FREQ:
 	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+		返回 false;
 	}
 
-	return true;
+	返回 true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+整数 sbi_cppc_probe(unsigned long reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	如果 (!cppc_dev || !cppc_dev->cppc_probe)
+		返回 SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	如果 (sbi_cppc_is_reserved(reg))
+		返回 SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	返回 cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+整数 sbi_cppc_read(unsigned long reg, uint64_t *val)
 {
-	int ret;
+	整数 ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	如果 (!cppc_dev || !cppc_dev->cppc_read)
+		返回 SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	如果 (ret <= 0)
+		返回 SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	如果 (!sbi_cppc_readable(reg))
+		返回 SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	返回 cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+整数 sbi_cppc_write(unsigned long reg, uint64_t val)
 {
-	int ret;
+	整数 ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	如果 (!cppc_dev || !cppc_dev->cppc_write)
+		返回 SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	如果 (ret <= 0)
+		返回 SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	如果 (!sbi_cppc_writable(reg))
+		返回 SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	返回 cppc_dev->cppc_write(reg, val);
 }

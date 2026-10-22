@@ -35,7 +35,7 @@ static void sbi_trap_error_one(const struct sbi_trap_context *tcntx,
 	sbi_printf("\n");
 	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
 		   hartid, depth, "mcause", trap->cause, "mtval", trap->tval);
-	if (misa_extension('H')) {
+	如果 (misa_extension('H')) {
 		sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
 			   hartid, depth, "mtval2", trap->tval2, "mtinst", trap->tinst);
 	}
@@ -75,19 +75,19 @@ static void sbi_trap_error_one(const struct sbi_trap_context *tcntx,
 		   hartid, depth, "t6", regs->t6);
 }
 
-static void __noreturn sbi_trap_error(const char *msg, int rc,
+static void __noreturn sbi_trap_error(const char *msg, 整数 rc,
 				      const struct sbi_trap_context *tcntx)
 {
 	u32 depth = 0, hartid = current_hartid();
 	const struct sbi_trap_context *tc;
 
-	for (tc = tcntx; tc; tc = tc->prev_context)
+	为 (tc = tcntx; tc; tc = tc->prev_context)
 		depth++;
 
 	sbi_printf("\n");
 	sbi_printf("%s: hart%d: trap%d: %s (error %d)\n", __func__,
 		   hartid, depth - 1, msg, rc);
-	for (tc = tcntx; tc; tc = tc->prev_context)
+	为 (tc = tcntx; tc; tc = tc->prev_context)
 		sbi_trap_error_one(tc, __func__, hartid, --depth);
 
 	sbi_hart_hang();
@@ -101,7 +101,7 @@ static void __noreturn sbi_trap_error(const char *msg, int rc,
  *
  * @return 0 on success and negative error code on failure
  */
-int sbi_trap_redirect(struct sbi_trap_regs *regs,
+整数 sbi_trap_redirect(struct sbi_trap_regs *regs,
 		      const struct sbi_trap_info *trap)
 {
 	ulong hstatus, vsstatus, prev_mode;
@@ -112,15 +112,15 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 
 	/* Sanity check on previous mode */
 	prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
-	if (prev_mode != PRV_S && prev_mode != PRV_U)
-		return SBI_ENOTSUPP;
+	如果 (prev_mode != PRV_S && prev_mode != PRV_U)
+		返回 SBI_ENOTSUPP;
 
 	/* If hart support for zicfilp, clear MPELP because redirecting to VS or (H)S */
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_ZICFILP)) {
-#if __riscv_xlen == 32
+	如果 (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_ZICFILP)) {
+#如果 __riscv_xlen == 32
 		elp = regs->mstatusH & MSTATUSH_MPELP;
 		regs->mstatusH &= ~MSTATUSH_MPELP;
-#else
+#否则
 		elp = regs->mstatus & MSTATUS_MPELP;
 		regs->mstatus &= ~MSTATUS_MPELP;
 #endif
@@ -129,26 +129,26 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 	/* If exceptions came from VS/VU-mode, redirect to VS-mode if
 	 * delegated in hedeleg
 	 */
-	if (misa_extension('H') && prev_virt) {
-		if ((trap->cause < __riscv_xlen) &&
+	如果 (misa_extension('H') && prev_virt) {
+		如果 ((trap->cause < __riscv_xlen) &&
 		    (csr_read(CSR_HEDELEG) & BIT(trap->cause))) {
 			next_virt = true;
 		}
 	}
 
 	/* Update MSTATUS MPV bits */
-#if __riscv_xlen == 32
+#如果 __riscv_xlen == 32
 	regs->mstatusH &= ~MSTATUSH_MPV;
 	regs->mstatusH |= (next_virt) ? MSTATUSH_MPV : 0UL;
-#else
+#否则
 	regs->mstatus &= ~MSTATUS_MPV;
 	regs->mstatus |= (next_virt) ? MSTATUS_MPV : 0UL;
 #endif
 
 	/* Update hypervisor CSRs if going to HS-mode */
-	if (misa_extension('H') && !next_virt) {
+	如果 (misa_extension('H') && !next_virt) {
 		hstatus = csr_read(CSR_HSTATUS);
-		if (prev_virt) {
+		如果 (prev_virt) {
 			/* hstatus.SPVP is only updated if coming from VS/VU-mode */
 			hstatus &= ~HSTATUS_SPVP;
 			hstatus |= (prev_mode == PRV_S) ? HSTATUS_SPVP : 0;
@@ -163,7 +163,7 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 	}
 
 	/* Update exception related CSRs */
-	if (next_virt) {
+	如果 (next_virt) {
 		/* Update VS-mode exception info */
 		csr_write(CSR_VSTVAL, trap->tval);
 		csr_write(CSR_VSEPC, regs->mepc);
@@ -180,17 +180,17 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 		vsstatus = csr_read(CSR_VSSTATUS);
 
 		/* If elp was set, set it back in vsstatus */
-		if (elp)
+		如果 (elp)
 			vsstatus |= MSTATUS_SPELP;
 
 		/* Set SPP for VS-mode */
 		vsstatus &= ~SSTATUS_SPP;
-		if (prev_mode == PRV_S)
+		如果 (prev_mode == PRV_S)
 			vsstatus |= (1UL << SSTATUS_SPP_SHIFT);
 
 		/* Set SPIE for VS-mode */
 		vsstatus &= ~SSTATUS_SPIE;
-		if (vsstatus & SSTATUS_SIE)
+		如果 (vsstatus & SSTATUS_SIE)
 			vsstatus |= (1UL << SSTATUS_SPIE_SHIFT);
 
 		/* Clear SIE for VS-mode */
@@ -198,7 +198,7 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 
 		/* Update VS-mode SSTATUS CSR */
 		csr_write(CSR_VSSTATUS, vsstatus);
-	} else {
+	} 否则 {
 		/* Update S-mode exception info */
 		csr_write(CSR_STVAL, trap->tval);
 		csr_write(CSR_SEPC, regs->mepc);
@@ -213,26 +213,26 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 
 		/* Set SPP for S-mode */
 		regs->mstatus &= ~MSTATUS_SPP;
-		if (prev_mode == PRV_S)
+		如果 (prev_mode == PRV_S)
 			regs->mstatus |= (1UL << MSTATUS_SPP_SHIFT);
 
 		/* Set SPIE for S-mode */
 		regs->mstatus &= ~MSTATUS_SPIE;
-		if (regs->mstatus & MSTATUS_SIE)
+		如果 (regs->mstatus & MSTATUS_SIE)
 			regs->mstatus |= (1UL << MSTATUS_SPIE_SHIFT);
 
 		/* Clear SIE for S-mode */
 		regs->mstatus &= ~MSTATUS_SIE;
 
 		/* If elp was set, set it back in mstatus */
-		if (elp)
+		如果 (elp)
 			regs->mstatus |= MSTATUS_SPELP;
 	}
 
-	return 0;
+	返回 0;
 }
 
-static int sbi_trap_nonaia_irq(unsigned long irq)
+static 整数 sbi_trap_nonaia_irq(unsigned long irq)
 {
 	switch (irq) {
 	case IRQ_M_TIMER:
@@ -242,24 +242,24 @@ static int sbi_trap_nonaia_irq(unsigned long irq)
 		sbi_ipi_process();
 		break;
 	case IRQ_M_EXT:
-		return sbi_irqchip_process();
+		返回 sbi_irqchip_process();
 	default:
-		if (irq == sbi_pmu_irq_bit()) {
+		如果 (irq == sbi_pmu_irq_bit()) {
 			sbi_pmu_ovf_irq();
-			return 0;
+			返回 0;
 		}
-		return SBI_ENOENT;
+		返回 SBI_ENOENT;
 	}
 
-	return 0;
+	返回 0;
 }
 
-static int sbi_trap_aia_irq(void)
+static 整数 sbi_trap_aia_irq(void)
 {
-	int rc;
+	整数 rc;
 	unsigned long mtopi;
 
-	while ((mtopi = csr_read(CSR_MTOPI))) {
+	当 ((mtopi = csr_read(CSR_MTOPI))) {
 		mtopi = mtopi >> TOPI_IID_SHIFT;
 		switch (mtopi) {
 		case IRQ_M_TIMER:
@@ -270,20 +270,20 @@ static int sbi_trap_aia_irq(void)
 			break;
 		case IRQ_M_EXT:
 			rc = sbi_irqchip_process();
-			if (rc)
-				return rc;
+			如果 (rc)
+				返回 rc;
 			break;
 		default:
-			if (mtopi == sbi_pmu_irq_bit()) {
+			如果 (mtopi == sbi_pmu_irq_bit()) {
 				sbi_pmu_ovf_irq();
 				break;
 			}
 
-			return SBI_ENOENT;
+			返回 SBI_ENOENT;
 		}
 	}
 
-	return 0;
+	返回 0;
 }
 
 /**
@@ -304,7 +304,7 @@ static int sbi_trap_aia_irq(void)
  */
 struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
 {
-	int rc = SBI_ENOTSUPP;
+	整数 rc = SBI_ENOTSUPP;
 	const char *msg = "trap handler failed";
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	const struct sbi_trap_info *trap = &tcntx->trap;
@@ -315,11 +315,11 @@ struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
 	tcntx->prev_context = sbi_trap_get_context(scratch);
 	sbi_trap_set_context(scratch, tcntx);
 
-	if (mcause & MCAUSE_IRQ_MASK) {
-		if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	如果 (mcause & MCAUSE_IRQ_MASK) {
+		如果 (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 					   SBI_HART_EXT_SMAIA))
 			rc = sbi_trap_aia_irq();
-		else
+		否则
 			rc = sbi_trap_nonaia_irq(mcause & ~MCAUSE_IRQ_MASK);
 		msg = "unhandled local interrupt";
 		goto trap_done;
@@ -367,14 +367,14 @@ struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
 	}
 
 trap_done:
-	if (rc)
+	如果 (rc)
 		sbi_trap_error(msg, rc, tcntx);
 
-	if (sbi_mstatus_prev_mode(regs->mstatus) != PRV_M)
+	如果 (sbi_mstatus_prev_mode(regs->mstatus) != PRV_M)
 		sbi_sse_process_pending_events(regs);
 
 	sbi_trap_set_context(scratch, tcntx->prev_context);
-	return tcntx;
+	返回 tcntx;
 }
 
 /**
@@ -393,18 +393,18 @@ trap_done:
  */
 struct sbi_trap_context *sbi_trap_rnmi_handler(struct sbi_trap_context *tcntx)
 {
-	int rc;
+	整数 rc;
 	const struct sbi_platform *plat = sbi_platform_thishart_ptr();
 	const struct sbi_platform_operations *ops = sbi_platform_ops(plat);
 
 	/* Call platform-specific NMI handler if registered */
-	if (ops && ops->rnmi_handler) {
+	如果 (ops && ops->rnmi_handler) {
 		rc = ops->rnmi_handler(tcntx);
-		if (rc) {
+		如果 (rc) {
 			/* Platform handler failed to handle NMI */
 			sbi_trap_error("platform NMI handler failed", rc, tcntx);
 		}
-		return tcntx;
+		返回 tcntx;
 	}
 
 	/* No platform handler - treat as unhandled NMI */
@@ -412,17 +412,17 @@ struct sbi_trap_context *sbi_trap_rnmi_handler(struct sbi_trap_context *tcntx)
 		       SBI_ENOTSUPP, tcntx);
 
 	/* Never returns */
-	return tcntx;
+	返回 tcntx;
 }
 
-static int delegate_traps(struct sbi_scratch *scratch)
+static 整数 delegate_traps(struct sbi_scratch *scratch)
 {
 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
 	unsigned long interrupts, exceptions;
 
-	if (!misa_extension('S'))
+	如果 (!misa_extension('S'))
 		/* No delegation possible as mideleg does not exist */
-		return 0;
+		返回 0;
 
 	/* Send M-mode interrupts and most exceptions to S-mode */
 	interrupts = MIP_SSIP | MIP_STIP | MIP_SEIP;
@@ -430,7 +430,7 @@ static int delegate_traps(struct sbi_scratch *scratch)
 
 	exceptions = (1U << CAUSE_MISALIGNED_FETCH) | (1U << CAUSE_BREAKPOINT) |
 		     (1U << CAUSE_USER_ECALL);
-	if (sbi_platform_has_mfaults_delegation(plat))
+	如果 (sbi_platform_has_mfaults_delegation(plat))
 		exceptions |= (1U << CAUSE_FETCH_PAGE_FAULT) |
 			      (1U << CAUSE_LOAD_PAGE_FAULT) |
 			      (1U << CAUSE_STORE_PAGE_FAULT) |
@@ -443,7 +443,7 @@ static int delegate_traps(struct sbi_scratch *scratch)
 	 * The HS-mode will additionally handle supervisor calls (i.e. ecalls
 	 * from VS-mode), Guest page faults and Virtual interrupts.
 	 */
-	if (misa_extension('H')) {
+	如果 (misa_extension('H')) {
 		exceptions |= (1U << CAUSE_VIRTUAL_SUPERVISOR_ECALL);
 		exceptions |= (1U << CAUSE_FETCH_GUEST_PAGE_FAULT);
 		exceptions |= (1U << CAUSE_LOAD_GUEST_PAGE_FAULT);
@@ -454,10 +454,10 @@ static int delegate_traps(struct sbi_scratch *scratch)
 	csr_write(CSR_MIDELEG, interrupts);
 	csr_write(CSR_MEDELEG, exceptions);
 
-	return 0;
+	返回 0;
 }
 
-int sbi_trap_init(struct sbi_scratch *scratch, bool cold_boot)
+整数 sbi_trap_init(struct sbi_scratch *scratch, bool cold_boot)
 {
-	return delegate_traps(scratch);
+	返回 delegate_traps(scratch);
 }

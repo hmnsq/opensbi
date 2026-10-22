@@ -10,13 +10,13 @@
 
 static inline bool spin_lock_unlocked(spinlock_t lock)
 {
-	return lock.owner == lock.next;
+	返回 lock.owner == lock.next;
 }
 
 bool spin_lock_check(spinlock_t *lock)
 {
 	RISCV_FENCE(r, rw);
-	return !spin_lock_unlocked(*lock);
+	返回 !spin_lock_unlocked(*lock);
 }
 
 bool spin_trylock(spinlock_t *lock)
@@ -42,7 +42,7 @@ bool spin_trylock(spinlock_t *lock)
 		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
 		: "memory");
 
-	return l0 == 0;
+	返回 l0 == 0;
 }
 
 void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
@@ -53,18 +53,18 @@ void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 
 	__asm__ __volatile__(
 		/* Atomically increment the next ticket. */
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#如果 defined(__riscv_atomic) || defined(__riscv_zaamo)
 		"	amoadd.w.aqrl	%0, %4, %3\n"
 #elif defined(__riscv_zalrsc)
 		"3:	lr.w.aqrl	%0, %3\n"
-#if __riscv_xlen == 64
+#如果 __riscv_xlen == 64
 		"	addw	%1, %0, %4\n"
 #elif __riscv_xlen == 32
 		"	add	%1, %0, %4\n"
 #endif
 		"	sc.w.aqrl	%1, %1, %3\n"
 		"	bnez	%1, 3b\n"
-#else
+#否则
 #error "need A or Zaamo or Zalrsc"
 #endif
 

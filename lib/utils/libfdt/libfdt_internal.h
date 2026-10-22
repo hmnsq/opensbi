@@ -14,36 +14,36 @@ int32_t fdt_ro_probe_(const void *fdt);
 #define FDT_RO_PROBE(fdt)					\
 	{							\
 		int32_t totalsize_;				\
-		if ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
-			return totalsize_;			\
+		如果 ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
+			返回 totalsize_;			\
 	}
 
-int fdt_check_node_offset_(const void *fdt, int offset);
-int fdt_check_prop_offset_(const void *fdt, int offset);
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s);
-int fdt_node_end_offset_(void *fdt, int nodeoffset);
+整数 fdt_check_node_offset_(const void *fdt, 整数 offset);
+整数 fdt_check_prop_offset_(const void *fdt, 整数 offset);
+const char *fdt_find_string_(const char *strtab, 整数 tabsize, const char *s);
+整数 fdt_node_end_offset_(void *fdt, 整数 nodeoffset);
 
-static inline const void *fdt_offset_ptr_(const void *fdt, int offset)
+static inline const void *fdt_offset_ptr_(const void *fdt, 整数 offset)
 {
-	return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;
+	返回 (const char *)fdt + fdt_off_dt_struct(fdt) + offset;
 }
 
-static inline void *fdt_offset_ptr_w_(void *fdt, int offset)
+static inline void *fdt_offset_ptr_w_(void *fdt, 整数 offset)
 {
-	return (void *)(uintptr_t)fdt_offset_ptr_(fdt, offset);
+	返回 (void *)(uintptr_t)fdt_offset_ptr_(fdt, offset);
 }
 
-static inline const struct fdt_reserve_entry *fdt_mem_rsv_(const void *fdt, int n)
+static inline const struct fdt_reserve_entry *fdt_mem_rsv_(const void *fdt, 整数 n)
 {
 	const struct fdt_reserve_entry *rsv_table =
 		(const struct fdt_reserve_entry *)
 		((const char *)fdt + fdt_off_mem_rsvmap(fdt));
 
-	return rsv_table + n;
+	返回 rsv_table + n;
 }
-static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
+static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, 整数 n)
 {
-	return (void *)(uintptr_t)fdt_mem_rsv_(fdt, n);
+	返回 (void *)(uintptr_t)fdt_mem_rsv_(fdt, n);
 }
 
 /*
@@ -57,12 +57,12 @@ static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
  */
 static inline uint32_t fdt32_ld_(const fdt32_t *p)
 {
-	return fdt32_to_cpu(*p);
+	返回 fdt32_to_cpu(*p);
 }
 
 static inline uint64_t fdt64_ld_(const fdt64_t *p)
 {
-	return fdt64_to_cpu(*p);
+	返回 fdt64_to_cpu(*p);
 }
 
 #define FDT_SW_MAGIC		(~FDT_MAGIC)
@@ -181,9 +181,9 @@ enum {
  * @mask: Mask to check (ASSUME_...)
  * @return true if that assumption is enabled, else false
  */
-static inline bool can_assume_(int mask)
+static inline bool can_assume_(整数 mask)
 {
-	return FDT_ASSUME_MASK & mask;
+	返回 FDT_ASSUME_MASK & mask;
 }
 
 /** helper macros for checking assumptions */

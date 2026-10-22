@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+struct i2c_adapter *i2c_adapter_find(整数 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
 		struct i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		如果 (adap->id == id)
+			返回 adap;
 	}
 
-	return NULL;
+	返回 NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+整数 i2c_adapter_add(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	如果 (!ia)
+		返回 SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	如果 (i2c_adapter_find(ia->id))
+		返回 SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	返回 0;
 }
 
 void i2c_adapter_remove(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	如果 (!ia)
+		返回;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+整数 i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, 整数 len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	如果 (!ia)
+		返回 SBI_EINVAL;
+	如果 (!ia->write)
+		返回 SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	返回 ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+整数 i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, 整数 len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	如果 (!ia)
+		返回 SBI_EINVAL;
+	如果 (!ia->read)
+		返回 SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	返回 ia->read(ia, addr, reg, buffer, len);
 }

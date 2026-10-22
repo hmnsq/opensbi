@@ -12,99 +12,99 @@
 
 static SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+struct gpio_chip *gpio_chip_find(unsigned 整数 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
 		struct gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		如果 (chip->id == id)
+			返回 chip;
 	}
 
-	return NULL;
+	返回 NULL;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+整数 gpio_chip_add(struct gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	如果 (!gc)
+		返回 SBI_EINVAL;
+	如果 (gpio_chip_find(gc->id))
+		返回 SBI_EALREADY;
 
 	sbi_list_add(&(gc->node), &(gpio_chip_list));
 
-	return 0;
+	返回 0;
 }
 
 void gpio_chip_remove(struct gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	如果 (!gc)
+		返回;
 
 	sbi_list_del(&(gc->node));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+整数 gpio_get_direction(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	如果 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		返回 SBI_EINVAL;
+	如果 (!gp->chip->get_direction)
+		返回 SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	返回 gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+整数 gpio_direction_input(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	如果 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		返回 SBI_EINVAL;
+	如果 (!gp->chip->direction_input)
+		返回 SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	返回 gp->chip->direction_input(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+整数 gpio_direction_output(struct gpio_pin *gp, 整数 value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	如果 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		返回 SBI_EINVAL;
+	如果 (!gp->chip->direction_output)
+		返回 SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	如果 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	返回 gp->chip->direction_output(gp, value);
 }
 
-int gpio_get(struct gpio_pin *gp)
+整数 gpio_get(struct gpio_pin *gp)
 {
-	int value;
+	整数 value;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	如果 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		返回 SBI_EINVAL;
+	如果 (!gp->chip->get)
+		返回 SBI_ENOSYS;
 
 	value = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	如果 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
-	return value;
+	返回 value;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+整数 gpio_set(struct gpio_pin *gp, 整数 value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	如果 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		返回 SBI_EINVAL;
+	如果 (!gp->chip->set)
+		返回 SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	如果 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
 	gp->chip->set(gp, value);
-	return 0;
+	返回 0;
 }

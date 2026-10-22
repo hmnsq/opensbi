@@ -13,41 +13,41 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
+static 整数 ipi_mswi_cold_init(const void *fdt, 整数 nodeoff,
 			      const struct fdt_match *match)
 {
-	int rc;
+	整数 rc;
 	unsigned long offset;
 	struct aclint_mswi_data *ms;
 
 	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	如果 (!ms)
+		返回 SBI_ENOMEM;
 
 	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
 				   &ms->addr, &ms->size, NULL, NULL,
 				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	如果 (rc) {
 		sbi_free(ms);
-		return rc;
+		返回 rc;
 	}
 
-	if (match->data) {
+	如果 (match->data) {
 		/* Adjust MSWI address and size for CLINT device */
 		offset = *((unsigned long *)match->data);
 		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
+		如果 ((ms->size - offset) < ACLINT_MSWI_SIZE)
+			返回 SBI_EINVAL;
 		ms->size = ACLINT_MSWI_SIZE;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	如果 (rc) {
 		sbi_free(ms);
-		return rc;
+		返回 rc;
 	}
 
-	return 0;
+	返回 0;
 }
 
 static const unsigned long clint_offset = CLINT_MSWI_OFFSET;

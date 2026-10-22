@@ -28,7 +28,7 @@ static volatile u32 *uart_base;
 
 static u8 get_reg(u8 reg)
 {
-	return readb(uart_base + reg);
+	返回 readb(uart_base + reg);
 }
 
 static void set_reg(u8 reg, u8 val)
@@ -38,20 +38,20 @@ static void set_reg(u8 reg, u8 val)
 
 static void litex_uart_putc(char ch)
 {
-	while (get_reg(UART_REG_TXFULL));
+	当 (get_reg(UART_REG_TXFULL));
 	set_reg(UART_REG_RXTX, ch);
 }
 
-static int litex_uart_getc(void)
+static 整数 litex_uart_getc(void)
 {
-	int ret;
+	整数 ret;
 
-	if (get_reg(UART_REG_RXEMPTY))
-		return -1;
+	如果 (get_reg(UART_REG_RXEMPTY))
+		返回 -1;
 
 	ret = get_reg(UART_REG_RXTX);
 	set_reg(UART_REG_EV_PENDING, UART_EV_RX); /* ack. char read */
-	return ret;
+	返回 ret;
 }
 
 static struct sbi_console_device litex_console = {
@@ -60,10 +60,10 @@ static struct sbi_console_device litex_console = {
 	.console_getc = litex_uart_getc
 };
 
-int litex_uart_init(unsigned long base)
+整数 litex_uart_init(unsigned long base)
 {
 	uart_base = (volatile u32 *)base;
 	set_reg(UART_REG_EV_ENABLE, 0); /* UART in polling mode: disable IRQ */
 	sbi_console_set_device(&litex_console);
-	return 0;
+	返回 0;
 }

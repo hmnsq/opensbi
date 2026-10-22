@@ -40,20 +40,20 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#define FDT_ERRTABSIZE	((整数)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+const char *fdt_strerror(整数 errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
+	如果 (errval > 0)
+		返回 "<valid offset/length>";
+	否则 如果 (errval == 0)
+		返回 "<no error>";
+	否则 如果 (-errval < FDT_ERRTABSIZE) {
 		const char *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		如果 (s)
+			返回 s;
 	}
 
-	return "<unknown error>";
+	返回 "<unknown error>";
 }

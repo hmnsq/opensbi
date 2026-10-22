@@ -15,77 +15,77 @@
 /* List of FDT gpio drivers generated at compile time */
 extern const struct fdt_driver *const fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+static 整数 fdt_gpio_init(const void *fdt, 整数 nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	如果 (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
+		返回 SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	返回 fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
+static 整数 fdt_gpio_chip_find(const void *fdt, 整数 nodeoff,
 			      struct gpio_chip **out_chip)
 {
-	int rc;
+	整数 rc;
 	struct gpio_chip *chip = gpio_chip_find(nodeoff);
 
-	if (!chip) {
+	如果 (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		/* Try to find GPIO chip again */
 		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		如果 (!chip)
+			返回 SBI_ENOSYS;
 	}
 
-	if (out_chip)
+	如果 (out_chip)
 		*out_chip = chip;
 
-	return 0;
+	返回 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
+整数 fdt_gpio_pin_get(const void *fdt, 整数 nodeoff, 整数 index,
 		     struct gpio_pin *out_pin)
 {
-	int rc;
+	整数 rc;
 	const struct fdt_gpio *drv;
 	struct gpio_chip *chip = NULL;
 	struct fdt_phandle_args pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	如果 (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
+		返回 SBI_EINVAL;
 
 	pargs.node_offset = pargs.args_count = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	如果 (!drv || !drv->xlate)
+		返回 SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	返回 drv->xlate(chip, &pargs, out_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
+整数 fdt_gpio_simple_xlate(struct gpio_chip *chip,
 			  const struct fdt_phandle_args *pargs,
 			  struct gpio_pin *out_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	如果 ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
+		返回 SBI_EINVAL;
 
 	out_pin->chip = chip;
 	out_pin->offset = pargs->args[0];
 	out_pin->flags = pargs->args[1];
-	return 0;
+	返回 0;
 }

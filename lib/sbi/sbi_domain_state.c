@@ -14,38 +14,38 @@ static DECLARE_BITMAP(state_idx_bmap, SBI_DOMAIN_MAX_STATE_PTRS);
 
 void *sbi_domain_state_ptr(struct sbi_domain *dom, struct sbi_domain_state *state)
 {
-	if (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
-		return dom->state_priv.idx_to_state_ptr[state->state_idx];
+	如果 (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
+		返回 dom->state_priv.idx_to_state_ptr[state->state_idx];
 
-	return NULL;
+	返回 NULL;
 }
 
-static int domain_setup_state_one(struct sbi_domain *dom,
+static 整数 domain_setup_state_one(struct sbi_domain *dom,
 				 struct sbi_domain_state *state)
 {
 	struct sbi_domain_state_priv *priv = &dom->state_priv;
 	void *state_ptr;
-	int rc;
+	整数 rc;
 
-	if (priv->idx_to_state_ptr[state->state_idx])
-		return SBI_EALREADY;
+	如果 (priv->idx_to_state_ptr[state->state_idx])
+		返回 SBI_EALREADY;
 
 	state_ptr = sbi_zalloc(state->state_size);
-	if (!state_ptr) {
+	如果 (!state_ptr) {
 		sbi_domain_cleanup_state(dom);
-		return SBI_ENOMEM;
+		返回 SBI_ENOMEM;
 	}
 
-	if (state->state_setup) {
+	如果 (state->state_setup) {
 		rc = state->state_setup(dom, state, state_ptr);
-		if (rc) {
+		如果 (rc) {
 			sbi_free(state_ptr);
-			return rc;
+			返回 rc;
 		}
 	}
 
 	priv->idx_to_state_ptr[state->state_idx] = state_ptr;
-	return 0;
+	返回 0;
 }
 
 static void domain_cleanup_state_one(struct sbi_domain *dom,
@@ -55,61 +55,61 @@ static void domain_cleanup_state_one(struct sbi_domain *dom,
 	void *state_ptr;
 
 	state_ptr = priv->idx_to_state_ptr[state->state_idx];
-	if (!state_ptr)
-		return;
+	如果 (!state_ptr)
+		返回;
 
-	if (state->state_cleanup)
+	如果 (state->state_cleanup)
 		state->state_cleanup(dom, state, state_ptr);
 
 	sbi_free(state_ptr);
 	priv->idx_to_state_ptr[state->state_idx] = NULL;
 }
 
-int sbi_domain_setup_state(struct sbi_domain *dom)
+整数 sbi_domain_setup_state(struct sbi_domain *dom)
 {
 	struct sbi_domain_state *state;
-	int rc;
+	整数 rc;
 
-	if (!dom)
-		return SBI_EINVAL;
+	如果 (!dom)
+		返回 SBI_EINVAL;
 
 	sbi_list_for_each_entry(state, &state_list, head) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		如果 (rc) {
 			sbi_domain_cleanup_state(dom);
-			return rc;
+			返回 rc;
 		}
 	}
 
-	return 0;
+	返回 0;
 }
 
 void sbi_domain_cleanup_state(struct sbi_domain *dom)
 {
 	struct sbi_domain_state *state;
 
-	if (!dom)
-		return;
+	如果 (!dom)
+		返回;
 
 	sbi_list_for_each_entry(state, &state_list, head)
 		domain_cleanup_state_one(dom, state);
 }
 
-int sbi_domain_register_state(struct sbi_domain_state *state)
+整数 sbi_domain_register_state(struct sbi_domain_state *state)
 {
 	struct sbi_domain *dom;
 	u32 state_idx;
-	int rc;
+	整数 rc;
 
-	if (!state || !state->state_size)
-		return SBI_EINVAL;
+	如果 (!state || !state->state_size)
+		返回 SBI_EINVAL;
 
-	for (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
-		if (!bitmap_test(state_idx_bmap, state_idx))
+	为 (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
+		如果 (!bitmap_test(state_idx_bmap, state_idx))
 			break;
 	}
-	if (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
-		return SBI_ENOSPC;
+	如果 (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
+		返回 SBI_ENOSPC;
 	bitmap_set(state_idx_bmap, state_idx, 1);
 
 	state->state_idx = state_idx;
@@ -117,13 +117,13 @@ int sbi_domain_register_state(struct sbi_domain_state *state)
 
 	sbi_domain_for_each(dom) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		如果 (rc) {
 			sbi_domain_unregister_state(state);
-			return rc;
+			返回 rc;
 		}
 	}
 
-	return 0;
+	返回 0;
 }
 
 void sbi_domain_unregister_state(struct sbi_domain_state *state)

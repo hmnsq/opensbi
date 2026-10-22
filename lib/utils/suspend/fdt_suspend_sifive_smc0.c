@@ -67,11 +67,11 @@ static void sifive_smc0_set_pmcsync(char regid, bool write_mode)
 	unsigned long addr = smc0_base + SIFIVE_SMC_SYNC_PMC_OFF;
 	u32 v = regid | SIFIVE_SMC_SYNCPMC_SYNC_REQ;
 
-	if (write_mode)
+	如果 (write_mode)
 		v |= SIFIVE_SMC_SYNCPMC_SYNC_WREQ;
 
 	writel(v, (void *)addr);
-	while (!(readl((void *)addr) & SIFIVE_SMC_SYNCPMC_SYNC_ACK));
+	当 (!(readl((void *)addr) & SIFIVE_SMC_SYNCPMC_SYNC_ACK));
 }
 
 static u64 sifive_smc0_time_read(volatile u64 *addr)
@@ -83,9 +83,9 @@ static u64 sifive_smc0_time_read(volatile u64 *addr)
 		sifive_smc0_set_pmcsync(SIFIVE_SMC_CYCLECOUNT_HI_OFF, false);
 		hi = readl_relaxed((u32 *)addr + 1);
 		lo = readl_relaxed((u32 *)addr);
-	} while (hi != readl_relaxed((u32 *)addr + 1));
+	} 当 (hi != readl_relaxed((u32 *)addr + 1));
 
-	return ((u64)hi << 32) | (u64)lo;
+	返回 ((u64)hi << 32) | (u64)lo;
 }
 
 static void sifive_smc0_set_resumepc(physical_addr_t raddr)
@@ -94,7 +94,7 @@ static void sifive_smc0_set_resumepc(physical_addr_t raddr)
 	writel((u32)raddr, (void *)(smc0_base + SIFIVE_SMC_RESUMEPC_LO_OFF));
 	/* copy resumepc_lo from SMC to PMC */
 	sifive_smc0_set_pmcsync(SIFIVE_SMC_RESUMEPC_LO_OFF, true);
-#if __riscv_xlen > 32
+#如果 __riscv_xlen > 32
 	/* Set resumepc_hi */
 	writel((u32)(raddr >> 32), (void *)(smc0_base + SIFIVE_SMC_RESUMEPC_HI_OFF));
 	/* copy resumepc_hi from SMC to PMC */
@@ -106,7 +106,7 @@ static u32 sifive_smc0_get_pgprep_enarsp(void)
 {
 	u32 v = readl((void *)(smc0_base + SIFIVE_SMC_PGPREP_OFF));
 
-	return v & SIFIVE_SMC_PGPREP_ENARSP;
+	返回 v & SIFIVE_SMC_PGPREP_ENARSP;
 }
 
 static void sifive_smc0_set_pgprep_disreq(void)
@@ -115,7 +115,7 @@ static void sifive_smc0_set_pgprep_disreq(void)
 	u32 v = readl((void *)addr);
 
 	writel(v | SIFIVE_SMC_PGPREP_DIS_REQ, (void *)addr);
-	while (!(readl((void *)addr) & SIFIVE_SMC_PGPREP_DIS_ACK));
+	当 (!(readl((void *)addr) & SIFIVE_SMC_PGPREP_DIS_ACK));
 }
 
 static u32 sifive_smc0_set_pgprep_enareq(void)
@@ -124,11 +124,11 @@ static u32 sifive_smc0_set_pgprep_enareq(void)
 	u32 v = readl((void *)addr);
 
 	writel(v | SIFIVE_SMC_PGPREP_ENA_REQ, (void *)addr);
-	while (!(readl((void *)addr) & SIFIVE_SMC_PGPREP_ENA_ACK));
+	当 (!(readl((void *)addr) & SIFIVE_SMC_PGPREP_ENA_ACK));
 
 	v = readl((void *)addr);
 
-	return v & SIFIVE_SMC_PGPREP_ABORT;
+	返回 v & SIFIVE_SMC_PGPREP_ABORT;
 }
 
 static void sifive_smc0_set_pg_enareq(void)
@@ -143,29 +143,29 @@ static inline void sifive_smc0_set_cg(bool enable)
 {
 	unsigned long addr = smc0_base + SIFIVE_SMC_WFI_UNCORE_CG_OFF;
 
-	if (enable)
+	如果 (enable)
 		writel(0, (void *)addr);
-	else
+	否则
 		writel(1, (void *)addr);
 }
 
-static int sifive_smc0_prep(void)
+static 整数 sifive_smc0_prep(void)
 {
 	const struct sbi_domain *dom = &root;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	unsigned long i;
-	int rc;
+	整数 rc;
 	u32 target;
 
-	if (!smc0_base)
-		return SBI_ENODEV;
+	如果 (!smc0_base)
+		返回 SBI_ENODEV;
 
 	/* Prevent all secondary tiles from waking up from PG state */
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
 		target = sbi_hartindex_to_hartid(i);
-		if (target != current_hartid()) {
+		如果 (target != current_hartid()) {
 			rc = sifive_tmc0_set_wakemask_enareq(target);
-			if (rc) {
+			如果 (rc) {
 				sbi_printf("Fail to enable wakemask for hart %d\n",
 					   target);
 				goto fail;
@@ -176,7 +176,7 @@ static int sifive_smc0_prep(void)
 	/* Check if all secondary tiles enter PG state */
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
 		target = sbi_hartindex_to_hartid(i);
-		if (target != current_hartid() &&
+		如果 (target != current_hartid() &&
 		    !sifive_tmc0_is_pg(target)) {
 			sbi_printf("Hart %d not in the PG state\n", target);
 			goto fail;
@@ -184,31 +184,31 @@ static int sifive_smc0_prep(void)
 	}
 
 	rc = sifive_smc0_set_pgprep_enareq();
-	if (rc) {
+	如果 (rc) {
 		sbi_printf("SMC0 error: abort code: 0x%x\n", rc);
 		goto fail;
 	}
 
 	rc = sifive_smc0_get_pgprep_enarsp();
-	if (rc) {
+	如果 (rc) {
 		sifive_smc0_set_pgprep_disreq();
 		sbi_printf("SMC0 error: error response code: 0x%x\n", rc);
 		goto fail;
 	}
 
 	sifive_smc0_set_resumepc(scratch->warmboot_addr);
-	return SBI_OK;
+	返回 SBI_OK;
 fail:
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
 		target = sbi_hartindex_to_hartid(i);
-		if (target != current_hartid())
+		如果 (target != current_hartid())
 			sifive_tmc0_set_wakemask_disreq(target);
 	}
 
-	return SBI_EFAIL;
+	返回 SBI_EFAIL;
 }
 
-static int sifive_smc0_enter(void)
+static 整数 sifive_smc0_enter(void)
 {
 	const struct sbi_domain *dom = &root;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
@@ -216,20 +216,20 @@ static int sifive_smc0_enter(void)
 	u32 target, rc;
 
 	/* Flush cache and check if there is wake detect or bus error */
-	if (fdt_cmo_llc_flush_all() &&
+	如果 (fdt_cmo_llc_flush_all() &&
 	    sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CFLUSH_D_L1))
 		sifive_cflush();
 
 	rc = sifive_smc0_get_pgprep_enarsp();
-	if (rc) {
+	如果 (rc) {
 		sbi_printf("SMC0 error: error response code: 0x%x\n", rc);
 		rc = SBI_EFAIL;
 		goto fail;
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
+	如果 (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
 		sifive_smc0_set_pg_enareq();
-		while (1)
+		当 (1)
 			sifive_cease();
 	}
 
@@ -238,21 +238,21 @@ fail:
 	sifive_smc0_set_pgprep_disreq();
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
 		target = sbi_hartindex_to_hartid(i);
-		if (target != current_hartid())
+		如果 (target != current_hartid())
 			sifive_tmc0_set_wakemask_disreq(target);
 	}
-	return rc;
+	返回 rc;
 }
 
-static int sifive_smc0_pg(void)
+static 整数 sifive_smc0_pg(void)
 {
-	int rc;
+	整数 rc;
 
 	rc = sifive_smc0_prep();
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
-	return sifive_smc0_enter();
+	返回 sifive_smc0_enter();
 }
 
 static void sifive_smc0_mtime_update(void)
@@ -262,17 +262,17 @@ static void sifive_smc0_mtime_update(void)
 	aclint_mtimer_update(mt, &smc_sync_timer);
 }
 
-static int sifive_smc0_system_suspend_check(u32 sleep_type)
+static 整数 sifive_smc0_system_suspend_check(u32 sleep_type)
 {
-	return sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? SBI_OK : SBI_EINVAL;
+	返回 sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? SBI_OK : SBI_EINVAL;
 }
 
-static int sifive_smc0_system_suspend(u32 sleep_type, unsigned long addr)
+static 整数 sifive_smc0_system_suspend(u32 sleep_type, unsigned long addr)
 {
 	/* Disable the timer interrupt */
 	sbi_timer_exit(sbi_scratch_thishart_ptr());
 
-	return sifive_smc0_pg();
+	返回 sifive_smc0_pg();
 }
 
 static void sifive_smc0_system_resume(void)
@@ -288,14 +288,14 @@ static struct sbi_system_suspend_device smc0_sys_susp = {
 	.system_resume = sifive_smc0_system_resume,
 };
 
-static int sifive_smc0_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static 整数 sifive_smc0_probe(const void *fdt, 整数 nodeoff, const struct fdt_match *match)
 {
-	int rc;
+	整数 rc;
 	u64 addr;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	如果 (rc)
+		返回 rc;
 
 	smc0_base = (unsigned long)addr;
 	smc_sync_timer.time_rd = sifive_smc0_time_read;
@@ -304,7 +304,7 @@ static int sifive_smc0_probe(const void *fdt, int nodeoff, const struct fdt_matc
 	sbi_system_suspend_set_device(&smc0_sys_susp);
 	sifive_smc0_set_cg(true);
 
-	return SBI_OK;
+	返回 SBI_OK;
 }
 
 static const struct fdt_match sifive_smc0_match[] = {

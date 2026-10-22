@@ -15,57 +15,57 @@
 /* List of FDT regmap drivers generated at compile time */
 extern const struct fdt_driver *const fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
+static 整数 fdt_regmap_find(const void *fdt, 整数 nodeoff,
 			   struct regmap **out_rmap)
 {
-	int rc;
+	整数 rc;
 	struct regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	如果 (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		如果 (rc)
+			返回 rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		如果 (!rmap)
+			返回 SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	如果 (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	返回 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
+整数 fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
 			      struct regmap **out_rmap)
 {
-	int pnodeoff;
+	整数 pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	如果 (!fdt || !out_rmap)
+		返回 SBI_EINVAL;
 
 	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	如果 (pnodeoff < 0)
+		返回 pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	返回 fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+整数 fdt_regmap_get(const void *fdt, 整数 nodeoff, struct regmap **out_rmap)
 {
-	int len;
+	整数 len;
 	const fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	如果 (!fdt || (nodeoff < 0) || !out_rmap)
+		返回 SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	如果 (!val)
+		返回 SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	返回 fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }
