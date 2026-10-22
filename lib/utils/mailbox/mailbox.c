@@ -13,45 +13,45 @@
 
 static SBI_LIST_HEAD(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+struct mbox_controller *mbox_controller_find(unsigned цяло id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
 		struct mbox_controller *mbox = to_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		ако (mbox->id == id)
+			върни mbox;
 	}
 
-	return NULL;
+	върни NULL;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+цяло mbox_controller_add(struct mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	ако (!mbox || !mbox->max_xfer_len)
+		върни SBI_EINVAL;
+	ако (mbox_controller_find(mbox->id))
+		върни SBI_EALREADY;
 
 	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
 	SBI_INIT_LIST_HEAD(&mbox->chan_list);
 	sbi_list_add(&mbox->node, &mbox_list);
 
-	return 0;
+	върни 0;
 }
 
 void mbox_controller_remove(struct mbox_controller *mbox)
 {
 	struct mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	ако (!mbox)
+		върни;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
+	докато (!sbi_list_empty(&mbox->chan_list)) {
 		chan = sbi_list_first_entry(&mbox->chan_list,
 					    struct mbox_chan, node);
-		if (mbox->free_chan)
+		ако (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
 		sbi_list_del(&chan->node);
 	}
@@ -65,72 +65,72 @@ struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
 	struct mbox_chan *ret;
 	struct sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	ако (!chan_args || !mbox || !mbox->request_chan)
+		върни NULL;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
 		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
+		ако (!sbi_memcmp(ret->chan_args, chan_args,
 				sizeof(ret->chan_args)))
-			return ret;
+			върни ret;
 	}
 
 	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	ако (!ret)
+		върни NULL;
 
 	ret->mbox = mbox;
 	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
 	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	върни ret;
 }
 
 void mbox_controller_free_chan(struct mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	ако (!chan || !chan->mbox)
+		върни;
 
-	if (chan->mbox->free_chan)
+	ако (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
 	sbi_list_del(&chan->node);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+цяло mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	ако (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		върни SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	ако (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		върни SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	ако (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		върни SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
+	ако (!(xfer->flags & MBOX_XFER_SEQ))
 		mbox_xfer_set_sequence(xfer,
 			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	върни chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+цяло mbox_chan_get_attribute(struct mbox_chan *chan, цяло attr_id, void *out_value)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	ако (!chan || !chan->mbox || !out_value)
+		върни SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	ако (!chan->mbox->get_attribute)
+		върни SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	върни chan->mbox->get_attribute(chan, attr_id, out_value);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+цяло mbox_chan_set_attribute(struct mbox_chan *chan, цяло attr_id, void *new_value)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	ако (!chan || !chan->mbox || !new_value)
+		върни SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	ако (!chan->mbox->set_attribute)
+		върни SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	върни chan->mbox->set_attribute(chan, attr_id, new_value);
 }

@@ -42,7 +42,7 @@ static bool andes_llcache_init_done(struct andes_llcache *llcache)
 	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	върни !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
 }
 
 static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
@@ -52,12 +52,12 @@ static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hart
 				 hartid * llcache->status_stride;
 
 	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
+	върни !EXTRACT_FIELD(llcache_cctl_status,
 			      LLCACHE_REG_CCTL_STATUS_MASK <<
 			      hartid * llcache->status_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+static цяло andes_llcache_flush_all(struct cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
 	struct andes_llcache *llcache = to_llcache(dev);
@@ -71,13 +71,13 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	докато (!andes_llcache_cctl_done(llcache, hartid))
 		;
 
-	return 0;
+	върни 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+static цяло andes_llcache_enable(struct cache_device *dev, bool enable)
 {
 	struct andes_llcache *llcache = to_llcache(dev);
 	u32 llcache_ctrl;
@@ -94,21 +94,21 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	ако (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
 		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+	} иначе {
 		llcache_ctrl = readl(ctrl_addr);
 		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
 		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	ако (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
+		върни SBI_EFAIL;
 
-	return SBI_OK;
+	върни SBI_OK;
 }
 
 static struct cache_ops andes_llcache_ops = {
@@ -116,58 +116,58 @@ static struct cache_ops andes_llcache_ops = {
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static цяло andes_llcache_probe(const void *fdt, цяло nodeoff, const struct fdt_match *match)
 {
-	int rc;
+	цяло rc;
 	u64 llcache_base = 0, size;
 	struct andes_llcache *llcache;
 	struct cache_device *dev;
 	uint32_t llcache_cfg;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	ако (rc < 0 || !llcache_base || !size)
+		върни SBI_ENODEV;
 
 	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	ако (!llcache)
+		върни SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	ако (rc) {
 		sbi_free(llcache);
-		return rc;
+		върни rc;
 	}
 
 	llcache->base = (void *)(ulong)llcache_base;
 	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	ако (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
 		llcache->cmd_stride = 0x1000;
 		llcache->status_stride = 0x1000;
 		llcache->status_core_stride = 0;
-	} else {
+	} иначе {
 		llcache->cmd_stride = 0x10;
 		llcache->status_stride = 0x0;
 		llcache->status_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+	ако (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
 		rc = sbi_domain_root_add_memrange(
 			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	докато (!andes_llcache_init_done(llcache))
 		;
 
-	return SBI_OK;
+	върни SBI_OK;
 }
 
 static const struct fdt_match andes_llcache_match[] = {

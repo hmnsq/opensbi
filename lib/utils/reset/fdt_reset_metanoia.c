@@ -20,15 +20,15 @@ struct reset_metanoia_data {
 
 static struct reset_metanoia_data reset_data;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+static цяло metanoia_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
+		върни 1;
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
 	default:
-		return 0;
+		върни 0;
 	}
 }
 
@@ -44,21 +44,21 @@ static struct sbi_system_reset_device metanoia_reset = {
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
+static цяло metanoia_reset_init(const void *fdt, цяло nodeoff,
 			       const struct fdt_match *match)
 {
 	u64 reg_addr;
-	int rc;
+	цяло rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	ако (rc < 0 || !reg_addr)
+		върни SBI_ENODEV;
 
 	reset_data.reg_base = (u8 *)(ulong)reg_addr;
 
 	sbi_system_reset_add_device(&metanoia_reset);
 
-	return 0;
+	върни 0;
 }
 
 static const struct fdt_match metanoia_reset_match[] = {

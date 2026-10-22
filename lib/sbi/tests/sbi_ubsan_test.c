@@ -14,49 +14,49 @@
 		unsigned long _before = sbi_ubsan_report_count;           \
 		stmt;                                                     \
 		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_count, _before); \
-	} while (0)
+	} докато (0)
 
 static void test_ubsan_add_overflow(struct sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF; //INT_MAx
-	volatile int b = 1;
-	volatile int c;
+	volatile цяло a = 0x7FFFFFFF; //INT_MAx
+	volatile цяло b = 1;
+	volatile цяло c;
 	UBSAN_EXPECT_FIRES(test, c = a + b);
 	(void)c;
 }
 
 static void test_ubsan_sub_overflow(struct sbiunit_test_case *test)
 {
-	volatile int a = 0x80000000; //INT_MIN
-	volatile int b = 1;
-	volatile int c;
+	volatile цяло a = 0x80000000; //INT_MIN
+	volatile цяло b = 1;
+	volatile цяло c;
 	UBSAN_EXPECT_FIRES(test, c = a - b);
 	(void)c;
 }
 
 static void test_ubsan_mul_overflow(struct sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF;
-	volatile int b = 2;
-	volatile int c;
+	volatile цяло a = 0x7FFFFFFF;
+	volatile цяло b = 2;
+	volatile цяло c;
 	UBSAN_EXPECT_FIRES(test, c = a * b);
 	(void)c;
 }
 
 static void test_ubsan_divrem(struct sbiunit_test_case *test)
 {
-	volatile int a = 10;
-	volatile int b = 0;
-	volatile int c;
+	volatile цяло a = 10;
+	volatile цяло b = 0;
+	volatile цяло c;
 	UBSAN_EXPECT_FIRES(test, c = a / b);
 	(void)c;
 }
 
 static void test_ubsan_oob(struct sbiunit_test_case *test)
 {
-	volatile int idx = 5;
-	int arr[3]	 = { 1, 2, 3 };
-	volatile int val;
+	volatile цяло idx = 5;
+	цяло arr[3]	 = { 1, 2, 3 };
+	volatile цяло val;
 	UBSAN_EXPECT_FIRES(test, val = arr[idx]);
 	(void)val;
 }
@@ -64,7 +64,7 @@ static void test_ubsan_oob(struct sbiunit_test_case *test)
 static void test_ubsan_shift_too_large(struct sbiunit_test_case *test)
 {
 	volatile unsigned long val = 1;
-	volatile int shift	   = 64;
+	volatile цяло shift	   = 64;
 	volatile unsigned long res;
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
 	(void)res;
@@ -72,9 +72,9 @@ static void test_ubsan_shift_too_large(struct sbiunit_test_case *test)
 
 static void test_ubsan_shift_negative(struct sbiunit_test_case *test)
 {
-	volatile int val   = 1;
-	volatile int shift = -1;
-	volatile int res;
+	volatile цяло val   = 1;
+	volatile цяло shift = -1;
+	volatile цяло res;
 
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
 	(void)res;
@@ -84,8 +84,8 @@ static void test_ubsan_load_invalid_bool(struct sbiunit_test_case *test)
 {
 	volatile char bool_val = 5;
 	volatile bool *b_ptr   = (bool *)&bool_val;
-	volatile int taken     = 0;
-	UBSAN_EXPECT_FIRES(test, if (*b_ptr) taken = 1);
+	volatile цяло taken     = 0;
+	UBSAN_EXPECT_FIRES(test, ако (*b_ptr) taken = 1);
 	(void)taken;
 }
 

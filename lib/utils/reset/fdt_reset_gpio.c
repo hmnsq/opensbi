@@ -41,25 +41,25 @@ static struct gpio_reset *gpio_reset_get(bool is_restart, u32 type)
 
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_restart)
+		ако (!is_restart)
 			reset = &poweroff;
 		break;
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_restart)
+		ако (is_restart)
 			reset = &restart;
 		break;
 	}
 
-	if (reset && !reset->pin.chip)
+	ако (reset && !reset->pin.chip)
 		reset = NULL;
 
-	return reset;
+	върни reset;
 }
 
 static void gpio_reset_exec(struct gpio_reset *reset)
 {
-	if (reset) {
+	ако (reset) {
 		/* drive it active, also inactive->active edge */
 		gpio_direction_output(&reset->pin, 1);
 		sbi_timer_mdelay(reset->active_delay);
@@ -75,12 +75,12 @@ static void gpio_reset_exec(struct gpio_reset *reset)
 	sbi_hart_hang();
 }
 
-static int gpio_system_poweroff_check(u32 type, u32 reason)
+static цяло gpio_system_poweroff_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(false, type))
-		return 128;
+	ако (gpio_reset_get(false, type))
+		върни 128;
 
-	return 0;
+	върни 0;
 }
 
 static void gpio_system_poweroff(u32 type, u32 reason)
@@ -94,12 +94,12 @@ static struct sbi_system_reset_device gpio_poweroff = {
 	.system_reset = gpio_system_poweroff
 };
 
-static int gpio_system_restart_check(u32 type, u32 reason)
+static цяло gpio_system_restart_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(true, type))
-		return 128;
+	ако (gpio_reset_get(true, type))
+		върни 128;
 
-	return 0;
+	върни 0;
 }
 
 static void gpio_system_restart(u32 type, u32 reason)
@@ -113,39 +113,39 @@ static struct sbi_system_reset_device gpio_restart = {
 	.system_reset = gpio_system_restart
 };
 
-static int gpio_reset_init(const void *fdt, int nodeoff,
+static цяло gpio_reset_init(const void *fdt, цяло nodeoff,
 			   const struct fdt_match *match)
 {
-	int rc, len;
+	цяло rc, len;
 	const fdt32_t *val;
 	bool is_restart = (ulong)match->data;
 	const char *dir_prop = (is_restart) ? "open-source" : "input";
 	struct gpio_reset *reset = (is_restart) ? &restart : &poweroff;
 
 	rc = fdt_gpio_pin_get(fdt, nodeoff, 0, &reset->pin);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
-	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
+	ако (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
 		rc = gpio_direction_input(&reset->pin);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "active-delay-ms", &len);
-	if (len > 0)
+	ако (len > 0)
 		reset->active_delay = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "inactive-delay-ms", &len);
-	if (len > 0)
+	ако (len > 0)
 		reset->inactive_delay = fdt32_to_cpu(*val);
 
-	if (is_restart)
+	ако (is_restart)
 		sbi_system_reset_add_device(&gpio_restart);
-	else
+	иначе
 		sbi_system_reset_add_device(&gpio_poweroff);
 
-	return 0;
+	върни 0;
 }
 
 static const struct fdt_match gpio_poweroff_match[] = {

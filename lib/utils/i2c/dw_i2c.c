@@ -69,31 +69,31 @@ static inline void dw_i2c_setreg(struct dw_i2c_adapter *adap,
 static inline u32 dw_i2c_getreg(struct dw_i2c_adapter *adap,
 				u32 reg)
 {
-	return readl((void *)adap->addr + reg);
+	върни readl((void *)adap->addr + reg);
 }
 
-static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
+static цяло dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 			       u32 mask, u32 addr,
 			       bool inverted)
 {
-	unsigned int timeout = 10; /* msec */
-	int count = 0;
+	unsigned цяло timeout = 10; /* msec */
+	цяло count = 0;
 	u32 val;
 
 	do {
 		val = dw_i2c_getreg(adap, addr);
-		if (inverted) {
-			if (!(val & mask))
-				return 0;
-		} else {
-			if (val & mask)
-				return 0;
+		ако (inverted) {
+			ако (!(val & mask))
+				върни 0;
+		} иначе {
+			ако (val & mask)
+				върни 0;
 		}
 		sbi_timer_udelay(2);
 		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		ако (count == (timeout * 1000))
+			върни SBI_ETIMEDOUT;
+	} докато (1);
 }
 
 #define dw_i2c_adapter_poll_rxrdy(adap)	\
@@ -101,75 +101,75 @@ static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 #define dw_i2c_adapter_poll_txfifo_ready(adap)	\
 	dw_i2c_adapter_poll(adap, DW_I2C_STATUS_TXFIFO_EMPTY, DW_IC_STATUS, 0)
 
-static int dw_i2c_write_addr(struct dw_i2c_adapter *adap, u8 addr)
+static цяло dw_i2c_write_addr(struct dw_i2c_adapter *adap, u8 addr)
 {
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 0);
 	dw_i2c_setreg(adap, DW_IC_TAR, addr);
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 1);
 
-	return 0;
+	върни 0;
 }
 
-static int dw_i2c_adapter_read(struct i2c_adapter *ia, u8 addr,
-			       u8 reg, u8 *buffer, int len)
+static цяло dw_i2c_adapter_read(struct i2c_adapter *ia, u8 addr,
+			       u8 reg, u8 *buffer, цяло len)
 {
 	struct dw_i2c_adapter *adap =
 		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	цяло rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
 	/* set value */
-	while (len) {
-		if (len == 1)
+	докато (len) {
+		ако (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD,
 				      IC_DATA_CMD_READ | IC_DATA_CMD_STOP);
-		else
+		иначе
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, IC_DATA_CMD_READ);
 
 		rc = dw_i2c_adapter_poll_rxrdy(adap);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
 		*buffer = dw_i2c_getreg(adap, DW_IC_DATA_CMD) & 0xff;
 		buffer++;
 		len--;
 	}
 
-	return 0;
+	върни 0;
 }
 
-static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
-				u8 reg, u8 *buffer, int len)
+static цяло dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
+				u8 reg, u8 *buffer, цяло len)
 {
 	struct dw_i2c_adapter *adap =
 		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	цяло rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
-	while (len) {
+	докато (len) {
 		rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
-		if (len == 1)
+		ако (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer | IC_DATA_CMD_STOP);
-		else
+		иначе
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer);
 
 		buffer++;
@@ -177,14 +177,14 @@ static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
 	}
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
 
-	return rc;
+	върни rc;
 }
 
-int dw_i2c_init(struct i2c_adapter *adapter, int nodeoff)
+цяло dw_i2c_init(struct i2c_adapter *adapter, цяло nodeoff)
 {
 	adapter->id = nodeoff;
 	adapter->write = dw_i2c_adapter_write;
 	adapter->read = dw_i2c_adapter_read;
 
-	return i2c_adapter_add(adapter);
+	върни i2c_adapter_add(adapter);
 }

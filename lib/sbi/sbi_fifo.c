@@ -27,35 +27,35 @@ void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
 static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	върни (fifo->avail == fifo->num_entries) ? true : false;
 }
 
 u16 sbi_fifo_avail(struct sbi_fifo *fifo)
 {
 	u16 ret;
 
-	if (!fifo)
-		return 0;
+	ако (!fifo)
+		върни 0;
 
 	spin_lock(&fifo->qlock);
 	ret = fifo->avail;
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	върни ret;
 }
 
-int sbi_fifo_is_full(struct sbi_fifo *fifo)
+цяло sbi_fifo_is_full(struct sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	ако (!fifo)
+		върни SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 	ret = __sbi_fifo_is_full(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	върни ret;
 }
 
 /* Note: must be called with fifo->qlock held */
@@ -65,7 +65,7 @@ static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
 	u32 head;
 
 	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
+	ако (head >= fifo->num_entries)
 		head = head - fifo->num_entries;
 
 	switch (fifo->entry_size) {
@@ -78,7 +78,7 @@ static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
 	case 4:
 		*(u32 *)(fifo->queue + head * fifo->entry_size) = *(u32 *)data;
 		break;
-#if __riscv_xlen > 32
+#ако __riscv_xlen > 32
 	case 8:
 		*(u64 *)(fifo->queue + head * fifo->entry_size) = *(u64 *)data;
 		break;
@@ -96,7 +96,7 @@ static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
 static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
 	MUST_HOLD(&fifo->qlock)
 {
-	if (!data)
+	ако (!data)
 		goto skip_data_copy;
 
 	switch (fifo->entry_size) {
@@ -109,7 +109,7 @@ static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
 	case 4:
 		*(u32 *)data = *(u32 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
 		break;
-#if __riscv_xlen > 32
+#ако __riscv_xlen > 32
 	case 8:
 		*(u64 *)data = *(u64 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
 		break;
@@ -123,7 +123,7 @@ static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
 skip_data_copy:
 	fifo->avail--;
 	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
+	ако (fifo->tail >= fifo->num_entries)
 		fifo->tail = 0;
 }
 
@@ -131,21 +131,21 @@ skip_data_copy:
 static inline bool __sbi_fifo_is_empty(struct sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == 0) ? true : false;
+	върни (fifo->avail == 0) ? true : false;
 }
 
-int sbi_fifo_is_empty(struct sbi_fifo *fifo)
+цяло sbi_fifo_is_empty(struct sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	ако (!fifo)
+		върни SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 	ret = __sbi_fifo_is_empty(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	върни ret;
 }
 
 /* Note: must be called with fifo->qlock held */
@@ -161,14 +161,14 @@ static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
 
 bool sbi_fifo_reset(struct sbi_fifo *fifo)
 {
-	if (!fifo)
-		return false;
+	ако (!fifo)
+		върни false;
 
 	spin_lock(&fifo->qlock);
 	__sbi_fifo_reset(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return true;
+	върни true;
 }
 
 /**
@@ -178,50 +178,50 @@ bool sbi_fifo_reset(struct sbi_fifo *fifo)
  * **Do not** invoke any other fifo function from callback. Otherwise, it will
  * lead to deadlock.
  */
-int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
-			    int (*fptr)(void *in, void *data))
+цяло sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
+			    цяло (*fptr)(void *in, void *data))
 {
-	int i, index;
-	int ret = SBI_FIFO_UNCHANGED;
+	цяло i, index;
+	цяло ret = SBI_FIFO_UNCHANGED;
 	void *entry;
 
-	if (!fifo || !in)
-		return ret;
+	ако (!fifo || !in)
+		върни ret;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	ако (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return ret;
+		върни ret;
 	}
 
-	for (i = 0; i < fifo->avail; i++) {
+	за (i = 0; i < fifo->avail; i++) {
 		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
+		ако (index >= fifo->num_entries)
 			index -= fifo->num_entries;
 		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
 		ret = fptr(in, entry);
 
-		if (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
+		ако (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
 			break;
 		}
 	}
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	върни ret;
 }
 
-int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
+цяло sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	ако (!fifo || !data)
+		върни SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_full(fifo)) {
-		if (!force) {
+	ако (__sbi_fifo_is_full(fifo)) {
+		ако (!force) {
 			spin_unlock(&fifo->qlock);
-			return SBI_ENOSPC;
+			върни SBI_ENOSPC;
 		}
 		__sbi_fifo_dequeue(fifo, NULL);
 	}
@@ -230,24 +230,24 @@ int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	върни 0;
 }
 
-int sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+цяло sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	ако (!fifo || !data)
+		върни SBI_EINVAL;
 
 	spin_lock(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	ако (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return SBI_ENOENT;
+		върни SBI_ENOENT;
 	}
 
 	__sbi_fifo_dequeue(fifo, data);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	върни 0;
 }

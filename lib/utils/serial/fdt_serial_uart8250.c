@@ -11,18 +11,18 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
+static цяло serial_uart8250_init(const void *fdt, цяло nodeoff,
 				const struct fdt_match *match)
 {
 	struct platform_uart_data uart = { 0 };
 	ulong caps = (ulong)match->data;
-	int rc;
+	цяло rc;
 
 	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
+	върни uart8250_init(uart.addr, uart.freq, uart.baud,
 			     uart.reg_shift, uart.reg_io_width,
 			     uart.reg_offset, caps);
 }

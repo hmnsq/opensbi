@@ -14,44 +14,44 @@ struct cache_device *cache_find(u32 id)
 	struct cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		ако (dev->id == id)
+			върни dev;
 	}
 
-	return NULL;
+	върни NULL;
 }
 
-int cache_add(struct cache_device *dev)
+цяло cache_add(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ако (!dev)
+		върни SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ако (cache_find(dev->id))
+		върни SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	върни SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+цяло cache_flush_all(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ако (!dev)
+		върни SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ако (!dev->ops || !dev->ops->cache_flush_all)
+		върни SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	върни dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+цяло cache_enable(struct cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ако (!dev)
+		върни SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ако (!dev->ops || !dev->ops->cache_enable)
+		върни SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	върни dev->ops->cache_enable(dev, enable);
 }

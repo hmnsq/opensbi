@@ -25,7 +25,7 @@ struct starfive_gpio_chip {
 	struct gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+static цяло starfive_gpio_direction_output(struct gpio_pin *gp, цяло value)
 {
 	u32 val;
 	unsigned long reg_addr;
@@ -45,10 +45,10 @@ static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
 	val &= ~bit_mask;
 	writel(val, (void *)reg_addr);
 
-	return 0;
+	върни 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+static void starfive_gpio_set(struct gpio_pin *gp, цяло value)
 {
 	u32 val;
 	unsigned long reg_addr;
@@ -71,21 +71,21 @@ static void starfive_gpio_set(struct gpio_pin *gp, int value)
 
 const struct fdt_gpio fdt_gpio_starfive;
 
-static int starfive_gpio_init(const void *fdt, int nodeoff,
+static цяло starfive_gpio_init(const void *fdt, цяло nodeoff,
 			      const struct fdt_match *match)
 {
-	int rc;
+	цяло rc;
 	struct starfive_gpio_chip *chip;
 	u64 addr;
 
 	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	ако (!chip)
+		върни SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ако (rc) {
 		sbi_free(chip);
-		return rc;
+		върни rc;
 	}
 
 	chip->addr = addr;
@@ -95,12 +95,12 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = starfive_gpio_direction_output;
 	chip->chip.set = starfive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	ако (rc) {
 		sbi_free(chip);
-		return rc;
+		върни rc;
 	}
 
-	return 0;
+	върни 0;
 }
 
 static const struct fdt_match starfive_gpio_match[] = {

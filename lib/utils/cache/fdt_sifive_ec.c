@@ -40,7 +40,7 @@ struct sifive_ec {
 
 #define to_ec(_dev) container_of(_dev, struct sifive_ec, dev)
 
-static int sifive_ec_flush_all(struct cache_device *dev)
+static цяло sifive_ec_flush_all(struct cache_device *dev)
 {
 	struct sifive_ec *ec_dev = to_ec(dev);
 	struct sifive_ec_slice *slices = ec_dev->slices;
@@ -50,36 +50,36 @@ static int sifive_ec_flush_all(struct cache_device *dev)
 	do {
 		addr = slices[i].addr;
 
-		writel((int)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF);
-		writel((int)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF + sizeof(u32));
+		writel((цяло)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF);
+		writel((цяло)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF + sizeof(u32));
 		writel(cmd, addr + SIFIVE_EC_FLUSH_CMD_OFF);
-	} while (!slices[i++].last_slice);
+	} докато (!slices[i++].last_slice);
 
 	i = 0;
 	do {
 		addr = slices[i].addr;
-		do {} while (!(readl(addr + SIFIVE_EC_FLUSH_STATUS_OFF) &
+		do {} докато (!(readl(addr + SIFIVE_EC_FLUSH_STATUS_OFF) &
 				SIFIVE_EC_FLUSH_COMPLETION_MASK));
-	} while (!slices[i++].last_slice);
+	} докато (!slices[i++].last_slice);
 
-	return 0;
+	върни 0;
 }
 
-int sifive_ec_warm_init(struct cache_device *dev)
+цяло sifive_ec_warm_init(struct cache_device *dev)
 {
 	struct sifive_ec *ec_dev = to_ec(dev);
 	struct sifive_ec_slice *slices = ec_dev->slices;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int i = 0;
+	цяло i = 0;
 
-	if (dom->boot_hartid == current_hartid()) {
+	ако (dom->boot_hartid == current_hartid()) {
 		do {
 			writel(SIFIVE_EC_FEATURE_DISABLE_VAL,
 			       slices[i].addr + SIFIVE_EC_FEATURE_DISABLE_OFF);
-		} while (!slices[i++].last_slice);
+		} докато (!slices[i++].last_slice);
 	}
 
-	return SBI_OK;
+	върни SBI_OK;
 }
 
 static struct cache_ops sifive_ec_ops = {
@@ -87,23 +87,23 @@ static struct cache_ops sifive_ec_ops = {
 	.cache_flush_all = sifive_ec_flush_all,
 };
 
-static int sifive_ec_slices_cold_init(const void *fdt, int nodeoff,
+static цяло sifive_ec_slices_cold_init(const void *fdt, цяло nodeoff,
 				      struct sifive_ec_slice *slices,
 				      const struct sifive_ec_quirks *quirks)
 {
-	int rc, subnode, slice_idx = -1;
+	цяло rc, subnode, slice_idx = -1;
 	u64 reg_addr, size, start_addr = -1, end_addr = 0;
 
 	fdt_for_each_subnode(subnode, fdt, nodeoff) {
 		rc = fdt_get_node_addr_size_by_name(fdt, subnode, quirks->reg_name, &reg_addr,
 						    &size);
-		if (rc < 0)
-			return SBI_ENODEV;
+		ако (rc < 0)
+			върни SBI_ENODEV;
 
-		if (reg_addr < start_addr)
+		ако (reg_addr < start_addr)
 			start_addr = reg_addr;
 
-		if (reg_addr + size > end_addr)
+		ако (reg_addr + size > end_addr)
 			end_addr = reg_addr + size;
 
 		slices[++slice_idx].addr = (void *)(uintptr_t)reg_addr;
@@ -111,27 +111,27 @@ static int sifive_ec_slices_cold_init(const void *fdt, int nodeoff,
 	slices[slice_idx].last_slice = true;
 
 	/* Only enable the pmp to protect the EC m-mode region when it support two mode */
-	if (quirks->two_mode) {
+	ако (quirks->two_mode) {
 		rc = sbi_domain_root_add_memrange((unsigned long)start_addr,
 						  (unsigned long)(end_addr - start_addr),
 						  BIT(12),
 						  (SBI_DOMAIN_MEMREGION_MMIO |
 						   SBI_DOMAIN_MEMREGION_M_READABLE |
 						   SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 	}
 
-	return SBI_OK;
+	върни SBI_OK;
 }
 
-static int sifive_ec_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+static цяло sifive_ec_cold_init(const void *fdt, цяло nodeoff, const struct fdt_match *match)
 {
 	const struct sifive_ec_quirks *quirks = match->data;
 	struct sifive_ec_slice *slices;
 	struct sifive_ec *ec_dev;
 	struct cache_device *dev;
-	int subnode, rc = SBI_ENOMEM;
+	цяло subnode, rc = SBI_ENOMEM;
 	u32 slice_count = 0;
 
 	/* Count the number of slices */
@@ -139,36 +139,36 @@ static int sifive_ec_cold_init(const void *fdt, int nodeoff, const struct fdt_ma
 		slice_count++;
 
 	/* Need at least one slice */
-	if (!slice_count)
-		return SBI_EINVAL;
+	ако (!slice_count)
+		върни SBI_EINVAL;
 
 	ec_dev = sbi_zalloc(sizeof(*ec_dev));
-	if (!ec_dev)
-		return SBI_ENOMEM;
+	ако (!ec_dev)
+		върни SBI_ENOMEM;
 
 	slices = sbi_zalloc(slice_count * sizeof(*slices));
-	if (!slices)
+	ако (!slices)
 		goto free_ec;
 
 	rc = sifive_ec_slices_cold_init(fdt, nodeoff, slices, quirks);
-	if (rc)
+	ако (rc)
 		goto free_slice;
 
 	dev = &ec_dev->dev;
 	dev->ops = &sifive_ec_ops;
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc)
+	ако (rc)
 		goto free_slice;
 
 	ec_dev->slices = slices;
 
-	return SBI_OK;
+	върни SBI_OK;
 
 free_slice:
 	sbi_free(slices);
 free_ec:
 	sbi_free(ec_dev);
-	return rc;
+	върни rc;
 }
 
 static const struct sifive_ec_quirks sifive_extensiblecache0_quirks = {

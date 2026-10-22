@@ -15,28 +15,28 @@
 #include <sbi/sbi_version.h>
 #include <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+static цяло sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
 {
 	struct sbi_ecall_extension *ext;
 
 	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
+	ако (!ext) {
 		*out_val = 0;
-		return 0;
+		върни 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	ако (ext->probe)
+		върни ext->probe(extid, out_val);
 
 	*out_val = 1;
-	return 0;
+	върни 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
+static цяло sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	цяло ret = 0;
 
 	switch (funcid) {
 	case SBI_EXT_BASE_GET_SPEC_VERSION:
@@ -68,14 +68,14 @@ static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	върни ret;
 }
 
 struct sbi_ecall_extension ecall_base;
 
-static int sbi_ecall_base_register_extensions(void)
+static цяло sbi_ecall_base_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	върни sbi_ecall_register_extension(&ecall_base);
 }
 
 struct sbi_ecall_extension ecall_base = {

@@ -55,38 +55,38 @@ static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
 static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
 					uint8_t reg)
 {
-	return readl((volatile char *)adap->addr + reg);
+	върни readl((volatile char *)adap->addr + reg);
 }
 
-static int sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
+static цяло sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
 {
 	uint8_t val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
 
-	if (val & SIFIVE_I2C_STATUS_RXACK)
-		return SBI_EIO;
+	ако (val & SIFIVE_I2C_STATUS_RXACK)
+		върни SBI_EIO;
 
-	return 0;
+	върни 0;
 }
 
-static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
+static цяло sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 				   uint32_t mask)
 {
-	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	unsigned цяло timeout = 1; // [msec]
+	цяло count = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
 
 	do {
 		val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
-		if (!(val & mask))
-			return 0;
+		ако (!(val & mask))
+			върни 0;
 
 		sbi_timer_udelay(1);
 		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		ако (count == (timeout * 1000))
+			върни SBI_ETIMEDOUT;
+	} докато (1);
 }
 
 #define sifive_i2c_adapter_poll_tip(adap)	\
@@ -94,7 +94,7 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 #define sifive_i2c_adapter_poll_busy(adap)	\
 sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_BUSY)
 
-static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
+static цяло sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 				    uint8_t addr, uint8_t bit)
 {
 	uint8_t val = (addr << 1) | bit;
@@ -103,48 +103,48 @@ static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 	val = SIFIVE_I2C_CMD_STA | SIFIVE_I2C_CMD_WR | SIFIVE_I2C_CMD_IACK;
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, val);
 
-	return sifive_i2c_adapter_poll_tip(adap);
+	върни sifive_i2c_adapter_poll_tip(adap);
 }
 
-static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				    uint8_t reg, uint8_t *buffer, int len)
+static цяло sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
+				    uint8_t reg, uint8_t *buffer, цяло len)
 {
 	struct sifive_i2c_adapter *adap =
 		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
+	цяло rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
 
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	/* set register address */
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 				SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	/* set value */
-	while (len) {
+	докато (len) {
 		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *buffer);
 		sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 						       SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
 		rc = sifive_i2c_adapter_rxack(adap);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
 		buffer++;
 		len--;
@@ -155,64 +155,64 @@ static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
 
 	/* poll BUSY instead of ACK*/
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	върни 0;
 }
 
-static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				   uint8_t reg, uint8_t *buffer, int len)
+static цяло sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
+				   uint8_t reg, uint8_t *buffer, цяло len)
 {
 	struct sifive_i2c_adapter *adap =
 		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc;
+	цяло rc;
 
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 					       SIFIVE_I2C_CMD_IACK);
 
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	/* setting addr with high 0 bit */
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_READ_BIT);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
-	while (len) {
-		if (len == 1)
+	докато (len) {
+		ако (len == 1)
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_ACK |
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
-		else
+		иначе
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
 		*buffer = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
 		buffer++;
@@ -222,29 +222,29 @@ static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_STO |
 					       SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	върни 0;
 }
 
-static int sifive_i2c_init(const void *fdt, int nodeoff,
+static цяло sifive_i2c_init(const void *fdt, цяло nodeoff,
 			   const struct fdt_match *match)
 {
-	int rc;
+	цяло rc;
 	struct sifive_i2c_adapter *adapter;
 	uint64_t addr;
 
 	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	ако (!adapter)
+		върни SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ако (rc) {
 		sbi_free(adapter);
-		return rc;
+		върни rc;
 	}
 
 	adapter->addr = addr;
@@ -252,12 +252,12 @@ static int sifive_i2c_init(const void *fdt, int nodeoff,
 	adapter->adapter.write = sifive_i2c_adapter_write;
 	adapter->adapter.read = sifive_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	ако (rc) {
 		sbi_free(adapter);
-		return rc;
+		върни rc;
 	}
 
-	return 0;
+	върни 0;
 }
 
 static const struct fdt_match sifive_i2c_match[] = {

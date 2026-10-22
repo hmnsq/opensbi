@@ -16,17 +16,17 @@ struct mpxy_rpmi_sysmsi {
 	unsigned long *sys_msi_denied_bmap;
 };
 
-static int mpxy_rpmi_sysmis_xfer(void *context, struct mbox_chan *chan,
+static цяло mpxy_rpmi_sysmis_xfer(void *context, struct mbox_chan *chan,
 				 struct mbox_xfer *xfer)
 {
 	struct rpmi_message_args *args = xfer->args;
 	struct mpxy_rpmi_sysmsi *smg = context;
 	u64 sys_msi_address;
 	u32 sys_msi_index;
-	int rc = 0;
+	цяло rc = 0;
 
-	if (!xfer->rx || args->type != RPMI_MSG_NORMAL_REQUEST)
-		return 0;
+	ако (!xfer->rx || args->type != RPMI_MSG_NORMAL_REQUEST)
+		върни 0;
 
 	switch (args->service_id) {
 	case RPMI_SYSMSI_SRV_GET_ATTRIBUTES:
@@ -42,20 +42,20 @@ static int mpxy_rpmi_sysmis_xfer(void *context, struct mbox_chan *chan,
 	case RPMI_SYSMSI_SRV_SET_MSI_TARGET:
 	case RPMI_SYSMSI_SRV_GET_MSI_TARGET:
 		sys_msi_index = le32_to_cpu(((u32 *)xfer->tx)[0]);
-		if (smg->sys_num_msi <= sys_msi_index) {
+		ако (smg->sys_num_msi <= sys_msi_index) {
 			((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_ERR_INVALID_PARAM);
 			args->rx_data_len = sizeof(u32);
 			break;
 		}
-		if (bitmap_test(smg->sys_msi_denied_bmap, sys_msi_index)) {
+		ако (bitmap_test(smg->sys_msi_denied_bmap, sys_msi_index)) {
 			((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_ERR_DENIED);
 			args->rx_data_len = sizeof(u32);
 			break;
 		}
-		if (args->service_id == RPMI_SYSMSI_SRV_SET_MSI_TARGET) {
+		ако (args->service_id == RPMI_SYSMSI_SRV_SET_MSI_TARGET) {
 			sys_msi_address = le32_to_cpu(((u32 *)xfer->tx)[1]);
 			sys_msi_address |= ((u64)le32_to_cpu(((u32 *)xfer->tx)[2])) << 32;
-			if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+			ако (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
 							 sys_msi_address, 0x4, PRV_S,
 							 SBI_DOMAIN_READ | SBI_DOMAIN_WRITE |
 							 SBI_DOMAIN_MMIO)) {
@@ -72,7 +72,7 @@ static int mpxy_rpmi_sysmis_xfer(void *context, struct mbox_chan *chan,
 		break;
 	};
 
-	return rc;
+	върни rc;
 }
 
 static void mpxy_rpmi_sysmsi_cleanup(void *context)
@@ -83,7 +83,7 @@ static void mpxy_rpmi_sysmsi_cleanup(void *context)
 	sbi_free(smg);
 }
 
-static int mpxy_rpmi_sysmsi_setup(void **context, struct mbox_chan *chan,
+static цяло mpxy_rpmi_sysmsi_setup(void **context, struct mbox_chan *chan,
 				  const struct mpxy_rpmi_mbox_data *data)
 {
 	struct rpmi_sysmsi_get_msi_attributes_resp gmaresp;
@@ -91,31 +91,31 @@ static int mpxy_rpmi_sysmsi_setup(void **context, struct mbox_chan *chan,
 	struct rpmi_sysmsi_get_attributes_resp garesp;
 	struct mpxy_rpmi_sysmsi *smg;
 	u32 p2a_db_index;
-	int rc, i;
+	цяло rc, i;
 
 	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_P2A_DOORBELL_SYSMSI_INDEX,
 				     &p2a_db_index);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	rc = rpmi_normal_request_with_status(chan, RPMI_SYSMSI_SRV_GET_ATTRIBUTES,
 					     NULL, 0, 0, &garesp, rpmi_u32_count(garesp),
 					     rpmi_u32_count(garesp));
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
 	smg = sbi_zalloc(sizeof(*smg));
-	if (!smg)
-		return SBI_ENOMEM;
+	ако (!smg)
+		върни SBI_ENOMEM;
 
 	smg->sys_num_msi = garesp.sys_num_msi;
 	smg->sys_msi_denied_bmap = sbi_zalloc(bitmap_estimate_size(smg->sys_num_msi));
-	if (!smg->sys_msi_denied_bmap) {
+	ако (!smg->sys_msi_denied_bmap) {
 		sbi_free(smg);
-		return SBI_ENOMEM;
+		върни SBI_ENOMEM;
 	}
 
-	for (i = 0; i < smg->sys_num_msi; i++) {
+	за (i = 0; i < smg->sys_num_msi; i++) {
 		gmareq.sys_msi_index = i;
 		rc = rpmi_normal_request_with_status(chan,
 						     RPMI_SYSMSI_SRV_GET_MSI_ATTRIBUTES,
@@ -123,18 +123,18 @@ static int mpxy_rpmi_sysmsi_setup(void **context, struct mbox_chan *chan,
 						     rpmi_u32_count(gmareq),
 						     &gmaresp, rpmi_u32_count(gmaresp),
 						     rpmi_u32_count(gmaresp));
-		if (rc) {
+		ако (rc) {
 			mpxy_rpmi_sysmsi_cleanup(smg);
-			return rc;
+			върни rc;
 		}
 
-		if (p2a_db_index == i ||
+		ако (p2a_db_index == i ||
 		    (gmaresp.flag0 & RPMI_SYSMSI_MSI_ATTRIBUTES_FLAG0_PREF_PRIV))
 			bitmap_set(smg->sys_msi_denied_bmap, i, 1);
 	}
 
 	*context = smg;
-	return 0;
+	върни 0;
 }
 
 static struct mpxy_rpmi_service_data sysmsi_services[] = {

@@ -17,7 +17,7 @@
 
 struct timer_mtimer_quirks {
 	bool		is_clint;
-	unsigned int	clint_mtime_offset;
+	unsigned цяло	clint_mtime_offset;
 	bool		clint_without_mtime;
 	bool		has_64bit_mmio;
 };
@@ -30,10 +30,10 @@ static SBI_LIST_HEAD(mtn_list);
 
 static struct aclint_mtimer_data *mt_reference = NULL;
 
-static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
+static цяло timer_mtimer_cold_init(const void *fdt, цяло nodeoff,
 				  const struct fdt_match *match)
 {
-	int rc;
+	цяло rc;
 	unsigned long addr[2], size[2];
 	struct timer_mtimer_node *mtn, *n;
 	struct aclint_mtimer_data *mt;
@@ -42,41 +42,41 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	bool is_ref = false;
 
 	mtn = sbi_zalloc(sizeof(*mtn));
-	if (!mtn)
-		return SBI_ENOMEM;
+	ако (!mtn)
+		върни SBI_ENOMEM;
 	mt = &mtn->data;
 
 	rc = fdt_parse_aclint_node(fdt, nodeoff, true, !is_clint,
 				   &addr[0], &size[0], &addr[1], &size[1],
 				   &mt->first_hartid, &mt->hart_count);
-	if (rc) {
+	ако (rc) {
 		sbi_free(mtn);
-		return rc;
+		върни rc;
 	}
 	mt->has_64bit_mmio = true;
 	mt->has_shared_mtime = false;
 
 	rc = fdt_parse_timebase_frequency(fdt, &mt->mtime_freq);
-	if (rc) {
+	ако (rc) {
 		sbi_free(mtn);
-		return rc;
+		върни rc;
 	}
 
-	if (is_clint) { /* SiFive CLINT */
+	ако (is_clint) { /* SiFive CLINT */
 		/* Set CLINT addresses */
 		mt->mtimecmp_addr = addr[0] + ACLINT_DEFAULT_MTIMECMP_OFFSET;
 		mt->mtimecmp_size = ACLINT_DEFAULT_MTIMECMP_SIZE;
-		if (!quirks->clint_without_mtime) {
+		ако (!quirks->clint_without_mtime) {
 			mt->mtime_addr = addr[0] + ACLINT_DEFAULT_MTIME_OFFSET;
 			mt->mtime_size = size[0] - mt->mtimecmp_size;
 			/* Adjust MTIMER address and size for CLINT device */
 			mt->mtime_addr += quirks->clint_mtime_offset;
 			mt->mtime_size -= quirks->clint_mtime_offset;
-		} else {
+		} иначе {
 			mt->mtime_addr = mt->mtime_size = 0;
 		}
 		mt->mtimecmp_addr += quirks->clint_mtime_offset;
-	} else { /* RISC-V ACLINT MTIMER */
+	} иначе { /* RISC-V ACLINT MTIMER */
 		/* Set ACLINT MTIMER addresses */
 		mt->mtime_addr = addr[0];
 		mt->mtime_size = size[0];
@@ -85,29 +85,29 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	}
 
 	/* Apply additional quirks */
-	if (quirks) {
+	ако (quirks) {
 		mt->has_64bit_mmio = quirks->has_64bit_mmio;
 	}
 
 	/* Check if MTIMER device has shared MTIME address */
-	if (mt->mtime_size) {
+	ако (mt->mtime_size) {
 		mt->has_shared_mtime = false;
 		sbi_list_for_each_entry(n, &mtn_list, head) {
-			if (n->data.mtime_addr == mt->mtime_addr) {
+			ако (n->data.mtime_addr == mt->mtime_addr) {
 				mt->has_shared_mtime = true;
 				break;
 			}
 		}
-	} else {
+	} иначе {
 		/* Assume shared time CSR */
 		mt->has_shared_mtime = true;
 	}
 
 	/* Initialize the MTIMER device */
 	rc = aclint_mtimer_cold_init(mt, mt_reference);
-	if (rc) {
+	ако (rc) {
 		sbi_free(mtn);
-		return rc;
+		върни rc;
 	}
 
 	/*
@@ -115,29 +115,29 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	 * select the first MTIMER device that has it. Otherwise, select the
 	 * first MTIMER device with no associated HARTs as our reference.
 	 */
-	if (fdt_getprop(fdt, nodeoff, "riscv,reference-mtimer", NULL))
+	ако (fdt_getprop(fdt, nodeoff, "riscv,reference-mtimer", NULL))
 		is_ref = true;
-	else if (!mt->hart_count)
+	иначе ако (!mt->hart_count)
 		is_ref = true;
 
-	if (is_ref && !mt_reference) {
+	ако (is_ref && !mt_reference) {
 		mt_reference = mt;
 		/*
 		 * Set reference for already propbed MTIMER devices
 		 * with non-shared MTIME
 		 */
 		sbi_list_for_each_entry(n, &mtn_list, head) {
-			if (!n->data.has_shared_mtime)
+			ако (!n->data.has_shared_mtime)
 				aclint_mtimer_set_reference(&n->data, mt);
 		}
 	}
 
 	/* Explicitly sync-up MTIMER devices not associated with any HARTs */
-	if (!mt->hart_count)
+	ако (!mt->hart_count)
 		aclint_mtimer_sync(mt);
 
 	sbi_list_add_tail(&mtn->head, &mtn_list);
-	return 0;
+	върни 0;
 }
 
 static const struct timer_mtimer_quirks sifive_clint_quirks = {

@@ -44,38 +44,38 @@ static const struct sbi_ipi_device *ipi_dev = NULL;
 static SBI_LIST_HEAD(ipi_dev_node_list);
 static const struct sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
 
-static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
+static цяло sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
 			u32 event, void *data)
 {
-	int ret = 0;
+	цяло ret = 0;
 	struct sbi_scratch *remote_scratch = NULL;
 	struct sbi_ipi_data *ipi_data;
 	const struct sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	ако ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		върни SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
 	remote_scratch = sbi_hartindex_to_scratch(remote_hartindex);
-	if (!remote_scratch)
-		return SBI_EINVAL;
+	ако (!remote_scratch)
+		върни SBI_EINVAL;
 
 	ipi_data = sbi_scratch_offset_ptr(remote_scratch, ipi_data_off);
 
-	if (ipi_ops->update) {
+	ако (ipi_ops->update) {
 		ret = ipi_ops->update(scratch, remote_scratch,
 				      remote_hartindex, data);
-		if (ret != SBI_IPI_UPDATE_SUCCESS)
-			return ret;
-	} else if (scratch == remote_scratch) {
+		ако (ret != SBI_IPI_UPDATE_SUCCESS)
+			върни ret;
+	} иначе ако (scratch == remote_scratch) {
 		/*
 		 * IPI events with an update() callback are expected to return
 		 * SBI_IPI_UPDATE_BREAK for self-IPIs. For other events, check
 		 * for self-IPI and execute the callback directly here.
 		 */
 		ipi_ops->process(scratch);
-		return 0;
+		върни 0;
 	}
 
 	/*
@@ -86,28 +86,28 @@ static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
 	 * remote hart so call sbi_ipi_raw_send() only when
 	 * the ipi_type was previously zero.
 	 */
-	if (!__atomic_fetch_or(&ipi_data->ipi_type,
+	ако (!__atomic_fetch_or(&ipi_data->ipi_type,
 				BIT(event), __ATOMIC_RELAXED))
 		ret = sbi_ipi_raw_send(remote_hartindex, false);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_SENT);
 
-	return ret;
+	върни ret;
 }
 
-static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
+static цяло sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
 {
 	const struct sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	ако ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		върни SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
-	if (ipi_ops->sync)
+	ако (ipi_ops->sync)
 		ipi_ops->sync(scratch);
 
-	return 0;
+	върни 0;
 }
 
 /**
@@ -115,43 +115,43 @@ static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
  * set to all online harts if the intention is to send IPIs to all the harts.
  * If hmask is zero, no IPIs will be sent.
  */
-int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
+цяло sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
 {
-	int rc = 0;
+	цяло rc = 0;
 	bool retry_needed;
 	ulong i;
 	struct sbi_hartmask target_mask;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (hmask == 0 && hbase != -1UL) {
+	ако (hmask == 0 && hbase != -1UL) {
 		/* Nothing to do, but it's not an error either. */
-		return 0;
+		върни 0;
 	}
 
 	/* Find the target harts */
 	rc = sbi_hsm_hart_interruptible_mask(dom, &target_mask);
-	if (rc)
-		return rc;
+	ако (rc)
+		върни rc;
 
-	if (hbase != -1UL) {
+	ако (hbase != -1UL) {
 		struct sbi_hartmask tmp_mask = { 0 };
 		struct sbi_hartmask domain_mask;
-		int count = sbi_popcount(hmask);
+		цяло count = sbi_popcount(hmask);
 
-		for (i = hbase; hmask; i++, hmask >>= 1) {
-			if (hmask & 1UL)
+		за (i = hbase; hmask; i++, hmask >>= 1) {
+			ако (hmask & 1UL)
 				sbi_hartmask_set_hartid(i, &tmp_mask);
 		}
 
 		/* Validate hartids against domain assignment, not HSM state */
 		rc = sbi_domain_get_assigned_hartmask(dom, &domain_mask);
-		if (rc)
-			return rc;
+		ако (rc)
+			върни rc;
 
 		sbi_hartmask_and(&domain_mask, &domain_mask, &tmp_mask);
-		if (sbi_hartmask_weight(&domain_mask) != count)
-			return SBI_EINVAL;
+		ако (sbi_hartmask_weight(&domain_mask) != count)
+			върни SBI_EINVAL;
 
 		sbi_hartmask_and(&target_mask, &target_mask, &tmp_mask);
 	}
@@ -161,45 +161,45 @@ int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
 		retry_needed = false;
 		sbi_hartmask_for_each_hartindex(i, &target_mask) {
 			rc = sbi_ipi_send(scratch, i, event, data);
-			if (rc < 0)
+			ако (rc < 0)
 				goto done;
-			if (rc == SBI_IPI_UPDATE_RETRY)
+			ако (rc == SBI_IPI_UPDATE_RETRY)
 				retry_needed = true;
-			else
+			иначе
 				sbi_hartmask_clear_hartindex(i, &target_mask);
 			rc = 0;
 		}
-	} while (retry_needed);
+	} докато (retry_needed);
 
 done:
 	/* Sync IPIs */
 	sbi_ipi_sync(scratch, event);
 
-	return rc;
+	върни rc;
 }
 
-int sbi_ipi_event_create(const struct sbi_ipi_event_ops *ops)
+цяло sbi_ipi_event_create(const struct sbi_ipi_event_ops *ops)
 {
-	int i, ret = SBI_ENOSPC;
+	цяло i, ret = SBI_ENOSPC;
 
-	if (!ops || !ops->process)
-		return SBI_EINVAL;
+	ако (!ops || !ops->process)
+		върни SBI_EINVAL;
 
-	for (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
-		if (!ipi_ops_array[i]) {
+	за (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
+		ако (!ipi_ops_array[i]) {
 			ret = i;
 			ipi_ops_array[i] = ops;
 			break;
 		}
 	}
 
-	return ret;
+	върни ret;
 }
 
 void sbi_ipi_event_destroy(u32 event)
 {
-	if (SBI_IPI_EVENT_MAX <= event)
-		return;
+	ако (SBI_IPI_EVENT_MAX <= event)
+		върни;
 
 	ipi_ops_array[event] = NULL;
 }
@@ -216,9 +216,9 @@ static struct sbi_ipi_event_ops ipi_smode_ops = {
 
 static u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_smode(ulong hmask, ulong hbase)
+цяло sbi_ipi_send_smode(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_smode_event, NULL);
+	върни sbi_ipi_send_many(hmask, hbase, ipi_smode_event, NULL);
 }
 
 void sbi_ipi_clear_smode(void)
@@ -226,12 +226,12 @@ void sbi_ipi_clear_smode(void)
 	csr_clear(CSR_MIP, MIP_SSIP);
 }
 
-static int sbi_ipi_update_halt(struct sbi_scratch *scratch,
+static цяло sbi_ipi_update_halt(struct sbi_scratch *scratch,
 			       struct sbi_scratch *remote_scratch,
 			       u32 remote_hartindex, void *data)
 {
 	/* Never send a halt IPI to the local hart. */
-	return scratch == remote_scratch ?
+	върни scratch == remote_scratch ?
 		SBI_IPI_UPDATE_BREAK : SBI_IPI_UPDATE_SUCCESS;
 }
 
@@ -248,15 +248,15 @@ static struct sbi_ipi_event_ops ipi_halt_ops = {
 
 static u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_halt(ulong hmask, ulong hbase)
+цяло sbi_ipi_send_halt(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_halt_event, NULL);
+	върни sbi_ipi_send_many(hmask, hbase, ipi_halt_event, NULL);
 }
 
 void sbi_ipi_process(void)
 {
 	unsigned long ipi_type;
-	unsigned int ipi_event;
+	unsigned цяло ipi_event;
 	const struct sbi_ipi_event_ops *ipi_ops;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	struct sbi_ipi_data *ipi_data =
@@ -267,10 +267,10 @@ void sbi_ipi_process(void)
 
 	ipi_type = atomic_raw_xchg_ulong(&ipi_data->ipi_type, 0);
 	ipi_event = 0;
-	while (ipi_type) {
-		if (ipi_type & 1UL) {
+	докато (ipi_type) {
+		ако (ipi_type & 1UL) {
 			ipi_ops = ipi_ops_array[ipi_event];
-			if (ipi_ops)
+			ако (ipi_ops)
 				ipi_ops->process(scratch);
 		}
 		ipi_type = ipi_type >> 1;
@@ -278,12 +278,12 @@ void sbi_ipi_process(void)
 	}
 }
 
-int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
+цяло sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 {
 	struct sbi_ipi_device_node *entry;
 
-	if (!ipi_dev || !ipi_dev->ipi_send)
-		return SBI_EINVAL;
+	ако (!ipi_dev || !ipi_dev->ipi_send)
+		върни SBI_EINVAL;
 
 	/*
 	 * Ensure that memory or MMIO writes done before
@@ -296,29 +296,29 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 	 */
 	wmb();
 
-	if (all_devices) {
+	ако (all_devices) {
 		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_send)
+			ако (entry->dev->ipi_send)
 				entry->dev->ipi_send(hartindex);
 		}
-	} else {
+	} иначе {
 		ipi_dev->ipi_send(hartindex);
 	}
 
-	return 0;
+	върни 0;
 }
 
 void sbi_ipi_raw_clear(bool all_devices)
 {
 	struct sbi_ipi_device_node *entry;
 
-	if (all_devices) {
+	ако (all_devices) {
 		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_clear)
+			ако (entry->dev->ipi_clear)
 				entry->dev->ipi_clear();
 		}
-	} else {
-		if (ipi_dev && ipi_dev->ipi_clear)
+	} иначе {
+		ако (ipi_dev && ipi_dev->ipi_clear)
 			ipi_dev->ipi_clear();
 	}
 
@@ -336,50 +336,50 @@ void sbi_ipi_raw_clear(bool all_devices)
 
 const struct sbi_ipi_device *sbi_ipi_get_device(void)
 {
-	return ipi_dev;
+	върни ipi_dev;
 }
 
 void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
 {
 	struct sbi_ipi_device_node *entry;
 
-	if (!dev)
-		return;
+	ако (!dev)
+		върни;
 
 	entry = sbi_zalloc(sizeof(*entry));
-	if (!entry)
-		return;
+	ако (!entry)
+		върни;
 	SBI_INIT_LIST_HEAD(&entry->head);
 	entry->dev = dev;
 	sbi_list_add_tail(&entry->head, &ipi_dev_node_list);
 
-	if (!ipi_dev || ipi_dev->rating < dev->rating)
+	ако (!ipi_dev || ipi_dev->rating < dev->rating)
 		ipi_dev = dev;
 }
 
-int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
+цяло sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
+	цяло ret;
 	struct sbi_ipi_data *ipi_data;
 
-	if (cold_boot) {
+	ако (cold_boot) {
 		ipi_data_off = sbi_scratch_alloc_offset(sizeof(*ipi_data));
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
+		ако (!ipi_data_off)
+			върни SBI_ENOMEM;
 		ret = sbi_ipi_event_create(&ipi_smode_ops);
-		if (ret < 0)
-			return ret;
+		ако (ret < 0)
+			върни ret;
 		ipi_smode_event = ret;
 		ret = sbi_ipi_event_create(&ipi_halt_ops);
-		if (ret < 0)
-			return ret;
+		ако (ret < 0)
+			върни ret;
 		ipi_halt_event = ret;
-	} else {
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
+	} иначе {
+		ако (!ipi_data_off)
+			върни SBI_ENOMEM;
+		ако (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
 		    SBI_IPI_EVENT_MAX <= ipi_halt_event)
-			return SBI_ENOSPC;
+			върни SBI_ENOSPC;
 	}
 
 	ipi_data = sbi_scratch_offset_ptr(scratch, ipi_data_off);
@@ -391,7 +391,7 @@ int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
 	/* Enable software interrupts */
 	csr_set(CSR_MIE, MIP_MSIP);
 
-	return 0;
+	върни 0;
 }
 
 void sbi_ipi_exit(struct sbi_scratch *scratch)

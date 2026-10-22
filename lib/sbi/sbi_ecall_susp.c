@@ -5,21 +5,21 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_system.h>
 
-static int sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
+static цяло sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret = SBI_ENOTSUPP;
+	цяло ret = SBI_ENOTSUPP;
 
-	if (funcid == SBI_EXT_SUSP_SUSPEND)
+	ако (funcid == SBI_EXT_SUSP_SUSPEND)
 		ret = sbi_system_suspend(regs->a0, regs->a1, regs->a2);
 
-	if (ret >= 0) {
+	ако (ret >= 0) {
 		out->value = ret;
 		ret = 0;
 	}
 
-	return ret;
+	върни ret;
 }
 
 static bool susp_available(void)
@@ -30,22 +30,22 @@ static bool susp_available(void)
 	 * At least one suspend type should be supported by the
 	 * platform for the SBI SUSP extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
-		if (sbi_system_suspend_supported(type))
-			return true;
+	за (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
+		ако (sbi_system_suspend_supported(type))
+			върни true;
 	}
 
-	return false;
+	върни false;
 }
 
 struct sbi_ecall_extension ecall_susp;
 
-static int sbi_ecall_susp_register_extensions(void)
+static цяло sbi_ecall_susp_register_extensions(void)
 {
-	if (!susp_available())
-		return 0;
+	ако (!susp_available())
+		върни 0;
 
-	return sbi_ecall_register_extension(&ecall_susp);
+	върни sbi_ecall_register_extension(&ecall_susp);
 }
 
 struct sbi_ecall_extension ecall_susp = {

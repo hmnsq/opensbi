@@ -16,11 +16,11 @@ static void test_sbi_ecall_impid(struct sbiunit_test_case *test)
 	sbi_ecall_set_impid(old_impid);
 }
 
-static int dummy_handler(unsigned long extid, unsigned long funcid,
+static цяло dummy_handler(unsigned long extid, unsigned long funcid,
 			 struct sbi_trap_regs *regs,
 			 struct sbi_ecall_return *out)
 {
-	return 0;
+	върни 0;
 }
 
 static void test_sbi_ecall_register_find_extension(struct sbiunit_test_case *test)
@@ -66,27 +66,27 @@ static void test_sbi_ecall_get_extensions_str_bounds(struct sbiunit_test_case *t
 	char storage[16 + 16];
 	char *buf = storage;
 	char big[128];
-	int i;
-	int found_alpha = 0;
+	цяло i;
+	цяло found_alpha = 0;
 
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e1), 0);
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e2), 0);
 	SBIUNIT_EXPECT_EQ(test, sbi_ecall_register_extension(&e3), 0);
 
-	for (i = 16; i < 32; i++)
+	за (i = 16; i < 32; i++)
 		storage[i] = (char)0xA5;
 
 	/* Undersized buffer must not write past the caller-provided size. */
 	sbi_ecall_get_extensions_str(buf, 16, false);
 	SBIUNIT_EXPECT_EQ(test, buf[15], '\0');
-	for (i = 16; i < 32; i++)
+	за (i = 16; i < 32; i++)
 		SBIUNIT_EXPECT_EQ(test, (unsigned char)storage[i], 0xA5);
 
 	/* Negative control: room for the full list, including registered names. */
 	sbi_ecall_get_extensions_str(big, sizeof(big), false);
 	SBIUNIT_EXPECT_NE(test, sbi_strlen(big), 0);
-	for (i = 0; big[i] != '\0'; i++) {
-		if (sbi_strncmp(&big[i], "Alpha", 5) == 0) {
+	за (i = 0; big[i] != '\0'; i++) {
+		ако (sbi_strncmp(&big[i], "Alpha", 5) == 0) {
 			found_alpha = 1;
 			break;
 		}

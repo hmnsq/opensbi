@@ -15,15 +15,15 @@
 
 static volatile u32 *litex_soc_base;
 
-static int litex_reset_check(u32 type, u32 reason)
+static цяло litex_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+		върни 255;
 	}
 
-	return 0;
+	върни 0;
 }
 
 static void litex_do_reset(u32 type, u32 reason)
@@ -37,22 +37,22 @@ static struct sbi_system_reset_device litex_reset = {
 	.system_reset = litex_do_reset
 };
 
-static int litex_reset_init(const void *fdt, int nodeoff,
+static цяло litex_reset_init(const void *fdt, цяло nodeoff,
 			    const struct fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	цяло rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	ако (rc < 0 || !reg_addr)
+		върни SBI_ENODEV;
 
 
 	litex_soc_base = (volatile u32 *)(unsigned long)reg_addr;
 
 	sbi_system_reset_add_device(&litex_reset);
 
-	return 0;
+	върни 0;
 }
 
 static const struct fdt_match litex_reset_match[] = {

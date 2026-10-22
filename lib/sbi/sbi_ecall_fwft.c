@@ -13,11 +13,11 @@
 #include <sbi/sbi_fwft.h>
 #include <sbi/sbi_trap.h>
 
-static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
+static цяло sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
 				 struct sbi_trap_regs *regs,
 				 struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	цяло ret = 0;
 
 	switch (funcid) {
 	case SBI_EXT_FWFT_SET:
@@ -31,14 +31,14 @@ static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
 		break;
 	}
 
-	return ret;
+	върни ret;
 }
 
 struct sbi_ecall_extension ecall_fwft;
 
-static int sbi_ecall_fwft_register_extensions(void)
+static цяло sbi_ecall_fwft_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_fwft);
+	върни sbi_ecall_register_extension(&ecall_fwft);
 }
 
 struct sbi_ecall_extension ecall_fwft = {
