@@ -17,41 +17,41 @@
 #include <sbi_utils/irqchip/fdt_irqchip.h>
 #include <sbi_utils/irqchip/plic.h>
 
-static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
+static số_nguyên irqchip_plic_update_context_map(const void *fdt, số_nguyên nodeoff,
 					   struct plic_data *pd)
 {
 	const fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	số_nguyên i, err, count, cpu_offset, cpu_intc_offset;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	cho (i = 0; i < sbi_hart_count(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	nếu (!val || count < sizeof(fdt32_t))
+		trả_về SBI_EINVAL;
 	count = count / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	cho (i = 0; i < count; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
+		nếu (cpu_intc_offset < 0)
 			continue;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
+		nếu (cpu_offset < 0)
 			continue;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
+		nếu (err)
 			continue;
 
 		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
+		nếu (hartindex == -1U)
 			continue;
 
 		switch (hwirq) {
@@ -64,38 +64,38 @@ static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
 		}
 	}
 
-	return 0;
+	trả_về 0;
 }
 
-static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
+static số_nguyên irqchip_plic_cold_init(const void *fdt, số_nguyên nodeoff,
 				  const struct fdt_match *match)
 {
-	int rc;
+	số_nguyên rc;
 	struct plic_data *pd;
 
 	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
-	if (!pd)
-		return SBI_ENOMEM;
+	nếu (!pd)
+		trả_về SBI_ENOMEM;
 
 	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
-	if (rc)
+	nếu (rc)
 		goto fail_free_data;
 
 	pd->flags = (unsigned long)match->data;
 
 	rc = irqchip_plic_update_context_map(fdt, nodeoff, pd);
-	if (rc)
+	nếu (rc)
 		goto fail_free_data;
 
 	rc = plic_cold_irqchip_init(pd);
-	if (rc)
+	nếu (rc)
 		goto fail_free_data;
 
-	return 0;
+	trả_về 0;
 
 fail_free_data:
 	sbi_free(pd);
-	return rc;
+	trả_về rc;
 }
 
 static const struct fdt_match irqchip_plic_match[] = {

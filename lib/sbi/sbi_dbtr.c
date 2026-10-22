@@ -29,13 +29,13 @@ static const struct sbi_dbtr_device *dbtr_dev = NULL;
 
 const struct sbi_dbtr_device *sbi_dbtr_get_device(void)
 {
-	return dbtr_dev;
+	trả_về dbtr_dev;
 }
 
 void sbi_dbtr_set_device(const struct sbi_dbtr_device *dev)
 {
-	if (!dev || dbtr_dev)
-		return;
+	nếu (!dev || dbtr_dev)
+		trả_về;
 
 	dbtr_dev = dev;
 }
@@ -79,7 +79,7 @@ void sbi_dbtr_set_device(const struct sbi_dbtr_device *dev)
 	})
 
 #define for_each_trig_entry(_base, _max, _etype, _entry)		\
-	for (int _idx = 0; _entry = ((_etype *)_base + _idx),		\
+	cho (số_nguyên _idx = 0; _entry = ((_etype *)_base + _idx),		\
 	     _idx < _max;						\
 	     _idx++, _entry = ((_etype *)_base + _idx))
 
@@ -89,7 +89,7 @@ void sbi_dbtr_set_device(const struct sbi_dbtr_device *dev)
 static inline bool sbi_dbtr_shmem_disabled(
 	struct sbi_dbtr_hart_triggers_state *hs)
 {
-	return (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
+	trả_về (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
 		hs->shmem.phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR
 		? true : false);
 }
@@ -106,7 +106,7 @@ static inline void sbi_dbtr_disable_shmem(
 static inline void *hart_shmem_base(
 	struct sbi_dbtr_hart_triggers_state *hs)
 {
-	return ((void *)(unsigned long)DBTR_SHMEM_MAKE_PHYS(
+	trả_về ((void *)(unsigned long)DBTR_SHMEM_MAKE_PHYS(
 			hs->shmem.phys_hi, hs->shmem.phys_lo));
 }
 
@@ -125,11 +125,11 @@ static bool dbtr_trigger_hw_supported(unsigned long idx, unsigned long tdata1,
 				      unsigned long tdata2,
 				      unsigned long tdata3)
 {
-	if (dbtr_dev && dbtr_dev->trigger_supported)
-		return dbtr_dev->trigger_supported(idx, tdata1, tdata2,
+	nếu (dbtr_dev && dbtr_dev->trigger_supported)
+		trả_về dbtr_dev->trigger_supported(idx, tdata1, tdata2,
 						   tdata3);
 
-	return true;
+	trả_về true;
 }
 
 static bool dbtr_trigger_any_hw_supported(
@@ -139,17 +139,17 @@ static bool dbtr_trigger_any_hw_supported(
 {
 	unsigned long type = TDATA1_GET_TYPE(tdata1);
 	struct sbi_dbtr_trigger *trig;
-	int i;
+	số_nguyên i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
+	cho (i = 0; i < hs->total_trigs; i++) {
 		trig = INDEX_TO_TRIGGER(i);
-		if (__test_bit(type, &trig->type_mask) &&
+		nếu (__test_bit(type, &trig->type_mask) &&
 		    dbtr_trigger_hw_supported(trig->index, tdata1, tdata2,
 					      tdata3))
-			return true;
+			trả_về true;
 	}
 
-	return false;
+	trả_về false;
 }
 
 /*
@@ -158,68 +158,68 @@ static bool dbtr_trigger_any_hw_supported(
  * to track slot availability. A 32-bit mask covers RV_MAX_TRIGGERS (32);
  * for a larger number of triggers, this function needs to be updated.
  */
-static int dbtr_find_free_slot(struct sbi_dbtr_hart_triggers_state *hs,
+static số_nguyên dbtr_find_free_slot(struct sbi_dbtr_hart_triggers_state *hs,
 			       u32 claimed_mask,
 			       unsigned long tdata1, unsigned long tdata2,
 			       unsigned long tdata3)
 {
 	unsigned long type = TDATA1_GET_TYPE(tdata1);
 	struct sbi_dbtr_trigger *trig;
-	int i;
+	số_nguyên i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
+	cho (i = 0; i < hs->total_trigs; i++) {
 		trig = INDEX_TO_TRIGGER(i);
-		if (trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))
+		nếu (trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))
 			continue;
-		if (claimed_mask & BIT(i))
+		nếu (claimed_mask & BIT(i))
 			continue;
-		if (!__test_bit(type, &trig->type_mask))
+		nếu (!__test_bit(type, &trig->type_mask))
 			continue;
-		if (!dbtr_trigger_hw_supported(trig->index, tdata1,
+		nếu (!dbtr_trigger_hw_supported(trig->index, tdata1,
 					       tdata2, tdata3))
 			continue;
-		return i;
+		trả_về i;
 	}
 
-	return SBI_ENOENT;
+	trả_về SBI_ENOENT;
 }
 
 static inline struct sbi_dbtr_trigger *sbi_alloc_trigger(unsigned long tdata1,
 							 unsigned long tdata2,
 							 unsigned long tdata3)
 {
-	int i;
+	số_nguyên i;
 	struct sbi_dbtr_trigger *f_trig;
 	struct sbi_dbtr_hart_triggers_state *hart_state;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return NULL;
+	nếu (!hart_state)
+		trả_về NULL;
 
-	if (hart_state->available_trigs <= 0)
-		return NULL;
+	nếu (hart_state->available_trigs <= 0)
+		trả_về NULL;
 
 	i = dbtr_find_free_slot(hart_state, 0, tdata1, tdata2, tdata3);
-	if (i < 0)
-		return NULL;
+	nếu (i < 0)
+		trả_về NULL;
 
 	f_trig = INDEX_TO_TRIGGER(i);
 	hart_state->available_trigs--;
 	__set_bit(RV_DBTR_BIT(TS, MAPPED), &f_trig->state);
 
-	return f_trig;
+	trả_về f_trig;
 }
 
 static inline void sbi_free_trigger(struct sbi_dbtr_trigger *trig)
 {
 	struct sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (trig == NULL)
-		return;
+	nếu (trig == NULL)
+		trả_về;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return;
+	nếu (!hart_state)
+		trả_về;
 
 	trig->state = 0;
 	trig->tdata1 = 0;
@@ -229,28 +229,28 @@ static inline void sbi_free_trigger(struct sbi_dbtr_trigger *trig)
 	hart_state->available_trigs++;
 }
 
-int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
+số_nguyên sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
 {
 	struct sbi_trap_info trap = {0};
 	unsigned long tdata1;
 	unsigned long val;
-	int i;
+	số_nguyên i;
 	struct sbi_dbtr_hart_triggers_state *hart_state = NULL;
 
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return SBI_SUCCESS;
+	nếu (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		trả_về SBI_SUCCESS;
 
-	if (coldboot) {
+	nếu (coldboot) {
 		hart_state_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!hart_state_ptr_offset)
-			return SBI_ENOMEM;
+		nếu (!hart_state_ptr_offset)
+			trả_về SBI_ENOMEM;
 	}
 
 	hart_state = dbtr_get_hart_state_ptr(scratch);
-	if (!hart_state) {
+	nếu (!hart_state) {
 		hart_state = sbi_zalloc(sizeof(*hart_state));
-		if (!hart_state)
-			return SBI_ENOMEM;
+		nếu (!hart_state)
+			trả_về SBI_ENOMEM;
 		hart_state->hartid = current_hartid();
 		dbtr_set_hart_state_ptr(scratch, hart_state);
 	}
@@ -259,27 +259,27 @@ int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
 	sbi_dbtr_disable_shmem(hart_state);
 
 	/* Skip probing triggers if already probed */
-	if (hart_state->probed)
+	nếu (hart_state->probed)
 		goto _probed;
 
-	for (i = 0; i < RV_MAX_TRIGGERS; i++) {
+	cho (i = 0; i < RV_MAX_TRIGGERS; i++) {
 		csr_write_allowed(CSR_TSELECT, &trap, i);
-		if (trap.cause)
+		nếu (trap.cause)
 			break;
 
 		val = csr_read_allowed(CSR_TSELECT, &trap);
-		if (trap.cause)
+		nếu (trap.cause)
 			break;
 
 		/*
 		 * Read back tselect and check that it contains the
 		 * written value
 		 */
-		if (val != i)
+		nếu (val != i)
 			break;
 
 		val = csr_read_allowed(CSR_TINFO, &trap);
-		if (trap.cause) {
+		nếu (trap.cause) {
 			/*
 			 * If reading tinfo caused an exception, the
 			 * debugger must read tdata1 to discover the
@@ -287,18 +287,18 @@ int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
 			 */
 			tdata1 = csr_read_allowed(CSR_TDATA1,
 						  &trap);
-			if (trap.cause)
+			nếu (trap.cause)
 				break;
 
-			if (TDATA1_GET_TYPE(tdata1) == 0)
+			nếu (TDATA1_GET_TYPE(tdata1) == 0)
 				break;
 
 			sbi_trigger_init(INDEX_TO_TRIGGER(i),
 					 BIT(TDATA1_GET_TYPE(tdata1)),
 					 i);
 			hart_state->total_trigs++;
-		} else {
-			if (val == 1)
+		} không_thì {
+			nếu (val == 1)
 				break;
 
 			sbi_trigger_init(INDEX_TO_TRIGGER(i), val, i);
@@ -311,10 +311,10 @@ int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
  _probed:
 	hart_state->available_trigs = hart_state->total_trigs;
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_get_total_triggers(void)
+số_nguyên sbi_dbtr_get_total_triggers(void)
 {
 	struct sbi_dbtr_hart_triggers_state *hs;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
@@ -325,46 +325,46 @@ int sbi_dbtr_get_total_triggers(void)
 	 * initialized. If the extension is not supported, report
 	 * number of triggers as 0.
 	 */
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return 0;
+	nếu (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		trả_về 0;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return 0;
+	nếu (!hs)
+		trả_về 0;
 
-	return hs->total_trigs;
+	trả_về hs->total_trigs;
 }
 
-int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
+số_nguyên sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
 			 unsigned long shmem_phys_lo,
 			 unsigned long shmem_phys_hi)
 {
 	struct sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
+	nếu (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
 		sbi_dprintf("%s: calling hart not assigned to this domain\n",
 			   __func__);
-		return SBI_ERR_DENIED;
+		trả_về SBI_ERR_DENIED;
 	}
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return SBI_ERR_FAILED;
+	nếu (!hart_state)
+		trả_về SBI_ERR_FAILED;
 
 	/* call is to disable shared memory */
-	if (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
+	nếu (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
 	    && shmem_phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR) {
 		sbi_dbtr_disable_shmem(hart_state);
-		return SBI_SUCCESS;
+		trả_về SBI_SUCCESS;
 	}
 
 	/* the shared memory must be disabled on this hart */
-	if (!sbi_dbtr_shmem_disabled(hart_state))
-		return SBI_ERR_ALREADY_AVAILABLE;
+	nếu (!sbi_dbtr_shmem_disabled(hart_state))
+		trả_về SBI_ERR_ALREADY_AVAILABLE;
 
 	/* lower physical address must be XLEN/8 bytes aligned */
-	if (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	nếu (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_MASK)
+		trả_về SBI_ERR_INVALID_PARAM;
 
 	/*
 	* On RV32, the M-mode can only access the first 4GB of
@@ -377,18 +377,18 @@ int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
 	* So fail if the upper 64bit of the physical address
 	* is non-zero on RV64.
 	*/
-	if (shmem_phys_hi)
-		return SBI_EINVALID_ADDR;
+	nếu (shmem_phys_hi)
+		trả_về SBI_EINVALID_ADDR;
 
-	if (dom && !sbi_domain_check_addr(dom,
+	nếu (dom && !sbi_domain_check_addr(dom,
 		  DBTR_SHMEM_MAKE_PHYS(shmem_phys_hi, shmem_phys_lo), smode,
 		  SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		trả_về SBI_ERR_INVALID_ADDRESS;
 
 	hart_state->shmem.phys_lo = shmem_phys_lo;
 	hart_state->shmem.phys_hi = shmem_phys_hi;
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
 static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
@@ -396,8 +396,8 @@ static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
 {
 	unsigned long tdata1;
 
-	if (!trig)
-		return;
+	nếu (!trig)
+		trả_về;
 
 	trig->tdata1 = lle_to_cpu(recv->tdata1);
 	trig->tdata2 = lle_to_cpu(recv->tdata2);
@@ -413,36 +413,36 @@ static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
 
 	switch (TDATA1_GET_TYPE(tdata1)) {
 	case RISCV_DBTR_TRIG_MCONTROL:
-		if (__test_bit(RV_DBTR_BIT(MC, U), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC, U), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC, S), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC, S), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
 		break;
 	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (__test_bit(RV_DBTR_BIT(MC6, U), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC6, U), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, S), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC6, S), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VU), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC6, VU), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VS), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(MC6, VS), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
 		break;
 	case RISCV_DBTR_TRIG_ICOUNT:
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, U), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(ICOUNT, U), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, S), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(ICOUNT, S), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VU), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(ICOUNT, VU), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VS), &tdata1))
+		nếu (__test_bit(RV_DBTR_BIT(ICOUNT, VS), &tdata1))
 			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
 		break;
 	default:
@@ -452,11 +452,11 @@ static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
 	}
 }
 
-static inline void update_bit(unsigned long new, int nr, volatile unsigned long *addr)
+static inline void update_bit(unsigned long new, số_nguyên nr, volatile unsigned long *addr)
 {
-	if (new)
+	nếu (new)
 		__set_bit(nr, addr);
-	else
+	không_thì
 		__clear_bit(nr, addr);
 }
 
@@ -465,8 +465,8 @@ static void dbtr_trigger_enable(struct sbi_dbtr_trigger *trig)
 	unsigned long state;
 	unsigned long tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	nếu (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
+		trả_về;
 
 	state = trig->state;
 	tdata1 = trig->tdata1;
@@ -522,8 +522,8 @@ static void dbtr_trigger_disable(struct sbi_dbtr_trigger *trig)
 {
 	unsigned long tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	nếu (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
+		trả_về;
 
 	tdata1 = trig->tdata1;
 
@@ -554,8 +554,8 @@ static void dbtr_trigger_disable(struct sbi_dbtr_trigger *trig)
 
 static void dbtr_trigger_clear(struct sbi_dbtr_trigger *trig)
 {
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	nếu (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
+		trả_về;
 
 	csr_write(CSR_TSELECT, trig->index);
 	csr_write(CSR_TDATA1, 0x0);
@@ -563,67 +563,67 @@ static void dbtr_trigger_clear(struct sbi_dbtr_trigger *trig)
 	tdata_write_safe(CSR_TDATA3, 0x0);
 }
 
-static int dbtr_trigger_supported(unsigned long type)
+static số_nguyên dbtr_trigger_supported(unsigned long type)
 {
 	switch (type) {
 	case RISCV_DBTR_TRIG_MCONTROL:
 	case RISCV_DBTR_TRIG_MCONTROL6:
 	case RISCV_DBTR_TRIG_ICOUNT:
-		return 1;
+		trả_về 1;
 	default:
 		break;
 	}
 
-	return 0;
+	trả_về 0;
 }
 
-static int dbtr_trigger_valid(unsigned long type, unsigned long tdata)
+static số_nguyên dbtr_trigger_valid(unsigned long type, unsigned long tdata)
 {
 	switch (type) {
 	case RISCV_DBTR_TRIG_MCONTROL:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC, DMODE)) &&
+		nếu (!(tdata & RV_DBTR_BIT_MASK(MC, DMODE)) &&
 		    !(tdata & RV_DBTR_BIT_MASK(MC, M)))
-			return 1;
+			trả_về 1;
 		break;
 	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC6, DMODE)) &&
+		nếu (!(tdata & RV_DBTR_BIT_MASK(MC6, DMODE)) &&
 		    !(tdata & RV_DBTR_BIT_MASK(MC6, M)))
-			return 1;
+			trả_về 1;
 		break;
 	case RISCV_DBTR_TRIG_ICOUNT:
-		if (!(tdata & RV_DBTR_BIT_MASK(ICOUNT, DMODE)) &&
+		nếu (!(tdata & RV_DBTR_BIT_MASK(ICOUNT, DMODE)) &&
 		    !(tdata & RV_DBTR_BIT_MASK(ICOUNT, M)))
-			return 1;
+			trả_về 1;
 		break;
 	default:
 		break;
 	}
 
-	return 0;
+	trả_về 0;
 }
 
-int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
+số_nguyên sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
 {
 	unsigned long type = TDATA1_GET_TYPE(data);
 	u32 hartid = current_hartid();
 	unsigned long total = 0;
 	struct sbi_dbtr_trigger *trig;
-	int i;
+	số_nguyên i;
 	struct sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
-	if (data == 0) {
+	nếu (data == 0) {
 		*out = hs->total_trigs;
-		return SBI_SUCCESS;
+		trả_về SBI_SUCCESS;
 	}
 
-	for (i = 0; i < hs->total_trigs; i++) {
+	cho (i = 0; i < hs->total_trigs; i++) {
 		trig = INDEX_TO_TRIGGER(i);
 
-		if (__test_bit(type, &trig->type_mask) &&
+		nếu (__test_bit(type, &trig->type_mask) &&
 		    dbtr_trigger_hw_supported(trig->index, data, 0, 0))
 			total++;
 	}
@@ -632,10 +632,10 @@ int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
 		    __func__, hartid, type, total);
 
 	*out = total;
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_read_trig(unsigned long smode,
+số_nguyên sbi_dbtr_read_trig(unsigned long smode,
 		       unsigned long trig_idx_base, unsigned long trig_count)
 {
 	struct sbi_dbtr_data_msg *xmit;
@@ -645,15 +645,15 @@ int sbi_dbtr_read_trig(unsigned long smode,
 	struct sbi_dbtr_hart_triggers_state *hs = NULL;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
-	if (trig_idx_base >= hs->total_trigs ||
+	nếu (trig_idx_base >= hs->total_trigs ||
 	    trig_idx_base + trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+		trả_về SBI_ERR_BAD_RANGE;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	nếu (sbi_dbtr_shmem_disabled(hs))
+		trả_về SBI_ERR_NO_SHMEM;
 
 	shmem_base = hart_shmem_base(hs);
 
@@ -674,10 +674,10 @@ int sbi_dbtr_read_trig(unsigned long smode,
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 					     trig_count * sizeof(*entry));
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_install_trig(unsigned long smode,
+số_nguyên sbi_dbtr_install_trig(unsigned long smode,
 			  unsigned long trig_count, unsigned long *out)
 {
 	void *shmem_base = NULL;
@@ -686,17 +686,17 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	struct sbi_dbtr_id_msg *xmit;
 	unsigned long ctrl;
 	u32 claimed = 0;
-	int slot;
+	số_nguyên slot;
 	struct sbi_dbtr_trigger *trig;
 	struct sbi_dbtr_hart_triggers_state *hs = NULL;
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	nếu (sbi_dbtr_shmem_disabled(hs))
+		trả_về SBI_ERR_NO_SHMEM;
 
 	shmem_base = hart_shmem_base(hs);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
@@ -718,44 +718,44 @@ int sbi_dbtr_install_trig(unsigned long smode,
 		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
 		ctrl = recv->tdata1;
 
-		if (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
+		nếu (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+			trả_về SBI_ERR_FAILED;
 		}
 
-		if (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
+		nếu (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 							     trig_count * sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+			trả_về SBI_ERR_INVALID_PARAM;
 		}
 
-		if ((recv->tdata2 && !tdata2_impl) ||
+		nếu ((recv->tdata2 && !tdata2_impl) ||
 		    (recv->tdata3 && !tdata3_impl)) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			trả_về SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_any_hw_supported(hs,
+		nếu (!dbtr_trigger_any_hw_supported(hs,
 						   lle_to_cpu(recv->tdata1),
 						   lle_to_cpu(recv->tdata2),
 						   lle_to_cpu(recv->tdata3))) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			trả_về SBI_ERR_NOT_SUPPORTED;
 		}
 	}
 
-	if (hs->available_trigs < trig_count) {
+	nếu (hs->available_trigs < trig_count) {
 		*out = hs->available_trigs;
 		sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 						     trig_count * sizeof(*entry));
-		return SBI_ERR_FAILED;
+		trả_về SBI_ERR_FAILED;
 	}
 
 	/*
@@ -769,11 +769,11 @@ int sbi_dbtr_install_trig(unsigned long smode,
 					   lle_to_cpu(recv->tdata1),
 					   lle_to_cpu(recv->tdata2),
 					   lle_to_cpu(recv->tdata3));
-		if (slot < 0) {
+		nếu (slot < 0) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+			trả_về SBI_ERR_FAILED;
 		}
 		claimed |= BIT(slot);
 	}
@@ -801,10 +801,10 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
 					     trig_count * sizeof(*entry));
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_uninstall_trig(unsigned long trig_idx_base,
+số_nguyên sbi_dbtr_uninstall_trig(unsigned long trig_idx_base,
 			    unsigned long trig_idx_mask)
 {
 	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
@@ -813,23 +813,23 @@ int sbi_dbtr_uninstall_trig(unsigned long trig_idx_base,
 	struct sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
 	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
 		trig = INDEX_TO_TRIGGER(idx);
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-			return SBI_ERR_INVALID_PARAM;
+		nếu (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
+			trả_về SBI_ERR_INVALID_PARAM;
 
 		dbtr_trigger_clear(trig);
 
 		sbi_free_trigger(trig);
 	}
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
+số_nguyên sbi_dbtr_enable_trig(unsigned long trig_idx_base,
 			 unsigned long trig_idx_mask)
 {
 	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
@@ -838,8 +838,8 @@ int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
 	struct sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
 	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
 		trig = INDEX_TO_TRIGGER(idx);
@@ -847,10 +847,10 @@ int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_update_trig(unsigned long smode,
+số_nguyên sbi_dbtr_update_trig(unsigned long smode,
 			 unsigned long trig_count)
 {
 	unsigned long trig_idx;
@@ -861,16 +861,16 @@ int sbi_dbtr_update_trig(unsigned long smode,
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	nếu (sbi_dbtr_shmem_disabled(hs))
+		trả_về SBI_ERR_NO_SHMEM;
 
 	shmem_base = hart_shmem_base(hs);
 
-	if (trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+	nếu (trig_count >= hs->total_trigs)
+		trả_về SBI_ERR_BAD_RANGE;
 
 	/*
 	 * SBI v3.0 sec 19.5 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -885,30 +885,30 @@ int sbi_dbtr_update_trig(unsigned long smode,
 		sbi_hart_protection_temp_map_range((unsigned long)entry, sizeof(*entry));
 		trig_idx = entry->id.idx;
 
-		if (trig_idx >= hs->total_trigs) {
+		nếu (trig_idx >= hs->total_trigs) {
 			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+			trả_về SBI_ERR_INVALID_PARAM;
 		}
 
 		trig = INDEX_TO_TRIGGER(trig_idx);
 
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))) {
+		nếu (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))) {
 			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_FAILED;
+			trả_về SBI_ERR_FAILED;
 		}
 
-		if ((entry->data.tdata2 && !tdata2_impl) ||
+		nếu ((entry->data.tdata2 && !tdata2_impl) ||
 		    (entry->data.tdata3 && !tdata3_impl)) {
 			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			trả_về SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_hw_supported(trig->index,
+		nếu (!dbtr_trigger_hw_supported(trig->index,
 					       lle_to_cpu(entry->data.tdata1),
 					       lle_to_cpu(entry->data.tdata2),
 					       lle_to_cpu(entry->data.tdata3))) {
 			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			trả_về SBI_ERR_NOT_SUPPORTED;
 		}
 
 		dbtr_trigger_setup(trig, &entry->data);
@@ -916,10 +916,10 @@ int sbi_dbtr_update_trig(unsigned long smode,
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }
 
-int sbi_dbtr_disable_trig(unsigned long trig_idx_base,
+số_nguyên sbi_dbtr_disable_trig(unsigned long trig_idx_base,
 			  unsigned long trig_idx_mask)
 {
 	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
@@ -928,13 +928,13 @@ int sbi_dbtr_disable_trig(unsigned long trig_idx_base,
 	struct sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	nếu (!hs)
+		trả_về SBI_ERR_FAILED;
 
 	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
 		trig = INDEX_TO_TRIGGER(idx);
 		dbtr_trigger_disable(trig);
 	}
 
-	return SBI_SUCCESS;
+	trả_về SBI_SUCCESS;
 }

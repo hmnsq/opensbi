@@ -40,20 +40,20 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#define FDT_ERRTABSIZE	((số_nguyên)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+const char *fdt_strerror(số_nguyên errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
+	nếu (errval > 0)
+		trả_về "<valid offset/length>";
+	không_thì nếu (errval == 0)
+		trả_về "<no error>";
+	không_thì nếu (-errval < FDT_ERRTABSIZE) {
 		const char *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		nếu (s)
+			trả_về s;
 	}
 
-	return "<unknown error>";
+	trả_về "<unknown error>";
 }

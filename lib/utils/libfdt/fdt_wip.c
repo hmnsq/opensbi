@@ -10,85 +10,85 @@
 
 #include "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
+số_nguyên fdt_setprop_inplace_namelen_partial(void *fdt, số_nguyên nodeoffset,
+					const char *name, số_nguyên namelen,
 					uint32_t idx, const void *val,
-					int len)
+					số_nguyên len)
 {
 	void *propval;
-	int proplen;
+	số_nguyên proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	nếu (!propval)
+		trả_về proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	nếu ((unsigned)proplen < (len + idx))
+		trả_về -FDT_ERR_NOSPACE;
 
 	memcpy((char *)propval + idx, val, len);
-	return 0;
+	trả_về 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+số_nguyên fdt_setprop_inplace(void *fdt, số_nguyên nodeoffset, const char *name,
+			const void *val, số_nguyên len)
 {
 	const void *propval;
-	int proplen;
+	số_nguyên proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	nếu (!propval)
+		trả_về proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	nếu (proplen != len)
+		trả_về -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	trả_về fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+static void fdt_nop_region_(void *start, số_nguyên len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	cho (p = start; (char *)p < ((char *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+số_nguyên fdt_nop_property(void *fdt, số_nguyên nodeoffset, const char *name)
 {
 	struct fdt_property *prop;
-	int len;
+	số_nguyên len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	nếu (!prop)
+		trả_về len;
 
 	fdt_nop_region_(prop, len + sizeof(*prop));
 
-	return 0;
+	trả_về 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+số_nguyên fdt_node_end_offset_(void *fdt, số_nguyên offset)
 {
-	int depth = 0;
+	số_nguyên depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
+	trong_khi ((offset >= 0) && (depth >= 0))
 		offset = fdt_next_node(fdt, offset, &depth);
 
-	return offset;
+	trả_về offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+số_nguyên fdt_nop_node(void *fdt, số_nguyên nodeoffset)
 {
-	int endoffset;
+	số_nguyên endoffset;
 
 	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	nếu (endoffset < 0)
+		trả_về endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	trả_về 0;
 }

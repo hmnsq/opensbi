@@ -14,44 +14,44 @@ struct cache_device *cache_find(u32 id)
 	struct cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		nếu (dev->id == id)
+			trả_về dev;
 	}
 
-	return NULL;
+	trả_về NULL;
 }
 
-int cache_add(struct cache_device *dev)
+số_nguyên cache_add(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	nếu (!dev)
+		trả_về SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	nếu (cache_find(dev->id))
+		trả_về SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	trả_về SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+số_nguyên cache_flush_all(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	nếu (!dev)
+		trả_về SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	nếu (!dev->ops || !dev->ops->cache_flush_all)
+		trả_về SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	trả_về dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+số_nguyên cache_enable(struct cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	nếu (!dev)
+		trả_về SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	nếu (!dev->ops || !dev->ops->cache_enable)
+		trả_về SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	trả_về dev->ops->cache_enable(dev, enable);
 }

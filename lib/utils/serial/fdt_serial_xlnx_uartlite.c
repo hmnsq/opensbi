@@ -11,17 +11,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/xlnx_uartlite.h>
 
-static int serial_xlnx_uartlite_init(const void *fdt, int nodeoff,
+static số_nguyên serial_xlnx_uartlite_init(const void *fdt, số_nguyên nodeoff,
 				     const struct fdt_match *match)
 {
-	int rc;
+	số_nguyên rc;
 	struct platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_xlnx_uartlite_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	nếu (rc)
+		trả_về rc;
 
-	return xlnx_uartlite_init(uart.addr);
+	trả_về xlnx_uartlite_init(uart.addr);
 }
 
 static const struct fdt_match serial_xlnx_uartlite_match[] = {

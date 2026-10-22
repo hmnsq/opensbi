@@ -15,77 +15,77 @@
 /* List of FDT gpio drivers generated at compile time */
 extern const struct fdt_driver *const fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+static số_nguyên fdt_gpio_init(const void *fdt, số_nguyên nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	nếu (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
+		trả_về SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	trả_về fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
+static số_nguyên fdt_gpio_chip_find(const void *fdt, số_nguyên nodeoff,
 			      struct gpio_chip **out_chip)
 {
-	int rc;
+	số_nguyên rc;
 	struct gpio_chip *chip = gpio_chip_find(nodeoff);
 
-	if (!chip) {
+	nếu (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		nếu (rc)
+			trả_về rc;
 
 		/* Try to find GPIO chip again */
 		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		nếu (!chip)
+			trả_về SBI_ENOSYS;
 	}
 
-	if (out_chip)
+	nếu (out_chip)
 		*out_chip = chip;
 
-	return 0;
+	trả_về 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
+số_nguyên fdt_gpio_pin_get(const void *fdt, số_nguyên nodeoff, số_nguyên index,
 		     struct gpio_pin *out_pin)
 {
-	int rc;
+	số_nguyên rc;
 	const struct fdt_gpio *drv;
 	struct gpio_chip *chip = NULL;
 	struct fdt_phandle_args pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	nếu (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
+		trả_về SBI_EINVAL;
 
 	pargs.node_offset = pargs.args_count = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	nếu (rc)
+		trả_về rc;
 
 	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	nếu (rc)
+		trả_về rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	nếu (!drv || !drv->xlate)
+		trả_về SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	trả_về drv->xlate(chip, &pargs, out_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
+số_nguyên fdt_gpio_simple_xlate(struct gpio_chip *chip,
 			  const struct fdt_phandle_args *pargs,
 			  struct gpio_pin *out_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	nếu ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
+		trả_về SBI_EINVAL;
 
 	out_pin->chip = chip;
 	out_pin->offset = pargs->args[0];
 	out_pin->flags = pargs->args[1];
-	return 0;
+	trả_về 0;
 }

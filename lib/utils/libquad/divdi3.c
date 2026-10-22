@@ -33,7 +33,7 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
+#nếu defined(LIBC_SCCS) && !defined(lint)
 static char sccsid[] = "@(#)divdi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 #include <sys/cdefs.h>
@@ -49,16 +49,16 @@ quad_t
 __divdi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, uq;
-	int neg;
+	số_nguyên neg;
 
-	if (a < 0)
+	nếu (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	không_thì
 		ua = a, neg = 0;
-	if (b < 0)
+	nếu (b < 0)
 		ub = -(u_quad_t)b, neg ^= 1;
-	else
+	không_thì
 		ub = b;
 	uq = __qdivrem(ua, ub, (u_quad_t *)0);
-	return (neg ? -uq : uq);
+	trả_về (neg ? -uq : uq);
 }

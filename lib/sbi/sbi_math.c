@@ -13,11 +13,11 @@ unsigned long log2roundup(unsigned long x)
 {
 	unsigned long ret = 0;
 
-	while (ret < __riscv_xlen) {
-		if (x <= (1UL << ret))
+	trong_khi (ret < __riscv_xlen) {
+		nếu (x <= (1UL << ret))
 			break;
 		ret++;
 	}
 
-	return ret;
+	trả_về ret;
 }

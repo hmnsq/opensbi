@@ -71,7 +71,7 @@ struct CInvalidValueData {
 struct CNonNullArgData {
 	struct CSourceLocation mLocation;
 	struct CSourceLocation mAttributeLocation;
-	int mArgIndex;
+	số_nguyên mArgIndex;
 };
 
 struct CNonNullReturnData {
@@ -272,37 +272,37 @@ static bool isAlreadyReported(struct CSourceLocation *pLocation)
 	uint32_t siOldValue;
 	volatile uint32_t *pLine;
 
-	if (!pLocation)
-		return false;
+	nếu (!pLocation)
+		trả_về false;
 
 	pLine = &pLocation->mLine;
 
 	do {
 		siOldValue = *pLine;
-	} while (__sync_val_compare_and_swap(pLine, siOldValue,
+	} trong_khi (__sync_val_compare_and_swap(pLine, siOldValue,
 					     siOldValue | ACK_REPORTED) !=
 		 siOldValue);
 
-	if (!(siOldValue & ACK_REPORTED)) {
+	nếu (!(siOldValue & ACK_REPORTED)) {
 
 		sbi_ubsan_report_count++;
 
-		return false;
+		trả_về false;
 	}
 
-	return true;
+	trả_về true;
 }
 
 static void HandleOverflow(bool isFatal, struct COverflowData *pData,
 			   unsigned long ulLHS, unsigned long ulRHS,
 			   const char *szOperation)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -317,10 +317,10 @@ static void HandleOverflow(bool isFatal, struct COverflowData *pData,
 	sbi_printf("UBSan: %s integer overflow: ",
 		   is_signed ? "signed" : "unsigned");
 
-	if (is_signed) {
+	nếu (is_signed) {
 		sbi_printf("%ld %s %ld ", (long)ulLHS, szOperation,
 			   (long)ulRHS);
-	} else {
+	} không_thì {
 		sbi_printf("%lu %s %lu ", ulLHS, szOperation, ulRHS);
 	}
 
@@ -333,11 +333,11 @@ static void HandleOverflow(bool isFatal, struct COverflowData *pData,
 static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
 				 unsigned long ulOldValue)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -351,9 +351,9 @@ static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
 
 	sbi_printf("UBSan: Negation of ");
 
-	if (is_signed) {
+	nếu (is_signed) {
 		sbi_printf("%ld", (long)ulOldValue);
-	} else {
+	} không_thì {
 		sbi_printf("%lu", ulOldValue);
 	}
 
@@ -366,11 +366,11 @@ static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
 static void HandleBuiltinUnreachable(bool isFatal,
 				     struct CUnreachableData *pData)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -402,12 +402,12 @@ static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
 			       uint8_t mTypeCheckKind, unsigned long ulPointer)
 {
 
-	if ((!mLocation) || (!mType)) {
-		return;
+	nếu ((!mLocation) || (!mType)) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(mLocation)) {
-		return;
+	nếu (isAlreadyReported(mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -420,17 +420,17 @@ static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
 				   ? rgczTypeCheckKinds[mTypeCheckKind]
 				   : "access to";
 
-	if (ulPointer == 0) {
+	nếu (ulPointer == 0) {
 		sbi_printf("%s null pointer of type %s\n", kind,
 			   mType->mTypeName);
-	} else if (
+	} không_thì nếu (
 		(mLogAlignment - 1) &
 		ulPointer) { //mLogAlignment is converted on the wrapper function call
 		sbi_printf(
 			"%s misaligned address %p for type %s which requires %ld byte alignment\n",
 			kind, (void *)ulPointer, mType->mTypeName,
 			mLogAlignment);
-	} else {
+	} không_thì {
 		sbi_printf(
 			"%s address %p with insufficient space for an object of type %s\n",
 			kind, (void *)ulPointer, mType->mTypeName);
@@ -441,11 +441,11 @@ static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
 static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
 				      unsigned long ulBound)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -459,9 +459,9 @@ static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
 
 	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
 
-	if (is_signed) {
+	nếu (is_signed) {
 		sbi_printf("%ld", (long)ulBound);
-	} else {
+	} không_thì {
 		sbi_printf("%lu", ulBound);
 	}
 
@@ -473,11 +473,11 @@ static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
 static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
 			      unsigned long ulIndex)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -489,9 +489,9 @@ static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
 
 	bool is_signed = pData->mIndexType->mTypeInfo & NUMBER_SIGNED_BIT;
 
-	if (is_signed) {
+	nếu (is_signed) {
 		sbi_printf("index %ld", (long)ulIndex);
-	} else {
+	} không_thì {
 		sbi_printf("index %lu", ulIndex);
 	}
 
@@ -503,28 +503,28 @@ static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
 
 static bool isNegativeNumber(struct CTypeDescriptor *pType, unsigned long ulVal)
 {
-	if (!(pType->mTypeInfo & NUMBER_SIGNED_BIT)) {
-		return false;
+	nếu (!(pType->mTypeInfo & NUMBER_SIGNED_BIT)) {
+		trả_về false;
 	}
 
-	return (long)ulVal < 0;
+	trả_về (long)ulVal < 0;
 }
 
 static size_t type_width(struct CTypeDescriptor *pType)
 {
-	return 1UL << (pType->mTypeInfo >> 1);
+	trả_về 1UL << (pType->mTypeInfo >> 1);
 }
 
 static void HandleShiftOutOfBounds(bool isFatal,
 				   struct CShiftOutOfBoundsData *pData,
 				   unsigned long ulLHS, unsigned long ulRHS)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -534,17 +534,17 @@ static void HandleShiftOutOfBounds(bool isFatal,
 		   pData->mLocation.mLine & ~ACK_REPORTED,
 		   pData->mLocation.mColumn);
 
-	if (isNegativeNumber(pData->mRHSType, ulRHS)) {
+	nếu (isNegativeNumber(pData->mRHSType, ulRHS)) {
 		sbi_printf("shift exponent %ld is negative\n", (long)ulRHS);
-	} else if (ulRHS >= type_width(pData->mLHSType)) {
+	} không_thì nếu (ulRHS >= type_width(pData->mLHSType)) {
 		sbi_printf(
 			"shift exponent %lu is too large for %lu-bit type %s\n",
 			ulRHS, (unsigned long)type_width(pData->mLHSType),
 			pData->mLHSType->mTypeName);
 
-	} else if (isNegativeNumber(pData->mLHSType, ulLHS)) {
+	} không_thì nếu (isNegativeNumber(pData->mLHSType, ulLHS)) {
 		sbi_printf("left shift of negative value %ld\n", (long)ulLHS);
-	} else {
+	} không_thì {
 		sbi_printf(
 			"left shift of %lu by %lu places cannot be represented in type %s\n",
 			ulLHS, ulRHS, pData->mLHSType->mTypeName);
@@ -557,12 +557,12 @@ static void HandleLoadInvalidValue(bool isFatal,
 				   struct CInvalidValueData *pData,
 				   unsigned long ulValue)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -576,9 +576,9 @@ static void HandleLoadInvalidValue(bool isFatal,
 
 	sbi_printf("load of value ");
 
-	if (is_signed) {
+	nếu (is_signed) {
 		sbi_printf("%ld ", (long)ulValue);
-	} else {
+	} không_thì {
 		sbi_printf("%lu ", ulValue);
 	}
 
@@ -593,12 +593,12 @@ const char *rgczBuiltinCheckKinds[] = { "ctz()", "clz()" };
 static void HandleInvalidBuiltin(bool isFatal,
 				 struct CInvalidBuiltinData *pData)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -623,12 +623,12 @@ static void HandleFunctionTypeMismatch(bool isFatal,
 				       struct CFunctionTypeMismatchData *pData,
 				       unsigned long ulFunction)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -647,12 +647,12 @@ static void HandleFunctionTypeMismatch(bool isFatal,
 
 static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -672,12 +672,12 @@ static void HandlePointerOverflow(bool isFatal,
 				  struct CPointerOverflowData *pData,
 				  unsigned long ulBase, unsigned long ulResult)
 {
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -700,12 +700,12 @@ static void HandleAlignmentAssumption(bool isFatal,
 				      unsigned long ulOffset)
 {
 
-	if (!pData) {
-		return;
+	nếu (!pData) {
+		trả_về;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	nếu (isAlreadyReported(&pData->mLocation)) {
+		trả_về;
 	}
 
 	SEPARATOR;
@@ -719,7 +719,7 @@ static void HandleAlignmentAssumption(bool isFatal,
 	sbi_printf("alignment assumption of %lu for pointer %p (offset %p)",
 		   ulAlignment, (void *)ulRealPointer, (void *)ulOffset);
 
-	if (pData->mAssumptionLocation.mFilename != NULL) {
+	nếu (pData->mAssumptionLocation.mFilename != NULL) {
 		sbi_printf(", assumption made in %s:%u:%u",
 			   pData->mAssumptionLocation.mFilename,
 			   pData->mAssumptionLocation.mLine,

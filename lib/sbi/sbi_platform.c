@@ -15,8 +15,8 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 {
 	char *fstr = NULL;
 
-	if (!feature)
-		return NULL;
+	nếu (!feature)
+		trả_về NULL;
 
 	switch (feature) {
 	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
@@ -26,48 +26,48 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 		break;
 	}
 
-	return fstr;
+	trả_về fstr;
 }
 
 void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+				   char *features_str, số_nguyên nfstr)
 {
 	unsigned long features, feat = 1UL;
 	char *temp;
-	int offset = 0;
+	số_nguyên offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	nếu (!plat || !features_str || !nfstr)
+		trả_về;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
+	nếu (!features)
 		goto done;
 
 	do {
-		if (features & feat) {
+		nếu (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			nếu (temp) {
+				số_nguyên len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
+				nếu (len < 0)
 					break;
 
-				if (offset + len >= nfstr) {
+				nếu (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
 					break;
-				} else
+				} không_thì
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} trong_khi (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	nếu (offset)
 		features_str[offset - 1] = '\0';
-	else
+	không_thì
 		sbi_strncpy(features_str, "none", nfstr);
 }

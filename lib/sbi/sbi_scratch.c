@@ -32,29 +32,29 @@ static unsigned long sbi_get_scratch_alloc_align(void)
 {
 	const struct sbi_platform *plat = sbi_platform_thishart_ptr();
 
-	if (!plat || !plat->cbom_block_size)
-		return DEFAULT_SCRATCH_ALLOC_ALIGN;
-	return plat->cbom_block_size;
+	nếu (!plat || !plat->cbom_block_size)
+		trả_về DEFAULT_SCRATCH_ALLOC_ALIGN;
+	trả_về plat->cbom_block_size;
 }
 
 u32 sbi_hartid_to_hartindex(u32 hartid)
 {
 	sbi_for_each_hartindex(i)
-		if (hartindex_to_hartid_table[i] == hartid)
-			return i;
+		nếu (hartindex_to_hartid_table[i] == hartid)
+			trả_về i;
 
-	return -1U;
+	trả_về -1U;
 }
 
 typedef struct sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
 
-int sbi_scratch_init(struct sbi_scratch *scratch)
+số_nguyên sbi_scratch_init(struct sbi_scratch *scratch)
 {
 	u32 h, hart_count;
 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
 
 	hart_count = plat->hart_count;
-	if (hart_count > SBI_HARTMASK_MAX_BITS)
+	nếu (hart_count > SBI_HARTMASK_MAX_BITS)
 		hart_count = SBI_HARTMASK_MAX_BITS;
 	sbi_scratch_hart_count = hart_count;
 
@@ -65,7 +65,7 @@ int sbi_scratch_init(struct sbi_scratch *scratch)
 			((hartid2scratch)scratch->hartid_to_scratch)(h, i);
 	}
 
-	return 0;
+	trả_về 0;
 }
 
 unsigned long sbi_scratch_alloc_offset(unsigned long size)
@@ -84,8 +84,8 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 	 * will allow us to re-claim free-ed space.
 	 */
 
-	if (!size)
-		return 0;
+	nếu (!size)
+		trả_về 0;
 
 	scratch_alloc_align = sbi_get_scratch_alloc_align();
 
@@ -98,7 +98,7 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 
 	spin_lock(&extra_lock);
 
-	if (SBI_SCRATCH_SIZE < (extra_offset + size))
+	nếu (SBI_SCRATCH_SIZE < (extra_offset + size))
 		goto done;
 
 	ret = extra_offset;
@@ -107,24 +107,24 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 done:
 	spin_unlock(&extra_lock);
 
-	if (ret) {
+	nếu (ret) {
 		sbi_for_each_hartindex(i) {
 			rscratch = sbi_hartindex_to_scratch(i);
-			if (!rscratch)
+			nếu (!rscratch)
 				continue;
 			ptr = sbi_scratch_offset_ptr(rscratch, ret);
 			sbi_memset(ptr, 0, size);
 		}
 	}
 
-	return ret;
+	trả_về ret;
 }
 
 void sbi_scratch_free_offset(unsigned long offset)
 {
-	if ((offset < SBI_SCRATCH_EXTRA_SPACE_OFFSET) ||
+	nếu ((offset < SBI_SCRATCH_EXTRA_SPACE_OFFSET) ||
 	    (SBI_SCRATCH_SIZE <= offset))
-		return;
+		trả_về;
 
 	/*
 	 * We don't actually free-up because it's a simple
@@ -140,5 +140,5 @@ unsigned long sbi_scratch_used_space(void)
 	ret = extra_offset;
 	spin_unlock(&extra_lock);
 
-	return ret;
+	trả_về ret;
 }

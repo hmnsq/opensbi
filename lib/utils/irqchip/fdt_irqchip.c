@@ -12,7 +12,7 @@
 /* List of FDT irqchip drivers generated at compile time */
 extern const struct fdt_driver *const fdt_irqchip_drivers[];
 
-int fdt_irqchip_init(void)
+số_nguyên fdt_irqchip_init(void)
 {
-	return fdt_driver_init_all(fdt_get_address(), fdt_irqchip_drivers);
+	trả_về fdt_driver_init_all(fdt_get_address(), fdt_irqchip_drivers);
 }

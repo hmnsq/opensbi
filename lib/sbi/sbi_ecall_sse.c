@@ -3,11 +3,11 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_sse.h>
 
-static int sbi_ecall_sse_handler(unsigned long extid, unsigned long funcid,
+static số_nguyên sbi_ecall_sse_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret;
+	số_nguyên ret;
 
 	switch (funcid) {
 	case SBI_EXT_SSE_READ_ATTR:
@@ -45,14 +45,14 @@ static int sbi_ecall_sse_handler(unsigned long extid, unsigned long funcid,
 	default:
 		ret = SBI_ENOTSUPP;
 	}
-	return ret;
+	trả_về ret;
 }
 
 struct sbi_ecall_extension ecall_sse;
 
-static int sbi_ecall_sse_register_extensions(void)
+static số_nguyên sbi_ecall_sse_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_sse);
+	trả_về sbi_ecall_register_extension(&ecall_sse);
 }
 
 struct sbi_ecall_extension ecall_sse = {

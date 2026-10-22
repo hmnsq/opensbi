@@ -10,306 +10,306 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static số_nguyên fdt_nodename_eq_(const void *fdt, số_nguyên offset,
+			    const char *s, số_nguyên len)
 {
-	int olen;
+	số_nguyên olen;
 	const char *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	nếu (!p || olen < len)
 		/* short match */
-		return 0;
+		trả_về 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	nếu (memcmp(p, s, len) != 0)
+		trả_về 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	nếu (p[len] == '\0')
+		trả_về 1;
+	không_thì nếu (!memchr(s, '@', len) && (p[len] == '@'))
+		trả_về 1;
+	không_thì
+		trả_về 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const char *fdt_get_string(const void *fdt, số_nguyên stroffset, số_nguyên *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
+	số_nguyên err;
 	const char *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
+	nếu (can_assume(VALID_INPUT)) {
 		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		nếu (lenp)
 			*lenp = strlen(s);
-		return s;
+		trả_về s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	nếu (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	nếu (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	nếu (fdt_magic(fdt) == FDT_MAGIC) {
+		nếu (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		nếu (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			nếu ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			nếu ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} không_thì nếu (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned số_nguyên sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		nếu ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		nếu (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} không_thì {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
 	s = (const char *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	nếu (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	nếu (lenp)
 		*lenp = n - s;
-	return s;
+	trả_về s;
 
 fail:
-	if (lenp)
+	nếu (lenp)
 		*lenp = err;
-	return NULL;
+	trả_về NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const char *fdt_string(const void *fdt, số_nguyên stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	trả_về fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static số_nguyên fdt_string_eq_(const void *fdt, số_nguyên stroffset,
+			  const char *s, số_nguyên len)
 {
-	int slen;
+	số_nguyên slen;
 	const char *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	trả_về p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+số_nguyên fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	số_nguyên offset = -1;
 
-	while (true) {
+	trong_khi (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
+		nếu (offset < 0) {
+			nếu (offset == -FDT_ERR_NOTFOUND)
 				break;
 
-			return offset;
+			trả_về offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		nếu (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	nếu (phandle)
 		*phandle = max;
 
-	return 0;
+	trả_về 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+số_nguyên fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	số_nguyên err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	nếu (err < 0)
+		trả_về err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	nếu (max == FDT_MAX_PHANDLE)
+		trả_về -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	nếu (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	trả_về 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, số_nguyên n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned số_nguyên offset = n * sizeof(struct fdt_reserve_entry);
+	unsigned số_nguyên absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
+	nếu (!can_assume(VALID_INPUT)) {
+		nếu (absoffset < fdt_off_mem_rsvmap(fdt))
+			trả_về NULL;
+		nếu (absoffset > fdt_totalsize(fdt) -
 		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+			trả_về NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	trả_về fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+số_nguyên fdt_get_mem_rsv(const void *fdt, số_nguyên n, uint64_t *address, uint64_t *size)
 {
 	const struct fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	nếu (!can_assume(VALID_INPUT) && !re)
+		trả_về -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	trả_về 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+số_nguyên fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
+	số_nguyên i;
 	const struct fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	cho (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		nếu (fdt64_ld_(&re->size) == 0)
+			trả_về i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	trả_về -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static số_nguyên nextprop_(const void *fdt, số_nguyên offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	số_nguyên nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
 		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+			nếu (nextoffset >= 0)
+				trả_về -FDT_ERR_BADSTRUCTURE;
+			không_thì
+				trả_về nextoffset;
 
 		case FDT_PROP:
-			return offset;
+			trả_về offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} trong_khi (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	trả_về -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+số_nguyên fdt_subnode_offset_namelen(const void *fdt, số_nguyên offset,
+			       const char *name, số_nguyên namelen)
 {
-	int depth;
+	số_nguyên depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	cho (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		nếu ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			trả_về offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	nếu (depth < 0)
+		trả_về -FDT_ERR_NOTFOUND;
+	trả_về offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
+số_nguyên fdt_subnode_offset(const void *fdt, số_nguyên parentoffset,
 		       const char *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	trả_về fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+số_nguyên fdt_path_offset_namelen(const void *fdt, const char *path, số_nguyên namelen)
 {
 	const char *end = path + namelen;
 	const char *p = path;
-	int offset = 0;
+	số_nguyên offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
+	nếu (*path != '/') {
 		const char *q = memchr(path, '/', end - p);
 
-		if (!q)
+		nếu (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		nếu (!p)
+			trả_về -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
+	trong_khi (p < end) {
 		const char *q;
 
-		while (*p == '/') {
+		trong_khi (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			nếu (p == end)
+				trả_về offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		nếu (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		nếu (offset < 0)
+			trả_về offset;
 
 		p = q;
 	}
 
-	return offset;
+	trả_về offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+số_nguyên fdt_path_offset(const void *fdt, const char *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	trả_về fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const char *fdt_get_name(const void *fdt, số_nguyên nodeoffset, số_nguyên *len)
 {
 	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	const char *nameptr;
-	int err;
+	số_nguyên err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	nếu (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	nếu (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
@@ -317,254 +317,254 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 		 */
 		const char *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		nếu (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	nếu (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	trả_về nameptr;
 
  fail:
-	if (len)
+	nếu (len)
 		*len = err;
-	return NULL;
+	trả_về NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+số_nguyên fdt_first_property_offset(const void *fdt, số_nguyên nodeoffset)
 {
-	int offset;
+	số_nguyên offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	nếu ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		trả_về offset;
 
-	return nextprop_(fdt, offset);
+	trả_về nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+số_nguyên fdt_next_property_offset(const void *fdt, số_nguyên offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	nếu ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		trả_về offset;
 
-	return nextprop_(fdt, offset);
+	trả_về nextprop_(fdt, offset);
 }
 
 static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+						              số_nguyên offset,
+						              số_nguyên *lenp)
 {
-	int err;
+	số_nguyên err;
 	const struct fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	nếu (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		nếu (lenp)
 			*lenp = err;
-		return NULL;
+		trả_về NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	nếu (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	trả_về prop;
 }
 
 const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+						      số_nguyên offset,
+						      số_nguyên *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	nếu (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		nếu (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		trả_về NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	trả_về fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
 static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
+						            số_nguyên offset,
 						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+						            số_nguyên namelen,
+							    số_nguyên *lenp,
+							    số_nguyên *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	cho (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
 		const struct fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		nếu (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		nếu (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			nếu (poffset)
 				*poffset = offset;
-			return prop;
+			trả_về prop;
 		}
 	}
 
-	if (lenp)
+	nếu (lenp)
 		*lenp = offset;
-	return NULL;
+	trả_về NULL;
 }
 
 
 const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
+						    số_nguyên offset,
 						    const char *name,
-						    int namelen, int *lenp)
+						    số_nguyên namelen, số_nguyên *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	nếu (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		nếu (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		trả_về NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	trả_về fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
 const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+					    số_nguyên nodeoffset,
+					    const char *name, số_nguyên *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	trả_về fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, số_nguyên nodeoffset,
+				const char *name, số_nguyên namelen, số_nguyên *lenp)
 {
-	int poffset;
+	số_nguyên poffset;
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	nếu (!prop)
+		trả_về NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	nếu (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		trả_về prop->data + 4;
+	trả_về prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, số_nguyên offset,
+				  const char **namep, số_nguyên *lenp)
 {
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
+	nếu (!prop)
+		trả_về NULL;
+	nếu (namep) {
 		const char *name;
-		int namelen;
+		số_nguyên namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		nếu (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			nếu (!name) {
+				nếu (lenp)
 					*lenp = namelen;
-				return NULL;
+				trả_về NULL;
 			}
 			*namep = name;
-		} else {
+		} không_thì {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	nếu (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		trả_về prop->data + 4;
+	trả_về prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, số_nguyên nodeoffset,
+			const char *name, số_nguyên *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	trả_về fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, số_nguyên nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	số_nguyên len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	nếu (!php || (len != sizeof(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		nếu (!php || (len != sizeof(*php)))
+			trả_về 0;
 	}
 
-	return fdt32_ld_(php);
+	trả_về fdt32_ld_(php);
 }
 
 const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+				  const char *name, số_nguyên namelen)
 {
-	int aliasoffset;
+	số_nguyên aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	nếu (aliasoffset < 0)
+		trả_về NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	trả_về fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
 const char *fdt_get_alias(const void *fdt, const char *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	trả_về fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+số_nguyên fdt_get_path(const void *fdt, số_nguyên nodeoffset, char *buf, số_nguyên buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
+	số_nguyên pdepth = 0, p = 0;
+	số_nguyên offset, depth, namelen;
 	const char *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	nếu (buflen < 2)
+		trả_về -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	cho (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		trong_khi (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} trong_khi (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		nếu (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			nếu (!name)
+				trả_về namelen;
+			nếu ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		nếu (offset == nodeoffset) {
+			nếu (pdepth < (depth + 1))
+				trả_về -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			nếu (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			trả_về 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	nếu ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		trả_về -FDT_ERR_BADOFFSET;
+	không_thì nếu (offset == -FDT_ERR_BADOFFSET)
+		trả_về -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	trả_về offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+số_nguyên fdt_supernode_atdepth_offset(const void *fdt, số_nguyên nodeoffset,
+				 số_nguyên supernodedepth, số_nguyên *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	số_nguyên offset, depth;
+	số_nguyên supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	nếu (supernodedepth < 0)
+		trả_về -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	cho (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		nếu (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		nếu (offset == nodeoffset) {
+			nếu (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			nếu (supernodedepth > depth)
+				trả_về -FDT_ERR_NOTFOUND;
+			không_thì
+				trả_về supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	nếu (!can_assume(VALID_INPUT)) {
+		nếu ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			trả_về -FDT_ERR_BADOFFSET;
+		không_thì nếu (offset == -FDT_ERR_BADOFFSET)
+			trả_về -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	trả_về offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+số_nguyên fdt_node_depth(const void *fdt, số_nguyên nodeoffset)
 {
-	int nodedepth;
-	int err;
+	số_nguyên nodedepth;
+	số_nguyên err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	nếu (err)
+		trả_về (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	trả_về nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+số_nguyên fdt_parent_offset(const void *fdt, số_nguyên nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	số_nguyên nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	nếu (nodedepth < 0)
+		trả_về nodedepth;
+	trả_về fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+số_nguyên fdt_node_offset_by_prop_value(const void *fdt, số_nguyên startoffset,
 				  const char *propname,
-				  const void *propval, int proplen)
+				  const void *propval, số_nguyên proplen)
 {
-	int offset;
+	số_nguyên offset;
 	const void *val;
-	int len;
+	số_nguyên len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	cho (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		nếu (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			trả_về offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	trả_về offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+số_nguyên fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	số_nguyên offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	nếu ((phandle == 0) || (phandle == ~0U))
+		trả_về -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	cho (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		nếu (fdt_get_phandle(fdt, offset) == phandle)
+			trả_về offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	trả_về offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+số_nguyên fdt_stringlist_contains(const char *strlist, số_nguyên listlen, const char *str)
 {
-	int len = strlen(str);
+	số_nguyên len = strlen(str);
 	const char *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	trong_khi (listlen >= len) {
+		nếu (memcmp(str, strlist, len+1) == 0)
+			trả_về 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		nếu (!p)
+			trả_về 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	trả_về 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+số_nguyên fdt_stringlist_count(const void *fdt, số_nguyên nodeoffset, const char *property)
 {
 	const char *list, *end;
-	int length, count = 0;
+	số_nguyên length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	nếu (!list)
+		trả_về length;
 
 	end = list + length;
 
-	while (list < end) {
+	trong_khi (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		nếu (list + length > end)
+			trả_về -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	trả_về count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+số_nguyên fdt_stringlist_search(const void *fdt, số_nguyên nodeoffset, const char *property,
 			  const char *string)
 {
-	int length, len, idx = 0;
+	số_nguyên length, len, idx = 0;
 	const char *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	nếu (!list)
+		trả_về length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	trong_khi (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		nếu (list + length > end)
+			trả_về -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		nếu (length == len && memcmp(list, string, length) == 0)
+			trả_về idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	trả_về -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const char *fdt_stringlist_get(const void *fdt, số_nguyên nodeoffset,
+			       const char *property, số_nguyên idx,
+			       số_nguyên *lenp)
 {
 	const char *list, *end;
-	int length;
+	số_nguyên length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	nếu (!list) {
+		nếu (lenp)
 			*lenp = length;
 
-		return NULL;
+		trả_về NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	trong_khi (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		nếu (list + length > end) {
+			nếu (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			trả_về NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		nếu (idx == 0) {
+			nếu (lenp)
 				*lenp = length - 1;
 
-			return list;
+			trả_về list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	nếu (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	trả_về NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+số_nguyên fdt_node_check_compatible(const void *fdt, số_nguyên nodeoffset,
 			      const char *compatible)
 {
 	const void *prop;
-	int len;
+	số_nguyên len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	nếu (!prop)
+		trả_về len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	trả_về !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+số_nguyên fdt_node_offset_by_compatible(const void *fdt, số_nguyên startoffset,
 				  const char *compatible)
 {
-	int offset, err;
+	số_nguyên offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	cho (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		nếu ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			trả_về err;
+		không_thì nếu (err == 0)
+			trả_về offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	trả_về offset; /* error from fdt_next_node() */
 }

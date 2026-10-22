@@ -15,57 +15,57 @@
 /* List of FDT regmap drivers generated at compile time */
 extern const struct fdt_driver *const fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
+static số_nguyên fdt_regmap_find(const void *fdt, số_nguyên nodeoff,
 			   struct regmap **out_rmap)
 {
-	int rc;
+	số_nguyên rc;
 	struct regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	nếu (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		nếu (rc)
+			trả_về rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		nếu (!rmap)
+			trả_về SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	nếu (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	trả_về 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
+số_nguyên fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
 			      struct regmap **out_rmap)
 {
-	int pnodeoff;
+	số_nguyên pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	nếu (!fdt || !out_rmap)
+		trả_về SBI_EINVAL;
 
 	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	nếu (pnodeoff < 0)
+		trả_về pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	trả_về fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+số_nguyên fdt_regmap_get(const void *fdt, số_nguyên nodeoff, struct regmap **out_rmap)
 {
-	int len;
+	số_nguyên len;
 	const fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	nếu (!fdt || (nodeoff < 0) || !out_rmap)
+		trả_về SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	nếu (!val)
+		trả_về SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	trả_về fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }

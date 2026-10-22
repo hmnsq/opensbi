@@ -42,16 +42,16 @@ bool atcsmu_support_sleep_mode(u32 sleep_type, u32 hartid)
 		sleep_mode = "deep sleep";
 		break;
 	default:
-		return false;
+		trả_về false;
 	}
 
-	if (!EXTRACT_FIELD(pcs_cfg, mask)) {
+	nếu (!EXTRACT_FIELD(pcs_cfg, mask)) {
 		sbi_printf("ATCSMU: hart%d (PCS%d) does not support %s mode\n",
 			   hartid, hartid + 3, sleep_mode);
-		return false;
+		trả_về false;
 	}
 
-	return true;
+	trả_về true;
 }
 
 void atcsmu_set_command(u32 pcs_ctl, u32 hartid)
@@ -59,7 +59,7 @@ void atcsmu_set_command(u32 pcs_ctl, u32 hartid)
 	writel(pcs_ctl, (char *)atcsmu_base + PCSm_CTL_OFFSET(hartid));
 }
 
-int atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
+số_nguyên atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
 {
 	u32 vec_lo;
 	u32 vec_hi;
@@ -70,18 +70,18 @@ int atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
 	vec_lo = readl((char *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
 	vec_hi = readl((char *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
 	reset_vector = (u64)vec_hi << 32 | vec_lo;
-	if (reset_vector != wakeup_addr) {
+	nếu (reset_vector != wakeup_addr) {
 		sbi_printf("ATCSMU: hart%d (PCS%d): failed to program the reset vector\n",
 			   hartid, hartid + 3);
-		return SBI_EFAIL;
+		trả_về SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	trả_về SBI_OK;
 }
 
 u32 atcsmu_get_sleep_type(u32 hartid)
 {
-	return readl_relaxed((char *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
+	trả_về readl_relaxed((char *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
 }
 
 void atcsmu_write_scratch(u32 value)
@@ -91,7 +91,7 @@ void atcsmu_write_scratch(u32 value)
 
 u32 atcsmu_read_scratch(void)
 {
-	return readl_relaxed((char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	trả_về readl_relaxed((char *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
 bool atcsmu_hart_is_sleep(void *opaque)
@@ -103,47 +103,47 @@ bool atcsmu_hart_is_sleep(void *opaque)
 	u32 pd_status = arg->deep_sleep ? PD_STATUS_DEEP_SLEEP :
 					  PD_STATUS_LIGHT_SLEEP;
 
-	return EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
+	trả_về EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
 	       EXTRACT_FIELD(pcs_status, PD_STATUS_MASK) == pd_status;
 }
 
-static int ae350_hart_start(u32 hartid, ulong saddr)
+static số_nguyên ae350_hart_start(u32 hartid, ulong saddr)
 {
 	u32 hartindex = sbi_hartid_to_hartindex(hartid);
 
-	return sbi_ipi_raw_send(hartindex, false);
+	trả_về sbi_ipi_raw_send(hartindex, false);
 }
 
-static int ae350_hart_stop(void)
+static số_nguyên ae350_hart_stop(void)
 {
 	u32 hartid = current_hartid();
 	u32 sleep_type = atcsmu_get_sleep_type(hartid);
-	int rc;
+	số_nguyên rc;
 
 	/*
 	 * For Andes AX25MP, the hart0 shares power domain with the last level
 	 * cache. Instead of turning it off, it should fall through and jump to
 	 * warmboot_addr.
 	 */
-	if (is_andes(25) && hartid == 0)
-		return SBI_ENOTSUPP;
+	nếu (is_andes(25) && hartid == 0)
+		trả_về SBI_ENOTSUPP;
 
-	if (!atcsmu_support_sleep_mode(sleep_type, hartid))
-		return SBI_ENOTSUPP;
+	nếu (!atcsmu_support_sleep_mode(sleep_type, hartid))
+		trả_về SBI_ENOTSUPP;
 
 	/* Prevent the core leaving the WFI mode unexpectedly */
 	csr_write(CSR_MIE, 0);
 
 	atcsmu_set_wakeup_events(PCS_WAKEUP_MSIP_MASK | PCS_WAKEUP_MEIP_MASK, hartid);
-	if (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
+	nếu (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
 		/* Clock-gated only: needs MSI or MEI set to resume past the WFI */
 		csr_set(CSR_MIE, MIP_MSIP | MIP_MEIP);
 		atcsmu_set_command(LIGHT_SLEEP_CMD, hartid);
-	} else if (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
+	} không_thì nếu (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
 		/* Power-gated: SMU wakes it via cold reset, interrupts not needed */
 		rc = atcsmu_set_reset_vector((ulong)ae350_enable_coherency_warmboot, hartid);
-		if (rc)
-			return SBI_EFAIL;
+		nếu (rc)
+			trả_về SBI_EFAIL;
 
 		ae350_non_ret_save(sbi_scratch_thishart_ptr());
 		atcsmu_set_command(DEEP_SLEEP_CMD, hartid);
@@ -155,7 +155,7 @@ static int ae350_hart_stop(void)
 	/* Light sleep resumes here */
 	ae350_enable_coherency();
 
-	return SBI_ENOTSUPP;
+	trả_về SBI_ENOTSUPP;
 }
 
 static const struct sbi_hsm_device hsm_andes_atcsmu = {
@@ -164,32 +164,32 @@ static const struct sbi_hsm_device hsm_andes_atcsmu = {
 	.hart_stop = ae350_hart_stop,
 };
 
-static int hsm_andes_atcsmu_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static số_nguyên hsm_andes_atcsmu_probe(const void *fdt, số_nguyên nodeoff, const struct fdt_match *match)
 {
-	int poff, rc;
+	số_nguyên poff, rc;
 	u64 addr, size;
 
 	/* Need to find the parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	nếu (poff < 0)
+		trả_về SBI_EINVAL;
 
 	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, &size);
-	if (rc < 0 || !addr || !size)
-		return SBI_ENODEV;
+	nếu (rc < 0 || !addr || !size)
+		trả_về SBI_ENODEV;
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+	nếu (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
 		rc = sbi_domain_root_add_memrange(
 			(unsigned long)addr, (unsigned long)size, PAGE_SIZE,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		nếu (rc)
+			trả_về rc;
 	}
 
 	atcsmu_base = addr;
 	sbi_hsm_set_device(&hsm_andes_atcsmu);
-	return 0;
+	trả_về 0;
 }
 
 static const struct fdt_match hsm_andes_atcsmu_match[] = {

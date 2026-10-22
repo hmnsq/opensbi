@@ -15,35 +15,35 @@
 /* List of FDT serial drivers generated at compile time */
 extern const struct fdt_driver *const fdt_serial_drivers[];
 
-int fdt_serial_init(const void *fdt)
+số_nguyên fdt_serial_init(const void *fdt)
 {
 	const void *prop;
-	int noff = -1, len, coff, rc;
+	số_nguyên noff = -1, len, coff, rc;
 
 	/* Find offset of node pointed to by stdout-path */
 	coff = fdt_path_offset(fdt, "/chosen");
-	if (-1 < coff) {
+	nếu (-1 < coff) {
 		prop = fdt_getprop(fdt, coff, "stdout-path", &len);
-		if (prop && len) {
+		nếu (prop && len) {
 			const char *sep, *start = prop;
 
 			/* The device path may be followed by ':' */
 			sep = strchr(start, ':');
-			if (sep)
+			nếu (sep)
 				noff = fdt_path_offset_namelen(fdt, prop,
 							       sep - start);
-			else
+			không_thì
 				noff = fdt_path_offset(fdt, prop);
 		}
 	}
 
 	/* First check DT node pointed by stdout-path */
-	if (-1 < noff) {
+	nếu (-1 < noff) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_serial_drivers);
-		if (rc != SBI_ENODEV)
-			return rc;
+		nếu (rc != SBI_ENODEV)
+			trả_về rc;
 	}
 
 	/* Lastly check all DT nodes */
-	return fdt_driver_init_one(fdt, fdt_serial_drivers);
+	trả_về fdt_driver_init_one(fdt, fdt_serial_drivers);
 }

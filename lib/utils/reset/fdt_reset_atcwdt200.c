@@ -42,22 +42,22 @@
 
 static volatile char *wdt_addr = NULL;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+static số_nguyên ae350_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
+		trả_về 1;
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
 	default:
-		return 0;
+		trả_về 0;
 	}
 }
 
 static void ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
+		nếu (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
 			goto fail;
 
 	/* Program WDT control register  */
@@ -75,20 +75,20 @@ static struct sbi_system_reset_device atcwdt200_reset = {
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
+static số_nguyên atcwdt200_reset_init(const void *fdt, số_nguyên nodeoff,
 				const struct fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	số_nguyên rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	nếu (rc < 0 || !reg_addr)
+		trả_về SBI_ENODEV;
 
 	wdt_addr = (volatile char *)(unsigned long)reg_addr;
 	sbi_system_reset_add_device(&atcwdt200_reset);
 
-	return 0;
+	trả_về 0;
 }
 
 static const struct fdt_match atcwdt200_reset_match[] = {

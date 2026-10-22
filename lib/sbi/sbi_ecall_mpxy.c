@@ -13,11 +13,11 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_mpxy.h>
 
-static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
+static số_nguyên sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	số_nguyên ret = 0;
 
 	switch (funcid) {
 	case SBI_EXT_MPXY_GET_SHMEM_SIZE:
@@ -50,17 +50,17 @@ static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	trả_về ret;
 }
 
 struct sbi_ecall_extension ecall_mpxy;
 
-static int sbi_ecall_mpxy_register_extensions(void)
+static số_nguyên sbi_ecall_mpxy_register_extensions(void)
 {
-	if (!sbi_mpxy_channel_available())
-		return 0;
+	nếu (!sbi_mpxy_channel_available())
+		trả_về 0;
 
-	return sbi_ecall_register_extension(&ecall_mpxy);
+	trả_về sbi_ecall_register_extension(&ecall_mpxy);
 }
 
 struct sbi_ecall_extension ecall_mpxy = {

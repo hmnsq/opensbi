@@ -36,14 +36,14 @@ static const u64 cpu_idle_reg[] = {
 
 static inline void spacemit_set_cpu_power(u32 hartid, bool enable)
 {
-	unsigned int value;
-	unsigned int *cpu_idle_base = (unsigned int *)(unsigned long)cpu_idle_reg[hartid];
+	unsigned số_nguyên value;
+	unsigned số_nguyên *cpu_idle_base = (unsigned số_nguyên *)(unsigned long)cpu_idle_reg[hartid];
 
 	value = readl(cpu_idle_base);
 
-	if (enable)
+	nếu (enable)
 		value &= ~PMU_AP_IDLE_PWRDOWN_MASK;
-	else
+	không_thì
 		value |= PMU_AP_IDLE_PWRDOWN_MASK;
 
 	writel(value, cpu_idle_base);
@@ -51,10 +51,10 @@ static inline void spacemit_set_cpu_power(u32 hartid, bool enable)
 
 static void spacemit_wakeup_cpu(u32 mpidr)
 {
-	unsigned int *cpu_reset_base;
-	unsigned int cur_hartid = current_hartid();
+	unsigned số_nguyên *cpu_reset_base;
+	unsigned số_nguyên cur_hartid = current_hartid();
 
-	cpu_reset_base = (unsigned int *)(unsigned long)cpu_wakeup_reg[cur_hartid];
+	cpu_reset_base = (unsigned số_nguyên *)(unsigned long)cpu_wakeup_reg[cur_hartid];
 
 	writel(1 << mpidr, cpu_reset_base);
 }
@@ -64,25 +64,25 @@ static void spacemit_assert_cpu(void)
 	spacemit_set_cpu_power(current_hartid(), false);
 }
 
-static void spacemit_deassert_cpu(unsigned int hartid)
+static void spacemit_deassert_cpu(unsigned số_nguyên hartid)
 {
 	spacemit_set_cpu_power(hartid, true);
 }
 
 /* Start (or power-up) the given hart */
-static int spacemit_hart_start(unsigned int hartid, unsigned long saddr)
+static số_nguyên spacemit_hart_start(unsigned số_nguyên hartid, unsigned long saddr)
 {
 	spacemit_deassert_cpu(hartid);
 	spacemit_wakeup_cpu(hartid);
 
-	return 0;
+	trả_về 0;
 }
 
 /*
  * Stop (or power-down) the current hart from running. This call
  * doesn't expect to return if success.
  */
-static int spacemit_hart_stop(void)
+static số_nguyên spacemit_hart_stop(void)
 {
 	csr_write(CSR_STIMECMP, GENMASK_ULL(63, 0));
 	csr_clear(CSR_MIE, MIP_SSIP | MIP_MSIP | MIP_STIP | MIP_MTIP | MIP_SEIP | MIP_MEIP);
@@ -113,7 +113,7 @@ static int spacemit_hart_stop(void)
 
 	wfi();
 
-	return SBI_ENOTSUPP;
+	trả_về SBI_ENOTSUPP;
 }
 
 static const struct sbi_hsm_device spacemit_hsm_ops = {
@@ -122,11 +122,11 @@ static const struct sbi_hsm_device spacemit_hsm_ops = {
 	.hart_stop	= spacemit_hart_stop,
 };
 
-static int spacemit_hsm_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static số_nguyên spacemit_hsm_probe(const void *fdt, số_nguyên nodeoff, const struct fdt_match *match)
 {
 	sbi_hsm_set_device(&spacemit_hsm_ops);
 
-	return 0;
+	trả_về 0;
 }
 
 static const struct fdt_match spacemit_hsm_match[] = {
