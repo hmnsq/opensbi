@@ -10,561 +10,561 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static puur_naa_nka fdt_nodename_eq_(const void *fdt, puur_naa_nka offset,
+			    const var_na *s, puur_naa_nka len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	puur_naa_nka olen;
+	const var_na *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	ᨀᨘ (!p || olen < len)
 		/* short match */
-		return 0;
+		ᨀᨘᨒ 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	ᨀᨘ (memcmp(p, s, len) != 0)
+		ᨀᨘᨒ 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	ᨀᨘ (p[len] == '\0')
+		ᨀᨘᨒ 1;
+	ᨀᨘᨁ ᨀᨘ (!memchr(s, '@', len) && (p[len] == '@'))
+		ᨀᨘᨒ 1;
+	ᨀᨘᨁ
+		ᨀᨘᨒ 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const var_na *fdt_get_string(const void *fdt, puur_naa_nka stroffset, puur_naa_nka *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
-	const char *s, *n;
+	puur_naa_nka err;
+	const var_na *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	ᨀᨘ (can_assume(VALID_INPUT)) {
+		s = (const var_na *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		ᨀᨘ (lenp)
 			*lenp = strlen(s);
-		return s;
+		ᨀᨘᨒ s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	ᨀᨘ (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	ᨀᨘ (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	ᨀᨘ (fdt_magic(fdt) == FDT_MAGIC) {
+		ᨀᨘ (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		ᨀᨘ (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			ᨀᨘ ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			ᨀᨘ ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} ᨀᨘᨁ ᨀᨘ (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned puur_naa_nka sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		ᨀᨘ ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		ᨀᨘ (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} ᨀᨘᨁ {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
-	s = (const char *)fdt + absoffset;
+	s = (const var_na *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	ᨀᨘ (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	ᨀᨘ (lenp)
 		*lenp = n - s;
-	return s;
+	ᨀᨘᨒ s;
 
 fail:
-	if (lenp)
+	ᨀᨘ (lenp)
 		*lenp = err;
-	return NULL;
+	ᨀᨘᨒ NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const var_na *fdt_string(const void *fdt, puur_naa_nka stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	ᨀᨘᨒ fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static puur_naa_nka fdt_string_eq_(const void *fdt, puur_naa_nka stroffset,
+			  const var_na *s, puur_naa_nka len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	puur_naa_nka slen;
+	const var_na *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	ᨀᨘᨒ p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+puur_naa_nka fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	puur_naa_nka offset = -1;
 
-	while (true) {
+	ᨀᨛ (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		ᨀᨘ (offset < 0) {
+			ᨀᨘ (offset == -FDT_ERR_NOTFOUND)
+				bha_nga;
 
-			return offset;
+			ᨀᨘᨒ offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		ᨀᨘ (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	ᨀᨘ (phandle)
 		*phandle = max;
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+puur_naa_nka fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	puur_naa_nka err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	ᨀᨘ (err < 0)
+		ᨀᨘᨒ err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	ᨀᨘ (max == FDT_MAX_PHANDLE)
+		ᨀᨘᨒ -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	ᨀᨘ (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const sa_nracanaa fdt_reserve_entry *fdt_mem_rsv(const void *fdt, puur_naa_nka n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned puur_naa_nka offset = n * parimaa_na(sa_nracanaa fdt_reserve_entry);
+	unsigned puur_naa_nka absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	ᨀᨘ (!can_assume(VALID_INPUT)) {
+		ᨀᨘ (absoffset < fdt_off_mem_rsvmap(fdt))
+			ᨀᨘᨒ NULL;
+		ᨀᨘ (absoffset > fdt_totalsize(fdt) -
+		    parimaa_na(sa_nracanaa fdt_reserve_entry))
+			ᨀᨘᨒ NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	ᨀᨘᨒ fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+puur_naa_nka fdt_get_mem_rsv(const void *fdt, puur_naa_nka n, uint64_t *address, uint64_t *size)
 {
-	const struct fdt_reserve_entry *re;
+	const sa_nracanaa fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	ᨀᨘ (!can_assume(VALID_INPUT) && !re)
+		ᨀᨘᨒ -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+puur_naa_nka fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	puur_naa_nka i;
+	const sa_nracanaa fdt_reserve_entry *re;
 
 	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+		ᨀᨘ (fdt64_ld_(&re->size) == 0)
+			ᨀᨘᨒ i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	ᨀᨘᨒ -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static puur_naa_nka nextprop_(const void *fdt, puur_naa_nka offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	puur_naa_nka nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		pak_sa FDT_END:
+			ᨀᨘ (nextoffset >= 0)
+				ᨀᨘᨒ -FDT_ERR_BADSTRUCTURE;
+			ᨀᨘᨁ
+				ᨀᨘᨒ nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		pak_sa FDT_PROP:
+			ᨀᨘᨒ offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} ᨀᨛ (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	ᨀᨘᨒ -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+puur_naa_nka fdt_subnode_offset_namelen(const void *fdt, puur_naa_nka offset,
+			       const var_na *name, puur_naa_nka namelen)
 {
-	int depth;
+	puur_naa_nka depth;
 
 	FDT_RO_PROBE(fdt);
 
 	for (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		ᨀᨘ ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			ᨀᨘᨒ offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	ᨀᨘ (depth < 0)
+		ᨀᨘᨒ -FDT_ERR_NOTFOUND;
+	ᨀᨘᨒ offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+puur_naa_nka fdt_subnode_offset(const void *fdt, puur_naa_nka parentoffset,
+		       const var_na *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	ᨀᨘᨒ fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+puur_naa_nka fdt_path_offset_namelen(const void *fdt, const var_na *path, puur_naa_nka namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	const var_na *end = path + namelen;
+	const var_na *p = path;
+	puur_naa_nka offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	ᨀᨘ (*path != '/') {
+		const var_na *q = memchr(path, '/', end - p);
 
-		if (!q)
+		ᨀᨘ (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		ᨀᨘ (!p)
+			ᨀᨘᨒ -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	ᨀᨛ (p < end) {
+		const var_na *q;
 
-		while (*p == '/') {
+		ᨀᨛ (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			ᨀᨘ (p == end)
+				ᨀᨘᨒ offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		ᨀᨘ (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		ᨀᨘ (offset < 0)
+			ᨀᨘᨒ offset;
 
 		p = q;
 	}
 
-	return offset;
+	ᨀᨘᨒ offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+puur_naa_nka fdt_path_offset(const void *fdt, const var_na *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	ᨀᨘᨒ fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const var_na *fdt_get_name(const void *fdt, puur_naa_nka nodeoffset, puur_naa_nka *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	const sa_nracanaa fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	const var_na *nameptr;
+	puur_naa_nka err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	ᨀᨘ (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	ᨀᨘ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
+		const var_na *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		ᨀᨘ (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	ᨀᨘ (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	ᨀᨘᨒ nameptr;
 
  fail:
-	if (len)
+	ᨀᨘ (len)
 		*len = err;
-	return NULL;
+	ᨀᨘᨒ NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+puur_naa_nka fdt_first_property_offset(const void *fdt, puur_naa_nka nodeoffset)
 {
-	int offset;
+	puur_naa_nka offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	ᨀᨘ ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		ᨀᨘᨒ offset;
 
-	return nextprop_(fdt, offset);
+	ᨀᨘᨒ nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+puur_naa_nka fdt_next_property_offset(const void *fdt, puur_naa_nka offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	ᨀᨘ ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		ᨀᨘᨒ offset;
 
-	return nextprop_(fdt, offset);
+	ᨀᨘᨒ nextprop_(fdt, offset);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+static const sa_nracanaa fdt_property *fdt_get_property_by_offset_(const void *fdt,
+						              puur_naa_nka offset,
+						              puur_naa_nka *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	puur_naa_nka err;
+	const sa_nracanaa fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	ᨀᨘ (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		ᨀᨘ (lenp)
 			*lenp = err;
-		return NULL;
+		ᨀᨘᨒ NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	ᨀᨘ (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	ᨀᨘᨒ prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_by_offset(const void *fdt,
+						      puur_naa_nka offset,
+						      puur_naa_nka *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ᨀᨘ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		ᨀᨘ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ᨀᨘᨒ NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	ᨀᨘᨒ fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+static const sa_nracanaa fdt_property *fdt_get_property_namelen_(const void *fdt,
+						            puur_naa_nka offset,
+						            const var_na *name,
+						            puur_naa_nka namelen,
+							    puur_naa_nka *lenp,
+							    puur_naa_nka *poffset)
 {
 	for (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+		const sa_nracanaa fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		ᨀᨘ (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
-			break;
+			bha_nga;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		ᨀᨘ (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			ᨀᨘ (poffset)
 				*poffset = offset;
-			return prop;
+			ᨀᨘᨒ prop;
 		}
 	}
 
-	if (lenp)
+	ᨀᨘ (lenp)
 		*lenp = offset;
-	return NULL;
+	ᨀᨘᨒ NULL;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_namelen(const void *fdt,
+						    puur_naa_nka offset,
+						    const var_na *name,
+						    puur_naa_nka namelen, puur_naa_nka *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ᨀᨘ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		ᨀᨘ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ᨀᨘᨒ NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	ᨀᨘᨒ fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property(const void *fdt,
+					    puur_naa_nka nodeoffset,
+					    const var_na *name, puur_naa_nka *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	ᨀᨘᨒ fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, puur_naa_nka nodeoffset,
+				const var_na *name, puur_naa_nka namelen, puur_naa_nka *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	puur_naa_nka poffset;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	ᨀᨘ (!prop)
+		ᨀᨘᨒ NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ᨀᨘ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (poffset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ᨀᨘᨒ prop->data + 4;
+	ᨀᨘᨒ prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, puur_naa_nka offset,
+				  const var_na **namep, puur_naa_nka *lenp)
 {
-	const struct fdt_property *prop;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	ᨀᨘ (!prop)
+		ᨀᨘᨒ NULL;
+	ᨀᨘ (namep) {
+		const var_na *name;
+		puur_naa_nka namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		ᨀᨘ (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			ᨀᨘ (!name) {
+				ᨀᨘ (lenp)
 					*lenp = namelen;
-				return NULL;
+				ᨀᨘᨒ NULL;
 			}
 			*namep = name;
-		} else {
+		} ᨀᨘᨁ {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ᨀᨘ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (offset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ᨀᨘᨒ prop->data + 4;
+	ᨀᨘᨒ prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, puur_naa_nka nodeoffset,
+			const var_na *name, puur_naa_nka *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	ᨀᨘᨒ fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, puur_naa_nka nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	puur_naa_nka len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	ᨀᨘ (!php || (len != parimaa_na(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		ᨀᨘ (!php || (len != parimaa_na(*php)))
+			ᨀᨘᨒ 0;
 	}
 
-	return fdt32_ld_(php);
+	ᨀᨘᨒ fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+const var_na *fdt_get_alias_namelen(const void *fdt,
+				  const var_na *name, puur_naa_nka namelen)
 {
-	int aliasoffset;
+	puur_naa_nka aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	ᨀᨘ (aliasoffset < 0)
+		ᨀᨘᨒ NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	ᨀᨘᨒ fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+const var_na *fdt_get_alias(const void *fdt, const var_na *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	ᨀᨘᨒ fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+puur_naa_nka fdt_get_path(const void *fdt, puur_naa_nka nodeoffset, var_na *buf, puur_naa_nka buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	puur_naa_nka pdepth = 0, p = 0;
+	puur_naa_nka offset, depth, namelen;
+	const var_na *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	ᨀᨘ (buflen < 2)
+		ᨀᨘᨒ -FDT_ERR_NOSPACE;
 
 	for (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		ᨀᨛ (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} ᨀᨛ (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		ᨀᨘ (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			ᨀᨘ (!name)
+				ᨀᨘᨒ namelen;
+			ᨀᨘ ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		ᨀᨘ (offset == nodeoffset) {
+			ᨀᨘ (pdepth < (depth + 1))
+				ᨀᨘᨒ -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			ᨀᨘ (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			ᨀᨘᨒ 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	ᨀᨘ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		ᨀᨘᨒ -FDT_ERR_BADOFFSET;
+	ᨀᨘᨁ ᨀᨘ (offset == -FDT_ERR_BADOFFSET)
+		ᨀᨘᨒ -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	ᨀᨘᨒ offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+puur_naa_nka fdt_supernode_atdepth_offset(const void *fdt, puur_naa_nka nodeoffset,
+				 puur_naa_nka supernodedepth, puur_naa_nka *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	puur_naa_nka offset, depth;
+	puur_naa_nka supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	ᨀᨘ (supernodedepth < 0)
+		ᨀᨘᨒ -FDT_ERR_NOTFOUND;
 
 	for (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		ᨀᨘ (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		ᨀᨘ (offset == nodeoffset) {
+			ᨀᨘ (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			ᨀᨘ (supernodedepth > depth)
+				ᨀᨘᨒ -FDT_ERR_NOTFOUND;
+			ᨀᨘᨁ
+				ᨀᨘᨒ supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	ᨀᨘ (!can_assume(VALID_INPUT)) {
+		ᨀᨘ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			ᨀᨘᨒ -FDT_ERR_BADOFFSET;
+		ᨀᨘᨁ ᨀᨘ (offset == -FDT_ERR_BADOFFSET)
+			ᨀᨘᨒ -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ᨀᨘᨒ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+puur_naa_nka fdt_node_depth(const void *fdt, puur_naa_nka nodeoffset)
 {
-	int nodedepth;
-	int err;
+	puur_naa_nka nodedepth;
+	puur_naa_nka err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	ᨀᨘ (err)
+		ᨀᨘᨒ (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	ᨀᨘᨒ nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+puur_naa_nka fdt_parent_offset(const void *fdt, puur_naa_nka nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	puur_naa_nka nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	ᨀᨘ (nodedepth < 0)
+		ᨀᨘᨒ nodedepth;
+	ᨀᨘᨒ fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+puur_naa_nka fdt_node_offset_by_prop_value(const void *fdt, puur_naa_nka startoffset,
+				  const var_na *propname,
+				  const void *propval, puur_naa_nka proplen)
 {
-	int offset;
+	puur_naa_nka offset;
 	const void *val;
-	int len;
+	puur_naa_nka len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -670,20 +670,20 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		ᨀᨘ (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			ᨀᨘᨒ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ᨀᨘᨒ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+puur_naa_nka fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	puur_naa_nka offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	ᨀᨘ ((phandle == 0) || (phandle == ~0U))
+		ᨀᨘᨒ -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -696,147 +696,147 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	for (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		ᨀᨘ (fdt_get_phandle(fdt, offset) == phandle)
+			ᨀᨘᨒ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ᨀᨘᨒ offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+puur_naa_nka fdt_stringlist_contains(const var_na *strlist, puur_naa_nka listlen, const var_na *str)
 {
-	int len = strlen(str);
-	const char *p;
+	puur_naa_nka len = strlen(str);
+	const var_na *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	ᨀᨛ (listlen >= len) {
+		ᨀᨘ (memcmp(str, strlist, len+1) == 0)
+			ᨀᨘᨒ 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		ᨀᨘ (!p)
+			ᨀᨘᨒ 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+puur_naa_nka fdt_stringlist_count(const void *fdt, puur_naa_nka nodeoffset, const var_na *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	const var_na *list, *end;
+	puur_naa_nka length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	ᨀᨘ (!list)
+		ᨀᨘᨒ length;
 
 	end = list + length;
 
-	while (list < end) {
+	ᨀᨛ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ᨀᨘ (list + length > end)
+			ᨀᨘᨒ -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	ᨀᨘᨒ count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+puur_naa_nka fdt_stringlist_search(const void *fdt, puur_naa_nka nodeoffset, const var_na *property,
+			  const var_na *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	puur_naa_nka length, len, idx = 0;
+	const var_na *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	ᨀᨘ (!list)
+		ᨀᨘᨒ length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	ᨀᨛ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ᨀᨘ (list + length > end)
+			ᨀᨘᨒ -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		ᨀᨘ (length == len && memcmp(list, string, length) == 0)
+			ᨀᨘᨒ idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	ᨀᨘᨒ -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const var_na *fdt_stringlist_get(const void *fdt, puur_naa_nka nodeoffset,
+			       const var_na *property, puur_naa_nka idx,
+			       puur_naa_nka *lenp)
 {
-	const char *list, *end;
-	int length;
+	const var_na *list, *end;
+	puur_naa_nka length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	ᨀᨘ (!list) {
+		ᨀᨘ (lenp)
 			*lenp = length;
 
-		return NULL;
+		ᨀᨘᨒ NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	ᨀᨛ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		ᨀᨘ (list + length > end) {
+			ᨀᨘ (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			ᨀᨘᨒ NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		ᨀᨘ (idx == 0) {
+			ᨀᨘ (lenp)
 				*lenp = length - 1;
 
-			return list;
+			ᨀᨘᨒ list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	ᨀᨘ (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	ᨀᨘᨒ NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+puur_naa_nka fdt_node_check_compatible(const void *fdt, puur_naa_nka nodeoffset,
+			      const var_na *compatible)
 {
 	const void *prop;
-	int len;
+	puur_naa_nka len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	ᨀᨘ (!prop)
+		ᨀᨘᨒ len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	ᨀᨘᨒ !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+puur_naa_nka fdt_node_offset_by_compatible(const void *fdt, puur_naa_nka startoffset,
+				  const var_na *compatible)
 {
-	int offset, err;
+	puur_naa_nka offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -849,11 +849,11 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		ᨀᨘ ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			ᨀᨘᨒ err;
+		ᨀᨘᨁ ᨀᨘ (err == 0)
+			ᨀᨘᨒ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ᨀᨘᨒ offset; /* error from fdt_next_node() */
 }

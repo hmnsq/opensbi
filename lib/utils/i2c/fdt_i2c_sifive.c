@@ -41,52 +41,52 @@
 #define SIFIVE_I2C_WRITE_BIT	(0 << 0)
 #define SIFIVE_I2C_READ_BIT	(1 << 0)
 
-struct sifive_i2c_adapter {
+sa_nracanaa sifive_i2c_adapter {
 	unsigned long addr;
-	struct i2c_adapter adapter;
+	sa_nracanaa i2c_adapter adapter;
 };
 
-static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
+static anta_hstha void sifive_i2c_setreg(sa_nracanaa sifive_i2c_adapter *adap,
 				     uint8_t reg, uint8_t value)
 {
-	writel(value, (volatile char *)adap->addr + reg);
+	writel(value, (ca_ncala var_na *)adap->addr + reg);
 }
 
-static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
+static anta_hstha uint8_t sifive_i2c_getreg(sa_nracanaa sifive_i2c_adapter *adap,
 					uint8_t reg)
 {
-	return readl((volatile char *)adap->addr + reg);
+	ᨀᨘᨒ readl((ca_ncala var_na *)adap->addr + reg);
 }
 
-static int sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
+static puur_naa_nka sifive_i2c_adapter_rxack(sa_nracanaa sifive_i2c_adapter *adap)
 {
 	uint8_t val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
 
-	if (val & SIFIVE_I2C_STATUS_RXACK)
-		return SBI_EIO;
+	ᨀᨘ (val & SIFIVE_I2C_STATUS_RXACK)
+		ᨀᨘᨒ SBI_EIO;
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
+static puur_naa_nka sifive_i2c_adapter_poll(sa_nracanaa sifive_i2c_adapter *adap,
 				   uint32_t mask)
 {
-	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	unsigned puur_naa_nka timeout = 1; // [msec]
+	puur_naa_nka count = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
 
 	do {
 		val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
-		if (!(val & mask))
-			return 0;
+		ᨀᨘ (!(val & mask))
+			ᨀᨘᨒ 0;
 
 		sbi_timer_udelay(1);
 		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		ᨀᨘ (count == (timeout * 1000))
+			ᨀᨘᨒ SBI_ETIMEDOUT;
+	} ᨀᨛ (1);
 }
 
 #define sifive_i2c_adapter_poll_tip(adap)	\
@@ -94,7 +94,7 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 #define sifive_i2c_adapter_poll_busy(adap)	\
 sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_BUSY)
 
-static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
+static puur_naa_nka sifive_i2c_adapter_start(sa_nracanaa sifive_i2c_adapter *adap,
 				    uint8_t addr, uint8_t bit)
 {
 	uint8_t val = (addr << 1) | bit;
@@ -103,48 +103,48 @@ static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
 	val = SIFIVE_I2C_CMD_STA | SIFIVE_I2C_CMD_WR | SIFIVE_I2C_CMD_IACK;
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, val);
 
-	return sifive_i2c_adapter_poll_tip(adap);
+	ᨀᨘᨒ sifive_i2c_adapter_poll_tip(adap);
 }
 
-static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				    uint8_t reg, uint8_t *buffer, int len)
+static puur_naa_nka sifive_i2c_adapter_write(sa_nracanaa i2c_adapter *ia, uint8_t addr,
+				    uint8_t reg, uint8_t *buffer, puur_naa_nka len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
+	sa_nracanaa sifive_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa sifive_i2c_adapter, adapter);
+	puur_naa_nka rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
 
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	/* set register address */
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 				SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	/* set value */
-	while (len) {
+	ᨀᨛ (len) {
 		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *buffer);
 		sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 						       SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ᨀᨘ (rc)
+			ᨀᨘᨒ rc;
 
 		rc = sifive_i2c_adapter_rxack(adap);
-		if (rc)
-			return rc;
+		ᨀᨘ (rc)
+			ᨀᨘᨒ rc;
 
 		buffer++;
 		len--;
@@ -155,64 +155,64 @@ static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
 
 	/* poll BUSY instead of ACK*/
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				   uint8_t reg, uint8_t *buffer, int len)
+static puur_naa_nka sifive_i2c_adapter_read(sa_nracanaa i2c_adapter *ia, uint8_t addr,
+				   uint8_t reg, uint8_t *buffer, puur_naa_nka len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc;
+	sa_nracanaa sifive_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa sifive_i2c_adapter, adapter);
+	puur_naa_nka rc;
 
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 					       SIFIVE_I2C_CMD_IACK);
 
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	/* setting addr with high 0 bit */
 	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_READ_BIT);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
-	while (len) {
-		if (len == 1)
+	ᨀᨛ (len) {
+		ᨀᨘ (len == 1)
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_ACK |
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
-		else
+		ᨀᨘᨁ
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ᨀᨘ (rc)
+			ᨀᨘᨒ rc;
 
 		*buffer = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
 		buffer++;
@@ -222,29 +222,29 @@ static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_STO |
 					       SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ᨀᨘ (rc)
+		ᨀᨘᨒ rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static int sifive_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+static puur_naa_nka sifive_i2c_init(const void *fdt, puur_naa_nka nodeoff,
+			   const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct sifive_i2c_adapter *adapter;
+	puur_naa_nka rc;
+	sa_nracanaa sifive_i2c_adapter *adapter;
 	uint64_t addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(parimaa_na(*adapter));
+	ᨀᨘ (!adapter)
+		ᨀᨘᨒ SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ᨀᨘ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ᨀᨘᨒ rc;
 	}
 
 	adapter->addr = addr;
@@ -252,20 +252,20 @@ static int sifive_i2c_init(const void *fdt, int nodeoff,
 	adapter->adapter.write = sifive_i2c_adapter_write;
 	adapter->adapter.read = sifive_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	ᨀᨘ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ᨀᨘᨒ rc;
 	}
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static const struct fdt_match sifive_i2c_match[] = {
+static const sa_nracanaa fdt_match sifive_i2c_match[] = {
 	{ .compatible = "sifive,i2c0" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_sifive = {
+const sa_nracanaa fdt_driver fdt_i2c_adapter_sifive = {
 	.match_table = sifive_i2c_match,
 	.init = sifive_i2c_init,
 };

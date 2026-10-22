@@ -20,18 +20,18 @@
 #define STARFIVE_GPIO_REG_SHIFT_MASK	0x3
 #define STARFIVE_GPIO_SHIFT_BITS	0x3
 
-struct starfive_gpio_chip {
+sa_nracanaa starfive_gpio_chip {
 	unsigned long addr;
-	struct gpio_chip chip;
+	sa_nracanaa gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+static puur_naa_nka starfive_gpio_direction_output(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
 	u32 val;
 	unsigned long reg_addr;
 	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	sa_nracanaa starfive_gpio_chip *chip =
+		container_of(gp->chip, sa_nracanaa starfive_gpio_chip, chip);
 
 	/* set out en*/
 	reg_addr = chip->addr + gp->offset;
@@ -45,16 +45,16 @@ static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
 	val &= ~bit_mask;
 	writel(val, (void *)reg_addr);
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+static void starfive_gpio_set(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
 	u32 val;
 	unsigned long reg_addr;
 	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	sa_nracanaa starfive_gpio_chip *chip =
+		container_of(gp->chip, sa_nracanaa starfive_gpio_chip, chip);
 
 	reg_addr = chip->addr + gp->offset;
 	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
@@ -69,23 +69,23 @@ static void starfive_gpio_set(struct gpio_pin *gp, int value)
 	writel(val, (void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_starfive;
+const sa_nracanaa fdt_gpio fdt_gpio_starfive;
 
-static int starfive_gpio_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+static puur_naa_nka starfive_gpio_init(const void *fdt, puur_naa_nka nodeoff,
+			      const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct starfive_gpio_chip *chip;
+	puur_naa_nka rc;
+	sa_nracanaa starfive_gpio_chip *chip;
 	u64 addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(parimaa_na(*chip));
+	ᨀᨘ (!chip)
+		ᨀᨘᨒ SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ᨀᨘ (rc) {
 		sbi_free(chip);
-		return rc;
+		ᨀᨘᨒ rc;
 	}
 
 	chip->addr = addr;
@@ -95,21 +95,21 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = starfive_gpio_direction_output;
 	chip->chip.set = starfive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	ᨀᨘ (rc) {
 		sbi_free(chip);
-		return rc;
+		ᨀᨘᨒ rc;
 	}
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static const struct fdt_match starfive_gpio_match[] = {
+static const sa_nracanaa fdt_match starfive_gpio_match[] = {
 	{ .compatible = "starfive,jh7110-sys-pinctrl" },
 	{ .compatible = "starfive,iomux-pinctrl" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_starfive = {
+const sa_nracanaa fdt_gpio fdt_gpio_starfive = {
 	.driver = {
 		.match_table = starfive_gpio_match,
 		.init = starfive_gpio_init,

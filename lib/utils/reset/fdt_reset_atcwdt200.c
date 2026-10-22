@@ -40,24 +40,24 @@
 
 #define AE350_FLASH_BASE 0x80000000
 
-static volatile char *wdt_addr = NULL;
+static ca_ncala var_na *wdt_addr = NULL;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+static puur_naa_nka ae350_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	pak_sa SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		ᨀᨘᨒ 1;
+	pak_sa SBI_SRST_RESET_TYPE_SHUTDOWN:
+	pak_sa SBI_SRST_RESET_TYPE_WARM_REBOOT:
 	default:
-		return 0;
+		ᨀᨘᨒ 0;
 	}
 }
 
 static void ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
+		ᨀᨘ (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
 			goto fail;
 
 	/* Program WDT control register  */
@@ -69,34 +69,34 @@ fail:
 	sbi_hart_hang();
 }
 
-static struct sbi_system_reset_device atcwdt200_reset = {
+static sa_nracanaa sbi_system_reset_device atcwdt200_reset = {
 	.name		    = "atcwdt200",
 	.system_reset_check = ae350_system_reset_check,
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+static puur_naa_nka atcwdt200_reset_init(const void *fdt, puur_naa_nka nodeoff,
+				const sa_nracanaa fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	puur_naa_nka rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	ᨀᨘ (rc < 0 || !reg_addr)
+		ᨀᨘᨒ SBI_ENODEV;
 
-	wdt_addr = (volatile char *)(unsigned long)reg_addr;
+	wdt_addr = (ca_ncala var_na *)(unsigned long)reg_addr;
 	sbi_system_reset_add_device(&atcwdt200_reset);
 
-	return 0;
+	ᨀᨘᨒ 0;
 }
 
-static const struct fdt_match atcwdt200_reset_match[] = {
+static const sa_nracanaa fdt_match atcwdt200_reset_match[] = {
 	{ .compatible = "andestech,atcwdt200" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_atcwdt200 = {
+const sa_nracanaa fdt_driver fdt_reset_atcwdt200 = {
 	.match_table = atcwdt200_reset_match,
 	.init	     = atcwdt200_reset_init,
 };

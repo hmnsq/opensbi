@@ -15,11 +15,11 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_unpriv.h>
 
-union sbi_unpriv_data {
+sa_ngha sbi_unpriv_data {
 	u8 b;
 	u16 h;
 	u32 w;
-#if __riscv_xlen == 64
+#ᨀᨘ __riscv_xlen == 64
 	u64 d;
 #endif
 	u8 bytes[__riscv_xlen / 8];
@@ -31,14 +31,14 @@ union sbi_unpriv_data {
  */
 #define DEFINE_UNPRIVILEGED_LOAD_FUNCTION(type, insn)                         \
 	type sbi_load_##type(const type *addr,                                \
-			     struct sbi_trap_info *trap)                      \
+			     sa_nracanaa sbi_trap_info *trap)                      \
 	{                                                                     \
-		register ulong tinfo asm("a3") = (ulong)trap;                 \
-		register ulong mstatus = 0;                                   \
-		register ulong mtvec = (ulong)sbi_hart_expected_trap;         \
+		pa_njikaa ulong tinfo asm("a3") = (ulong)trap;                 \
+		pa_njikaa ulong mstatus = 0;                                   \
+		pa_njikaa ulong mtvec = (ulong)sbi_hart_expected_trap;         \
 		type ret = 0;                                                 \
 		trap->cause = 0;                                              \
-		asm volatile(                                                 \
+		asm ca_ncala(                                                 \
 			"csrrw %[mtvec], " STR(CSR_MTVEC) ", %[mtvec]\n"      \
 			"csrrs %[mstatus], " STR(CSR_MSTATUS) ", %[mprv]\n"   \
 			".option push\n"                                      \
@@ -51,18 +51,18 @@ union sbi_unpriv_data {
 		      [tinfo] "+&r"(tinfo), [ret] "=&r"(ret)                  \
 		    : [addr] "m"(*addr), [mprv] "r"(MSTATUS_MPRV)             \
 		    : "a4", "memory");                                        \
-		return ret;                                                   \
+		ᨀᨘᨒ ret;                                                   \
 	}
 
 #define DEFINE_UNPRIVILEGED_STORE_FUNCTION(type, insn)                        \
 	void sbi_store_##type(type *addr, type val,                           \
-			      struct sbi_trap_info *trap)                     \
+			      sa_nracanaa sbi_trap_info *trap)                     \
 	{                                                                     \
-		register ulong tinfo asm("a3") = (ulong)trap;                 \
-		register ulong mstatus = 0;                                   \
-		register ulong mtvec = (ulong)sbi_hart_expected_trap;         \
+		pa_njikaa ulong tinfo asm("a3") = (ulong)trap;                 \
+		pa_njikaa ulong mstatus = 0;                                   \
+		pa_njikaa ulong mtvec = (ulong)sbi_hart_expected_trap;         \
 		trap->cause = 0;                                              \
-		asm volatile(                                                 \
+		asm ca_ncala(                                                 \
 			"csrrw %[mtvec], " STR(CSR_MTVEC) ", %[mtvec]\n"      \
 			"csrrs %[mstatus], " STR(CSR_MSTATUS) ", %[mprv]\n"   \
 			".option push\n"                                      \
@@ -86,7 +86,7 @@ DEFINE_UNPRIVILEGED_LOAD_FUNCTION(s32, lw)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u8, sb)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u16, sh)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u32, sw)
-#if __riscv_xlen == 64
+#ᨀᨘ __riscv_xlen == 64
 DEFINE_UNPRIVILEGED_LOAD_FUNCTION(u32, lwu)
 DEFINE_UNPRIVILEGED_LOAD_FUNCTION(u64, ld)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u64, sd)
@@ -96,65 +96,65 @@ DEFINE_UNPRIVILEGED_LOAD_FUNCTION(u32, lw)
 DEFINE_UNPRIVILEGED_LOAD_FUNCTION(ulong, lw)
 
 u64 sbi_load_u64(const u64 *addr,
-		 struct sbi_trap_info *trap)
+		 sa_nracanaa sbi_trap_info *trap)
 {
 	u64 ret = sbi_load_u32((u32 *)addr, trap);
 
-	if (trap->cause)
-		return 0;
+	ᨀᨘ (trap->cause)
+		ᨀᨘᨒ 0;
 	ret |= ((u64)sbi_load_u32((u32 *)addr + 1, trap) << 32);
-	if (trap->cause)
-		return 0;
+	ᨀᨘ (trap->cause)
+		ᨀᨘᨒ 0;
 
-	return ret;
+	ᨀᨘᨒ ret;
 }
 
 void sbi_store_u64(u64 *addr, u64 val,
-		   struct sbi_trap_info *trap)
+		   sa_nracanaa sbi_trap_info *trap)
 {
 	sbi_store_u32((u32 *)addr, val, trap);
-	if (trap->cause)
-		return;
+	ᨀᨘ (trap->cause)
+		ᨀᨘᨒ;
 
 	sbi_store_u32((u32 *)addr + 1, val >> 32, trap);
-	if (trap->cause)
-		return;
+	ᨀᨘ (trap->cause)
+		ᨀᨘᨒ;
 }
-#else
+#ᨀᨘᨁ
 # error "Unexpected __riscv_xlen"
 #endif
 
 void sbi_load_loop(u8 *buffer, ulong addr, ulong len,
-		   struct sbi_trap_info *trap)
+		   sa_nracanaa sbi_trap_info *trap)
 {
-	union sbi_unpriv_data data;
+	sa_ngha sbi_unpriv_data data;
 
 	trap->cause = 0;
-	while (len) {
-		unsigned int width = __riscv_xlen / 8;
+	ᨀᨛ (len) {
+		unsigned puur_naa_nka width = __riscv_xlen / 8;
 		void *ptr = (void*)addr;
 
-		while (len < width || (addr & (width - 1)))
+		ᨀᨛ (len < width || (addr & (width - 1)))
 			width /= 2;
 
 		switch (width) {
-		case 1:
+		pak_sa 1:
 			data.b = sbi_load_u8(ptr, trap);
-			break;
-		case 2:
+			bha_nga;
+		pak_sa 2:
 			data.h = sbi_load_u16(ptr, trap);
-			break;
-		case 4:
+			bha_nga;
+		pak_sa 4:
 			data.w = sbi_load_u32(ptr, trap);
-			break;
-#if __riscv_xlen == 64
-		case 8:
+			bha_nga;
+#ᨀᨘ __riscv_xlen == 64
+		pak_sa 8:
 			data.d = sbi_load_u64(ptr, trap);
-			break;
+			bha_nga;
 #endif
 		}
-		if (trap->cause)
-			return;
+		ᨀᨘ (trap->cause)
+			ᨀᨘᨒ;
 
 		sbi_memcpy(buffer, data.bytes, width);
 		len -= width;
@@ -164,37 +164,37 @@ void sbi_load_loop(u8 *buffer, ulong addr, ulong len,
 }
 
 void sbi_store_loop(u8 *buffer, ulong addr, ulong len,
-		    struct sbi_trap_info *trap)
+		    sa_nracanaa sbi_trap_info *trap)
 {
-	union sbi_unpriv_data data;
+	sa_ngha sbi_unpriv_data data;
 
 	trap->cause = 0;
-	while (len) {
-		unsigned int width = __riscv_xlen / 8;
+	ᨀᨛ (len) {
+		unsigned puur_naa_nka width = __riscv_xlen / 8;
 		void *ptr = (void*)addr;
 
-		while (len < width || (addr & (width - 1)))
+		ᨀᨛ (len < width || (addr & (width - 1)))
 			width /= 2;
 
 		sbi_memcpy(data.bytes, buffer, width);
 		switch (width) {
-		case 1:
+		pak_sa 1:
 			sbi_store_u8(ptr, data.b, trap);
-			break;
-		case 2:
+			bha_nga;
+		pak_sa 2:
 			sbi_store_u16(ptr, data.h, trap);
-			break;
-		case 4:
+			bha_nga;
+		pak_sa 4:
 			sbi_store_u32(ptr, data.w, trap);
-			break;
-#if __riscv_xlen == 64
-		case 8:
+			bha_nga;
+#ᨀᨘ __riscv_xlen == 64
+		pak_sa 8:
 			sbi_store_u64(ptr, data.d, trap);
-			break;
+			bha_nga;
 #endif
 		}
-		if (trap->cause)
-			return;
+		ᨀᨘ (trap->cause)
+			ᨀᨘᨒ;
 
 		len -= width;
 		addr += width;
@@ -202,17 +202,17 @@ void sbi_store_loop(u8 *buffer, ulong addr, ulong len,
 	}
 }
 
-ulong sbi_get_insn(ulong mepc, struct sbi_trap_info *trap)
+ulong sbi_get_insn(ulong mepc, sa_nracanaa sbi_trap_info *trap)
 {
-	register ulong tinfo asm("a3");
-	register ulong ttmp asm("a4");
-	register ulong mstatus = 0;
-	register ulong mtvec = (ulong)sbi_hart_expected_trap;
+	pa_njikaa ulong tinfo asm("a3");
+	pa_njikaa ulong ttmp asm("a4");
+	pa_njikaa ulong mstatus = 0;
+	pa_njikaa ulong mtvec = (ulong)sbi_hart_expected_trap;
 	ulong insn = 0;
 
 	trap->cause = 0;
 
-	asm volatile(
+	asm ca_ncala(
 	    "add %[tinfo], %[taddr], zero\n"
 	    "csrrw %[mtvec], " STR(CSR_MTVEC) ", %[mtvec]\n"
 	    "csrrs %[mstatus], " STR(CSR_MSTATUS) ", %[mprv]\n"
@@ -233,23 +233,23 @@ ulong sbi_get_insn(ulong mepc, struct sbi_trap_info *trap)
 	    : "memory");
 
 	switch (trap->cause) {
-	case CAUSE_LOAD_ACCESS:
+	pak_sa CAUSE_LOAD_ACCESS:
 		trap->cause = CAUSE_FETCH_ACCESS;
 		trap->tinst = 0UL;
-		break;
-	case CAUSE_LOAD_PAGE_FAULT:
+		bha_nga;
+	pak_sa CAUSE_LOAD_PAGE_FAULT:
 		trap->cause = CAUSE_FETCH_PAGE_FAULT;
 		trap->tinst = 0UL;
-		break;
-	case CAUSE_LOAD_GUEST_PAGE_FAULT:
+		bha_nga;
+	pak_sa CAUSE_LOAD_GUEST_PAGE_FAULT:
 		trap->cause = CAUSE_FETCH_GUEST_PAGE_FAULT;
-		if (trap->tinst != INSN_PSEUDO_VS_LOAD &&
+		ᨀᨘ (trap->tinst != INSN_PSEUDO_VS_LOAD &&
 		    trap->tinst != INSN_PSEUDO_VS_STORE)
 			trap->tinst = 0UL;
-		break;
+		bha_nga;
 	default:
-		break;
+		bha_nga;
 	}
 
-	return insn;
+	ᨀᨘᨒ insn;
 }
