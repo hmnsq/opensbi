@@ -4,54 +4,54 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/cache/cache.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi_utils/cache/cache.h>
 
-static SBI_LIST_HEAD(cache_list);
+ساكن SBI_LIST_HEAD(cache_list);
 
-struct cache_device *cache_find(u32 id)
+بنية cache_device *cache_find(u32 id)
 {
-	struct cache_device *dev;
+	بنية cache_device *dev;
 
-	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+	sbi_list_for_each_entry(dev, &cache_list, عقدة) {
+		إذا (dev->id == id)
+			إرجاع dev;
 	}
 
-	return NULL;
+	إرجاع عدم;
 }
 
-int cache_add(struct cache_device *dev)
+صحيح cache_add(بنية cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	إذا (!dev)
+		إرجاع SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	إذا (cache_find(dev->id))
+		إرجاع SBI_EALREADY;
 
-	sbi_list_add(&dev->node, &cache_list);
+	sbi_list_add(&dev->عقدة, &cache_list);
 
-	return SBI_OK;
+	إرجاع SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+صحيح cache_flush_all(بنية cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	إذا (!dev)
+		إرجاع SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	إذا (!dev->ops || !dev->ops->cache_flush_all)
+		إرجاع SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	إرجاع dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+صحيح cache_enable(بنية cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	إذا (!dev)
+		إرجاع SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	إذا (!dev->ops || !dev->ops->cache_enable)
+		إرجاع SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	إرجاع dev->ops->cache_enable(dev, enable);
 }

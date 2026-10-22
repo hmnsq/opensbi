@@ -5,35 +5,35 @@
  *
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_illegal_atomic.h>
-#include <sbi/sbi_illegal_insn.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_illegal_atomic.h>
+#ضمن <sbi/sbi_illegal_insn.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#إذا !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
 #error "opensbi strongly relies on the Zaamo or Zalrsc extension of RISC-V"
 #endif
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#إذا defined(__riscv_atomic) || defined(__riscv_zaamo)
 
-int sbi_illegal_atomic(ulong insn, struct sbi_trap_regs *regs)
+صحيح sbi_illegal_atomic(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return truly_illegal_insn(insn, regs);
+	إرجاع truly_illegal_insn(insn, regs);
 }
 
-#elif defined(__riscv_zalrsc)
+#وإلاإذا defined(__riscv_zalrsc)
 
 #define DEFINE_UNPRIVILEGED_LR_FUNCTION(type, aqrl, insn)			\
-	static type lr_##type##aqrl(const type *addr,				\
-				struct sbi_trap_info *trap)			\
+	ساكن type lr_##type##aqrl(ثابت type *addr,				\
+				بنية sbi_trap_info *trap)			\
 	{									\
-		register ulong tinfo asm("a3");					\
-		register ulong mstatus = 0;					\
-		register ulong mtvec = (ulong)sbi_hart_expected_trap;		\
+		سجل ulong tinfo asm("a3");					\
+		سجل ulong mstatus = 0;					\
+		سجل ulong mtvec = (ulong)sbi_hart_expected_trap;		\
 		type ret = 0;							\
 		trap->cause = 0;						\
-		asm volatile(							\
+		asm متطاير(							\
 			"add %[tinfo], %[taddr], zero\n"			\
 			"csrrw %[mtvec], " STR(CSR_MTVEC) ", %[mtvec]\n"	\
 			"csrrs %[mstatus], " STR(CSR_MSTATUS) ", %[mprv]\n"	\
@@ -48,19 +48,19 @@ int sbi_illegal_atomic(ulong insn, struct sbi_trap_regs *regs)
 		    : [addr] "m"(*addr), [mprv] "r"(MSTATUS_MPRV),		\
 		      [taddr] "r"((ulong)trap)					\
 		    : "a4", "memory");						\
-		return ret;							\
+		إرجاع ret;							\
 	}
 
 #define DEFINE_UNPRIVILEGED_SC_FUNCTION(type, aqrl, insn)			\
-	static type sc_##type##aqrl(type *addr, type val,			\
-				struct sbi_trap_info *trap)			\
+	ساكن type sc_##type##aqrl(type *addr, type val,			\
+				بنية sbi_trap_info *trap)			\
 	{									\
-		register ulong tinfo asm("a3");					\
-		register ulong mstatus = 0;					\
-		register ulong mtvec = (ulong)sbi_hart_expected_trap;		\
+		سجل ulong tinfo asm("a3");					\
+		سجل ulong mstatus = 0;					\
+		سجل ulong mtvec = (ulong)sbi_hart_expected_trap;		\
 		type ret = 0;							\
 		trap->cause = 0;						\
-		asm volatile(							\
+		asm متطاير(							\
 			"add %[tinfo], %[taddr], zero\n"			\
 			"csrrw %[mtvec], " STR(CSR_MTVEC) ", %[mtvec]\n"	\
 			"csrrs %[mstatus], " STR(CSR_MSTATUS) ", %[mprv]\n"	\
@@ -75,7 +75,7 @@ int sbi_illegal_atomic(ulong insn, struct sbi_trap_regs *regs)
 		    : [addr] "m"(*addr), [mprv] "r"(MSTATUS_MPRV),		\
 		      [val] "r"(val), [taddr] "r"((ulong)trap)			\
 		    : "a4", "memory");						\
-		return ret;							\
+		إرجاع ret;							\
 	}
 
 DEFINE_UNPRIVILEGED_LR_FUNCTION(s32, , lr.w);
@@ -86,7 +86,7 @@ DEFINE_UNPRIVILEGED_SC_FUNCTION(s32, , sc.w);
 DEFINE_UNPRIVILEGED_SC_FUNCTION(s32, _aq, sc.w.aq);
 DEFINE_UNPRIVILEGED_SC_FUNCTION(s32, _rl, sc.w.rl);
 DEFINE_UNPRIVILEGED_SC_FUNCTION(s32, _aqrl, sc.w.aqrl);
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 DEFINE_UNPRIVILEGED_LR_FUNCTION(s64, , lr.d);
 DEFINE_UNPRIVILEGED_LR_FUNCTION(s64, _aq, lr.d.aq);
 DEFINE_UNPRIVILEGED_LR_FUNCTION(s64, _rl, lr.d.rl);
@@ -98,26 +98,26 @@ DEFINE_UNPRIVILEGED_SC_FUNCTION(s64, _aqrl, sc.d.aqrl);
 #endif
 
 #define DEFINE_ATOMIC_FUNCTION(name, type, func)				\
-	static int atomic_##name(ulong insn, struct sbi_trap_regs *regs)	\
+	ساكن صحيح atomic_##name(ulong insn, بنية sbi_trap_regs *regs)	\
 	{									\
-		struct sbi_trap_info uptrap;					\
+		بنية sbi_trap_info uptrap;					\
 		ulong addr = GET_RS1(insn, regs);				\
 		ulong val = GET_RS2(insn, regs);				\
 		ulong rd_val = 0;						\
 		ulong fail = 1;							\
-		while (fail) {							\
-			rd_val = lr_##type((void *)addr, &uptrap);		\
-			if (uptrap.cause) {					\
-				return sbi_trap_redirect(regs, &uptrap);	\
+		بينما (fail) {							\
+			rd_val = lr_##type((فراغ *)addr, &uptrap);		\
+			إذا (uptrap.cause) {					\
+				إرجاع sbi_trap_redirect(regs, &uptrap);	\
 			}							\
-			fail = sc_##type((void *)addr, func, &uptrap);	\
-			if (uptrap.cause) {					\
-				return sbi_trap_redirect(regs, &uptrap);	\
+			fail = sc_##type((فراغ *)addr, func, &uptrap);	\
+			إذا (uptrap.cause) {					\
+				إرجاع sbi_trap_redirect(regs, &uptrap);	\
 			}							\
 		}								\
 		SET_RD(insn, regs, rd_val);					\
 		regs->mepc += 4;						\
-		return 0;							\
+		إرجاع 0;							\
 	}
 
 DEFINE_ATOMIC_FUNCTION(add_w, s32, rd_val + val);
@@ -157,7 +157,7 @@ DEFINE_ATOMIC_FUNCTION(minu_w_aq, s32_aq, (u32)rd_val < (u32)val ? rd_val : val)
 DEFINE_ATOMIC_FUNCTION(minu_w_rl, s32_rl, (u32)rd_val < (u32)val ? rd_val : val);
 DEFINE_ATOMIC_FUNCTION(minu_w_aqrl, s32_aqrl, (u32)rd_val < (u32)val ? rd_val : val);
 
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 DEFINE_ATOMIC_FUNCTION(add_d, s64, rd_val + val);
 DEFINE_ATOMIC_FUNCTION(add_d_aq, s64_aq, rd_val + val);
 DEFINE_ATOMIC_FUNCTION(add_d_rl, s64_rl, rd_val + val);
@@ -196,7 +196,7 @@ DEFINE_ATOMIC_FUNCTION(minu_d_rl, s64_rl, (u64)rd_val < (u64)val ? rd_val : val)
 DEFINE_ATOMIC_FUNCTION(minu_d_aqrl, s64_aqrl, (u64)rd_val < (u64)val ? rd_val : val);
 #endif
 
-static const illegal_insn_func amoadd_table[32] = {
+ساكن ثابت illegal_insn_func amoadd_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -209,12 +209,12 @@ static const illegal_insn_func amoadd_table[32] = {
 	atomic_add_w_rl, /* 9 */
 	atomic_add_w_aq, /* 10 */
 	atomic_add_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_add_d, /* 12 */
 	atomic_add_d_rl, /* 13 */
 	atomic_add_d_aq, /* 14 */
 	atomic_add_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -238,7 +238,7 @@ static const illegal_insn_func amoadd_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amoswap_table[32] = {
+ساكن ثابت illegal_insn_func amoswap_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -251,12 +251,12 @@ static const illegal_insn_func amoswap_table[32] = {
 	atomic_swap_w_rl, /* 9 */
 	atomic_swap_w_aq, /* 10 */
 	atomic_swap_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_swap_d, /* 12 */
 	atomic_swap_d_rl, /* 13 */
 	atomic_swap_d_aq, /* 14 */
 	atomic_swap_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -280,7 +280,7 @@ static const illegal_insn_func amoswap_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amoxor_table[32] = {
+ساكن ثابت illegal_insn_func amoxor_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -293,12 +293,12 @@ static const illegal_insn_func amoxor_table[32] = {
 	atomic_xor_w_rl, /* 9 */
 	atomic_xor_w_aq, /* 10 */
 	atomic_xor_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_xor_d, /* 12 */
 	atomic_xor_d_rl, /* 13 */
 	atomic_xor_d_aq, /* 14 */
 	atomic_xor_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -322,7 +322,7 @@ static const illegal_insn_func amoxor_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amoor_table[32] = {
+ساكن ثابت illegal_insn_func amoor_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -335,12 +335,12 @@ static const illegal_insn_func amoor_table[32] = {
 	atomic_or_w_rl, /* 9 */
 	atomic_or_w_aq, /* 10 */
 	atomic_or_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_or_d, /* 12 */
 	atomic_or_d_rl, /* 13 */
 	atomic_or_d_aq, /* 14 */
 	atomic_or_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -364,7 +364,7 @@ static const illegal_insn_func amoor_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amoand_table[32] = {
+ساكن ثابت illegal_insn_func amoand_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -377,12 +377,12 @@ static const illegal_insn_func amoand_table[32] = {
 	atomic_and_w_rl, /* 9 */
 	atomic_and_w_aq, /* 10 */
 	atomic_and_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_and_d, /* 12 */
 	atomic_and_d_rl, /* 13 */
 	atomic_and_d_aq, /* 14 */
 	atomic_and_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -406,7 +406,7 @@ static const illegal_insn_func amoand_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amomin_table[32] = {
+ساكن ثابت illegal_insn_func amomin_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -419,12 +419,12 @@ static const illegal_insn_func amomin_table[32] = {
 	atomic_min_w_rl, /* 9 */
 	atomic_min_w_aq, /* 10 */
 	atomic_min_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_min_d, /* 12 */
 	atomic_min_d_rl, /* 13 */
 	atomic_min_d_aq, /* 14 */
 	atomic_min_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -448,7 +448,7 @@ static const illegal_insn_func amomin_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amomax_table[32] = {
+ساكن ثابت illegal_insn_func amomax_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -461,12 +461,12 @@ static const illegal_insn_func amomax_table[32] = {
 	atomic_max_w_rl, /* 9 */
 	atomic_max_w_aq, /* 10 */
 	atomic_max_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_max_d, /* 12 */
 	atomic_max_d_rl, /* 13 */
 	atomic_max_d_aq, /* 14 */
 	atomic_max_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -490,7 +490,7 @@ static const illegal_insn_func amomax_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amominu_table[32] = {
+ساكن ثابت illegal_insn_func amominu_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -503,12 +503,12 @@ static const illegal_insn_func amominu_table[32] = {
 	atomic_minu_w_rl, /* 9 */
 	atomic_minu_w_aq, /* 10 */
 	atomic_minu_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_minu_d, /* 12 */
 	atomic_minu_d_rl, /* 13 */
 	atomic_minu_d_aq, /* 14 */
 	atomic_minu_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -532,7 +532,7 @@ static const illegal_insn_func amominu_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static const illegal_insn_func amomaxu_table[32] = {
+ساكن ثابت illegal_insn_func amomaxu_table[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -545,12 +545,12 @@ static const illegal_insn_func amomaxu_table[32] = {
 	atomic_maxu_w_rl, /* 9 */
 	atomic_maxu_w_aq, /* 10 */
 	atomic_maxu_w_aqrl, /* 11 */
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 	atomic_maxu_d, /* 12 */
 	atomic_maxu_d_rl, /* 13 */
 	atomic_maxu_d_aq, /* 14 */
 	atomic_maxu_d_aqrl, /* 15 */
-#else
+#وإلا
 	truly_illegal_insn, /* 12 */
 	truly_illegal_insn, /* 13 */
 	truly_illegal_insn, /* 14 */
@@ -574,52 +574,52 @@ static const illegal_insn_func amomaxu_table[32] = {
 	truly_illegal_insn, /* 31 */
 };
 
-static int amoadd_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amoadd_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amoadd_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amoadd_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amoswap_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amoswap_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amoswap_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amoswap_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amoxor_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amoxor_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amoxor_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amoxor_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amoor_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amoor_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amoor_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amoor_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amoand_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amoand_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amoand_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amoand_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amomin_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amomin_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amomin_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amomin_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amomax_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amomax_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amomax_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amomax_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amominu_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amominu_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amominu_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amominu_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static int amomaxu_insn(ulong insn, struct sbi_trap_regs *regs)
+ساكن صحيح amomaxu_insn(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amomaxu_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
+	إرجاع amomaxu_table[(GET_FUNC3(insn) << 2) + GET_AQRL(insn)](insn, regs);
 }
 
-static const illegal_insn_func amo_insn_table[32] = {
+ساكن ثابت illegal_insn_func amo_insn_table[32] = {
 	amoadd_insn, /* 0 */
 	amoswap_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -654,11 +654,11 @@ static const illegal_insn_func amo_insn_table[32] = {
 	truly_illegal_insn  /* 31 */
 };
 
-int sbi_illegal_atomic(ulong insn, struct sbi_trap_regs *regs)
+صحيح sbi_illegal_atomic(ulong insn, بنية sbi_trap_regs *regs)
 {
-	return amo_insn_table[(insn >> 27) & 0x1f](insn, regs);
+	إرجاع amo_insn_table[(insn >> 27) & 0x1f](insn, regs);
 }
 
-#else
+#وإلا
 #error "need a or zalrsc"
 #endif

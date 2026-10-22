@@ -6,107 +6,107 @@
  *   Aurelien Jarno <aurelien@aurel32.net>
  */
 
-#include <libfdt.h>
-#include <platform_override.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#ضمن <libfdt.h>
+#ضمن <platform_override.h>
+#ضمن <sbi/sbi_bitops.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/i2c/fdt_i2c.h>
 
 /* SpacemiT P1 Power Control Register 2 */
 #define PWR_CTRL2		0x7e
 #define PWR_CTRL2_SHUTDOWN	BIT(2)	/* Shutdown request */
 #define PWR_CTRL2_RST		BIT(1)	/* Reset request */
 
-static struct i2c_adapter *p1_adapter = NULL;
-static uint32_t p1_reg = 0;
+ساكن بنية i2c_adapter *p1_adapter = عدم;
+ساكن uint32_t p1_reg = 0;
 
-static int p1_system_reset_check(uint32_t type, uint32_t reason)
+ساكن صحيح p1_system_reset_check(uint32_t type, uint32_t reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+		إرجاع 1;
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		إرجاع 255;
 	}
 
-	return 0;
+	إرجاع 0;
 }
 
-static void p1_ops(uint32_t type)
+ساكن فراغ p1_ops(uint32_t type)
 {
 	uint8_t byte;
-	int rc;
+	صحيح rc;
 
 	rc = i2c_adapter_reg_read(p1_adapter, p1_reg, PWR_CTRL2, &byte);
-	if (rc) {
+	إذا (rc) {
 		sbi_printf("%s: cannot read P1 Power Control Register 2\n", __func__);
-		return;
+		إرجاع;
 	}
 
-	if (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
+	إذا (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
 		byte |= PWR_CTRL2_SHUTDOWN;
-	else
+	وإلا
 		byte |= PWR_CTRL2_RST;
 
 	rc = i2c_adapter_reg_write(p1_adapter, p1_reg, PWR_CTRL2, byte);
-	if (rc)
+	إذا (rc)
 		sbi_printf("%s: cannot write P1 Power Control Register 2\n", __func__);
 }
 
-static void p1_system_reset(uint32_t type, uint32_t reason)
+ساكن فراغ p1_system_reset(uint32_t type, uint32_t reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		p1_ops(type);
-		break;
+		اكسر;
 	}
 }
 
-static struct sbi_system_reset_device p1_reset = {
+ساكن بنية sbi_system_reset_device p1_reset = {
 	.name = "spacemit-p1-reset",
 	.system_reset_check = p1_system_reset_check,
 	.system_reset = p1_system_reset
 };
 
-static int p1_reset_init(const void *fdt, int nodeoff,
-			 const struct fdt_match *match)
+ساكن صحيح p1_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			 ثابت بنية fdt_match *match)
 {
-	int rc, i2c_bus;
+	صحيح rc, i2c_bus;
 	uint64_t addr;
 
 	/* we are spacemit,p1 node */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	rc = fdt_get_عقدة_addr_size(fdt, nodeoff, 0, &addr, عدم);
+	إذا (rc)
+		إرجاع rc;
 
 	p1_reg = addr;
 
 	/* find i2c bus parent node */
 	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	إذا (i2c_bus < 0)
+		إرجاع i2c_bus;
 
 	/* i2c adapter get */
 	rc = fdt_i2c_adapter_get(fdt, i2c_bus, &p1_adapter);
-	if (rc)
-		return rc;
+	إذا (rc)
+		إرجاع rc;
 
 	sbi_system_reset_add_device(&p1_reset);
 
-	return 0;
+	إرجاع 0;
 }
 
-static const struct fdt_match p1_reset_match[] = {
+ساكن ثابت بنية fdt_match p1_reset_match[] = {
 	{ .compatible = "spacemit,p1" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_spacemit_p1 = {
+ثابت بنية fdt_driver fdt_reset_spacemit_p1 = {
 	.match_table = p1_reset_match,
 	.init = p1_reset_init,
 };

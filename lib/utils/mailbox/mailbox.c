@@ -7,130 +7,130 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/mailbox/mailbox.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi_utils/mailbox/mailbox.h>
 
-static SBI_LIST_HEAD(mbox_list);
+ساكن SBI_LIST_HEAD(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+بنية mbox_controller *mbox_controller_find(unsigned صحيح id)
 {
-	struct sbi_dlist *pos;
+	بنية sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
-		struct mbox_controller *mbox = to_mbox_controller(pos);
+		بنية mbox_controller *mbox = to_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		إذا (mbox->id == id)
+			إرجاع mbox;
 	}
 
-	return NULL;
+	إرجاع عدم;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+صحيح mbox_controller_add(بنية mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	إذا (!mbox || !mbox->max_xfer_len)
+		إرجاع SBI_EINVAL;
+	إذا (mbox_controller_find(mbox->id))
+		إرجاع SBI_EALREADY;
 
 	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
 	SBI_INIT_LIST_HEAD(&mbox->chan_list);
-	sbi_list_add(&mbox->node, &mbox_list);
+	sbi_list_add(&mbox->عقدة, &mbox_list);
 
-	return 0;
+	إرجاع 0;
 }
 
-void mbox_controller_remove(struct mbox_controller *mbox)
+فراغ mbox_controller_remove(بنية mbox_controller *mbox)
 {
-	struct mbox_chan *chan;
+	بنية mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	إذا (!mbox)
+		إرجاع;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
+	بينما (!sbi_list_empty(&mbox->chan_list)) {
 		chan = sbi_list_first_entry(&mbox->chan_list,
-					    struct mbox_chan, node);
-		if (mbox->free_chan)
+					    بنية mbox_chan, عقدة);
+		إذا (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
-		sbi_list_del(&chan->node);
+		sbi_list_del(&chan->عقدة);
 	}
 
-	sbi_list_del(&mbox->node);
+	sbi_list_del(&mbox->عقدة);
 }
 
-struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
+بنية mbox_chan *mbox_controller_request_chan(بنية mbox_controller *mbox,
 					       u32 *chan_args)
 {
-	struct mbox_chan *ret;
-	struct sbi_dlist *pos;
+	بنية mbox_chan *ret;
+	بنية sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	إذا (!chan_args || !mbox || !mbox->request_chan)
+		إرجاع عدم;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
 		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
-				sizeof(ret->chan_args)))
-			return ret;
+		إذا (!sbi_memcmp(ret->chan_args, chan_args,
+				حجم(ret->chan_args)))
+			إرجاع ret;
 	}
 
 	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	إذا (!ret)
+		إرجاع عدم;
 
 	ret->mbox = mbox;
-	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
-	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	sbi_memcpy(ret->chan_args, chan_args, حجم(ret->chan_args));
+	sbi_list_add(&ret->عقدة, &mbox->chan_list);
+	إرجاع ret;
 }
 
-void mbox_controller_free_chan(struct mbox_chan *chan)
+فراغ mbox_controller_free_chan(بنية mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	إذا (!chan || !chan->mbox)
+		إرجاع;
 
-	if (chan->mbox->free_chan)
+	إذا (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
-	sbi_list_del(&chan->node);
+	sbi_list_del(&chan->عقدة);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+صحيح mbox_chan_xfer(بنية mbox_chan *chan, بنية mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	إذا (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		إرجاع SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	إذا (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		إرجاع SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	إذا (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		إرجاع SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
+	إذا (!(xfer->flags & MBOX_XFER_SEQ))
 		mbox_xfer_set_sequence(xfer,
 			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	إرجاع chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+صحيح mbox_chan_get_attribute(بنية mbox_chan *chan, صحيح attr_id, فراغ *out_قيمة)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	إذا (!chan || !chan->mbox || !out_قيمة)
+		إرجاع SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	إذا (!chan->mbox->get_attribute)
+		إرجاع SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	إرجاع chan->mbox->get_attribute(chan, attr_id, out_قيمة);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+صحيح mbox_chan_set_attribute(بنية mbox_chan *chan, صحيح attr_id, فراغ *new_قيمة)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	إذا (!chan || !chan->mbox || !new_قيمة)
+		إرجاع SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	إذا (!chan->mbox->set_attribute)
+		إرجاع SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	إرجاع chan->mbox->set_attribute(chan, attr_id, new_قيمة);
 }
