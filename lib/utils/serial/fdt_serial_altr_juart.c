@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/serial/fdt_serial.h>
+#अन्तर्भाव <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+स्थिर पूर्णांक serial_altr_juart_init(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+				  स्थिरांक संरचना fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	पूर्णांक rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	जर (nodeoff < 0 || !fdt)
+		परत SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_गाठ_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	जर (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
+		परत SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	परत altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+स्थिर स्थिरांक संरचना fdt_match serial_altr_juart_match[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
+स्थिरांक संरचना fdt_driver fdt_serial_altr_juart = {
 	.match_table = serial_altr_juart_match,
 	.init = serial_altr_juart_init,
 };

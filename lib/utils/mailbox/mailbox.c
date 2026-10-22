@@ -7,130 +7,130 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/mailbox/mailbox.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi_utils/mailbox/mailbox.h>
 
-static SBI_LIST_HEAD(mbox_list);
+स्थिर SBI_LIST_HEAD(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+संरचना mbox_controller *mbox_controller_find(अचिन्हित पूर्णांक id)
 {
-	struct sbi_dlist *pos;
+	संरचना sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
-		struct mbox_controller *mbox = to_mbox_controller(pos);
+		संरचना mbox_controller *mbox = to_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		जर (mbox->id == id)
+			परत mbox;
 	}
 
-	return NULL;
+	परत रिक्त;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+पूर्णांक mbox_controller_add(संरचना mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	जर (!mbox || !mbox->max_xfer_len)
+		परत SBI_EINVAL;
+	जर (mbox_controller_find(mbox->id))
+		परत SBI_EALREADY;
 
 	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
 	SBI_INIT_LIST_HEAD(&mbox->chan_list);
-	sbi_list_add(&mbox->node, &mbox_list);
+	sbi_list_add(&mbox->गाठ, &mbox_list);
 
-	return 0;
+	परत 0;
 }
 
-void mbox_controller_remove(struct mbox_controller *mbox)
+शून्य mbox_controller_remove(संरचना mbox_controller *mbox)
 {
-	struct mbox_chan *chan;
+	संरचना mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	जर (!mbox)
+		परत;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
+	पर्यंत (!sbi_list_empty(&mbox->chan_list)) {
 		chan = sbi_list_first_entry(&mbox->chan_list,
-					    struct mbox_chan, node);
-		if (mbox->free_chan)
+					    संरचना mbox_chan, गाठ);
+		जर (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
-		sbi_list_del(&chan->node);
+		sbi_list_del(&chan->गाठ);
 	}
 
-	sbi_list_del(&mbox->node);
+	sbi_list_del(&mbox->गाठ);
 }
 
-struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
+संरचना mbox_chan *mbox_controller_request_chan(संरचना mbox_controller *mbox,
 					       u32 *chan_args)
 {
-	struct mbox_chan *ret;
-	struct sbi_dlist *pos;
+	संरचना mbox_chan *ret;
+	संरचना sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	जर (!chan_args || !mbox || !mbox->request_chan)
+		परत रिक्त;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
 		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
-				sizeof(ret->chan_args)))
-			return ret;
+		जर (!sbi_memcmp(ret->chan_args, chan_args,
+				आकार(ret->chan_args)))
+			परत ret;
 	}
 
 	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	जर (!ret)
+		परत रिक्त;
 
 	ret->mbox = mbox;
-	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
-	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	sbi_memcpy(ret->chan_args, chan_args, आकार(ret->chan_args));
+	sbi_list_add(&ret->गाठ, &mbox->chan_list);
+	परत ret;
 }
 
-void mbox_controller_free_chan(struct mbox_chan *chan)
+शून्य mbox_controller_free_chan(संरचना mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	जर (!chan || !chan->mbox)
+		परत;
 
-	if (chan->mbox->free_chan)
+	जर (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
-	sbi_list_del(&chan->node);
+	sbi_list_del(&chan->गाठ);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+पूर्णांक mbox_chan_xfer(संरचना mbox_chan *chan, संरचना mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	जर (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		परत SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	जर (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		परत SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	जर (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		परत SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
+	जर (!(xfer->flags & MBOX_XFER_SEQ))
 		mbox_xfer_set_sequence(xfer,
 			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	परत chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+पूर्णांक mbox_chan_get_attribute(संरचना mbox_chan *chan, पूर्णांक attr_id, शून्य *out_मूल्य)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	जर (!chan || !chan->mbox || !out_मूल्य)
+		परत SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	जर (!chan->mbox->get_attribute)
+		परत SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	परत chan->mbox->get_attribute(chan, attr_id, out_मूल्य);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+पूर्णांक mbox_chan_set_attribute(संरचना mbox_chan *chan, पूर्णांक attr_id, शून्य *new_मूल्य)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	जर (!chan || !chan->mbox || !new_मूल्य)
+		परत SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	जर (!chan->mbox->set_attribute)
+		परत SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	परत chan->mbox->set_attribute(chan, attr_id, new_मूल्य);
 }

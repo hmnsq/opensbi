@@ -8,91 +8,91 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/imsic.h>
+#अन्तर्भाव <libfdt.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/irqchip/fdt_irqchip.h>
+#अन्तर्भाव <sbi_utils/irqchip/imsic.h>
 
-static int irqchip_imsic_update_hartid_table(const void *fdt, int nodeoff,
-					     struct imsic_data *id)
+स्थिर पूर्णांक irqchip_imsic_update_hartid_table(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+					     संरचना imsic_data *id)
 {
-	const fdt32_t *val;
+	स्थिरांक fdt32_t *val;
 	u32 phandle, hwirq, hartid;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	पूर्णांक i, err, मोजणी, cpu_offset, cpu_intc_offset;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &मोजणी);
+	जर (!val || मोजणी < आकार(fdt32_t))
+		परत SBI_EINVAL;
+	मोजणी = मोजणी / आकार(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	साठी (i = 0; i < मोजणी; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_offset = fdt_गाठ_offset_by_phandle(fdt, phandle);
+		जर (cpu_intc_offset < 0)
+			सुरूठेवा;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		जर (cpu_offset < 0)
+			सुरूठेवा;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			return SBI_EINVAL;
+		जर (err)
+			परत SBI_EINVAL;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
+		निवड (hwirq) {
+		स्थिती IRQ_M_EXT:
 			err = imsic_map_hartid_to_data(hartid, id, i / 2);
-			if (err)
-				return err;
-			break;
-		default:
-			break;
+			जर (err)
+				परत err;
+			थांबा;
+		पूर्वनिर्धारित:
+			थांबा;
 		}
 	}
 
-	return 0;
+	परत 0;
 }
 
-static int irqchip_imsic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+स्थिर पूर्णांक irqchip_imsic_cold_init(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+				   स्थिरांक संरचना fdt_match *match)
 {
-	int rc;
-	struct imsic_data *id;
+	पूर्णांक rc;
+	संरचना imsic_data *id;
 
-	id = sbi_zalloc(sizeof(*id));
-	if (!id)
-		return SBI_ENOMEM;
+	id = sbi_zalloc(आकार(*id));
+	जर (!id)
+		परत SBI_ENOMEM;
 
-	rc = fdt_parse_imsic_node(fdt, nodeoff, id);
-	if (rc || !id->targets_mmode)
-		goto fail_free_data;
+	rc = fdt_parse_imsic_गाठ(fdt, nodeoff, id);
+	जर (rc || !id->targets_mmode)
+		जा fail_free_data;
 
 	rc = imsic_cold_irqchip_init(id);
-	if (rc)
-		goto fail_free_data;
+	जर (rc)
+		जा fail_free_data;
 
 	rc = irqchip_imsic_update_hartid_table(fdt, nodeoff, id);
-	if (rc)
-		goto fail_free_data;
+	जर (rc)
+		जा fail_free_data;
 
-	return 0;
+	परत 0;
 
 fail_free_data:
 	sbi_free(id);
-	return rc;
+	परत rc;
 }
 
-static const struct fdt_match irqchip_imsic_match[] = {
+स्थिर स्थिरांक संरचना fdt_match irqchip_imsic_match[] = {
 	{ .compatible = "riscv,imsics" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_imsic = {
+स्थिरांक संरचना fdt_driver fdt_irqchip_imsic = {
 	.match_table = irqchip_imsic_match,
 	.init = irqchip_imsic_cold_init,
 };

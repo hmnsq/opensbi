@@ -7,12 +7,12 @@
  *   Minda.chen <Minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/gpio/fdt_gpio.h>
 
 #define STARFIVE_GPIO_PINS_DEF		64
 #define STARFIVE_GPIO_OUTVAL		0x40
@@ -20,18 +20,18 @@
 #define STARFIVE_GPIO_REG_SHIFT_MASK	0x3
 #define STARFIVE_GPIO_SHIFT_BITS	0x3
 
-struct starfive_gpio_chip {
-	unsigned long addr;
-	struct gpio_chip chip;
+संरचना starfive_gpio_chip {
+	अचिन्हित दीर्घ addr;
+	संरचना gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+स्थिर पूर्णांक starfive_gpio_direction_output(संरचना gpio_pin *gp, पूर्णांक मूल्य)
 {
 	u32 val;
-	unsigned long reg_addr;
+	अचिन्हित दीर्घ reg_addr;
 	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	संरचना starfive_gpio_chip *chip =
+		container_of(gp->chip, संरचना starfive_gpio_chip, chip);
 
 	/* set out en*/
 	reg_addr = chip->addr + gp->offset;
@@ -41,20 +41,20 @@ static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
 		<< STARFIVE_GPIO_SHIFT_BITS;
 	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
 
-	val = readl((void *)reg_addr);
+	val = readl((शून्य *)reg_addr);
 	val &= ~bit_mask;
-	writel(val, (void *)reg_addr);
+	writel(val, (शून्य *)reg_addr);
 
-	return 0;
+	परत 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+स्थिर शून्य starfive_gpio_set(संरचना gpio_pin *gp, पूर्णांक मूल्य)
 {
 	u32 val;
-	unsigned long reg_addr;
+	अचिन्हित दीर्घ reg_addr;
 	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	संरचना starfive_gpio_chip *chip =
+		container_of(gp->chip, संरचना starfive_gpio_chip, chip);
 
 	reg_addr = chip->addr + gp->offset;
 	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
@@ -63,29 +63,29 @@ static void starfive_gpio_set(struct gpio_pin *gp, int value)
 		<< STARFIVE_GPIO_SHIFT_BITS;
 	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
 	/* set output value */
-	val = readl((void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val = readl((शून्य *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 	val &= ~bit_mask;
-	val |= value << shift_bits;
-	writel(val, (void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val |= मूल्य << shift_bits;
+	writel(val, (शून्य *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_starfive;
+स्थिरांक संरचना fdt_gpio fdt_gpio_starfive;
 
-static int starfive_gpio_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+स्थिर पूर्णांक starfive_gpio_init(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+			      स्थिरांक संरचना fdt_match *match)
 {
-	int rc;
-	struct starfive_gpio_chip *chip;
+	पूर्णांक rc;
+	संरचना starfive_gpio_chip *chip;
 	u64 addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(आकार(*chip));
+	जर (!chip)
+		परत SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_गाठ_addr_size(fdt, nodeoff, 0, &addr, रिक्त);
+	जर (rc) {
 		sbi_free(chip);
-		return rc;
+		परत rc;
 	}
 
 	chip->addr = addr;
@@ -95,21 +95,21 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = starfive_gpio_direction_output;
 	chip->chip.set = starfive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	जर (rc) {
 		sbi_free(chip);
-		return rc;
+		परत rc;
 	}
 
-	return 0;
+	परत 0;
 }
 
-static const struct fdt_match starfive_gpio_match[] = {
+स्थिर स्थिरांक संरचना fdt_match starfive_gpio_match[] = {
 	{ .compatible = "starfive,jh7110-sys-pinctrl" },
 	{ .compatible = "starfive,iomux-pinctrl" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_starfive = {
+स्थिरांक संरचना fdt_gpio fdt_gpio_starfive = {
 	.driver = {
 		.match_table = starfive_gpio_match,
 		.init = starfive_gpio_init,

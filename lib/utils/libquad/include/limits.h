@@ -7,6 +7,6 @@
 #ifndef __LIMITS_H__
 #define __LIMITS_H__
 
-#define CHAR_BIT 8
+#define अक्षर_बिट 8
 
 #endif

@@ -7,76 +7,76 @@
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_byteorder.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_types.h>
+#अन्तर्भाव <sbi/sbi_byteorder.h>
 
-#define INT_MAX		((int)(~0U >> 1))
-#define UINT_MAX	((unsigned int)~0U)
-#define INT32_MAX	INT_MAX
-#define UINT32_MAX	UINT_MAX
+#define पूर्णांक_उच्च		((पूर्णांक)(~0U >> 1))
+#define अच_पूर्णांक_उच्च	((अचिन्हित पूर्णांक)~0U)
+#define INT32_MAX	पूर्णांक_उच्च
+#define UINT32_MAX	अच_पूर्णांक_उच्च
 
 #ifdef __CHECKER__
 #define FDT_FORCE __attribute__((force))
 #define FDT_BITWISE __attribute__((bitwise))
-#else
+#अन्यथा
 #define FDT_FORCE
 #define FDT_BITWISE
 #endif
 
-#define memmove		sbi_memmove
-#define memcpy		sbi_memcpy
-#define memcmp		sbi_memcmp
-#define memchr		sbi_memchr
-#define memset		sbi_memset
-#define strchr		sbi_strchr
-#define strrchr		sbi_strrchr
-#define strcpy		sbi_strcpy
-#define strncpy		sbi_strncpy
-#define strcmp		sbi_strcmp
-#define strncmp		sbi_strncmp
-#define strlen		sbi_strlen
+#define स_हटाओ		sbi_memmove
+#define स_नकल		sbi_memcpy
+#define स_भेद		sbi_memcmp
+#define स_प्रथम		sbi_memchr
+#define स_रखो		sbi_memset
+#define म_अक्षर		sbi_strchr
+#define म_खोजप		sbi_strrchr
+#define म_नकल		sbi_strcpy
+#define म_नकलन		sbi_strncpy
+#define म_भेद		sbi_strcmp
+#define म_भेदन		sbi_strncmp
+#define म_माप		sbi_strlen
 #define strnlen		sbi_strnlen
 
-typedef be16_t FDT_BITWISE fdt16_t;
-typedef be32_t FDT_BITWISE fdt32_t;
-typedef be64_t FDT_BITWISE fdt64_t;
+प्रकारव्याख्या be16_t FDT_BITWISE fdt16_t;
+प्रकारव्याख्या be32_t FDT_BITWISE fdt32_t;
+प्रकारव्याख्या be64_t FDT_BITWISE fdt64_t;
 
-static inline uint16_t fdt16_to_cpu(fdt16_t x)
+स्थिर ओळीत uint16_t fdt16_to_cpu(fdt16_t x)
 {
-	return (FDT_FORCE uint16_t)be16_to_cpu(x);
+	परत (FDT_FORCE uint16_t)be16_to_cpu(x);
 }
 
-static inline fdt16_t cpu_to_fdt16(uint16_t x)
+स्थिर ओळीत fdt16_t cpu_to_fdt16(uint16_t x)
 {
-	return (FDT_FORCE fdt16_t)cpu_to_be16(x);
+	परत (FDT_FORCE fdt16_t)cpu_to_be16(x);
 }
 
-static inline uint32_t fdt32_to_cpu(fdt32_t x)
+स्थिर ओळीत uint32_t fdt32_to_cpu(fdt32_t x)
 {
-	return (FDT_FORCE uint32_t)be32_to_cpu(x);
+	परत (FDT_FORCE uint32_t)be32_to_cpu(x);
 }
 
-static inline fdt32_t cpu_to_fdt32(uint32_t x)
+स्थिर ओळीत fdt32_t cpu_to_fdt32(uint32_t x)
 {
-	return (FDT_FORCE fdt32_t)cpu_to_be32(x);
+	परत (FDT_FORCE fdt32_t)cpu_to_be32(x);
 }
 
-static inline uint64_t fdt64_to_cpu(fdt64_t x)
+स्थिर ओळीत uint64_t fdt64_to_cpu(fdt64_t x)
 {
-	return (FDT_FORCE uint64_t)be64_to_cpu(x);
+	परत (FDT_FORCE uint64_t)be64_to_cpu(x);
 }
 
-static inline fdt64_t cpu_to_fdt64(uint64_t x)
+स्थिर ओळीत fdt64_t cpu_to_fdt64(uint64_t x)
 {
-	return (FDT_FORCE fdt64_t)cpu_to_be64(x);
+	परत (FDT_FORCE fdt64_t)cpu_to_be64(x);
 }
 
 #ifdef __APPLE__
-#include <AvailabilityMacros.h>
+#अन्तर्भाव <AvailabilityMacros.h>
 
 /* strnlen() is not available on Mac OS < 10.7 */
-# if !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
+# जर !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
                                          MAC_OS_X_VERSION_10_7)
 
 #define strnlen fdt_strnlen
@@ -88,10 +88,10 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+स्थिर ओळीत माप_प्रकार fdt_strnlen(स्थिरांक अक्षर *string, माप_प्रकार max_मोजणी)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    स्थिरांक अक्षर *p = स_प्रथम(string, 0, max_मोजणी);
+    परत p ? p - string : max_मोजणी;
 }
 
 #endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <

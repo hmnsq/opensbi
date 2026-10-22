@@ -7,52 +7,52 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_driver.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+स्थिर पूर्णांक ipi_mswi_cold_init(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+			      स्थिरांक संरचना fdt_match *match)
 {
-	int rc;
-	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	पूर्णांक rc;
+	अचिन्हित दीर्घ offset;
+	संरचना aclint_mswi_data *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(आकार(*ms));
+	जर (!ms)
+		परत SBI_ENOMEM;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
-				   &ms->addr, &ms->size, NULL, NULL,
-				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	rc = fdt_parse_aclint_गाठ(fdt, nodeoff, false, false,
+				   &ms->addr, &ms->size, रिक्त, रिक्त,
+				   &ms->first_hartid, &ms->hart_मोजणी);
+	जर (rc) {
 		sbi_free(ms);
-		return rc;
+		परत rc;
 	}
 
-	if (match->data) {
+	जर (match->data) {
 		/* Adjust MSWI address and size for CLINT device */
-		offset = *((unsigned long *)match->data);
+		offset = *((अचिन्हित दीर्घ *)match->data);
 		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
+		जर ((ms->size - offset) < ACLINT_MSWI_SIZE)
+			परत SBI_EINVAL;
 		ms->size = ACLINT_MSWI_SIZE;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	जर (rc) {
 		sbi_free(ms);
-		return rc;
+		परत rc;
 	}
 
-	return 0;
+	परत 0;
 }
 
-static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
+स्थिर स्थिरांक अचिन्हित दीर्घ clint_offset = CLINT_MSWI_OFFSET;
 
-static const struct fdt_match ipi_mswi_match[] = {
+स्थिर स्थिरांक संरचना fdt_match ipi_mswi_match[] = {
 	{ .compatible = "riscv,clint0", .data = &clint_offset },
 	{ .compatible = "sifive,clint0", .data = &clint_offset },
 	{ .compatible = "thead,c900-clint", .data = &clint_offset },
@@ -62,7 +62,7 @@ static const struct fdt_match ipi_mswi_match[] = {
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
+स्थिरांक संरचना fdt_driver fdt_ipi_mswi = {
 	.match_table = ipi_mswi_match,
 	.init = ipi_mswi_cold_init,
 };

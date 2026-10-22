@@ -7,49 +7,49 @@
  *   Minda Chen <minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/dw_i2c.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/i2c/dw_i2c.h>
+#अन्तर्भाव <sbi_utils/i2c/fdt_i2c.h>
 
-static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+स्थिर पूर्णांक fdt_dw_i2c_init(स्थिरांक शून्य *fdt, पूर्णांक nodeoff,
+			   स्थिरांक संरचना fdt_match *match)
 {
-	int rc;
-	struct dw_i2c_adapter *adapter;
+	पूर्णांक rc;
+	संरचना dw_i2c_adapter *adapter;
 	u64 addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(आकार(*adapter));
+	जर (!adapter)
+		परत SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_गाठ_addr_size(fdt, nodeoff, 0, &addr, रिक्त);
+	जर (rc) {
 		sbi_free(adapter);
-		return rc;
+		परत rc;
 	}
 
 	adapter->addr = addr;
 
 	rc = dw_i2c_init(&adapter->adapter, nodeoff);
-	if (rc) {
+	जर (rc) {
 		sbi_free(adapter);
-		return rc;
+		परत rc;
 	}
 
-	return 0;
+	परत 0;
 }
 
-static const struct fdt_match fdt_dw_i2c_match[] = {
+स्थिर स्थिरांक संरचना fdt_match fdt_dw_i2c_match[] = {
 	{ .compatible = "snps,designware-i2c" },
 	{ .compatible = "starfive,jh7110-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_dw = {
+स्थिरांक संरचना fdt_driver fdt_i2c_adapter_dw = {
 	.match_table = fdt_dw_i2c_match,
 	.init = fdt_dw_i2c_init,
 };

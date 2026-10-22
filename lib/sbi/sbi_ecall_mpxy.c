@@ -7,63 +7,63 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_mpxy.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_mpxy.h>
 
-static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+स्थिर पूर्णांक sbi_ecall_mpxy_handler(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ funcid,
+				  संरचना sbi_trap_regs *regs,
+				  संरचना sbi_ecall_return *out)
 {
-	int ret = 0;
+	पूर्णांक ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_MPXY_GET_SHMEM_SIZE:
-		out->value = sbi_mpxy_get_shmem_size();
-		break;
-	case SBI_EXT_MPXY_SET_SHMEM:
+	निवड (funcid) {
+	स्थिती SBI_EXT_MPXY_GET_SHMEM_SIZE:
+		out->मूल्य = sbi_mpxy_get_shmem_size();
+		थांबा;
+	स्थिती SBI_EXT_MPXY_SET_SHMEM:
 		ret = sbi_mpxy_set_shmem(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_GET_CHANNEL_IDS:
+		थांबा;
+	स्थिती SBI_EXT_MPXY_GET_CHANNEL_IDS:
 		ret = sbi_mpxy_get_channel_ids(regs->a0);
-		break;
-	case SBI_EXT_MPXY_READ_ATTRS:
+		थांबा;
+	स्थिती SBI_EXT_MPXY_READ_ATTRS:
 		ret = sbi_mpxy_read_attrs(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_WRITE_ATTRS:
+		थांबा;
+	स्थिती SBI_EXT_MPXY_WRITE_ATTRS:
 		ret = sbi_mpxy_write_attrs(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITH_RESP:
+		थांबा;
+	स्थिती SBI_EXT_MPXY_SEND_संदेश_WITH_RESP:
 		ret = sbi_mpxy_send_message(regs->a0, regs->a1,
-					    regs->a2, &out->value);
-		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITHOUT_RESP:
+					    regs->a2, &out->मूल्य);
+		थांबा;
+	स्थिती SBI_EXT_MPXY_SEND_संदेश_WITHOUT_RESP:
 		ret = sbi_mpxy_send_message(regs->a0, regs->a1, regs->a2,
-					    NULL);
-		break;
-	case SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS:
-		ret = sbi_mpxy_get_notification_events(regs->a0, &out->value);
-		break;
-	default:
+					    रिक्त);
+		थांबा;
+	स्थिती SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS:
+		ret = sbi_mpxy_get_notification_events(regs->a0, &out->मूल्य);
+		थांबा;
+	पूर्वनिर्धारित:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	परत ret;
 }
 
-struct sbi_ecall_extension ecall_mpxy;
+संरचना sbi_ecall_extension ecall_mpxy;
 
-static int sbi_ecall_mpxy_register_extensions(void)
+स्थिर पूर्णांक sbi_ecall_mpxy_register_extensions(शून्य)
 {
-	if (!sbi_mpxy_channel_available())
-		return 0;
+	जर (!sbi_mpxy_channel_available())
+		परत 0;
 
-	return sbi_ecall_register_extension(&ecall_mpxy);
+	परत sbi_ecall_register_extension(&ecall_mpxy);
 }
 
-struct sbi_ecall_extension ecall_mpxy = {
+संरचना sbi_ecall_extension ecall_mpxy = {
 	.name			= "mpxy",
 	.extid_start		= SBI_EXT_MPXY,
 	.extid_end		= SBI_EXT_MPXY,

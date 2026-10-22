@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: BSD-2-Clause
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_system.h>
 
-static int sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+स्थिर पूर्णांक sbi_ecall_susp_handler(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ funcid,
+				  संरचना sbi_trap_regs *regs,
+				  संरचना sbi_ecall_return *out)
 {
-	int ret = SBI_ENOTSUPP;
+	पूर्णांक ret = SBI_ENOTSUPP;
 
-	if (funcid == SBI_EXT_SUSP_SUSPEND)
+	जर (funcid == SBI_EXT_SUSP_SUSPEND)
 		ret = sbi_system_suspend(regs->a0, regs->a1, regs->a2);
 
-	if (ret >= 0) {
-		out->value = ret;
+	जर (ret >= 0) {
+		out->मूल्य = ret;
 		ret = 0;
 	}
 
-	return ret;
+	परत ret;
 }
 
-static bool susp_available(void)
+स्थिर bool susp_available(शून्य)
 {
 	u32 type;
 
@@ -30,25 +30,25 @@ static bool susp_available(void)
 	 * At least one suspend type should be supported by the
 	 * platform for the SBI SUSP extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
-		if (sbi_system_suspend_supported(type))
-			return true;
+	साठी (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
+		जर (sbi_system_suspend_supported(type))
+			परत true;
 	}
 
-	return false;
+	परत false;
 }
 
-struct sbi_ecall_extension ecall_susp;
+संरचना sbi_ecall_extension ecall_susp;
 
-static int sbi_ecall_susp_register_extensions(void)
+स्थिर पूर्णांक sbi_ecall_susp_register_extensions(शून्य)
 {
-	if (!susp_available())
-		return 0;
+	जर (!susp_available())
+		परत 0;
 
-	return sbi_ecall_register_extension(&ecall_susp);
+	परत sbi_ecall_register_extension(&ecall_susp);
 }
 
-struct sbi_ecall_extension ecall_susp = {
+संरचना sbi_ecall_extension ecall_susp = {
 	.name			= "susp",
 	.extid_start		= SBI_EXT_SUSP,
 	.extid_end		= SBI_EXT_SUSP,

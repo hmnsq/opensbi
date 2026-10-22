@@ -8,77 +8,77 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_version.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+स्थिर पूर्णांक sbi_ecall_base_probe(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ *out_val)
 {
-	struct sbi_ecall_extension *ext;
+	संरचना sbi_ecall_extension *ext;
 
 	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
+	जर (!ext) {
 		*out_val = 0;
-		return 0;
+		परत 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	जर (ext->probe)
+		परत ext->probe(extid, out_val);
 
 	*out_val = 1;
-	return 0;
+	परत 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+स्थिर पूर्णांक sbi_ecall_base_handler(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ funcid,
+				  संरचना sbi_trap_regs *regs,
+				  संरचना sbi_ecall_return *out)
 {
-	int ret = 0;
+	पूर्णांक ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
+	निवड (funcid) {
+	स्थिती SBI_EXT_BASE_GET_SPEC_VERSION:
+		out->मूल्य = (SBI_ECALL_VERSION_MAJOR <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
 			     (SBI_SPEC_VERSION_MAJOR_MASK <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
-	default:
+		out->मूल्य = out->मूल्य | SBI_ECALL_VERSION_MINOR;
+		थांबा;
+	स्थिती SBI_EXT_BASE_GET_IMP_ID:
+		out->मूल्य = sbi_ecall_get_impid();
+		थांबा;
+	स्थिती SBI_EXT_BASE_GET_IMP_VERSION:
+		out->मूल्य = OPENSBI_VERSION;
+		थांबा;
+	स्थिती SBI_EXT_BASE_GET_MVENDORID:
+		out->मूल्य = csr_read(CSR_MVENDORID);
+		थांबा;
+	स्थिती SBI_EXT_BASE_GET_MARCHID:
+		out->मूल्य = csr_read(CSR_MARCHID);
+		थांबा;
+	स्थिती SBI_EXT_BASE_GET_MIMPID:
+		out->मूल्य = csr_read(CSR_MIMPID);
+		थांबा;
+	स्थिती SBI_EXT_BASE_PROBE_EXT:
+		ret = sbi_ecall_base_probe(regs->a0, &out->मूल्य);
+		थांबा;
+	पूर्वनिर्धारित:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	परत ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+संरचना sbi_ecall_extension ecall_base;
 
-static int sbi_ecall_base_register_extensions(void)
+स्थिर पूर्णांक sbi_ecall_base_register_extensions(शून्य)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	परत sbi_ecall_register_extension(&ecall_base);
 }
 
-struct sbi_ecall_extension ecall_base = {
+संरचना sbi_ecall_extension ecall_base = {
 	.name			= "base",
 	.extid_start		= SBI_EXT_BASE,
 	.extid_end		= SBI_EXT_BASE,

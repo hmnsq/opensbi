@@ -8,38 +8,38 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_timer.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+स्थिर पूर्णांक sbi_ecall_time_handler(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ funcid,
+				  संरचना sbi_trap_regs *regs,
+				  संरचना sbi_ecall_return *out)
 {
-	int ret = 0;
+	पूर्णांक ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
+	जर (funcid == SBI_EXT_TIME_SET_TIMER) {
+#जर __riscv_xlen == 32
 		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
+#अन्यथा
 		sbi_timer_smode_event_start((u64)regs->a0);
 #endif
-	} else
+	} अन्यथा
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	परत ret;
 }
 
-struct sbi_ecall_extension ecall_time;
+संरचना sbi_ecall_extension ecall_time;
 
-static int sbi_ecall_time_register_extensions(void)
+स्थिर पूर्णांक sbi_ecall_time_register_extensions(शून्य)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	परत sbi_ecall_register_extension(&ecall_time);
 }
 
-struct sbi_ecall_extension ecall_time = {
+संरचना sbi_ecall_extension ecall_time = {
 	.name			= "time",
 	.extid_start		= SBI_EXT_TIME,
 	.extid_end		= SBI_EXT_TIME,
