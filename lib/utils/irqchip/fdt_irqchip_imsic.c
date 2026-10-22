@@ -8,91 +8,91 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/imsic.h>
+#شامل <libfdt.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/irqchip/fdt_irqchip.h>
+#شامل <sbi_utils/irqchip/imsic.h>
 
-static int irqchip_imsic_update_hartid_table(const void *fdt, int nodeoff,
-					     struct imsic_data *id)
+ساکن صحیح irqchip_imsic_update_hartid_جدول(ثابت خالی *fdt, صحیح nodeoff,
+					     ساخت imsic_ڈیٹا *id)
 {
-	const fdt32_t *val;
+	ثابت fdt32_t *val;
 	u32 phandle, hwirq, hartid;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	صحیح i, err, گنتی, cpu_انحراف, cpu_intc_انحراف;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &گنتی);
+	اگر (!val || گنتی < حجم(fdt32_t))
+		واپس SBI_EINVAL;
+	گنتی = گنتی / حجم(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
-		phandle = fdt32_to_cpu(val[i]);
-		hwirq = fdt32_to_cpu(val[i + 1]);
+	برائے (i = 0; i < گنتی; i += 2) {
+		phandle = fdt32_مقصد_cpu(val[i]);
+		hwirq = fdt32_مقصد_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_انحراف = fdt_گرہ_انحراف_by_phandle(fdt, phandle);
+		اگر (cpu_intc_انحراف < 0)
+			جاری;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_انحراف = fdt_والد_انحراف(fdt, cpu_intc_انحراف);
+		اگر (cpu_انحراف < 0)
+			جاری;
 
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			return SBI_EINVAL;
+		err = fdt_parse_hart_id(fdt, cpu_انحراف, &hartid);
+		اگر (err)
+			واپس SBI_EINVAL;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
-			err = imsic_map_hartid_to_data(hartid, id, i / 2);
-			if (err)
-				return err;
-			break;
-		default:
-			break;
+		انتخاب (hwirq) {
+		حالت IRQ_M_EXT:
+			err = imsic_map_hartid_مقصد_ڈیٹا(hartid, id, i / 2);
+			اگر (err)
+				واپس err;
+			توڑو;
+		طےشدہ:
+			توڑو;
 		}
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static int irqchip_imsic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+ساکن صحیح irqchip_imsic_cold_init(ثابت خالی *fdt, صحیح nodeoff,
+				   ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
-	struct imsic_data *id;
+	صحیح rc;
+	ساخت imsic_ڈیٹا *id;
 
-	id = sbi_zalloc(sizeof(*id));
-	if (!id)
-		return SBI_ENOMEM;
+	id = sbi_zalloc(حجم(*id));
+	اگر (!id)
+		واپس SBI_ENOMEM;
 
-	rc = fdt_parse_imsic_node(fdt, nodeoff, id);
-	if (rc || !id->targets_mmode)
-		goto fail_free_data;
+	rc = fdt_parse_imsic_گرہ(fdt, nodeoff, id);
+	اگر (rc || !id->targets_mmode)
+		جاؤ fail_free_ڈیٹا;
 
 	rc = imsic_cold_irqchip_init(id);
-	if (rc)
-		goto fail_free_data;
+	اگر (rc)
+		جاؤ fail_free_ڈیٹا;
 
-	rc = irqchip_imsic_update_hartid_table(fdt, nodeoff, id);
-	if (rc)
-		goto fail_free_data;
+	rc = irqchip_imsic_update_hartid_جدول(fdt, nodeoff, id);
+	اگر (rc)
+		جاؤ fail_free_ڈیٹا;
 
-	return 0;
+	واپس 0;
 
-fail_free_data:
+fail_free_ڈیٹا:
 	sbi_free(id);
-	return rc;
+	واپس rc;
 }
 
-static const struct fdt_match irqchip_imsic_match[] = {
+ساکن ثابت ساخت fdt_مطابقت irqchip_imsic_مطابقت[] = {
 	{ .compatible = "riscv,imsics" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_imsic = {
-	.match_table = irqchip_imsic_match,
+ثابت ساخت fdt_driver fdt_irqchip_imsic = {
+	.مطابقت_جدول = irqchip_imsic_مطابقت,
 	.init = irqchip_imsic_cold_init,
 };

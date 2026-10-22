@@ -5,14 +5,14 @@
  *
  * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
  */
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_unit_test.h>
+#شامل <sbi/sbi_math.h>
+#شامل <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+ساکن خالی log2roundup_test(ساخت sbiunit_test_case *test)
 {
-    struct {
-        unsigned long input;
-        unsigned long expected;
+    ساخت {
+        غیرعلامتی طویل داخلہ;
+        غیرعلامتی طویل expected;
     } cases[] = {
         {1, 0},
         {2, 1},
@@ -32,15 +32,15 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
-        SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
+    برائے (صحیح i = 0; i < حجم(cases)/حجم(cases[0]); i++) {
+        غیرعلامتی طویل نتیجہ = log2roundup(cases[i].داخلہ);
+        SBIUNIT_EXPECT_EQ(test, نتیجہ, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+ساکن ساخت sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
-    SBIUNIT_END_CASE,
+    SBIUNIT_انتہا_CASE,
 };
 
 SBIUNIT_TEST_SUITE(math_test_suite, math_test_cases);

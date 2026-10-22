@@ -8,116 +8,116 @@
  *   Sunil V L <sunilvl@oss.qualcomm.com>
  */
 
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#شامل <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#شامل <sbi_utils/mailbox/rpmi_mailbox.h>
 
-static struct rpmi_mm_get_attributes_rsp rsp;
+ساکن ساخت rpmi_mm_get_اوصاف_rsp rsp;
 
-static struct mpxy_rpmi_service_data mm_srvcdata[] = {
+ساکن ساخت mpxy_rpmi_service_ڈیٹا mm_srvcdata[] = {
 	[0] = {
 		.id = RPMI_MM_SRV_ENABLE_NOTIFICATION,
-		.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-		.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+		.min_tx_len = حجم(ساخت rpmi_enable_notification_req),
+		.max_tx_len = حجم(ساخت rpmi_enable_notification_req),
+		.min_rx_len = حجم(ساخت rpmi_enable_notification_resp),
+		.max_rx_len = حجم(ساخت rpmi_enable_notification_resp),
 	},
 	[1] = {
-		.id = RPMI_MM_SRV_GET_ATTRIBUTES,
+		.id = RPMI_MM_SRV_GET_اوصاف,
 		.min_tx_len = 0,
 		.max_tx_len = 0,
-		.min_rx_len = sizeof(struct rpmi_mm_get_attributes_rsp),
-		.max_rx_len = sizeof(struct rpmi_mm_get_attributes_rsp),
+		.min_rx_len = حجم(ساخت rpmi_mm_get_اوصاف_rsp),
+		.max_rx_len = حجم(ساخت rpmi_mm_get_اوصاف_rsp),
 	},
 	[2] = {
 		.id = RPMI_MM_SRV_COMMUNICATE,
-		.min_tx_len = sizeof(struct rpmi_mm_communicate_req),
-		.max_tx_len = sizeof(struct rpmi_mm_communicate_req),
-		.min_rx_len = sizeof(struct rpmi_mm_communicate_rsp),
-		.max_rx_len = sizeof(struct rpmi_mm_communicate_rsp),
+		.min_tx_len = حجم(ساخت rpmi_mm_communicate_req),
+		.max_tx_len = حجم(ساخت rpmi_mm_communicate_req),
+		.min_rx_len = حجم(ساخت rpmi_mm_communicate_rsp),
+		.max_rx_len = حجم(ساخت rpmi_mm_communicate_rsp),
 	},
 };
 
-static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
-			      const struct mpxy_rpmi_mbox_data *data)
+ساکن صحیح mpxy_rpmi_mm_تیاری(خالی **context, ساخت mbox_chan *chan,
+			      ثابت ساخت mpxy_rpmi_mbox_ڈیٹا *ڈیٹا)
 {
-	unsigned long mm_region_addr = 0;
-	unsigned long mm_region_size = 0;
-	unsigned long mm_region_flags;
-	int rc = 0;
+	غیرعلامتی طویل mm_region_addr = 0;
+	غیرعلامتی طویل mm_region_سائز = 0;
+	غیرعلامتی طویل mm_region_flags;
+	صحیح rc = 0;
 
-	rc = rpmi_normal_request_with_status(chan, RPMI_MM_SRV_GET_ATTRIBUTES,
-					     NULL, 0, 0, &rsp,
-					     rpmi_u32_count(rsp),
-					     rpmi_u32_count(rsp));
-	if (rc)
-		return rc;
+	rc = rpmi_معمول_request_with_حالت(chan, RPMI_MM_SRV_GET_اوصاف,
+					     تہی, 0, 0, &rsp,
+					     rpmi_u32_گنتی(rsp),
+					     rpmi_u32_گنتی(rsp));
+	اگر (rc)
+		واپس rc;
 
-#if __riscv_xlen == 32
+#اگر __riscv_xlen == 32
 	mm_region_addr = rsp.mma.shmem_addr_lo;
-#else
-	mm_region_addr = ((unsigned long)(rsp.mma.shmem_addr_hi) << 32) |
+#ورنہ
+	mm_region_addr = ((غیرعلامتی طویل)(rsp.mma.shmem_addr_hi) << 32) |
 	    rsp.mma.shmem_addr_lo;
-#endif
+#اگر_ختم
 
-	mm_region_size = rsp.mma.shmem_size;
+	mm_region_سائز = rsp.mma.shmem_سائز;
 	mm_region_flags = SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW;
 
-	rc = sbi_domain_root_add_memrange(mm_region_addr, mm_region_size,
-					  PAGE_SIZE, mm_region_flags);
-	return rc;
+	rc = sbi_domain_جڑ_جوڑو_memrange(mm_region_addr, mm_region_سائز,
+					  صفحہ_سائز, mm_region_flags);
+	واپس rc;
 }
 
-static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
-			     struct mbox_xfer *xfer)
+ساکن صحیح mpxy_rpmi_mm_xfer(خالی *context, ساخت mbox_chan *chan,
+			     ساخت mbox_xfer *xfer)
 {
-	struct rpmi_message_args *args = xfer->args;
-	int rc = 0;
+	ساخت rpmi_پیغام_دلائل *دلائل = xfer->دلائل;
+	صحیح rc = 0;
 
-	if (!xfer->rx || (args->type != RPMI_MSG_NORMAL_REQUEST))
-		return 0;
+	اگر (!xfer->rx || (دلائل->type != RPMI_پیغام_معمول_REQUEST))
+		واپس 0;
 
-	switch (args->service_id) {
-	case RPMI_MM_SRV_GET_ATTRIBUTES:
-		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_SUCCESS);
-		((u32 *)xfer->rx)[1] = cpu_to_le32(rsp.mma.mm_version);
-		((u32 *)xfer->rx)[2] = cpu_to_le32(rsp.mma.shmem_addr_lo);
-		((u32 *)xfer->rx)[3] = cpu_to_le32(rsp.mma.shmem_addr_hi);
-		((u32 *)xfer->rx)[4] = cpu_to_le32(rsp.mma.shmem_size);
-		args->rx_data_len = 5 * sizeof(u32);
-		break;
+	انتخاب (دلائل->service_id) {
+	حالت RPMI_MM_SRV_GET_اوصاف:
+		((u32 *)xfer->rx)[0] = cpu_مقصد_le32(RPMI_SUCCESS);
+		((u32 *)xfer->rx)[1] = cpu_مقصد_le32(rsp.mma.mm_نسخہ);
+		((u32 *)xfer->rx)[2] = cpu_مقصد_le32(rsp.mma.shmem_addr_lo);
+		((u32 *)xfer->rx)[3] = cpu_مقصد_le32(rsp.mma.shmem_addr_hi);
+		((u32 *)xfer->rx)[4] = cpu_مقصد_le32(rsp.mma.shmem_سائز);
+		دلائل->rx_ڈیٹا_len = 5 * حجم(u32);
+		توڑو;
 
-	case RPMI_MM_SRV_COMMUNICATE:
+	حالت RPMI_MM_SRV_COMMUNICATE:
 		rc = mbox_chan_xfer(chan, xfer);
-		break;
+		توڑو;
 
-	default:
-		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_ERR_NOTSUPP);
-		args->rx_data_len = sizeof(u32);
-		break;
+	طےشدہ:
+		((u32 *)xfer->rx)[0] = cpu_مقصد_le32(RPMI_ERR_NOTSUPP);
+		دلائل->rx_ڈیٹا_len = حجم(u32);
+		توڑو;
 	};
 
-	return rc;
+	واپس rc;
 }
 
-static const struct mpxy_rpmi_mbox_data mm_data = {
-	.servicegrp_id = RPMI_SRVGRP_MANAGEMENT_MODE,
-	.num_services = RPMI_MM_SRV_MAX_COUNT,
-	.service_data = mm_srvcdata,
-	.setup_group = mpxy_rpmi_mm_setup,
-	.xfer_group = mpxy_rpmi_mm_xfer,
+ساکن ثابت ساخت mpxy_rpmi_mbox_ڈیٹا mm_ڈیٹا = {
+	.servicegrp_id = RPMI_SRVGRP_MANAGEMENT_منوال,
+	.عدد_services = RPMI_MM_SRV_MAX_گنتی,
+	.service_ڈیٹا = mm_srvcdata,
+	.تیاری_گروہ = mpxy_rpmi_mm_تیاری,
+	.xfer_گروہ = mpxy_rpmi_mm_xfer,
 };
 
 /* one extra blank entry for loop termination while matching */
-static const struct fdt_match mm_match[] = {
+ساکن ثابت ساخت fdt_مطابقت mm_مطابقت[] = {
 	{
 		.compatible = "riscv,rpmi-mpxy-mm",
-		.data = &mm_data,
+		.ڈیٹا = &mm_ڈیٹا,
 	},
 	{},
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_mm = {
+ثابت ساخت fdt_driver fdt_mpxy_rpmi_mm = {
 	.experimental = true,
-	.match_table = mm_match,
+	.مطابقت_جدول = mm_مطابقت,
 	.init = mpxy_rpmi_mbox_init,
 };

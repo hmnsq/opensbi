@@ -8,177 +8,177 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/irqchip/aplic.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi_utils/irqchip/aplic.h>
 
-#define APLIC_MAX_IDC			(1UL << 14)
-#define APLIC_MAX_SOURCE		1024
+#تعریف_کرو APLIC_MAX_IDC			(1UL << 14)
+#تعریف_کرو APLIC_MAX_ماخذ		1024
 
-#define APLIC_DOMAINCFG		0x0000
-#define APLIC_DOMAINCFG_IE		(1 << 8)
-#define APLIC_DOMAINCFG_DM		(1 << 2)
-#define APLIC_DOMAINCFG_BE		(1 << 0)
+#تعریف_کرو APLIC_DOMAINCFG		0x0000
+#تعریف_کرو APLIC_DOMAINCFG_IE		(1 << 8)
+#تعریف_کرو APLIC_DOMAINCFG_DM		(1 << 2)
+#تعریف_کرو APLIC_DOMAINCFG_BE		(1 << 0)
 
-#define APLIC_SOURCECFG_BASE		0x0004
-#define APLIC_SOURCECFG_D		(1 << 10)
-#define APLIC_SOURCECFG_CHILDIDX_MASK	0x000003ff
-#define APLIC_SOURCECFG_SM_MASK	0x00000007
-#define APLIC_SOURCECFG_SM_INACTIVE	0x0
-#define APLIC_SOURCECFG_SM_DETACH	0x1
-#define APLIC_SOURCECFG_SM_EDGE_RISE	0x4
-#define APLIC_SOURCECFG_SM_EDGE_FALL	0x5
-#define APLIC_SOURCECFG_SM_LEVEL_HIGH	0x6
-#define APLIC_SOURCECFG_SM_LEVEL_LOW	0x7
+#تعریف_کرو APLIC_SOURCECFG_بنیاد		0x0004
+#تعریف_کرو APLIC_SOURCECFG_D		(1 << 10)
+#تعریف_کرو APLIC_SOURCECFG_CHILDIDX_نقاب	0x000003ff
+#تعریف_کرو APLIC_SOURCECFG_SM_نقاب	0x00000007
+#تعریف_کرو APLIC_SOURCECFG_SM_INACTIVE	0x0
+#تعریف_کرو APLIC_SOURCECFG_SM_DETACH	0x1
+#تعریف_کرو APLIC_SOURCECFG_SM_کنارہ_RISE	0x4
+#تعریف_کرو APLIC_SOURCECFG_SM_کنارہ_FALL	0x5
+#تعریف_کرو APLIC_SOURCECFG_SM_LEVEL_بلند	0x6
+#تعریف_کرو APLIC_SOURCECFG_SM_LEVEL_کم	0x7
 
-#define APLIC_MMSICFGADDR		0x1bc0
-#define APLIC_MMSICFGADDRH		0x1bc4
-#define APLIC_SMSICFGADDR		0x1bc8
-#define APLIC_SMSICFGADDRH		0x1bcc
+#تعریف_کرو APLIC_MMSICFGADDR		0x1bc0
+#تعریف_کرو APLIC_MMSICFGADDRH		0x1bc4
+#تعریف_کرو APLIC_SMSICFGADDR		0x1bc8
+#تعریف_کرو APLIC_SMSICFGADDRH		0x1bcc
 
-#define APLIC_xMSICFGADDRH_L		(1UL << 31)
-#define APLIC_xMSICFGADDRH_HHXS_MASK	0x1f
-#define APLIC_xMSICFGADDRH_HHXS_SHIFT	24
-#define APLIC_xMSICFGADDRH_LHXS_MASK	0x7
-#define APLIC_xMSICFGADDRH_LHXS_SHIFT	20
-#define APLIC_xMSICFGADDRH_HHXW_MASK	0x7
-#define APLIC_xMSICFGADDRH_HHXW_SHIFT	16
-#define APLIC_xMSICFGADDRH_LHXW_MASK	0xf
-#define APLIC_xMSICFGADDRH_LHXW_SHIFT	12
-#define APLIC_xMSICFGADDRH_BAPPN_MASK	0xfff
+#تعریف_کرو APLIC_xMSICFGADDRH_L		(1UL << 31)
+#تعریف_کرو APLIC_x_MSICFGADDRH_HHXS_نقاب	0x1f
+#تعریف_کرو APLIC_x_MSICFGADDRH_HHXS_سرکاؤ	24
+#تعریف_کرو APLIC_x_MSICFGADDRH_LHXS_نقاب	0x7
+#تعریف_کرو APLIC_x_MSICFGADDRH_LHXS_سرکاؤ	20
+#تعریف_کرو APLIC_x_MSICFGADDRH_HHXW_نقاب	0x7
+#تعریف_کرو APLIC_x_MSICFGADDRH_HHXW_سرکاؤ	16
+#تعریف_کرو APLIC_x_MSICFGADDRH_LHXW_نقاب	0xf
+#تعریف_کرو APLIC_x_MSICFGADDRH_LHXW_سرکاؤ	12
+#تعریف_کرو APLIC_x_MSICFGADDRH_BAPPN_نقاب	0xfff
 
-#define APLIC_xMSICFGADDR_PPN_SHIFT	12
+#تعریف_کرو APLIC_x_MSICFGADDR_PPN_سرکاؤ	12
 
-#define APLIC_xMSICFGADDR_PPN_HART(__lhxs) \
+#تعریف_کرو APLIC_xMSICFGADDR_PPN_HART(__lhxs) \
 	((1UL << (__lhxs)) - 1)
 
-#define APLIC_xMSICFGADDR_PPN_LHX_MASK(__lhxw) \
+#تعریف_کرو APLIC_x_MSICFGADDR_PPN_LHX_نقاب(__lhxw) \
 	((1UL << (__lhxw)) - 1)
-#define APLIC_xMSICFGADDR_PPN_LHX_SHIFT(__lhxs) \
+#تعریف_کرو APLIC_x_MSICFGADDR_PPN_LHX_سرکاؤ(__lhxs) \
 	((__lhxs))
-#define APLIC_xMSICFGADDR_PPN_LHX(__lhxw, __lhxs) \
-	(APLIC_xMSICFGADDR_PPN_LHX_MASK(__lhxw) << \
-	 APLIC_xMSICFGADDR_PPN_LHX_SHIFT(__lhxs))
+#تعریف_کرو APLIC_xMSICFGADDR_PPN_LHX(__lhxw, __lhxs) \
+	(APLIC_x_MSICFGADDR_PPN_LHX_نقاب(__lhxw) << \
+	 APLIC_x_MSICFGADDR_PPN_LHX_سرکاؤ(__lhxs))
 
-#define APLIC_xMSICFGADDR_PPN_HHX_MASK(__hhxw) \
+#تعریف_کرو APLIC_x_MSICFGADDR_PPN_HHX_نقاب(__hhxw) \
 	((1UL << (__hhxw)) - 1)
-#define APLIC_xMSICFGADDR_PPN_HHX_SHIFT(__hhxs) \
-	((__hhxs) + APLIC_xMSICFGADDR_PPN_SHIFT)
-#define APLIC_xMSICFGADDR_PPN_HHX(__hhxw, __hhxs) \
-	(APLIC_xMSICFGADDR_PPN_HHX_MASK(__hhxw) << \
-	 APLIC_xMSICFGADDR_PPN_HHX_SHIFT(__hhxs))
+#تعریف_کرو APLIC_x_MSICFGADDR_PPN_HHX_سرکاؤ(__hhxs) \
+	((__hhxs) + APLIC_x_MSICFGADDR_PPN_سرکاؤ)
+#تعریف_کرو APLIC_xMSICFGADDR_PPN_HHX(__hhxw, __hhxs) \
+	(APLIC_x_MSICFGADDR_PPN_HHX_نقاب(__hhxw) << \
+	 APLIC_x_MSICFGADDR_PPN_HHX_سرکاؤ(__hhxs))
 
-#define APLIC_TARGET_GUEST_IDX(__gidx) \
-	((((u32)(__gidx)) & APLIC_TARGET_GUEST_IDX_MASK) << \
-	 APLIC_TARGET_GUEST_IDX_SHIFT)
-#define APLIC_TARGET_EIID(__eiid) \
-	(((u32)(__eiid)) & APLIC_TARGET_EIID_MASK)
+#تعریف_کرو APLIC_ہدف_GUEST_IDX(__gidx) \
+	((((u32)(__gidx)) & APLIC_ہدف_GUEST_IDX_نقاب) << \
+	 APLIC_ہدف_GUEST_IDX_سرکاؤ)
+#تعریف_کرو APLIC_ہدف_EIID(__eiid) \
+	(((u32)(__eiid)) & APLIC_ہدف_EIID_نقاب)
 
-#define APLIC_SETIP_BASE		0x1c00
-#define APLIC_SETIPNUM			0x1cdc
+#تعریف_کرو APLIC_SETIP_بنیاد		0x1c00
+#تعریف_کرو APLIC_SETIPNUM			0x1cdc
 
-#define APLIC_CLRIP_BASE		0x1d00
-#define APLIC_CLRIPNUM			0x1ddc
+#تعریف_کرو APLIC_CLRIP_بنیاد		0x1d00
+#تعریف_کرو APLIC_CLRIPNUM			0x1ddc
 
-#define APLIC_SETIE_BASE		0x1e00
-#define APLIC_SETIENUM			0x1edc
+#تعریف_کرو APLIC_SETIE_بنیاد		0x1e00
+#تعریف_کرو APLIC_SETIENUM			0x1edc
 
-#define APLIC_CLRIE_BASE		0x1f00
-#define APLIC_CLRIENUM			0x1fdc
+#تعریف_کرو APLIC_CLRIE_بنیاد		0x1f00
+#تعریف_کرو APLIC_CLRIENUM			0x1fdc
 
-#define APLIC_SETIPNUM_LE		0x2000
-#define APLIC_SETIPNUM_BE		0x2004
+#تعریف_کرو APLIC_SETIPNUM_LE		0x2000
+#تعریف_کرو APLIC_SETIPNUM_BE		0x2004
 
-#define APLIC_TARGET_BASE		0x3004
-#define APLIC_TARGET_HART_IDX_SHIFT	18
-#define APLIC_TARGET_HART_IDX_MASK	0x3fff
-#define APLIC_TARGET_GUEST_IDX_SHIFT	12
-#define APLIC_TARGET_GUEST_IDX_MASK	0x3f
-#define APLIC_TARGET_IPRIO_MASK	0xff
-#define APLIC_TARGET_EIID_MASK	0x7ff
+#تعریف_کرو APLIC_ہدف_بنیاد		0x3004
+#تعریف_کرو APLIC_ہدف_HART_IDX_سرکاؤ	18
+#تعریف_کرو APLIC_ہدف_HART_IDX_نقاب	0x3fff
+#تعریف_کرو APLIC_ہدف_GUEST_IDX_سرکاؤ	12
+#تعریف_کرو APLIC_ہدف_GUEST_IDX_نقاب	0x3f
+#تعریف_کرو APLIC_ہدف_IPRIO_نقاب	0xff
+#تعریف_کرو APLIC_ہدف_EIID_نقاب	0x7ff
 
-#define APLIC_TARGET_HART_IDX(__hidx) \
-	((((u32)(__hidx)) & APLIC_TARGET_HART_IDX_MASK) << \
-	 APLIC_TARGET_HART_IDX_SHIFT)
-#define APLIC_TARGET_IPRIO(__prio) \
-	(((u32)(__prio)) & APLIC_TARGET_IPRIO_MASK)
+#تعریف_کرو APLIC_ہدف_HART_IDX(__hidx) \
+	((((u32)(__hidx)) & APLIC_ہدف_HART_IDX_نقاب) << \
+	 APLIC_ہدف_HART_IDX_سرکاؤ)
+#تعریف_کرو APLIC_ہدف_IPRIO(__prio) \
+	(((u32)(__prio)) & APLIC_ہدف_IPRIO_نقاب)
 
-#define APLIC_IDC_BASE			0x4000
-#define APLIC_IDC_SIZE			32
+#تعریف_کرو APLIC_IDC_بنیاد			0x4000
+#تعریف_کرو APLIC_IDC_سائز			32
 
-#define APLIC_IDC_IDELIVERY		0x00
+#تعریف_کرو APLIC_IDC_IDELIVERY		0x00
 
-#define APLIC_IDC_IFORCE		0x04
+#تعریف_کرو APLIC_IDC_IFORCE		0x04
 
-#define APLIC_IDC_ITHRESHOLD		0x08
+#تعریف_کرو APLIC_IDC_ITHRESHOLD		0x08
 
-#define APLIC_IDC_TOPI			0x18
-#define APLIC_IDC_TOPI_ID_SHIFT	16
-#define APLIC_IDC_TOPI_ID_MASK	0x3ff
-#define APLIC_IDC_TOPI_PRIO_MASK	0xff
+#تعریف_کرو APLIC_IDC_TOPI			0x18
+#تعریف_کرو APLIC_IDC_TOPI_ID_سرکاؤ	16
+#تعریف_کرو APLIC_IDC_TOPI_ID_نقاب	0x3ff
+#تعریف_کرو APLIC_IDC_TOPI_PRIO_نقاب	0xff
 
-#define APLIC_IDC_CLAIMI		0x1c
+#تعریف_کرو APLIC_IDC_CLAIMI		0x1c
 
-#define APLIC_DEFAULT_PRIORITY		1
-#define APLIC_DISABLE_IDELIVERY		0
-#define APLIC_ENABLE_IDELIVERY		1
-#define APLIC_DISABLE_ITHRESHOLD	1
-#define APLIC_ENABLE_ITHRESHOLD		0
+#تعریف_کرو APLIC_DEFAULT_ترجیح		1
+#تعریف_کرو APLIC_DISABLE_IDELIVERY		0
+#تعریف_کرو APLIC_ENABLE_IDELIVERY		1
+#تعریف_کرو APLIC_DISABLE_ITHRESHOLD	1
+#تعریف_کرو APLIC_ENABLE_ITHRESHOLD		0
 
-struct aplic_msi_data {
-	struct aplic_data *aplic;
+ساخت aplic_msi_ڈیٹا {
+	ساخت aplic_ڈیٹا *aplic;
 	u32 hwirq;
-	u32 parent_hwirq;
+	u32 والد_hwirq;
 };
 
-static SBI_LIST_HEAD(aplic_list);
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
-				void *msicfgaddr, void *msicfgaddrH);
+ساکن SBI_LIST_سر(aplic_list);
+ساکن خالی aplic_writel_msicfg(ساخت aplic_msicfg_ڈیٹا *msicfg,
+				خالی *msicfgaddr, خالی *msicfgaddrH);
 
-static inline bool aplic_is_direct_mode(struct aplic_data *aplic)
+ساکن اندرونی bool aplic_is_براہ_راست_منوال(ساخت aplic_ڈیٹا *aplic)
 {
-	return aplic && aplic->num_idc;
+	واپس aplic && aplic->عدد_idc;
 }
 
-static inline void aplic_sourcecfg_write(struct aplic_data *aplic,
+ساکن اندرونی خالی aplic_sourcecfg_write(ساخت aplic_ڈیٹا *aplic,
 					 u32 hwirq, u32 val)
 {
-	writel(val, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+	writel(val, (خالی *)(aplic->addr + APLIC_SOURCECFG_بنیاد +
+			     (hwirq - 1) * حجم(u32)));
 }
 
-static inline u32 aplic_sourcecfg_read(struct aplic_data *aplic, u32 hwirq)
+ساکن اندرونی u32 aplic_sourcecfg_read(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
-	return readl((void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			      (hwirq - 1) * sizeof(u32)));
+	واپس readl((خالی *)(aplic->addr + APLIC_SOURCECFG_بنیاد +
+			      (hwirq - 1) * حجم(u32)));
 }
 
-static inline void aplic_target_write(struct aplic_data *aplic,
+ساکن اندرونی خالی aplic_ہدف_write(ساخت aplic_ڈیٹا *aplic,
 				      u32 hwirq, u32 val)
 {
-	writel(val, (void *)(aplic->addr + APLIC_TARGET_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+	writel(val, (خالی *)(aplic->addr + APLIC_ہدف_بنیاد +
+			     (hwirq - 1) * حجم(u32)));
 }
 
-static inline void aplic_irq_setie(struct aplic_data *aplic, u32 hwirq)
+ساکن اندرونی خالی aplic_irq_setie(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_SETIENUM));
+	writel(hwirq, (خالی *)(aplic->addr + APLIC_SETIENUM));
 }
 
-static inline void aplic_irq_clrie(struct aplic_data *aplic, u32 hwirq)
+ساکن اندرونی خالی aplic_irq_clrie(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIENUM));
+	writel(hwirq, (خالی *)(aplic->addr + APLIC_CLRIENUM));
 }
 
-static inline void aplic_irq_clrip(struct aplic_data *aplic, u32 hwirq)
+ساکن اندرونی خالی aplic_irq_clrip(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIPNUM));
+	writel(hwirq, (خالی *)(aplic->addr + APLIC_CLRIPNUM));
 }
 
-static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 hwirq)
+ساکن اندرونی خالی aplic_msi_irq_retrigger_level(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
 	/*
 	 * The section "4.9.2 Special consideration for level-sensitive interrupt
@@ -190,536 +190,536 @@ static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 h
 	 * pending bit to be set to one again if the source is still asserting
 	 * an interrupt, but not if the source is not asserting an interrupt.
 	 */
-	writel(hwirq, (void *)(aplic->addr + APLIC_SETIPNUM_LE));
+	writel(hwirq, (خالی *)(aplic->addr + APLIC_SETIPNUM_LE));
 }
 
-static inline void *aplic_idc_base(struct aplic_data *aplic, u32 idc_index)
+ساکن اندرونی خالی *aplic_idc_بنیاد(ساخت aplic_ڈیٹا *aplic, u32 idc_اشاریہ)
 {
-	return (void *)(aplic->addr + APLIC_IDC_BASE +
-			idc_index * APLIC_IDC_SIZE);
+	واپس (خالی *)(aplic->addr + APLIC_IDC_بنیاد +
+			idc_اشاریہ * APLIC_IDC_سائز);
 }
 
-static inline u32 aplic_idc_read(struct aplic_data *aplic, u32 idc_index,
+ساکن اندرونی u32 aplic_idc_read(ساخت aplic_ڈیٹا *aplic, u32 idc_اشاریہ,
 				 u32 reg)
 {
-	return readl(aplic_idc_base(aplic, idc_index) + reg);
+	واپس readl(aplic_idc_بنیاد(aplic, idc_اشاریہ) + reg);
 }
 
-static inline void aplic_idc_write(struct aplic_data *aplic, u32 idc_index,
+ساکن اندرونی خالی aplic_idc_write(ساخت aplic_ڈیٹا *aplic, u32 idc_اشاریہ,
 				   u32 reg, u32 val)
 {
-	writel(val, aplic_idc_base(aplic, idc_index) + reg);
+	writel(val, aplic_idc_بنیاد(aplic, idc_اشاریہ) + reg);
 }
 
-static u32 aplic_hwirq_flags_to_sourcecfg(u32 hwirq_flags)
+ساکن u32 aplic_hwirq_flags_مقصد_sourcecfg(u32 hwirq_flags)
 {
-	switch (hwirq_flags & SBI_HWIRQ_FLAGS_LEVEL_SENSE_MASK) {
-	case SBI_HWIRQ_FLAGS_EDGE_RISING:
-		return APLIC_SOURCECFG_SM_EDGE_RISE;
-	case SBI_HWIRQ_FLAGS_EDGE_FALLING:
-		return APLIC_SOURCECFG_SM_EDGE_FALL;
-	case SBI_HWIRQ_FLAGS_LEVEL_HIGH:
-		return APLIC_SOURCECFG_SM_LEVEL_HIGH;
-	case SBI_HWIRQ_FLAGS_LEVEL_LOW:
-		return APLIC_SOURCECFG_SM_LEVEL_LOW;
-	default:
-		return APLIC_SOURCECFG_SM_INACTIVE;
+	انتخاب (hwirq_flags & SBI_HWIRQ_FLAGS_LEVEL_SENSE_نقاب) {
+	حالت SBI_HWIRQ_FLAGS_کنارہ_RISING:
+		واپس APLIC_SOURCECFG_SM_کنارہ_RISE;
+	حالت SBI_HWIRQ_FLAGS_کنارہ_FALLING:
+		واپس APLIC_SOURCECFG_SM_کنارہ_FALL;
+	حالت SBI_HWIRQ_FLAGS_LEVEL_بلند:
+		واپس APLIC_SOURCECFG_SM_LEVEL_بلند;
+	حالت SBI_HWIRQ_FLAGS_LEVEL_کم:
+		واپس APLIC_SOURCECFG_SM_LEVEL_کم;
+	طےشدہ:
+		واپس APLIC_SOURCECFG_SM_INACTIVE;
 	}
 }
 
-static bool aplic_hwirq_is_delegated(struct aplic_data *aplic, u32 hwirq)
+ساکن bool aplic_hwirq_is_delegated(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
 	u32 sourcecfg;
 
 	sourcecfg = aplic_sourcecfg_read(aplic, hwirq);
-	return !!(sourcecfg & APLIC_SOURCECFG_D);
+	واپس !!(sourcecfg & APLIC_SOURCECFG_D);
 }
 
-static int aplic_find_idc_index(struct aplic_data *aplic, u32 hart_index)
+ساکن صحیح aplic_ڈھونڈو_idc_اشاریہ(ساخت aplic_ڈیٹا *aplic, u32 hart_اشاریہ)
 {
 	u32 i;
 
-	for (i = 0; i < aplic->num_idc; i++) {
-		if (aplic->idc_map[i] == hart_index)
-			return i;
+	برائے (i = 0; i < aplic->عدد_idc; i++) {
+		اگر (aplic->idc_map[i] == hart_اشاریہ)
+			واپس i;
 	}
 
-	return SBI_ENOENT;
+	واپس SBI_ENOENT;
 }
 
-static void aplic_init(struct aplic_data *aplic)
+ساکن خالی aplic_init(ساخت aplic_ڈیٹا *aplic)
 {
-	struct aplic_delegate_data *deleg;
+	ساخت aplic_delegate_ڈیٹا *deleg;
 	u32 i, j, tmp, domaincfg;
-	int locked;
+	صحیح locked;
 
 	/* Set domain configuration to 0 */
-	writel(0, (void *)(aplic->addr + APLIC_DOMAINCFG));
+	writel(0, (خالی *)(aplic->addr + APLIC_DOMAINCFG));
 
 	/* Disable all interrupts */
-	for (i = 0; i <= aplic->num_source; i += 32)
-		writel(-1U, (void *)(aplic->addr + APLIC_CLRIE_BASE +
-				     (i / 32) * sizeof(u32)));
+	برائے (i = 0; i <= aplic->عدد_ماخذ; i += 32)
+		writel(-1U, (خالی *)(aplic->addr + APLIC_CLRIE_بنیاد +
+				     (i / 32) * حجم(u32)));
 
 	/* Set interrupt type and priority for all interrupts */
-	for (i = 1; i <= aplic->num_source; i++) {
+	برائے (i = 1; i <= aplic->عدد_ماخذ; i++) {
 		/* Set IRQ source configuration to 0 */
-		writel(0, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			  (i - 1) * sizeof(u32)));
+		writel(0, (خالی *)(aplic->addr + APLIC_SOURCECFG_بنیاد +
+			  (i - 1) * حجم(u32)));
 		/* Set IRQ target hart index and priority to 1 */
-		writel(APLIC_DEFAULT_PRIORITY, (void *)(aplic->addr +
-						APLIC_TARGET_BASE +
-						(i - 1) * sizeof(u32)));
+		writel(APLIC_DEFAULT_ترجیح, (خالی *)(aplic->addr +
+						APLIC_ہدف_بنیاد +
+						(i - 1) * حجم(u32)));
 	}
 
 	/* Configure IRQ delegation */
-	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
+	برائے (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (!deleg->first_irq || !deleg->last_irq)
-			continue;
-		if (aplic->num_source < deleg->first_irq ||
-		    aplic->num_source < deleg->last_irq)
-			continue;
-		if (deleg->child_index > APLIC_SOURCECFG_CHILDIDX_MASK)
-			continue;
-		if (deleg->first_irq > deleg->last_irq) {
-			tmp = deleg->first_irq;
-			deleg->first_irq = deleg->last_irq;
-			deleg->last_irq = tmp;
+		اگر (!deleg->پہلا_irq || !deleg->آخری_irq)
+			جاری;
+		اگر (aplic->عدد_ماخذ < deleg->پہلا_irq ||
+		    aplic->عدد_ماخذ < deleg->آخری_irq)
+			جاری;
+		اگر (deleg->بچہ_اشاریہ > APLIC_SOURCECFG_CHILDIDX_نقاب)
+			جاری;
+		اگر (deleg->پہلا_irq > deleg->آخری_irq) {
+			tmp = deleg->پہلا_irq;
+			deleg->پہلا_irq = deleg->آخری_irq;
+			deleg->آخری_irq = tmp;
 		}
-		for (j = deleg->first_irq; j <= deleg->last_irq; j++)
-			aplic_sourcecfg_write(aplic, j, APLIC_SOURCECFG_D | deleg->child_index);
+		برائے (j = deleg->پہلا_irq; j <= deleg->آخری_irq; j++)
+			aplic_sourcecfg_write(aplic, j, APLIC_SOURCECFG_D | deleg->بچہ_اشاریہ);
 	}
 
 	/* Default initialization of IDC structures */
-	if (aplic_is_direct_mode(aplic)) {
-		for (i = 0; i < aplic->num_idc; i++) {
+	اگر (aplic_is_براہ_راست_منوال(aplic)) {
+		برائے (i = 0; i < aplic->عدد_idc; i++) {
 			aplic_idc_write(aplic, i, APLIC_IDC_IDELIVERY,
 					APLIC_DISABLE_IDELIVERY);
 			aplic_idc_write(aplic, i, APLIC_IDC_IFORCE, 0);
 			aplic_idc_write(aplic, i, APLIC_IDC_ITHRESHOLD,
 					APLIC_DISABLE_ITHRESHOLD);
 		}
-	} else {
+	} ورنہ {
 		/* MSI configuration */
-		locked = readl((void *)(aplic->addr + APLIC_MMSICFGADDRH)) & APLIC_xMSICFGADDRH_L;
-		if (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
+		locked = readl((خالی *)(aplic->addr + APLIC_MMSICFGADDRH)) & APLIC_xMSICFGADDRH_L;
+		اگر (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_mmode,
-						(void *)(aplic->addr + APLIC_MMSICFGADDR),
-						(void *)(aplic->addr + APLIC_MMSICFGADDRH));
+						(خالی *)(aplic->addr + APLIC_MMSICFGADDR),
+						(خالی *)(aplic->addr + APLIC_MMSICFGADDRH));
 		}
-		if (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
+		اگر (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_smode,
-						(void *)(aplic->addr + APLIC_SMSICFGADDR),
-						(void *)(aplic->addr + APLIC_SMSICFGADDRH));
+						(خالی *)(aplic->addr + APLIC_SMSICFGADDR),
+						(خالی *)(aplic->addr + APLIC_SMSICFGADDRH));
 		}
 	}
 
 	domaincfg = APLIC_DOMAINCFG_IE;
-	if (!aplic_is_direct_mode(aplic))
+	اگر (!aplic_is_براہ_راست_منوال(aplic))
 		domaincfg |= APLIC_DOMAINCFG_DM;
 
-	writel(domaincfg, (void *)(aplic->addr + APLIC_DOMAINCFG));
+	writel(domaincfg, (خالی *)(aplic->addr + APLIC_DOMAINCFG));
 }
 
-void aplic_reinit_all(void)
+خالی aplic_reinit_all(خالی)
 {
-	struct aplic_data *aplic;
+	ساخت aplic_ڈیٹا *aplic;
 
-	sbi_list_for_each_entry(aplic, &aplic_list, node)
+	sbi_list_for_each_اندراج(aplic, &aplic_list, گرہ)
 		aplic_init(aplic);
 }
 
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
-				void *msicfgaddr, void *msicfgaddrH)
+ساکن خالی aplic_writel_msicfg(ساخت aplic_msicfg_ڈیٹا *msicfg,
+				خالی *msicfgaddr, خالی *msicfgaddrH)
 {
 	u32 val;
-	unsigned long base_ppn;
+	غیرعلامتی طویل بنیاد_ppn;
 
 	/* Compute the MSI base PPN */
-	base_ppn = msicfg->base_addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_HART(msicfg->lhxs);
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_LHX(msicfg->lhxw, msicfg->lhxs);
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_HHX(msicfg->hhxw, msicfg->hhxs);
+	بنیاد_ppn = msicfg->بنیاد_addr >> APLIC_x_MSICFGADDR_PPN_سرکاؤ;
+	بنیاد_ppn &= ~APLIC_xMSICFGADDR_PPN_HART(msicfg->lhxs);
+	بنیاد_ppn &= ~APLIC_xMSICFGADDR_PPN_LHX(msicfg->lhxw, msicfg->lhxs);
+	بنیاد_ppn &= ~APLIC_xMSICFGADDR_PPN_HHX(msicfg->hhxw, msicfg->hhxs);
 
 	/* Write the lower MSI config register */
-	writel((u32)base_ppn, msicfgaddr);
+	writel((u32)بنیاد_ppn, msicfgaddr);
 
 	/* Write the upper MSI config register */
-	val = (((u64)base_ppn) >> 32) &
-		APLIC_xMSICFGADDRH_BAPPN_MASK;
-	val |= (msicfg->lhxw & APLIC_xMSICFGADDRH_LHXW_MASK)
-		<< APLIC_xMSICFGADDRH_LHXW_SHIFT;
-	val |= (msicfg->hhxw & APLIC_xMSICFGADDRH_HHXW_MASK)
-		<< APLIC_xMSICFGADDRH_HHXW_SHIFT;
-	val |= (msicfg->lhxs & APLIC_xMSICFGADDRH_LHXS_MASK)
-		<< APLIC_xMSICFGADDRH_LHXS_SHIFT;
-	val |= (msicfg->hhxs & APLIC_xMSICFGADDRH_HHXS_MASK)
-		<< APLIC_xMSICFGADDRH_HHXS_SHIFT;
+	val = (((u64)بنیاد_ppn) >> 32) &
+		APLIC_x_MSICFGADDRH_BAPPN_نقاب;
+	val |= (msicfg->lhxw & APLIC_x_MSICFGADDRH_LHXW_نقاب)
+		<< APLIC_x_MSICFGADDRH_LHXW_سرکاؤ;
+	val |= (msicfg->hhxw & APLIC_x_MSICFGADDRH_HHXW_نقاب)
+		<< APLIC_x_MSICFGADDRH_HHXW_سرکاؤ;
+	val |= (msicfg->lhxs & APLIC_x_MSICFGADDRH_LHXS_نقاب)
+		<< APLIC_x_MSICFGADDRH_LHXS_سرکاؤ;
+	val |= (msicfg->hhxs & APLIC_x_MSICFGADDRH_HHXS_نقاب)
+		<< APLIC_x_MSICFGADDRH_HHXS_سرکاؤ;
 	writel(val, msicfgaddrH);
 }
 
-static int aplic_check_msicfg(struct aplic_msicfg_data *msicfg)
+ساکن صحیح aplic_check_msicfg(ساخت aplic_msicfg_ڈیٹا *msicfg)
 {
-	if (APLIC_xMSICFGADDRH_LHXS_MASK < msicfg->lhxs)
-		return SBI_EINVAL;
+	اگر (APLIC_x_MSICFGADDRH_LHXS_نقاب < msicfg->lhxs)
+		واپس SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_LHXW_MASK < msicfg->lhxw)
-		return SBI_EINVAL;
+	اگر (APLIC_x_MSICFGADDRH_LHXW_نقاب < msicfg->lhxw)
+		واپس SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXS_MASK < msicfg->hhxs)
-		return SBI_EINVAL;
+	اگر (APLIC_x_MSICFGADDRH_HHXS_نقاب < msicfg->hhxs)
+		واپس SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXW_MASK < msicfg->hhxw)
-		return SBI_EINVAL;
+	اگر (APLIC_x_MSICFGADDRH_HHXW_نقاب < msicfg->hhxw)
+		واپس SBI_EINVAL;
 
-	return 0;
+	واپس 0;
 }
 
-static int aplic_warm_init(struct sbi_irqchip_device *chip)
+ساکن صحیح aplic_warm_init(ساخت sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
-	u32 hart_index;
-	int idc_index;
+	ساخت aplic_ڈیٹا *aplic;
+	u32 hart_اشاریہ;
+	صحیح idc_اشاریہ;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (!aplic_is_direct_mode(aplic))
-		return 0;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (!aplic_is_براہ_راست_منوال(aplic))
+		واپس 0;
 
-	hart_index = current_hartindex();
-	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	hart_اشاریہ = current_hartindex();
+	idc_اشاریہ  = aplic_ڈھونڈو_idc_اشاریہ(aplic, hart_اشاریہ);
+	اگر (idc_اشاریہ < 0)
+		واپس 0;
 
-	aplic_idc_write(aplic, idc_index, APLIC_IDC_ITHRESHOLD,
+	aplic_idc_write(aplic, idc_اشاریہ, APLIC_IDC_ITHRESHOLD,
 			APLIC_ENABLE_ITHRESHOLD);
-	aplic_idc_write(aplic, idc_index, APLIC_IDC_IDELIVERY,
+	aplic_idc_write(aplic, idc_اشاریہ, APLIC_IDC_IDELIVERY,
 			APLIC_ENABLE_IDELIVERY);
 
-	return 0;
+	واپس 0;
 }
 
-static int aplic_process_hwirqs(struct sbi_irqchip_device *chip)
+ساکن صحیح aplic_process_hwirqs(ساخت sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
-	u32 hart_index, claimi, hwirq;
-	int idc_index, rc = 0, tmp;
+	ساخت aplic_ڈیٹا *aplic;
+	u32 hart_اشاریہ, claimi, hwirq;
+	صحیح idc_اشاریہ, rc = 0, tmp;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
 
-	if (!aplic_is_direct_mode(aplic))
+	اگر (!aplic_is_براہ_راست_منوال(aplic))
 		sbi_panic("aplic_process_hwirqs called in MSI mode.\n");
 
-	hart_index = current_hartindex();
-	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	hart_اشاریہ = current_hartindex();
+	idc_اشاریہ  = aplic_ڈھونڈو_idc_اشاریہ(aplic, hart_اشاریہ);
+	اگر (idc_اشاریہ < 0)
+		واپس 0;
 
-	while ((claimi = aplic_idc_read(aplic, idc_index, APLIC_IDC_CLAIMI))) {
-		hwirq = (claimi >> APLIC_IDC_TOPI_ID_SHIFT) &
-			APLIC_IDC_TOPI_ID_MASK;
+	جب ((claimi = aplic_idc_read(aplic, idc_اشاریہ, APLIC_IDC_CLAIMI))) {
+		hwirq = (claimi >> APLIC_IDC_TOPI_ID_سرکاؤ) &
+			APLIC_IDC_TOPI_ID_نقاب;
 
-		if (!hwirq)
-			break;
+		اگر (!hwirq)
+			توڑو;
 
-		if (aplic_hwirq_is_delegated(aplic, hwirq))
-			continue;
+		اگر (aplic_hwirq_is_delegated(aplic, hwirq))
+			جاری;
 
 		tmp = sbi_irqchip_process_hwirq(chip, hwirq);
-		if (tmp)
+		اگر (tmp)
 			rc = tmp;
 	}
 
-	return rc;
+	واپس rc;
 }
 
-static void aplic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
+ساکن خالی aplic_hwirq_eoi(ساخت sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	ساخت aplic_ڈیٹا *aplic;
 	u32 sm;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_is_direct_mode(aplic))
-		return;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (aplic_is_براہ_راست_منوال(aplic))
+		واپس;
 
-	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_MASK;
-	if (sm == APLIC_SOURCECFG_SM_LEVEL_HIGH ||
-	    sm == APLIC_SOURCECFG_SM_LEVEL_LOW)
+	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_نقاب;
+	اگر (sm == APLIC_SOURCECFG_SM_LEVEL_بلند ||
+	    sm == APLIC_SOURCECFG_SM_LEVEL_کم)
 		aplic_msi_irq_retrigger_level(aplic, hwirq);
 }
 
-static void aplic_program_msi_target(struct aplic_data *aplic,
-				     u32 hwirq, u32 hart_index,
-				     u32 guest_index, u32 eiid)
+ساکن خالی aplic_پروگرام_msi_ہدف(ساخت aplic_ڈیٹا *aplic,
+				     u32 hwirq, u32 hart_اشاریہ,
+				     u32 guest_اشاریہ, u32 eiid)
 {
-	u32 target;
+	u32 ہدف;
 
-	target = APLIC_TARGET_HART_IDX(hart_index) |
-		 APLIC_TARGET_GUEST_IDX(guest_index) |
-		 APLIC_TARGET_EIID(eiid);
+	ہدف = APLIC_ہدف_HART_IDX(hart_اشاریہ) |
+		 APLIC_ہدف_GUEST_IDX(guest_اشاریہ) |
+		 APLIC_ہدف_EIID(eiid);
 
-	aplic_target_write(aplic, hwirq, target);
+	aplic_ہدف_write(aplic, hwirq, ہدف);
 }
 
-static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
-			      const struct sbi_irqchip_msi_msg *msg)
+ساکن u32 derive_hart_اشاریہ(ساخت aplic_msicfg_ڈیٹا *msicfg,
+			      ثابت ساخت sbi_irqchip_msi_پیغام *پیغام)
 {
-	u64 addr = ((u64)msg->address_hi << 32) | msg->address_lo;
-	u64 tppn = addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
-	u32 group_index, hart_index;
+	u64 addr = ((u64)پیغام->پتہ_hi << 32) | پیغام->پتہ_lo;
+	u64 tppn = addr >> APLIC_x_MSICFGADDR_PPN_سرکاؤ;
+	u32 گروہ_اشاریہ, hart_اشاریہ;
 
-	group_index = (tppn >> APLIC_xMSICFGADDR_PPN_HHX_SHIFT(msicfg->hhxs)) &
-		      APLIC_xMSICFGADDR_PPN_HHX_MASK(msicfg->hhxw);
+	گروہ_اشاریہ = (tppn >> APLIC_x_MSICFGADDR_PPN_HHX_سرکاؤ(msicfg->hhxs)) &
+		      APLIC_x_MSICFGADDR_PPN_HHX_نقاب(msicfg->hhxw);
 
-	hart_index = (tppn >> msicfg->lhxs) &
+	hart_اشاریہ = (tppn >> msicfg->lhxs) &
 		     ((1UL << msicfg->lhxw) - 1);
 
-	hart_index |= (group_index << msicfg->lhxw);
+	hart_اشاریہ |= (گروہ_اشاریہ << msicfg->lhxw);
 
-	return hart_index;
+	واپس hart_اشاریہ;
 }
 
-static void aplic_write_msi(u32 parent_hwirq,
-			    const struct sbi_irqchip_msi_msg *msg,
-			    void *priv)
+ساکن خالی aplic_write_msi(u32 والد_hwirq,
+			    ثابت ساخت sbi_irqchip_msi_پیغام *پیغام,
+			    خالی *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
-	u32 guest_index = 0;
+	ساخت aplic_msi_ڈیٹا *msi_ڈیٹا = priv;
+	u32 guest_اشاریہ = 0;
 	u32 eiid;
 
-	eiid = msg->data;
-	if (!eiid || eiid > APLIC_TARGET_EIID_MASK)
-		return;
+	eiid = پیغام->ڈیٹا;
+	اگر (!eiid || eiid > APLIC_ہدف_EIID_نقاب)
+		واپس;
 
-	aplic_program_msi_target(msi_data->aplic, msi_data->hwirq,
-				derive_hart_index(&msi_data->aplic->msicfg_mmode, msg),
-				guest_index, eiid);
+	aplic_پروگرام_msi_ہدف(msi_ڈیٹا->aplic, msi_ڈیٹا->hwirq,
+				derive_hart_اشاریہ(&msi_ڈیٹا->aplic->msicfg_mmode, پیغام),
+				guest_اشاریہ, eiid);
 }
 
-static int aplic_msi_callback(u32 parent_hwirq, void *priv)
+ساکن صحیح aplic_msi_callback(u32 والد_hwirq, خالی *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
-	int rc;
+	ساخت aplic_msi_ڈیٹا *msi_ڈیٹا = priv;
+	صحیح rc;
 
-	rc = sbi_irqchip_process_hwirq(&msi_data->aplic->irqchip, msi_data->hwirq);
-	if (rc && rc != SBI_ENOENT)
+	rc = sbi_irqchip_process_hwirq(&msi_ڈیٹا->aplic->irqchip, msi_ڈیٹا->hwirq);
+	اگر (rc && rc != SBI_ENOENT)
 		sbi_printf("%s: hwirq=%lu failed rc=%d\n",
 			__func__,
-			(unsigned long)parent_hwirq, rc);
+			(غیرعلامتی طویل)والد_hwirq, rc);
 
-	return rc;
+	واپس rc;
 }
 
-static int aplic_setup_msi(struct aplic_data *aplic, u32 hwirq)
+ساکن صحیح aplic_تیاری_msi(ساخت aplic_ڈیٹا *aplic, u32 hwirq)
 {
-	struct sbi_irqchip_device *parent;
-	u32 first_hwirq;
-	struct aplic_msi_data *msi_data;
-	int rc;
+	ساخت sbi_irqchip_device *والد;
+	u32 پہلا_hwirq;
+	ساخت aplic_msi_ڈیٹا *msi_ڈیٹا;
+	صحیح rc;
 
-	parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-	if (!parent) {
+	والد = sbi_irqchip_ڈھونڈو_device(aplic->والد_unique_id);
+	اگر (!والد) {
 		sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
-			__func__, (unsigned long)hwirq);
-		return SBI_EINVAL;
+			__func__, (غیرعلامتی طویل)hwirq);
+		واپس SBI_EINVAL;
 	}
 
-	msi_data = sbi_zalloc(sizeof(struct aplic_msi_data));
-	if (!msi_data)
-		return SBI_ENOMEM;
+	msi_ڈیٹا = sbi_zalloc(حجم(ساخت aplic_msi_ڈیٹا));
+	اگر (!msi_ڈیٹا)
+		واپس SBI_ENOMEM;
 
-	msi_data->aplic = aplic;
-	msi_data->hwirq = hwirq;
+	msi_ڈیٹا->aplic = aplic;
+	msi_ڈیٹا->hwirq = hwirq;
 
-	rc = sbi_irqchip_register_msi(parent, 1,
+	rc = sbi_irqchip_رجسٹر_msi(والد, 1,
 					aplic_write_msi,
 					aplic_msi_callback,
-					msi_data,
-					&first_hwirq);
-	if (rc) {
+					msi_ڈیٹا,
+					&پہلا_hwirq);
+	اگر (rc) {
 		sbi_printf("%s: register_msi failed hwirq=%lu rc=%d\n",
-			__func__, (unsigned long)hwirq, rc);
-		sbi_free(msi_data);
-		return rc;
+			__func__, (غیرعلامتی طویل)hwirq, rc);
+		sbi_free(msi_ڈیٹا);
+		واپس rc;
 	}
 
-	msi_data->parent_hwirq = first_hwirq;
-	sbi_irqchip_set_hwirq_priv(&aplic->irqchip, hwirq, msi_data);
+	msi_ڈیٹا->والد_hwirq = پہلا_hwirq;
+	sbi_irqchip_سیٹ_hwirq_priv(&aplic->irqchip, hwirq, msi_ڈیٹا);
 
-	return 0;
+	واپس 0;
 }
 
-static int aplic_hwirq_setup(struct sbi_irqchip_device *chip,
+ساکن صحیح aplic_hwirq_تیاری(ساخت sbi_irqchip_device *chip,
 			     u32 hwirq, u32 hwirq_flags)
 {
-	struct aplic_data *aplic;
+	ساخت aplic_ڈیٹا *aplic;
 	u32 sourcecfg;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
 
-	sourcecfg = aplic_hwirq_flags_to_sourcecfg(hwirq_flags);
-	if (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
+	sourcecfg = aplic_hwirq_flags_مقصد_sourcecfg(hwirq_flags);
+	اگر (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
 		sbi_printf("%s: unsupported flags=0x%lx hwirq=%lu\n",
 			__func__,
-			(unsigned long)hwirq_flags,
-			(unsigned long)hwirq);
-		return SBI_EINVAL;
+			(غیرعلامتی طویل)hwirq_flags,
+			(غیرعلامتی طویل)hwirq);
+		واپس SBI_EINVAL;
 	}
 
 	aplic_sourcecfg_write(aplic, hwirq, sourcecfg);
 
-	if (aplic_hwirq_is_delegated(aplic, hwirq)) {
+	اگر (aplic_hwirq_is_delegated(aplic, hwirq)) {
 		sbi_printf("%s: hwirq=%lu is delegated\n",
-			__func__, (unsigned long)hwirq);
-		return SBI_ENOTSUPP;
+			__func__, (غیرعلامتی طویل)hwirq);
+		واپس SBI_ENOTSUPP;
 	}
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 
-	if (!aplic_is_direct_mode(aplic))
-		return aplic_setup_msi(aplic, hwirq);
+	اگر (!aplic_is_براہ_راست_منوال(aplic))
+		واپس aplic_تیاری_msi(aplic, hwirq);
 
-	return 0;
+	واپس 0;
 }
 
-static void aplic_hwirq_cleanup(struct sbi_irqchip_device *chip, u32 hwirq)
+ساکن خالی aplic_hwirq_cleanup(ساخت sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
+	ساخت aplic_ڈیٹا *aplic;
+	ساخت aplic_msi_ڈیٹا *msi_ڈیٹا;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (aplic_hwirq_is_delegated(aplic, hwirq))
+		واپس;
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 	aplic_sourcecfg_write(aplic, hwirq, APLIC_SOURCECFG_SM_INACTIVE);
-	aplic_target_write(aplic, hwirq, APLIC_DEFAULT_PRIORITY);
-	msi_data = (struct aplic_msi_data *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
-	if (msi_data)
-		sbi_free(msi_data);
+	aplic_ہدف_write(aplic, hwirq, APLIC_DEFAULT_ترجیح);
+	msi_ڈیٹا = (ساخت aplic_msi_ڈیٹا *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
+	اگر (msi_ڈیٹا)
+		sbi_free(msi_ڈیٹا);
 }
 
-static int aplic_hwirq_set_affinity(struct sbi_irqchip_device *chip,
-				    u32 hwirq, u32 hart_index)
+ساکن صحیح aplic_hwirq_سیٹ_affinity(ساخت sbi_irqchip_device *chip,
+				    u32 hwirq, u32 hart_اشاریہ)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
-	struct sbi_irqchip_device *parent;
-	int idc_index;
-	int rc;
+	ساخت aplic_ڈیٹا *aplic;
+	ساخت aplic_msi_ڈیٹا *msi_ڈیٹا;
+	ساخت sbi_irqchip_device *والد;
+	صحیح idc_اشاریہ;
+	صحیح rc;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return SBI_ENOTSUPP;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (aplic_hwirq_is_delegated(aplic, hwirq))
+		واپس SBI_ENOTSUPP;
 
-	if (!aplic_is_direct_mode(aplic)) {
-		parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-		if (!parent) {
+	اگر (!aplic_is_براہ_راست_منوال(aplic)) {
+		والد = sbi_irqchip_ڈھونڈو_device(aplic->والد_unique_id);
+		اگر (!والد) {
 			sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
-				__func__, (unsigned long)hwirq);
-			return SBI_EINVAL;
+				__func__, (غیرعلامتی طویل)hwirq);
+			واپس SBI_EINVAL;
 		}
 
-		msi_data = sbi_irqchip_get_hwirq_priv(chip, hwirq);
-		rc = sbi_irqchip_set_affinity(parent, msi_data->parent_hwirq, hart_index);
-		if (rc) {
+		msi_ڈیٹا = sbi_irqchip_get_hwirq_priv(chip, hwirq);
+		rc = sbi_irqchip_سیٹ_affinity(والد, msi_ڈیٹا->والد_hwirq, hart_اشاریہ);
+		اگر (rc) {
 			sbi_printf("%s: sbi_irqchip_set_affinity failed hwirq=%lu rc=%d\n",
-				__func__, (unsigned long)hwirq, rc);
-			return rc;
+				__func__, (غیرعلامتی طویل)hwirq, rc);
+			واپس rc;
 		}
-		return 0;
+		واپس 0;
 	}
 
-	idc_index = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return SBI_EINVAL;
+	idc_اشاریہ = aplic_ڈھونڈو_idc_اشاریہ(aplic, hart_اشاریہ);
+	اگر (idc_اشاریہ < 0)
+		واپس SBI_EINVAL;
 
-	aplic_target_write(aplic, hwirq,
-			   APLIC_TARGET_HART_IDX(hart_index) |
-			   APLIC_TARGET_IPRIO(APLIC_DEFAULT_PRIORITY));
+	aplic_ہدف_write(aplic, hwirq,
+			   APLIC_ہدف_HART_IDX(hart_اشاریہ) |
+			   APLIC_ہدف_IPRIO(APLIC_DEFAULT_ترجیح));
 
-	return 0;
+	واپس 0;
 }
 
-static void aplic_hwirq_mask(struct sbi_irqchip_device *chip, u32 hwirq)
+ساکن خالی aplic_hwirq_نقاب(ساخت sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	ساخت aplic_ڈیٹا *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (aplic_hwirq_is_delegated(aplic, hwirq))
+		واپس;
 
 	aplic_irq_clrie(aplic, hwirq);
 }
 
-static void aplic_hwirq_unmask(struct sbi_irqchip_device *chip, u32 hwirq)
+ساکن خالی aplic_hwirq_unmask(ساخت sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	ساخت aplic_ڈیٹا *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_کا(chip, ساخت aplic_ڈیٹا, irqchip);
+	اگر (aplic_hwirq_is_delegated(aplic, hwirq))
+		واپس;
 
 	aplic_irq_setie(aplic, hwirq);
 }
 
-static struct sbi_irqchip_device aplic_irqchip_template = {
+ساکن ساخت sbi_irqchip_device aplic_irqchip_template = {
 	.warm_init			= aplic_warm_init,
 	.process_hwirqs		= aplic_process_hwirqs,
 	.hwirq_eoi			= aplic_hwirq_eoi,
-	.hwirq_setup		= aplic_hwirq_setup,
+	.hwirq_تیاری		= aplic_hwirq_تیاری,
 	.hwirq_cleanup		= aplic_hwirq_cleanup,
-	.hwirq_set_affinity	= aplic_hwirq_set_affinity,
-	.hwirq_mask			= aplic_hwirq_mask,
+	.hwirq_سیٹ_affinity	= aplic_hwirq_سیٹ_affinity,
+	.hwirq_نقاب			= aplic_hwirq_نقاب,
 	.hwirq_unmask		= aplic_hwirq_unmask,
 };
 
-int aplic_cold_irqchip_init(struct aplic_data *aplic)
+صحیح aplic_cold_irqchip_init(ساخت aplic_ڈیٹا *aplic)
 {
-	int rc;
-	struct aplic_delegate_data *deleg;
-	u32 first_deleg_irq, last_deleg_irq, i;
-	bool msi_mode;
+	صحیح rc;
+	ساخت aplic_delegate_ڈیٹا *deleg;
+	u32 پہلا_deleg_irq, آخری_deleg_irq, i;
+	bool msi_منوال;
 
-	msi_mode = !aplic_is_direct_mode(aplic);
-	if (!aplic->num_source) {
+	msi_منوال = !aplic_is_براہ_راست_منوال(aplic);
+	اگر (!aplic->عدد_ماخذ) {
 		sbi_printf("%s: num_source is zero\n", __func__);
-		return SBI_EINVAL;
+		واپس SBI_EINVAL;
 	}
 
-	if (APLIC_MAX_SOURCE <= aplic->num_source) {
+	اگر (APLIC_MAX_ماخذ <= aplic->عدد_ماخذ) {
 		sbi_printf("%s: num_source=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_source,
-			(unsigned long)APLIC_MAX_SOURCE);
-		return SBI_EINVAL;
+			(غیرعلامتی طویل)aplic->عدد_ماخذ,
+			(غیرعلامتی طویل)APLIC_MAX_ماخذ);
+		واپس SBI_EINVAL;
 	}
 
-	if (!msi_mode && APLIC_MAX_IDC <= aplic->num_idc) {
+	اگر (!msi_منوال && APLIC_MAX_IDC <= aplic->عدد_idc) {
 		sbi_printf("%s: num_idc=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_idc,
-			(unsigned long)APLIC_MAX_IDC);
-		return SBI_EINVAL;
+			(غیرعلامتی طویل)aplic->عدد_idc,
+			(غیرعلامتی طویل)APLIC_MAX_IDC);
+		واپس SBI_EINVAL;
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_mmode) {
+	اگر (aplic->targets_mmode && aplic->has_msicfg_mmode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_mmode);
-		if (rc) {
+		اگر (rc) {
 			sbi_printf("%s: invalid M-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			واپس rc;
 		}
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_smode) {
+	اگر (aplic->targets_mmode && aplic->has_msicfg_smode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_smode);
-		if (rc) {
+		اگر (rc) {
 			sbi_printf("%s: invalid S-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			واپس rc;
 		}
 	}
 
@@ -731,60 +731,60 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 	 * 1) It targets M-mode of any HART directly or via MSIs
 	 * 2) All interrupts are delegated to some child APLIC
 	 */
-	first_deleg_irq = -1U;
-	last_deleg_irq = 0;
-	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
+	پہلا_deleg_irq = -1U;
+	آخری_deleg_irq = 0;
+	برائے (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (deleg->first_irq < first_deleg_irq)
-			first_deleg_irq = deleg->first_irq;
-		if (last_deleg_irq < deleg->last_irq)
-			last_deleg_irq = deleg->last_irq;
+		اگر (deleg->پہلا_irq < پہلا_deleg_irq)
+			پہلا_deleg_irq = deleg->پہلا_irq;
+		اگر (آخری_deleg_irq < deleg->آخری_irq)
+			آخری_deleg_irq = deleg->آخری_irq;
 	}
 
-	if (aplic->targets_mmode ||
-	    ((first_deleg_irq < last_deleg_irq) &&
-	    (last_deleg_irq == aplic->num_source) &&
-	    (first_deleg_irq == 1))) {
-		rc = sbi_domain_root_add_memrange(aplic->addr, aplic->size, PAGE_SIZE,
+	اگر (aplic->targets_mmode ||
+	    ((پہلا_deleg_irq < آخری_deleg_irq) &&
+	    (آخری_deleg_irq == aplic->عدد_ماخذ) &&
+	    (پہلا_deleg_irq == 1))) {
+		rc = sbi_domain_جڑ_جوڑو_memrange(aplic->addr, aplic->سائز, صفحہ_سائز,
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-		if (rc)
-			return rc;
+		اگر (rc)
+			واپس rc;
 	}
 
-	if ((aplic->targets_mmode)) {
+	اگر ((aplic->targets_mmode)) {
 		aplic->irqchip		 = aplic_irqchip_template;
 		aplic->irqchip.id	 = aplic->unique_id;
 		aplic->irqchip.caps = SBI_IRQCHIP_CAPS_WIRED;
-		aplic->irqchip.num_hwirq = aplic->num_source + 1;
+		aplic->irqchip.عدد_hwirq = aplic->عدد_ماخذ + 1;
 
-		if (msi_mode) {
-			aplic->irqchip.warm_init      = NULL;
-			aplic->irqchip.process_hwirqs = NULL;
-			aplic->irqchip.hwirq_eoi      = NULL;
+		اگر (msi_منوال) {
+			aplic->irqchip.warm_init      = تہی;
+			aplic->irqchip.process_hwirqs = تہی;
+			aplic->irqchip.hwirq_eoi      = تہی;
 		}
 
-		if (msi_mode)
-			sbi_hartmask_set_all(&aplic->irqchip.target_harts);
-		else
-			for (i = 0; i < aplic->num_idc; i++)
-				sbi_hartmask_set_hartindex(aplic->idc_map[i],
-							   &aplic->irqchip.target_harts);
+		اگر (msi_منوال)
+			sbi_hartmask_سیٹ_all(&aplic->irqchip.ہدف_harts);
+		ورنہ
+			برائے (i = 0; i < aplic->عدد_idc; i++)
+				sbi_hartmask_سیٹ_hartindex(aplic->idc_map[i],
+							   &aplic->irqchip.ہدف_harts);
 
-		rc = sbi_irqchip_add_device(&aplic->irqchip);
-		if (rc) {
+		rc = sbi_irqchip_جوڑو_device(&aplic->irqchip);
+		اگر (rc) {
 			sbi_printf("%s: sbi_irqchip_add_device failed rc=%d id=%lu mode=%s target_weight=%lu\n",
 				__func__, rc,
-				(unsigned long)aplic->irqchip.id,
-				msi_mode ? "msi" : "direct",
-				(unsigned long)sbi_hartmask_weight(
-					&aplic->irqchip.target_harts));
-			return rc;
+				(غیرعلامتی طویل)aplic->irqchip.id,
+				msi_منوال ? "msi" : "direct",
+				(غیرعلامتی طویل)sbi_hartmask_وزن(
+					&aplic->irqchip.ہدف_harts));
+			واپس rc;
 		}
 	}
 	/* Attach to the aplic list */
-	sbi_list_add_tail(&aplic->node, &aplic_list);
+	sbi_list_جوڑو_دم(&aplic->گرہ, &aplic_list);
 
-	return 0;
+	واپس 0;
 }

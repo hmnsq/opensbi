@@ -8,47 +8,47 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/riscv_asm.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_platform.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/riscv_asm.h>
 
-static inline unsigned long sbi_ecall_vendor_id(void)
+ساکن اندرونی غیرعلامتی طویل sbi_ecall_vendor_id(خالی)
 {
-	return SBI_EXT_VENDOR_START +
+	واپس SBI_EXT_VENDOR_آغاز +
 		(csr_read(CSR_MVENDORID) &
-		 (SBI_EXT_VENDOR_END - SBI_EXT_VENDOR_START));
+		 (SBI_EXT_VENDOR_انتہا - SBI_EXT_VENDOR_آغاز));
 }
 
-static int sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+ساکن صحیح sbi_ecall_vendor_handler(غیرعلامتی طویل extid, غیرعلامتی طویل funcid,
+				    ساخت sbi_trap_regs *regs,
+				    ساخت sbi_ecall_return *برآمد)
 {
-	return sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
-						funcid, regs, out);
+	واپس sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
+						funcid, regs, برآمد);
 }
 
-struct sbi_ecall_extension ecall_vendor;
+ساخت sbi_ecall_extension ecall_vendor;
 
-static int sbi_ecall_vendor_register_extensions(void)
+ساکن صحیح sbi_ecall_vendor_رجسٹر_extensions(خالی)
 {
-	unsigned long extid = sbi_ecall_vendor_id();
+	غیرعلامتی طویل extid = sbi_ecall_vendor_id();
 
-	if (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
-		return 0;
+	اگر (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
+		واپس 0;
 
-	ecall_vendor.extid_start = extid;
-	ecall_vendor.extid_end = extid;
+	ecall_vendor.extid_آغاز = extid;
+	ecall_vendor.extid_انتہا = extid;
 
-	return sbi_ecall_register_extension(&ecall_vendor);
+	واپس sbi_ecall_رجسٹر_extension(&ecall_vendor);
 }
 
-struct sbi_ecall_extension ecall_vendor = {
+ساخت sbi_ecall_extension ecall_vendor = {
 	.name			= "vendor",
-	.extid_start		= SBI_EXT_VENDOR_START,
-	.extid_end		= SBI_EXT_VENDOR_END,
-	.register_extensions	= sbi_ecall_vendor_register_extensions,
+	.extid_آغاز		= SBI_EXT_VENDOR_آغاز,
+	.extid_انتہا		= SBI_EXT_VENDOR_انتہا,
+	.رجسٹر_extensions	= sbi_ecall_vendor_رجسٹر_extensions,
 	.handle			= sbi_ecall_vendor_handler,
 };

@@ -11,51 +11,51 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+خارجی ثابت ساخت fdt_driver *ثابت fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+ساکن صحیح fdt_i2c_adapter_ڈھونڈو(ثابت خالی *fdt, صحیح nodeoff,
+				ساخت i2c_adapter **برآمد_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	صحیح rc;
+	ساخت i2c_adapter *adapter = i2c_adapter_ڈھونڈو(nodeoff);
 
-	if (!adapter) {
+	اگر (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
-		rc = fdt_driver_init_by_offset(fdt, nodeoff,
+		rc = fdt_driver_init_by_انحراف(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		اگر (rc)
+			واپس rc;
 
 		/* Try to find I2C adapter again */
-		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		adapter = i2c_adapter_ڈھونڈو(nodeoff);
+		اگر (!adapter)
+			واپس SBI_ENOSYS;
 	}
 
-	if (out_adapter)
-		*out_adapter = adapter;
+	اگر (برآمد_adapter)
+		*برآمد_adapter = adapter;
 
-	return 0;
+	واپس 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+صحیح fdt_i2c_adapter_get(ثابت خالی *fdt, صحیح nodeoff,
+			ساخت i2c_adapter **برآمد_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	صحیح rc;
+	ساخت i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	اگر (!fdt || (nodeoff < 0) || !برآمد_adapter)
+		واپس SBI_EINVAL;
 
-	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	rc = fdt_i2c_adapter_ڈھونڈو(fdt, nodeoff, &adapter);
+	اگر (rc)
+		واپس rc;
 
-	*out_adapter = adapter;
+	*برآمد_adapter = adapter;
 
-	return 0;
+	واپس 0;
 }

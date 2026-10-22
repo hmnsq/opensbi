@@ -7,61 +7,61 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi_utils/serial/xlnx_uartlite.h>
 
 /* clang-format off */
 
-#define UART_RX_OFFSET		0x00
-#define UART_TX_OFFSET		0x04
-#define UART_STATUS_OFFSET	0x08
-# define UART_STATUS_RXVALID	0x01
-# define UART_STATUS_RXFULL	0x02
-# define UART_STATUS_TXEMPTY	0x04
-# define UART_STATUS_TXFULL	0x08
-# define UART_STATUS_IE	0x10
-# define UART_STATUS_OVERRUN	0x20
-# define UART_STATUS_FRAME	0x40
-# define UART_STATUS_PARITY	0x80
-#define UART_CTRL_OFFSET	0x0C
+#تعریف_کرو UART_RX_انحراف		0x00
+#تعریف_کرو UART_TX_انحراف		0x04
+#تعریف_کرو UART_حالت_انحراف	0x08
+# define UART_حالت_RXVALID	0x01
+# define UART_حالت_RXFULL	0x02
+# define UART_حالت_TXEMPTY	0x04
+# define UART_حالت_TXFULL	0x08
+# define UART_حالت_IE	0x10
+# define UART_حالت_OVERRUN	0x20
+# define UART_حالت_چوکھٹا	0x40
+# define UART_حالت_PARITY	0x80
+#تعریف_کرو UART_CTRL_انحراف	0x0C
 # define UART_CTRL_RST_TX	0x01
 # define UART_CTRL_RST_RX	0x02
 # define UART_CTRL_IE		0x10
 
 /* clang-format on */
 
-static volatile char *xlnx_uartlite_base;
+ساکن متلون حرف *xlnx_uartlite_بنیاد;
 
-static void xlnx_uartlite_putc(char ch)
+ساکن خالی xlnx_uartlite_putc(حرف ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	جب((readb(xlnx_uartlite_بنیاد + UART_حالت_انحراف) & UART_حالت_TXFULL))
 		;
 
-	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
+	writeb(ch, xlnx_uartlite_بنیاد + UART_TX_انحراف);
 }
 
-static int xlnx_uartlite_getc(void)
+ساکن صحیح xlnx_uartlite_getc(خالی)
 {
-	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
+	u16 حالت_2 = readb(xlnx_uartlite_بنیاد + UART_حالت_انحراف);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	اگر (حالت_2 & UART_حالت_RXVALID)
+		واپس readb(xlnx_uartlite_بنیاد + UART_RX_انحراف);
 
-	return -1;
+	واپس -1;
 }
 
-static struct sbi_console_device xlnx_uartlite_console = {
+ساکن ساخت sbi_console_device xlnx_uartlite_console = {
 	.name = "xlnx-uartlite",
 	.console_putc = xlnx_uartlite_putc,
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+صحیح xlnx_uartlite_init(غیرعلامتی طویل بنیاد_2)
 {
-	xlnx_uartlite_base = (volatile char *)base;
+	xlnx_uartlite_بنیاد = (متلون حرف *)بنیاد_2;
 
-	sbi_console_set_device(&xlnx_uartlite_console);
+	sbi_console_سیٹ_device(&xlnx_uartlite_console);
 
-	return 0;
+	واپس 0;
 }

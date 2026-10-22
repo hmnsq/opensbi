@@ -7,174 +7,174 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_emulate_csr.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_trap.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_encoding.h>
+#شامل <sbi/sbi_bitops.h>
+#شامل <sbi/sbi_emulate_csr.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_hart.h>
+#شامل <sbi/sbi_scratch.h>
+#شامل <sbi/sbi_timer.h>
+#شامل <sbi/sbi_trap.h>
 
-static bool hpm_allowed(int hpm_num, ulong prev_mode, bool virt)
+ساکن bool hpm_allowed(صحیح hpm_عدد, ulong پچھلا_منوال, bool virt)
 {
 	ulong cen = -1UL;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ساخت sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (prev_mode <= PRV_S) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10) {
+	اگر (پچھلا_منوال <= PRV_S) {
+		اگر (sbi_hart_priv_نسخہ(scratch) >= SBI_HART_PRIV_VER_1_10) {
 			cen &= csr_read(CSR_MCOUNTEREN);
-			if (virt)
+			اگر (virt)
 				cen &= csr_read(CSR_HCOUNTEREN);
-		} else {
+		} ورنہ {
 			cen = 0;
 		}
 	}
-	if (prev_mode == PRV_U) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	اگر (پچھلا_منوال == PRV_U) {
+		اگر (sbi_hart_priv_نسخہ(scratch) >= SBI_HART_PRIV_VER_1_10)
 			cen &= csr_read(CSR_SCOUNTEREN);
-		else
+		ورنہ
 			cen = 0;
 	}
 
-	return ((cen >> hpm_num) & 1) ? true : false;
+	واپس ((cen >> hpm_عدد) & 1) ? true : false;
 }
 
-int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
+صحیح sbi_emulate_csr_read(صحیح csr_عدد, ساخت sbi_trap_regs *regs,
 			 ulong *csr_val)
 {
-	int ret = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
+	صحیح ret = 0;
+	ساخت sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ulong پچھلا_منوال = sbi_mstatus_پچھلا_منوال(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
+	انتخاب (csr_عدد) {
+	حالت CSR_HTIMEDELTA:
+		اگر (پچھلا_منوال == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta();
-		else
+		ورنہ
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLE:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		توڑو;
+	حالت CSR_چکر:
+		اگر (!hpm_allowed(csr_عدد - CSR_چکر, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLE);
-		break;
-	case CSR_TIME:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		توڑو;
+	حالت CSR_وقت:
+		اگر (!hpm_allowed(csr_عدد - CSR_چکر, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
 		/*
 		 * We emulate TIME CSR for both Host (HS/U-mode) and
 		 * Guest (VS/VU-mode).
 		 */
-		*csr_val = (virt) ? sbi_timer_virt_value():
-				    sbi_timer_value();
-		break;
-	case CSR_INSTRET:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_قدر():
+				    sbi_timer_قدر();
+		توڑو;
+	حالت CSR_INSTRET:
+		اگر (!hpm_allowed(csr_عدد - CSR_چکر, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRET);
-		break;
+		توڑو;
 
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
+#اگر __riscv_xlen == 32
+	حالت CSR_HTIMEDELTAH:
+		اگر (پچھلا_منوال == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta() >> 32;
-		else
+		ورنہ
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		توڑو;
+	حالت CSR_CYCLEH:
+		اگر (!hpm_allowed(csr_عدد - CSR_CYCLEH, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLEH);
-		break;
-	case CSR_TIMEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
-		*csr_val = (virt) ? sbi_timer_virt_value() >> 32:
-				    sbi_timer_value() >> 32;
-		break;
-	case CSR_INSTRETH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		توڑو;
+	حالت CSR_TIMEH:
+		اگر (!hpm_allowed(csr_عدد - CSR_CYCLEH, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_قدر() >> 32:
+				    sbi_timer_قدر() >> 32;
+		توڑو;
+	حالت CSR_INSTRETH:
+		اگر (!hpm_allowed(csr_عدد - CSR_CYCLEH, پچھلا_منوال, virt))
+			واپس SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRETH);
-		break;
-#endif
+		توڑو;
+#اگر_ختم
 
-#define switchcase_hpm(__uref, __mref, __csr)				\
-	case __csr:							\
-		if (sbi_hart_mhpm_mask(scratch) & (1 << (__csr - __uref)))\
-			return SBI_ENOTSUPP;				\
-		if (!hpm_allowed(__csr - __uref, prev_mode, virt))	\
-			return SBI_ENOTSUPP;				\
+#تعریف_کرو switchcase_hpm(__uref, __mref, __csr)				\
+	حالت __csr:							\
+		اگر (sbi_hart_mhpm_نقاب(scratch) & (1 << (__csr - __uref)))\
+			واپس SBI_ENOTSUPP;				\
+		اگر (!hpm_allowed(__csr - __uref, پچھلا_منوال, virt))	\
+			واپس SBI_ENOTSUPP;				\
 		*csr_val = csr_read(__mref + __csr - __uref);		\
-		break;
-#define switchcase_hpm_2(__uref, __mref, __csr)			\
+		توڑو;
+#تعریف_کرو switchcase_hpm_2(__uref, __mref, __csr)			\
 	switchcase_hpm(__uref, __mref, __csr + 0)			\
 	switchcase_hpm(__uref, __mref, __csr + 1)
-#define switchcase_hpm_4(__uref, __mref, __csr)			\
+#تعریف_کرو switchcase_hpm_4(__uref, __mref, __csr)			\
 	switchcase_hpm_2(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_2(__uref, __mref, __csr + 2)
-#define switchcase_hpm_8(__uref, __mref, __csr)			\
+#تعریف_کرو switchcase_hpm_8(__uref, __mref, __csr)			\
 	switchcase_hpm_4(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_4(__uref, __mref, __csr + 4)
-#define switchcase_hpm_16(__uref, __mref, __csr)			\
+#تعریف_کرو switchcase_hpm_16(__uref, __mref, __csr)			\
 	switchcase_hpm_8(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_8(__uref, __mref, __csr + 8)
 
-	switchcase_hpm(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER3)
-	switchcase_hpm_4(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER4)
-	switchcase_hpm_8(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER8)
-	switchcase_hpm_16(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER16)
+	switchcase_hpm(CSR_چکر, CSR_MCYCLE, CSR_HPMCOUNTER3)
+	switchcase_hpm_4(CSR_چکر, CSR_MCYCLE, CSR_HPMCOUNTER4)
+	switchcase_hpm_8(CSR_چکر, CSR_MCYCLE, CSR_HPMCOUNTER8)
+	switchcase_hpm_16(CSR_چکر, CSR_MCYCLE, CSR_HPMCOUNTER16)
 
-#if __riscv_xlen == 32
+#اگر __riscv_xlen == 32
 	switchcase_hpm(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER3H)
 	switchcase_hpm_4(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER4H)
 	switchcase_hpm_8(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER8H)
 	switchcase_hpm_16(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER16H)
-#endif
+#اگر_ختم
 
-#undef switchcase_hpm_16
-#undef switchcase_hpm_8
-#undef switchcase_hpm_4
-#undef switchcase_hpm_2
-#undef switchcase_hpm
+#تعریف_منسوخ switchcase_hpm_16
+#تعریف_منسوخ switchcase_hpm_8
+#تعریف_منسوخ switchcase_hpm_4
+#تعریف_منسوخ switchcase_hpm_2
+#تعریف_منسوخ switchcase_hpm
 
-	default:
+	طےشدہ:
 		ret = SBI_ENOTSUPP;
-		break;
+		توڑو;
 	}
 
-	return ret;
+	واپس ret;
 }
 
-int sbi_emulate_csr_write(int csr_num, struct sbi_trap_regs *regs,
+صحیح sbi_emulate_csr_write(صحیح csr_عدد, ساخت sbi_trap_regs *regs,
 			  ulong csr_val)
 {
-	int ret = 0;
-	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
+	صحیح ret = 0;
+	ulong پچھلا_منوال = sbi_mstatus_پچھلا_منوال(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
-			sbi_timer_set_delta(csr_val);
-		else
+	انتخاب (csr_عدد) {
+	حالت CSR_HTIMEDELTA:
+		اگر (پچھلا_منوال == PRV_S && !virt)
+			sbi_timer_سیٹ_delta(csr_val);
+		ورنہ
 			ret = SBI_ENOTSUPP;
-		break;
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
-			sbi_timer_set_delta_upper(csr_val);
-		else
+		توڑو;
+#اگر __riscv_xlen == 32
+	حالت CSR_HTIMEDELTAH:
+		اگر (پچھلا_منوال == PRV_S && !virt)
+			sbi_timer_سیٹ_delta_بالائی(csr_val);
+		ورنہ
 			ret = SBI_ENOTSUPP;
-		break;
-#endif
-	default:
+		توڑو;
+#اگر_ختم
+	طےشدہ:
 		ret = SBI_ENOTSUPP;
-		break;
+		توڑو;
 	}
 
-	return ret;
+	واپس ret;
 }

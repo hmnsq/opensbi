@@ -4,111 +4,111 @@
  * Copyright (c) 2023 Lin Chunzhi <chunzhi.lin@sophgo.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_hart.h>
+#شامل <sbi/sbi_types.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_system.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/i2c/fdt_i2c.h>
 
-#define MANGO_BOARD_TYPE_MASK		0x80
+#تعریف_کرو MANGO_BOARD_TYPE_نقاب		0x80
 
-#define REG_BOARD_TYPE			0x00
-#define REG_CMD				0x03
+#تعریف_کرو REG_BOARD_TYPE			0x00
+#تعریف_کرو REG_CMD				0x03
 
-#define CMD_POWEROFF			0x02
-#define CMD_RESET			0x03
-#define CMD_REBOOT			0x07
+#تعریف_کرو CMD_POWEROFF			0x02
+#تعریف_کرو CMD_RESET			0x03
+#تعریف_کرو CMD_REBOOT			0x07
 
-static struct i2c_adapter *mcu_adapter = NULL;
-static uint32_t mcu_reg = 0;
+ساکن ساخت i2c_adapter *mcu_adapter = تہی;
+ساکن uint32_t mcu_reg = 0;
 
-static int sg2042_mcu_reset_check(u32 type, u32 reason)
+ساکن صحیح sg2042_mcu_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	انتخاب (type) {
+	حالت SBI_SRST_RESET_TYPE_SHUTDOWN:
+		واپس 1;
+	حالت SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالت SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		واپس 255;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static void sg2042_mcu_reset(u32 type, u32 reason)
+ساکن خالی sg2042_mcu_reset(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	انتخاب (type) {
+	حالت SBI_SRST_RESET_TYPE_SHUTDOWN:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_POWEROFF);
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		توڑو;
+	حالت SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالت SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_REBOOT);
-		break;
+		توڑو;
 	}
 }
 
-static struct sbi_system_reset_device sg2042_mcu_reset_device = {
+ساکن ساخت sbi_system_reset_device sg2042_mcu_reset_device = {
 	.name = "sg2042-mcu-reset",
 	.system_reset_check = sg2042_mcu_reset_check,
 	.system_reset = sg2042_mcu_reset
 };
 
-static int sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
+ساکن صحیح sg2042_mcu_reset_check_board(ساخت i2c_adapter *adap, uint32_t reg)
 {
-	static uint8_t val;
-	int ret;
+	ساکن uint8_t val;
+	صحیح ret;
 
 	/* check board type */
 	ret = i2c_adapter_reg_read(adap, reg, REG_BOARD_TYPE, &val);
-	if (ret)
-		return ret;
+	اگر (ret)
+		واپس ret;
 
-	if (!(val & MANGO_BOARD_TYPE_MASK))
-		return SBI_ENODEV;
+	اگر (!(val & MANGO_BOARD_TYPE_نقاب))
+		واپس SBI_ENODEV;
 
-	return 0;
+	واپس 0;
 }
 
-static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
-				 const struct fdt_match *match)
+ساکن صحیح sg2042_mcu_reset_init(ثابت خالی *fdt, صحیح nodeoff,
+				 ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int ret, i2c_bus;
+	صحیح ret, i2c_bus;
 	uint64_t addr;
 
-	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (ret)
-		return ret;
+	ret = fdt_get_گرہ_addr_سائز(fdt, nodeoff, 0, &addr, تہی);
+	اگر (ret)
+		واپس ret;
 
 	mcu_reg = addr;
 
-	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	i2c_bus = fdt_والد_انحراف(fdt, nodeoff);
+	اگر (i2c_bus < 0)
+		واپس i2c_bus;
 
 	ret = fdt_i2c_adapter_get(fdt, i2c_bus, &mcu_adapter);
-	if (ret)
-		return ret;
+	اگر (ret)
+		واپس ret;
 
 	ret = sg2042_mcu_reset_check_board(mcu_adapter, mcu_reg);
 
-	sbi_system_reset_add_device(&sg2042_mcu_reset_device);
+	sbi_system_reset_جوڑو_device(&sg2042_mcu_reset_device);
 
-	return 0;
+	واپس 0;
 }
 
-static const struct fdt_match sg2042_mcu_reset_match[] = {
+ساکن ثابت ساخت fdt_مطابقت sg2042_mcu_reset_مطابقت[] = {
 	{ .compatible = "sophgo,sg2042-hwmon-mcu" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sg2042_mcu = {
-	.match_table = sg2042_mcu_reset_match,
+ثابت ساخت fdt_driver fdt_reset_sg2042_mcu = {
+	.مطابقت_جدول = sg2042_mcu_reset_مطابقت,
 	.init = sg2042_mcu_reset_init,
 };

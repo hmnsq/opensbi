@@ -4,9 +4,9 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __SYS_CDEFS_H__
-#define __SYS_CDEFS_H__
+#اگر_غیر_تعریف_شدہ __SYS_CDEFS_H__
+#تعریف_کرو __SYS_CDEFS_H__
 
-#define __FBSDID(s) struct __hack
+#تعریف_کرو __FBSDID(s) ساخت __hack
 
-#endif
+#اگر_ختم

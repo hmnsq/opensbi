@@ -6,31 +6,31 @@
  * Author: Jun Liang Tan <junliang.tan@linux.starfivetech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/cadence-uart.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/serial/fdt_serial.h>
+#شامل <sbi_utils/serial/cadence-uart.h>
 
-static int serial_cadence_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+ساکن صحیح serial_cadence_init(ثابت خالی *fdt, صحیح nodeoff,
+			       ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	صحیح rc;
+	ساخت platform_uart_ڈیٹا uart = { 0 };
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_گرہ(fdt, nodeoff, &uart);
+	اگر (rc)
+		واپس rc;
 
-	return cadence_uart_init(uart.addr, uart.freq, uart.baud);
+	واپس cadence_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_cadence_match[] = {
+ساکن ثابت ساخت fdt_مطابقت serial_cadence_مطابقت[] = {
 	{ .compatible = "cdns,uart-r1p8", },
 	{ .compatible = "cdns,uart-r1p12" },
 	{ .compatible = "starfive,jh8100-uart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_cadence = {
-	.match_table = serial_cadence_match,
+ثابت ساخت fdt_driver fdt_serial_cadence = {
+	.مطابقت_جدول = serial_cadence_مطابقت,
 	.init = serial_cadence_init
 };

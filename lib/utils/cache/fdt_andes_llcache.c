@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_hart.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi/sbi_scratch.h>
+#شامل <sbi_utils/cache/fdt_cache.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define LLCACHE_REG_CFG_OFFSET		0x0
-#define LLCACHE_REG_CTRL_OFFSET		0x8
-#define LLCACHE_REG_CCTL_CMD_OFFSET	0x40
-#define LLCACHE_REG_CCTL_STATUS_OFFSET	0x80
+#تعریف_کرو LLCACHE_REG_CFG_انحراف		0x0
+#تعریف_کرو LLCACHE_REG_CTRL_انحراف		0x8
+#تعریف_کرو LLCACHE_REG_CCTL_CMD_انحراف	0x40
+#تعریف_کرو LLCACHE_REG_CCTL_حالت_انحراف	0x80
 
-#define LLCACHE_REG_CFG_MAP_MASK	BIT(20)
-#define LLCACHE_REG_CTRL_EN_MASK	BIT(0)
-#define LLCACHE_REG_CTRL_INIT_MASK	BIT(14)
-#define LLCACHE_REG_CCTL_STATUS_MASK	GENMASK(3, 0)
+#تعریف_کرو LLCACHE_REG_CFG_MAP_نقاب	ثنائی_ہندسہ(20)
+#تعریف_کرو LLCACHE_REG_CTRL_EN_نقاب	ثنائی_ہندسہ(0)
+#تعریف_کرو LLCACHE_REG_CTRL_INIT_نقاب	ثنائی_ہندسہ(14)
+#تعریف_کرو LLCACHE_REG_CCTL_حالت_نقاب	GENMASK(3, 0)
 
-#define LLCACHE_WBINVAL_ALL		0x12
+#تعریف_کرو LLCACHE_WBINVAL_ALL		0x12
 
-struct andes_llcache {
-	struct cache_device dev;
-	void *base;
+ساخت andes_llcache {
+	ساخت cache_device dev;
+	خالی *بنیاد_2;
 	uint32_t cmd_stride;
-	uint32_t status_stride;
-	uint32_t status_core_stride;
+	uint32_t حالت_stride;
+	uint32_t حالت_core_stride;
 };
 
-#define to_llcache(_dev) container_of(_dev, struct andes_llcache, dev)
+#تعریف_کرو مقصد_llcache(_dev) container_کا(_dev, ساخت andes_llcache, dev)
 
-static bool andes_llcache_init_done(struct andes_llcache *llcache)
+ساکن bool andes_llcache_init_مکمل(ساخت andes_llcache *llcache)
 {
 	uint32_t llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	خالی *ctrl_addr = (حرف *)llcache->بنیاد_2 + LLCACHE_REG_CTRL_انحراف;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	واپس !نکالو_میدان(llcache_ctrl, LLCACHE_REG_CTRL_INIT_نقاب);
 }
 
-static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
+ساکن bool andes_llcache_cctl_مکمل(ساخت andes_llcache *llcache, uint32_t hartid)
 {
-	uint32_t llcache_cctl_status;
-	void *cctl_status_addr = (char *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
-				 hartid * llcache->status_stride;
+	uint32_t llcache_cctl_حالت;
+	خالی *cctl_حالت_addr = (حرف *)llcache->بنیاد_2 + LLCACHE_REG_CCTL_حالت_انحراف +
+				 hartid * llcache->حالت_stride;
 
-	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
-			      LLCACHE_REG_CCTL_STATUS_MASK <<
-			      hartid * llcache->status_core_stride);
+	llcache_cctl_حالت = readl_relaxed(cctl_حالت_addr);
+	واپس !نکالو_میدان(llcache_cctl_حالت,
+			      LLCACHE_REG_CCTL_حالت_نقاب <<
+			      hartid * llcache->حالت_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+ساکن صحیح andes_llcache_flush_all(ساخت cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
-	struct andes_llcache *llcache = to_llcache(dev);
-	void *cctl_cmd_addr = (char *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
+	ساخت andes_llcache *llcache = مقصد_llcache(dev);
+	خالی *cctl_cmd_addr = (حرف *)llcache->بنیاد_2 + LLCACHE_REG_CCTL_CMD_انحراف +
 			      hartid * llcache->cmd_stride;
 
 	/*
@@ -71,17 +71,17 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	جب (!andes_llcache_cctl_مکمل(llcache, hartid))
 		;
 
-	return 0;
+	واپس 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+ساکن صحیح andes_llcache_enable(ساخت cache_device *dev, bool enable)
 {
-	struct andes_llcache *llcache = to_llcache(dev);
+	ساخت andes_llcache *llcache = مقصد_llcache(dev);
 	u32 llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	خالی *ctrl_addr = (حرف *)llcache->بنیاد_2 + LLCACHE_REG_CTRL_انحراف;
 
 	/*
 	 * To properly enable the last level cache to cache both instructions
@@ -94,88 +94,88 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	اگر (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
-		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_نقاب, ctrl_addr);
+	} ورنہ {
 		llcache_ctrl = readl(ctrl_addr);
-		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
-		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
+		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_نقاب);
+		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_نقاب, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	اگر (enable != نکالو_میدان(llcache_ctrl, LLCACHE_REG_CTRL_EN_نقاب))
+		واپس SBI_EFAIL;
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static struct cache_ops andes_llcache_ops = {
+ساکن ساخت cache_ops andes_llcache_ops = {
 	.cache_flush_all = andes_llcache_flush_all,
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساکن صحیح andes_llcache_probe(ثابت خالی *fdt, صحیح nodeoff, ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
-	u64 llcache_base = 0, size;
-	struct andes_llcache *llcache;
-	struct cache_device *dev;
+	صحیح rc;
+	u64 llcache_بنیاد = 0, سائز;
+	ساخت andes_llcache *llcache;
+	ساخت cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_گرہ_addr_سائز(fdt, nodeoff, 0, &llcache_بنیاد, &سائز);
+	اگر (rc < 0 || !llcache_بنیاد || !سائز)
+		واپس SBI_ENODEV;
 
-	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	llcache = sbi_zalloc(حجم(*llcache));
+	اگر (!llcache)
+		واپس SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	rc = fdt_cache_جوڑو(fdt, nodeoff, dev);
+	اگر (rc) {
 		sbi_free(llcache);
-		return rc;
+		واپس rc;
 	}
 
-	llcache->base = (void *)(ulong)llcache_base;
-	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
+	llcache->بنیاد_2 = (خالی *)(ulong)llcache_بنیاد;
+	llcache_cfg = readl_relaxed((حرف *)llcache->بنیاد_2 + LLCACHE_REG_CFG_انحراف);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	اگر (نکالو_میدان(llcache_cfg, LLCACHE_REG_CFG_MAP_نقاب)) {
 		llcache->cmd_stride = 0x1000;
-		llcache->status_stride = 0x1000;
-		llcache->status_core_stride = 0;
-	} else {
+		llcache->حالت_stride = 0x1000;
+		llcache->حالت_core_stride = 0;
+	} ورنہ {
 		llcache->cmd_stride = 0x10;
-		llcache->status_stride = 0x0;
-		llcache->status_core_stride = 4;
+		llcache->حالت_stride = 0x0;
+		llcache->حالت_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
+	اگر (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_جڑ_جوڑو_memrange(
+			(غیرعلامتی طویل)llcache->بنیاد_2, (غیرعلامتی طویل)سائز, صفحہ_سائز,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		اگر (rc)
+			واپس rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	جب (!andes_llcache_init_مکمل(llcache))
 		;
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static const struct fdt_match andes_llcache_match[] = {
+ساکن ثابت ساخت fdt_مطابقت andes_llcache_مطابقت[] = {
 	{ .compatible = "andestech,llcache" },
 	{},
 };
 
-const struct fdt_driver fdt_andes_llcache = {
-	.match_table = andes_llcache_match,
+ثابت ساخت fdt_driver fdt_andes_llcache = {
+	.مطابقت_جدول = andes_llcache_مطابقت,
 	.init = andes_llcache_probe,
 };

@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+خارجی ساخت plicsw_ڈیٹا plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+صحیح fdt_plicsw_cold_ipi_init(ثابت خالی *fdt, صحیح nodeoff,
+			     ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
+	صحیح rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_گرہ(fdt, nodeoff, &plicsw.addr, &plicsw.سائز,
+				   &plicsw.hart_گنتی);
+	اگر (rc)
+		واپس rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	اگر (rc)
+		واپس rc;
 
-	return 0;
+	واپس 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+ساکن ثابت ساخت fdt_مطابقت ipi_plicsw_مطابقت[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+ثابت ساخت fdt_driver fdt_ipi_plicsw = {
+	.مطابقت_جدول = ipi_plicsw_مطابقت,
 	.init = fdt_plicsw_cold_ipi_init,
 };

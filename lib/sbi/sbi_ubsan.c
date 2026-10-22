@@ -6,384 +6,384 @@
  * Author: Marcos Oduardo <marcos.oduardo@gmail.com>
  */
 
-#ifdef UBSAN_ENABLED
+#اگر_تعریف_شدہ UBSAN_ENABLED
 
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
+#شامل <sbi/sbi_types.h>
+#شامل <sbi/sbi_console.h>
 
 /* Undefined Behavior specific defines and structures defined by the compiler ABI */
 
-#define KIND_INTEGER 0
-#define KIND_FLOAT 1
-#define KIND_UNKNOWN UINT16_MAX
+#تعریف_کرو قسم_INTEGER 0
+#تعریف_کرو قسم_FLOAT 1
+#تعریف_کرو قسم_UNKNOWN UINT16_MAX
 
-volatile unsigned long sbi_ubsan_report_count;
+متلون غیرعلامتی طویل sbi_ubsan_report_گنتی;
 
-struct CSourceLocation {
-	char *mFilename;
-	uint32_t mLine;
-	uint32_t mColumn;
+ساخت CSourceLocation {
+	حرف *mFilename;
+	uint32_t m_سطر;
+	uint32_t m_عمود;
 };
 
-struct CTypeDescriptor {
-	uint16_t mTypeKind;
+ساخت CTypeDescriptor {
+	uint16_t m_Type_قسم;
 	uint16_t mTypeInfo;
 	uint8_t mTypeName[1];
 };
 
-struct COverflowData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت COverflow_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
-struct CUnreachableData {
-	struct CSourceLocation mLocation;
+ساخت CUnreachable_ڈیٹا {
+	ساخت CSourceLocation mLocation;
 };
 
-struct CCFICheckFailData {
-	uint8_t mCheckKind;
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت CCFICheck_Fail_ڈیٹا {
+	uint8_t m_Check_قسم;
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
-struct CDynamicTypeCacheMissData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
-	void *mTypeInfo;
-	uint8_t mTypeCheckKind;
+ساخت CDynamic_Type_Cache_ناکامی_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
+	خالی *mTypeInfo;
+	uint8_t m_Type_Check_قسم;
 };
 
-struct CFunctionTypeMismatchData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت CFunction_Type_Mismatch_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
-struct CInvalidBuiltinData {
-	struct CSourceLocation mLocation;
-	uint8_t mKind;
+ساخت CInvalid_Builtin_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	uint8_t m_قسم;
 };
 
-struct CInvalidValueData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت CInvalid_قدر_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
-struct CNonNullArgData {
-	struct CSourceLocation mLocation;
-	struct CSourceLocation mAttributeLocation;
-	int mArgIndex;
+ساخت CNon_Null_Arg_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CSourceLocation mAttributeLocation;
+	صحیح m_Arg_اشاریہ;
 };
 
-struct CNonNullReturnData {
-	struct CSourceLocation mAttributeLocation;
+ساخت CNon_Null_Return_ڈیٹا {
+	ساخت CSourceLocation mAttributeLocation;
 };
 
-struct COutOfBoundsData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mArrayType;
-	struct CTypeDescriptor *mIndexType;
+ساخت COut_کا_Bounds_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mArrayType;
+	ساخت CTypeDescriptor *m_اشاریہ_Type;
 };
 
-struct CPointerOverflowData {
-	struct CSourceLocation mLocation;
+ساخت CPointer_حد_سے_تجاوز_ڈیٹا {
+	ساخت CSourceLocation mLocation;
 };
 
-struct CShiftOutOfBoundsData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mLHSType;
-	struct CTypeDescriptor *mRHSType;
+ساخت CShift_برآمد_کا_Bounds_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mLHSType;
+	ساخت CTypeDescriptor *mRHSType;
 };
 
-struct CTypeMismatchData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
-	unsigned long mLogAlignment;
-	uint8_t mTypeCheckKind;
+ساخت CType_Mismatch_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
+	غیرعلامتی طویل mLogAlignment;
+	uint8_t m_Type_Check_قسم;
 };
 
-struct CTypeMismatchData_v1 {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت CType_Mismatch_ڈیٹا_v1 {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 	uint8_t mLogAlignment;
-	uint8_t mTypeCheckKind;
+	uint8_t m_Type_Check_قسم;
 };
 
-struct CVLABoundData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mType;
+ساخت CVLABound_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
-struct CFloatCastOverflowData {
-	struct CSourceLocation
+ساخت CFloat_Cast_حد_سے_تجاوز_ڈیٹا {
+	ساخت CSourceLocation
 		mLocation; /* This field exists in this struct since 2015 August 11th */
-	struct CTypeDescriptor *mFromType;
-	struct CTypeDescriptor *mToType;
+	ساخت CTypeDescriptor *mFromType;
+	ساخت CTypeDescriptor *m_مقصد_Type;
 };
 
-struct CImplicitConversionData {
-	struct CSourceLocation mLocation;
-	struct CTypeDescriptor *mFromType;
-	struct CTypeDescriptor *mToType;
-	uint8_t mKind;
+ساخت CImplicit_Conversion_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CTypeDescriptor *mFromType;
+	ساخت CTypeDescriptor *m_مقصد_Type;
+	uint8_t m_قسم;
 };
 
-struct CAlignmentAssumptionData {
-	struct CSourceLocation mLocation;
-	struct CSourceLocation mAssumptionLocation;
-	struct CTypeDescriptor *mType;
+ساخت CAlignment_Assumption_ڈیٹا {
+	ساخت CSourceLocation mLocation;
+	ساخت CSourceLocation mAssumptionLocation;
+	ساخت CTypeDescriptor *mType;
 };
 
 /* Public symbols used in the instrumentation of the code generation part */
-void __ubsan_handle_add_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_add_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS,
-				       unsigned long ulRHS);
-void __ubsan_handle_alignment_assumption(struct CAlignmentAssumptionData *pData,
-					 unsigned long ulPointer,
-					 unsigned long ulAlignment,
-					 unsigned long ulOffset);
-void __ubsan_handle_alignment_assumption_abort(
-	struct CAlignmentAssumptionData *pData, unsigned long ulPointer,
-	unsigned long ulAlignment, unsigned long ulOffset);
-void __ubsan_handle_builtin_unreachable(struct CUnreachableData *pData);
-void __ubsan_handle_divrem_overflow(struct COverflowData *pData,
-				    unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_divrem_overflow_abort(struct COverflowData *pData,
-					  unsigned long ulLHS,
-					  unsigned long ulRHS);
-void __ubsan_handle_function_type_mismatch(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction);
-void __ubsan_handle_function_type_mismatch_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction);
-void __ubsan_handle_function_type_mismatch_v1(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction,
-	unsigned long ulCalleeRTTI, unsigned long ulFnRTTI);
-void __ubsan_handle_function_type_mismatch_v1_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction,
-	unsigned long ulCalleeRTTI, unsigned long ulFnRTTI);
-void __ubsan_handle_invalid_builtin(struct CInvalidBuiltinData *pData);
-void __ubsan_handle_invalid_builtin_abort(struct CInvalidBuiltinData *pData);
-void __ubsan_handle_load_invalid_value(struct CInvalidValueData *pData,
-				       unsigned long ulVal);
-void __ubsan_handle_load_invalid_value_abort(struct CInvalidValueData *pData,
-					     unsigned long ulVal);
-void __ubsan_handle_missing_return(struct CUnreachableData *pData);
-void __ubsan_handle_mul_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_mul_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS,
-				       unsigned long ulRHS);
-void __ubsan_handle_negate_overflow(struct COverflowData *pData,
-				    unsigned long ulOldVal);
-void __ubsan_handle_negate_overflow_abort(struct COverflowData *pData,
-					  unsigned long ulOldVal);
-void __ubsan_handle_nullability_arg(struct CNonNullArgData *pData);
-void __ubsan_handle_nullability_arg_abort(struct CNonNullArgData *pData);
-void __ubsan_handle_nullability_return_v1(
-	struct CNonNullReturnData *pData,
-	struct CSourceLocation *pLocationPointer);
-void __ubsan_handle_nullability_return_v1_abort(
-	struct CNonNullReturnData *pData,
-	struct CSourceLocation *pLocationPointer);
-void __ubsan_handle_out_of_bounds(struct COutOfBoundsData *pData,
-				  unsigned long ulIndex);
-void __ubsan_handle_out_of_bounds_abort(struct COutOfBoundsData *pData,
-					unsigned long ulIndex);
-void __ubsan_handle_pointer_overflow(struct CPointerOverflowData *pData,
-				     unsigned long ulBase,
-				     unsigned long ulResult);
-void __ubsan_handle_pointer_overflow_abort(struct CPointerOverflowData *pData,
-					   unsigned long ulBase,
-					   unsigned long ulResult);
-void __ubsan_handle_shift_out_of_bounds(struct CShiftOutOfBoundsData *pData,
-					unsigned long ulLHS,
-					unsigned long ulRHS);
-void __ubsan_handle_shift_out_of_bounds_abort(
-	struct CShiftOutOfBoundsData *pData, unsigned long ulLHS,
-	unsigned long ulRHS);
-void __ubsan_handle_sub_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS);
-void __ubsan_handle_sub_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS,
-				       unsigned long ulRHS);
-void __ubsan_handle_type_mismatch(struct CTypeMismatchData *pData,
-				  unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_abort(struct CTypeMismatchData *pData,
-					unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_v1(struct CTypeMismatchData_v1 *pData,
-				     unsigned long ulPointer);
-void __ubsan_handle_type_mismatch_v1_abort(struct CTypeMismatchData_v1 *pData,
-					   unsigned long ulPointer);
-void __ubsan_handle_vla_bound_not_positive(struct CVLABoundData *pData,
-					   unsigned long ulBound);
-void __ubsan_handle_vla_bound_not_positive_abort(struct CVLABoundData *pData,
-						 unsigned long ulBound);
-void __ubsan_get_current_report_data(const char **ppOutIssueKind,
-				     const char **ppOutMessage,
-				     const char **ppOutFilename,
-				     uint32_t *pOutLine, uint32_t *pOutCol,
-				     char **ppOutMemoryAddr);
-static void HandleOverflow(bool isFatal, struct COverflowData *pData,
-			   unsigned long ulLHS, unsigned long ulRHS,
-			   const char *szOperation);
-static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
-				 unsigned long ulOldValue);
-static void HandleBuiltinUnreachable(bool isFatal,
-				     struct CUnreachableData *pData);
-static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
-			       struct CTypeDescriptor *mType,
-			       unsigned long mLogAlignment,
-			       uint8_t mTypeCheckKind, unsigned long ulPointer);
-static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
-				      unsigned long ulBound);
-static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
-			      unsigned long ulIndex);
-static void HandleShiftOutOfBounds(bool isFatal,
-				   struct CShiftOutOfBoundsData *pData,
-				   unsigned long ulLHS, unsigned long ulRHS);
-static void HandleLoadInvalidValue(bool isFatal,
-				   struct CInvalidValueData *pData,
-				   unsigned long ulValue);
-static void HandleInvalidBuiltin(bool isFatal,
-				 struct CInvalidBuiltinData *pData);
-static void HandleFunctionTypeMismatch(bool isFatal,
-				       struct CFunctionTypeMismatchData *pData,
-				       unsigned long ulFunction);
-static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData);
-static void HandlePointerOverflow(bool isFatal,
-				  struct CPointerOverflowData *pData,
-				  unsigned long ulBase, unsigned long ulResult);
-static void HandleAlignmentAssumption(bool isFatal,
-				      struct CAlignmentAssumptionData *pData,
-				      unsigned long ulPointer,
-				      unsigned long ulAlignment,
-				      unsigned long ulOffset);
+خالی __ubsan_handle_add_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_add_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS,
+				       غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_alignment_assumption(ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا,
+					 غیرعلامتی طویل ul_اشارہ_گر,
+					 غیرعلامتی طویل ulAlignment,
+					 غیرعلامتی طویل ul_انحراف);
+خالی __ubsan_handle_alignment_assumption_abort(
+	ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ul_اشارہ_گر,
+	غیرعلامتی طویل ulAlignment, غیرعلامتی طویل ul_انحراف);
+خالی __ubsan_handle_builtin_unreachable(ساخت CUnreachable_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_divrem_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				    غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_divrem_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+					  غیرعلامتی طویل ulLHS,
+					  غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_function_type_mismatch(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction);
+خالی __ubsan_handle_function_type_mismatch_abort(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction);
+خالی __ubsan_handle_function_type_mismatch_v1(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction,
+	غیرعلامتی طویل ulCalleeRTTI, غیرعلامتی طویل ulFnRTTI);
+خالی __ubsan_handle_function_type_mismatch_v1_abort(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction,
+	غیرعلامتی طویل ulCalleeRTTI, غیرعلامتی طویل ulFnRTTI);
+خالی __ubsan_handle_invalid_builtin(ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_invalid_builtin_abort(ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_load_invalid_value(ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulVal);
+خالی __ubsan_handle_load_invalid_value_abort(ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+					     غیرعلامتی طویل ulVal);
+خالی __ubsan_handle_missing_return(ساخت CUnreachable_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_mul_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_mul_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS,
+				       غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_negate_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				    غیرعلامتی طویل ulOldVal);
+خالی __ubsan_handle_negate_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+					  غیرعلامتی طویل ulOldVal);
+خالی __ubsan_handle_nullability_arg(ساخت CNon_Null_Arg_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_nullability_arg_abort(ساخت CNon_Null_Arg_ڈیٹا *p_ڈیٹا);
+خالی __ubsan_handle_nullability_return_v1(
+	ساخت CNon_Null_Return_ڈیٹا *p_ڈیٹا,
+	ساخت CSourceLocation *p_Location_اشارہ_گر);
+خالی __ubsan_handle_nullability_return_v1_abort(
+	ساخت CNon_Null_Return_ڈیٹا *p_ڈیٹا,
+	ساخت CSourceLocation *p_Location_اشارہ_گر);
+خالی __ubsan_handle_out_of_bounds(ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+				  غیرعلامتی طویل ul_اشاریہ);
+خالی __ubsan_handle_out_of_bounds_abort(ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+					غیرعلامتی طویل ul_اشاریہ);
+خالی __ubsan_handle_pointer_overflow(ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+				     غیرعلامتی طویل ul_بنیاد,
+				     غیرعلامتی طویل ul_نتیجہ);
+خالی __ubsan_handle_pointer_overflow_abort(ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+					   غیرعلامتی طویل ul_بنیاد,
+					   غیرعلامتی طویل ul_نتیجہ);
+خالی __ubsan_handle_shift_out_of_bounds(ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا,
+					غیرعلامتی طویل ulLHS,
+					غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_shift_out_of_bounds_abort(
+	ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulLHS,
+	غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_sub_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_sub_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS,
+				       غیرعلامتی طویل ulRHS);
+خالی __ubsan_handle_type_mismatch(ساخت CType_Mismatch_ڈیٹا *p_ڈیٹا,
+				  غیرعلامتی طویل ul_اشارہ_گر);
+خالی __ubsan_handle_type_mismatch_abort(ساخت CType_Mismatch_ڈیٹا *p_ڈیٹا,
+					غیرعلامتی طویل ul_اشارہ_گر);
+خالی __ubsan_handle_type_mismatch_v1(ساخت CType_Mismatch_ڈیٹا_v1 *p_ڈیٹا,
+				     غیرعلامتی طویل ul_اشارہ_گر);
+خالی __ubsan_handle_type_mismatch_v1_abort(ساخت CType_Mismatch_ڈیٹا_v1 *p_ڈیٹا,
+					   غیرعلامتی طویل ul_اشارہ_گر);
+خالی __ubsan_handle_vla_bound_not_positive(ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+					   غیرعلامتی طویل ulBound);
+خالی __ubsan_handle_vla_bound_not_positive_abort(ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+						 غیرعلامتی طویل ulBound);
+خالی __ubsan_get_current_report_data(ثابت حرف **pp_برآمد_Issue_قسم,
+				     ثابت حرف **pp_برآمد_پیغام,
+				     ثابت حرف **pp_برآمد_Filename,
+				     uint32_t *p_برآمد_سطر, uint32_t *p_برآمد_ستون,
+				     حرف **pp_برآمد_حافظہ_Addr);
+ساکن خالی Handle_حد_سے_تجاوز(bool isFatal, ساخت COverflow_ڈیٹا *p_ڈیٹا,
+			   غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS,
+			   ثابت حرف *szOperation);
+ساکن خالی Handle_Negate_حد_سے_تجاوز(bool isFatal, ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ul_Old_قدر);
+ساکن خالی HandleBuiltinUnreachable(bool isFatal,
+				     ساخت CUnreachable_ڈیٹا *p_ڈیٹا);
+ساکن خالی HandleTypeMismatch(bool isFatal, ساخت CSourceLocation *mLocation,
+			       ساخت CTypeDescriptor *mType,
+			       غیرعلامتی طویل mLogAlignment,
+			       uint8_t m_Type_Check_قسم, غیرعلامتی طویل ul_اشارہ_گر);
+ساکن خالی Handle_Vla_Bound_Not_مثبت(bool isFatal, ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+				      غیرعلامتی طویل ulBound);
+ساکن خالی Handle_برآمد_کا_Bounds(bool isFatal, ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+			      غیرعلامتی طویل ul_اشاریہ);
+ساکن خالی Handle_سرکاؤ_برآمد_کا_Bounds(bool isFatal,
+				   ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا,
+				   غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS);
+ساکن خالی Handle_بھرو_Invalid_قدر(bool isFatal,
+				   ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+				   غیرعلامتی طویل ul_قدر);
+ساکن خالی HandleInvalidBuiltin(bool isFatal,
+				 ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا);
+ساکن خالی HandleFunctionTypeMismatch(bool isFatal,
+				       ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulFunction);
+ساکن خالی HandleMissingReturn(bool isFatal, ساخت CUnreachable_ڈیٹا *p_ڈیٹا);
+ساکن خالی Handle_اشارہ_گر_حد_سے_تجاوز(bool isFatal,
+				  ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+				  غیرعلامتی طویل ul_بنیاد, غیرعلامتی طویل ul_نتیجہ);
+ساکن خالی HandleAlignmentAssumption(bool isFatal,
+				      ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا,
+				      غیرعلامتی طویل ul_اشارہ_گر,
+				      غیرعلامتی طویل ulAlignment,
+				      غیرعلامتی طویل ul_انحراف);
 
-#define NUMBER_SIGNED_BIT 1
-#define NUMBER_MAXLEN 128
-#define __arraycount(__a) (sizeof(__a) / sizeof(__a[0]))
-#define __BIT(__n) (1UL << (__n))
-#define SEPARATOR sbi_printf("===========================================\n")
-#define ACK_REPORTED (1U << 31)
+#تعریف_کرو نمبر_SIGNED_ثنائی_ہندسہ 1
+#تعریف_کرو نمبر_MAXLEN 128
+#تعریف_کرو __arraycount(__a) (حجم(__a) / حجم(__a[0]))
+#تعریف_کرو __BIT(__n) (1UL << (__n))
+#تعریف_کرو SEPARATOR sbi_printf("===========================================\n")
+#تعریف_کرو ACK_REPORTED (1U << 31)
 
-static bool isAlreadyReported(struct CSourceLocation *pLocation)
+ساکن bool isAlreadyReported(ساخت CSourceLocation *pLocation)
 {
-	uint32_t siOldValue;
-	volatile uint32_t *pLine;
+	uint32_t si_Old_قدر;
+	متلون uint32_t *p_سطر;
 
-	if (!pLocation)
-		return false;
+	اگر (!pLocation)
+		واپس false;
 
-	pLine = &pLocation->mLine;
+	p_سطر = &pLocation->m_سطر;
 
-	do {
-		siOldValue = *pLine;
-	} while (__sync_val_compare_and_swap(pLine, siOldValue,
-					     siOldValue | ACK_REPORTED) !=
-		 siOldValue);
+	کرو {
+		si_Old_قدر = *p_سطر;
+	} جب (__sync_val_compare_and_swap(p_سطر, si_Old_قدر,
+					     si_Old_قدر | ACK_REPORTED) !=
+		 si_Old_قدر);
 
-	if (!(siOldValue & ACK_REPORTED)) {
+	اگر (!(si_Old_قدر & ACK_REPORTED)) {
 
-		sbi_ubsan_report_count++;
+		sbi_ubsan_report_گنتی++;
 
-		return false;
+		واپس false;
 	}
 
-	return true;
+	واپس true;
 }
 
-static void HandleOverflow(bool isFatal, struct COverflowData *pData,
-			   unsigned long ulLHS, unsigned long ulRHS,
-			   const char *szOperation)
+ساکن خالی Handle_حد_سے_تجاوز(bool isFatal, ساخت COverflow_ڈیٹا *p_ڈیٹا,
+			   غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS,
+			   ثابت حرف *szOperation)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = p_ڈیٹا->mType->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ;
 
 	sbi_printf("UBSan: %s integer overflow: ",
 		   is_signed ? "signed" : "unsigned");
 
-	if (is_signed) {
-		sbi_printf("%ld %s %ld ", (long)ulLHS, szOperation,
-			   (long)ulRHS);
-	} else {
+	اگر (is_signed) {
+		sbi_printf("%ld %s %ld ", (طویل)ulLHS, szOperation,
+			   (طویل)ulRHS);
+	} ورنہ {
 		sbi_printf("%lu %s %lu ", ulLHS, szOperation, ulRHS);
 	}
 
 	sbi_printf("cannot be represented in type %s\n",
-		   pData->mType->mTypeName);
+		   p_ڈیٹا->mType->mTypeName);
 
 	SEPARATOR;
 }
 
-static void HandleNegateOverflow(bool isFatal, struct COverflowData *pData,
-				 unsigned long ulOldValue)
+ساکن خالی Handle_Negate_حد_سے_تجاوز(bool isFatal, ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ul_Old_قدر)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = p_ڈیٹا->mType->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ;
 
 	sbi_printf("UBSan: Negation of ");
 
-	if (is_signed) {
-		sbi_printf("%ld", (long)ulOldValue);
-	} else {
-		sbi_printf("%lu", ulOldValue);
+	اگر (is_signed) {
+		sbi_printf("%ld", (طویل)ul_Old_قدر);
+	} ورنہ {
+		sbi_printf("%lu", ul_Old_قدر);
 	}
 
 	sbi_printf("cannot be represented in type %s\n",
-		   pData->mType->mTypeName);
+		   p_ڈیٹا->mType->mTypeName);
 
 	SEPARATOR;
 }
 
-static void HandleBuiltinUnreachable(bool isFatal,
-				     struct CUnreachableData *pData)
+ساکن خالی HandleBuiltinUnreachable(bool isFatal,
+				     ساخت CUnreachable_ڈیٹا *p_ڈیٹا)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
 	SEPARATOR;
 }
 
-const char *rgczTypeCheckKinds[] = { "load of",
+ثابت حرف *rgczTypeCheckKinds[] = { "load of",
 				     "store to",
 				     "reference binding to",
 				     "member access within",
@@ -396,72 +396,72 @@ const char *rgczTypeCheckKinds[] = { "load of",
 				     "_Nonnull binding to",
 				     "dynamic operation on" };
 
-static void HandleTypeMismatch(bool isFatal, struct CSourceLocation *mLocation,
-			       struct CTypeDescriptor *mType,
-			       unsigned long mLogAlignment,
-			       uint8_t mTypeCheckKind, unsigned long ulPointer)
+ساکن خالی HandleTypeMismatch(bool isFatal, ساخت CSourceLocation *mLocation,
+			       ساخت CTypeDescriptor *mType,
+			       غیرعلامتی طویل mLogAlignment,
+			       uint8_t m_Type_Check_قسم, غیرعلامتی طویل ul_اشارہ_گر)
 {
 
-	if ((!mLocation) || (!mType)) {
-		return;
+	اگر ((!mLocation) || (!mType)) {
+		واپس;
 	}
 
-	if (isAlreadyReported(mLocation)) {
-		return;
+	اگر (isAlreadyReported(mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   mLocation->mFilename, mLocation->mLine & ~ACK_REPORTED,
-		   mLocation->mColumn);
+		   mLocation->mFilename, mLocation->m_سطر & ~ACK_REPORTED,
+		   mLocation->m_عمود);
 
-	const char *kind = (mTypeCheckKind < __arraycount(rgczTypeCheckKinds))
-				   ? rgczTypeCheckKinds[mTypeCheckKind]
+	ثابت حرف *قسم_2 = (m_Type_Check_قسم < __arraycount(rgczTypeCheckKinds))
+				   ? rgczTypeCheckKinds[m_Type_Check_قسم]
 				   : "access to";
 
-	if (ulPointer == 0) {
-		sbi_printf("%s null pointer of type %s\n", kind,
+	اگر (ul_اشارہ_گر == 0) {
+		sbi_printf("%s null pointer of type %s\n", قسم_2,
 			   mType->mTypeName);
-	} else if (
+	} ورنہ اگر (
 		(mLogAlignment - 1) &
-		ulPointer) { //mLogAlignment is converted on the wrapper function call
+		ul_اشارہ_گر) { //mLogAlignment is converted on the wrapper function call
 		sbi_printf(
 			"%s misaligned address %p for type %s which requires %ld byte alignment\n",
-			kind, (void *)ulPointer, mType->mTypeName,
+			قسم_2, (خالی *)ul_اشارہ_گر, mType->mTypeName,
 			mLogAlignment);
-	} else {
+	} ورنہ {
 		sbi_printf(
 			"%s address %p with insufficient space for an object of type %s\n",
-			kind, (void *)ulPointer, mType->mTypeName);
+			قسم_2, (خالی *)ul_اشارہ_گر, mType->mTypeName);
 	}
 	SEPARATOR;
 }
 
-static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
-				      unsigned long ulBound)
+ساکن خالی Handle_Vla_Bound_Not_مثبت(bool isFatal, ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+				      غیرعلامتی طویل ulBound)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
 	sbi_printf("variable length array bound value ");
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = p_ڈیٹا->mType->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ;
 
-	if (is_signed) {
-		sbi_printf("%ld", (long)ulBound);
-	} else {
+	اگر (is_signed) {
+		sbi_printf("%ld", (طویل)ulBound);
+	} ورنہ {
 		sbi_printf("%lu", ulBound);
 	}
 
@@ -470,147 +470,147 @@ static void HandleVlaBoundNotPositive(bool isFatal, struct CVLABoundData *pData,
 	SEPARATOR;
 }
 
-static void HandleOutOfBounds(bool isFatal, struct COutOfBoundsData *pData,
-			      unsigned long ulIndex)
+ساکن خالی Handle_برآمد_کا_Bounds(bool isFatal, ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+			      غیرعلامتی طویل ul_اشاریہ)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	bool is_signed = pData->mIndexType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = p_ڈیٹا->m_اشاریہ_Type->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ;
 
-	if (is_signed) {
-		sbi_printf("index %ld", (long)ulIndex);
-	} else {
-		sbi_printf("index %lu", ulIndex);
+	اگر (is_signed) {
+		sbi_printf("index %ld", (طویل)ul_اشاریہ);
+	} ورنہ {
+		sbi_printf("index %lu", ul_اشاریہ);
 	}
 
 	sbi_printf(" is out of range for type %s\n",
-		   pData->mArrayType->mTypeName);
+		   p_ڈیٹا->mArrayType->mTypeName);
 
 	SEPARATOR;
 }
 
-static bool isNegativeNumber(struct CTypeDescriptor *pType, unsigned long ulVal)
+ساکن bool is_Negative_نمبر(ساخت CTypeDescriptor *pType, غیرعلامتی طویل ulVal)
 {
-	if (!(pType->mTypeInfo & NUMBER_SIGNED_BIT)) {
-		return false;
+	اگر (!(pType->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ)) {
+		واپس false;
 	}
 
-	return (long)ulVal < 0;
+	واپس (طویل)ulVal < 0;
 }
 
-static size_t type_width(struct CTypeDescriptor *pType)
+ساکن size_t type_چوڑائی(ساخت CTypeDescriptor *pType)
 {
-	return 1UL << (pType->mTypeInfo >> 1);
+	واپس 1UL << (pType->mTypeInfo >> 1);
 }
 
-static void HandleShiftOutOfBounds(bool isFatal,
-				   struct CShiftOutOfBoundsData *pData,
-				   unsigned long ulLHS, unsigned long ulRHS)
+ساکن خالی Handle_سرکاؤ_برآمد_کا_Bounds(bool isFatal,
+				   ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا,
+				   غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	if (isNegativeNumber(pData->mRHSType, ulRHS)) {
-		sbi_printf("shift exponent %ld is negative\n", (long)ulRHS);
-	} else if (ulRHS >= type_width(pData->mLHSType)) {
+	اگر (is_Negative_نمبر(p_ڈیٹا->mRHSType, ulRHS)) {
+		sbi_printf("shift exponent %ld is negative\n", (طویل)ulRHS);
+	} ورنہ اگر (ulRHS >= type_چوڑائی(p_ڈیٹا->mLHSType)) {
 		sbi_printf(
 			"shift exponent %lu is too large for %lu-bit type %s\n",
-			ulRHS, (unsigned long)type_width(pData->mLHSType),
-			pData->mLHSType->mTypeName);
+			ulRHS, (غیرعلامتی طویل)type_چوڑائی(p_ڈیٹا->mLHSType),
+			p_ڈیٹا->mLHSType->mTypeName);
 
-	} else if (isNegativeNumber(pData->mLHSType, ulLHS)) {
-		sbi_printf("left shift of negative value %ld\n", (long)ulLHS);
-	} else {
+	} ورنہ اگر (is_Negative_نمبر(p_ڈیٹا->mLHSType, ulLHS)) {
+		sbi_printf("left shift of negative value %ld\n", (طویل)ulLHS);
+	} ورنہ {
 		sbi_printf(
 			"left shift of %lu by %lu places cannot be represented in type %s\n",
-			ulLHS, ulRHS, pData->mLHSType->mTypeName);
+			ulLHS, ulRHS, p_ڈیٹا->mLHSType->mTypeName);
 	}
 
 	SEPARATOR;
 }
 
-static void HandleLoadInvalidValue(bool isFatal,
-				   struct CInvalidValueData *pData,
-				   unsigned long ulValue)
+ساکن خالی Handle_بھرو_Invalid_قدر(bool isFatal,
+				   ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+				   غیرعلامتی طویل ul_قدر)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	bool is_signed = pData->mType->mTypeInfo & NUMBER_SIGNED_BIT;
+	bool is_signed = p_ڈیٹا->mType->mTypeInfo & نمبر_SIGNED_ثنائی_ہندسہ;
 
 	sbi_printf("load of value ");
 
-	if (is_signed) {
-		sbi_printf("%ld ", (long)ulValue);
-	} else {
-		sbi_printf("%lu ", ulValue);
+	اگر (is_signed) {
+		sbi_printf("%ld ", (طویل)ul_قدر);
+	} ورنہ {
+		sbi_printf("%lu ", ul_قدر);
 	}
 
 	sbi_printf("is not a valid value for type %s\n",
-		   pData->mType->mTypeName);
+		   p_ڈیٹا->mType->mTypeName);
 
 	SEPARATOR;
 }
 
-const char *rgczBuiltinCheckKinds[] = { "ctz()", "clz()" };
+ثابت حرف *rgczBuiltinCheckKinds[] = { "ctz()", "clz()" };
 
-static void HandleInvalidBuiltin(bool isFatal,
-				 struct CInvalidBuiltinData *pData)
+ساکن خالی HandleInvalidBuiltin(bool isFatal,
+				 ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	const char *builtin =
-		(pData->mKind < __arraycount(rgczBuiltinCheckKinds))
-			? rgczBuiltinCheckKinds[pData->mKind]
+	ثابت حرف *builtin =
+		(p_ڈیٹا->m_قسم < __arraycount(rgczBuiltinCheckKinds))
+			? rgczBuiltinCheckKinds[p_ڈیٹا->m_قسم]
 			: "unknown builtin";
 
 	sbi_printf("passing zero to %s, which is not a valid argument\n",
@@ -619,48 +619,48 @@ static void HandleInvalidBuiltin(bool isFatal,
 	SEPARATOR;
 }
 
-static void HandleFunctionTypeMismatch(bool isFatal,
-				       struct CFunctionTypeMismatchData *pData,
-				       unsigned long ulFunction)
+ساکن خالی HandleFunctionTypeMismatch(bool isFatal,
+				       ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulFunction)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
 	sbi_printf(
 		"call to function %#lx through pointer to incorrect function type %s\n",
-		ulFunction, pData->mType->mTypeName);
+		ulFunction, p_ڈیٹا->mType->mTypeName);
 
 	SEPARATOR;
 }
 
-static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData)
+ساکن خالی HandleMissingReturn(bool isFatal, ساخت CUnreachable_ڈیٹا *p_ڈیٹا)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
 	sbi_printf(
 		"execution reached the end of a value-returning function without returning a value\n");
@@ -668,62 +668,62 @@ static void HandleMissingReturn(bool isFatal, struct CUnreachableData *pData)
 	SEPARATOR;
 }
 
-static void HandlePointerOverflow(bool isFatal,
-				  struct CPointerOverflowData *pData,
-				  unsigned long ulBase, unsigned long ulResult)
+ساکن خالی Handle_اشارہ_گر_حد_سے_تجاوز(bool isFatal,
+				  ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+				  غیرعلامتی طویل ul_بنیاد, غیرعلامتی طویل ul_نتیجہ)
 {
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
 	sbi_printf("pointer expression with base %#lx overflowed to %#lx\n",
-		   ulBase, ulResult);
+		   ul_بنیاد, ul_نتیجہ);
 
 	SEPARATOR;
 }
 
-static void HandleAlignmentAssumption(bool isFatal,
-				      struct CAlignmentAssumptionData *pData,
-				      unsigned long ulPointer,
-				      unsigned long ulAlignment,
-				      unsigned long ulOffset)
+ساکن خالی HandleAlignmentAssumption(bool isFatal,
+				      ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا,
+				      غیرعلامتی طویل ul_اشارہ_گر,
+				      غیرعلامتی طویل ulAlignment,
+				      غیرعلامتی طویل ul_انحراف)
 {
 
-	if (!pData) {
-		return;
+	اگر (!p_ڈیٹا) {
+		واپس;
 	}
 
-	if (isAlreadyReported(&pData->mLocation)) {
-		return;
+	اگر (isAlreadyReported(&p_ڈیٹا->mLocation)) {
+		واپس;
 	}
 
 	SEPARATOR;
 
 	sbi_printf("UBSan: Undefined Behavior in %s:%u:%u\n",
-		   pData->mLocation.mFilename,
-		   pData->mLocation.mLine & ~ACK_REPORTED,
-		   pData->mLocation.mColumn);
+		   p_ڈیٹا->mLocation.mFilename,
+		   p_ڈیٹا->mLocation.m_سطر & ~ACK_REPORTED,
+		   p_ڈیٹا->mLocation.m_عمود);
 
-	unsigned long ulRealPointer = ulPointer - ulOffset;
+	غیرعلامتی طویل ul_Real_اشارہ_گر = ul_اشارہ_گر - ul_انحراف;
 	sbi_printf("alignment assumption of %lu for pointer %p (offset %p)",
-		   ulAlignment, (void *)ulRealPointer, (void *)ulOffset);
+		   ulAlignment, (خالی *)ul_Real_اشارہ_گر, (خالی *)ul_انحراف);
 
-	if (pData->mAssumptionLocation.mFilename != NULL) {
+	اگر (p_ڈیٹا->mAssumptionLocation.mFilename != تہی) {
 		sbi_printf(", assumption made in %s:%u:%u",
-			   pData->mAssumptionLocation.mFilename,
-			   pData->mAssumptionLocation.mLine,
-			   pData->mAssumptionLocation.mColumn);
+			   p_ڈیٹا->mAssumptionLocation.mFilename,
+			   p_ڈیٹا->mAssumptionLocation.m_سطر,
+			   p_ڈیٹا->mAssumptionLocation.m_عمود);
 	}
 
 	sbi_printf("\n");
@@ -732,193 +732,193 @@ static void HandleAlignmentAssumption(bool isFatal,
 }
 
 /* Definions of public symbols emitted by the instrumentation code */
-void __ubsan_handle_add_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_add_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(false, pData, ulLHS, ulRHS, "+");
+	Handle_حد_سے_تجاوز(false, p_ڈیٹا, ulLHS, ulRHS, "+");
 }
 
-void __ubsan_handle_add_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_add_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(true, pData, ulLHS, ulRHS, "+");
+	Handle_حد_سے_تجاوز(true, p_ڈیٹا, ulLHS, ulRHS, "+");
 }
 
-void __ubsan_handle_sub_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_sub_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(false, pData, ulLHS, ulRHS, "-");
+	Handle_حد_سے_تجاوز(false, p_ڈیٹا, ulLHS, ulRHS, "-");
 }
 
-void __ubsan_handle_sub_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_sub_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(true, pData, ulLHS, ulRHS, "-");
+	Handle_حد_سے_تجاوز(true, p_ڈیٹا, ulLHS, ulRHS, "-");
 }
 
-void __ubsan_handle_mul_overflow(struct COverflowData *pData,
-				 unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_mul_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				 غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(false, pData, ulLHS, ulRHS, "*");
+	Handle_حد_سے_تجاوز(false, p_ڈیٹا, ulLHS, ulRHS, "*");
 }
 
-void __ubsan_handle_mul_overflow_abort(struct COverflowData *pData,
-				       unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_mul_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(true, pData, ulLHS, ulRHS, "*");
+	Handle_حد_سے_تجاوز(true, p_ڈیٹا, ulLHS, ulRHS, "*");
 }
 
-void __ubsan_handle_negate_overflow(struct COverflowData *pData,
-				    unsigned long ulOldValue)
+خالی __ubsan_handle_negate_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				    غیرعلامتی طویل ul_Old_قدر)
 {
-	HandleNegateOverflow(false, pData, ulOldValue);
+	Handle_Negate_حد_سے_تجاوز(false, p_ڈیٹا, ul_Old_قدر);
 }
 
-void __ubsan_handle_negate_overflow_abort(struct COverflowData *pData,
-					  unsigned long ulOldValue)
+خالی __ubsan_handle_negate_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+					  غیرعلامتی طویل ul_Old_قدر)
 {
-	HandleNegateOverflow(true, pData, ulOldValue);
+	Handle_Negate_حد_سے_تجاوز(true, p_ڈیٹا, ul_Old_قدر);
 }
 
-void __ubsan_handle_divrem_overflow(struct COverflowData *pData,
-				    unsigned long ulLHS, unsigned long ulRHS)
+خالی __ubsan_handle_divrem_overflow(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+				    غیرعلامتی طویل ulLHS, غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(false, pData, ulLHS, ulRHS, "divrem");
+	Handle_حد_سے_تجاوز(false, p_ڈیٹا, ulLHS, ulRHS, "divrem");
 }
 
-void __ubsan_handle_divrem_overflow_abort(struct COverflowData *pData,
-					  unsigned long ulLHS,
-					  unsigned long ulRHS)
+خالی __ubsan_handle_divrem_overflow_abort(ساخت COverflow_ڈیٹا *p_ڈیٹا,
+					  غیرعلامتی طویل ulLHS,
+					  غیرعلامتی طویل ulRHS)
 {
-	HandleOverflow(true, pData, ulLHS, ulRHS, "divrem");
+	Handle_حد_سے_تجاوز(true, p_ڈیٹا, ulLHS, ulRHS, "divrem");
 }
 
-void __ubsan_handle_type_mismatch_v1(struct CTypeMismatchData_v1 *pData,
-				     unsigned long ulPointer)
+خالی __ubsan_handle_type_mismatch_v1(ساخت CType_Mismatch_ڈیٹا_v1 *p_ڈیٹا,
+				     غیرعلامتی طویل ul_اشارہ_گر)
 {
-	HandleTypeMismatch(false, &pData->mLocation, pData->mType,
-			   __BIT(pData->mLogAlignment), pData->mTypeCheckKind,
-			   ulPointer);
+	HandleTypeMismatch(false, &p_ڈیٹا->mLocation, p_ڈیٹا->mType,
+			   __BIT(p_ڈیٹا->mLogAlignment), p_ڈیٹا->m_Type_Check_قسم,
+			   ul_اشارہ_گر);
 }
 
-void __ubsan_handle_type_mismatch_v1_abort(struct CTypeMismatchData_v1 *pData,
-					   unsigned long ulPointer)
+خالی __ubsan_handle_type_mismatch_v1_abort(ساخت CType_Mismatch_ڈیٹا_v1 *p_ڈیٹا,
+					   غیرعلامتی طویل ul_اشارہ_گر)
 {
-	HandleTypeMismatch(true, &pData->mLocation, pData->mType,
-			   __BIT(pData->mLogAlignment), pData->mTypeCheckKind,
-			   ulPointer);
+	HandleTypeMismatch(true, &p_ڈیٹا->mLocation, p_ڈیٹا->mType,
+			   __BIT(p_ڈیٹا->mLogAlignment), p_ڈیٹا->m_Type_Check_قسم,
+			   ul_اشارہ_گر);
 }
 
-void __ubsan_handle_out_of_bounds(struct COutOfBoundsData *pData,
-				  unsigned long ulIndex)
+خالی __ubsan_handle_out_of_bounds(ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+				  غیرعلامتی طویل ul_اشاریہ)
 {
-	HandleOutOfBounds(false, pData, ulIndex);
+	Handle_برآمد_کا_Bounds(false, p_ڈیٹا, ul_اشاریہ);
 }
 
-void __ubsan_handle_out_of_bounds_abort(struct COutOfBoundsData *pData,
-					unsigned long ulIndex)
+خالی __ubsan_handle_out_of_bounds_abort(ساخت COut_کا_Bounds_ڈیٹا *p_ڈیٹا,
+					غیرعلامتی طویل ul_اشاریہ)
 {
-	HandleOutOfBounds(true, pData, ulIndex);
+	Handle_برآمد_کا_Bounds(true, p_ڈیٹا, ul_اشاریہ);
 }
 
-void __ubsan_handle_shift_out_of_bounds(struct CShiftOutOfBoundsData *pData,
-					unsigned long ulLHS,
-					unsigned long ulRHS)
+خالی __ubsan_handle_shift_out_of_bounds(ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا,
+					غیرعلامتی طویل ulLHS,
+					غیرعلامتی طویل ulRHS)
 {
-	HandleShiftOutOfBounds(false, pData, ulLHS, ulRHS);
+	Handle_سرکاؤ_برآمد_کا_Bounds(false, p_ڈیٹا, ulLHS, ulRHS);
 }
 
-void __ubsan_handle_shift_out_of_bounds_abort(
-	struct CShiftOutOfBoundsData *pData, unsigned long ulLHS,
-	unsigned long ulRHS)
+خالی __ubsan_handle_shift_out_of_bounds_abort(
+	ساخت CShift_برآمد_کا_Bounds_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulLHS,
+	غیرعلامتی طویل ulRHS)
 {
-	HandleShiftOutOfBounds(true, pData, ulLHS, ulRHS);
+	Handle_سرکاؤ_برآمد_کا_Bounds(true, p_ڈیٹا, ulLHS, ulRHS);
 }
 
-void __ubsan_handle_pointer_overflow(struct CPointerOverflowData *pData,
-				     unsigned long ulBase,
-				     unsigned long ulResult)
+خالی __ubsan_handle_pointer_overflow(ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+				     غیرعلامتی طویل ul_بنیاد,
+				     غیرعلامتی طویل ul_نتیجہ)
 {
-	HandlePointerOverflow(false, pData, ulBase, ulResult);
+	Handle_اشارہ_گر_حد_سے_تجاوز(false, p_ڈیٹا, ul_بنیاد, ul_نتیجہ);
 }
 
-void __ubsan_handle_pointer_overflow_abort(struct CPointerOverflowData *pData,
-					   unsigned long ulBase,
-					   unsigned long ulResult)
+خالی __ubsan_handle_pointer_overflow_abort(ساخت CPointer_حد_سے_تجاوز_ڈیٹا *p_ڈیٹا,
+					   غیرعلامتی طویل ul_بنیاد,
+					   غیرعلامتی طویل ul_نتیجہ)
 {
-	HandlePointerOverflow(true, pData, ulBase, ulResult);
+	Handle_اشارہ_گر_حد_سے_تجاوز(true, p_ڈیٹا, ul_بنیاد, ul_نتیجہ);
 }
 
-void __ubsan_handle_alignment_assumption(struct CAlignmentAssumptionData *pData,
-					 unsigned long ulPointer,
-					 unsigned long ulAlignment,
-					 unsigned long ulOffset)
+خالی __ubsan_handle_alignment_assumption(ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا,
+					 غیرعلامتی طویل ul_اشارہ_گر,
+					 غیرعلامتی طویل ulAlignment,
+					 غیرعلامتی طویل ul_انحراف)
 {
-	HandleAlignmentAssumption(false, pData, ulPointer, ulAlignment,
-				  ulOffset);
+	HandleAlignmentAssumption(false, p_ڈیٹا, ul_اشارہ_گر, ulAlignment,
+				  ul_انحراف);
 }
 
-void __ubsan_handle_alignment_assumption_abort(
-	struct CAlignmentAssumptionData *pData, unsigned long ulPointer,
-	unsigned long ulAlignment, unsigned long ulOffset)
+خالی __ubsan_handle_alignment_assumption_abort(
+	ساخت CAlignment_Assumption_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ul_اشارہ_گر,
+	غیرعلامتی طویل ulAlignment, غیرعلامتی طویل ul_انحراف)
 {
-	HandleAlignmentAssumption(true, pData, ulPointer, ulAlignment,
-				  ulOffset);
+	HandleAlignmentAssumption(true, p_ڈیٹا, ul_اشارہ_گر, ulAlignment,
+				  ul_انحراف);
 }
 
-void __ubsan_handle_builtin_unreachable(struct CUnreachableData *pData)
+خالی __ubsan_handle_builtin_unreachable(ساخت CUnreachable_ڈیٹا *p_ڈیٹا)
 {
-	HandleBuiltinUnreachable(true, pData);
+	HandleBuiltinUnreachable(true, p_ڈیٹا);
 }
 
-void __ubsan_handle_invalid_builtin(struct CInvalidBuiltinData *pData)
+خالی __ubsan_handle_invalid_builtin(ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا)
 {
-	HandleInvalidBuiltin(true, pData);
+	HandleInvalidBuiltin(true, p_ڈیٹا);
 }
 
-void __ubsan_handle_invalid_builtin_abort(struct CInvalidBuiltinData *pData)
+خالی __ubsan_handle_invalid_builtin_abort(ساخت CInvalid_Builtin_ڈیٹا *p_ڈیٹا)
 {
-	HandleInvalidBuiltin(true, pData);
+	HandleInvalidBuiltin(true, p_ڈیٹا);
 }
 
-void __ubsan_handle_load_invalid_value(struct CInvalidValueData *pData,
-				       unsigned long ulValue)
+خالی __ubsan_handle_load_invalid_value(ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+				       غیرعلامتی طویل ul_قدر)
 {
-	HandleLoadInvalidValue(false, pData, ulValue);
+	Handle_بھرو_Invalid_قدر(false, p_ڈیٹا, ul_قدر);
 }
 
-void __ubsan_handle_load_invalid_value_abort(struct CInvalidValueData *pData,
-					     unsigned long ulValue)
+خالی __ubsan_handle_load_invalid_value_abort(ساخت CInvalid_قدر_ڈیٹا *p_ڈیٹا,
+					     غیرعلامتی طویل ul_قدر)
 {
-	HandleLoadInvalidValue(true, pData, ulValue);
+	Handle_بھرو_Invalid_قدر(true, p_ڈیٹا, ul_قدر);
 }
 
-void __ubsan_handle_missing_return(struct CUnreachableData *pData)
+خالی __ubsan_handle_missing_return(ساخت CUnreachable_ڈیٹا *p_ڈیٹا)
 {
-	HandleMissingReturn(true, pData);
+	HandleMissingReturn(true, p_ڈیٹا);
 }
 
-void __ubsan_handle_vla_bound_not_positive(struct CVLABoundData *pData,
-					   unsigned long ulBound)
+خالی __ubsan_handle_vla_bound_not_positive(ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+					   غیرعلامتی طویل ulBound)
 {
-	HandleVlaBoundNotPositive(false, pData, ulBound);
+	Handle_Vla_Bound_Not_مثبت(false, p_ڈیٹا, ulBound);
 }
 
-void __ubsan_handle_vla_bound_not_positive_abort(struct CVLABoundData *pData,
-						 unsigned long ulBound)
+خالی __ubsan_handle_vla_bound_not_positive_abort(ساخت CVLABound_ڈیٹا *p_ڈیٹا,
+						 غیرعلامتی طویل ulBound)
 {
-	HandleVlaBoundNotPositive(true, pData, ulBound);
+	Handle_Vla_Bound_Not_مثبت(true, p_ڈیٹا, ulBound);
 }
 
-void __ubsan_handle_function_type_mismatch(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction)
+خالی __ubsan_handle_function_type_mismatch(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction)
 {
-	HandleFunctionTypeMismatch(false, pData, ulFunction);
+	HandleFunctionTypeMismatch(false, p_ڈیٹا, ulFunction);
 }
 
-void __ubsan_handle_function_type_mismatch_abort(
-	struct CFunctionTypeMismatchData *pData, unsigned long ulFunction)
+خالی __ubsan_handle_function_type_mismatch_abort(
+	ساخت CFunction_Type_Mismatch_ڈیٹا *p_ڈیٹا, غیرعلامتی طویل ulFunction)
 {
-	HandleFunctionTypeMismatch(true, pData, ulFunction);
+	HandleFunctionTypeMismatch(true, p_ڈیٹا, ulFunction);
 }
-#endif
+#اگر_ختم

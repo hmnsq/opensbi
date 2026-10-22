@@ -7,102 +7,102 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_timer.h>
+#شامل <sbi_utils/timer/andes_plmt.h>
 
-struct plmt_data plmt;
+ساخت plmt_ڈیٹا plmt;
 
-static u64 plmt_timer_value(void)
+ساکن u64 plmt_timer_قدر(خالی)
 {
-#if __riscv_xlen == 64
-	return readq_relaxed(plmt.time_val);
-#else
+#اگر __riscv_xlen == 64
+	واپس readq_relaxed(plmt.وقت_val);
+#ورنہ
 	u32 lo, hi;
 
-	do {
-		hi = readl_relaxed((void *)plmt.time_val + 0x04);
-		lo = readl_relaxed(plmt.time_val);
-	} while (hi != readl_relaxed((void *)plmt.time_val + 0x04));
+	کرو {
+		hi = readl_relaxed((خالی *)plmt.وقت_val + 0x04);
+		lo = readl_relaxed(plmt.وقت_val);
+	} جب (hi != readl_relaxed((خالی *)plmt.وقت_val + 0x04));
 
-	return ((u64)hi << 32) | (u64)lo;
-#endif
+	واپس ((u64)hi << 32) | (u64)lo;
+#اگر_ختم
 }
 
-static void plmt_timer_event_stop(void)
+ساکن خالی plmt_timer_event_stop(خالی)
 {
-	u32 target_hart = current_hartid();
+	u32 ہدف_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	اگر (plmt.hart_گنتی <= ہدف_hart)
 		ebreak();
 
 	/* Clear PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(-1ULL, &plmt.time_cmp[target_hart]);
-#else
-	writel_relaxed(-1UL, &plmt.time_cmp[target_hart]);
-	writel_relaxed(-1UL, (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+#اگر __riscv_xlen == 64
+	writeq_relaxed(-1ULL, &plmt.وقت_cmp[ہدف_hart]);
+#ورنہ
+	writel_relaxed(-1UL, &plmt.وقت_cmp[ہدف_hart]);
+	writel_relaxed(-1UL, (خالی *)(&plmt.وقت_cmp[ہدف_hart]) + 0x04);
+#اگر_ختم
 }
 
-static void plmt_timer_event_start(u64 next_event)
+ساکن خالی plmt_timer_event_آغاز(u64 اگلا_event)
 {
-	u32 target_hart = current_hartid();
+	u32 ہدف_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	اگر (plmt.hart_گنتی <= ہدف_hart)
 		ebreak();
 
 	/* Program PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(next_event, &plmt.time_cmp[target_hart]);
-#else
-	u32 mask = -1UL;
+#اگر __riscv_xlen == 64
+	writeq_relaxed(اگلا_event, &plmt.وقت_cmp[ہدف_hart]);
+#ورنہ
+	u32 نقاب = -1UL;
 
-	writel_relaxed(next_event & mask, &plmt.time_cmp[target_hart]);
-	writel_relaxed(next_event >> 32,
-		       (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+	writel_relaxed(اگلا_event & نقاب, &plmt.وقت_cmp[ہدف_hart]);
+	writel_relaxed(اگلا_event >> 32,
+		       (خالی *)(&plmt.وقت_cmp[ہدف_hart]) + 0x04);
+#اگر_ختم
 }
 
-static int plmt_warm_timer_init(void)
+ساکن صحیح plmt_warm_timer_init(خالی)
 {
-	if (!plmt.time_val)
-		return SBI_ENODEV;
+	اگر (!plmt.وقت_val)
+		واپس SBI_ENODEV;
 
 	plmt_timer_event_stop();
 
-	return 0;
+	واپس 0;
 }
 
-static struct sbi_timer_device plmt_timer = {
+ساکن ساخت sbi_timer_device plmt_timer = {
 	.name		   = "andes_plmt",
 	.timer_freq	   = DEFAULT_AE350_PLMT_FREQ,
-	.timer_value	   = plmt_timer_value,
-	.timer_event_start = plmt_timer_event_start,
+	.timer_قدر	   = plmt_timer_قدر,
+	.timer_event_آغاز = plmt_timer_event_آغاز,
 	.timer_event_stop  = plmt_timer_event_stop,
 	.warm_init	   = plmt_warm_timer_init,
 };
 
-int plmt_cold_timer_init(struct plmt_data *plmt)
+صحیح plmt_cold_timer_init(ساخت plmt_ڈیٹا *plmt)
 {
-	int rc;
+	صحیح rc;
 
 	/* Add PLMT region to the root domain */
-	rc = sbi_domain_root_add_memrange(
-		(unsigned long)plmt->time_val, plmt->size,
+	rc = sbi_domain_جڑ_جوڑو_memrange(
+		(غیرعلامتی طویل)plmt->وقت_val, plmt->سائز,
 		PLMT_REGION_ALIGN,
 		SBI_DOMAIN_MEMREGION_MMIO |
 		SBI_DOMAIN_MEMREGION_M_READABLE |
 		SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	اگر (rc)
+		واپس rc;
 
 	plmt_timer.timer_freq = plmt->timer_freq;
 
-	sbi_timer_set_device(&plmt_timer);
+	sbi_timer_سیٹ_device(&plmt_timer);
 
-	return 0;
+	واپس 0;
 }

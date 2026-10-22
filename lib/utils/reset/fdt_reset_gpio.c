@@ -9,161 +9,161 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_hart.h>
+#شامل <sbi/sbi_system.h>
+#شامل <sbi/sbi_timer.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/gpio/fdt_gpio.h>
 
-struct gpio_reset {
-	struct gpio_pin pin;
-	u32 active_delay;
+ساخت gpio_reset {
+	ساخت gpio_pin pin;
+	u32 فعال_delay;
 	u32 inactive_delay;
 };
 
-static struct gpio_reset poweroff = {
-	.active_delay = 100,
+ساکن ساخت gpio_reset poweroff = {
+	.فعال_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset restart = {
-	.active_delay = 100,
+ساکن ساخت gpio_reset restart = {
+	.فعال_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset *gpio_reset_get(bool is_restart, u32 type)
+ساکن ساخت gpio_reset *gpio_reset_get(bool is_restart, u32 type)
 {
-	struct gpio_reset *reset = NULL;
+	ساخت gpio_reset *reset = تہی;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_restart)
+	انتخاب (type) {
+	حالت SBI_SRST_RESET_TYPE_SHUTDOWN:
+		اگر (!is_restart)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_restart)
+		توڑو;
+	حالت SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالت SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		اگر (is_restart)
 			reset = &restart;
-		break;
+		توڑو;
 	}
 
-	if (reset && !reset->pin.chip)
-		reset = NULL;
+	اگر (reset && !reset->pin.chip)
+		reset = تہی;
 
-	return reset;
+	واپس reset;
 }
 
-static void gpio_reset_exec(struct gpio_reset *reset)
+ساکن خالی gpio_reset_exec(ساخت gpio_reset *reset)
 {
-	if (reset) {
+	اگر (reset) {
 		/* drive it active, also inactive->active edge */
 		gpio_direction_output(&reset->pin, 1);
-		sbi_timer_mdelay(reset->active_delay);
+		sbi_timer_mdelay(reset->فعال_delay);
 
 		/* drive inactive, also active->inactive edge */
-		gpio_set(&reset->pin, 0);
+		gpio_سیٹ(&reset->pin, 0);
 		sbi_timer_mdelay(reset->inactive_delay);
 
 		/* drive it active, also inactive->active edge */
-		gpio_set(&reset->pin, 1);
+		gpio_سیٹ(&reset->pin, 1);
 	}
 	/* hang !!! */
 	sbi_hart_hang();
 }
 
-static int gpio_system_poweroff_check(u32 type, u32 reason)
+ساکن صحیح gpio_system_poweroff_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(false, type))
-		return 128;
+	اگر (gpio_reset_get(false, type))
+		واپس 128;
 
-	return 0;
+	واپس 0;
 }
 
-static void gpio_system_poweroff(u32 type, u32 reason)
+ساکن خالی gpio_system_poweroff(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device gpio_poweroff = {
+ساکن ساخت sbi_system_reset_device gpio_poweroff = {
 	.name = "gpio-poweroff",
 	.system_reset_check = gpio_system_poweroff_check,
 	.system_reset = gpio_system_poweroff
 };
 
-static int gpio_system_restart_check(u32 type, u32 reason)
+ساکن صحیح gpio_system_restart_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(true, type))
-		return 128;
+	اگر (gpio_reset_get(true, type))
+		واپس 128;
 
-	return 0;
+	واپس 0;
 }
 
-static void gpio_system_restart(u32 type, u32 reason)
+ساکن خالی gpio_system_restart(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device gpio_restart = {
+ساکن ساخت sbi_system_reset_device gpio_restart = {
 	.name = "gpio-restart",
 	.system_reset_check = gpio_system_restart_check,
 	.system_reset = gpio_system_restart
 };
 
-static int gpio_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+ساکن صحیح gpio_reset_init(ثابت خالی *fdt, صحیح nodeoff,
+			   ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc, len;
-	const fdt32_t *val;
-	bool is_restart = (ulong)match->data;
-	const char *dir_prop = (is_restart) ? "open-source" : "input";
-	struct gpio_reset *reset = (is_restart) ? &restart : &poweroff;
+	صحیح rc, len;
+	ثابت fdt32_t *val;
+	bool is_restart = (ulong)مطابقت->ڈیٹا;
+	ثابت حرف *dir_prop = (is_restart) ? "open-source" : "input";
+	ساخت gpio_reset *reset = (is_restart) ? &restart : &poweroff;
 
 	rc = fdt_gpio_pin_get(fdt, nodeoff, 0, &reset->pin);
-	if (rc)
-		return rc;
+	اگر (rc)
+		واپس rc;
 
-	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
-		rc = gpio_direction_input(&reset->pin);
-		if (rc)
-			return rc;
+	اگر (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
+		rc = gpio_direction_داخلہ(&reset->pin);
+		اگر (rc)
+			واپس rc;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "active-delay-ms", &len);
-	if (len > 0)
-		reset->active_delay = fdt32_to_cpu(*val);
+	اگر (len > 0)
+		reset->فعال_delay = fdt32_مقصد_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "inactive-delay-ms", &len);
-	if (len > 0)
-		reset->inactive_delay = fdt32_to_cpu(*val);
+	اگر (len > 0)
+		reset->inactive_delay = fdt32_مقصد_cpu(*val);
 
-	if (is_restart)
-		sbi_system_reset_add_device(&gpio_restart);
-	else
-		sbi_system_reset_add_device(&gpio_poweroff);
+	اگر (is_restart)
+		sbi_system_reset_جوڑو_device(&gpio_restart);
+	ورنہ
+		sbi_system_reset_جوڑو_device(&gpio_poweroff);
 
-	return 0;
+	واپس 0;
 }
 
-static const struct fdt_match gpio_poweroff_match[] = {
-	{ .compatible = "gpio-poweroff", .data = (const void *)false },
+ساکن ثابت ساخت fdt_مطابقت gpio_poweroff_مطابقت[] = {
+	{ .compatible = "gpio-poweroff", .ڈیٹا = (ثابت خالی *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_poweroff_gpio = {
-	.match_table = gpio_poweroff_match,
+ثابت ساخت fdt_driver fdt_poweroff_gpio = {
+	.مطابقت_جدول = gpio_poweroff_مطابقت,
 	.init = gpio_reset_init,
 };
 
-static const struct fdt_match gpio_reset_match[] = {
-	{ .compatible = "gpio-restart", .data = (const void *)true },
+ساکن ثابت ساخت fdt_مطابقت gpio_reset_مطابقت[] = {
+	{ .compatible = "gpio-restart", .ڈیٹا = (ثابت خالی *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_gpio = {
-	.match_table = gpio_reset_match,
+ثابت ساخت fdt_driver fdt_reset_gpio = {
+	.مطابقت_جدول = gpio_reset_مطابقت,
 	.init = gpio_reset_init,
 };

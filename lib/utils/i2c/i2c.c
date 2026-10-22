@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+ساکن SBI_LIST_سر(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+ساخت i2c_adapter *i2c_adapter_ڈھونڈو(صحیح id)
 {
-	struct sbi_dlist *pos;
+	ساخت sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		ساخت i2c_adapter *adap = مقصد_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		اگر (adap->id == id)
+			واپس adap;
 	}
 
-	return NULL;
+	واپس تہی;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+صحیح i2c_adapter_جوڑو(ساخت i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	اگر (!ia)
+		واپس SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	اگر (i2c_adapter_ڈھونڈو(ia->id))
+		واپس SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_جوڑو(&(ia->گرہ), &(i2c_adapters_list));
 
-	return 0;
+	واپس 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+خالی i2c_adapter_remove(ساخت i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	اگر (!ia)
+		واپس;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->گرہ));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+صحیح i2c_adapter_write(ساخت i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *بفر, صحیح len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	اگر (!ia)
+		واپس SBI_EINVAL;
+	اگر (!ia->اكتب)
+		واپس SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	واپس ia->اكتب(ia, addr, reg, بفر, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+صحیح i2c_adapter_read(ساخت i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *بفر, صحیح len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	اگر (!ia)
+		واپس SBI_EINVAL;
+	اگر (!ia->اقرأ)
+		واپس SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	واپس ia->اقرأ(ia, addr, reg, بفر, len);
 }

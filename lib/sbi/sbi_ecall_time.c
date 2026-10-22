@@ -8,41 +8,41 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_timer.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ساکن صحیح sbi_ecall_وقت_handler(غیرعلامتی طویل extid, غیرعلامتی طویل funcid,
+				  ساخت sbi_trap_regs *regs,
+				  ساخت sbi_ecall_return *برآمد)
 {
-	int ret = 0;
+	صحیح ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
-		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
-		sbi_timer_smode_event_start((u64)regs->a0);
-#endif
-	} else
+	اگر (funcid == SBI_EXT_وقت_سیٹ_TIMER) {
+#اگر __riscv_xlen == 32
+		sbi_timer_smode_event_آغاز((((u64)regs->a1 << 32) | (u64)regs->a0));
+#ورنہ
+		sbi_timer_smode_event_آغاز((u64)regs->a0);
+#اگر_ختم
+	} ورنہ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	واپس ret;
 }
 
-struct sbi_ecall_extension ecall_time;
+ساخت sbi_ecall_extension ecall_وقت;
 
-static int sbi_ecall_time_register_extensions(void)
+ساکن صحیح sbi_ecall_وقت_رجسٹر_extensions(خالی)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	واپس sbi_ecall_رجسٹر_extension(&ecall_وقت);
 }
 
-struct sbi_ecall_extension ecall_time = {
+ساخت sbi_ecall_extension ecall_وقت = {
 	.name			= "time",
-	.extid_start		= SBI_EXT_TIME,
-	.extid_end		= SBI_EXT_TIME,
-	.register_extensions	= sbi_ecall_time_register_extensions,
-	.handle			= sbi_ecall_time_handler,
+	.extid_آغاز		= SBI_EXT_وقت,
+	.extid_انتہا		= SBI_EXT_وقت,
+	.رجسٹر_extensions	= sbi_ecall_وقت_رجسٹر_extensions,
+	.handle			= sbi_ecall_وقت_handler,
 };

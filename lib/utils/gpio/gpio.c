@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+ساکن SBI_LIST_سر(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+ساخت gpio_chip *gpio_chip_ڈھونڈو(غیرعلامتی صحیح id)
 {
-	struct sbi_dlist *pos;
+	ساخت sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		ساخت gpio_chip *chip = مقصد_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		اگر (chip->id == id)
+			واپس chip;
 	}
 
-	return NULL;
+	واپس تہی;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+صحیح gpio_chip_جوڑو(ساخت gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	اگر (!gc)
+		واپس SBI_EINVAL;
+	اگر (gpio_chip_ڈھونڈو(gc->id))
+		واپس SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_جوڑو(&(gc->گرہ), &(gpio_chip_list));
 
-	return 0;
+	واپس 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+خالی gpio_chip_remove(ساخت gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	اگر (!gc)
+		واپس;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->گرہ));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+صحیح gpio_get_direction(ساخت gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	اگر (!gp || !gp->chip || (gp->chip->ngpio <= gp->انحراف))
+		واپس SBI_EINVAL;
+	اگر (!gp->chip->get_direction)
+		واپس SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	واپس gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+صحیح gpio_direction_داخلہ(ساخت gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	اگر (!gp || !gp->chip || (gp->chip->ngpio <= gp->انحراف))
+		واپس SBI_EINVAL;
+	اگر (!gp->chip->direction_داخلہ)
+		واپس SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	واپس gp->chip->direction_داخلہ(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+صحیح gpio_direction_output(ساخت gpio_pin *gp, صحیح قدر)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	اگر (!gp || !gp->chip || (gp->chip->ngpio <= gp->انحراف))
+		واپس SBI_EINVAL;
+	اگر (!gp->chip->direction_output)
+		واپس SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	اگر (gp->flags & GPIO_FLAG_فعال_کم)
+		قدر = قدر == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	واپس gp->chip->direction_output(gp, قدر);
 }
 
-int gpio_get(struct gpio_pin *gp)
+صحیح gpio_get(ساخت gpio_pin *gp)
 {
-	int value;
+	صحیح قدر;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	اگر (!gp || !gp->chip || (gp->chip->ngpio <= gp->انحراف))
+		واپس SBI_EINVAL;
+	اگر (!gp->chip->get)
+		واپس SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	قدر = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	اگر (gp->flags & GPIO_FLAG_فعال_کم)
+		قدر = قدر == 0 ? 1 : 0;
+	واپس قدر;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+صحیح gpio_سیٹ(ساخت gpio_pin *gp, صحیح قدر)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	اگر (!gp || !gp->chip || (gp->chip->ngpio <= gp->انحراف))
+		واپس SBI_EINVAL;
+	اگر (!gp->chip->سیٹ)
+		واپس SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	اگر (gp->flags & GPIO_FLAG_فعال_کم)
+		قدر = قدر == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->سیٹ(gp, قدر);
+	واپس 0;
 }

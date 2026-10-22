@@ -7,168 +7,168 @@
  *   Atish Patra<atish.patra@wdc.com>
  *
  */
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_string.h>
+#شامل <sbi/riscv_locks.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_fifo.h>
+#شامل <sbi/sbi_string.h>
 
-void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
-		   u16 entry_size) NO_THREAD_SAFETY_ANALYSIS
+خالی sbi_fifo_init(ساخت sbi_fifo *fifo, خالی *قطار_mem, u16 entries,
+		   u16 اندراج_سائز) NO_THREAD_SAFETY_ANALYSIS
 {
-	fifo->queue	  = queue_mem;
-	fifo->num_entries = entries;
-	fifo->entry_size  = entry_size;
-	SPIN_LOCK_INIT(fifo->qlock);
-	fifo->avail = fifo->tail = 0;
-	sbi_memset(fifo->queue, 0, (size_t)entries * entry_size);
+	fifo->قطار	  = قطار_mem;
+	fifo->عدد_entries = entries;
+	fifo->اندراج_سائز  = اندراج_سائز;
+	SPIN_تالا_INIT(fifo->qlock);
+	fifo->avail = fifo->دم = 0;
+	sbi_memset(fifo->قطار, 0, (size_t)entries * اندراج_سائز);
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
+ساکن اندرونی bool __sbi_fifo_is_full(ساخت sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	واپس (fifo->avail == fifo->عدد_entries) ? true : false;
 }
 
-u16 sbi_fifo_avail(struct sbi_fifo *fifo)
+u16 sbi_fifo_avail(ساخت sbi_fifo *fifo)
 {
 	u16 ret;
 
-	if (!fifo)
-		return 0;
+	اگر (!fifo)
+		واپس 0;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 	ret = fifo->avail;
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	واپس ret;
 }
 
-int sbi_fifo_is_full(struct sbi_fifo *fifo)
+صحیح sbi_fifo_is_بھرا(ساخت sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	اگر (!fifo)
+		واپس SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 	ret = __sbi_fifo_is_full(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	واپس ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
+ساکن اندرونی خالی __sbi_fifo_enqueue(ساخت sbi_fifo *fifo, خالی *ڈیٹا)
 	MUST_HOLD(&fifo->qlock)
 {
-	u32 head;
+	u32 سر;
 
-	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
-		head = head - fifo->num_entries;
+	سر = (u32)fifo->دم + fifo->avail;
+	اگر (سر >= fifo->عدد_entries)
+		سر = سر - fifo->عدد_entries;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)(fifo->queue + head * fifo->entry_size) = *(char *)data;
-		break;
-	case 2:
-		*(u16 *)(fifo->queue + head * fifo->entry_size) = *(u16 *)data;
-		break;
-	case 4:
-		*(u32 *)(fifo->queue + head * fifo->entry_size) = *(u32 *)data;
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)(fifo->queue + head * fifo->entry_size) = *(u64 *)data;
-		break;
-#endif
-	default:
-		sbi_memcpy(fifo->queue + head * fifo->entry_size,
-			   data, fifo->entry_size);
-		break;
+	انتخاب (fifo->اندراج_سائز) {
+	حالت 1:
+		*(حرف *)(fifo->قطار + سر * fifo->اندراج_سائز) = *(حرف *)ڈیٹا;
+		توڑو;
+	حالت 2:
+		*(u16 *)(fifo->قطار + سر * fifo->اندراج_سائز) = *(u16 *)ڈیٹا;
+		توڑو;
+	حالت 4:
+		*(u32 *)(fifo->قطار + سر * fifo->اندراج_سائز) = *(u32 *)ڈیٹا;
+		توڑو;
+#اگر __riscv_xlen > 32
+	حالت 8:
+		*(u64 *)(fifo->قطار + سر * fifo->اندراج_سائز) = *(u64 *)ڈیٹا;
+		توڑو;
+#اگر_ختم
+	طےشدہ:
+		sbi_memcpy(fifo->قطار + سر * fifo->اندراج_سائز,
+			   ڈیٹا, fifo->اندراج_سائز);
+		توڑو;
 	}
 
 	fifo->avail++;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+ساکن اندرونی خالی __sbi_fifo_dequeue(ساخت sbi_fifo *fifo, خالی *ڈیٹا)
 	MUST_HOLD(&fifo->qlock)
 {
-	if (!data)
-		goto skip_data_copy;
+	اگر (!ڈیٹا)
+		جاؤ skip_ڈیٹا_copy;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)data = *(char *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 2:
-		*(u16 *)data = *(u16 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 4:
-		*(u32 *)data = *(u32 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)data = *(u64 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#endif
-	default:
-		sbi_memcpy(data, fifo->queue + (u32)fifo->tail * fifo->entry_size,
-			   fifo->entry_size);
-		break;
+	انتخاب (fifo->اندراج_سائز) {
+	حالت 1:
+		*(حرف *)ڈیٹا = *(حرف *)(fifo->قطار + (u32)fifo->دم * fifo->اندراج_سائز);
+		توڑو;
+	حالت 2:
+		*(u16 *)ڈیٹا = *(u16 *)(fifo->قطار + (u32)fifo->دم * fifo->اندراج_سائز);
+		توڑو;
+	حالت 4:
+		*(u32 *)ڈیٹا = *(u32 *)(fifo->قطار + (u32)fifo->دم * fifo->اندراج_سائز);
+		توڑو;
+#اگر __riscv_xlen > 32
+	حالت 8:
+		*(u64 *)ڈیٹا = *(u64 *)(fifo->قطار + (u32)fifo->دم * fifo->اندراج_سائز);
+		توڑو;
+#اگر_ختم
+	طےشدہ:
+		sbi_memcpy(ڈیٹا, fifo->قطار + (u32)fifo->دم * fifo->اندراج_سائز,
+			   fifo->اندراج_سائز);
+		توڑو;
 	}
 
-skip_data_copy:
+skip_ڈیٹا_copy:
 	fifo->avail--;
-	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
-		fifo->tail = 0;
+	fifo->دم++;
+	اگر (fifo->دم >= fifo->عدد_entries)
+		fifo->دم = 0;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_empty(struct sbi_fifo *fifo)
+ساکن اندرونی bool __sbi_fifo_is_empty(ساخت sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == 0) ? true : false;
+	واپس (fifo->avail == 0) ? true : false;
 }
 
-int sbi_fifo_is_empty(struct sbi_fifo *fifo)
+صحیح sbi_fifo_is_خالی_خانے(ساخت sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	اگر (!fifo)
+		واپس SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 	ret = __sbi_fifo_is_empty(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	واپس ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
+ساکن اندرونی خالی __sbi_fifo_reset(ساخت sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	size_t size = (size_t)fifo->num_entries * fifo->entry_size;
+	size_t سائز = (size_t)fifo->عدد_entries * fifo->اندراج_سائز;
 
 	fifo->avail = 0;
-	fifo->tail  = 0;
-	sbi_memset(fifo->queue, 0, size);
+	fifo->دم  = 0;
+	sbi_memset(fifo->قطار, 0, سائز);
 }
 
-bool sbi_fifo_reset(struct sbi_fifo *fifo)
+bool sbi_fifo_reset(ساخت sbi_fifo *fifo)
 {
-	if (!fifo)
-		return false;
+	اگر (!fifo)
+		واپس false;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 	__sbi_fifo_reset(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return true;
+	واپس true;
 }
 
 /**
@@ -178,76 +178,76 @@ bool sbi_fifo_reset(struct sbi_fifo *fifo)
  * **Do not** invoke any other fifo function from callback. Otherwise, it will
  * lead to deadlock.
  */
-int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
-			    int (*fptr)(void *in, void *data))
+صحیح sbi_fifo_inplace_update(ساخت sbi_fifo *fifo, خالی *اندر,
+			    صحیح (*fptr)(خالی *اندر, خالی *ڈیٹا))
 {
-	int i, index;
-	int ret = SBI_FIFO_UNCHANGED;
-	void *entry;
+	صحیح i, اشاریہ_2;
+	صحیح ret = SBI_FIFO_UNCHANGED;
+	خالی *اندراج_3;
 
-	if (!fifo || !in)
-		return ret;
+	اگر (!fifo || !اندر)
+		واپس ret;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	اگر (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return ret;
+		واپس ret;
 	}
 
-	for (i = 0; i < fifo->avail; i++) {
-		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
-			index -= fifo->num_entries;
-		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
-		ret = fptr(in, entry);
+	برائے (i = 0; i < fifo->avail; i++) {
+		اشاریہ_2 = fifo->دم + i;
+		اگر (اشاریہ_2 >= fifo->عدد_entries)
+			اشاریہ_2 -= fifo->عدد_entries;
+		اندراج_3 = (حرف *)fifo->قطار + (u32)اشاریہ_2 * fifo->اندراج_سائز;
+		ret = fptr(اندر, اندراج_3);
 
-		if (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
-			break;
+		اگر (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
+			توڑو;
 		}
 	}
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	واپس ret;
 }
 
-int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
+صحیح sbi_fifo_قطار_میں_ڈالو(ساخت sbi_fifo *fifo, خالی *ڈیٹا, bool force)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	اگر (!fifo || !ڈیٹا)
+		واپس SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 
-	if (__sbi_fifo_is_full(fifo)) {
-		if (!force) {
+	اگر (__sbi_fifo_is_full(fifo)) {
+		اگر (!force) {
 			spin_unlock(&fifo->qlock);
-			return SBI_ENOSPC;
+			واپس SBI_ENOSPC;
 		}
-		__sbi_fifo_dequeue(fifo, NULL);
+		__sbi_fifo_dequeue(fifo, تہی);
 	}
 
-	__sbi_fifo_enqueue(fifo, data);
+	__sbi_fifo_enqueue(fifo, ڈیٹا);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	واپس 0;
 }
 
-int sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+صحیح sbi_fifo_قطار_سے_نکالو(ساخت sbi_fifo *fifo, خالی *ڈیٹا)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	اگر (!fifo || !ڈیٹا)
+		واپس SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_تالا(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	اگر (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return SBI_ENOENT;
+		واپس SBI_ENOENT;
 	}
 
-	__sbi_fifo_dequeue(fifo, data);
+	__sbi_fifo_dequeue(fifo, ڈیٹا);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	واپس 0;
 }

@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: BSD-2-Clause
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/sbi_system.h>
 
-static int sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ساکن صحیح sbi_ecall_susp_handler(غیرعلامتی طویل extid, غیرعلامتی طویل funcid,
+				  ساخت sbi_trap_regs *regs,
+				  ساخت sbi_ecall_return *برآمد)
 {
-	int ret = SBI_ENOTSUPP;
+	صحیح ret = SBI_ENOTSUPP;
 
-	if (funcid == SBI_EXT_SUSP_SUSPEND)
+	اگر (funcid == SBI_EXT_SUSP_SUSPEND)
 		ret = sbi_system_suspend(regs->a0, regs->a1, regs->a2);
 
-	if (ret >= 0) {
-		out->value = ret;
+	اگر (ret >= 0) {
+		برآمد->قدر = ret;
 		ret = 0;
 	}
 
-	return ret;
+	واپس ret;
 }
 
-static bool susp_available(void)
+ساکن bool susp_دستیاب(خالی)
 {
 	u32 type;
 
@@ -30,28 +30,28 @@ static bool susp_available(void)
 	 * At least one suspend type should be supported by the
 	 * platform for the SBI SUSP extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
-		if (sbi_system_suspend_supported(type))
-			return true;
+	برائے (type = 0; type <= SBI_SUSP_SLEEP_TYPE_آخری; type++) {
+		اگر (sbi_system_suspend_supported(type))
+			واپس true;
 	}
 
-	return false;
+	واپس false;
 }
 
-struct sbi_ecall_extension ecall_susp;
+ساخت sbi_ecall_extension ecall_susp;
 
-static int sbi_ecall_susp_register_extensions(void)
+ساکن صحیح sbi_ecall_susp_رجسٹر_extensions(خالی)
 {
-	if (!susp_available())
-		return 0;
+	اگر (!susp_دستیاب())
+		واپس 0;
 
-	return sbi_ecall_register_extension(&ecall_susp);
+	واپس sbi_ecall_رجسٹر_extension(&ecall_susp);
 }
 
-struct sbi_ecall_extension ecall_susp = {
+ساخت sbi_ecall_extension ecall_susp = {
 	.name			= "susp",
-	.extid_start		= SBI_EXT_SUSP,
-	.extid_end		= SBI_EXT_SUSP,
-	.register_extensions	= sbi_ecall_susp_register_extensions,
+	.extid_آغاز		= SBI_EXT_SUSP,
+	.extid_انتہا		= SBI_EXT_SUSP,
+	.رجسٹر_extensions	= sbi_ecall_susp_رجسٹر_extensions,
 	.handle			= sbi_ecall_susp_handler,
 };

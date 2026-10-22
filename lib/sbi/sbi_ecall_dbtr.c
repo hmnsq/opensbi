@@ -7,68 +7,68 @@
  *   Himanshu Chauhan <hchauhan@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_dbtr.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi/sbi_dbtr.h>
 
-static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ساکن صحیح sbi_ecall_dbtr_handler(غیرعلامتی طویل extid, غیرعلامتی طویل funcid,
+				  ساخت sbi_trap_regs *regs,
+				  ساخت sbi_ecall_return *برآمد)
 {
-	unsigned long smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
-			MSTATUS_MPP_SHIFT;
-	int ret = 0;
+	غیرعلامتی طویل smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
+			MSTATUS_MPP_سرکاؤ;
+	صحیح ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_DBTR_NUM_TRIGGERS:
-		ret = sbi_dbtr_num_trig(regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_SETUP_SHMEM:
-		ret = sbi_dbtr_setup_shmem(sbi_domain_thishart_ptr(), smode,
+	انتخاب (funcid) {
+	حالت SBI_EXT_DBTR_عدد_TRIGGERS:
+		ret = sbi_dbtr_عدد_trig(regs->a0, &برآمد->قدر);
+		توڑو;
+	حالت SBI_EXT_DBTR_تیاری_SHMEM:
+		ret = sbi_dbtr_تیاری_shmem(sbi_domain_thishart_ptr(), smode,
 					   regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_READ:
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_READ:
 		ret = sbi_dbtr_read_trig(smode, regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_INSTALL:
-		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UNINSTALL:
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_INSTALL:
+		ret = sbi_dbtr_install_trig(smode, regs->a0, &برآمد->قدر);
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_UNINSTALL:
 		ret = sbi_dbtr_uninstall_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_ENABLE:
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_ENABLE:
 		ret = sbi_dbtr_enable_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UPDATE:
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_UPDATE:
 		ret = sbi_dbtr_update_trig(smode, regs->a0);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_DISABLE:
+		توڑو;
+	حالت SBI_EXT_DBTR_TRIGGER_DISABLE:
 		ret = sbi_dbtr_disable_trig(regs->a0, regs->a1);
-		break;
-	default:
+		توڑو;
+	طےشدہ:
 		ret = SBI_ENOTSUPP;
 	};
 
-	return ret;
+	واپس ret;
 }
 
-struct sbi_ecall_extension ecall_dbtr;
+ساخت sbi_ecall_extension ecall_dbtr;
 
-static int sbi_ecall_dbtr_register_extensions(void)
+ساکن صحیح sbi_ecall_dbtr_رجسٹر_extensions(خالی)
 {
-	if (sbi_dbtr_get_total_triggers() == 0)
-		return 0;
+	اگر (sbi_dbtr_get_کل_triggers() == 0)
+		واپس 0;
 
-	return sbi_ecall_register_extension(&ecall_dbtr);
+	واپس sbi_ecall_رجسٹر_extension(&ecall_dbtr);
 }
 
-struct sbi_ecall_extension ecall_dbtr = {
+ساخت sbi_ecall_extension ecall_dbtr = {
 	.name			= "dbtr",
-	.extid_start		= SBI_EXT_DBTR,
-	.extid_end		= SBI_EXT_DBTR,
+	.extid_آغاز		= SBI_EXT_DBTR,
+	.extid_انتہا		= SBI_EXT_DBTR,
 	.handle			= sbi_ecall_dbtr_handler,
-	.register_extensions	= sbi_ecall_dbtr_register_extensions,
+	.رجسٹر_extensions	= sbi_ecall_dbtr_رجسٹر_extensions,
 };

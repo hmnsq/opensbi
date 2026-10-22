@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_domain.h>
+#شامل <sbi_utils/serial/sifive-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_TXFIFO		0
-#define UART_REG_RXFIFO		1
-#define UART_REG_TXCTRL		2
-#define UART_REG_RXCTRL		3
-#define UART_REG_IE		4
-#define UART_REG_IP		5
-#define UART_REG_DIV		6
+#تعریف_کرو UART_REG_TXFIFO		0
+#تعریف_کرو UART_REG_RXFIFO		1
+#تعریف_کرو UART_REG_TXCTRL		2
+#تعریف_کرو UART_REG_RXCTRL		3
+#تعریف_کرو UART_REG_IE		4
+#تعریف_کرو UART_REG_IP		5
+#تعریف_کرو UART_REG_DIV		6
 
-#define UART_TXFIFO_FULL	0x80000000
-#define UART_RXFIFO_EMPTY	0x80000000
-#define UART_RXFIFO_DATA	0x000000ff
-#define UART_TXCTRL_TXEN	0x1
-#define UART_RXCTRL_RXEN	0x1
+#تعریف_کرو UART_TXFIFO_بھرا	0x80000000
+#تعریف_کرو UART_RXFIFO_خالی_خانے	0x80000000
+#تعریف_کرو UART_RXFIFO_ڈیٹا	0x000000ff
+#تعریف_کرو UART_TXCTRL_TXEN	0x1
+#تعریف_کرو UART_RXCTRL_RXEN	0x1
 
 /* clang-format on */
 
-static volatile char *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+ساکن متلون حرف *uart_بنیاد;
+ساکن u32 uart_اندر_freq;
+ساکن u32 uart_baudrate;
 
 /**
  * Find minimum divisor divides in_freq to max_target_hz;
@@ -45,74 +45,74 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
-						uint64_t max_target_hz)
+ساکن اندرونی غیرعلامتی صحیح uart_min_clk_مقسوم_علیہ(uint64_t اندر_freq,
+						uint64_t max_ہدف_hz)
 {
-	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
+	uint64_t quotient = (اندر_freq + max_ہدف_hz - 1) / (max_ہدف_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	اگر (quotient == 0)
+		واپس 0;
+	ورنہ
+		واپس quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+ساکن u32 get_reg(u32 عدد)
 {
-	return readl(uart_base + (num * 0x4));
+	واپس readl(uart_بنیاد + (عدد * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ساکن خالی سیٹ_reg(u32 عدد, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_بنیاد + (عدد * 0x4));
 }
 
-static void sifive_uart_putc(char ch)
+ساکن خالی sifive_uart_putc(حرف ch)
 {
-	while (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
+	جب (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_بھرا)
 		;
 
-	set_reg(UART_REG_TXFIFO, ch);
+	سیٹ_reg(UART_REG_TXFIFO, ch);
 }
 
-static int sifive_uart_getc(void)
+ساکن صحیح sifive_uart_getc(خالی)
 {
 	u32 ret = get_reg(UART_REG_RXFIFO);
 
-	if (!(ret & UART_RXFIFO_EMPTY))
-		return ret & UART_RXFIFO_DATA;
+	اگر (!(ret & UART_RXFIFO_خالی_خانے))
+		واپس ret & UART_RXFIFO_ڈیٹا;
 
-	return -1;
+	واپس -1;
 }
 
-static struct sbi_console_device sifive_console = {
+ساکن ساخت sbi_console_device sifive_console = {
 	.name = "sifive_uart",
 	.console_putc = sifive_uart_putc,
 	.console_getc = sifive_uart_getc
 };
 
-int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+صحیح sifive_uart_init(غیرعلامتی طویل بنیاد_2, u32 اندر_freq, u32 baudrate)
 {
-	uart_base     = (volatile char *)base;
-	uart_in_freq  = in_freq;
+	uart_بنیاد     = (متلون حرف *)بنیاد_2;
+	uart_اندر_freq  = اندر_freq;
 	uart_baudrate = baudrate;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+	اگر (اندر_freq && baudrate)
+		سیٹ_reg(UART_REG_DIV, uart_min_clk_مقسوم_علیہ(اندر_freq, baudrate));
 
 	/* Disable interrupts */
-	set_reg(UART_REG_IE, 0);
+	سیٹ_reg(UART_REG_IE, 0);
 
 	/* Enable TX */
-	set_reg(UART_REG_TXCTRL, UART_TXCTRL_TXEN);
+	سیٹ_reg(UART_REG_TXCTRL, UART_TXCTRL_TXEN);
 
 	/* Enable Rx */
-	set_reg(UART_REG_RXCTRL, UART_RXCTRL_RXEN);
+	سیٹ_reg(UART_REG_RXCTRL, UART_RXCTRL_RXEN);
 
-	sbi_console_set_device(&sifive_console);
+	sbi_console_سیٹ_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	واپس sbi_domain_جڑ_جوڑو_memrange(بنیاد_2, صفحہ_سائز, صفحہ_سائز,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

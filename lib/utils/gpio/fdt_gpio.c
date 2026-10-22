@@ -7,85 +7,85 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/gpio/fdt_gpio.h>
 
 /* List of FDT gpio drivers generated at compile time */
-extern const struct fdt_driver *const fdt_gpio_drivers[];
+خارجی ثابت ساخت fdt_driver *ثابت fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+ساکن صحیح fdt_gpio_init(ثابت خالی *fdt, صحیح nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	اگر (!fdt_getprop(fdt, nodeoff, "gpio-controller", تہی))
+		واپس SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	واپس fdt_driver_init_by_انحراف(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
-			      struct gpio_chip **out_chip)
+ساکن صحیح fdt_gpio_chip_ڈھونڈو(ثابت خالی *fdt, صحیح nodeoff,
+			      ساخت gpio_chip **برآمد_chip)
 {
-	int rc;
-	struct gpio_chip *chip = gpio_chip_find(nodeoff);
+	صحیح rc;
+	ساخت gpio_chip *chip = gpio_chip_ڈھونڈو(nodeoff);
 
-	if (!chip) {
+	اگر (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		اگر (rc)
+			واپس rc;
 
 		/* Try to find GPIO chip again */
-		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		chip = gpio_chip_ڈھونڈو(nodeoff);
+		اگر (!chip)
+			واپس SBI_ENOSYS;
 	}
 
-	if (out_chip)
-		*out_chip = chip;
+	اگر (برآمد_chip)
+		*برآمد_chip = chip;
 
-	return 0;
+	واپس 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
-		     struct gpio_pin *out_pin)
+صحیح fdt_gpio_pin_get(ثابت خالی *fdt, صحیح nodeoff, صحیح اشاریہ_2,
+		     ساخت gpio_pin *برآمد_pin)
 {
-	int rc;
-	const struct fdt_gpio *drv;
-	struct gpio_chip *chip = NULL;
-	struct fdt_phandle_args pargs;
+	صحیح rc;
+	ثابت ساخت fdt_gpio *drv;
+	ساخت gpio_chip *chip = تہی;
+	ساخت fdt_phandle_دلائل pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	اگر (!fdt || (nodeoff < 0) || (اشاریہ_2 < 0) || !برآمد_pin)
+		واپس SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
-	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
+	pargs.گرہ_انحراف = pargs.دلائل_گنتی = 0;
+	rc = fdt_parse_phandle_with_دلائل(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
-					 index, &pargs);
-	if (rc)
-		return rc;
+					 اشاریہ_2, &pargs);
+	اگر (rc)
+		واپس rc;
 
-	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	rc = fdt_gpio_chip_ڈھونڈو(fdt, pargs.گرہ_انحراف, &chip);
+	اگر (rc)
+		واپس rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	اگر (!drv || !drv->xlate)
+		واپس SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	واپس drv->xlate(chip, &pargs, برآمد_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
-			  const struct fdt_phandle_args *pargs,
-			  struct gpio_pin *out_pin)
+صحیح fdt_gpio_simple_xlate(ساخت gpio_chip *chip,
+			  ثابت ساخت fdt_phandle_دلائل *pargs,
+			  ساخت gpio_pin *برآمد_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	اگر ((pargs->دلائل_گنتی < 2) || (chip->ngpio <= pargs->دلائل[0]))
+		واپس SBI_EINVAL;
 
-	out_pin->chip = chip;
-	out_pin->offset = pargs->args[0];
-	out_pin->flags = pargs->args[1];
-	return 0;
+	برآمد_pin->chip = chip;
+	برآمد_pin->انحراف = pargs->دلائل[0];
+	برآمد_pin->flags = pargs->دلائل[1];
+	واپس 0;
 }

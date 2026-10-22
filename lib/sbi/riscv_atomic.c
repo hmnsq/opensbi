@@ -7,108 +7,108 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
+#شامل <sbi/sbi_bitops.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_atomic.h>
+#شامل <sbi/riscv_barrier.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
-#error "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
-#endif
+#اگر !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#غلطی "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
+#اگر_ختم
 
-long atomic_read(atomic_t *atom)
+طویل atomic_read(atomic_t *atom)
 {
-	long ret = atom->counter;
+	طویل ret = atom->شمار_2;
 	rmb();
-	return ret;
+	واپس ret;
 }
 
-void atomic_write(atomic_t *atom, long value)
+خالی atomic_write(atomic_t *atom, طویل قدر)
 {
-	atom->counter = value;
+	atom->شمار_2 = قدر;
 	wmb();
 }
 
-long atomic_add_return(atomic_t *atom, long value)
+طویل atomic_جوڑو_return(atomic_t *atom, طویل قدر)
 {
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
-	long ret;
-#if __SIZEOF_LONG__ == 4
+#اگر defined(__riscv_atomic) || defined(__riscv_zaamo)
+	طویل ret;
+#اگر __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
-			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "+A"(atom->شمار_2), "=r"(ret)
+			     : "r"(قدر)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#وگرنہ_اگر __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("	amoadd.d.aqrl  %1, %2, %0"
-			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "+A"(atom->شمار_2), "=r"(ret)
+			     : "r"(قدر)
 			     : "memory");
-#endif
-#elif defined(__riscv_zalrsc)
-	long ret, temp;
-#if __SIZEOF_LONG__ == 4
+#اگر_ختم
+#وگرنہ_اگر defined(__riscv_zalrsc)
+	طویل ret, عارضی;
+#اگر __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("1:lr.w.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.w.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
-			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "+A"(atom->شمار_2), "=&r"(ret), "=&r"(عارضی)
+			     : "r"(قدر)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#وگرنہ_اگر __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("1:lr.d.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.d.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
-			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "+A"(atom->شمار_2), "=&r"(ret), "=&r"(عارضی)
+			     : "r"(قدر)
 			     : "memory");
-#endif
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#اگر_ختم
+#ورنہ
+#غلطی "need A or Zaamo or Zalrsc"
+#اگر_ختم
 
-	return ret + value;
+	واپس ret + قدر;
 }
 
-long atomic_sub_return(atomic_t *atom, long value)
+طویل atomic_sub_return(atomic_t *atom, طویل قدر)
 {
-	return atomic_add_return(atom, -value);
+	واپس atomic_جوڑو_return(atom, -قدر);
 }
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
-#define __axchg(ptr, new, size)							\
+#اگر defined(__riscv_atomic) || defined(__riscv_zaamo)
+#تعریف_کرو __axchg(ptr, new, سائز)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret;					\
-		switch (size) {							\
-		case 4:								\
+		انتخاب (سائز) {							\
+		حالت 4:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.w.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			توڑو;							\
+		حالت 8:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.d.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			توڑو;							\
+		طےشدہ:							\
+			توڑو;							\
 		}								\
 		__ret;								\
 	})
-#elif defined(__riscv_zalrsc)
-#define __axchg(ptr, new, size)							\
+#وگرنہ_اگر defined(__riscv_zalrsc)
+#تعریف_کرو __axchg(ptr, new, سائز)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret, __temp;					\
-		switch (size) {							\
-		case 4:								\
+		انتخاب (سائز) {							\
+		حالت 4:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.w.aqrl %0, %1\n"			\
 				"	sc.w.aqrl %2, %3, %1\n"			\
@@ -116,8 +116,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			توڑو;							\
+		حالت 8:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.d.aqrl %0, %1\n"			\
 				"	sc.d.aqrl %2, %3, %1\n"			\
@@ -125,67 +125,67 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			توڑو;							\
+		طےشدہ:							\
+			توڑو;							\
 		}								\
 		__ret;								\
 	})
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#ورنہ
+#غلطی "need A or Zaamo or Zalrsc"
+#اگر_ختم
 
-#define axchg(ptr, x)								\
+#تعریف_کرو axchg(ptr, x)								\
 	({									\
 		__typeof__(*(ptr)) _x_ = (x);					\
-		(__typeof__(*(ptr))) __axchg((ptr), _x_, sizeof(*(ptr)));	\
+		(__typeof__(*(ptr))) __axchg((ptr), _x_, حجم(*(ptr)));	\
 	})
 
-long atomic_cmpxchg(atomic_t *atom, long oldval, long newval)
+طویل atomic_cmpxchg(atomic_t *atom, طویل oldval, طویل newval)
 {
-	return __sync_val_compare_and_swap(&atom->counter, oldval, newval);
+	واپس __sync_val_compare_and_swap(&atom->شمار_2, oldval, newval);
 }
 
-long atomic_xchg(atomic_t *atom, long newval)
+طویل atomic_xchg(atomic_t *atom, طویل newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(&atom->counter, newval);
+	واپس axchg(&atom->شمار_2, newval);
 }
 
-unsigned int atomic_raw_xchg_uint(volatile unsigned int *ptr,
-				  unsigned int newval)
+غیرعلامتی صحیح atomic_raw_xchg_uint(متلون غیرعلامتی صحیح *ptr,
+				  غیرعلامتی صحیح newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	واپس axchg(ptr, newval);
 }
 
-unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
-				    unsigned long newval)
+غیرعلامتی طویل atomic_raw_xchg_ulong(متلون غیرعلامتی طویل *ptr,
+				    غیرعلامتی طویل newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	واپس axchg(ptr, newval);
 }
 
-int atomic_raw_set_bit(int nr, volatile unsigned long *addr)
+صحیح atomic_raw_سیٹ_ثنائی_ہندسہ(صحیح nr, متلون غیرعلامتی طویل *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
-	res = __atomic_fetch_or(&addr[BIT_WORD(nr)], mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	غیرعلامتی طویل res, نقاب = ثنائی_ہندسہ_نقاب(nr);
+	res = __atomic_fetch_or(&addr[ثنائی_ہندسہ_لفظ(nr)], نقاب, __ATOMIC_RELAXED);
+	واپس res & نقاب ? 1 : 0;
 }
 
-int atomic_raw_clear_bit(int nr, volatile unsigned long *addr)
+صحیح atomic_raw_clear_ثنائی_ہندسہ(صحیح nr, متلون غیرعلامتی طویل *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
-	res = __atomic_fetch_and(&addr[BIT_WORD(nr)], ~mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	غیرعلامتی طویل res, نقاب = ثنائی_ہندسہ_نقاب(nr);
+	res = __atomic_fetch_and(&addr[ثنائی_ہندسہ_لفظ(nr)], ~نقاب, __ATOMIC_RELAXED);
+	واپس res & نقاب ? 1 : 0;
 }
 
-int atomic_set_bit(int nr, atomic_t *atom)
+صحیح atomic_سیٹ_ثنائی_ہندسہ(صحیح nr, atomic_t *atom)
 {
-	return atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
+	واپس atomic_raw_سیٹ_ثنائی_ہندسہ(nr, (غیرعلامتی طویل *)&atom->شمار_2);
 }
 
-int atomic_clear_bit(int nr, atomic_t *atom)
+صحیح atomic_clear_ثنائی_ہندسہ(صحیح nr, atomic_t *atom)
 {
-	return atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
+	واپس atomic_raw_clear_ثنائی_ہندسہ(nr, (غیرعلامتی طویل *)&atom->شمار_2);
 }

@@ -7,23 +7,23 @@
  *   Dave Patel <dave.patel@riscstar.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_fp.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_encoding.h>
+#شامل <sbi/sbi_fp.h>
 
-#if defined(__riscv_f) || defined(__riscv_d)
+#اگر defined(__riscv_f) || defined(__riscv_d)
 
-void sbi_fp_save(struct sbi_fp_context *dst)
+خالی sbi_fp_save(ساخت sbi_fp_context *dst)
 {
-	unsigned long mstatus_orig;
+	غیرعلامتی طویل mstatus_orig;
 
-	if (!dst)
-		return;
+	اگر (!dst)
+		واپس;
 
-	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_FS);
+	mstatus_orig = csr_read_سیٹ(CSR_MSTATUS, MSTATUS_FS);
 
-	asm volatile(
-#if defined(__riscv_d)
+	asm متلون(
+#اگر defined(__riscv_d)
 		"fsd f0,  0(%0)\n"
 		"fsd f1,  8(%0)\n"
 		"fsd f2,  16(%0)\n"
@@ -56,7 +56,7 @@ void sbi_fp_save(struct sbi_fp_context *dst)
 		"fsd f29, 232(%0)\n"
 		"fsd f30, 240(%0)\n"
 		"fsd f31, 248(%0)\n"
-#else
+#ورنہ
 		"fsw f0,  0(%0)\n"
 		"fsw f1,  4(%0)\n"
 		"fsw f2,  8(%0)\n"
@@ -89,7 +89,7 @@ void sbi_fp_save(struct sbi_fp_context *dst)
 		"fsw f29, 116(%0)\n"
 		"fsw f30, 120(%0)\n"
 		"fsw f31, 124(%0)\n"
-#endif /* __riscv_d */
+#اگر_ختم /* __riscv_d */
 		:
 		: "r"(dst->f)
 		: "memory"
@@ -101,18 +101,18 @@ void sbi_fp_save(struct sbi_fp_context *dst)
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_fp_restore(const struct sbi_fp_context *src)
+خالی sbi_fp_restore(ثابت ساخت sbi_fp_context *src)
 {
-	unsigned long mstatus_orig;
+	غیرعلامتی طویل mstatus_orig;
 
-	if (!src)
-		return;
+	اگر (!src)
+		واپس;
 
 	/* Save original mstatus */
-	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_FS);
+	mstatus_orig = csr_read_سیٹ(CSR_MSTATUS, MSTATUS_FS);
 
-	asm volatile(
-#if defined(__riscv_d)
+	asm متلون(
+#اگر defined(__riscv_d)
 		"fld f0,  0(%0)\n"
 		"fld f1,  8(%0)\n"
 		"fld f2,  16(%0)\n"
@@ -145,7 +145,7 @@ void sbi_fp_restore(const struct sbi_fp_context *src)
 		"fld f29, 232(%0)\n"
 		"fld f30, 240(%0)\n"
 		"fld f31, 248(%0)\n"
-#else
+#ورنہ
 		"flw f0,   0(%0)\n"
 		"flw f1,   4(%0)\n"
 		"flw f2,   8(%0)\n"
@@ -178,7 +178,7 @@ void sbi_fp_restore(const struct sbi_fp_context *src)
 		"flw f29, 116(%0)\n"
 		"flw f30, 120(%0)\n"
 		"flw f31, 124(%0)\n"
-#endif /* __riscv_d */
+#اگر_ختم /* __riscv_d */
 		:
 		: "r"(src->f)
 		: "memory"
@@ -189,4 +189,4 @@ void sbi_fp_restore(const struct sbi_fp_context *src)
 	/* Restore original mstatus LAST */
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
-#endif /* __riscv_f || __riscv_d */
+#اگر_ختم /* __riscv_f || __riscv_d */

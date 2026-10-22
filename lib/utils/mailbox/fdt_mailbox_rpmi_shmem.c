@@ -9,213 +9,213 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/riscv_io.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#شامل <libfdt.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi/sbi_timer.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/riscv_locks.h>
+#شامل <sbi/riscv_asm.h>
+#شامل <sbi/riscv_barrier.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/mailbox/mailbox.h>
+#شامل <sbi_utils/mailbox/fdt_mailbox.h>
+#شامل <sbi_utils/mailbox/rpmi_mailbox.h>
 
 /** Minimum Base group version required */
-#define RPMI_BASE_VERSION_MIN		RPMI_VERSION(1, 0)
+#تعریف_کرو RPMI_بنیاد_نسخہ_MIN		RPMI_نسخہ(1, 0)
 
 /**************** RPMI Transport Structures and Macros ***********/
 
-#define GET_SERVICEGROUP_ID(msg)		\
+#تعریف_کرو GET_SERVICEGROUP_ID(پیغام)		\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.servicegroup_id);\
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	le16_مقصد_cpu(mbuf->سرخی.servicegroup_id);\
 })
 
-#define GET_SERVICE_ID(msg)			\
+#تعریف_کرو GET_SERVICE_ID(پیغام)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	mbuf->header.service_id;		\
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	mbuf->سرخی.service_id;		\
 })
 
-#define GET_FLAGS(msg)				\
+#تعریف_کرو GET_FLAGS(پیغام)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	mbuf->header.flags;			\
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	mbuf->سرخی.flags;			\
 })
 
-#define GET_MESSAGE_ID(msg)			\
+#تعریف_کرو GET_پیغام_ID(پیغام)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	((u32)mbuf->header.flags << (RPMI_MSG_FLAGS_OFFSET * 8)) | \
-	((u32)mbuf->header.service_id << (RPMI_MSG_SERVICE_ID_OFFSET * 8)) | \
-	((u32)le16_to_cpu(mbuf->header.servicegroup_id)); \
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	((u32)mbuf->سرخی.flags << (RPMI_پیغام_FLAGS_انحراف * 8)) | \
+	((u32)mbuf->سرخی.service_id << (RPMI_پیغام_SERVICE_ID_انحراف * 8)) | \
+	((u32)le16_مقصد_cpu(mbuf->سرخی.servicegroup_id)); \
 })
 
-#define MAKE_MESSAGE_ID(__group_id, __service_id, __flags)	\
+#تعریف_کرو MAKE_پیغام_ID(__group_id, __service_id, __flags)	\
 ({						\
 	u32 __ret = 0;				\
-	__ret |= (u32)(__group_id) << (RPMI_MSG_SERVICEGROUP_ID_OFFSET * 8); \
-	__ret |= (u32)(__service_id) << (RPMI_MSG_SERVICE_ID_OFFSET * 8); \
-	__ret |= (u32)(__flags) << (RPMI_MSG_FLAGS_OFFSET * 8); \
+	__ret |= (u32)(__group_id) << (RPMI_پیغام_SERVICEGROUP_ID_انحراف * 8); \
+	__ret |= (u32)(__service_id) << (RPMI_پیغام_SERVICE_ID_انحراف * 8); \
+	__ret |= (u32)(__flags) << (RPMI_پیغام_FLAGS_انحراف * 8); \
 	__ret;					\
 })
 
-#define GET_DLEN(msg)				\
+#تعریف_کرو GET_DLEN(پیغام)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.datalen);	\
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	le16_مقصد_cpu(mbuf->سرخی.datalen);	\
 })
 
-#define GET_TOKEN(msg)				\
+#تعریف_کرو GET_TOKEN(پیغام)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.token);	\
+	ساخت rpmi_پیغام *mbuf = پیغام;	\
+	le16_مقصد_cpu(mbuf->سرخی.token);	\
 })
 
-#define GET_MESSAGE_TYPE(msg)						\
+#تعریف_کرو GET_پیغام_TYPE(پیغام)						\
 ({									\
-	uint8_t flags = *((uint8_t *)msg + RPMI_MSG_FLAGS_OFFSET);	\
-	((flags & RPMI_MSG_FLAGS_TYPE) >> RPMI_MSG_FLAGS_TYPE_POS));	\
+	uint8_t flags = *((uint8_t *)پیغام + RPMI_پیغام_FLAGS_انحراف);	\
+	((flags & RPMI_پیغام_FLAGS_TYPE) >> RPMI_پیغام_FLAGS_TYPE_POS));	\
 })
 
-enum rpmi_queue_type {
-	RPMI_QUEUE_TYPE_REQ = 0,
-	RPMI_QUEUE_TYPE_ACK = 1,
+شمار rpmi_قطار_type {
+	RPMI_قطار_TYPE_REQ = 0,
+	RPMI_قطار_TYPE_ACK = 1,
 };
 
-enum rpmi_queue_idx {
-	RPMI_QUEUE_IDX_A2P_REQ = 0,
-	RPMI_QUEUE_IDX_P2A_ACK = 1,
-	RPMI_QUEUE_IDX_P2A_REQ = 2,
-	RPMI_QUEUE_IDX_A2P_ACK = 3,
-	RPMI_QUEUE_IDX_MAX_COUNT,
+شمار rpmi_قطار_idx {
+	RPMI_قطار_IDX_A2_P_REQ = 0,
+	RPMI_قطار_IDX_P2_A_ACK = 1,
+	RPMI_قطار_IDX_P2_A_REQ = 2,
+	RPMI_قطار_IDX_A2_P_ACK = 3,
+	RPMI_قطار_IDX_MAX_گنتی,
 };
 
-enum rpmi_reg_idx {
+شمار rpmi_reg_idx {
 	RPMI_REG_IDX_DB_REG = 0, /* Doorbell register */
-	RPMI_REG_IDX_MAX_COUNT,
+	RPMI_REG_IDX_MAX_گنتی,
 };
 
 /** Mailbox registers */
-struct rpmi_mb_regs {
+ساخت rpmi_mb_regs {
 	/* doorbell from AP -> PuC*/
-	volatile le32_t db_reg;
+	متلون le32_t db_reg;
 } __packed;
 
 /** Single Queue Context Structure */
-struct smq_queue_ctx {
-	u32 queue_id;
-	u32 num_slots;
-	spinlock_t queue_lock;
+ساخت smq_قطار_ctx {
+	u32 قطار_id;
+	u32 عدد_slots;
+	spinlock_t قطار_تالا;
 	/* Type of queue - REQ or ACK */
-	enum rpmi_queue_type queue_type;
+	شمار rpmi_قطار_type قطار_type;
 	/* Pointers to the queue shared memory */
-	volatile le32_t *headptr PT_GUARDED_BY(&queue_lock);
-	volatile le32_t *tailptr PT_GUARDED_BY(&queue_lock);
-	volatile uint8_t *buffer PT_GUARDED_BY(&queue_lock);
+	متلون le32_t *headptr PT_GUARDED_BY(&قطار_تالا);
+	متلون le32_t *tailptr PT_GUARDED_BY(&قطار_تالا);
+	متلون uint8_t *بفر PT_GUARDED_BY(&قطار_تالا);
 	/* Name of the queue */
-	char name[RPMI_NAME_CHARS_MAX];
+	حرف name[RPMI_NAME_CHARS_MAX];
 };
 
-struct rpmi_srvgrp_chan {
+ساخت rpmi_srvgrp_chan {
 	u32 servicegroup_id;
-	u32 servicegroup_version;
-	struct mbox_chan chan;
+	u32 servicegroup_نسخہ;
+	ساخت mbox_chan chan;
 };
 
-#define to_srvgrp_chan(mbox_chan)	\
-		container_of(mbox_chan, struct rpmi_srvgrp_chan, chan);
+#تعریف_کرو مقصد_srvgrp_chan(mbox_chan)	\
+		container_کا(mbox_chan, ساخت rpmi_srvgrp_chan, chan);
 
-struct rpmi_shmem_mbox_controller {
+ساخت rpmi_shmem_mbox_controller {
 	/* Driver specific members */
-	u32 slot_size;
-	u32 queue_count;
-	u32 p2a_doorbell_sysmsi_index;
-	u32 a2p_doorbell_value;
-	struct rpmi_mb_regs *mb_regs;
-	struct smq_queue_ctx queue_ctx_tbl[RPMI_QUEUE_IDX_MAX_COUNT];
+	u32 خانہ_سائز;
+	u32 قطار_گنتی;
+	u32 p2a_doorbell_sysmsi_اشاریہ;
+	u32 a2p_doorbell_قدر;
+	ساخت rpmi_mb_regs *mb_regs;
+	ساخت smq_قطار_ctx قطار_ctx_tbl[RPMI_قطار_IDX_MAX_گنتی];
 	/* Mailbox framework related members */
-	struct mbox_controller controller;
-	struct mbox_chan *base_chan;
-	u32 impl_version;
+	ساخت mbox_controller controller;
+	ساخت mbox_chan *بنیاد_chan;
+	u32 impl_نسخہ;
 	u32 impl_id;
-	u32 spec_version;
+	u32 spec_نسخہ;
 	u32 plat_info_len;
-	char *plat_info;
-	struct {
+	حرف *plat_info;
+	ساخت {
 		u8 f0_priv_level;
 		bool f0_ev_notif_en;
-	} base_flags;
+	} بنیاد_flags;
 };
 
 /**************** Shared Memory Queues Helpers **************/
 
-static bool __smq_queue_full(struct smq_queue_ctx *qctx)
-	MUST_HOLD(&qctx->queue_lock)
+ساکن bool __smq_queue_full(ساخت smq_قطار_ctx *qctx)
+	MUST_HOLD(&qctx->قطار_تالا)
 {
-	return ((le32_to_cpu(*qctx->tailptr) + 1) % qctx->num_slots ==
-			le32_to_cpu(*qctx->headptr)) ? true : false;
+	واپس ((le32_مقصد_cpu(*qctx->tailptr) + 1) % qctx->عدد_slots ==
+			le32_مقصد_cpu(*qctx->headptr)) ? true : false;
 }
 
-static bool __smq_queue_empty(struct smq_queue_ctx *qctx)
-	MUST_HOLD(&qctx->queue_lock)
+ساکن bool __smq_queue_empty(ساخت smq_قطار_ctx *qctx)
+	MUST_HOLD(&qctx->قطار_تالا)
 {
-	return (le32_to_cpu(*qctx->headptr) ==
-		le32_to_cpu(*qctx->tailptr)) ? true : false;
+	واپس (le32_مقصد_cpu(*qctx->headptr) ==
+		le32_مقصد_cpu(*qctx->tailptr)) ? true : false;
 }
 
-static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
-		    u32 service_group_id, struct mbox_xfer *xfer)
-	MUST_HOLD(&qctx->queue_lock)
+ساکن صحیح __smq_rx(ساخت smq_قطار_ctx *qctx, u32 خانہ_سائز,
+		    u32 service_گروہ_id, ساخت mbox_xfer *xfer)
+	MUST_HOLD(&qctx->قطار_تالا)
 {
-	void *dst, *src;
-	struct rpmi_message *msg;
+	خالی *dst, *src;
+	ساخت rpmi_پیغام *پیغام;
 	u32 i, tmp, pos, dlen, msgidn, headidx, tailidx;
-	struct rpmi_message_args *args = xfer->args;
-	bool no_rx_token = (args->flags & RPMI_MSG_FLAGS_NO_RX_TOKEN) ?
+	ساخت rpmi_پیغام_دلائل *دلائل = xfer->دلائل;
+	bool no_rx_token = (دلائل->flags & RPMI_پیغام_FLAGS_NO_RX_TOKEN) ?
 			   true : false;
 
 	/* Rx sanity checks */
-	if ((sizeof(u32) * args->rx_endian_words) >
-	    (slot_size - sizeof(struct rpmi_message_header)))
-		return SBI_EINVAL;
-	if ((sizeof(u32) * args->rx_endian_words) > xfer->rx_len)
-		return SBI_EINVAL;
+	اگر ((حجم(u32) * دلائل->rx_endian_الفاظ) >
+	    (خانہ_سائز - حجم(ساخت rpmi_پیغام_سرخی)))
+		واپس SBI_EINVAL;
+	اگر ((حجم(u32) * دلائل->rx_endian_الفاظ) > xfer->rx_len)
+		واپس SBI_EINVAL;
 
 	/* There should be some message in the queue */
-	if (__smq_queue_empty(qctx))
-		return SBI_ENOENT;
+	اگر (__smq_queue_empty(qctx))
+		واپس SBI_ENOENT;
 
 	/* Get the head/read index and tail/write index */
-	headidx = le32_to_cpu(*qctx->headptr);
-	tailidx = le32_to_cpu(*qctx->tailptr);
+	headidx = le32_مقصد_cpu(*qctx->headptr);
+	tailidx = le32_مقصد_cpu(*qctx->tailptr);
 
 	/*
 	 * Compute msgidn expected in the incoming message
 	 * NOTE: DOORBELL bit is not expected to be set.
 	 */
-	msgidn = MAKE_MESSAGE_ID(service_group_id, args->service_id, args->type);
+	msgidn = MAKE_پیغام_ID(service_گروہ_id, دلائل->service_id, دلائل->type);
 
 	/* Find the Rx message with matching token */
 	pos = headidx;
-	while (pos != tailidx) {
-		src = (void *)qctx->buffer + (pos * slot_size);
-		if ((no_rx_token && GET_MESSAGE_ID(src) == msgidn) ||
-		    (GET_TOKEN(src) == (xfer->seq & RPMI_MSG_TOKEN_MASK)))
-			break;
-		pos = (pos + 1) % qctx->num_slots;
+	جب (pos != tailidx) {
+		src = (خالی *)qctx->بفر + (pos * خانہ_سائز);
+		اگر ((no_rx_token && GET_پیغام_ID(src) == msgidn) ||
+		    (GET_TOKEN(src) == (xfer->seq & RPMI_پیغام_TOKEN_نقاب)))
+			توڑو;
+		pos = (pos + 1) % qctx->عدد_slots;
 	}
-	if (pos == tailidx)
-		return SBI_ENOENT;
+	اگر (pos == tailidx)
+		واپس SBI_ENOENT;
 
 	/* If Rx message is not first message then make it first message */
-	if (pos != headidx) {
-		src = (void *)qctx->buffer + (pos * slot_size);
-		dst = (void *)qctx->buffer + (headidx * slot_size);
-		for (i = 0; i < slot_size / sizeof(u32); i++) {
+	اگر (pos != headidx) {
+		src = (خالی *)qctx->بفر + (pos * خانہ_سائز);
+		dst = (خالی *)qctx->بفر + (headidx * خانہ_سائز);
+		برائے (i = 0; i < خانہ_سائز / حجم(u32); i++) {
 			tmp = ((u32 *)dst)[i];
 			((u32 *)dst)[i] = ((u32 *)src)[i];
 			((u32 *)src)[i] = tmp;
@@ -223,105 +223,105 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 	}
 
 	/* Update rx_token if not available */
-	msg = (void *)qctx->buffer + (headidx * slot_size);
-	if (no_rx_token)
-		args->rx_token = GET_TOKEN(msg);
+	پیغام = (خالی *)qctx->بفر + (headidx * خانہ_سائز);
+	اگر (no_rx_token)
+		دلائل->rx_token = GET_TOKEN(پیغام);
 
 	/* Extract data from the first message */
-	if (xfer->rx) {
-		args->rx_data_len = dlen = GET_DLEN(msg);
-		if (dlen > xfer->rx_len)
+	اگر (xfer->rx) {
+		دلائل->rx_ڈیٹا_len = dlen = GET_DLEN(پیغام);
+		اگر (dlen > xfer->rx_len)
 			dlen = xfer->rx_len;
-		src = (void *)msg + sizeof(struct rpmi_message_header);
+		src = (خالی *)پیغام + حجم(ساخت rpmi_پیغام_سرخی);
 		dst = xfer->rx;
-		for (i = 0; i < args->rx_endian_words; i++)
-			((u32 *)dst)[i] = le32_to_cpu(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->rx_endian_words;
-		src += sizeof(u32) * args->rx_endian_words;
+		برائے (i = 0; i < دلائل->rx_endian_الفاظ; i++)
+			((u32 *)dst)[i] = le32_مقصد_cpu(((u32 *)src)[i]);
+		dst += حجم(u32) * دلائل->rx_endian_الفاظ;
+		src += حجم(u32) * دلائل->rx_endian_الفاظ;
 		sbi_memcpy(dst, src,
-			xfer->rx_len - (sizeof(u32) * args->rx_endian_words));
+			xfer->rx_len - (حجم(u32) * دلائل->rx_endian_الفاظ));
 	}
 
 	/* Update the head/read index */
-	*qctx->headptr = cpu_to_le32(headidx + 1) % qctx->num_slots;
+	*qctx->headptr = cpu_مقصد_le32(headidx + 1) % qctx->عدد_slots;
 
 	/* Make sure updates to head are immediately visible to PuC */
 	smp_wmb();
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static int __smq_tx(struct smq_queue_ctx *qctx, struct rpmi_mb_regs *mb_regs,
-		    u32 a2p_doorbell_value, u32 slot_size, u32 service_group_id,
-		    struct mbox_xfer *xfer) MUST_HOLD(&qctx->queue_lock)
+ساکن صحیح __smq_tx(ساخت smq_قطار_ctx *qctx, ساخت rpmi_mb_regs *mb_regs,
+		    u32 a2p_doorbell_قدر, u32 خانہ_سائز, u32 service_گروہ_id,
+		    ساخت mbox_xfer *xfer) MUST_HOLD(&qctx->قطار_تالا)
 {
 	u32 i, tailidx;
-	void *dst, *src;
-	struct rpmi_message_header header = { 0 };
-	struct rpmi_message_args *args = xfer->args;
+	خالی *dst, *src;
+	ساخت rpmi_پیغام_سرخی سرخی = { 0 };
+	ساخت rpmi_پیغام_دلائل *دلائل = xfer->دلائل;
 
 	/* Tx sanity checks */
-	if ((sizeof(u32) * args->tx_endian_words) >
-	    (slot_size - sizeof(struct rpmi_message_header)))
-		return SBI_EINVAL;
-	if ((sizeof(u32) * args->tx_endian_words) > xfer->tx_len)
-		return SBI_EINVAL;
+	اگر ((حجم(u32) * دلائل->tx_endian_الفاظ) >
+	    (خانہ_سائز - حجم(ساخت rpmi_پیغام_سرخی)))
+		واپس SBI_EINVAL;
+	اگر ((حجم(u32) * دلائل->tx_endian_الفاظ) > xfer->tx_len)
+		واپس SBI_EINVAL;
 
 	/* There should be some room in the queue */
-	if (__smq_queue_full(qctx))
-		return SBI_ENOMEM;
+	اگر (__smq_queue_full(qctx))
+		واپس SBI_ENOMEM;
 
 	/* Get the tail/write index */
-	tailidx = le32_to_cpu(*qctx->tailptr);
+	tailidx = le32_مقصد_cpu(*qctx->tailptr);
 
 	/* Prepare the header to be written into the slot */
-	header.servicegroup_id = cpu_to_le16(service_group_id);
-	header.service_id = args->service_id;
-	header.flags = args->type;
-	header.datalen = cpu_to_le16((u16)xfer->tx_len);
-	header.token = cpu_to_le16((u16)xfer->seq);
+	سرخی.servicegroup_id = cpu_مقصد_le16(service_گروہ_id);
+	سرخی.service_id = دلائل->service_id;
+	سرخی.flags = دلائل->type;
+	سرخی.datalen = cpu_مقصد_le16((u16)xfer->tx_len);
+	سرخی.token = cpu_مقصد_le16((u16)xfer->seq);
 
 	/* Write header into the slot */
-	dst = (char *)qctx->buffer + (tailidx * slot_size);
-	sbi_memcpy(dst, &header, sizeof(header));
-	dst += sizeof(header);
+	dst = (حرف *)qctx->بفر + (tailidx * خانہ_سائز);
+	sbi_memcpy(dst, &سرخی, حجم(سرخی));
+	dst += حجم(سرخی);
 
 	/* Write data into the slot */
-	if (xfer->tx) {
+	اگر (xfer->tx) {
 		src = xfer->tx;
-		for (i = 0; i < args->tx_endian_words; i++)
-			((u32 *)dst)[i] = cpu_to_le32(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->tx_endian_words;
-		src += sizeof(u32) * args->tx_endian_words;
+		برائے (i = 0; i < دلائل->tx_endian_الفاظ; i++)
+			((u32 *)dst)[i] = cpu_مقصد_le32(((u32 *)src)[i]);
+		dst += حجم(u32) * دلائل->tx_endian_الفاظ;
+		src += حجم(u32) * دلائل->tx_endian_الفاظ;
 		sbi_memcpy(dst, src,
-			xfer->tx_len - (sizeof(u32) * args->tx_endian_words));
+			xfer->tx_len - (حجم(u32) * دلائل->tx_endian_الفاظ));
 	}
 
 	/* Make sure queue chanages are visible to PuC before updating tail */
 	smp_wmb();
 
 	/* Update the tail/write index */
-	*qctx->tailptr = cpu_to_le32(tailidx + 1) % qctx->num_slots;
+	*qctx->tailptr = cpu_مقصد_le32(tailidx + 1) % qctx->عدد_slots;
 
 	/* Ring the RPMI doorbell if present */
-	if (mb_regs)
-		writel(a2p_doorbell_value, &mb_regs->db_reg);
+	اگر (mb_regs)
+		writel(a2p_doorbell_قدر, &mb_regs->db_reg);
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static int smq_rx(struct rpmi_shmem_mbox_controller *mctl,
-		  u32 queue_id, u32 service_group_id, struct mbox_xfer *xfer)
+ساکن صحیح smq_rx(ساخت rpmi_shmem_mbox_controller *mctl,
+		  u32 قطار_id, u32 service_گروہ_id, ساخت mbox_xfer *xfer)
 {
-	int ret, rxretry = 0;
-	struct smq_queue_ctx *qctx;
+	صحیح ret, rxretry = 0;
+	ساخت smq_قطار_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	اگر (mctl->قطار_گنتی < قطار_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
-		return SBI_EINVAL;
+		واپس SBI_EINVAL;
 	}
-	qctx = &mctl->queue_ctx_tbl[queue_id];
+	qctx = &mctl->قطار_ctx_tbl[قطار_id];
 
 	/*
 	 * Once the timeout happens and call this function is returned
@@ -331,32 +331,32 @@ static int smq_rx(struct rpmi_shmem_mbox_controller *mctl,
 	 * REVISIT: In complete timeout duration how much duration
 	 * it should wait(delay) before recv retry. udelay or mdelay
 	 */
-	do {
-		spin_lock(&qctx->queue_lock);
-		ret = __smq_rx(qctx, mctl->slot_size, service_group_id, xfer);
-		spin_unlock(&qctx->queue_lock);
-		if (!ret)
-			return 0;
+	کرو {
+		spin_تالا(&qctx->قطار_تالا);
+		ret = __smq_rx(qctx, mctl->خانہ_سائز, service_گروہ_id, xfer);
+		spin_unlock(&qctx->قطار_تالا);
+		اگر (!ret)
+			واپس 0;
 
 		sbi_timer_mdelay(1);
 		rxretry += 1;
-	} while (rxretry < xfer->rx_timeout);
+	} جب (rxretry < xfer->rx_timeout);
 
-	return SBI_ETIMEDOUT;
+	واپس SBI_ETIMEDOUT;
 }
 
-static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
-		  u32 queue_id, u32 service_group_id, struct mbox_xfer *xfer)
+ساکن صحیح smq_tx(ساخت rpmi_shmem_mbox_controller *mctl,
+		  u32 قطار_id, u32 service_گروہ_id, ساخت mbox_xfer *xfer)
 {
-	int ret, txretry = 0;
-	struct smq_queue_ctx *qctx;
+	صحیح ret, txretry = 0;
+	ساخت smq_قطار_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	اگر (mctl->قطار_گنتی < قطار_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
-		return SBI_EINVAL;
+		واپس SBI_EINVAL;
 	}
-	qctx = &mctl->queue_ctx_tbl[queue_id];
+	qctx = &mctl->قطار_ctx_tbl[قطار_id];
 
 	/*
 	 * Ignoring the tx timeout since in RPMI has no mechanism
@@ -367,434 +367,434 @@ static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
 	 * REVISIT: In complete timeout duration how much duration
 	 * it should wait(delay) before send retry. udelay or mdelay
 	 */
-	do {
-		spin_lock(&qctx->queue_lock);
-		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_value,
-				mctl->slot_size, service_group_id, xfer);
-		spin_unlock(&qctx->queue_lock);
-		if (!ret)
-			return 0;
+	کرو {
+		spin_تالا(&qctx->قطار_تالا);
+		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_قدر,
+				mctl->خانہ_سائز, service_گروہ_id, xfer);
+		spin_unlock(&qctx->قطار_تالا);
+		اگر (!ret)
+			واپس 0;
 
 		sbi_timer_mdelay(1);
 		txretry += 1;
-	} while (txretry < xfer->tx_timeout);
+	} جب (txretry < xfer->tx_timeout);
 
-	return SBI_ETIMEDOUT;
+	واپس SBI_ETIMEDOUT;
 }
 
-static int rpmi_get_platform_info(struct rpmi_shmem_mbox_controller *mctl)
+ساکن صحیح rpmi_get_platform_info(ساخت rpmi_shmem_mbox_controller *mctl)
 {
-	int ret = SBI_OK;
+	صحیح ret = SBI_OK;
 
 	/**
 	 * platform string can occupy max possible size
 	 * max possible space in the message data as
 	 * per the format
 	 */
-	struct rpmi_base_get_platform_info_resp *resp =
-			sbi_zalloc(RPMI_MSG_DATA_SIZE(mctl->slot_size));
-	if (!resp)
-		return SBI_ENOMEM;
+	ساخت rpmi_بنیاد_get_platform_info_resp *resp =
+			sbi_zalloc(RPMI_پیغام_ڈیٹا_سائز(mctl->خانہ_سائز));
+	اگر (!resp)
+		واپس SBI_ENOMEM;
 
-	ret = rpmi_normal_request_with_status(mctl->base_chan,
-				 RPMI_BASE_SRV_GET_PLATFORM_INFO,
-				 NULL, 0, 0,
+	ret = rpmi_معمول_request_with_حالت(mctl->بنیاد_chan,
+				 RPMI_بنیاد_SRV_GET_PLATFORM_INFO,
+				 تہی, 0, 0,
 				 resp,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4);
-	if (ret)
-		goto fail_free_resp;
+				 RPMI_پیغام_ڈیٹا_سائز(mctl->خانہ_سائز)/4,
+				 RPMI_پیغام_ڈیٹا_سائز(mctl->خانہ_سائز)/4);
+	اگر (ret)
+		جاؤ fail_free_resp;
 
 	mctl->plat_info_len = resp->plat_info_len;
 	mctl->plat_info = sbi_zalloc(mctl->plat_info_len);
-	if (!mctl->plat_info) {
+	اگر (!mctl->plat_info) {
 		ret = SBI_ENOMEM;
-		goto fail_free_resp;
+		جاؤ fail_free_resp;
 	}
 
 	sbi_strncpy(mctl->plat_info, resp->plat_info, mctl->plat_info_len);
 
 fail_free_resp:
 	sbi_free(resp);
-	return ret;
+	واپس ret;
 }
 
-static int smq_base_get_two_u32(struct rpmi_shmem_mbox_controller *mctl,
+ساکن صحیح smq_بنیاد_get_two_u32(ساخت rpmi_shmem_mbox_controller *mctl,
 				u32 service_id, u32 *inarg, u32 *outvals)
 {
-	return rpmi_normal_request_with_status(
-			mctl->base_chan, service_id,
+	واپس rpmi_معمول_request_with_حالت(
+			mctl->بنیاد_chan, service_id,
 			inarg, (inarg) ? 1 : 0, (inarg) ? 1 : 0,
 			outvals, 2, 2);
 }
 
 /**************** Mailbox Controller Functions **************/
 
-static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+ساکن صحیح rpmi_shmem_mbox_xfer(ساخت mbox_chan *chan, ساخت mbox_xfer *xfer)
 {
-	int ret;
+	صحیح ret;
 	u32 tx_qid = 0, rx_qid = 0;
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(chan->mbox,
-				     struct rpmi_shmem_mbox_controller,
+	ساخت rpmi_shmem_mbox_controller *mctl =
+			container_کا(chan->mbox,
+				     ساخت rpmi_shmem_mbox_controller,
 				     controller);
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	ساخت rpmi_srvgrp_chan *srvgrp_chan = مقصد_srvgrp_chan(chan);
 
-	struct rpmi_message_args *args = xfer->args;
-	bool do_tx = (args->flags & RPMI_MSG_FLAGS_NO_TX) ? false : true;
-	bool do_rx = (args->flags & RPMI_MSG_FLAGS_NO_RX) ? false : true;
+	ساخت rpmi_پیغام_دلائل *دلائل = xfer->دلائل;
+	bool do_tx = (دلائل->flags & RPMI_پیغام_FLAGS_NO_TX) ? false : true;
+	bool do_rx = (دلائل->flags & RPMI_پیغام_FLAGS_NO_RX) ? false : true;
 
-	if (!do_tx && !do_rx)
-		return SBI_EINVAL;
+	اگر (!do_tx && !do_rx)
+		واپس SBI_EINVAL;
 
-	switch (args->type) {
-	case RPMI_MSG_NORMAL_REQUEST:
-		if (do_tx && do_rx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-			rx_qid = RPMI_QUEUE_IDX_P2A_ACK;
-		} else if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-		} else if (do_rx) {
-			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
+	انتخاب (دلائل->type) {
+	حالت RPMI_پیغام_معمول_REQUEST:
+		اگر (do_tx && do_rx) {
+			tx_qid = RPMI_قطار_IDX_A2_P_REQ;
+			rx_qid = RPMI_قطار_IDX_P2_A_ACK;
+		} ورنہ اگر (do_tx) {
+			tx_qid = RPMI_قطار_IDX_A2_P_REQ;
+		} ورنہ اگر (do_rx) {
+			rx_qid = RPMI_قطار_IDX_P2_A_REQ;
 		}
-		break;
-	case RPMI_MSG_POSTED_REQUEST:
-		if (do_tx && do_rx)
-			return SBI_EINVAL;
-		if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-		} else {
-			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
+		توڑو;
+	حالت RPMI_پیغام_POSTED_REQUEST:
+		اگر (do_tx && do_rx)
+			واپس SBI_EINVAL;
+		اگر (do_tx) {
+			tx_qid = RPMI_قطار_IDX_A2_P_REQ;
+		} ورنہ {
+			rx_qid = RPMI_قطار_IDX_P2_A_REQ;
 		}
-		break;
-	case RPMI_MSG_ACKNOWLDGEMENT:
-		if (do_tx && do_rx)
-			return SBI_EINVAL;
-		if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_ACK;
-		} else {
-			rx_qid = RPMI_QUEUE_IDX_P2A_ACK;
+		توڑو;
+	حالت RPMI_پیغام_ACKNOWLDGEMENT:
+		اگر (do_tx && do_rx)
+			واپس SBI_EINVAL;
+		اگر (do_tx) {
+			tx_qid = RPMI_قطار_IDX_A2_P_ACK;
+		} ورنہ {
+			rx_qid = RPMI_قطار_IDX_P2_A_ACK;
 		}
-		break;
-	default:
-		return SBI_ENOTSUPP;
+		توڑو;
+	طےشدہ:
+		واپس SBI_ENOTSUPP;
 	}
 
-	if (do_tx) {
+	اگر (do_tx) {
 		ret = smq_tx(mctl, tx_qid, srvgrp_chan->servicegroup_id, xfer);
-		if (ret)
-			return ret;
+		اگر (ret)
+			واپس ret;
 	}
 
-	if (do_rx) {
+	اگر (do_rx) {
 		ret = smq_rx(mctl, rx_qid, srvgrp_chan->servicegroup_id, xfer);
-		if (ret)
-			return ret;
+		اگر (ret)
+			واپس ret;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static int rpmi_shmem_mbox_get_attribute(struct mbox_chan *chan,
-					 int attr_id, void *out_value)
+ساکن صحیح rpmi_shmem_mbox_get_attribute(ساخت mbox_chan *chan,
+					 صحیح attr_id, خالی *برآمد_قدر)
 {
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(chan->mbox,
-				     struct rpmi_shmem_mbox_controller,
+	ساخت rpmi_shmem_mbox_controller *mctl =
+			container_کا(chan->mbox,
+				     ساخت rpmi_shmem_mbox_controller,
 				     controller);
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	ساخت rpmi_srvgrp_chan *srvgrp_chan = مقصد_srvgrp_chan(chan);
 
-	switch (attr_id) {
-	case RPMI_CHANNEL_ATTR_PROTOCOL_VERSION:
-		*((u32 *)out_value) = mctl->spec_version;
-		break;
-	case RPMI_CHANNEL_ATTR_MAX_DATA_LEN:
-		*((u32 *)out_value) = RPMI_MSG_DATA_SIZE(mctl->slot_size);
-		break;
-	case RPMI_CHANNEL_ATTR_P2A_DOORBELL_SYSMSI_INDEX:
-		*((u32 *)out_value) = mctl->p2a_doorbell_sysmsi_index;
-		break;
-	case RPMI_CHANNEL_ATTR_TX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_TX_TIMEOUT;
-		break;
-	case RPMI_CHANNEL_ATTR_RX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_RX_TIMEOUT;
-		break;
-	case RPMI_CHANNEL_ATTR_SERVICEGROUP_ID:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_id;
-		break;
-	case RPMI_CHANNEL_ATTR_SERVICEGROUP_VERSION:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_version;
-		break;
-	case RPMI_CHANNEL_ATTR_IMPL_ID:
-		*((u32 *)out_value) = mctl->impl_id;
-		break;
-	case RPMI_CHANNEL_ATTR_IMPL_VERSION:
-		*((u32 *)out_value) = mctl->impl_version;
-		break;
-	default:
-		return SBI_ENOTSUPP;
+	انتخاب (attr_id) {
+	حالت RPMI_CHANNEL_ATTR_PROTOCOL_نسخہ:
+		*((u32 *)برآمد_قدر) = mctl->spec_نسخہ;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_MAX_ڈیٹا_LEN:
+		*((u32 *)برآمد_قدر) = RPMI_پیغام_ڈیٹا_سائز(mctl->خانہ_سائز);
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_P2_A_DOORBELL_SYSMSI_اشاریہ:
+		*((u32 *)برآمد_قدر) = mctl->p2a_doorbell_sysmsi_اشاریہ;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_TX_TIMEOUT:
+		*((u32 *)برآمد_قدر) = RPMI_DEF_TX_TIMEOUT;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_RX_TIMEOUT:
+		*((u32 *)برآمد_قدر) = RPMI_DEF_RX_TIMEOUT;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_SERVICEGROUP_ID:
+		*((u32 *)برآمد_قدر) = srvgrp_chan->servicegroup_id;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_SERVICEGROUP_نسخہ:
+		*((u32 *)برآمد_قدر) = srvgrp_chan->servicegroup_نسخہ;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_IMPL_ID:
+		*((u32 *)برآمد_قدر) = mctl->impl_id;
+		توڑو;
+	حالت RPMI_CHANNEL_ATTR_IMPL_نسخہ:
+		*((u32 *)برآمد_قدر) = mctl->impl_نسخہ;
+		توڑو;
+	طےشدہ:
+		واپس SBI_ENOTSUPP;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static struct mbox_chan *rpmi_shmem_mbox_request_chan(
-						struct mbox_controller *mbox,
-						u32 *chan_args)
+ساکن ساخت mbox_chan *rpmi_shmem_mbox_request_chan(
+						ساخت mbox_controller *mbox,
+						u32 *chan_دلائل)
 {
-	int ret;
+	صحیح ret;
 	u32 tval[2] = { 0 };
-	struct rpmi_srvgrp_chan *srvgrp_chan;
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(mbox,
-				     struct rpmi_shmem_mbox_controller,
+	ساخت rpmi_srvgrp_chan *srvgrp_chan;
+	ساخت rpmi_shmem_mbox_controller *mctl =
+			container_کا(mbox,
+				     ساخت rpmi_shmem_mbox_controller,
 				     controller);
 
 	/* Service group id not defined or in reserved range is invalid */
-	if (chan_args[0] >= RPMI_SRVGRP_ID_MAX_COUNT &&
-		chan_args[0] <= RPMI_SRVGRP_RESERVE_END)
-		return NULL;
+	اگر (chan_دلائل[0] >= RPMI_SRVGRP_ID_MAX_گنتی &&
+		chan_دلائل[0] <= RPMI_SRVGRP_RESERVE_انتہا)
+		واپس تہی;
 
 	/* Base serivce group is always present so probe other groups */
-	if (chan_args[0] != RPMI_SRVGRP_BASE) {
+	اگر (chan_دلائل[0] != RPMI_SRVGRP_بنیاد) {
 		/* Probe service group */
-		ret = smq_base_get_two_u32(mctl,
-					   RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-					   chan_args, tval);
-		if (ret || !tval[1])
-			return NULL;
+		ret = smq_بنیاد_get_two_u32(mctl,
+					   RPMI_بنیاد_SRV_PROBE_SERVICE_گروہ,
+					   chan_دلائل, tval);
+		اگر (ret || !tval[1])
+			واپس تہی;
 	}
 
-	srvgrp_chan = sbi_zalloc(sizeof(*srvgrp_chan));
-	if (!srvgrp_chan)
-		return NULL;
+	srvgrp_chan = sbi_zalloc(حجم(*srvgrp_chan));
+	اگر (!srvgrp_chan)
+		واپس تہی;
 
-	srvgrp_chan->servicegroup_id = chan_args[0];
-	srvgrp_chan->servicegroup_version = tval[1];
+	srvgrp_chan->servicegroup_id = chan_دلائل[0];
+	srvgrp_chan->servicegroup_نسخہ = tval[1];
 
-	return &srvgrp_chan->chan;
+	واپس &srvgrp_chan->chan;
 }
 
-static void rpmi_shmem_mbox_free_chan(struct mbox_controller *mbox,
-				      struct mbox_chan *chan)
+ساکن خالی rpmi_shmem_mbox_free_chan(ساخت mbox_controller *mbox,
+				      ساخت mbox_chan *chan)
 {
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	ساخت rpmi_srvgrp_chan *srvgrp_chan = مقصد_srvgrp_chan(chan);
 	sbi_free(srvgrp_chan);
 }
 
-extern struct fdt_mailbox fdt_mailbox_rpmi_shmem;
+خارجی ساخت fdt_mailbox fdt_mailbox_rpmi_shmem;
 
-static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
-				     const void *fdt,
-				     int nodeoff) NO_THREAD_SAFETY_ANALYSIS
+ساکن صحیح rpmi_shmem_transport_init(ساخت rpmi_shmem_mbox_controller *mctl,
+				     ثابت خالی *fdt,
+				     صحیح nodeoff) NO_THREAD_SAFETY_ANALYSIS
 {
-	const char *name;
-	const fdt32_t *prop;
-	int count, len, ret, qid;
-	uint64_t reg_addr, reg_size;
-	struct smq_queue_ctx *qctx;
+	ثابت حرف *name;
+	ثابت fdt32_t *prop;
+	صحیح گنتی, len, ret, qid;
+	uint64_t reg_addr, reg_سائز;
+	ساخت smq_قطار_ctx *qctx;
 
-	ret = fdt_node_check_compatible(fdt, nodeoff,
+	ret = fdt_گرہ_check_compatible(fdt, nodeoff,
 					"riscv,rpmi-shmem-mbox");
-	if (ret)
-		return ret;
+	اگر (ret)
+		واپس ret;
 
 	/* get queue slot size in bytes */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,slot-size", &len);
-	if (!prop)
-		return SBI_ENOENT;
+	اگر (!prop)
+		واپس SBI_ENOENT;
 
-	mctl->slot_size = fdt32_to_cpu(*prop);
-	if (mctl->slot_size < RPMI_SLOT_SIZE_MIN) {
+	mctl->خانہ_سائز = fdt32_مقصد_cpu(*prop);
+	اگر (mctl->خانہ_سائز < RPMI_خانہ_سائز_MIN) {
 		sbi_printf("%s: slot_size < mimnum required message size\n",
 			   __func__);
-		mctl->slot_size = RPMI_SLOT_SIZE_MIN;
+		mctl->خانہ_سائز = RPMI_خانہ_سائز_MIN;
 	}
 
 	/* get p2a doorbell system MSI index */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,p2a-doorbell-sysmsi-index", &len);
-	mctl->p2a_doorbell_sysmsi_index = prop ? fdt32_to_cpu(*prop) : -1U;
+	mctl->p2a_doorbell_sysmsi_اشاریہ = prop ? fdt32_مقصد_cpu(*prop) : -1U;
 
 	/* get a2p doorbell value */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,a2p-doorbell-value", &len);
-	mctl->a2p_doorbell_value = prop ? fdt32_to_cpu(*prop) : 1;
+	mctl->a2p_doorbell_قدر = prop ? fdt32_مقصد_cpu(*prop) : 1;
 
 	/*
 	 * queue names count is taken as the number of queues
 	 * supported which make it mandatory to provide the
 	 * name of the queue.
 	 */
-	count = fdt_stringlist_count(fdt, nodeoff, "reg-names");
-	if (count < 0 ||
-	    count > (RPMI_QUEUE_IDX_MAX_COUNT + RPMI_REG_IDX_MAX_COUNT))
-		return SBI_EINVAL;
+	گنتی = fdt_stringlist_گنتی(fdt, nodeoff, "reg-names");
+	اگر (گنتی < 0 ||
+	    گنتی > (RPMI_قطار_IDX_MAX_گنتی + RPMI_REG_IDX_MAX_گنتی))
+		واپس SBI_EINVAL;
 
-	mctl->queue_count = count - RPMI_REG_IDX_MAX_COUNT;
+	mctl->قطار_گنتی = گنتی - RPMI_REG_IDX_MAX_گنتی;
 
 	/* parse all queues and populate queues context structure */
-	for (qid = 0; qid < mctl->queue_count; qid++) {
-		qctx = &mctl->queue_ctx_tbl[qid];
+	برائے (qid = 0; qid < mctl->قطار_گنتی; qid++) {
+		qctx = &mctl->قطار_ctx_tbl[qid];
 
 		/* get each queue share-memory base address and size*/
-		ret = fdt_get_node_addr_size(fdt, nodeoff, qid,
-					     &reg_addr, &reg_size);
-		if (ret < 0 || !reg_addr || !reg_size)
-			return SBI_ENOENT;
+		ret = fdt_get_گرہ_addr_سائز(fdt, nodeoff, qid,
+					     &reg_addr, &reg_سائز);
+		اگر (ret < 0 || !reg_addr || !reg_سائز)
+			واپس SBI_ENOENT;
 
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+		ret = sbi_domain_جڑ_جوڑو_memrange(reg_addr, reg_سائز, reg_سائز,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (ret)
-			return ret;
+		اگر (ret)
+			واپس ret;
 
 		/* calculate number of slots in each queue */
-		qctx->num_slots =
-			(reg_size - (mctl->slot_size * RPMI_QUEUE_HEADER_SLOTS)) / mctl->slot_size;
+		qctx->عدد_slots =
+			(reg_سائز - (mctl->خانہ_سائز * RPMI_قطار_سرخی_SLOTS)) / mctl->خانہ_سائز;
 
 		/* setup queue pointers */
-		qctx->headptr = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_HEAD_SLOT * mctl->slot_size;
-		qctx->tailptr = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_TAIL_SLOT * mctl->slot_size;
-		qctx->buffer = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_HEADER_SLOTS * mctl->slot_size;
+		qctx->headptr = ((خالی *)(غیرعلامتی طویل)reg_addr) +
+				RPMI_قطار_سر_خانہ * mctl->خانہ_سائز;
+		qctx->tailptr = ((خالی *)(غیرعلامتی طویل)reg_addr) +
+				RPMI_قطار_دم_خانہ * mctl->خانہ_سائز;
+		qctx->بفر = ((خالی *)(غیرعلامتی طویل)reg_addr) +
+				RPMI_قطار_سرخی_SLOTS * mctl->خانہ_سائز;
 
 		/* get the queue name */
 		name = fdt_stringlist_get(fdt, nodeoff, "reg-names",
 					  qid, &len);
-		if (!name || (name && len < 0))
-			return len;
+		اگر (!name || (name && len < 0))
+			واپس len;
 
 		sbi_memcpy(qctx->name, name, len);
 
 		/* store the index as queue_id */
-		qctx->queue_id = qid;
+		qctx->قطار_id = qid;
 
-		SPIN_LOCK_INIT(qctx->queue_lock);
+		SPIN_تالا_INIT(qctx->قطار_تالا);
 	}
 
 	/* get the a2p-doorbell property name */
 	name = fdt_stringlist_get(fdt, nodeoff, "reg-names", qid, &len);
-	if (!name || (name && len < 0))
-		return len;
+	اگر (!name || (name && len < 0))
+		واپس len;
 
 	/* fetch doorbell register address*/
-	ret = fdt_get_node_addr_size(fdt, nodeoff, qid, &reg_addr,
-				       &reg_size);
-	if (!ret && !(strncmp(name, "a2p-doorbell", strlen("a2p-doorbell")))) {
-		mctl->mb_regs = (void *)(unsigned long)reg_addr;
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+	ret = fdt_get_گرہ_addr_سائز(fdt, nodeoff, qid, &reg_addr,
+				       &reg_سائز);
+	اگر (!ret && !(لڑی_موازنہ(name, "a2p-doorbell", لڑی_لمبائی("a2p-doorbell")))) {
+		mctl->mb_regs = (خالی *)(غیرعلامتی طویل)reg_addr;
+		ret = sbi_domain_جڑ_جوڑو_memrange(reg_addr, reg_سائز, reg_سائز,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (ret)
-			return ret;
+		اگر (ret)
+			واپس ret;
 	}
 
-	return SBI_SUCCESS;
+	واپس SBI_SUCCESS;
 }
 
-static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ساکن صحیح rpmi_shmem_mbox_init(ثابت خالی *fdt, صحیح nodeoff,
+				ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	struct rpmi_base_get_attributes_resp resp;
-	struct rpmi_shmem_mbox_controller *mctl;
-	struct rpmi_srvgrp_chan *base_srvgrp;
-	u32 tval[2], args[1];
-	int ret = 0;
+	ساخت rpmi_بنیاد_get_اوصاف_resp resp;
+	ساخت rpmi_shmem_mbox_controller *mctl;
+	ساخت rpmi_srvgrp_chan *بنیاد_srvgrp;
+	u32 tval[2], دلائل[1];
+	صحیح ret = 0;
 
-	mctl = sbi_zalloc(sizeof(*mctl));
-	if (!mctl)
-		return SBI_ENOMEM;
+	mctl = sbi_zalloc(حجم(*mctl));
+	اگر (!mctl)
+		واپس SBI_ENOMEM;
 
 	/* Initialization transport from device tree */
 	ret = rpmi_shmem_transport_init(mctl, fdt, nodeoff);
-	if (ret)
-		goto fail_free_controller;
+	اگر (ret)
+		جاؤ fail_free_controller;
 
 	/* Register mailbox controller */
 	mctl->controller.id = nodeoff;
 	mctl->controller.max_xfer_len =
-			mctl->slot_size - sizeof(struct rpmi_message_header);
+			mctl->خانہ_سائز - حجم(ساخت rpmi_پیغام_سرخی);
 	mctl->controller.driver = &fdt_mailbox_rpmi_shmem;
 	mctl->controller.request_chan = rpmi_shmem_mbox_request_chan;
 	mctl->controller.free_chan = rpmi_shmem_mbox_free_chan;
 	mctl->controller.xfer = rpmi_shmem_mbox_xfer;
 	mctl->controller.get_attribute = rpmi_shmem_mbox_get_attribute;
-	ret = mbox_controller_add(&mctl->controller);
-	if (ret)
-		goto fail_free_controller;
+	ret = mbox_controller_جوڑو(&mctl->controller);
+	اگر (ret)
+		جاؤ fail_free_controller;
 
 	/* Request base service group channel */
-	tval[0] = RPMI_SRVGRP_BASE;
-	mctl->base_chan = mbox_controller_request_chan(&mctl->controller,
+	tval[0] = RPMI_SRVGRP_بنیاد;
+	mctl->بنیاد_chan = mbox_controller_request_chan(&mctl->controller,
 							tval);
-	if (!mctl->base_chan) {
+	اگر (!mctl->بنیاد_chan) {
 		ret = SBI_ENOENT;
-		goto fail_remove_controller;
+		جاؤ fail_remove_controller;
 	}
 
 	/* Update base service group version */
-	base_srvgrp = to_srvgrp_chan(mctl->base_chan);
-	args[0] = RPMI_SRVGRP_BASE;
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-				   &args[0], tval);
-	if (ret)
-		goto fail_free_chan;
-	base_srvgrp->servicegroup_version = tval[1];
-	if (base_srvgrp->servicegroup_version < RPMI_BASE_VERSION_MIN) {
+	بنیاد_srvgrp = مقصد_srvgrp_chan(mctl->بنیاد_chan);
+	دلائل[0] = RPMI_SRVGRP_بنیاد;
+	ret = smq_بنیاد_get_two_u32(mctl, RPMI_بنیاد_SRV_PROBE_SERVICE_گروہ,
+				   &دلائل[0], tval);
+	اگر (ret)
+		جاؤ fail_free_chan;
+	بنیاد_srvgrp->servicegroup_نسخہ = tval[1];
+	اگر (بنیاد_srvgrp->servicegroup_نسخہ < RPMI_بنیاد_نسخہ_MIN) {
 		ret = SBI_EINVAL;
-		goto fail_free_chan;
+		جاؤ fail_free_chan;
 	}
 
 	/* Get implementation id */
-	ret = smq_base_get_two_u32(mctl,
-				   RPMI_BASE_SRV_GET_IMPLEMENTATION_VERSION,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
-	mctl->impl_version = tval[1];
+	ret = smq_بنیاد_get_two_u32(mctl,
+				   RPMI_بنیاد_SRV_GET_IMPLEMENTATION_نسخہ,
+				   تہی, tval);
+	اگر (ret)
+		جاؤ fail_free_chan;
+	mctl->impl_نسخہ = tval[1];
 
 	/* Get implementation version */
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_GET_IMPLEMENTATION_IDN,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
+	ret = smq_بنیاد_get_two_u32(mctl, RPMI_بنیاد_SRV_GET_IMPLEMENTATION_IDN,
+				   تہی, tval);
+	اگر (ret)
+		جاؤ fail_free_chan;
 	mctl->impl_id = tval[1];
 
 	/* Get specification version */
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_GET_SPEC_VERSION,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
-	mctl->spec_version = tval[1];
-	if (mctl->spec_version < RPMI_BASE_VERSION_MIN ||
-	    mctl->spec_version != base_srvgrp->servicegroup_version) {
+	ret = smq_بنیاد_get_two_u32(mctl, RPMI_بنیاد_SRV_GET_SPEC_نسخہ,
+				   تہی, tval);
+	اگر (ret)
+		جاؤ fail_free_chan;
+	mctl->spec_نسخہ = tval[1];
+	اگر (mctl->spec_نسخہ < RPMI_بنیاد_نسخہ_MIN ||
+	    mctl->spec_نسخہ != بنیاد_srvgrp->servicegroup_نسخہ) {
 		ret = SBI_EINVAL;
-		goto fail_free_chan;
+		جاؤ fail_free_chan;
 	}
 
 	/* Get optional features implementation flags */
-	ret = rpmi_normal_request_with_status(
-			mctl->base_chan, RPMI_BASE_SRV_GET_ATTRIBUTES,
-			NULL, 0, 0,
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (ret)
-		goto fail_free_chan;
+	ret = rpmi_معمول_request_with_حالت(
+			mctl->بنیاد_chan, RPMI_بنیاد_SRV_GET_اوصاف,
+			تہی, 0, 0,
+			&resp, rpmi_u32_گنتی(resp), rpmi_u32_گنتی(resp));
+	اگر (ret)
+		جاؤ fail_free_chan;
 
 	/* 1: M-mode, 0: S-mode */
-	mctl->base_flags.f0_priv_level =
-			resp.f0 & RPMI_BASE_FLAGS_F0_PRIVILEGE ? 1 : 0;
+	mctl->بنیاد_flags.f0_priv_level =
+			resp.f0 & RPMI_بنیاد_FLAGS_F0_PRIVILEGE ? 1 : 0;
 	/* 1: Supported, 0: Not Supported */
-	mctl->base_flags.f0_ev_notif_en =
-			resp.f0 & RPMI_BASE_FLAGS_F0_EV_NOTIFY ? 1 : 0;
+	mctl->بنیاد_flags.f0_ev_notif_en =
+			resp.f0 & RPMI_بنیاد_FLAGS_F0_EV_NOTIFY ? 1 : 0;
 
 	/* We only use M-mode RPMI context in OpenSBI */
-	if (!mctl->base_flags.f0_priv_level) {
+	اگر (!mctl->بنیاد_flags.f0_priv_level) {
 		ret = SBI_ENODEV;
-		goto fail_free_chan;
+		جاؤ fail_free_chan;
 	}
 
 	/*
@@ -803,25 +803,25 @@ static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
 	 */
 	rpmi_get_platform_info(mctl);
 
-	return 0;
+	واپس 0;
 
 fail_free_chan:
-	mbox_controller_free_chan(mctl->base_chan);
+	mbox_controller_free_chan(mctl->بنیاد_chan);
 fail_remove_controller:
 	mbox_controller_remove(&mctl->controller);
 fail_free_controller:
 	sbi_free(mctl);
-	return ret;
+	واپس ret;
 }
 
-static const struct fdt_match rpmi_shmem_mbox_match[] = {
+ساکن ثابت ساخت fdt_مطابقت rpmi_shmem_mbox_مطابقت[] = {
 	{ .compatible = "riscv,rpmi-shmem-mbox" },
 	{ },
 };
 
-struct fdt_mailbox fdt_mailbox_rpmi_shmem = {
+ساخت fdt_mailbox fdt_mailbox_rpmi_shmem = {
 	.driver = {
-		.match_table = rpmi_shmem_mbox_match,
+		.مطابقت_جدول = rpmi_shmem_mbox_مطابقت,
 		.init = rpmi_shmem_mbox_init,
 	},
 	.xlate = fdt_mailbox_simple_xlate,

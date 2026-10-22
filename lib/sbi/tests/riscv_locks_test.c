@@ -1,44 +1,44 @@
-#include <sbi/sbi_unit_test.h>
-#include <sbi/riscv_locks.h>
+#شامل <sbi/sbi_unit_test.h>
+#شامل <sbi/riscv_locks.h>
 
-static spinlock_t test_lock = SPIN_LOCK_INITIALIZER;
+ساکن spinlock_t test_تالا = SPIN_تالا_INITIALIZER;
 
-static void spin_lock_test(struct sbiunit_test_case *test)
+ساکن خالی spin_تالا_test(ساخت sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_تالا_check(&test_تالا));
 
-	spin_lock(&test_lock);
-	SBIUNIT_EXPECT(test, spin_lock_check(&test_lock));
-	spin_unlock(&test_lock);
+	spin_تالا(&test_تالا);
+	SBIUNIT_EXPECT(test, spin_تالا_check(&test_تالا));
+	spin_unlock(&test_تالا);
 
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_تالا_check(&test_تالا));
 }
 
-static void spin_trylock_fail(struct sbiunit_test_case *test)
+ساکن خالی spin_trylock_fail(ساخت sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_تالا_check(&test_تالا));
 
-	spin_lock(&test_lock);
-	SBIUNIT_EXPECT(test, !spin_trylock(&test_lock));
-	spin_unlock(&test_lock);
+	spin_تالا(&test_تالا);
+	SBIUNIT_EXPECT(test, !spin_trylock(&test_تالا));
+	spin_unlock(&test_تالا);
 }
 
-static void spin_trylock_success(struct sbiunit_test_case *test)
+ساکن خالی spin_trylock_success(ساخت sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	SBIUNIT_EXPECT(test, spin_trylock(&test_lock));
-	spin_unlock(&test_lock);
+	SBIUNIT_EXPECT(test, spin_trylock(&test_تالا));
+	spin_unlock(&test_تالا);
 }
 
-static struct sbiunit_test_case locks_test_cases[] = {
-	SBIUNIT_TEST_CASE(spin_lock_test),
+ساکن ساخت sbiunit_test_case locks_test_cases[] = {
+	SBIUNIT_TEST_CASE(spin_تالا_test),
 	SBIUNIT_TEST_CASE(spin_trylock_fail),
 	SBIUNIT_TEST_CASE(spin_trylock_success),
-	SBIUNIT_END_CASE,
+	SBIUNIT_انتہا_CASE,
 };
 
 SBIUNIT_TEST_SUITE(locks_test_suite, locks_test_cases);

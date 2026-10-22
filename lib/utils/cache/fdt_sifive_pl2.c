@@ -4,45 +4,45 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#شامل <libfdt.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi_utils/cache/fdt_cache.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
 
-#define FLUSH64_CMD_TARGET_ALL		(0x2 << 3)
-#define FLUSH64_CMD_TYPE_FLUSH		0x3ULL
+#تعریف_کرو FLUSH64_CMD_ہدف_ALL		(0x2 << 3)
+#تعریف_کرو FLUSH64_CMD_TYPE_FLUSH		0x3ULL
 
-#define SIFIVE_PL2CACHE_CMD_QLEN	0xff
+#تعریف_کرو SIFIVE_PL2CACHE_CMD_QLEN	0xff
 
-#define SIFIVE_PL2CACHE_FLUSH64_OFF	0x200ULL
-#define SIFIVE_PL2CACHE_STATUS_OFF	0x208ULL
-#define SIFIVE_PL2CACHE_CONFIG1_OFF	0x1000ULL
-#define SIFIVE_PL2CACHE_CONFIG0_OFF	0x1008ULL
+#تعریف_کرو SIFIVE_PL2CACHE_FLUSH64_OFF	0x200ULL
+#تعریف_کرو SIFIVE_PL2_CACHE_حالت_OFF	0x208ULL
+#تعریف_کرو SIFIVE_PL2CACHE_CONFIG1_OFF	0x1000ULL
+#تعریف_کرو SIFIVE_PL2CACHE_CONFIG0_OFF	0x1008ULL
 
-#define FLUSH64_CMD_POS			56
-#define REGIONCLOCKDISABLE_MASK		BIT(3)
+#تعریف_کرو FLUSH64_CMD_POS			56
+#تعریف_کرو REGIONCLOCKDISABLE_نقاب		ثنائی_ہندسہ(3)
 
-#define CONFIG0_ACCEPT_DIRTY_DATA_ENABLE	BIT(24)
+#تعریف_کرو CONFIG0_ACCEPT_DIRTY_ڈیٹا_ENABLE	ثنائی_ہندسہ(24)
 
-struct sifive_pl2_quirks {
+ساخت sifive_pl2_quirks {
 	bool no_dirty_fill;
 };
 
-struct sifive_pl2 {
-	struct cache_device dev;
-	void *addr;
+ساخت sifive_pl2 {
+	ساخت cache_device dev;
+	خالی *addr;
 	bool no_dirty_fill;
 };
 
-#define to_pl2(_dev) container_of(_dev, struct sifive_pl2, dev)
+#تعریف_کرو مقصد_pl2(_dev) container_کا(_dev, ساخت sifive_pl2, dev)
 
-static int sifive_pl2_flush_all(struct cache_device *dev)
+ساکن صحیح sifive_pl2_flush_all(ساخت cache_device *dev)
 {
-	struct sifive_pl2 *pl2_dev = to_pl2(dev);
-	char *addr = pl2_dev->addr;
-	u64 cmd = (FLUSH64_CMD_TARGET_ALL | FLUSH64_CMD_TYPE_FLUSH) << FLUSH64_CMD_POS;
+	ساخت sifive_pl2 *pl2_dev = مقصد_pl2(dev);
+	حرف *addr = pl2_dev->addr;
+	u64 cmd = (FLUSH64_CMD_ہدف_ALL | FLUSH64_CMD_TYPE_FLUSH) << FLUSH64_CMD_POS;
 	u32 config0;
 
 	/*
@@ -50,90 +50,90 @@ static int sifive_pl2_flush_all(struct cache_device *dev)
 	 * into PL2. It will cause the SiFive SMC0 refuse to enter the power gating.
 	 * Disable the ACCEPT_DIRTY_DATA_ENABLE to avoid the issue.
 	 */
-	if (pl2_dev->no_dirty_fill) {
-		config0 = readl((void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
-		config0 &= ~CONFIG0_ACCEPT_DIRTY_DATA_ENABLE;
-		writel(config0, (void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
+	اگر (pl2_dev->no_dirty_fill) {
+		config0 = readl((خالی *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
+		config0 &= ~CONFIG0_ACCEPT_DIRTY_ڈیٹا_ENABLE;
+		writel(config0, (خالی *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
 	}
 
-#if __riscv_xlen != 32
+#اگر __riscv_xlen != 32
 	writeq(cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
-#else
+#ورنہ
 	writel((u32)cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
-	writel((u32)(cmd >> 32), addr + SIFIVE_PL2CACHE_FLUSH64_OFF + sizeof(u32));
-#endif
-	do {} while (readl(addr + SIFIVE_PL2CACHE_STATUS_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
+	writel((u32)(cmd >> 32), addr + SIFIVE_PL2CACHE_FLUSH64_OFF + حجم(u32));
+#اگر_ختم
+	کرو {} جب (readl(addr + SIFIVE_PL2_CACHE_حالت_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
 
-	return 0;
+	واپس 0;
 }
 
-static int sifive_pl2_warm_init(struct cache_device *dev)
+ساکن صحیح sifive_pl2_warm_init(ساخت cache_device *dev)
 {
-	struct sifive_pl2 *pl2_dev = to_pl2(dev);
-	char *addr = pl2_dev->addr;
+	ساخت sifive_pl2 *pl2_dev = مقصد_pl2(dev);
+	حرف *addr = pl2_dev->addr;
 	u32 val;
 
 	/* Enabling the clock gating */
 	val = readl(addr + SIFIVE_PL2CACHE_CONFIG1_OFF);
-	val &= (~REGIONCLOCKDISABLE_MASK);
+	val &= (~REGIONCLOCKDISABLE_نقاب);
 	writel(val, addr + SIFIVE_PL2CACHE_CONFIG1_OFF);
 
-	return 0;
+	واپس 0;
 }
 
-static struct cache_ops sifive_pl2_ops = {
+ساکن ساخت cache_ops sifive_pl2_ops = {
 	.warm_init = sifive_pl2_warm_init,
 	.cache_flush_all = sifive_pl2_flush_all,
 };
 
-static int sifive_pl2_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساکن صحیح sifive_pl2_cold_init(ثابت خالی *fdt, صحیح nodeoff, ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	const struct sifive_pl2_quirks *quirk = match->data;
-	struct sifive_pl2 *pl2_dev;
-	struct cache_device *dev;
+	ثابت ساخت sifive_pl2_quirks *quirk = مطابقت->ڈیٹا;
+	ساخت sifive_pl2 *pl2_dev;
+	ساخت cache_device *dev;
 	u64 reg_addr;
-	int rc;
+	صحیح rc;
 
 	/* find the pl2 control base address */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 && reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_گرہ_addr_سائز(fdt, nodeoff, 0, &reg_addr, تہی);
+	اگر (rc < 0 && reg_addr)
+		واپس SBI_ENODEV;
 
-	pl2_dev = sbi_zalloc(sizeof(*pl2_dev));
-	if (!pl2_dev)
-		return SBI_ENOMEM;
+	pl2_dev = sbi_zalloc(حجم(*pl2_dev));
+	اگر (!pl2_dev)
+		واپس SBI_ENOMEM;
 
 	dev = &pl2_dev->dev;
 	dev->ops = &sifive_pl2_ops;
-	dev->cpu_private = true;
+	dev->cpu_نجی = true;
 
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc)
-		return rc;
+	rc = fdt_cache_جوڑو(fdt, nodeoff, dev);
+	اگر (rc)
+		واپس rc;
 
-	pl2_dev->addr = (void *)(uintptr_t)reg_addr;
-	if (quirk)
+	pl2_dev->addr = (خالی *)(uintptr_t)reg_addr;
+	اگر (quirk)
 		pl2_dev->no_dirty_fill = quirk->no_dirty_fill;
 
-	return 0;
+	واپس 0;
 }
 
-static const struct sifive_pl2_quirks pl2cache2_quirks = {
+ساکن ثابت ساخت sifive_pl2_quirks pl2cache2_quirks = {
 	.no_dirty_fill = true,
 };
 
-static const struct sifive_pl2_quirks pl2cache0_quirks = {
+ساکن ثابت ساخت sifive_pl2_quirks pl2cache0_quirks = {
 	.no_dirty_fill = false,
 };
 
-static const struct fdt_match sifive_pl2_match[] = {
-	{ .compatible = "sifive,pl2cache2", .data = &pl2cache2_quirks },
-	{ .compatible = "sifive,pl2cache1", .data = &pl2cache0_quirks },
-	{ .compatible = "sifive,pl2cache0", .data = &pl2cache0_quirks },
+ساکن ثابت ساخت fdt_مطابقت sifive_pl2_مطابقت[] = {
+	{ .compatible = "sifive,pl2cache2", .ڈیٹا = &pl2cache2_quirks },
+	{ .compatible = "sifive,pl2cache1", .ڈیٹا = &pl2cache0_quirks },
+	{ .compatible = "sifive,pl2cache0", .ڈیٹا = &pl2cache0_quirks },
 	{},
 };
 
-struct fdt_driver fdt_sifive_pl2 = {
-	.match_table = sifive_pl2_match,
+ساخت fdt_driver fdt_sifive_pl2 = {
+	.مطابقت_جدول = sifive_pl2_مطابقت,
 	.init = sifive_pl2_cold_init,
 };

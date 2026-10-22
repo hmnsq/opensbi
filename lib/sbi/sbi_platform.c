@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi/sbi_platform.h>
+#شامل <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+ساکن اندرونی حرف *sbi_platform_feature_id2string(غیرعلامتی طویل feature)
 {
-	char *fstr = NULL;
+	حرف *fstr = تہی;
 
-	if (!feature)
-		return NULL;
+	اگر (!feature)
+		واپس تہی;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	انتخاب (feature) {
+	حالت SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		توڑو;
+	طےشدہ:
+		توڑو;
 	}
 
-	return fstr;
+	واپس fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+خالی sbi_platform_get_features_str(ثابت ساخت sbi_platform *plat,
+				   حرف *features_str, صحیح nfstr)
 {
-	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	غیرعلامتی طویل features, feat = 1UL;
+	حرف *عارضی;
+	صحیح انحراف = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	اگر (!plat || !features_str || !nfstr)
+		واپس;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	اگر (!features)
+		جاؤ مکمل;
 
-	do {
-		if (features & feat) {
-			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
-						       nfstr - offset,
-						       "%s,", temp);
-				if (len < 0)
-					break;
+	کرو {
+		اگر (features & feat) {
+			عارضی = sbi_platform_feature_id2string(feat);
+			اگر (عارضی) {
+				صحیح len = sbi_snprintf(features_str + انحراف,
+						       nfstr - انحراف,
+						       "%s,", عارضی);
+				اگر (len < 0)
+					توڑو;
 
-				if (offset + len >= nfstr) {
+				اگر (انحراف + len >= nfstr) {
 					/* No more space for features */
-					offset = nfstr;
-					break;
-				} else
-					offset = offset + len;
+					انحراف = nfstr;
+					توڑو;
+				} ورنہ
+					انحراف = انحراف + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} جب (feat <= SBI_PLATFORM_HAS_آخری_FEATURE);
 
-done:
-	if (offset)
-		features_str[offset - 1] = '\0';
-	else
+مکمل:
+	اگر (انحراف)
+		features_str[انحراف - 1] = '\0';
+	ورنہ
 		sbi_strncpy(features_str, "none", nfstr);
 }

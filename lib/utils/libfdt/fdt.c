@@ -3,333 +3,333 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#شامل "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#شامل <fdt.h>
+#شامل <libfdt.h>
 
-#include "libfdt_internal.h"
+#شامل "libfdt_internal.h"
 
 /*
  * Minimal sanity check for a read-only tree. fdt_ro_probe_() checks
  * that the given buffer contains what appears to be a flattened
  * device tree with sane information in its header.
  */
-int32_t fdt_ro_probe_(const void *fdt)
+int32_t fdt_ro_probe_(ثابت خالی *fdt)
 {
 	uint32_t totalsize = fdt_totalsize(fdt);
 
-	if (can_assume(VALID_DTB))
-		return totalsize;
+	اگر (can_assume(VALID_DTB))
+		واپس totalsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	اگر ((uintptr_t)fdt & 7)
+		واپس -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
+	اگر (fdt_magic(fdt) == FDT_MAGIC) {
 		/* Complete tree */
-		if (!can_assume(LATEST)) {
-			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
-			if (fdt_last_comp_version(fdt) >
-					FDT_LAST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
+		اگر (!can_assume(LATEST)) {
+			اگر (fdt_نسخہ(fdt) < FDT_پہلا_SUPPORTED_نسخہ)
+				واپس -FDT_ERR_BADVERSION;
+			اگر (fdt_آخری_comp_نسخہ(fdt) >
+					FDT_آخری_SUPPORTED_نسخہ)
+				واپس -FDT_ERR_BADVERSION;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
+	} ورنہ اگر (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
-		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
-			return -FDT_ERR_BADSTATE;
-	} else {
-		return -FDT_ERR_BADMAGIC;
+		اگر (!can_assume(VALID_داخلہ) && fdt_سائز_dt_struct(fdt) == 0)
+			واپس -FDT_ERR_BADSTATE;
+	} ورنہ {
+		واپس -FDT_ERR_BADMAGIC;
 	}
 
-	if (totalsize < INT32_MAX)
-		return totalsize;
-	else
-		return -FDT_ERR_TRUNCATED;
+	اگر (totalsize < INT32_MAX)
+		واپس totalsize;
+	ورنہ
+		واپس -FDT_ERR_TRUNCATED;
 }
 
-static int check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
+ساکن صحیح check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
 {
-	return (off >= hdrsize) && (off <= totalsize);
+	واپس (off >= hdrsize) && (off <= totalsize);
 }
 
-static int check_block_(uint32_t hdrsize, uint32_t totalsize,
-			uint32_t base, uint32_t size)
+ساکن صحیح check_بلاک(uint32_t hdrsize, uint32_t totalsize,
+			uint32_t بنیاد_2, uint32_t سائز)
 {
-	if (!check_off_(hdrsize, totalsize, base))
-		return 0; /* block start out of bounds */
-	if ((base + size) < base)
-		return 0; /* overflow */
-	if (!check_off_(hdrsize, totalsize, base + size))
-		return 0; /* block end out of bounds */
-	return 1;
+	اگر (!check_off_(hdrsize, totalsize, بنیاد_2))
+		واپس 0; /* block start out of bounds */
+	اگر ((بنیاد_2 + سائز) < بنیاد_2)
+		واپس 0; /*حد_سے_تجاوز*/
+	اگر (!check_off_(hdrsize, totalsize, بنیاد_2 + سائز))
+		واپس 0; /* block end out of bounds */
+	واپس 1;
 }
 
-size_t fdt_header_size_(uint32_t version)
+size_t fdt_سرخی_سائز(uint32_t نسخہ)
 {
-	if (version <= 1)
-		return FDT_V1_SIZE;
-	else if (version <= 2)
-		return FDT_V2_SIZE;
-	else if (version <= 3)
-		return FDT_V3_SIZE;
-	else if (version <= 16)
-		return FDT_V16_SIZE;
-	else
-		return FDT_V17_SIZE;
+	اگر (نسخہ <= 1)
+		واپس FDT_V1_سائز;
+	ورنہ اگر (نسخہ <= 2)
+		واپس FDT_V2_سائز;
+	ورنہ اگر (نسخہ <= 3)
+		واپس FDT_V3_سائز;
+	ورنہ اگر (نسخہ <= 16)
+		واپس FDT_V16_سائز;
+	ورنہ
+		واپس FDT_V17_سائز;
 }
 
-size_t fdt_header_size(const void *fdt)
+size_t fdt_سرخی_سائز_2(ثابت خالی *fdt)
 {
-	return can_assume(LATEST) ? FDT_V17_SIZE :
-		fdt_header_size_(fdt_version(fdt));
+	واپس can_assume(LATEST) ? FDT_V17_سائز :
+		fdt_سرخی_سائز(fdt_نسخہ(fdt));
 }
 
-int fdt_check_header(const void *fdt)
+صحیح fdt_check_سرخی(ثابت خالی *fdt)
 {
 	size_t hdrsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	اگر ((uintptr_t)fdt & 7)
+		واپس -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) != FDT_MAGIC)
-		return -FDT_ERR_BADMAGIC;
-	if (!can_assume(LATEST)) {
-		if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-		    || (fdt_last_comp_version(fdt) >
-			FDT_LAST_SUPPORTED_VERSION))
-			return -FDT_ERR_BADVERSION;
-		if (fdt_version(fdt) < fdt_last_comp_version(fdt))
-			return -FDT_ERR_BADVERSION;
+	اگر (fdt_magic(fdt) != FDT_MAGIC)
+		واپس -FDT_ERR_BADMAGIC;
+	اگر (!can_assume(LATEST)) {
+		اگر ((fdt_نسخہ(fdt) < FDT_پہلا_SUPPORTED_نسخہ)
+		    || (fdt_آخری_comp_نسخہ(fdt) >
+			FDT_آخری_SUPPORTED_نسخہ))
+			واپس -FDT_ERR_BADVERSION;
+		اگر (fdt_نسخہ(fdt) < fdt_آخری_comp_نسخہ(fdt))
+			واپس -FDT_ERR_BADVERSION;
 	}
-	hdrsize = fdt_header_size(fdt);
-	if (!can_assume(VALID_DTB)) {
+	hdrsize = fdt_سرخی_سائز_2(fdt);
+	اگر (!can_assume(VALID_DTB)) {
 
-		if ((fdt_totalsize(fdt) < hdrsize)
-		    || (fdt_totalsize(fdt) > INT_MAX))
-			return -FDT_ERR_TRUNCATED;
+		اگر ((fdt_totalsize(fdt) < hdrsize)
+		    || (fdt_totalsize(fdt) > زیادہ_سے_زیادہ_عدد))
+			واپس -FDT_ERR_TRUNCATED;
 
 		/* Bounds check memrsv block */
-		if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		اگر (!check_off_(hdrsize, fdt_totalsize(fdt),
 				fdt_off_mem_rsvmap(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			واپس -FDT_ERR_TRUNCATED;
 	}
 
-	if (!can_assume(VALID_DTB)) {
+	اگر (!can_assume(VALID_DTB)) {
 		/* Bounds check structure block */
-		if (!can_assume(LATEST) && fdt_version(fdt) < 17) {
-			if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		اگر (!can_assume(LATEST) && fdt_نسخہ(fdt) < 17) {
+			اگر (!check_off_(hdrsize, fdt_totalsize(fdt),
 					fdt_off_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
-		} else {
-			if (!check_block_(hdrsize, fdt_totalsize(fdt),
+				واپس -FDT_ERR_TRUNCATED;
+		} ورنہ {
+			اگر (!check_بلاک(hdrsize, fdt_totalsize(fdt),
 					  fdt_off_dt_struct(fdt),
-					  fdt_size_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
+					  fdt_سائز_dt_struct(fdt)))
+				واپس -FDT_ERR_TRUNCATED;
 		}
 
 		/* Bounds check strings block */
-		if (!check_block_(hdrsize, fdt_totalsize(fdt),
-				  fdt_off_dt_strings(fdt),
-				  fdt_size_dt_strings(fdt)))
-			return -FDT_ERR_TRUNCATED;
+		اگر (!check_بلاک(hdrsize, fdt_totalsize(fdt),
+				  fdt_off_dt_لڑیاں(fdt),
+				  fdt_سائز_dt_لڑیاں(fdt)))
+			واپس -FDT_ERR_TRUNCATED;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
+ثابت خالی *fdt_انحراف_ptr(ثابت خالی *fdt, صحیح انحراف, غیرعلامتی صحیح len)
 {
-	unsigned int uoffset = offset;
-	unsigned int absoffset = offset + fdt_off_dt_struct(fdt);
+	غیرعلامتی صحیح uoffset = انحراف;
+	غیرعلامتی صحیح absoffset = انحراف + fdt_off_dt_struct(fdt);
 
-	if (offset < 0)
-		return NULL;
+	اگر (انحراف < 0)
+		واپس تہی;
 
-	if (!can_assume(VALID_INPUT))
-		if ((absoffset < uoffset)
+	اگر (!can_assume(VALID_داخلہ))
+		اگر ((absoffset < uoffset)
 		    || ((absoffset + len) < absoffset)
 		    || (absoffset + len) > fdt_totalsize(fdt))
-			return NULL;
+			واپس تہی;
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
-		if (((uoffset + len) < uoffset)
-		    || ((offset + len) > fdt_size_dt_struct(fdt)))
-			return NULL;
+	اگر (can_assume(LATEST) || fdt_نسخہ(fdt) >= 0x11)
+		اگر (((uoffset + len) < uoffset)
+		    || ((انحراف + len) > fdt_سائز_dt_struct(fdt)))
+			واپس تہی;
 
-	return fdt_offset_ptr_(fdt, offset);
+	واپس fdt_انحراف_ptr_2(fdt, انحراف);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
+uint32_t fdt_اگلا_لیبل(ثابت خالی *fdt, صحیح startoffset, صحیح *nextoffset)
 {
-	const fdt32_t *tagp, *lenp;
-	uint32_t tag;
-	int offset = startoffset;
-	const char *p;
+	ثابت fdt32_t *tagp, *lenp;
+	uint32_t لیبل;
+	صحیح انحراف = startoffset;
+	ثابت حرف *p;
 
 	*nextoffset = -FDT_ERR_TRUNCATED;
-	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
-	if (!can_assume(VALID_DTB) && !tagp)
-		return FDT_END; /* premature end */
-	tag = fdt32_to_cpu(*tagp);
-	offset += FDT_TAGSIZE;
+	tagp = fdt_انحراف_ptr(fdt, انحراف, FDT_TAGSIZE);
+	اگر (!can_assume(VALID_DTB) && !tagp)
+		واپس FDT_انتہا; /* premature end */
+	لیبل = fdt32_مقصد_cpu(*tagp);
+	انحراف += FDT_TAGSIZE;
 
 	*nextoffset = -FDT_ERR_BADSTRUCTURE;
-	switch (tag) {
-	case FDT_BEGIN_NODE:
+	انتخاب (لیبل) {
+	حالت FDT_BEGIN_گرہ:
 		/* skip name */
-		do {
-			p = fdt_offset_ptr(fdt, offset++, 1);
-		} while (p && (*p != '\0'));
-		if (!can_assume(VALID_DTB) && !p)
-			return FDT_END; /* premature end */
-		break;
+		کرو {
+			p = fdt_انحراف_ptr(fdt, انحراف++, 1);
+		} جب (p && (*p != '\0'));
+		اگر (!can_assume(VALID_DTB) && !p)
+			واپس FDT_انتہا; /* premature end */
+		توڑو;
 
-	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (!can_assume(VALID_DTB) && !lenp)
-			return FDT_END; /* premature end */
+	حالت FDT_PROP:
+		lenp = fdt_انحراف_ptr(fdt, انحراف, حجم(*lenp));
+		اگر (!can_assume(VALID_DTB) && !lenp)
+			واپس FDT_انتہا; /* premature end */
 		/* skip-name offset, length and value */
-		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
-			+ fdt32_to_cpu(*lenp);
-		if (!can_assume(LATEST) &&
-		    fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
-		    ((offset - fdt32_to_cpu(*lenp)) % 8) != 0)
-			offset += 4;
-		break;
+		انحراف += حجم(ساخت fdt_property) - FDT_TAGSIZE
+			+ fdt32_مقصد_cpu(*lenp);
+		اگر (!can_assume(LATEST) &&
+		    fdt_نسخہ(fdt) < 0x10 && fdt32_مقصد_cpu(*lenp) >= 8 &&
+		    ((انحراف - fdt32_مقصد_cpu(*lenp)) % 8) != 0)
+			انحراف += 4;
+		توڑو;
 
-	case FDT_END:
-	case FDT_END_NODE:
-	case FDT_NOP:
-		break;
+	حالت FDT_انتہا:
+	حالت FDT_انتہا_گرہ:
+	حالت FDT_NOP:
+		توڑو;
 
-	default:
-		return FDT_END;
+	طےشدہ:
+		واپس FDT_انتہا;
 	}
 
-	if (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
-		return FDT_END; /* premature end */
+	اگر (!fdt_انحراف_ptr(fdt, startoffset, انحراف - startoffset))
+		واپس FDT_انتہا; /* premature end */
 
-	*nextoffset = FDT_TAGALIGN(offset);
-	return tag;
+	*nextoffset = FDT_TAGALIGN(انحراف);
+	واپس لیبل;
 }
 
-int fdt_check_node_offset_(const void *fdt, int offset)
+صحیح fdt_check_گرہ_انحراف(ثابت خالی *fdt, صحیح انحراف)
 {
-	if (!can_assume(VALID_INPUT)
-	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+	اگر (!can_assume(VALID_داخلہ)
+	    && ((انحراف < 0) || (انحراف % FDT_TAGSIZE)))
+		واپس -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
-		return -FDT_ERR_BADOFFSET;
+	اگر (fdt_اگلا_لیبل(fdt, انحراف, &انحراف) != FDT_BEGIN_گرہ)
+		واپس -FDT_ERR_BADOFFSET;
 
-	return offset;
+	واپس انحراف;
 }
 
-int fdt_check_prop_offset_(const void *fdt, int offset)
+صحیح fdt_check_prop_انحراف(ثابت خالی *fdt, صحیح انحراف)
 {
-	if (!can_assume(VALID_INPUT)
-	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+	اگر (!can_assume(VALID_داخلہ)
+	    && ((انحراف < 0) || (انحراف % FDT_TAGSIZE)))
+		واپس -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
-		return -FDT_ERR_BADOFFSET;
+	اگر (fdt_اگلا_لیبل(fdt, انحراف, &انحراف) != FDT_PROP)
+		واپس -FDT_ERR_BADOFFSET;
 
-	return offset;
+	واپس انحراف;
 }
 
-int fdt_next_node(const void *fdt, int offset, int *depth)
+صحیح fdt_اگلا_گرہ(ثابت خالی *fdt, صحیح انحراف, صحیح *گہرائی)
 {
-	int nextoffset = 0;
-	uint32_t tag;
+	صحیح nextoffset = 0;
+	uint32_t لیبل;
 
-	if (offset >= 0)
-		if ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
-			return nextoffset;
+	اگر (انحراف >= 0)
+		اگر ((nextoffset = fdt_check_گرہ_انحراف(fdt, انحراف)) < 0)
+			واپس nextoffset;
 
-	do {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+	کرو {
+		انحراف = nextoffset;
+		لیبل = fdt_اگلا_لیبل(fdt, انحراف, &nextoffset);
 
-		switch (tag) {
-		case FDT_PROP:
-		case FDT_NOP:
-			break;
+		انتخاب (لیبل) {
+		حالت FDT_PROP:
+		حالت FDT_NOP:
+			توڑو;
 
-		case FDT_BEGIN_NODE:
-			if (depth)
-				(*depth)++;
-			break;
+		حالت FDT_BEGIN_گرہ:
+			اگر (گہرائی)
+				(*گہرائی)++;
+			توڑو;
 
-		case FDT_END_NODE:
-			if (depth && ((--(*depth)) < 0))
-				return nextoffset;
-			break;
+		حالت FDT_انتہا_گرہ:
+			اگر (گہرائی && ((--(*گہرائی)) < 0))
+				واپس nextoffset;
+			توڑو;
 
-		case FDT_END:
-			if ((nextoffset >= 0)
-			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !depth))
-				return -FDT_ERR_NOTFOUND;
-			else
-				return nextoffset;
+		حالت FDT_انتہا:
+			اگر ((nextoffset >= 0)
+			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !گہرائی))
+				واپس -FDT_ERR_NOTFOUND;
+			ورنہ
+				واپس nextoffset;
 		}
-	} while (tag != FDT_BEGIN_NODE);
+	} جب (لیبل != FDT_BEGIN_گرہ);
 
-	return offset;
+	واپس انحراف;
 }
 
-int fdt_first_subnode(const void *fdt, int offset)
+صحیح fdt_پہلا_subnode(ثابت خالی *fdt, صحیح انحراف)
 {
-	int depth = 0;
+	صحیح گہرائی = 0;
 
-	offset = fdt_next_node(fdt, offset, &depth);
-	if (offset < 0 || depth != 1)
-		return -FDT_ERR_NOTFOUND;
+	انحراف = fdt_اگلا_گرہ(fdt, انحراف, &گہرائی);
+	اگر (انحراف < 0 || گہرائی != 1)
+		واپس -FDT_ERR_NOTFOUND;
 
-	return offset;
+	واپس انحراف;
 }
 
-int fdt_next_subnode(const void *fdt, int offset)
+صحیح fdt_اگلا_subnode(ثابت خالی *fdt, صحیح انحراف)
 {
-	int depth = 1;
+	صحیح گہرائی = 1;
 
 	/*
 	 * With respect to the parent, the depth of the next subnode will be
 	 * the same as the last.
 	 */
-	do {
-		offset = fdt_next_node(fdt, offset, &depth);
-		if (offset < 0 || depth < 1)
-			return -FDT_ERR_NOTFOUND;
-	} while (depth > 1);
+	کرو {
+		انحراف = fdt_اگلا_گرہ(fdt, انحراف, &گہرائی);
+		اگر (انحراف < 0 || گہرائی < 1)
+			واپس -FDT_ERR_NOTFOUND;
+	} جب (گہرائی > 1);
 
-	return offset;
+	واپس انحراف;
 }
 
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
+ثابت حرف *fdt_ڈھونڈو_string(ثابت حرف *strtab, صحیح tabsize, ثابت حرف *s)
 {
-	int len = strlen(s) + 1;
-	const char *last = strtab + tabsize - len;
-	const char *p;
+	صحیح len = لڑی_لمبائی(s) + 1;
+	ثابت حرف *آخری = strtab + tabsize - len;
+	ثابت حرف *p;
 
-	for (p = strtab; p <= last; p++)
-		if (memcmp(p, s, len) == 0)
-			return p;
-	return NULL;
+	برائے (p = strtab; p <= آخری; p++)
+		اگر (memcmp(p, s, len) == 0)
+			واپس p;
+	واپس تہی;
 }
 
-int fdt_move(const void *fdt, void *buf, int bufsize)
+صحیح fdt_move(ثابت خالی *fdt, خالی *buf, صحیح bufsize)
 {
-	if (!can_assume(VALID_INPUT) && bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	اگر (!can_assume(VALID_داخلہ) && bufsize < 0)
+		واپس -FDT_ERR_NOSPACE;
 
 	FDT_RO_PROBE(fdt);
 
-	if (fdt_totalsize(fdt) > (unsigned int)bufsize)
-		return -FDT_ERR_NOSPACE;
+	اگر (fdt_totalsize(fdt) > (غیرعلامتی صحیح)bufsize)
+		واپس -FDT_ERR_NOSPACE;
 
 	memmove(buf, fdt, fdt_totalsize(fdt));
-	return 0;
+	واپس 0;
 }

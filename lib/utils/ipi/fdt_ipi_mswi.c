@@ -7,62 +7,62 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ساکن صحیح ipi_mswi_cold_init(ثابت خالی *fdt, صحیح nodeoff,
+			      ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
-	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	صحیح rc;
+	غیرعلامتی طویل انحراف;
+	ساخت aclint_mswi_ڈیٹا *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(حجم(*ms));
+	اگر (!ms)
+		واپس SBI_ENOMEM;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
-				   &ms->addr, &ms->size, NULL, NULL,
-				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	rc = fdt_parse_aclint_گرہ(fdt, nodeoff, false, false,
+				   &ms->addr, &ms->سائز, تہی, تہی,
+				   &ms->پہلا_hartid, &ms->hart_گنتی);
+	اگر (rc) {
 		sbi_free(ms);
-		return rc;
+		واپس rc;
 	}
 
-	if (match->data) {
+	اگر (مطابقت->ڈیٹا) {
 		/* Adjust MSWI address and size for CLINT device */
-		offset = *((unsigned long *)match->data);
-		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
-		ms->size = ACLINT_MSWI_SIZE;
+		انحراف = *((غیرعلامتی طویل *)مطابقت->ڈیٹا);
+		ms->addr += انحراف;
+		اگر ((ms->سائز - انحراف) < ACLINT_MSWI_سائز)
+			واپس SBI_EINVAL;
+		ms->سائز = ACLINT_MSWI_سائز;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	اگر (rc) {
 		sbi_free(ms);
-		return rc;
+		واپس rc;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
+ساکن ثابت غیرعلامتی طویل clint_انحراف = CLINT_MSWI_انحراف;
 
-static const struct fdt_match ipi_mswi_match[] = {
-	{ .compatible = "riscv,clint0", .data = &clint_offset },
-	{ .compatible = "sifive,clint0", .data = &clint_offset },
-	{ .compatible = "thead,c900-clint", .data = &clint_offset },
+ساکن ثابت ساخت fdt_مطابقت ipi_mswi_مطابقت[] = {
+	{ .compatible = "riscv,clint0", .ڈیٹا = &clint_انحراف },
+	{ .compatible = "sifive,clint0", .ڈیٹا = &clint_انحراف },
+	{ .compatible = "thead,c900-clint", .ڈیٹا = &clint_انحراف },
 	{ .compatible = "thead,c900-aclint-mswi" },
 	{ .compatible = "mips,p8700-aclint-mswi" },
 	{ .compatible = "riscv,aclint-mswi" },
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
-	.match_table = ipi_mswi_match,
+ثابت ساخت fdt_driver fdt_ipi_mswi = {
+	.مطابقت_جدول = ipi_mswi_مطابقت,
 	.init = ipi_mswi_cold_init,
 };

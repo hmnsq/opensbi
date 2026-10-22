@@ -7,49 +7,49 @@
  *   Minda Chen <minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/dw_i2c.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi/sbi_string.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
+#شامل <sbi_utils/i2c/dw_i2c.h>
+#شامل <sbi_utils/i2c/fdt_i2c.h>
 
-static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+ساکن صحیح fdt_dw_i2c_init(ثابت خالی *fdt, صحیح nodeoff,
+			   ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	int rc;
-	struct dw_i2c_adapter *adapter;
+	صحیح rc;
+	ساخت dw_i2c_adapter *adapter;
 	u64 addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(حجم(*adapter));
+	اگر (!adapter)
+		واپس SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_گرہ_addr_سائز(fdt, nodeoff, 0, &addr, تہی);
+	اگر (rc) {
 		sbi_free(adapter);
-		return rc;
+		واپس rc;
 	}
 
 	adapter->addr = addr;
 
 	rc = dw_i2c_init(&adapter->adapter, nodeoff);
-	if (rc) {
+	اگر (rc) {
 		sbi_free(adapter);
-		return rc;
+		واپس rc;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static const struct fdt_match fdt_dw_i2c_match[] = {
+ساکن ثابت ساخت fdt_مطابقت fdt_dw_i2c_مطابقت[] = {
 	{ .compatible = "snps,designware-i2c" },
 	{ .compatible = "starfive,jh7110-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_dw = {
-	.match_table = fdt_dw_i2c_match,
+ثابت ساخت fdt_driver fdt_i2c_adapter_dw = {
+	.مطابقت_جدول = fdt_dw_i2c_مطابقت,
 	.init = fdt_dw_i2c_init,
 };

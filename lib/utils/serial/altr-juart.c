@@ -7,68 +7,68 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_console.h>
+#شامل <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
-#define JUART_DATA_OFFSET		0x00
-# define JUART_DATA_DATA_MASK		0x000000ff
-# define JUART_DATA_RVALID		(1 << 15)
-# define JUART_DATA_RAVAIL_MASK		0xffff0000
-# define JUART_DATA_RAVAIL_SHIFT	16
-#define JUART_CTRL_OFFSET		0x04
+#تعریف_کرو JUART_ڈیٹا_انحراف		0x00
+# define JUART_ڈیٹا_ڈیٹا_نقاب		0x000000ff
+# define JUART_ڈیٹا_RVALID		(1 << 15)
+# define JUART_ڈیٹا_RAVAIL_نقاب		0xffff0000
+# define JUART_ڈیٹا_RAVAIL_سرکاؤ	16
+#تعریف_کرو JUART_CTRL_انحراف		0x04
 # define JUART_CTRL_RE			(1 << 0)
 # define JUART_CTRL_WE			(1 << 1)
 # define JUART_CTRL_RI			(1 << 8)
 # define JUART_CTRL_WI			(1 << 9)
 # define JUART_CTRL_AC			(1 << 10)
-# define JUART_CTRL_WSPACE_MASK		0xffff0000
-# define JUART_CTRL_WSPACE_SHIFT	16
+# define JUART_CTRL_WSPACE_نقاب		0xffff0000
+# define JUART_CTRL_WSPACE_سرکاؤ	16
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+ساکن متلون حرف *altr_juart_بنیاد;
 
-static u32 get_reg(u32 offset)
+ساکن u32 get_reg(u32 انحراف)
 {
-	return readl(altr_juart_base + offset);
+	واپس readl(altr_juart_بنیاد + انحراف);
 }
 
-static void set_reg(u32 offset, u32 val)
+ساکن خالی سیٹ_reg(u32 انحراف, u32 val)
 {
-	writel(val, altr_juart_base + offset);
+	writel(val, altr_juart_بنیاد + انحراف);
 }
 
-static void altr_juart_putc(char ch)
+ساکن خالی altr_juart_putc(حرف ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	جب(!(get_reg(JUART_CTRL_انحراف) & JUART_CTRL_WSPACE_نقاب))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	سیٹ_reg(JUART_ڈیٹا_انحراف, (غیرعلامتی حرف)ch);
 }
 
-static int altr_juart_getc(void)
+ساکن صحیح altr_juart_getc(خالی)
 {
-	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	u32 reg = get_reg(JUART_ڈیٹا_انحراف);
+	اگر (reg & JUART_ڈیٹا_RVALID)
+		واپس reg & JUART_ڈیٹا_ڈیٹا_نقاب;
 
-	return -1;
+	واپس -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+ساکن ساخت sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+صحیح altr_juart_init(غیرعلامتی طویل بنیاد_2)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_بنیاد = (متلون حرف *)بنیاد_2;
 
-	sbi_console_set_device(&altr_juart_console);
+	sbi_console_سیٹ_device(&altr_juart_console);
 
-	return 0;
+	واپس 0;
 }

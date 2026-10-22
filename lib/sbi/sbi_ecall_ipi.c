@@ -8,37 +8,37 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_ipi.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_ecall.h>
+#شامل <sbi/sbi_ecall_interface.h>
+#شامل <sbi/sbi_trap.h>
+#شامل <sbi/sbi_ipi.h>
 
-static int sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+ساکن صحیح sbi_ecall_ipi_handler(غیرعلامتی طویل extid, غیرعلامتی طویل funcid,
+				 ساخت sbi_trap_regs *regs,
+				 ساخت sbi_ecall_return *برآمد)
 {
-	int ret = 0;
+	صحیح ret = 0;
 
-	if (funcid == SBI_EXT_IPI_SEND_IPI)
+	اگر (funcid == SBI_EXT_IPI_SEND_IPI)
 		ret = sbi_ipi_send_smode(regs->a0, regs->a1);
-	else
+	ورنہ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	واپس ret;
 }
 
-struct sbi_ecall_extension ecall_ipi;
+ساخت sbi_ecall_extension ecall_ipi;
 
-static int sbi_ecall_ipi_register_extensions(void)
+ساکن صحیح sbi_ecall_ipi_رجسٹر_extensions(خالی)
 {
-	return sbi_ecall_register_extension(&ecall_ipi);
+	واپس sbi_ecall_رجسٹر_extension(&ecall_ipi);
 }
 
-struct sbi_ecall_extension ecall_ipi = {
+ساخت sbi_ecall_extension ecall_ipi = {
 	.name			= "ipi",
-	.extid_start		= SBI_EXT_IPI,
-	.extid_end		= SBI_EXT_IPI,
-	.register_extensions	= sbi_ecall_ipi_register_extensions,
+	.extid_آغاز		= SBI_EXT_IPI,
+	.extid_انتہا		= SBI_EXT_IPI,
+	.رجسٹر_extensions	= sbi_ecall_ipi_رجسٹر_extensions,
 	.handle			= sbi_ecall_ipi_handler,
 };

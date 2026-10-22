@@ -3,129 +3,129 @@
  *
  * Author: Ivan Orlov <ivan.orlov0322@gmail.com>
  */
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_unit_test.h>
+#شامل <sbi/sbi_bitmap.h>
+#شامل <sbi/sbi_unit_test.h>
 
-#define DATA_SIZE sizeof(data_zero)
-#define DATA_BIT_SIZE (DATA_SIZE * 8)
+#تعریف_کرو ڈیٹا_سائز حجم(ڈیٹا_zero)
+#تعریف_کرو ڈیٹا_ثنائی_ہندسہ_سائز (ڈیٹا_سائز * 8)
 
-static unsigned long data_a[] = { 0xDEADBEEF, 0x00BAB10C, 0x1BADB002, 0xABADBABE };
-static unsigned long data_b[] = { 0xC00010FF, 0x00BAB10C, 0xBAAAAAAD, 0xBADDCAFE };
-static unsigned long data_zero[] = { 0, 0, 0, 0 };
+ساکن غیرعلامتی طویل ڈیٹا_a[] = { 0xDEADBEEF, 0x00BAB10C, 0x1BADB002, 0xABADBABE };
+ساکن غیرعلامتی طویل ڈیٹا_b[] = { 0xC00010FF, 0x00BAB10C, 0xBAAAAAAD, 0xBADDCAFE };
+ساکن غیرعلامتی طویل ڈیٹا_zero[] = { 0, 0, 0, 0 };
 
-static void bitmap_and_test(struct sbiunit_test_case *test)
+ساکن خالی bitmap_and_test(ساخت sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_and_b[] = { data_a[0] & data_b[0], data_a[1] & data_b[1],
-				    data_a[2] & data_b[2], data_a[3] & data_b[3] };
+	غیرعلامتی طویل res[ڈیٹا_سائز];
+	غیرعلامتی طویل a_and_b[] = { ڈیٹا_a[0] & ڈیٹا_b[0], ڈیٹا_a[1] & ڈیٹا_b[1],
+				    ڈیٹا_a[2] & ڈیٹا_b[2], ڈیٹا_a[3] & ڈیٹا_b[3] };
 
-	__bitmap_and(res, data_a, data_b, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, a_and_b, DATA_SIZE);
+	__bitmap_and(res, ڈیٹا_a, ڈیٹا_b, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, a_and_b, ڈیٹا_سائز);
 
 	/* a & a = a */
-	__bitmap_and(res, data_a, data_a, DATA_BIT_SIZE);
-	SBIUNIT_ASSERT_MEMEQ(test, res, data_a, DATA_SIZE);
+	__bitmap_and(res, ڈیٹا_a, ڈیٹا_a, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_ASSERT_MEMEQ(test, res, ڈیٹا_a, ڈیٹا_سائز);
 
 	/* a & 0 = 0 */
-	__bitmap_and(res, data_a, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_and(res, ڈیٹا_a, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 
 	/* 0 & 0 = 0 */
-	__bitmap_and(res, data_zero, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_and(res, ڈیٹا_zero, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 
-	sbi_memcpy(res, data_zero, DATA_SIZE);
+	sbi_memcpy(res, ڈیٹا_zero, ڈیٹا_سائز);
 	/* Cover zero 'bits' argument */
-	__bitmap_and(res, data_a, data_b, 0);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_and(res, ڈیٹا_a, ڈیٹا_b, 0);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 }
 
-static void bitmap_or_test(struct sbiunit_test_case *test)
+ساکن خالی bitmap_or_test(ساخت sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_or_b[] = { data_a[0] | data_b[0], data_a[1] | data_b[1],
-				   data_a[2] | data_b[2], data_a[3] | data_b[3] };
+	غیرعلامتی طویل res[ڈیٹا_سائز];
+	غیرعلامتی طویل a_or_b[] = { ڈیٹا_a[0] | ڈیٹا_b[0], ڈیٹا_a[1] | ڈیٹا_b[1],
+				   ڈیٹا_a[2] | ڈیٹا_b[2], ڈیٹا_a[3] | ڈیٹا_b[3] };
 
-	__bitmap_or(res, data_a, data_b, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, a_or_b, DATA_SIZE);
+	__bitmap_or(res, ڈیٹا_a, ڈیٹا_b, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, a_or_b, ڈیٹا_سائز);
 
 	/* a | a = a */
-	__bitmap_or(res, data_a, data_a, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_a, DATA_SIZE);
+	__bitmap_or(res, ڈیٹا_a, ڈیٹا_a, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_a, ڈیٹا_سائز);
 
 	/* a | 0 = a */
-	__bitmap_or(res, data_a, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_a, DATA_SIZE);
+	__bitmap_or(res, ڈیٹا_a, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_a, ڈیٹا_سائز);
 
 	/* 0 | 0 = 0 */
-	__bitmap_or(res, data_zero, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_or(res, ڈیٹا_zero, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 
-	sbi_memcpy(res, data_zero, DATA_SIZE);
-	__bitmap_or(res, data_a, data_b, 0);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	sbi_memcpy(res, ڈیٹا_zero, ڈیٹا_سائز);
+	__bitmap_or(res, ڈیٹا_a, ڈیٹا_b, 0);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 }
 
-static void bitmap_xor_test(struct sbiunit_test_case *test)
+ساکن خالی bitmap_xor_test(ساخت sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_xor_b[] = { data_a[0] ^ data_b[0], data_a[1] ^ data_b[1],
-				    data_a[2] ^ data_b[2], data_a[3] ^ data_b[3] };
+	غیرعلامتی طویل res[ڈیٹا_سائز];
+	غیرعلامتی طویل a_xor_b[] = { ڈیٹا_a[0] ^ ڈیٹا_b[0], ڈیٹا_a[1] ^ ڈیٹا_b[1],
+				    ڈیٹا_a[2] ^ ڈیٹا_b[2], ڈیٹا_a[3] ^ ڈیٹا_b[3] };
 
-	__bitmap_xor(res, data_a, data_b, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, a_xor_b, DATA_SIZE);
+	__bitmap_xor(res, ڈیٹا_a, ڈیٹا_b, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, a_xor_b, ڈیٹا_سائز);
 
 	/* a ^ 0 = a */
-	__bitmap_xor(res, data_a, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_a, DATA_SIZE);
+	__bitmap_xor(res, ڈیٹا_a, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_a, ڈیٹا_سائز);
 
 	/* a ^ a = 0 */
-	__bitmap_xor(res, data_a, data_a, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_xor(res, ڈیٹا_a, ڈیٹا_a, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 
 	/* 0 ^ 0 = 0 */
-	__bitmap_xor(res, data_zero, data_zero, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	__bitmap_xor(res, ڈیٹا_zero, ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 
-	sbi_memcpy(res, data_zero, DATA_SIZE);
-	__bitmap_xor(res, data_a, data_b, 0);
-	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
+	sbi_memcpy(res, ڈیٹا_zero, ڈیٹا_سائز);
+	__bitmap_xor(res, ڈیٹا_a, ڈیٹا_b, 0);
+	SBIUNIT_EXPECT_MEMEQ(test, res, ڈیٹا_zero, ڈیٹا_سائز);
 }
 
-static void bitmap_empty_test(struct sbiunit_test_case *test)
+ساکن خالی bitmap_خالی_خانے_test(ساخت sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
+	غیرعلامتی طویل res[ڈیٹا_سائز];
 
 	/* All zeros = empty */
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_zero, DATA_BIT_SIZE), true);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(ڈیٹا_zero, ڈیٹا_ثنائی_ہندسہ_سائز), true);
 
 	/* Non-zero data = not empty */
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_a, DATA_BIT_SIZE), false);
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_b, DATA_BIT_SIZE), false);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(ڈیٹا_a, ڈیٹا_ثنائی_ہندسہ_سائز), false);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(ڈیٹا_b, ڈیٹا_ثنائی_ہندسہ_سائز), false);
 
 	/* bitmap_zero creates empty bitmap */
-	bitmap_zero(res, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(res, DATA_BIT_SIZE), true);
+	bitmap_zero(res, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(res, ڈیٹا_ثنائی_ہندسہ_سائز), true);
 
 	/* bitmap_fill creates non-empty bitmap */
-	bitmap_fill(res, DATA_BIT_SIZE);
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(res, DATA_BIT_SIZE), false);
+	bitmap_fill(res, ڈیٹا_ثنائی_ہندسہ_سائز);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(res, ڈیٹا_ثنائی_ہندسہ_سائز), false);
 
 	/* Single bit set = not empty */
-	bitmap_zero(res, DATA_BIT_SIZE);
-	bitmap_set(res, 0, 1);
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(res, DATA_BIT_SIZE), false);
+	bitmap_zero(res, ڈیٹا_ثنائی_ہندسہ_سائز);
+	bitmap_سیٹ(res, 0, 1);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(res, ڈیٹا_ثنائی_ہندسہ_سائز), false);
 
 	/* Zero nbits = empty */
-	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_a, 0), true);
+	SBIUNIT_EXPECT_EQ(test, bitmap_خالی_خانے(ڈیٹا_a, 0), true);
 }
 
-static struct sbiunit_test_case bitmap_test_cases[] = {
+ساکن ساخت sbiunit_test_case bitmap_test_cases[] = {
 	SBIUNIT_TEST_CASE(bitmap_and_test),
 	SBIUNIT_TEST_CASE(bitmap_or_test),
 	SBIUNIT_TEST_CASE(bitmap_xor_test),
-	SBIUNIT_TEST_CASE(bitmap_empty_test),
-	SBIUNIT_END_CASE,
+	SBIUNIT_TEST_CASE(bitmap_خالی_خانے_test),
+	SBIUNIT_انتہا_CASE,
 };
 
 SBIUNIT_TEST_SUITE(bitmap_test_suite, bitmap_test_cases);

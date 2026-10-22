@@ -4,74 +4,74 @@
  * Copyright (c) 2021 Samuel Holland <samuel@sholland.org>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#شامل <libfdt.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_bitops.h>
+#شامل <sbi/sbi_error.h>
+#شامل <sbi/sbi_system.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
+#شامل <sbi_utils/fdt/fdt_helper.h>
 
-#define WDT_KEY_VAL			0x16aa0000
+#تعریف_کرو WDT_کلید_VAL			0x16aa0000
 
-#define WDT_SOFT_RST_REG		0x08
-#define WDT_SOFT_RST_EN			BIT(0)
+#تعریف_کرو WDT_SOFT_RST_REG		0x08
+#تعریف_کرو WDT_SOFT_RST_EN			ثنائی_ہندسہ(0)
 
-#define WDT_MODE_REG			0x18
+#تعریف_کرو WDT_منوال_REG			0x18
 
-static volatile char *sunxi_wdt_base;
+ساکن متلون حرف *sunxi_wdt_بنیاد;
 
-static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
+ساکن صحیح sunxi_wdt_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 1;
+	انتخاب (type) {
+	حالت SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالت SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		واپس 1;
 	}
 
-	return 0;
+	واپس 0;
 }
 
-static void sunxi_wdt_system_reset(u32 type, u32 reason)
+ساکن خالی sunxi_wdt_system_reset(u32 type, u32 reason)
 {
 	/* Disable the watchdog. */
-	writel_relaxed(WDT_KEY_VAL,
-		       sunxi_wdt_base + WDT_MODE_REG);
+	writel_relaxed(WDT_کلید_VAL,
+		       sunxi_wdt_بنیاد + WDT_منوال_REG);
 
 	/* Trigger soft reset. */
-	writel_relaxed(WDT_KEY_VAL | WDT_SOFT_RST_EN,
-		       sunxi_wdt_base + WDT_SOFT_RST_REG);
+	writel_relaxed(WDT_کلید_VAL | WDT_SOFT_RST_EN,
+		       sunxi_wdt_بنیاد + WDT_SOFT_RST_REG);
 }
 
-static struct sbi_system_reset_device sunxi_wdt_reset = {
+ساکن ساخت sbi_system_reset_device sunxi_wdt_reset = {
 	.name = "sunxi-wdt-reset",
 	.system_reset_check = sunxi_wdt_system_reset_check,
 	.system_reset = sunxi_wdt_system_reset,
 };
 
-static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ساکن صحیح sunxi_wdt_reset_init(ثابت خالی *fdt, صحیح nodeoff,
+				ثابت ساخت fdt_مطابقت *مطابقت)
 {
 	uint64_t reg_addr;
-	int rc;
+	صحیح rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_گرہ_addr_سائز(fdt, nodeoff, 0, &reg_addr, تہی);
+	اگر (rc < 0 || !reg_addr)
+		واپس SBI_ENODEV;
 
-	sunxi_wdt_base = (volatile char *)(unsigned long)reg_addr;
+	sunxi_wdt_بنیاد = (متلون حرف *)(غیرعلامتی طویل)reg_addr;
 
-	sbi_system_reset_add_device(&sunxi_wdt_reset);
+	sbi_system_reset_جوڑو_device(&sunxi_wdt_reset);
 
-	return 0;
+	واپس 0;
 }
 
-static const struct fdt_match sunxi_wdt_reset_match[] = {
+ساکن ثابت ساخت fdt_مطابقت sunxi_wdt_reset_مطابقت[] = {
 	{ .compatible = "allwinner,sun20i-d1-wdt-reset" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sunxi_wdt = {
-	.match_table = sunxi_wdt_reset_match,
+ثابت ساخت fdt_driver fdt_reset_sunxi_wdt = {
+	.مطابقت_جدول = sunxi_wdt_reset_مطابقت,
 	.init = sunxi_wdt_reset_init,
 };

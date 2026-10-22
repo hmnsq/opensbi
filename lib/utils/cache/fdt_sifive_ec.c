@@ -4,192 +4,192 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_platform.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#شامل <libfdt.h>
+#شامل <sbi/riscv_io.h>
+#شامل <sbi/sbi_heap.h>
+#شامل <sbi/sbi_platform.h>
+#شامل <sbi_utils/cache/fdt_cache.h>
+#شامل <sbi_utils/fdt/fdt_driver.h>
 
-#define SIFIVE_EC_FEATURE_DISABLE_OFF	0x100UL
-#define SIFIVE_EC_FLUSH_CMD_OFF		0x800UL
-#define SIFIVE_EC_FLUSH_STATUS_OFF	0x808UL
-#define SIFIVE_EC_FLUSH_ADDR_OFF	0x810UL
-#define SIFIVE_EC_MODE_CTRL		0xa00UL
+#تعریف_کرو SIFIVE_EC_FEATURE_DISABLE_OFF	0x100UL
+#تعریف_کرو SIFIVE_EC_FLUSH_CMD_OFF		0x800UL
+#تعریف_کرو SIFIVE_EC_FLUSH_حالت_OFF	0x808UL
+#تعریف_کرو SIFIVE_EC_FLUSH_ADDR_OFF	0x810UL
+#تعریف_کرو SIFIVE_EC_منوال_CTRL		0xa00UL
 
-#define SIFIVE_EC_FLUSH_COMPLETION_MASK	BIT(0)
+#تعریف_کرو SIFIVE_EC_FLUSH_COMPLETION_نقاب	ثنائی_ہندسہ(0)
 
-#define SIFIVE_EC_CLEANINV_ALL_CMD	0x3
+#تعریف_کرو SIFIVE_EC_CLEANINV_ALL_CMD	0x3
 
-#define SIFIVE_EC_FEATURE_DISABLE_VAL	0
+#تعریف_کرو SIFIVE_EC_FEATURE_DISABLE_VAL	0
 
-struct sifive_ec_quirks {
-	bool two_mode;
-	char *reg_name;
+ساخت sifive_ec_quirks {
+	bool two_منوال;
+	حرف *reg_name;
 };
 
-struct sifive_ec_slice {
-	void *addr;
-	bool last_slice;
+ساخت sifive_ec_قاش {
+	خالی *addr;
+	bool آخری_قاش;
 };
 
-struct sifive_ec {
-	struct cache_device dev;
-	struct sifive_ec_slice *slices;
+ساخت sifive_ec {
+	ساخت cache_device dev;
+	ساخت sifive_ec_قاش *slices;
 };
 
-#define to_ec(_dev) container_of(_dev, struct sifive_ec, dev)
+#تعریف_کرو مقصد_ec(_dev) container_کا(_dev, ساخت sifive_ec, dev)
 
-static int sifive_ec_flush_all(struct cache_device *dev)
+ساکن صحیح sifive_ec_flush_all(ساخت cache_device *dev)
 {
-	struct sifive_ec *ec_dev = to_ec(dev);
-	struct sifive_ec_slice *slices = ec_dev->slices;
+	ساخت sifive_ec *ec_dev = مقصد_ec(dev);
+	ساخت sifive_ec_قاش *slices = ec_dev->slices;
 	u32 cmd = SIFIVE_EC_CLEANINV_ALL_CMD, i = 0;
-	void *addr;
+	خالی *addr;
 
-	do {
+	کرو {
 		addr = slices[i].addr;
 
-		writel((int)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF);
-		writel((int)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF + sizeof(u32));
+		writel((صحیح)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF);
+		writel((صحیح)-1, addr + SIFIVE_EC_FLUSH_ADDR_OFF + حجم(u32));
 		writel(cmd, addr + SIFIVE_EC_FLUSH_CMD_OFF);
-	} while (!slices[i++].last_slice);
+	} جب (!slices[i++].آخری_قاش);
 
 	i = 0;
-	do {
+	کرو {
 		addr = slices[i].addr;
-		do {} while (!(readl(addr + SIFIVE_EC_FLUSH_STATUS_OFF) &
-				SIFIVE_EC_FLUSH_COMPLETION_MASK));
-	} while (!slices[i++].last_slice);
+		کرو {} جب (!(readl(addr + SIFIVE_EC_FLUSH_حالت_OFF) &
+				SIFIVE_EC_FLUSH_COMPLETION_نقاب));
+	} جب (!slices[i++].آخری_قاش);
 
-	return 0;
+	واپس 0;
 }
 
-int sifive_ec_warm_init(struct cache_device *dev)
+صحیح sifive_ec_warm_init(ساخت cache_device *dev)
 {
-	struct sifive_ec *ec_dev = to_ec(dev);
-	struct sifive_ec_slice *slices = ec_dev->slices;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int i = 0;
+	ساخت sifive_ec *ec_dev = مقصد_ec(dev);
+	ساخت sifive_ec_قاش *slices = ec_dev->slices;
+	ساخت sbi_domain *dom = sbi_domain_thishart_ptr();
+	صحیح i = 0;
 
-	if (dom->boot_hartid == current_hartid()) {
-		do {
+	اگر (dom->boot_hartid == current_hartid()) {
+		کرو {
 			writel(SIFIVE_EC_FEATURE_DISABLE_VAL,
 			       slices[i].addr + SIFIVE_EC_FEATURE_DISABLE_OFF);
-		} while (!slices[i++].last_slice);
+		} جب (!slices[i++].آخری_قاش);
 	}
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static struct cache_ops sifive_ec_ops = {
+ساکن ساخت cache_ops sifive_ec_ops = {
 	.warm_init = sifive_ec_warm_init,
 	.cache_flush_all = sifive_ec_flush_all,
 };
 
-static int sifive_ec_slices_cold_init(const void *fdt, int nodeoff,
-				      struct sifive_ec_slice *slices,
-				      const struct sifive_ec_quirks *quirks)
+ساکن صحیح sifive_ec_slices_cold_init(ثابت خالی *fdt, صحیح nodeoff,
+				      ساخت sifive_ec_قاش *slices,
+				      ثابت ساخت sifive_ec_quirks *quirks)
 {
-	int rc, subnode, slice_idx = -1;
-	u64 reg_addr, size, start_addr = -1, end_addr = 0;
+	صحیح rc, subnode, قاش_idx = -1;
+	u64 reg_addr, سائز, آغاز_addr = -1, انتہا_addr = 0;
 
 	fdt_for_each_subnode(subnode, fdt, nodeoff) {
-		rc = fdt_get_node_addr_size_by_name(fdt, subnode, quirks->reg_name, &reg_addr,
-						    &size);
-		if (rc < 0)
-			return SBI_ENODEV;
+		rc = fdt_get_گرہ_addr_سائز_by_name(fdt, subnode, quirks->reg_name, &reg_addr,
+						    &سائز);
+		اگر (rc < 0)
+			واپس SBI_ENODEV;
 
-		if (reg_addr < start_addr)
-			start_addr = reg_addr;
+		اگر (reg_addr < آغاز_addr)
+			آغاز_addr = reg_addr;
 
-		if (reg_addr + size > end_addr)
-			end_addr = reg_addr + size;
+		اگر (reg_addr + سائز > انتہا_addr)
+			انتہا_addr = reg_addr + سائز;
 
-		slices[++slice_idx].addr = (void *)(uintptr_t)reg_addr;
+		slices[++قاش_idx].addr = (خالی *)(uintptr_t)reg_addr;
 	}
-	slices[slice_idx].last_slice = true;
+	slices[قاش_idx].آخری_قاش = true;
 
 	/* Only enable the pmp to protect the EC m-mode region when it support two mode */
-	if (quirks->two_mode) {
-		rc = sbi_domain_root_add_memrange((unsigned long)start_addr,
-						  (unsigned long)(end_addr - start_addr),
-						  BIT(12),
+	اگر (quirks->two_منوال) {
+		rc = sbi_domain_جڑ_جوڑو_memrange((غیرعلامتی طویل)آغاز_addr,
+						  (غیرعلامتی طویل)(انتہا_addr - آغاز_addr),
+						  ثنائی_ہندسہ(12),
 						  (SBI_DOMAIN_MEMREGION_MMIO |
 						   SBI_DOMAIN_MEMREGION_M_READABLE |
 						   SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		اگر (rc)
+			واپس rc;
 	}
 
-	return SBI_OK;
+	واپس SBI_OK;
 }
 
-static int sifive_ec_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساکن صحیح sifive_ec_cold_init(ثابت خالی *fdt, صحیح nodeoff, ثابت ساخت fdt_مطابقت *مطابقت)
 {
-	const struct sifive_ec_quirks *quirks = match->data;
-	struct sifive_ec_slice *slices;
-	struct sifive_ec *ec_dev;
-	struct cache_device *dev;
-	int subnode, rc = SBI_ENOMEM;
-	u32 slice_count = 0;
+	ثابت ساخت sifive_ec_quirks *quirks = مطابقت->ڈیٹا;
+	ساخت sifive_ec_قاش *slices;
+	ساخت sifive_ec *ec_dev;
+	ساخت cache_device *dev;
+	صحیح subnode, rc = SBI_ENOMEM;
+	u32 قاش_گنتی = 0;
 
 	/* Count the number of slices */
 	fdt_for_each_subnode(subnode, fdt, nodeoff)
-		slice_count++;
+		قاش_گنتی++;
 
 	/* Need at least one slice */
-	if (!slice_count)
-		return SBI_EINVAL;
+	اگر (!قاش_گنتی)
+		واپس SBI_EINVAL;
 
-	ec_dev = sbi_zalloc(sizeof(*ec_dev));
-	if (!ec_dev)
-		return SBI_ENOMEM;
+	ec_dev = sbi_zalloc(حجم(*ec_dev));
+	اگر (!ec_dev)
+		واپس SBI_ENOMEM;
 
-	slices = sbi_zalloc(slice_count * sizeof(*slices));
-	if (!slices)
-		goto free_ec;
+	slices = sbi_zalloc(قاش_گنتی * حجم(*slices));
+	اگر (!slices)
+		جاؤ free_ec;
 
 	rc = sifive_ec_slices_cold_init(fdt, nodeoff, slices, quirks);
-	if (rc)
-		goto free_slice;
+	اگر (rc)
+		جاؤ free_قاش;
 
 	dev = &ec_dev->dev;
 	dev->ops = &sifive_ec_ops;
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc)
-		goto free_slice;
+	rc = fdt_cache_جوڑو(fdt, nodeoff, dev);
+	اگر (rc)
+		جاؤ free_قاش;
 
 	ec_dev->slices = slices;
 
-	return SBI_OK;
+	واپس SBI_OK;
 
-free_slice:
+free_قاش:
 	sbi_free(slices);
 free_ec:
 	sbi_free(ec_dev);
-	return rc;
+	واپس rc;
 }
 
-static const struct sifive_ec_quirks sifive_extensiblecache0_quirks = {
-	.two_mode = false,
+ساکن ثابت ساخت sifive_ec_quirks sifive_extensiblecache0_quirks = {
+	.two_منوال = false,
 	.reg_name = "control",
 };
 
-static const struct sifive_ec_quirks sifive_extensiblecache4_quirks = {
-	.two_mode = true,
+ساکن ثابت ساخت sifive_ec_quirks sifive_extensiblecache4_quirks = {
+	.two_منوال = true,
 	.reg_name = "m_mode",
 };
 
-static const struct fdt_match sifive_ec_match[] = {
-	{ .compatible = "sifive,extensiblecache4", .data = &sifive_extensiblecache4_quirks },
-	{ .compatible = "sifive,extensiblecache3", .data = &sifive_extensiblecache0_quirks },
-	{ .compatible = "sifive,extensiblecache2", .data = &sifive_extensiblecache0_quirks },
-	{ .compatible = "sifive,extensiblecache0", .data = &sifive_extensiblecache0_quirks },
+ساکن ثابت ساخت fdt_مطابقت sifive_ec_مطابقت[] = {
+	{ .compatible = "sifive,extensiblecache4", .ڈیٹا = &sifive_extensiblecache4_quirks },
+	{ .compatible = "sifive,extensiblecache3", .ڈیٹا = &sifive_extensiblecache0_quirks },
+	{ .compatible = "sifive,extensiblecache2", .ڈیٹا = &sifive_extensiblecache0_quirks },
+	{ .compatible = "sifive,extensiblecache0", .ڈیٹا = &sifive_extensiblecache0_quirks },
 	{},
 };
 
-struct fdt_driver fdt_sifive_ec = {
-	.match_table = sifive_ec_match,
+ساخت fdt_driver fdt_sifive_ec = {
+	.مطابقت_جدول = sifive_ec_مطابقت,
 	.init = sifive_ec_cold_init,
 };

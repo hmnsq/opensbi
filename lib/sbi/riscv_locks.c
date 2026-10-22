@@ -5,24 +5,24 @@
  * Copyright (c) 2021 Christoph Müllner <cmuellner@linux.com>
  */
 
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_locks.h>
+#شامل <sbi/riscv_barrier.h>
+#شامل <sbi/riscv_locks.h>
 
-static inline bool spin_lock_unlocked(spinlock_t lock)
+ساکن اندرونی bool spin_تالا_unlocked(spinlock_t تالا_2)
 {
-	return lock.owner == lock.next;
+	واپس تالا_2.owner == تالا_2.اگلا;
 }
 
-bool spin_lock_check(spinlock_t *lock)
+bool spin_تالا_check(spinlock_t *تالا_2)
 {
 	RISCV_FENCE(r, rw);
-	return !spin_lock_unlocked(*lock);
+	واپس !spin_تالا_unlocked(*تالا_2);
 }
 
-bool spin_trylock(spinlock_t *lock)
+bool spin_trylock(spinlock_t *تالا_2)
 {
-	unsigned long inc = 1u << TICKET_SHIFT;
-	unsigned long mask = 0xffffu << TICKET_SHIFT;
+	غیرعلامتی طویل inc = 1u << TICKET_سرکاؤ;
+	غیرعلامتی طویل نقاب = 0xffffu << TICKET_سرکاؤ;
 	u32 l0, tmp1, tmp2;
 
 	__asm__ __volatile__(
@@ -38,35 +38,35 @@ bool spin_trylock(spinlock_t *lock)
 		"	sc.w.rl	%0, %0, %3\n"
 		"	bnez	%0, 1b\n"
 		"2:"
-		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*lock)
-		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
+		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*تالا_2)
+		: "r"(inc), "r"(نقاب), "I"(TICKET_سرکاؤ)
 		: "memory");
 
-	return l0 == 0;
+	واپس l0 == 0;
 }
 
-void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+خالی spin_تالا(spinlock_t *تالا_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	unsigned long inc = 1u << TICKET_SHIFT;
-	unsigned long mask = 0xffffu;
+	غیرعلامتی طویل inc = 1u << TICKET_سرکاؤ;
+	غیرعلامتی طویل نقاب = 0xffffu;
 	u32 l0, tmp1, tmp2;
 
 	__asm__ __volatile__(
 		/* Atomically increment the next ticket. */
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#اگر defined(__riscv_atomic) || defined(__riscv_zaamo)
 		"	amoadd.w.aqrl	%0, %4, %3\n"
-#elif defined(__riscv_zalrsc)
+#وگرنہ_اگر defined(__riscv_zalrsc)
 		"3:	lr.w.aqrl	%0, %3\n"
-#if __riscv_xlen == 64
+#اگر __riscv_xlen == 64
 		"	addw	%1, %0, %4\n"
-#elif __riscv_xlen == 32
+#وگرنہ_اگر __riscv_xlen == 32
 		"	add	%1, %0, %4\n"
-#endif
+#اگر_ختم
 		"	sc.w.aqrl	%1, %1, %3\n"
 		"	bnez	%1, 3b\n"
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#ورنہ
+#غلطی "need A or Zaamo or Zalrsc"
+#اگر_ختم
 
 		/* Did we get the lock? */
 		"	srli	%1, %0, %6\n"
@@ -79,12 +79,12 @@ void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 		RISCV_ACQUIRE_BARRIER
 		"	j	1b\n"
 		"2:"
-		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*lock)
-		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
+		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*تالا_2)
+		: "r"(inc), "r"(نقاب), "I"(TICKET_سرکاؤ)
 		: "memory");
 }
 
-void spin_unlock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+خالی spin_unlock(spinlock_t *تالا_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	__smp_store_release(&lock->owner, lock->owner + 1);
+	__smp_store_release(&تالا_2->owner, تالا_2->owner + 1);
 }
