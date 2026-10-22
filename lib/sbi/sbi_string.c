@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#অন্তর্ভাৱ <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+পূর্ণাঙ্ক sbi_strcmp(ধ্রুৱ ৱর্ণ *a, ধ্রুৱ ৱর্ণ *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	বাবে (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	ঘূৰাই *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+পূর্ণাঙ্ক sbi_strncmp(ধ্রুৱ ৱর্ণ *a, ধ্রুৱ ৱর্ণ *b, size_t গুনতি)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	বাবে (; গুনতি > 0 && *a == *b && *a != '\0'; a++, b++, গুনতি--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	যদি (!গুনতি)
+		ঘূৰাই 0;
 
-	return *a - *b;
+	ঘূৰাই *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ধ্রুৱ ৱর্ণ *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	যেতিয়ালৈ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ঘূৰাই ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ধ্রুৱ ৱর্ণ *str, size_t গুনতি)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	যেতিয়ালৈ (*str != '\0' && ret < গুনতি) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ঘূৰাই ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+ৱর্ণ *sbi_strcpy(ৱর্ণ *dest, ধ্রুৱ ৱর্ণ *src)
 {
-	char *ret = dest;
+	ৱর্ণ *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	যেতিয়ালৈ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	ঘূৰাই ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+ৱর্ণ *sbi_strncpy(ৱর্ণ *dest, ধ্রুৱ ৱর্ণ *src, size_t গুনতি)
 {
-	char *tmp = dest;
+	ৱর্ণ *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	যেতিয়ালৈ (গুনতি) {
+		যদি ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		গুনতি--;
 	}
-	return dest;
+	ঘূৰাই dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+ৱর্ণ *sbi_strchr(ধ্রুৱ ৱর্ণ *s, পূর্ণাঙ্ক c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	কৰা {
+		যদি (*s == (ৱর্ণ)c)
+			ঘূৰাই (ৱর্ণ *)s;
+	} যেতিয়ালৈ (*s++ != '\0');
 
-	return NULL;
+	ঘূৰাই রিক্ত;
 }
 
-char *sbi_strrchr(const char *s, int c)
+ৱর্ণ *sbi_strrchr(ধ্রুৱ ৱর্ণ *s, পূর্ণাঙ্ক c)
 {
-	const char *last = s + sbi_strlen(s);
+	ধ্রুৱ ৱর্ণ *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	যেতিয়ালৈ (last > s && *last != (ৱর্ণ)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	যদি (*last != (ৱর্ণ)c)
+		ঘূৰাই রিক্ত;
+	অন্যথা
+		ঘূৰাই (ৱর্ণ *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+শূন্য *sbi_memset(শূন্য *s, পূর্ণাঙ্ক c, size_t গুনতি)
 {
-	char *temp = s;
+	ৱর্ণ *temp = s;
 
-	while (count > 0) {
-		count--;
+	যেতিয়ালৈ (গুনতি > 0) {
+		গুনতি--;
 		*temp++ = c;
 	}
 
-	return s;
+	ঘূৰাই s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+শূন্য *sbi_memcpy(শূন্য *dest, ধ্রুৱ শূন্য *src, size_t গুনতি)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	ৱর্ণ *temp1	  = dest;
+	ধ্রুৱ ৱর্ণ *temp2 = src;
 
-	while (count > 0) {
+	যেতিয়ালৈ (গুনতি > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		গুনতি--;
 	}
 
-	return dest;
+	ঘূৰাই dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+শূন্য *sbi_memmove(শূন্য *dest, ধ্রুৱ শূন্য *src, size_t গুনতি)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	ৱর্ণ *temp1	  = (ৱর্ণ *)dest;
+	ধ্রুৱ ৱর্ণ *temp2 = (ৱর্ণ *)src;
 
-	if (src == dest)
-		return dest;
+	যদি (src == dest)
+		ঘূৰাই dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	যদি (dest < src) {
+		যেতিয়ালৈ (গুনতি > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			গুনতি--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} অন্যথা {
+		temp1 = (ৱর্ণ *)dest + গুনতি - 1;
+		temp2 = (ৱর্ণ *)src + গুনতি - 1;
 
-		while (count > 0) {
+		যেতিয়ালৈ (গুনতি > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			গুনতি--;
 		}
 	}
 
-	return dest;
+	ঘূৰাই dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+পূর্ণাঙ্ক sbi_memcmp(ধ্রুৱ শূন্য *s1, ধ্রুৱ শূন্য *s2, size_t গুনতি)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ধ্রুৱ ৱর্ণ *temp1 = s1;
+	ধ্রুৱ ৱর্ণ *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	বাবে (; গুনতি > 0 && (*temp1 == *temp2); গুনতি--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	যদি (গুনতি > 0)
+		ঘূৰাই *(unsigned ৱর্ণ *)temp1 - *(unsigned ৱর্ণ *)temp2;
+	অন্যথা
+		ঘূৰাই 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+শূন্য *sbi_memchr(ধ্রুৱ শূন্য *s, পূর্ণাঙ্ক c, size_t গুনতি)
 {
-	const unsigned char *temp = s;
+	ধ্রুৱ unsigned ৱর্ণ *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	যেতিয়ালৈ (গুনতি > 0) {
+		যদি ((unsigned ৱর্ণ)c == *temp++) {
+			ঘূৰাই (শূন্য *)(temp - 1);
 		}
-		count--;
+		গুনতি--;
 	}
 
-	return NULL;
+	ঘূৰাই রিক্ত;
 }

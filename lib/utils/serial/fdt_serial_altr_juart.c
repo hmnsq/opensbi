@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#অন্তর্ভাৱ <sbi/sbi_error.h>
+#অন্তর্ভাৱ <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাৱ <sbi_utils/serial/fdt_serial.h>
+#অন্তর্ভাৱ <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক serial_altr_juart_init(ধ্রুৱ শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+				  ধ্রুৱ সংরচনা fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	পূর্ণাঙ্ক rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	যদি (nodeoff < 0 || !fdt)
+		ঘূৰাই SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_গ্ৰন্থি_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	যদি (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
+		ঘূৰাই SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	ঘূৰাই altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+স্থির ধ্রুৱ সংরচনা fdt_match serial_altr_juart_match[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
+ধ্রুৱ সংরচনা fdt_driver fdt_serial_altr_juart = {
 	.match_table = serial_altr_juart_match,
 	.init = serial_altr_juart_init,
 };

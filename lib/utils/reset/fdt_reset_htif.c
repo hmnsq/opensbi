@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/sys/htif.h>
+#অন্তর্ভাৱ <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাৱ <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাৱ <sbi_utils/sys/htif.h>
 
-static int htif_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক htif_reset_init(ধ্রুৱ শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+			   ধ্রুৱ সংরচনা fdt_match *match)
 {
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	যদি (!fdt_get_গ্ৰন্থি_addr_size(fdt, nodeoff, 0, &fromhost_addr, রিক্ত)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + পরিমাণ(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_গ্ৰন্থি_addr_size(fdt, nodeoff, 1, &tohost_addr, রিক্ত);
 
-	return htif_system_reset_init(custom, fromhost_addr, tohost_addr);
+	ঘূৰাই htif_system_reset_init(custom, fromhost_addr, tohost_addr);
 }
 
-static const struct fdt_match htif_reset_match[] = {
+স্থির ধ্রুৱ সংরচনা fdt_match htif_reset_match[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_htif = {
+ধ্রুৱ সংরচনা fdt_driver fdt_reset_htif = {
 	.match_table = htif_reset_match,
 	.init = htif_reset_init
 };

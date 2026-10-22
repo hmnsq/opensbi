@@ -4,36 +4,36 @@
  * Copyright (c) 2025 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_sifive_inst.h>
-#include <sbi_utils/hsm/fdt_hsm_sifive_tmc0.h>
+#অন্তর্ভাৱ <libfdt.h>
+#অন্তর্ভাৱ <sbi/riscv_asm.h>
+#অন্তর্ভাৱ <sbi/riscv_io.h>
+#অন্তর্ভাৱ <sbi/sbi_bitops.h>
+#অন্তর্ভাৱ <sbi/sbi_console.h>
+#অন্তর্ভাৱ <sbi/sbi_error.h>
+#অন্তর্ভাৱ <sbi/sbi_hart.h>
+#অন্তর্ভাৱ <sbi/sbi_heap.h>
+#অন্তর্ভাৱ <sbi/sbi_hsm.h>
+#অন্তর্ভাৱ <sbi/sbi_ipi.h>
+#অন্তর্ভাৱ <sbi_utils/cache/fdt_cmo_helper.h>
+#অন্তর্ভাৱ <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাৱ <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাৱ <sbi_utils/hsm/fdt_hsm_sifive_inst.h>
+#অন্তর্ভাৱ <sbi_utils/hsm/fdt_hsm_sifive_tmc0.h>
 
-struct sifive_tmc0 {
+সংরচনা sifive_tmc0 {
 	unsigned long reg;
-	struct sbi_dlist node;
+	সংরচনা sbi_dlist গ্ৰন্থি;
 	u32 id;
 };
 
-static SBI_LIST_HEAD(tmc0_list);
-static unsigned long tmc0_offset;
+স্থির SBI_LIST_HEAD(tmc0_list);
+স্থির unsigned long tmc0_offset;
 
 #define tmc0_ptr_get(__scratch)				\
-	sbi_scratch_read_type((__scratch), struct sifive_tmc0 *, tmc0_offset)
+	sbi_scratch_read_type((__scratch), সংরচনা sifive_tmc0 *, tmc0_offset)
 
 #define tmc0_ptr_set(__scratch, __tmc0)			\
-	sbi_scratch_write_type((__scratch), struct sifive_tmc0 *, tmc0_offset, (__tmc0))
+	sbi_scratch_write_type((__scratch), সংরচনা sifive_tmc0 *, tmc0_offset, (__tmc0))
 
 /* TMC.PGPREP */
 #define SIFIVE_TMC_PGPREP_OFF			0x0
@@ -78,182 +78,182 @@ static unsigned long tmc0_offset;
 #define SIFIVE_TMC_WAKE_MASK_WREQ		BIT(31)
 #define SIFIVE_TMC_WAKE_MASK_ACK		BIT(30)
 
-int sifive_tmc0_set_wakemask_enareq(u32 hartid)
+পূর্ণাঙ্ক sifive_tmc0_set_wakemask_enareq(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	সংরচনা sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return SBI_ENODEV;
+	যদি (!tmc0)
+		ঘূৰাই SBI_ENODEV;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
-	v = readl((void *)addr);
-	writel(v | SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
+	v = readl((শূন্য *)addr);
+	writel(v | SIFIVE_TMC_WAKE_MASK_WREQ, (শূন্য *)addr);
 
-	while (!(readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
+	যেতিয়ালৈ (!(readl((শূন্য *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
 
-	return SBI_OK;
+	ঘূৰাই SBI_OK;
 }
 
-void sifive_tmc0_set_wakemask_disreq(u32 hartid)
+শূন্য sifive_tmc0_set_wakemask_disreq(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	সংরচনা sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return;
+	যদি (!tmc0)
+		ঘূৰাই;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
-	v = readl((void *)addr);
-	writel(v & ~SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
+	v = readl((শূন্য *)addr);
+	writel(v & ~SIFIVE_TMC_WAKE_MASK_WREQ, (শূন্য *)addr);
 
-	while (readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
+	যেতিয়ালৈ (readl((শূন্য *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
 }
 
 bool sifive_tmc0_is_pg(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	সংরচনা sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return false;
+	যদি (!tmc0)
+		ঘূৰাই false;
 
 	addr = tmc0->reg + SIFIVE_TMC_PG_OFF;
-	v = readl((void *)addr);
-	if (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
+	v = readl((শূন্য *)addr);
+	যদি (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
 	    (v & SIFIVE_TMC_PG_ENARSP) ||
 	    (v & SIFIVE_TMC_PG_DIS_REQ))
-		return false;
+		ঘূৰাই false;
 
-	return true;
+	ঘূৰাই true;
 }
 
-static void sifive_tmc0_set_resumepc(physical_addr_t addr)
+স্থির শূন্য sifive_tmc0_set_resumepc(physical_addr_t addr)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 
-	writel((u32)addr, (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_LO));
-#if __riscv_xlen > 32
-	writel((u32)(addr >> 32), (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_HI));
+	writel((u32)addr, (শূন্য *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_LO));
+#যদি __riscv_xlen > 32
+	writel((u32)(addr >> 32), (শূন্য *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_HI));
 #endif
 }
 
-static u32 sifive_tmc0_set_pgprep_enareq(void)
+স্থির u32 sifive_tmc0_set_pgprep_enareq(শূন্য)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((শূন্য *)reg);
 
-	writel(v | SIFIVE_TMC_PGPREP_ENA_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
+	writel(v | SIFIVE_TMC_PGPREP_ENA_REQ, (শূন্য *)reg);
+	যেতিয়ালৈ (!(readl((শূন্য *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
 
-	v = readl((void *)reg);
-	return v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
+	v = readl((শূন্য *)reg);
+	ঘূৰাই v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
 }
 
-static void sifive_tmc0_set_pgprep_disreq(void)
+স্থির শূন্য sifive_tmc0_set_pgprep_disreq(শূন্য)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((শূন্য *)reg);
 
-	writel(v | SIFIVE_TMC_PGPREP_DIS_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
+	writel(v | SIFIVE_TMC_PGPREP_DIS_REQ, (শূন্য *)reg);
+	যেতিয়ালৈ (!(readl((শূন্য *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
 }
 
-static u32 sifive_tmc0_get_pgprep_enarsp(void)
+স্থির u32 sifive_tmc0_get_pgprep_enarsp(শূন্য)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((শূন্য *)reg);
 
-	return v & SIFIVE_TMC_PGPREP_ENARSP;
+	ঘূৰাই v & SIFIVE_TMC_PGPREP_ENARSP;
 }
 
-static void sifive_tmc0_set_pg_enareq(void)
+স্থির শূন্য sifive_tmc0_set_pg_enareq(শূন্য)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	সংরচনা sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PG_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((শূন্য *)reg);
 
-	writel(v | SIFIVE_TMC_PG_ENA_REQ, (void *)reg);
+	writel(v | SIFIVE_TMC_PG_ENA_REQ, (শূন্য *)reg);
 }
 
-static int sifive_tmc0_prep(void)
+স্থির পূর্ণাঙ্ক sifive_tmc0_prep(শূন্য)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
-	if (!tmc0_ptr_get(scratch))
-		return SBI_ENODEV;
+	যদি (!tmc0_ptr_get(scratch))
+		ঘূৰাই SBI_ENODEV;
 
 	rc = sifive_tmc0_set_pgprep_enareq();
-	if (rc) {
+	যদি (rc) {
 		sbi_printf("TMC0 error: Internal Abort (Wake detect)\n");
-		goto fail;
+		গচ্ছ fail;
 	}
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	যদি (rc) {
 		sifive_tmc0_set_pgprep_disreq();
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
-		goto fail;
+		গচ্ছ fail;
 	}
 
 	sifive_tmc0_set_resumepc(scratch->warmboot_addr);
 
-	return SBI_OK;
+	ঘূৰাই SBI_OK;
 
 fail:
-	return SBI_EFAIL;
+	ঘূৰাই SBI_EFAIL;
 }
 
-static int sifive_tmc0_enter(void)
+স্থির পূর্ণাঙ্ক sifive_tmc0_enter(শূন্য)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
 	/* Flush cache and check if there is wake detect or bus error */
-	if (fdt_cmo_private_flc_flush_all() &&
+	যদি (fdt_cmo_private_flc_flush_all() &&
 	    sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CFLUSH_D_L1))
 		sifive_cflush();
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	যদি (rc) {
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
-		goto fail;
+		গচ্ছ fail;
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
+	যদি (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
 		sifive_tmc0_set_pg_enareq();
-		while (1)
+		যেতিয়ালৈ (1)
 			sifive_cease();
 	}
 
 	rc = SBI_ENOTSUPP;
 fail:
 	sifive_tmc0_set_pgprep_disreq();
-	return rc;
+	ঘূৰাই rc;
 }
 
-static int sifive_tmc0_tile_pg(void)
+স্থির পূর্ণাঙ্ক sifive_tmc0_tile_pg(শূন্য)
 {
-	int rc;
+	পূর্ণাঙ্ক rc;
 
 	rc = sifive_tmc0_prep();
-	if (rc)
-		return rc;
+	যদি (rc)
+		ঘূৰাই rc;
 
-	return sifive_tmc0_enter();
+	ঘূৰাই sifive_tmc0_enter();
 }
 
-static int sifive_tmc0_start(u32 hartid, ulong saddr)
+স্থির পূর্ণাঙ্ক sifive_tmc0_start(u32 hartid, ulong saddr)
 {
 	/*
 	 * In system suspend, the IMSIC will be reset in SiFive platform so
@@ -261,107 +261,107 @@ static int sifive_tmc0_start(u32 hartid, ulong saddr)
 	 */
 	sbi_ipi_raw_send(sbi_hartid_to_hartindex(hartid), true);
 
-	return SBI_OK;
+	ঘূৰাই SBI_OK;
 }
 
-static int sifive_tmc0_stop(void)
+স্থির পূর্ণাঙ্ক sifive_tmc0_stop(শূন্য)
 {
 	unsigned long mie = csr_read(CSR_MIE);
-	int rc;
+	পূর্ণাঙ্ক rc;
 	/* Set IPI as wake up source */
 	csr_set(CSR_MIE, MIP_MEIP | MIP_MSIP);
 
 	rc = sifive_tmc0_tile_pg();
-	if (rc) {
+	যদি (rc) {
 		csr_write(CSR_MIE, mie);
-		return rc;
+		ঘূৰাই rc;
 	}
 
-	return SBI_OK;
+	ঘূৰাই SBI_OK;
 }
 
-static struct sbi_hsm_device tmc0_hsm_dev = {
+স্থির সংরচনা sbi_hsm_device tmc0_hsm_dev = {
 	.name = "SiFive TMC0",
 	.hart_start = sifive_tmc0_start,
 	.hart_stop = sifive_tmc0_stop,
 };
 
-static int sifive_tmc0_bind_cpu(struct sifive_tmc0 *tmc0)
+স্থির পূর্ণাঙ্ক sifive_tmc0_bind_cpu(সংরচনা sifive_tmc0 *tmc0)
 {
-	const void *fdt = fdt_get_address();
-	struct sbi_scratch *scratch;
-	int cpus_off, cpu_off, rc;
-	const fdt32_t *val;
+	ধ্রুৱ শূন্য *fdt = fdt_get_address();
+	সংরচনা sbi_scratch *scratch;
+	পূর্ণাঙ্ক cpus_off, cpu_off, rc;
+	ধ্রুৱ fdt32_t *val;
 	u32 hartid;
 
 	cpus_off = fdt_path_offset(fdt, "/cpus");
-	if (cpus_off < 0)
-		return SBI_ENOENT;
+	যদি (cpus_off < 0)
+		ঘূৰাই SBI_ENOENT;
 
 	fdt_for_each_subnode(cpu_off, fdt, cpus_off) {
 		rc = fdt_parse_hart_id(fdt, cpu_off, &hartid);
-		if (rc)
-			continue;
+		যদি (rc)
+			অনুৱর্ত;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		যদি (!scratch)
+			অনুৱর্ত;
 
-		val = fdt_getprop(fdt, cpu_off, "power-domains", NULL);
-		if (!val)
-			return SBI_ENOENT;
+		val = fdt_getprop(fdt, cpu_off, "power-domains", রিক্ত);
+		যদি (!val)
+			ঘূৰাই SBI_ENOENT;
 
-		if (tmc0->id == fdt32_to_cpu(val[0])) {
+		যদি (tmc0->id == fdt32_to_cpu(val[0])) {
 			tmc0_ptr_set(scratch, tmc0);
-			return SBI_OK;
+			ঘূৰাই SBI_OK;
 		}
 	}
 
-	return SBI_ENODEV;
+	ঘূৰাই SBI_ENODEV;
 }
 
-static int sifive_tmc0_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক sifive_tmc0_probe(ধ্রুৱ শূন্য *fdt, পূর্ণাঙ্ক nodeoff, ধ্রুৱ সংরচনা fdt_match *match)
 {
-	struct sifive_tmc0 *tmc0;
+	সংরচনা sifive_tmc0 *tmc0;
 	u64 addr;
-	int rc;
+	পূর্ণাঙ্ক rc;
 
-	if (!tmc0_offset) {
-		tmc0_offset = sbi_scratch_alloc_type_offset(struct sifive_tmc0 *);
-		if (!tmc0_offset)
-			return SBI_ENOMEM;
+	যদি (!tmc0_offset) {
+		tmc0_offset = sbi_scratch_alloc_type_offset(সংরচনা sifive_tmc0 *);
+		যদি (!tmc0_offset)
+			ঘূৰাই SBI_ENOMEM;
 
 		sbi_hsm_set_device(&tmc0_hsm_dev);
 	}
 
-	tmc0 = sbi_zalloc(sizeof(*tmc0));
-	if (!tmc0)
-		return SBI_ENOMEM;
+	tmc0 = sbi_zalloc(পরিমাণ(*tmc0));
+	যদি (!tmc0)
+		ঘূৰাই SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		goto free_tmc0;
+	rc = fdt_get_গ্ৰন্থি_addr_size(fdt, nodeoff, 0, &addr, রিক্ত);
+	যদি (rc)
+		গচ্ছ free_tmc0;
 
 	tmc0->reg = (unsigned long)addr;
 	tmc0->id = fdt_get_phandle(fdt_get_address(), nodeoff);
 
 	rc = sifive_tmc0_bind_cpu(tmc0);
-	if (rc)
-		goto free_tmc0;
+	যদি (rc)
+		গচ্ছ free_tmc0;
 
-	return SBI_OK;
+	ঘূৰাই SBI_OK;
 
 free_tmc0:
 	sbi_free(tmc0);
-	return rc;
+	ঘূৰাই rc;
 }
 
-static const struct fdt_match sifive_tmc0_match[] = {
+স্থির ধ্রুৱ সংরচনা fdt_match sifive_tmc0_match[] = {
 	{ .compatible = "sifive,tmc0" },
 	{ },
 };
 
-const struct fdt_driver fdt_hsm_sifive_tmc0 = {
+ধ্রুৱ সংরচনা fdt_driver fdt_hsm_sifive_tmc0 = {
 	.match_table = sifive_tmc0_match,
 	.init = sifive_tmc0_probe,
 };

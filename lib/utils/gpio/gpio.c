@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#অন্তর্ভাৱ <sbi/sbi_error.h>
+#অন্তর্ভাৱ <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+স্থির SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+সংরচনা gpio_chip *gpio_chip_find(unsigned পূর্ণাঙ্ক id)
 {
-	struct sbi_dlist *pos;
+	সংরচনা sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		সংরচনা gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		যদি (chip->id == id)
+			ঘূৰাই chip;
 	}
 
-	return NULL;
+	ঘূৰাই রিক্ত;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+পূর্ণাঙ্ক gpio_chip_add(সংরচনা gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	যদি (!gc)
+		ঘূৰাই SBI_EINVAL;
+	যদি (gpio_chip_find(gc->id))
+		ঘূৰাই SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->গ্ৰন্থি), &(gpio_chip_list));
 
-	return 0;
+	ঘূৰাই 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+শূন্য gpio_chip_remove(সংরচনা gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	যদি (!gc)
+		ঘূৰাই;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->গ্ৰন্থি));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_get_direction(সংরচনা gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ঘূৰাই SBI_EINVAL;
+	যদি (!gp->chip->get_direction)
+		ঘূৰাই SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	ঘূৰাই gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_direction_প্ৰবেশ(সংরচনা gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ঘূৰাই SBI_EINVAL;
+	যদি (!gp->chip->direction_প্ৰবেশ)
+		ঘূৰাই SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	ঘূৰাই gp->chip->direction_প্ৰবেশ(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+পূর্ণাঙ্ক gpio_direction_output(সংরচনা gpio_pin *gp, পূর্ণাঙ্ক মান)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ঘূৰাই SBI_EINVAL;
+	যদি (!gp->chip->direction_output)
+		ঘূৰাই SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচেৰ)
+		মান = মান == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	ঘূৰাই gp->chip->direction_output(gp, মান);
 }
 
-int gpio_get(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_get(সংরচনা gpio_pin *gp)
 {
-	int value;
+	পূর্ণাঙ্ক মান;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ঘূৰাই SBI_EINVAL;
+	যদি (!gp->chip->get)
+		ঘূৰাই SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	মান = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচেৰ)
+		মান = মান == 0 ? 1 : 0;
+	ঘূৰাই মান;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+পূর্ণাঙ্ক gpio_set(সংরচনা gpio_pin *gp, পূর্ণাঙ্ক মান)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ঘূৰাই SBI_EINVAL;
+	যদি (!gp->chip->set)
+		ঘূৰাই SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচেৰ)
+		মান = মান == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->set(gp, মান);
+	ঘূৰাই 0;
 }

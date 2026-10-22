@@ -24,7 +24,7 @@
 	 */
 
 	.align 3
-	.global __sbi_hfence_gvma_vmid_gpa
+	.ৱৈশ্ৱিক __sbi_hfence_gvma_vmid_gpa
 __sbi_hfence_gvma_vmid_gpa:
 	/*
 	 * rs1 = a0 (GPA >> 2)
@@ -36,7 +36,7 @@ __sbi_hfence_gvma_vmid_gpa:
 	ret
 
 	.align 3
-	.global __sbi_hfence_gvma_vmid
+	.ৱৈশ্ৱিক __sbi_hfence_gvma_vmid
 __sbi_hfence_gvma_vmid:
 	/*
 	 * rs1 = zero
@@ -48,7 +48,7 @@ __sbi_hfence_gvma_vmid:
 	ret
 
 	.align 3
-	.global __sbi_hfence_gvma_gpa
+	.ৱৈশ্ৱিক __sbi_hfence_gvma_gpa
 __sbi_hfence_gvma_gpa:
 	/*
 	 * rs1 = a0 (GPA >> 2)
@@ -60,7 +60,7 @@ __sbi_hfence_gvma_gpa:
 	ret
 
 	.align 3
-	.global __sbi_hfence_gvma_all
+	.ৱৈশ্ৱিক __sbi_hfence_gvma_all
 __sbi_hfence_gvma_all:
 	/*
 	 * rs1 = zero
@@ -87,7 +87,7 @@ __sbi_hfence_gvma_all:
 	 */
 
 	.align 3
-	.global __sbi_hfence_vvma_asid_va
+	.ৱৈশ্ৱিক __sbi_hfence_vvma_asid_va
 __sbi_hfence_vvma_asid_va:
 	/*
 	 * rs1 = a0 (VA)
@@ -99,7 +99,7 @@ __sbi_hfence_vvma_asid_va:
 	ret
 
 	.align 3
-	.global __sbi_hfence_vvma_asid
+	.ৱৈশ্ৱিক __sbi_hfence_vvma_asid
 __sbi_hfence_vvma_asid:
 	/*
 	 * rs1 = zero
@@ -111,7 +111,7 @@ __sbi_hfence_vvma_asid:
 	ret
 
 	.align 3
-	.global __sbi_hfence_vvma_va
+	.ৱৈশ্ৱিক __sbi_hfence_vvma_va
 __sbi_hfence_vvma_va:
 	/*
 	 * rs1 = a0 (VA)
@@ -123,7 +123,7 @@ __sbi_hfence_vvma_va:
 	ret
 
 	.align 3
-	.global __sbi_hfence_vvma_all
+	.ৱৈশ্ৱিক __sbi_hfence_vvma_all
 __sbi_hfence_vvma_all:
 	/*
 	 * rs1 = zero

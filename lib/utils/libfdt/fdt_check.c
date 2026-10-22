@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#অন্তর্ভাৱ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#অন্তর্ভাৱ <fdt.h>
+#অন্তর্ভাৱ <libfdt.h>
 
-#include "libfdt_internal.h"
+#অন্তর্ভাৱ "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+পূর্ণাঙ্ক fdt_check_full(ধ্রুৱ শূন্য *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	পূর্ণাঙ্ক err;
+	পূর্ণাঙ্ক অঙ্ক_memrsv;
+	পূর্ণাঙ্ক offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
+	unsigned পূর্ণাঙ্ক depth = 0;
+	ধ্রুৱ শূন্য *prop;
+	ধ্রুৱ ৱর্ণ *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	যদি (bufsize < FDT_V1_SIZE)
+		ঘূৰাই -FDT_ERR_TRUNCATED;
+	যদি (bufsize < fdt_header_size(fdt))
+		ঘূৰাই -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	যদি (err != 0)
+		ঘূৰাই err;
+	যদি (bufsize < fdt_totalsize(fdt))
+		ঘূৰাই -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	অঙ্ক_memrsv = fdt_অঙ্ক_mem_rsv(fdt);
+	যদি (অঙ্ক_memrsv < 0)
+		ঘূৰাই অঙ্ক_memrsv;
 
-	while (1) {
+	যেতিয়ালৈ (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		যদি (nextoffset < 0)
+			ঘূৰাই nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		যদি (expect_end && tag != FDT_END)
+			ঘূৰাই -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		ৱিকল্প (tag) {
+		পক্ষ FDT_NOP:
+			ভঙ্গ;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		পক্ষ FDT_END:
+			যদি (depth != 0)
+				ঘূৰাই -FDT_ERR_BADSTRUCTURE;
+			ঘূৰাই 0;
 
-		case FDT_BEGIN_NODE:
+		পক্ষ FDT_BEGIN_গ্ৰন্থি:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			যদি (depth > INT_MAX)
+				ঘূৰাই -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			যদি (depth == 1) {
+				ধ্রুৱ ৱর্ণ *name;
+				পূর্ণাঙ্ক len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				যদি (*name || len)
+					ঘূৰাই -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			ভঙ্গ;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		পক্ষ FDT_END_গ্ৰন্থি:
+			যদি (depth == 0)
+				ঘূৰাই -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			যদি (depth == 0)
 				expect_end = true;
-			break;
+			ভঙ্গ;
 
-		case FDT_PROP:
+		পক্ষ FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			যদি (!prop)
+				ঘূৰাই err;
+			ভঙ্গ;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		স্ৱভাৱ:
+			ঘূৰাই -FDT_ERR_INTERNAL;
 		}
 	}
 }

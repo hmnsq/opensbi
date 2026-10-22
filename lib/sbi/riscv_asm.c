@@ -7,35 +7,35 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#অন্তর্ভাৱ <sbi/riscv_asm.h>
+#অন্তর্ভাৱ <sbi/riscv_encoding.h>
+#অন্তর্ভাৱ <sbi/sbi_error.h>
+#অন্তর্ভাৱ <sbi/sbi_platform.h>
+#অন্তর্ভাৱ <sbi/sbi_console.h>
+#অন্তর্ভাৱ <sbi/sbi_pmp.h>
 
 /* determine CPU extension, return non-zero support */
-int misa_extension_imp(char ext)
+পূর্ণাঙ্ক misa_extension_imp(ৱর্ণ ext)
 {
 	unsigned long misa = csr_read(CSR_MISA);
 
-	if (misa) {
-		if ('A' <= ext && ext <= 'Z')
-			return misa & (1 << (ext - 'A'));
-		if ('a' <= ext && ext <= 'z')
-			return misa & (1 << (ext - 'a'));
-		return 0;
+	যদি (misa) {
+		যদি ('A' <= ext && ext <= 'Z')
+			ঘূৰাই misa & (1 << (ext - 'A'));
+		যদি ('a' <= ext && ext <= 'z')
+			ঘূৰাই misa & (1 << (ext - 'a'));
+		ঘূৰাই 0;
 	}
 
-	return sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
+	ঘূৰাই sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
 }
 
-int misa_xlen(void)
+পূর্ণাঙ্ক misa_xlen(শূন্য)
 {
 	long r;
 
-	if (csr_read(CSR_MISA) == 0)
-		return sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
+	যদি (csr_read(CSR_MISA) == 0)
+		ঘূৰাই sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
 
 	__asm__ __volatile__(
 		"csrr   t0, misa\n\t"
@@ -48,55 +48,55 @@ int misa_xlen(void)
 		:
 		: "t0", "t1");
 
-	return r ? r : -1;
+	ঘূৰাই r ? r : -1;
 }
 
-void misa_string(int xlen, char *out, unsigned int out_sz)
+শূন্য misa_string(পূর্ণাঙ্ক xlen, ৱর্ণ *out, unsigned পূর্ণাঙ্ক out_sz)
 {
-	unsigned int i, pos = 0;
-	const char valid_isa_order[] = "iemafdqclbjtpvnhkorwxyzg";
+	unsigned পূর্ণাঙ্ক i, pos = 0;
+	ধ্রুৱ ৱর্ণ valid_isa_order[] = "iemafdqclbjtpvnhkorwxyzg";
 
-	if (!out)
-		return;
+	যদি (!out)
+		ঘূৰাই;
 
-	if (5 <= (out_sz - pos)) {
+	যদি (5 <= (out_sz - pos)) {
 		out[pos++] = 'r';
 		out[pos++] = 'v';
-		switch (xlen) {
-		case 1:
+		ৱিকল্প (xlen) {
+		পক্ষ 1:
 			out[pos++] = '3';
 			out[pos++] = '2';
-			break;
-		case 2:
+			ভঙ্গ;
+		পক্ষ 2:
 			out[pos++] = '6';
 			out[pos++] = '4';
-			break;
-		case 3:
+			ভঙ্গ;
+		পক্ষ 3:
 			out[pos++] = '1';
 			out[pos++] = '2';
 			out[pos++] = '8';
-			break;
-		default:
+			ভঙ্গ;
+		স্ৱভাৱ:
 			sbi_panic("%s: Unknown misa.MXL encoding %d",
 				   __func__, xlen);
-			return;
+			ঘূৰাই;
 		}
 	}
 
-	for (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
-		if (misa_extension_imp(valid_isa_order[i]))
+	বাবে (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
+		যদি (misa_extension_imp(valid_isa_order[i]))
 			out[pos++] = valid_isa_order[i];
 	}
 
-	if (pos < out_sz)
+	যদি (pos < out_sz)
 		out[pos++] = '\0';
 }
 
-unsigned long csr_read_num(int csr_num)
+unsigned long csr_read_অঙ্ক(পূর্ণাঙ্ক csr_অঙ্ক)
 {
 #define switchcase_csr_read(__csr_num)			\
-	case __csr_num:					\
-		return csr_read(__csr_num);
+	পক্ষ __csr_num:					\
+		ঘূৰাই csr_read(__csr_num);
 #define switchcase_csr_read_2(__csr_num)		\
 	switchcase_csr_read(__csr_num + 0)		\
 	switchcase_csr_read(__csr_num + 1)
@@ -122,7 +122,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_128(__csr_num + 0)		\
 	switchcase_csr_read_128(__csr_num + 128)
 
-	switch (csr_num) {
+	ৱিকল্প (csr_অঙ্ক) {
 	switchcase_csr_read_16(CSR_PMPCFG0)
 	switchcase_csr_read_64(CSR_PMPADDR0)
 	switchcase_csr_read(CSR_MCYCLE)
@@ -138,7 +138,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4)
 	switchcase_csr_read_8(CSR_MHPMEVENT8)
 	switchcase_csr_read_16(CSR_MHPMEVENT16)
-#if __riscv_xlen == 32
+#যদি __riscv_xlen == 32
 	switchcase_csr_read(CSR_MCYCLEH)
 	switchcase_csr_read(CSR_MINSTRETH)
 	switchcase_csr_read(CSR_MHPMCOUNTER3H)
@@ -172,9 +172,9 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_64(CSR_CUSTOM9_M_RW_BASE)
 	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_BASE)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		return 0;
+	স্ৱভাৱ:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_অঙ্ক);
+		ঘূৰাই 0;
 	}
 
 #undef switchcase_csr_read_256
@@ -188,12 +188,12 @@ unsigned long csr_read_num(int csr_num)
 #undef switchcase_csr_read
 }
 
-void csr_write_num(int csr_num, unsigned long val)
+শূন্য csr_write_অঙ্ক(পূর্ণাঙ্ক csr_অঙ্ক, unsigned long val)
 {
 #define switchcase_csr_write(__csr_num, __val)		\
-	case __csr_num:					\
+	পক্ষ __csr_num:					\
 		csr_write(__csr_num, __val);		\
-		break;
+		ভঙ্গ;
 #define switchcase_csr_write_2(__csr_num, __val)	\
 	switchcase_csr_write(__csr_num + 0, __val)	\
 	switchcase_csr_write(__csr_num + 1, __val)
@@ -219,7 +219,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_128(__csr_num + 0, __val)	\
 	switchcase_csr_write_128(__csr_num + 128, __val)
 
-	switch (csr_num) {
+	ৱিকল্প (csr_অঙ্ক) {
 	switchcase_csr_write_16(CSR_PMPCFG0, val)
 	switchcase_csr_write_64(CSR_PMPADDR0, val)
 	switchcase_csr_write(CSR_MCYCLE, val)
@@ -228,7 +228,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMCOUNTER4, val)
 	switchcase_csr_write_8(CSR_MHPMCOUNTER8, val)
 	switchcase_csr_write_16(CSR_MHPMCOUNTER16, val)
-#if __riscv_xlen == 32
+#যদি __riscv_xlen == 32
 	switchcase_csr_write(CSR_MCYCLEH, val)
 	switchcase_csr_write(CSR_MINSTRETH, val)
 	switchcase_csr_write(CSR_MHPMCOUNTER3H, val)
@@ -257,9 +257,9 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_64(CSR_CUSTOM8_M_RW_BASE, val)
 	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_BASE, val)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		break;
+	স্ৱভাৱ:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_অঙ্ক);
+		ভঙ্গ;
 	}
 
 #undef switchcase_csr_write_256

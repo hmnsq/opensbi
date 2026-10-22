@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#অন্তর্ভাৱ <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+শূন্য __bitmap_and(unsigned long *dst, ধ্রুৱ unsigned long *bitmap1,
+		  ধ্রুৱ unsigned long *bitmap2, পূর্ণাঙ্ক bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	পূর্ণাঙ্ক k;
+	পূর্ণাঙ্ক nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	বাবে (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+শূন্য __bitmap_or(unsigned long *dst, ধ্রুৱ unsigned long *bitmap1,
+		 ধ্রুৱ unsigned long *bitmap2, পূর্ণাঙ্ক bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	পূর্ণাঙ্ক k;
+	পূর্ণাঙ্ক nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	বাবে (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+শূন্য __bitmap_xor(unsigned long *dst, ধ্রুৱ unsigned long *bitmap1,
+		  ধ্রুৱ unsigned long *bitmap2, পূর্ণাঙ্ক bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	পূর্ণাঙ্ক k;
+	পূর্ণাঙ্ক nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	বাবে (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

@@ -9,7 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
-struct fdt_header {
+সংরচনা fdt_header {
 	fdt32_t magic;			 /* magic word FDT_MAGIC */
 	fdt32_t totalsize;		 /* total size of DT block */
 	fdt32_t off_dt_struct;		 /* offset to structure */
@@ -28,39 +28,39 @@ struct fdt_header {
 	fdt32_t size_dt_struct;		 /* size of the structure block */
 };
 
-struct fdt_reserve_entry {
+সংরচনা fdt_reserve_entry {
 	fdt64_t address;
 	fdt64_t size;
 };
 
-struct fdt_node_header {
+সংরচনা fdt_গ্ৰন্থি_header {
 	fdt32_t tag;
-	char name[0];
+	ৱর্ণ name[0];
 };
 
-struct fdt_property {
+সংরচনা fdt_property {
 	fdt32_t tag;
 	fdt32_t len;
 	fdt32_t nameoff;
-	char data[0];
+	ৱর্ণ data[0];
 };
 
 #endif /* !__ASSEMBLY */
 
 #define FDT_MAGIC	0xd00dfeed	/* 4: version, 4: total size */
-#define FDT_TAGSIZE	sizeof(fdt32_t)
+#define FDT_TAGSIZE	পরিমাণ(fdt32_t)
 
-#define FDT_BEGIN_NODE	0x1		/* Start node: full name */
-#define FDT_END_NODE	0x2		/* End node */
+#define FDT_BEGIN_গ্ৰন্থি	0x1		/* Start node: full name */
+#define FDT_END_গ্ৰন্থি	0x2		/* End node */
 #define FDT_PROP	0x3		/* Property: name off,
 					   size, content */
 #define FDT_NOP		0x4		/* nop */
 #define FDT_END		0x9
 
-#define FDT_V1_SIZE	(7*sizeof(fdt32_t))
-#define FDT_V2_SIZE	(FDT_V1_SIZE + sizeof(fdt32_t))
-#define FDT_V3_SIZE	(FDT_V2_SIZE + sizeof(fdt32_t))
+#define FDT_V1_SIZE	(7*পরিমাণ(fdt32_t))
+#define FDT_V2_SIZE	(FDT_V1_SIZE + পরিমাণ(fdt32_t))
+#define FDT_V3_SIZE	(FDT_V2_SIZE + পরিমাণ(fdt32_t))
 #define FDT_V16_SIZE	FDT_V3_SIZE
-#define FDT_V17_SIZE	(FDT_V16_SIZE + sizeof(fdt32_t))
+#define FDT_V17_SIZE	(FDT_V16_SIZE + পরিমাণ(fdt32_t))
 
 #endif /* FDT_H */

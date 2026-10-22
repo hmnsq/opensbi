@@ -7,9 +7,9 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#অন্তর্ভাৱ <sbi/riscv_io.h>
+#অন্তর্ভাৱ <sbi/sbi_console.h>
+#অন্তর্ভাৱ <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
@@ -29,48 +29,48 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
+স্থির চঞ্চল ৱর্ণ *uart_base;
 
-static u32 get_reg(u32 num)
+স্থির u32 get_reg(u32 অঙ্ক)
 {
-	return readl(uart_base + (num * 0x4));
+	ঘূৰাই readl(uart_base + (অঙ্ক * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+স্থির শূন্য set_reg(u32 অঙ্ক, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (অঙ্ক * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+স্থির শূন্য gaisler_uart_putc(ৱর্ণ ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	যেতিয়ালৈ (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+স্থির পূর্ণাঙ্ক gaisler_uart_getc(শূন্য)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	যদি (!(ret & UART_STATUS_DATAREADY))
+		ঘূৰাই -1;
+	ঘূৰাই get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
-static struct sbi_console_device gaisler_console = {
+স্থির সংরচনা sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+পূর্ণাঙ্ক gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_base = (চঞ্চল ৱর্ণ *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	যদি (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	ঘূৰাই 0;
 }
