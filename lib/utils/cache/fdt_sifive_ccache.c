@@ -46,16 +46,16 @@ struct sifive_ccache {
 
 #define to_ccache(_dev) container_of(_dev, struct sifive_ccache, dev)
 
-static inline unsigned int sifive_ccache_read_status(void *status_addr)
+static inline unsigned целое sifive_ccache_read_status(void *status_addr)
 {
-	return readl_relaxed(status_addr);
+	вернуть readl_relaxed(status_addr);
 }
 
 static inline void sifive_ccache_write_cmd(u64 cmd, void *cmd_csr_addr)
 {
-#if __riscv_xlen != 32
+#если __riscv_xlen != 32
 	writeq_relaxed(cmd, cmd_csr_addr);
-#else
+#иначе
 	/*
 	 * The cache maintenance request is only generated when the "command"
 	 * field (part of the high word) is written.
@@ -65,19 +65,19 @@ static inline void sifive_ccache_write_cmd(u64 cmd, void *cmd_csr_addr)
 #endif
 }
 
-static int sifive_ccache_flush_all(struct cache_device *dev)
+static целое sifive_ccache_flush_all(struct cache_device *dev)
 {
 	struct sifive_ccache *ccache = to_ccache(dev);
 	void *status_addr = (char *)ccache->addr + CCACHE_STATUS_CSR;
 	void *cmd_csr_addr = (char *)ccache->addr + CCACHE_CMD_CSR;
 	u64 total_cnt = ccache->total_lines;
 	u64 cmd = CFLUSH_SETWAY_CLEANINV << CMD_CSR_CMD_OFFSET;
-	int loop_cnt = CCACHE_CMD_QLEN & CCACHE_ALL_OP_REQ_BATCH_MASK;
+	целое loop_cnt = CCACHE_CMD_QLEN & CCACHE_ALL_OP_REQ_BATCH_MASK;
 
 	ccache_mb_b();
 send_cmd:
 	total_cnt -= loop_cnt;
-	while (loop_cnt > 0) {
+	пока (loop_cnt > 0) {
 		sifive_ccache_write_cmd(cmd + (0 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (1 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (2 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
@@ -97,55 +97,55 @@ send_cmd:
 		cmd += CCACHE_ALL_OP_REQ_BATCH_NUM << CMD_CSR_BANK_OFFSET;
 		loop_cnt -= CCACHE_ALL_OP_REQ_BATCH_NUM;
 	}
-	if (!total_cnt)
+	если (!total_cnt)
 		goto done;
 
 	/* Ensure the ccache is able receive more than 16 requests */
 	do {
 		loop_cnt = (CCACHE_CMD_QLEN - sifive_ccache_read_status(status_addr));
-	} while (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_NUM);
+	} пока (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_NUM);
 	loop_cnt &= CCACHE_ALL_OP_REQ_BATCH_MASK;
 
-	if (total_cnt < loop_cnt) {
+	если (total_cnt < loop_cnt) {
 		loop_cnt = (total_cnt + CCACHE_ALL_OP_REQ_BATCH_NUM) & CCACHE_ALL_OP_REQ_BATCH_MASK;
 		cmd -= ((loop_cnt - total_cnt) << CMD_CSR_BANK_OFFSET);
 		total_cnt = loop_cnt;
 	}
 	goto send_cmd;
 done:
-	do {} while (sifive_ccache_read_status(status_addr));
+	do {} пока (sifive_ccache_read_status(status_addr));
 	ccache_mb_a();
 
-	return 0;
+	вернуть 0;
 }
 
 static struct cache_ops sifive_ccache_ops = {
 	.cache_flush_all = sifive_ccache_flush_all,
 };
 
-static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+static целое sifive_ccache_cold_init(const void *fdt, целое nodeoff, const struct fdt_match *match)
 {
 	struct sifive_ccache *ccache;
 	struct cache_device *dev;
 	u64 reg_addr = 0;
 	u32 config_csr, banks, sets, ways;
-	int rc;
+	целое rc;
 
 	/* find the ccache base control address */
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 && reg_addr)
-		return SBI_ENODEV;
+	если (rc < 0 && reg_addr)
+		вернуть SBI_ENODEV;
 
 	ccache = sbi_zalloc(sizeof(*ccache));
-	if (!ccache)
-		return SBI_ENOMEM;
+	если (!ccache)
+		вернуть SBI_ENOMEM;
 
 	dev = &ccache->dev;
 	dev->ops = &sifive_ccache_ops;
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	если (rc) {
 		sbi_free(ccache);
-		return rc;
+		вернуть rc;
 	}
 
 	ccache->addr = (void *)(uintptr_t)reg_addr;
@@ -161,7 +161,7 @@ static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fd
 
 	ccache->total_lines = sets * ways * banks;
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
 static const struct fdt_match sifive_ccache_match[] = {

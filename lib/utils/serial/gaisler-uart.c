@@ -33,7 +33,7 @@ static volatile char *uart_base;
 
 static u32 get_reg(u32 num)
 {
-	return readl(uart_base + (num * 0x4));
+	вернуть readl(uart_base + (num * 0x4));
 }
 
 static void set_reg(u32 num, u32 val)
@@ -43,18 +43,18 @@ static void set_reg(u32 num, u32 val)
 
 static void gaisler_uart_putc(char ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	пока (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+static целое gaisler_uart_getc(void)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	если (!(ret & UART_STATUS_DATAREADY))
+		вернуть -1;
+	вернуть get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
 static struct sbi_console_device gaisler_console = {
@@ -63,14 +63,14 @@ static struct sbi_console_device gaisler_console = {
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+целое gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
 	uart_base = (volatile char *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	если (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	вернуть 0;
 }

@@ -18,120 +18,120 @@ static unsigned long flc_offset;
 #define set_hart_flc(_s, _p) \
 	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+целое fdt_cmo_private_flc_flush_all(void)
 {
 	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	если (!flc || !flc->cpu_private)
+		вернуть SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	вернуть cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+целое fdt_cmo_llc_flush_all(void)
 {
 	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	если (!llc)
+		вернуть SBI_ENODEV;
 
-	while (llc->next)
+	пока (llc->next)
 		llc = llc->next;
 
-	return cache_flush_all(llc);
+	вернуть cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+целое fdt_cmo_private_flc_enable(bool enable)
 {
 	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	если (!flc || !flc->cpu_private)
+		вернуть SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	вернуть cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+целое fdt_cmo_llc_enable(bool enable)
 {
 	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	если (!llc)
+		вернуть SBI_ENODEV;
 
-	while (llc->next)
+	пока (llc->next)
 		llc = llc->next;
 
-	return cache_enable(llc, enable);
+	вернуть cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+static целое fdt_cmo_cold_init(const void *fdt)
 {
 	struct sbi_scratch *scratch;
 	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	целое cpu_offset, cpus_offset, rc;
 	u32 hartid;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	если (cpus_offset < 0)
+		вернуть SBI_EINVAL;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
+		если (rc)
 			continue;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
+		если (!scratch)
 			continue;
 
 		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
+		если (rc && rc != SBI_ENOENT)
+			вернуть rc;
+		если (rc == SBI_ENOENT)
 			dev = NULL;
 
 		set_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+static целое fdt_cmo_warm_init(void)
 {
 	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	целое rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	пока (cur) {
+		если (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			если (rc)
+				вернуть rc;
 		}
 
 		cur = cur->next;
 	}
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+целое fdt_cmo_init(bool cold_boot)
 {
 	const void *fdt = fdt_get_address();
-	int rc;
+	целое rc;
 
-	if (cold_boot) {
+	если (cold_boot) {
 		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+		если (!flc_offset)
+			вернуть SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }

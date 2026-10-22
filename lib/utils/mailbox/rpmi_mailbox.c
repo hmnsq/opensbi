@@ -11,50 +11,50 @@
 #include <sbi_utils/mailbox/mailbox.h>
 #include <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+целое rpmi_xlate_error(enum rpmi_error error)
 {
 	switch(error) {
 	case RPMI_SUCCESS:
-		return SBI_OK;
+		вернуть SBI_OK;
 	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
+		вернуть SBI_EFAIL;
 	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
+		вернуть SBI_ENOTSUPP;
 	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
+		вернуть SBI_EINVAL;
 	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
+		вернуть SBI_EDENIED;
 	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
+		вернуть SBI_EINVALID_ADDR;
 	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
+		вернуть SBI_EALREADY;
 	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
+		вернуть SBI_EFAIL;
 	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
+		вернуть SBI_EIO;
 	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
+		вернуть SBI_EFAIL;
 	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
+		вернуть SBI_EINVALID_STATE;
 	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
+		вернуть SBI_EBAD_RANGE;
 	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
+		вернуть SBI_ETIMEDOUT;
 	case RPMI_ERR_IO:
-		return SBI_EIO;
+		вернуть SBI_EIO;
 	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
+		вернуть SBI_EFAIL;
 	default:
-		return SBI_EUNKNOWN;
+		вернуть SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
+целое rpmi_normal_request_with_status(
 			struct mbox_chan *chan, u32 service_id,
 			void *req, u32 req_words, u32 req_endian_words,
 			void *resp, u32 resp_words, u32 resp_endian_words)
 {
-	int ret;
+	целое ret;
 	struct mbox_xfer xfer;
 	struct rpmi_message_args args = { 0 };
 
@@ -67,13 +67,13 @@ int rpmi_normal_request_with_status(
 			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	если (ret)
+		вернуть ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	вернуть rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
+целое rpmi_posted_request(
 		struct mbox_chan *chan, u32 service_id,
 		void *req, u32 req_words, u32 req_endian_words)
 {
@@ -87,5 +87,5 @@ int rpmi_posted_request(
 	mbox_xfer_init_tx(&xfer, &args,
 			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	вернуть mbox_chan_xfer(chan, &xfer);
 }

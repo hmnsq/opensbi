@@ -15,32 +15,32 @@
 #include <sbi_utils/i2c/dw_i2c.h>
 #include <sbi_utils/i2c/fdt_i2c.h>
 
-static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
+static целое fdt_dw_i2c_init(const void *fdt, целое nodeoff,
 			   const struct fdt_match *match)
 {
-	int rc;
+	целое rc;
 	struct dw_i2c_adapter *adapter;
 	u64 addr;
 
 	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	если (!adapter)
+		вернуть SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	если (rc) {
 		sbi_free(adapter);
-		return rc;
+		вернуть rc;
 	}
 
 	adapter->addr = addr;
 
 	rc = dw_i2c_init(&adapter->adapter, nodeoff);
-	if (rc) {
+	если (rc) {
 		sbi_free(adapter);
-		return rc;
+		вернуть rc;
 	}
 
-	return 0;
+	вернуть 0;
 }
 
 static const struct fdt_match fdt_dw_i2c_match[] = {

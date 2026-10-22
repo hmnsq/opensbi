@@ -13,29 +13,29 @@
 
 extern struct plmt_data plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
+static целое fdt_plmt_cold_timer_init(const void *fdt, целое nodeoff,
 				    const struct fdt_match *match)
 {
-	int rc;
+	целое rc;
 	unsigned long plmt_base;
 
 	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
 				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	plmt.time_val = (u64 *)plmt_base;
 	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return 0;
+	вернуть 0;
 }
 
 static const struct fdt_match timer_plmt_match[] = {

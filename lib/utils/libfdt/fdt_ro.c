@@ -10,306 +10,306 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static целое fdt_nodename_eq_(const void *fdt, целое offset,
+			    const char *s, целое len)
 {
-	int olen;
+	целое olen;
 	const char *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	если (!p || olen < len)
 		/* short match */
-		return 0;
+		вернуть 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	если (memcmp(p, s, len) != 0)
+		вернуть 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	если (p[len] == '\0')
+		вернуть 1;
+	иначе если (!memchr(s, '@', len) && (p[len] == '@'))
+		вернуть 1;
+	иначе
+		вернуть 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const char *fdt_get_string(const void *fdt, целое stroffset, целое *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
+	целое err;
 	const char *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
+	если (can_assume(VALID_INPUT)) {
 		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		если (lenp)
 			*lenp = strlen(s);
-		return s;
+		вернуть s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	если (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	если (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	если (fdt_magic(fdt) == FDT_MAGIC) {
+		если (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		если (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			если ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			если ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} иначе если (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned целое sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		если ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		если (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} иначе {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
 	s = (const char *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	если (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	если (lenp)
 		*lenp = n - s;
-	return s;
+	вернуть s;
 
 fail:
-	if (lenp)
+	если (lenp)
 		*lenp = err;
-	return NULL;
+	вернуть NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const char *fdt_string(const void *fdt, целое stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	вернуть fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static целое fdt_string_eq_(const void *fdt, целое stroffset,
+			  const char *s, целое len)
 {
-	int slen;
+	целое slen;
 	const char *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	вернуть p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+целое fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	целое offset = -1;
 
-	while (true) {
+	пока (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
+		если (offset < 0) {
+			если (offset == -FDT_ERR_NOTFOUND)
 				break;
 
-			return offset;
+			вернуть offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		если (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	если (phandle)
 		*phandle = max;
 
-	return 0;
+	вернуть 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+целое fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	целое err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	если (err < 0)
+		вернуть err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	если (max == FDT_MAX_PHANDLE)
+		вернуть -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	если (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	вернуть 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, целое n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned целое offset = n * sizeof(struct fdt_reserve_entry);
+	unsigned целое absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
+	если (!can_assume(VALID_INPUT)) {
+		если (absoffset < fdt_off_mem_rsvmap(fdt))
+			вернуть NULL;
+		если (absoffset > fdt_totalsize(fdt) -
 		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+			вернуть NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	вернуть fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+целое fdt_get_mem_rsv(const void *fdt, целое n, uint64_t *address, uint64_t *size)
 {
 	const struct fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	если (!can_assume(VALID_INPUT) && !re)
+		вернуть -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	вернуть 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+целое fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
+	целое i;
 	const struct fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	для (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		если (fdt64_ld_(&re->size) == 0)
+			вернуть i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	вернуть -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static целое nextprop_(const void *fdt, целое offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	целое nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
 		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+			если (nextoffset >= 0)
+				вернуть -FDT_ERR_BADSTRUCTURE;
+			иначе
+				вернуть nextoffset;
 
 		case FDT_PROP:
-			return offset;
+			вернуть offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} пока (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	вернуть -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+целое fdt_subnode_offset_namelen(const void *fdt, целое offset,
+			       const char *name, целое namelen)
 {
-	int depth;
+	целое depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	для (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		если ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			вернуть offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	если (depth < 0)
+		вернуть -FDT_ERR_NOTFOUND;
+	вернуть offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
+целое fdt_subnode_offset(const void *fdt, целое parentoffset,
 		       const char *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	вернуть fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+целое fdt_path_offset_namelen(const void *fdt, const char *path, целое namelen)
 {
 	const char *end = path + namelen;
 	const char *p = path;
-	int offset = 0;
+	целое offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
+	если (*path != '/') {
 		const char *q = memchr(path, '/', end - p);
 
-		if (!q)
+		если (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		если (!p)
+			вернуть -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
+	пока (p < end) {
 		const char *q;
 
-		while (*p == '/') {
+		пока (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			если (p == end)
+				вернуть offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		если (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		если (offset < 0)
+			вернуть offset;
 
 		p = q;
 	}
 
-	return offset;
+	вернуть offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+целое fdt_path_offset(const void *fdt, const char *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	вернуть fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const char *fdt_get_name(const void *fdt, целое nodeoffset, целое *len)
 {
 	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	const char *nameptr;
-	int err;
+	целое err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	если (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	если (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
@@ -317,254 +317,254 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 		 */
 		const char *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		если (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	если (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	вернуть nameptr;
 
  fail:
-	if (len)
+	если (len)
 		*len = err;
-	return NULL;
+	вернуть NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+целое fdt_first_property_offset(const void *fdt, целое nodeoffset)
 {
-	int offset;
+	целое offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	если ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		вернуть offset;
 
-	return nextprop_(fdt, offset);
+	вернуть nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+целое fdt_next_property_offset(const void *fdt, целое offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	если ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		вернуть offset;
 
-	return nextprop_(fdt, offset);
+	вернуть nextprop_(fdt, offset);
 }
 
 static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+						              целое offset,
+						              целое *lenp)
 {
-	int err;
+	целое err;
 	const struct fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	если (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		если (lenp)
 			*lenp = err;
-		return NULL;
+		вернуть NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	если (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	вернуть prop;
 }
 
 const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+						      целое offset,
+						      целое *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	если (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		если (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		вернуть NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	вернуть fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
 static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
+						            целое offset,
 						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+						            целое namelen,
+							    целое *lenp,
+							    целое *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	для (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
 		const struct fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		если (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		если (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			если (poffset)
 				*poffset = offset;
-			return prop;
+			вернуть prop;
 		}
 	}
 
-	if (lenp)
+	если (lenp)
 		*lenp = offset;
-	return NULL;
+	вернуть NULL;
 }
 
 
 const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
+						    целое offset,
 						    const char *name,
-						    int namelen, int *lenp)
+						    целое namelen, целое *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	если (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		если (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		вернуть NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	вернуть fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
 const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+					    целое nodeoffset,
+					    const char *name, целое *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	вернуть fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, целое nodeoffset,
+				const char *name, целое namelen, целое *lenp)
 {
-	int poffset;
+	целое poffset;
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	если (!prop)
+		вернуть NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	если (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		вернуть prop->data + 4;
+	вернуть prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, целое offset,
+				  const char **namep, целое *lenp)
 {
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
+	если (!prop)
+		вернуть NULL;
+	если (namep) {
 		const char *name;
-		int namelen;
+		целое namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		если (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			если (!name) {
+				если (lenp)
 					*lenp = namelen;
-				return NULL;
+				вернуть NULL;
 			}
 			*namep = name;
-		} else {
+		} иначе {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	если (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		вернуть prop->data + 4;
+	вернуть prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, целое nodeoffset,
+			const char *name, целое *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	вернуть fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, целое nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	целое len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	если (!php || (len != sizeof(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		если (!php || (len != sizeof(*php)))
+			вернуть 0;
 	}
 
-	return fdt32_ld_(php);
+	вернуть fdt32_ld_(php);
 }
 
 const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+				  const char *name, целое namelen)
 {
-	int aliasoffset;
+	целое aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	если (aliasoffset < 0)
+		вернуть NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	вернуть fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
 const char *fdt_get_alias(const void *fdt, const char *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	вернуть fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+целое fdt_get_path(const void *fdt, целое nodeoffset, char *buf, целое buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
+	целое pdepth = 0, p = 0;
+	целое offset, depth, namelen;
 	const char *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	если (buflen < 2)
+		вернуть -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	для (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		пока (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} пока (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		если (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			если (!name)
+				вернуть namelen;
+			если ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		если (offset == nodeoffset) {
+			если (pdepth < (depth + 1))
+				вернуть -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			если (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			вернуть 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	если ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		вернуть -FDT_ERR_BADOFFSET;
+	иначе если (offset == -FDT_ERR_BADOFFSET)
+		вернуть -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	вернуть offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+целое fdt_supernode_atdepth_offset(const void *fdt, целое nodeoffset,
+				 целое supernodedepth, целое *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	целое offset, depth;
+	целое supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	если (supernodedepth < 0)
+		вернуть -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	для (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		если (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		если (offset == nodeoffset) {
+			если (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			если (supernodedepth > depth)
+				вернуть -FDT_ERR_NOTFOUND;
+			иначе
+				вернуть supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	если (!can_assume(VALID_INPUT)) {
+		если ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			вернуть -FDT_ERR_BADOFFSET;
+		иначе если (offset == -FDT_ERR_BADOFFSET)
+			вернуть -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	вернуть offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+целое fdt_node_depth(const void *fdt, целое nodeoffset)
 {
-	int nodedepth;
-	int err;
+	целое nodedepth;
+	целое err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	если (err)
+		вернуть (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	вернуть nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+целое fdt_parent_offset(const void *fdt, целое nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	целое nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	если (nodedepth < 0)
+		вернуть nodedepth;
+	вернуть fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+целое fdt_node_offset_by_prop_value(const void *fdt, целое startoffset,
 				  const char *propname,
-				  const void *propval, int proplen)
+				  const void *propval, целое proplen)
 {
-	int offset;
+	целое offset;
 	const void *val;
-	int len;
+	целое len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	для (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		если (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			вернуть offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	вернуть offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+целое fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	целое offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	если ((phandle == 0) || (phandle == ~0U))
+		вернуть -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	для (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		если (fdt_get_phandle(fdt, offset) == phandle)
+			вернуть offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	вернуть offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+целое fdt_stringlist_contains(const char *strlist, целое listlen, const char *str)
 {
-	int len = strlen(str);
+	целое len = strlen(str);
 	const char *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	пока (listlen >= len) {
+		если (memcmp(str, strlist, len+1) == 0)
+			вернуть 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		если (!p)
+			вернуть 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	вернуть 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+целое fdt_stringlist_count(const void *fdt, целое nodeoffset, const char *property)
 {
 	const char *list, *end;
-	int length, count = 0;
+	целое length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	если (!list)
+		вернуть length;
 
 	end = list + length;
 
-	while (list < end) {
+	пока (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		если (list + length > end)
+			вернуть -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	вернуть count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+целое fdt_stringlist_search(const void *fdt, целое nodeoffset, const char *property,
 			  const char *string)
 {
-	int length, len, idx = 0;
+	целое length, len, idx = 0;
 	const char *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	если (!list)
+		вернуть length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	пока (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		если (list + length > end)
+			вернуть -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		если (length == len && memcmp(list, string, length) == 0)
+			вернуть idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	вернуть -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const char *fdt_stringlist_get(const void *fdt, целое nodeoffset,
+			       const char *property, целое idx,
+			       целое *lenp)
 {
 	const char *list, *end;
-	int length;
+	целое length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	если (!list) {
+		если (lenp)
 			*lenp = length;
 
-		return NULL;
+		вернуть NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	пока (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		если (list + length > end) {
+			если (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			вернуть NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		если (idx == 0) {
+			если (lenp)
 				*lenp = length - 1;
 
-			return list;
+			вернуть list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	если (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	вернуть NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+целое fdt_node_check_compatible(const void *fdt, целое nodeoffset,
 			      const char *compatible)
 {
 	const void *prop;
-	int len;
+	целое len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	если (!prop)
+		вернуть len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	вернуть !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+целое fdt_node_offset_by_compatible(const void *fdt, целое startoffset,
 				  const char *compatible)
 {
-	int offset, err;
+	целое offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	для (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		если ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			вернуть err;
+		иначе если (err == 0)
+			вернуть offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	вернуть offset; /* error from fdt_next_node() */
 }

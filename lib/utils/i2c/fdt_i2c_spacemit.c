@@ -45,7 +45,7 @@ static inline void spacemit_i2c_set_reg(struct spacemit_i2c_adapter *adap,
 static inline uint32_t spacemit_i2c_get_reg(struct spacemit_i2c_adapter *adap,
 					    uint32_t reg)
 {
-	return readl((void *)adap->base + reg);
+	вернуть readl((void *)adap->base + reg);
 }
 
 static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
@@ -62,18 +62,18 @@ static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
 	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_IUE | ICR_SCLE);
 }
 
-static int spacemit_i2c_wait_xfer_done(struct spacemit_i2c_adapter *adap)
+static целое spacemit_i2c_wait_xfer_done(struct spacemit_i2c_adapter *adap)
 {
-	for (int i = 0; i < I2C_TIMEOUT_US; i++) {
+	для (целое i = 0; i < I2C_TIMEOUT_US; i++) {
 		uint32_t val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
 
-		if (!(val & ICR_TB))
-			return 0;
+		если (!(val & ICR_TB))
+			вернуть 0;
 
 		sbi_timer_udelay(1);
 	};
 
-	return SBI_ETIMEDOUT;
+	вернуть SBI_ETIMEDOUT;
 }
 
 static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
@@ -90,110 +90,110 @@ static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
 	spacemit_i2c_set_reg(adap, ICR_OFFSET, val);
 }
 
-static int spacemit_i2c_xfer_write(struct spacemit_i2c_adapter *adap,
+static целое spacemit_i2c_xfer_write(struct spacemit_i2c_adapter *adap,
 				   uint8_t byte, uint32_t ctrl)
 {
 	spacemit_i2c_set_reg(adap, IDBR_OFFSET, byte);
 	spacemit_i2c_start_xfer(adap, ctrl);
 
-	return spacemit_i2c_wait_xfer_done(adap);
+	вернуть spacemit_i2c_wait_xfer_done(adap);
 }
 
-static int spacemit_i2c_xfer_read(struct spacemit_i2c_adapter *adap,
+static целое spacemit_i2c_xfer_read(struct spacemit_i2c_adapter *adap,
 				  uint8_t *byte, uint32_t ctrl)
 {
-	int rc;
+	целое rc;
 
 	spacemit_i2c_start_xfer(adap, ctrl);
 
 	rc = spacemit_i2c_wait_xfer_done(adap);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	*byte = spacemit_i2c_get_reg(adap, IDBR_OFFSET);
-	return 0;
+	вернуть 0;
 }
 
-static int spacemit_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				      uint8_t reg, uint8_t *buffer, int len)
+static целое spacemit_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
+				      uint8_t reg, uint8_t *buffer, целое len)
 {
 	struct spacemit_i2c_adapter *adap =
 		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	целое rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
 	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	/* send register + data bytes */
-	for (int i = 0; i < len + 1; i++) {
+	для (целое i = 0; i < len + 1; i++) {
 		uint32_t ctrl = (i == len) ? ICR_STOP : 0;
 		uint8_t byte = (i == 0) ? reg : buffer[i - 1];
 
 		rc = spacemit_i2c_xfer_write(adap, byte, ctrl);
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 	}
 
-	return 0;
+	вернуть 0;
 }
 
-static int spacemit_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				     uint8_t reg, uint8_t *buffer, int len)
+static целое spacemit_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
+				     uint8_t reg, uint8_t *buffer, целое len)
 {
 	struct spacemit_i2c_adapter *adap =
 		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	целое rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
 	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	/* send register */
 	rc = spacemit_i2c_xfer_write(adap, reg, 0);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	/* repeated start and send device address (in read mode) */
 	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_START);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	/* read data bytes */
-	for (int i = 0; i < len; i++) {
+	для (целое i = 0; i < len; i++) {
 		uint32_t ctrl = (i == len - 1) ? (ICR_ACKNAK | ICR_STOP) : 0;
 
 		rc = spacemit_i2c_xfer_read(adap, &buffer[i], ctrl);
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 	}
 
-	return 0;
+	вернуть 0;
 }
 
-static int spacemit_i2c_init(const void *fdt, int nodeoff,
+static целое spacemit_i2c_init(const void *fdt, целое nodeoff,
 			     const struct fdt_match *match)
 {
 	struct spacemit_i2c_adapter *adapter;
 	uint64_t base;
-	int rc;
+	целое rc;
 
 	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	если (!adapter)
+		вернуть SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &base, NULL);
-	if (rc) {
+	если (rc) {
 		sbi_free(adapter);
-		return rc;
+		вернуть rc;
 	}
 
 	adapter->base = base;
@@ -201,12 +201,12 @@ static int spacemit_i2c_init(const void *fdt, int nodeoff,
 	adapter->adapter.write = spacemit_i2c_adapter_write;
 	adapter->adapter.read = spacemit_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	если (rc) {
 		sbi_free(adapter);
-		return rc;
+		вернуть rc;
 	}
 
-	return 0;
+	вернуть 0;
 }
 
 static const struct fdt_match spacemit_i2c_match[] = {

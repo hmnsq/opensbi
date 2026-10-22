@@ -12,99 +12,99 @@
 
 static SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+struct gpio_chip *gpio_chip_find(unsigned целое id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
 		struct gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		если (chip->id == id)
+			вернуть chip;
 	}
 
-	return NULL;
+	вернуть NULL;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+целое gpio_chip_add(struct gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	если (!gc)
+		вернуть SBI_EINVAL;
+	если (gpio_chip_find(gc->id))
+		вернуть SBI_EALREADY;
 
 	sbi_list_add(&(gc->node), &(gpio_chip_list));
 
-	return 0;
+	вернуть 0;
 }
 
 void gpio_chip_remove(struct gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	если (!gc)
+		вернуть;
 
 	sbi_list_del(&(gc->node));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+целое gpio_get_direction(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	если (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		вернуть SBI_EINVAL;
+	если (!gp->chip->get_direction)
+		вернуть SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	вернуть gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+целое gpio_direction_input(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	если (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		вернуть SBI_EINVAL;
+	если (!gp->chip->direction_input)
+		вернуть SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	вернуть gp->chip->direction_input(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+целое gpio_direction_output(struct gpio_pin *gp, целое value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	если (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		вернуть SBI_EINVAL;
+	если (!gp->chip->direction_output)
+		вернуть SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	если (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	вернуть gp->chip->direction_output(gp, value);
 }
 
-int gpio_get(struct gpio_pin *gp)
+целое gpio_get(struct gpio_pin *gp)
 {
-	int value;
+	целое value;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	если (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		вернуть SBI_EINVAL;
+	если (!gp->chip->get)
+		вернуть SBI_ENOSYS;
 
 	value = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	если (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
-	return value;
+	вернуть value;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+целое gpio_set(struct gpio_pin *gp, целое value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	если (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		вернуть SBI_EINVAL;
+	если (!gp->chip->set)
+		вернуть SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	если (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
 	gp->chip->set(gp, value);
-	return 0;
+	вернуть 0;
 }

@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+struct i2c_adapter *i2c_adapter_find(целое id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
 		struct i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		если (adap->id == id)
+			вернуть adap;
 	}
 
-	return NULL;
+	вернуть NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+целое i2c_adapter_add(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	если (!ia)
+		вернуть SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	если (i2c_adapter_find(ia->id))
+		вернуть SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	вернуть 0;
 }
 
 void i2c_adapter_remove(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	если (!ia)
+		вернуть;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+целое i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, целое len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	если (!ia)
+		вернуть SBI_EINVAL;
+	если (!ia->write)
+		вернуть SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	вернуть ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+целое i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, целое len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	если (!ia)
+		вернуть SBI_EINVAL;
+	если (!ia->read)
+		вернуть SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	вернуть ia->read(ia, addr, reg, buffer, len);
 }

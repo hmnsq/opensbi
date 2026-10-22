@@ -16,23 +16,23 @@
 #include <sbi/sbi_tlb.h>
 #include <sbi/riscv_asm.h>
 
-static int hart_pmp_read(pmp_t *pmp, unsigned int n)
+static целое hart_pmp_read(pmp_t *pmp, unsigned целое n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
+	целое pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
 	unsigned long cfgmask;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	если (n >= PMP_COUNT)
+		вернуть SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#если __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
 	pmpcfg_shift = (n & 3) << 3;
 #elif __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
 	pmpcfg_shift = (n & 7) << 3;
-#else
+#иначе
 # error "Unexpected __riscv_xlen"
 #endif
 	pmpaddr_csr = CSR_PMPADDR0 + n;
@@ -41,26 +41,26 @@ static int hart_pmp_read(pmp_t *pmp, unsigned int n)
 	pmp->cfg = (csr_read_num(pmpcfg_csr) & cfgmask) >> pmpcfg_shift;
 	pmp->addr = csr_read_num(pmpaddr_csr);
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-static int hart_pmp_write(pmp_t *pmp, unsigned int n)
+static целое hart_pmp_write(pmp_t *pmp, unsigned целое n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
+	целое pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
 	unsigned long cfgmask, pmpcfg;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	если (n >= PMP_COUNT)
+		вернуть SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#если __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
 	pmpcfg_shift = (n & 3) << 3;
 #elif __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
 	pmpcfg_shift = (n & 7) << 3;
-#else
+#иначе
 # error "Unexpected __riscv_xlen"
 #endif
 	pmpaddr_csr = CSR_PMPADDR0 + n;
@@ -72,57 +72,57 @@ static int hart_pmp_write(pmp_t *pmp, unsigned int n)
 	pmpcfg |= (((unsigned long)pmp->cfg << pmpcfg_shift) & ~cfgmask);
 	csr_write_num(pmpcfg_csr, pmpcfg);
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-int sbi_hart_pmp_disable(unsigned int n)
+целое sbi_hart_pmp_disable(unsigned целое n)
 {
 	pmp_t pmp;
-	int rc;
+	целое rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	pmp.cfg = 0;
 
-	return hart_pmp_write(&pmp, n);
+	вернуть hart_pmp_write(&pmp, n);
 }
 
-bool sbi_hart_is_pmp_enabled(unsigned int n)
+bool sbi_hart_is_pmp_enabled(unsigned целое n)
 {
 	pmp_t pmp;
 
-	if (hart_pmp_read(&pmp, n) != SBI_OK)
-		return false;
+	если (hart_pmp_read(&pmp, n) != SBI_OK)
+		вернуть false;
 
-	return sbi_pmp_is_enabled(&pmp);
+	вернуть sbi_pmp_is_enabled(&pmp);
 }
 
-int sbi_hart_pmp_set(unsigned int n, unsigned long prot, unsigned long addr,
+целое sbi_hart_pmp_set(unsigned целое n, unsigned long prot, unsigned long addr,
 		     unsigned long log2len)
 {
 	pmp_t pmp;
-	int rc;
+	целое rc;
 
 	rc = sbi_pmp_encode(&pmp, prot, addr, log2len);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return hart_pmp_write(&pmp, n);
+	вернуть hart_pmp_write(&pmp, n);
 }
 
-int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *addr_out,
+целое sbi_hart_pmp_get(unsigned целое n, unsigned long *prot_out, unsigned long *addr_out,
 		     unsigned long *log2len)
 {
 	pmp_t pmp;
-	int rc;
+	целое rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return sbi_pmp_decode(&pmp, prot_out, addr_out, log2len);
+	вернуть sbi_pmp_decode(&pmp, prot_out, addr_out, log2len);
 }
 
 /*
@@ -143,33 +143,33 @@ int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *add
 static DECLARE_BITMAP(fw_smepmp_ids, PMP_COUNT);
 static bool fw_smepmp_ids_inited;
 
-unsigned int sbi_hart_pmp_count(struct sbi_scratch *scratch)
+unsigned целое sbi_hart_pmp_count(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_count;
+	вернуть hfeatures->pmp_count;
 }
 
-unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch)
+unsigned целое sbi_hart_pmp_log2gran(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_log2gran;
+	вернуть hfeatures->pmp_log2gran;
 }
 
-unsigned int sbi_hart_pmp_addrbits(struct sbi_scratch *scratch)
+unsigned целое sbi_hart_pmp_addrbits(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_addr_bits;
+	вернуть hfeatures->pmp_addr_bits;
 }
 
-bool sbi_hart_smepmp_is_fw_region(unsigned int pmp_idx)
+bool sbi_hart_smepmp_is_fw_region(unsigned целое pmp_idx)
 {
-	if (!fw_smepmp_ids_inited)
-		return false;
+	если (!fw_smepmp_ids_inited)
+		вернуть false;
 
-	return bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
+	вернуть bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
 }
 
 void sbi_hart_pmp_fence(void)
@@ -184,14 +184,14 @@ void sbi_hart_pmp_fence(void)
 	 * It is advisable to flush the caching structures under such
 	 * conditions.
 	 */
-	if (misa_extension('S')) {
+	если (misa_extension('S')) {
 		__sbi_sfence_vma_all();
 
 		/*
 		 * If hypervisor mode is supported, flush caching
 		 * structures in guest mode too.
 		 */
-		if (misa_extension('H'))
+		если (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 }
@@ -199,19 +199,19 @@ void sbi_hart_pmp_fence(void)
 static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
 				struct sbi_domain *dom,
 				struct sbi_domain_memregion *reg,
-				unsigned int pmp_idx,
-				unsigned int pmp_flags,
-				unsigned int pmp_log2gran,
+				unsigned целое pmp_idx,
+				unsigned целое pmp_flags,
+				unsigned целое pmp_log2gran,
 				unsigned long pmp_addr_max)
 {
 	unsigned long pmp_addr = reg->base >> PMP_SHIFT;
 
-	if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+	если (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
 		sbi_platform_pmp_set(sbi_platform_ptr(scratch),
 				     pmp_idx, reg->flags, pmp_flags,
 				     reg->base, reg->order);
 		sbi_hart_pmp_set(pmp_idx, pmp_flags, reg->base, reg->order);
-	} else {
+	} иначе {
 		sbi_printf("Can not configure pmp for domain %s because"
 			   " memory region address 0x%lx or size 0x%lx "
 			   "is not in range.\n", dom->name, reg->base,
@@ -219,23 +219,23 @@ static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
 	}
 }
 
-static bool is_valid_pmp_idx(unsigned int pmp_count, unsigned int pmp_idx)
+static bool is_valid_pmp_idx(unsigned целое pmp_count, unsigned целое pmp_idx)
 {
-	if (pmp_count > pmp_idx)
-		return true;
+	если (pmp_count > pmp_idx)
+		вернуть true;
 
 	sbi_printf("error: insufficient PMP entries\n");
-	return false;
+	вернуть false;
 }
 
-static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
+static целое sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 				     struct sbi_domain *dom)
 {
 	struct sbi_domain_memregion *reg;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
+	unsigned целое pmp_log2gran, pmp_bits;
+	unsigned целое pmp_idx, pmp_count;
 	unsigned long pmp_addr_max;
-	unsigned int pmp_flags;
+	unsigned целое pmp_flags;
 
 	pmp_count = sbi_hart_pmp_count(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
@@ -255,13 +255,13 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		если (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		если (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			вернуть SBI_EFAIL;
 
 		/* Skip shared and SU-only regions */
-		if (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		если (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
 			continue;
 		}
@@ -273,12 +273,12 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 		 * These entries must remain enabled across domain
 		 * context switches to prevent M-mode access faults.
 		 */
-		if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
-			if (fw_smepmp_ids_inited) {
+		если (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
+			если (fw_smepmp_ids_inited) {
 				/* Check inconsistent firmware region */
-				if (!sbi_hart_smepmp_is_fw_region(pmp_idx))
-					return SBI_EINVAL;
-			} else {
+				если (!sbi_hart_smepmp_is_fw_region(pmp_idx))
+					вернуть SBI_EINVAL;
+			} иначе {
 				bitmap_set(fw_smepmp_ids, pmp_idx, 1);
 			}
 		}
@@ -298,13 +298,13 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		если (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		если (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			вернуть SBI_EFAIL;
 
 		/* Skip M-only regions */
-		if (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		если (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
 			continue;
 		}
@@ -315,7 +315,7 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 				    pmp_log2gran, pmp_addr_max);
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	для(; pmp_idx < pmp_count; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	/*
@@ -324,30 +324,30 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	 */
 
 	sbi_hart_pmp_fence();
-	return 0;
+	вернуть 0;
 }
 
-static int sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
+static целое sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
 				     unsigned long addr, unsigned long size)
 {
 	/* shared R/W access for M and S/U mode */
-	unsigned int pmp_flags = (PMP_W | PMP_X);
+	unsigned целое pmp_flags = (PMP_W | PMP_X);
 	unsigned long order, base = 0;
 
-	if (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ENTRY))
-		return SBI_ENOSPC;
+	если (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ENTRY))
+		вернуть SBI_ENOSPC;
 
-	for (order = MAX(sbi_hart_pmp_log2gran(scratch), log2roundup(size));
+	для (order = MAX(sbi_hart_pmp_log2gran(scratch), log2roundup(size));
 	     order <= __riscv_xlen; order++) {
-		if (order < __riscv_xlen) {
+		если (order < __riscv_xlen) {
 			base = addr & ~((1UL << order) - 1UL);
-			if ((base <= addr) &&
+			если ((base <= addr) &&
 			    (addr < (base + (1UL << order))) &&
 			    (base <= (addr + size - 1UL)) &&
 			    ((addr + size - 1UL) < (base + (1UL << order))))
 				break;
-		} else {
-			return SBI_EFAIL;
+		} иначе {
+			вернуть SBI_EFAIL;
 		}
 	}
 
@@ -356,24 +356,24 @@ static int sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
 			     pmp_flags, base, order);
 	sbi_hart_pmp_set(SBI_SMEPMP_RESV_ENTRY, pmp_flags, base, order);
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-static int sbi_hart_smepmp_temp_unmap_range(struct sbi_scratch *scratch,
+static целое sbi_hart_smepmp_temp_unmap_range(struct sbi_scratch *scratch,
 				       unsigned long addr, unsigned long size)
 {
 	sbi_platform_pmp_disable(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ENTRY);
-	return sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
+	вернуть sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
 }
 
-static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
+static целое sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 				     struct sbi_domain *dom)
 {
 	struct sbi_domain_memregion *reg;
 	unsigned long pmp_addr, pmp_addr_max;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
-	unsigned int pmp_flags;
+	unsigned целое pmp_log2gran, pmp_bits;
+	unsigned целое pmp_idx, pmp_count;
+	unsigned целое pmp_flags;
 
 	pmp_count = sbi_hart_pmp_count(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
@@ -382,17 +382,17 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		если (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			вернуть SBI_EFAIL;
 
 		pmp_flags = sbi_domain_get_oldpmp_flags(reg);
 		pmp_addr = reg->base >> PMP_SHIFT;
-		if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+		если (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
 			sbi_platform_pmp_set(sbi_platform_ptr(scratch),
 					     pmp_idx, reg->flags, pmp_flags,
 					     reg->base, reg->order);
 			sbi_hart_pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
-		} else {
+		} иначе {
 			sbi_printf("Can not configure pmp for domain %s because"
 				   " memory region address 0x%lx or size 0x%lx "
 				   "is not in range.\n", dom->name, reg->base,
@@ -400,21 +400,21 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 		}
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	для(; pmp_idx < pmp_count; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	sbi_hart_pmp_fence();
-	return 0;
+	вернуть 0;
 }
 
 static void sbi_hart_pmp_unconfigure(struct sbi_scratch *scratch,
 				     struct sbi_domain *dom)
 {
-	int i, pmp_count = sbi_hart_pmp_count(scratch);
+	целое i, pmp_count = sbi_hart_pmp_count(scratch);
 
-	for (i = 0; i < pmp_count; i++) {
+	для (i = 0; i < pmp_count; i++) {
 		/* Don't revoke firmware access permissions */
-		if (sbi_hart_smepmp_is_fw_region(i))
+		если (sbi_hart_smepmp_is_fw_region(i))
 			continue;
 
 		sbi_platform_pmp_disable(sbi_platform_ptr(scratch), i);
@@ -440,21 +440,21 @@ static struct sbi_hart_protection epmp_protection = {
 	.temp_unmap_range = sbi_hart_smepmp_temp_unmap_range,
 };
 
-int sbi_hart_pmp_init(struct sbi_scratch *scratch)
+целое sbi_hart_pmp_init(struct sbi_scratch *scratch)
 {
-	int rc;
+	целое rc;
 
-	if (sbi_hart_pmp_count(scratch)) {
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
+	если (sbi_hart_pmp_count(scratch)) {
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
 			rc = sbi_hart_protection_register(&epmp_protection);
-			if (rc)
-				return rc;
-		} else {
+			если (rc)
+				вернуть rc;
+		} иначе {
 			rc = sbi_hart_protection_register(&pmp_protection);
-			if (rc)
-				return rc;
+			если (rc)
+				вернуть rc;
 		}
 	}
 
-	return 0;
+	вернуть 0;
 }

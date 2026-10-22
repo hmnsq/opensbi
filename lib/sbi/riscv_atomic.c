@@ -12,7 +12,7 @@
 #include <sbi/riscv_atomic.h>
 #include <sbi/riscv_barrier.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#если !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
 #error "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
 #endif
 
@@ -20,7 +20,7 @@ long atomic_read(atomic_t *atom)
 {
 	long ret = atom->counter;
 	rmb();
-	return ret;
+	вернуть ret;
 }
 
 void atomic_write(atomic_t *atom, long value)
@@ -31,9 +31,9 @@ void atomic_write(atomic_t *atom, long value)
 
 long atomic_add_return(atomic_t *atom, long value)
 {
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#если defined(__riscv_atomic) || defined(__riscv_zaamo)
 	long ret;
-#if __SIZEOF_LONG__ == 4
+#если __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
 			     : "r"(value)
@@ -46,7 +46,7 @@ long atomic_add_return(atomic_t *atom, long value)
 #endif
 #elif defined(__riscv_zalrsc)
 	long ret, temp;
-#if __SIZEOF_LONG__ == 4
+#если __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("1:lr.w.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.w.aqrl	%2,%2,%0\n"
@@ -63,19 +63,19 @@ long atomic_add_return(atomic_t *atom, long value)
 			     : "r"(value)
 			     : "memory");
 #endif
-#else
+#иначе
 #error "need A or Zaamo or Zalrsc"
 #endif
 
-	return ret + value;
+	вернуть ret + value;
 }
 
 long atomic_sub_return(atomic_t *atom, long value)
 {
-	return atomic_add_return(atom, -value);
+	вернуть atomic_add_return(atom, -value);
 }
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#если defined(__riscv_atomic) || defined(__riscv_zaamo)
 #define __axchg(ptr, new, size)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
@@ -131,7 +131,7 @@ long atomic_sub_return(atomic_t *atom, long value)
 		}								\
 		__ret;								\
 	})
-#else
+#иначе
 #error "need A or Zaamo or Zalrsc"
 #endif
 
@@ -143,49 +143,49 @@ long atomic_sub_return(atomic_t *atom, long value)
 
 long atomic_cmpxchg(atomic_t *atom, long oldval, long newval)
 {
-	return __sync_val_compare_and_swap(&atom->counter, oldval, newval);
+	вернуть __sync_val_compare_and_swap(&atom->counter, oldval, newval);
 }
 
 long atomic_xchg(atomic_t *atom, long newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(&atom->counter, newval);
+	вернуть axchg(&atom->counter, newval);
 }
 
-unsigned int atomic_raw_xchg_uint(volatile unsigned int *ptr,
-				  unsigned int newval)
+unsigned целое atomic_raw_xchg_uint(volatile unsigned целое *ptr,
+				  unsigned целое newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	вернуть axchg(ptr, newval);
 }
 
 unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
 				    unsigned long newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	вернуть axchg(ptr, newval);
 }
 
-int atomic_raw_set_bit(int nr, volatile unsigned long *addr)
+целое atomic_raw_set_bit(целое nr, volatile unsigned long *addr)
 {
 	unsigned long res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_or(&addr[BIT_WORD(nr)], mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	вернуть res & mask ? 1 : 0;
 }
 
-int atomic_raw_clear_bit(int nr, volatile unsigned long *addr)
+целое atomic_raw_clear_bit(целое nr, volatile unsigned long *addr)
 {
 	unsigned long res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_and(&addr[BIT_WORD(nr)], ~mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	вернуть res & mask ? 1 : 0;
 }
 
-int atomic_set_bit(int nr, atomic_t *atom)
+целое atomic_set_bit(целое nr, atomic_t *atom)
 {
-	return atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
+	вернуть atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
 }
 
-int atomic_clear_bit(int nr, atomic_t *atom)
+целое atomic_clear_bit(целое nr, atomic_t *atom)
 {
-	return atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
+	вернуть atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
 }

@@ -53,29 +53,29 @@ static u32 get_reg(struct uart8250_device *dev, u32 num)
 {
 	u32 offset = num << dev->reg_shift;
 
-	if (dev->reg_width == 1)
-		return readb(dev->base + offset);
-	else if (dev->reg_width == 2)
-		return readw(dev->base + offset);
-	else
-		return readl(dev->base + offset);
+	если (dev->reg_width == 1)
+		вернуть readb(dev->base + offset);
+	иначе если (dev->reg_width == 2)
+		вернуть readw(dev->base + offset);
+	иначе
+		вернуть readl(dev->base + offset);
 }
 
 static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
 {
 	u32 offset = num << dev->reg_shift;
 
-	if (dev->reg_width == 1)
+	если (dev->reg_width == 1)
 		writeb(val, dev->base + offset);
-	else if (dev->reg_width == 2)
+	иначе если (dev->reg_width == 2)
 		writew(val, dev->base + offset);
-	else
+	иначе
 		writel(val, dev->base + offset);
 }
 
 void uart8250_device_putc(struct uart8250_device *dev, char ch)
 {
-	while ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	пока ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
 		;
 
 	set_reg(dev, UART_THR_OFFSET, ch);
@@ -83,19 +83,19 @@ void uart8250_device_putc(struct uart8250_device *dev, char ch)
 
 static void uart8250_putc(char ch)
 {
-	return uart8250_device_putc(&uart8250_dev, ch);
+	вернуть uart8250_device_putc(&uart8250_dev, ch);
 }
 
-int uart8250_device_getc(struct uart8250_device *dev)
+целое uart8250_device_getc(struct uart8250_device *dev)
 {
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(dev, UART_RBR_OFFSET);
-	return -1;
+	если (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+		вернуть get_reg(dev, UART_RBR_OFFSET);
+	вернуть -1;
 }
 
-static int uart8250_getc(void)
+static целое uart8250_getc(void)
 {
-	return uart8250_device_getc(&uart8250_dev);
+	вернуть uart8250_device_getc(&uart8250_dev);
 }
 
 static struct sbi_console_device uart8250_console = {
@@ -116,7 +116,7 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	dev->in_freq   = in_freq;
 	dev->baudrate  = baudrate;
 
-	if (dev->baudrate) {
+	если (dev->baudrate) {
 		bdiv = (dev->in_freq + 8 * dev->baudrate) /
 		       (16 * dev->baudrate);
 	}
@@ -127,7 +127,7 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* Enable DLAB */
 	set_reg(dev, UART_LCR_OFFSET, 0x80);
 
-	if (bdiv) {
+	если (bdiv) {
 		/* Set divisor low byte */
 		set_reg(dev, UART_DLL_OFFSET, bdiv & 0xff);
 		/* Set divisor high byte */
@@ -141,13 +141,13 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* No modem control DTR RTS */
 	set_reg(dev, UART_MCR_OFFSET, 0x00);
 	/* Clear line status and read receive buffer */
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+	если (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
 		get_reg(dev, UART_RBR_OFFSET);
 	/* Set scratchpad */
 	set_reg(dev, UART_SCR_OFFSET, 0x00);
 }
 
-int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
+целое uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 		  u32 reg_width, u32 reg_offset, u32 caps)
 {
 	uart8250_device_init(&uart8250_dev, base, in_freq, baudrate,
@@ -155,7 +155,7 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 
 	sbi_console_set_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	вернуть sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

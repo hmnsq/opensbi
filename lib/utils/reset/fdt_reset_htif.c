@@ -11,20 +11,20 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/sys/htif.h>
 
-static int htif_reset_init(const void *fdt, int nodeoff,
+static целое htif_reset_init(const void *fdt, целое nodeoff,
 			   const struct fdt_match *match)
 {
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	если (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
 		custom = true;
 		tohost_addr = fromhost_addr + sizeof(uint64_t);
 	}
 
 	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
 
-	return htif_system_reset_init(custom, fromhost_addr, tohost_addr);
+	вернуть htif_system_reset_init(custom, fromhost_addr, tohost_addr);
 }
 
 static const struct fdt_match htif_reset_match[] = {

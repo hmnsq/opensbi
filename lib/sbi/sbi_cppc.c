@@ -12,30 +12,30 @@ static const struct sbi_cppc_device *cppc_dev = NULL;
 
 const struct sbi_cppc_device *sbi_cppc_get_device(void)
 {
-	return cppc_dev;
+	вернуть cppc_dev;
 }
 
 void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	если (!dev || cppc_dev)
+		вернуть;
 
 	cppc_dev = dev;
 }
 
 static bool sbi_cppc_is_reserved(unsigned long reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	если ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
 	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+		вернуть true;
 
-	return false;
+	вернуть false;
 }
 
 static bool sbi_cppc_readable(unsigned long reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	вернуть true;
 }
 
 static bool sbi_cppc_writable(unsigned long reg)
@@ -53,58 +53,58 @@ static bool sbi_cppc_writable(unsigned long reg)
 	case SBI_CPPC_LOWEST_FREQ:
 	case SBI_CPPC_NOMINAL_FREQ:
 	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+		вернуть false;
 	}
 
-	return true;
+	вернуть true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+целое sbi_cppc_probe(unsigned long reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	если (!cppc_dev || !cppc_dev->cppc_probe)
+		вернуть SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	если (sbi_cppc_is_reserved(reg))
+		вернуть SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	вернуть cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+целое sbi_cppc_read(unsigned long reg, uint64_t *val)
 {
-	int ret;
+	целое ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	если (!cppc_dev || !cppc_dev->cppc_read)
+		вернуть SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	если (ret <= 0)
+		вернуть SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	если (!sbi_cppc_readable(reg))
+		вернуть SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	вернуть cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+целое sbi_cppc_write(unsigned long reg, uint64_t val)
 {
-	int ret;
+	целое ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	если (!cppc_dev || !cppc_dev->cppc_write)
+		вернуть SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	если (ret <= 0)
+		вернуть SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	если (!sbi_cppc_writable(reg))
+		вернуть SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	вернуть cppc_dev->cppc_write(reg, val);
 }

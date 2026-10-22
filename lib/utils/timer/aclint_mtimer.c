@@ -25,10 +25,10 @@ static unsigned long mtimer_ptr_offset;
 #define mtimer_set_hart_data_ptr(__scratch, __mtimer)			\
 	sbi_scratch_write_type((__scratch), void *, mtimer_ptr_offset, (__mtimer))
 
-#if __riscv_xlen != 32
+#если __riscv_xlen != 32
 static u64 mtimer_time_rd64(volatile u64 *addr)
 {
-	return readq_relaxed(addr);
+	вернуть readq_relaxed(addr);
 }
 
 static void mtimer_time_wr64(bool timecmp, u64 value, volatile u64 *addr)
@@ -44,9 +44,9 @@ static u64 mtimer_time_rd32(volatile u64 *addr)
 	do {
 		hi = readl_relaxed((u32 *)addr + 1);
 		lo = readl_relaxed((u32 *)addr);
-	} while (hi != readl_relaxed((u32 *)addr + 1));
+	} пока (hi != readl_relaxed((u32 *)addr + 1));
 
-	return ((u64)hi << 32) | (u64)lo;
+	вернуть ((u64)hi << 32) | (u64)lo;
 }
 
 static void mtimer_time_wr32(bool timecmp, u64 value, volatile u64 *addr)
@@ -62,11 +62,11 @@ static u64 mtimer_value(void)
 	struct aclint_mtimer_data *mt;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return 0;
+	если (!mt)
+		вернуть 0;
 
 	/* Read MTIMER Time Value */
-	return mt->time_rd((void *)mt->mtime_addr);
+	вернуть mt->time_rd((void *)mt->mtime_addr);
 }
 
 static void mtimer_event_stop(void)
@@ -77,8 +77,8 @@ static void mtimer_event_stop(void)
 	u64 *time_cmp;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	если (!mt)
+		вернуть;
 
 	/* Clear MTIMER Time Compare */
 	time_cmp = (void *)mt->mtimecmp_addr;
@@ -93,8 +93,8 @@ static void mtimer_event_start(u64 next_event)
 	u64 *time_cmp;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	если (!mt)
+		вернуть;
 
 	/* Program MTIMER Time Compare */
 	time_cmp = (void *)mt->mtimecmp_addr;
@@ -111,7 +111,7 @@ static struct sbi_timer_device mtimer = {
 
 struct aclint_mtimer_data *aclint_get_mtimer_data(void)
 {
-	return mtimer_get_hart_data_ptr(sbi_scratch_thishart_ptr());
+	вернуть mtimer_get_hart_data_ptr(sbi_scratch_thishart_ptr());
 }
 
 void aclint_mtimer_update(struct aclint_mtimer_data *mt,
@@ -120,12 +120,12 @@ void aclint_mtimer_update(struct aclint_mtimer_data *mt,
 	u64 v1, v2, mv, delta;
 	u64 *mt_time_val, *ref_time_val;
 
-	if (!mt || !ref || !mt->time_rd || !mt->time_wr || !ref->time_rd)
-		return;
+	если (!mt || !ref || !mt->time_rd || !mt->time_wr || !ref->time_rd)
+		вернуть;
 
 	mt_time_val = (void *)mt->mtime_addr;
 	ref_time_val = (void *)ref->mtime_addr;
-	if (!atomic_raw_xchg_ulong(&mt->time_delta_computed, 1)) {
+	если (!atomic_raw_xchg_ulong(&mt->time_delta_computed, 1)) {
 		v1 = mt->time_rd(mt_time_val);
 		mv = ref->time_rd(ref_time_val);
 		v2 = mt->time_rd(mt_time_val);
@@ -140,8 +140,8 @@ void aclint_mtimer_sync(struct aclint_mtimer_data *mt)
 	struct aclint_mtimer_data *reference;
 
 	/* Sync-up non-shared MTIME if reference is available */
-	if (mt->has_shared_mtime || !mt->time_delta_reference)
-		return;
+	если (mt->has_shared_mtime || !mt->time_delta_reference)
+		вернуть;
 
 	reference = mt->time_delta_reference;
 	aclint_mtimer_update(mt, reference);
@@ -150,14 +150,14 @@ void aclint_mtimer_sync(struct aclint_mtimer_data *mt)
 void aclint_mtimer_set_reference(struct aclint_mtimer_data *mt,
 				 struct aclint_mtimer_data *ref)
 {
-	if (!mt || !ref || mt == ref)
-		return;
+	если (!mt || !ref || mt == ref)
+		вернуть;
 
 	mt->time_delta_reference = ref;
 	mt->time_delta_computed = 0;
 }
 
-static int aclint_mtimer_warm_init(void)
+static целое aclint_mtimer_warm_init(void)
 {
 	u64 *mt_time_cmp;
 	u32 target_hart = current_hartid();
@@ -165,8 +165,8 @@ static int aclint_mtimer_warm_init(void)
 	struct aclint_mtimer_data *mt;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return SBI_ENODEV;
+	если (!mt)
+		вернуть SBI_ENODEV;
 
 	/* Sync-up MTIME register */
 	aclint_mtimer_sync(mt);
@@ -176,33 +176,33 @@ static int aclint_mtimer_warm_init(void)
 	mt->time_wr(true, -1ULL,
 		    &mt_time_cmp[target_hart - mt->first_hartid]);
 
-	return 0;
+	вернуть 0;
 }
 
-int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
+целое aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 			    struct aclint_mtimer_data *reference)
 {
 	u32 i;
-	int rc;
+	целое rc;
 	struct sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mt ||
+	если (!mt ||
 	    (mt->hart_count && !mt->mtimecmp_size) ||
 	    (mt->mtime_size && (mt->mtime_addr & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtime_size && (mt->mtime_size & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtimecmp_addr & (ACLINT_MTIMER_ALIGN - 1)) ||
 	    (mt->mtimecmp_size & (ACLINT_MTIMER_ALIGN - 1)) ||
 	    (mt->hart_count > ACLINT_MTIMER_MAX_HARTS))
-		return SBI_EINVAL;
-	if (reference && mt->mtime_freq != reference->mtime_freq)
-		return SBI_EINVAL;
+		вернуть SBI_EINVAL;
+	если (reference && mt->mtime_freq != reference->mtime_freq)
+		вернуть SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mtimer_ptr_offset) {
+	если (!mtimer_ptr_offset) {
 		mtimer_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mtimer_ptr_offset)
-			return SBI_ENOMEM;
+		если (!mtimer_ptr_offset)
+			вернуть SBI_ENOMEM;
 	}
 
 	/* Initialize private data */
@@ -211,71 +211,71 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 	mt->time_wr = mtimer_time_wr32;
 
 	/* Override read/write accessors for 64bit MMIO */
-#if __riscv_xlen != 32
-	if (mt->has_64bit_mmio) {
+#если __riscv_xlen != 32
+	если (mt->has_64bit_mmio) {
 		mt->time_rd = mtimer_time_rd64;
 		mt->time_wr = mtimer_time_wr64;
 	}
 #endif
 
 	/* Update MTIMER pointer in scratch space */
-	for (i = 0; i < mt->hart_count; i++) {
+	для (i = 0; i < mt->hart_count; i++) {
 		scratch = sbi_hartid_to_scratch(mt->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
+		если (!scratch)
 			continue;
 		mtimer_set_hart_data_ptr(scratch, mt);
 	}
 
-	if (!mt->mtime_size) {
+	если (!mt->mtime_size) {
 		/* Disable reading mtime when mtime is not available */
 		mtimer.timer_value = NULL;
 	}
 
 	/* Add MTIMER regions to the root domain */
-	if (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
+	если (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
 		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else if (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
+		если (rc)
+			вернуть rc;
+	} иначе если (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
 		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else {
+		если (rc)
+			вернуть rc;
+	} иначе {
 		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
 						mt->mtime_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 
 		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
 						mt->mtimecmp_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 	}
 
 	mtimer.timer_freq = mt->mtime_freq;
 	mtimer.warm_init = aclint_mtimer_warm_init;
 	sbi_timer_set_device(&mtimer);
 
-	return 0;
+	вернуть 0;
 }

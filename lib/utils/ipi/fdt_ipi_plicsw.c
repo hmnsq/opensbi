@@ -17,21 +17,21 @@
 
 extern struct plicsw_data plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
+целое fdt_plicsw_cold_ipi_init(const void *fdt, целое nodeoff,
 			     const struct fdt_match *match)
 {
-	int rc;
+	целое rc;
 
 	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
 				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return 0;
+	вернуть 0;
 }
 
 static const struct fdt_match ipi_plicsw_match[] = {

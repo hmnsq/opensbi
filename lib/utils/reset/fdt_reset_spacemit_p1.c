@@ -22,37 +22,37 @@
 static struct i2c_adapter *p1_adapter = NULL;
 static uint32_t p1_reg = 0;
 
-static int p1_system_reset_check(uint32_t type, uint32_t reason)
+static целое p1_system_reset_check(uint32_t type, uint32_t reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
+		вернуть 1;
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+		вернуть 255;
 	}
 
-	return 0;
+	вернуть 0;
 }
 
 static void p1_ops(uint32_t type)
 {
 	uint8_t byte;
-	int rc;
+	целое rc;
 
 	rc = i2c_adapter_reg_read(p1_adapter, p1_reg, PWR_CTRL2, &byte);
-	if (rc) {
+	если (rc) {
 		sbi_printf("%s: cannot read P1 Power Control Register 2\n", __func__);
-		return;
+		вернуть;
 	}
 
-	if (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
+	если (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
 		byte |= PWR_CTRL2_SHUTDOWN;
-	else
+	иначе
 		byte |= PWR_CTRL2_RST;
 
 	rc = i2c_adapter_reg_write(p1_adapter, p1_reg, PWR_CTRL2, byte);
-	if (rc)
+	если (rc)
 		sbi_printf("%s: cannot write P1 Power Control Register 2\n", __func__);
 }
 
@@ -73,32 +73,32 @@ static struct sbi_system_reset_device p1_reset = {
 	.system_reset = p1_system_reset
 };
 
-static int p1_reset_init(const void *fdt, int nodeoff,
+static целое p1_reset_init(const void *fdt, целое nodeoff,
 			 const struct fdt_match *match)
 {
-	int rc, i2c_bus;
+	целое rc, i2c_bus;
 	uint64_t addr;
 
 	/* we are spacemit,p1 node */
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	p1_reg = addr;
 
 	/* find i2c bus parent node */
 	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	если (i2c_bus < 0)
+		вернуть i2c_bus;
 
 	/* i2c adapter get */
 	rc = fdt_i2c_adapter_get(fdt, i2c_bus, &p1_adapter);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
 	sbi_system_reset_add_device(&p1_reset);
 
-	return 0;
+	вернуть 0;
 }
 
 static const struct fdt_match p1_reset_match[] = {

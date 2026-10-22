@@ -31,24 +31,24 @@ unsigned long hart_features_offset;
 
 static void mstatus_init(struct sbi_scratch *scratch)
 {
-	int cidx;
+	целое cidx;
 	unsigned long mstatus_val = 0;
-	unsigned int mhpm_mask = sbi_hart_mhpm_mask(scratch);
+	unsigned целое mhpm_mask = sbi_hart_mhpm_mask(scratch);
 	uint64_t mhpmevent_init_val = 0;
 	uint64_t menvcfg_val, mstateen_val;
 
 	/* Enable FPU */
-	if (misa_extension('D') || misa_extension('F'))
+	если (misa_extension('D') || misa_extension('F'))
 		mstatus_val |=  MSTATUS_FS;
 
 	/* Enable Vector context */
-	if (misa_extension('V'))
+	если (misa_extension('V'))
 		mstatus_val |=  MSTATUS_VS;
 
 	csr_write(CSR_MSTATUS, mstatus_val);
 
 	/* Disable user mode usage of all perf counters except TM */
-	if (misa_extension('S') &&
+	если (misa_extension('S') &&
 	    sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_SCOUNTEREN, 0x02);
 
@@ -57,11 +57,11 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	 * Supervisor mode usage for all counters are enabled by default
 	 * But counters will not run until mcountinhibit is set.
 	 */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	если (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_MCOUNTEREN, -1);
 
 	/* All programmable counters will start running at runtime after S-mode request */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
+	если (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
 		csr_write(CSR_MCOUNTINHIBIT, 0xFFFFFFF8);
 
 	/**
@@ -69,48 +69,48 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	 * and inhibited running in M-mode during init.
 	 */
 	mhpmevent_init_val |= (MHPMEVENT_OF | MHPMEVENT_MINH);
-	for (cidx = 0; cidx <= 28; cidx++) {
-		if (!(mhpm_mask & 1UL << (cidx + 3)))
+	для (cidx = 0; cidx <= 28; cidx++) {
+		если (!(mhpm_mask & 1UL << (cidx + 3)))
 			continue;
-#if __riscv_xlen == 32
+#если __riscv_xlen == 32
 		csr_write_num(CSR_MHPMEVENT3 + cidx,
 			       mhpmevent_init_val & 0xFFFFFFFF);
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
 			csr_write_num(CSR_MHPMEVENT3H + cidx,
 				      mhpmevent_init_val >> BITS_PER_LONG);
-#else
+#иначе
 		csr_write_num(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
 #endif
 	}
 
-	if (misa_extension('H'))
+	если (misa_extension('H'))
 		csr_write(CSR_HSTATUS, 0);
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
+	если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
 		mstateen_val = 0;
 		mstateen_val |= SMSTATEEN_STATEN;
 		mstateen_val |= SMSTATEEN0_CONTEXT;
 		mstateen_val |= SMSTATEEN0_HSENVCFG;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
 			mstateen_val |= (SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
-		else
+		иначе
 			mstateen_val &= ~(SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
 		    sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCSRIND))
 			mstateen_val |= (SMSTATEEN0_SVSLCT);
-		else
+		иначе
 			mstateen_val &= ~(SMSTATEEN0_SVSLCT);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
 			mstateen_val |= SMSTATEEN0_CTR;
-		else
+		иначе
 			mstateen_val &= ~SMSTATEEN0_CTR;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
 			mstateen_val |= SMSTATEEN0_SRMCFG;
-		else
+		иначе
 			mstateen_val &= ~SMSTATEEN0_SRMCFG;
 
 		csr_write64(CSR_MSTATEEN0, mstateen_val);
@@ -119,14 +119,14 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		csr_write64(CSR_MSTATEEN3, SMSTATEEN_STATEN);
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
-		if (misa_extension('S')) {
+	если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
+		если (misa_extension('S')) {
 			csr_write(CSR_SSTATEEN0, 0);
 			csr_write(CSR_SSTATEEN1, 0);
 			csr_write(CSR_SSTATEEN2, 0);
 			csr_write(CSR_SSTATEEN3, 0);
 		}
-		if (misa_extension('H')) {
+		если (misa_extension('H')) {
 			csr_write64(CSR_HSTATEEN0, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN1, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN2, (uint64_t)0);
@@ -134,7 +134,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		}
 	}
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12) {
+	если (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12) {
 		menvcfg_val = csr_read64(CSR_MENVCFG);
 
 		/* Disable HW A/D updating by default */
@@ -144,7 +144,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		menvcfg_val &= ~ENVCFG_DTE;
 
 #define __set_menvcfg_ext(__ext, __bits)				\
-		if (sbi_hart_has_extension(scratch, __ext))		\
+		если (sbi_hart_has_extension(scratch, __ext))		\
 			menvcfg_val |= __bits;
 
 		/*
@@ -156,7 +156,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM, ENVCFG_CBCFE)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM,
 				  ENVCFG_CBIE_INV << ENVCFG_CBIE_SHIFT)
-#if __riscv_xlen > 32
+#если __riscv_xlen > 32
 		__set_menvcfg_ext(SBI_HART_EXT_SVPBMT, ENVCFG_PBMTE)
 #endif
 		__set_menvcfg_ext(SBI_HART_EXT_SSTC, ENVCFG_STCE)
@@ -168,7 +168,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		 * present. When both are present we must default to Svade (see
 		 * the zero reset value of FWFT.PTE_AD_HW_UPDATING).
 		 */
-		if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
+		если (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
 			__set_menvcfg_ext(SBI_HART_EXT_SVADU, ENVCFG_ADUE);
 
 #undef __set_menvcfg_ext
@@ -176,7 +176,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		csr_write64(CSR_MENVCFG, menvcfg_val);
 
 		/* Enable S-mode access to seed CSR */
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
+		если (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
 			csr_set(CSR_MSECCFG, MSECCFG_SSEED);
 			csr_clear(CSR_MSECCFG, MSECCFG_USEED);
 		}
@@ -186,37 +186,37 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	csr_write(CSR_MIE, 0);
 
 	/* Disable S-mode paging */
-	if (misa_extension('S'))
+	если (misa_extension('S'))
 		csr_write(CSR_SATP, 0);
 }
 
-static int fp_init(struct sbi_scratch *scratch)
+static целое fp_init(struct sbi_scratch *scratch)
 {
 #ifdef __riscv_flen
-	int i;
+	целое i;
 #endif
 
-	if (!misa_extension('D') && !misa_extension('F'))
-		return 0;
+	если (!misa_extension('D') && !misa_extension('F'))
+		вернуть 0;
 
-	if (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
-		return SBI_EINVAL;
+	если (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
+		вернуть SBI_EINVAL;
 
 #ifdef __riscv_flen
-	for (i = 0; i < 32; i++)
+	для (i = 0; i < 32; i++)
 		init_fp_reg(i);
 	csr_write(CSR_FCSR, 0);
 #endif
 
-	return 0;
+	вернуть 0;
 }
 
 void sbi_hart_delegation_dump(struct sbi_scratch *scratch,
 			      const char *prefix, const char *suffix)
 {
-	if (!misa_extension('S'))
+	если (!misa_extension('S'))
 		/* No delegation possible as mideleg does not exist*/
-		return;
+		вернуть;
 
 	sbi_printf("%sMIDELEG%s: 0x%" PRILX "\n",
 		   prefix, suffix, csr_read(CSR_MIDELEG));
@@ -224,32 +224,32 @@ void sbi_hart_delegation_dump(struct sbi_scratch *scratch,
 		   prefix, suffix, csr_read(CSR_MEDELEG));
 }
 
-unsigned int sbi_hart_mhpm_mask(struct sbi_scratch *scratch)
+unsigned целое sbi_hart_mhpm_mask(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
 
-	return hfeatures->mhpm_mask;
+	вернуть hfeatures->mhpm_mask;
 }
 
-unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch)
+unsigned целое sbi_hart_mhpm_bits(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
 
-	return hfeatures->mhpm_bits;
+	вернуть hfeatures->mhpm_bits;
 }
 
-int sbi_hart_priv_version(struct sbi_scratch *scratch)
+целое sbi_hart_priv_version(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
 
-	return hfeatures->priv_version;
+	вернуть hfeatures->priv_version;
 }
 
 void sbi_hart_get_priv_version_str(struct sbi_scratch *scratch,
-				   char *version_str, int nvstr)
+				   char *version_str, целое nvstr)
 {
 	char *temp;
 	struct sbi_hart_features *hfeatures =
@@ -278,9 +278,9 @@ static inline void __sbi_hart_update_extension(
 					enum sbi_hart_extensions ext,
 					bool enable)
 {
-	if (enable)
+	если (enable)
 		__set_bit(ext, hfeatures->extensions);
-	else
+	иначе
 		__clear_bit(ext, hfeatures->extensions);
 }
 
@@ -314,10 +314,10 @@ bool sbi_hart_has_extension(struct sbi_scratch *scratch,
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
 
-	if (__test_bit(ext, hfeatures->extensions))
-		return true;
-	else
-		return false;
+	если (__test_bit(ext, hfeatures->extensions))
+		вернуть true;
+	иначе
+		вернуть false;
 }
 
 #define __SBI_HART_EXT_DATA(_name, _id) {	\
@@ -375,18 +375,18 @@ _Static_assert(SBI_HART_EXT_MAX == array_size(sbi_hart_ext),
  *		truncated if nestr is not long enough.
  */
 void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
-				 char *extensions_str, int nestr)
+				 char *extensions_str, целое nestr)
 {
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
-	int offset = 0, ext = 0;
+	целое offset = 0, ext = 0;
 
-	if (!extensions_str || nestr <= 0)
-		return;
+	если (!extensions_str || nestr <= 0)
+		вернуть;
 	sbi_memset(extensions_str, 0, nestr);
 
 	for_each_set_bit(ext, hfeatures->extensions, SBI_HART_EXT_MAX) {
-		if (offset + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
+		если (offset + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
 			sbi_printf("%s:extension name is longer than buffer (error)\n", __func__);
 			break;
 		}
@@ -396,9 +396,9 @@ void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
 		offset = offset + sbi_strlen(sbi_hart_ext[ext].name) + 1;
 	}
 
-	if (offset)
+	если (offset)
 		extensions_str[offset - 1] = '\0';
-	else
+	иначе
 		sbi_strncpy(extensions_str, "none", nestr);
 }
 
@@ -413,7 +413,7 @@ bool sbi_hart_has_csr(struct sbi_scratch *scratch, enum sbi_hart_csrs csr)
 	struct sbi_hart_features *hfeatures =
 			sbi_scratch_offset_ptr(scratch, hart_features_offset);
 
-	return __test_bit(csr, hfeatures->csrs);
+	вернуть __test_bit(csr, hfeatures->csrs);
 }
 
 static unsigned long hart_pmp_get_allowed_addr(void)
@@ -422,61 +422,61 @@ static unsigned long hart_pmp_get_allowed_addr(void)
 	struct sbi_trap_info trap = {0};
 
 	csr_write_allowed(CSR_PMPCFG0, &trap, 0);
-	if (trap.cause)
-		return 0;
+	если (trap.cause)
+		вернуть 0;
 
 	csr_write_allowed(CSR_PMPADDR0, &trap, PMP_ADDR_MASK);
-	if (!trap.cause) {
+	если (!trap.cause) {
 		val = csr_read_allowed(CSR_PMPADDR0, &trap);
-		if (trap.cause)
+		если (trap.cause)
 			val = 0;
 	}
 
-	return val;
+	вернуть val;
 }
 
-static int hart_mhpm_get_allowed_bits(void)
+static целое hart_mhpm_get_allowed_bits(void)
 {
 	unsigned long val = ~(0UL);
 	struct sbi_trap_info trap = {0};
-	int num_bits = 0;
+	целое num_bits = 0;
 
 	/**
 	 * It is assumed that platforms will implement same number of bits for
 	 * all the performance counters including mcycle/minstret.
 	 */
 	csr_write_allowed(CSR_MHPMCOUNTER3, &trap, val);
-	if (!trap.cause) {
+	если (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3, &trap);
-		if (trap.cause)
-			return 0;
+		если (trap.cause)
+			вернуть 0;
 	}
 	num_bits = sbi_fls(val) + 1;
-#if __riscv_xlen == 32
+#если __riscv_xlen == 32
 	csr_write_allowed(CSR_MHPMCOUNTER3H, &trap, val);
-	if (!trap.cause) {
+	если (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3H, &trap);
-		if (trap.cause)
-			return num_bits;
+		если (trap.cause)
+			вернуть num_bits;
 	}
 	num_bits += sbi_fls(val) + 1;
 
 #endif
 
-	return num_bits;
+	вернуть num_bits;
 }
 
-static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
+static целое hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 {
 	struct sbi_trap_info trap = {0};
 	struct sbi_hart_features *hfeatures =
 		sbi_scratch_offset_ptr(scratch, hart_features_offset);
 	unsigned long val, oldval;
-	int rc;
+	целое rc;
 
 	/* If hart features already detected then do nothing */
-	if (hfeatures->detected)
-		return 0;
+	если (hfeatures->detected)
+		вернуть 0;
 
 	/*
 	 * Parse device tree extensions early, before any trap-based checks.
@@ -484,16 +484,16 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * that may trigger traps.
 	 */
 	rc = sbi_platform_extensions_init(sbi_platform_ptr(scratch), cold_boot);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
+	если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
 		const struct sbi_platform *plat = sbi_platform_thishart_ptr();
 		const struct sbi_platform_operations *ops = sbi_platform_ops(plat);
 		extern void _trap_rnmi_handler(void);
 		extern void _trap_handler(void);
 
-		if (!ops || !ops->smrnmi_handlers_init)
+		если (!ops || !ops->smrnmi_handlers_init)
 			sbi_panic("Smrnmi detected, but platform lacks smrnmi_handlers_init callback\n");
 
 		/* Reuse _trap_handler for the RNME slot since RNME is taken
@@ -509,9 +509,9 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 
 #define __check_hpm_csr(__csr, __mask) 					  \
 	oldval = csr_read_allowed(__csr, &trap);			  \
-	if (!trap.cause) {						  \
+	если (!trap.cause) {						  \
 		csr_write_allowed(__csr, &trap, 1UL);			  \
-		if (!trap.cause && csr_swap(__csr, oldval) == 1UL) {	  \
+		если (!trap.cause && csr_swap(__csr, oldval) == 1UL) {	  \
 			(hfeatures->__mask) |= 1 << (__csr - CSR_MCYCLE); \
 		}							  \
 	}
@@ -531,21 +531,21 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 
 #define __check_csr(__csr, __rdonly, __wrval, __field, __skip)		\
 	oldval = csr_read_allowed(__csr, &trap);			\
-	if (!trap.cause) {						\
-		if (__rdonly) {						\
+	если (!trap.cause) {						\
+		если (__rdonly) {						\
 			(hfeatures->__field)++;				\
-		} else {						\
+		} иначе {						\
 			csr_write_allowed(__csr, &trap, __wrval);	\
-			if (!trap.cause) {				\
-				if ((csr_swap(__csr, oldval) & __wrval) == __wrval)	\
+			если (!trap.cause) {				\
+				если ((csr_swap(__csr, oldval) & __wrval) == __wrval)	\
 					(hfeatures->__field)++;		\
-				else					\
+				иначе					\
 					goto __skip;			\
-			} else {					\
+			} иначе {					\
 				goto __skip;				\
 			}						\
 		}							\
-	} else {							\
+	} иначе {							\
 		goto __skip;						\
 	}
 #define __check_csr_2(__csr, __rdonly, __wrval, __field, __skip)	\
@@ -572,7 +572,7 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * should be implemented.
 	 */
 	val = hart_pmp_get_allowed_addr();
-	if (val) {
+	если (val) {
 		hfeatures->pmp_log2gran = sbi_ffs(val) + 2;
 		hfeatures->pmp_addr_bits = sbi_fls(val) + 1;
 		/* Detect number of PMP regions. At least PMPADDR0 should be implemented*/
@@ -601,7 +601,7 @@ __pmp_skip:
 
 #define __check_priv(__csr, __base_priv, __priv)			\
 	val = csr_read_allowed(__csr, &trap);				\
-	if (!trap.cause && (hfeatures->priv_version >= __base_priv)) {	\
+	если (!trap.cause && (hfeatures->priv_version >= __base_priv)) {	\
 		hfeatures->priv_version = __priv;			\
 	}
 
@@ -618,9 +618,9 @@ __pmp_skip:
 #undef __check_priv_csr
 
 #define __check_ext_csr(__base_priv, __csr, __ext)			\
-	if (hfeatures->priv_version >= __base_priv) {			\
+	если (hfeatures->priv_version >= __base_priv) {			\
 		csr_read_allowed(__csr, &trap);				\
-		if (!trap.cause)					\
+		если (!trap.cause)					\
 			__sbi_hart_update_extension(hfeatures,		\
 						    __ext, true);	\
 	}
@@ -652,7 +652,7 @@ __pmp_skip:
 
 #define __check_csr_existence(__csr, __csr_id)				\
 	csr_read_allowed(__csr, &trap);					\
-	if (!trap.cause)						\
+	если (!trap.cause)						\
 		__set_bit(__csr_id, hfeatures->csrs);
 
 	__check_csr_existence(CSR_CYCLE, SBI_HART_CSR_CYCLE);
@@ -668,7 +668,7 @@ __pmp_skip:
 			    sbi_hart_has_csr(scratch, SBI_HART_CSR_INSTRET));
 
 	/* Extensions implied by other extensions and features */
-	if (hfeatures->mhpm_mask)
+	если (hfeatures->mhpm_mask)
 		__sbi_hart_update_extension(hfeatures,
 					SBI_HART_EXT_ZIHPM, true);
 
@@ -681,29 +681,29 @@ __pmp_skip:
 	 * to configure it's own M-mode only regions without depending
 	 * on the previous booting stage.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
+	если (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
 	    (csr_read(CSR_MSECCFG) & MSECCFG_MML))
-		return SBI_EILL;
+		вернуть SBI_EILL;
 
-	return 0;
+	вернуть 0;
 }
 
-int sbi_hart_reinit(struct sbi_scratch *scratch)
+целое sbi_hart_reinit(struct sbi_scratch *scratch)
 {
-	int rc;
+	целое rc;
 
 	mstatus_init(scratch);
 
 	rc = fp_init(scratch);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return 0;
+	вернуть 0;
 }
 
-int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
+целое sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
 {
-	int rc;
+	целое rc;
 
 	/*
 	 * Clear mip CSR before proceeding with init to avoid any spurious
@@ -711,32 +711,32 @@ int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
 	 */
 	csr_write(CSR_MIP, 0);
 
-	if (cold_boot) {
-		if (misa_extension('H'))
+	если (cold_boot) {
+		если (misa_extension('H'))
 			sbi_hart_expected_trap = &__sbi_expected_trap_hext;
 
 		hart_features_offset = sbi_scratch_alloc_offset(
 					sizeof(struct sbi_hart_features));
-		if (!hart_features_offset)
-			return SBI_ENOMEM;
+		если (!hart_features_offset)
+			вернуть SBI_ENOMEM;
 	}
 
 	rc = hart_detect_features(scratch, cold_boot);
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	if (cold_boot) {
+	если (cold_boot) {
 		rc = sbi_hart_pmp_init(scratch);
-		if (rc)
-			return rc;
+		если (rc)
+			вернуть rc;
 	}
 
-	return sbi_hart_reinit(scratch);
+	вернуть sbi_hart_reinit(scratch);
 }
 
 void __attribute__((noreturn)) sbi_hart_hang(void)
 {
-	while (1)
+	пока (1)
 		wfi();
 	__builtin_unreachable();
 }
@@ -746,9 +746,9 @@ sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
 		     unsigned long next_addr, unsigned long next_mode,
 		     bool next_virt)
 {
-#if __riscv_xlen == 32
+#если __riscv_xlen == 32
 	unsigned long val, valH;
-#else
+#иначе
 	unsigned long val;
 #endif
 
@@ -756,11 +756,11 @@ sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
 	case PRV_M:
 		break;
 	case PRV_S:
-		if (!misa_extension('S'))
+		если (!misa_extension('S'))
 			sbi_hart_hang();
 		break;
 	case PRV_U:
-		if (!misa_extension('U'))
+		если (!misa_extension('U'))
 			sbi_hart_hang();
 		break;
 	default:
@@ -770,33 +770,33 @@ sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
 	val = csr_read(CSR_MSTATUS);
 	val = INSERT_FIELD(val, MSTATUS_MPP, next_mode);
 	val = INSERT_FIELD(val, MSTATUS_MPIE, 0);
-#if __riscv_xlen == 32
-	if (misa_extension('H')) {
+#если __riscv_xlen == 32
+	если (misa_extension('H')) {
 		valH = csr_read(CSR_MSTATUSH);
 		valH = INSERT_FIELD(valH, MSTATUSH_MPV, next_virt);
 		csr_write(CSR_MSTATUSH, valH);
 	}
-#else
-	if (misa_extension('H'))
+#иначе
+	если (misa_extension('H'))
 		val = INSERT_FIELD(val, MSTATUS_MPV, next_virt);
 #endif
 	csr_write(CSR_MSTATUS, val);
 	csr_write(CSR_MEPC, next_addr);
 
-	if (next_mode == PRV_S) {
-		if (next_virt) {
+	если (next_mode == PRV_S) {
+		если (next_virt) {
 			csr_write(CSR_VSTVEC, next_addr);
 			csr_write(CSR_VSSCRATCH, 0);
 			csr_write(CSR_VSIE, 0);
 			csr_write(CSR_VSATP, 0);
-		} else {
+		} иначе {
 			csr_write(CSR_STVEC, next_addr);
 			csr_write(CSR_SSCRATCH, 0);
 			csr_write(CSR_SIE, 0);
 			csr_write(CSR_SATP, 0);
 		}
-	} else if (next_mode == PRV_U) {
-		if (misa_extension('N')) {
+	} иначе если (next_mode == PRV_U) {
+		если (misa_extension('N')) {
 			csr_write(CSR_UTVEC, next_addr);
 			csr_write(CSR_USCRATCH, 0);
 			csr_write(CSR_UIE, 0);

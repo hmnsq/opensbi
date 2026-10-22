@@ -14,29 +14,29 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
+static целое sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	целое ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
+	если (funcid == SBI_EXT_TIME_SET_TIMER) {
+#если __riscv_xlen == 32
 		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
+#иначе
 		sbi_timer_smode_event_start((u64)regs->a0);
 #endif
-	} else
+	} иначе
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	вернуть ret;
 }
 
 struct sbi_ecall_extension ecall_time;
 
-static int sbi_ecall_time_register_extensions(void)
+static целое sbi_ecall_time_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	вернуть sbi_ecall_register_extension(&ecall_time);
 }
 
 struct sbi_ecall_extension ecall_time = {

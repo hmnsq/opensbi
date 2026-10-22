@@ -33,7 +33,7 @@ static volatile char *altr_juart_base;
 
 static u32 get_reg(u32 offset)
 {
-	return readl(altr_juart_base + offset);
+	вернуть readl(altr_juart_base + offset);
 }
 
 static void set_reg(u32 offset, u32 val)
@@ -43,19 +43,19 @@ static void set_reg(u32 offset, u32 val)
 
 static void altr_juart_putc(char ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	пока(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
 		;
 
 	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
 }
 
-static int altr_juart_getc(void)
+static целое altr_juart_getc(void)
 {
 	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	если (reg & JUART_DATA_RVALID)
+		вернуть reg & JUART_DATA_DATA_MASK;
 
-	return -1;
+	вернуть -1;
 }
 
 static struct sbi_console_device altr_juart_console = {
@@ -64,11 +64,11 @@ static struct sbi_console_device altr_juart_console = {
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+целое altr_juart_init(unsigned long base)
 {
 	altr_juart_base = (volatile char *)base;
 
 	sbi_console_set_device(&altr_juart_console);
 
-	return 0;
+	вернуть 0;
 }

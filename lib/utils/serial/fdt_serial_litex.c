@@ -12,20 +12,20 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
+static целое serial_litex_init(const void *fdt, целое nodeoff,
 			     const struct fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	целое rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	если (nodeoff < 0 || !fdt)
+		вернуть SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	если (rc < 0 || !reg_addr || !reg_size)
+		вернуть SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	вернуть litex_uart_init(reg_addr);
 }
 
 static const struct fdt_match serial_litex_match[] = {

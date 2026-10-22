@@ -18,14 +18,14 @@ static const struct fdt_match serial_htif_match[] = {
 	{ },
 };
 
-static int serial_htif_init(const void *fdt, int nodeoff,
+static целое serial_htif_init(const void *fdt, целое nodeoff,
 			    const struct fdt_match *match)
 {
-	int rc;
+	целое rc;
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	если (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
 		custom = true;
 		tohost_addr = fromhost_addr + sizeof(uint64_t);
 	}
@@ -35,10 +35,10 @@ static int serial_htif_init(const void *fdt, int nodeoff,
 	rc = sbi_domain_root_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
 					  (SBI_DOMAIN_MEMREGION_MMIO |
 					   SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return htif_serial_init(custom, fromhost_addr, tohost_addr);
+	вернуть htif_serial_init(custom, fromhost_addr, tohost_addr);
 }
 
 const struct fdt_driver fdt_serial_htif = {

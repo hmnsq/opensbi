@@ -78,23 +78,23 @@ static unsigned long tmc0_offset;
 #define SIFIVE_TMC_WAKE_MASK_WREQ		BIT(31)
 #define SIFIVE_TMC_WAKE_MASK_ACK		BIT(30)
 
-int sifive_tmc0_set_wakemask_enareq(u32 hartid)
+целое sifive_tmc0_set_wakemask_enareq(u32 hartid)
 {
 	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
 	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return SBI_ENODEV;
+	если (!tmc0)
+		вернуть SBI_ENODEV;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
 	v = readl((void *)addr);
 	writel(v | SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
 
-	while (!(readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
+	пока (!(readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
 void sifive_tmc0_set_wakemask_disreq(u32 hartid)
@@ -104,14 +104,14 @@ void sifive_tmc0_set_wakemask_disreq(u32 hartid)
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return;
+	если (!tmc0)
+		вернуть;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
 	v = readl((void *)addr);
 	writel(v & ~SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
 
-	while (readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
+	пока (readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
 }
 
 bool sifive_tmc0_is_pg(u32 hartid)
@@ -121,17 +121,17 @@ bool sifive_tmc0_is_pg(u32 hartid)
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return false;
+	если (!tmc0)
+		вернуть false;
 
 	addr = tmc0->reg + SIFIVE_TMC_PG_OFF;
 	v = readl((void *)addr);
-	if (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
+	если (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
 	    (v & SIFIVE_TMC_PG_ENARSP) ||
 	    (v & SIFIVE_TMC_PG_DIS_REQ))
-		return false;
+		вернуть false;
 
-	return true;
+	вернуть true;
 }
 
 static void sifive_tmc0_set_resumepc(physical_addr_t addr)
@@ -139,7 +139,7 @@ static void sifive_tmc0_set_resumepc(physical_addr_t addr)
 	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 
 	writel((u32)addr, (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_LO));
-#if __riscv_xlen > 32
+#если __riscv_xlen > 32
 	writel((u32)(addr >> 32), (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_HI));
 #endif
 }
@@ -151,10 +151,10 @@ static u32 sifive_tmc0_set_pgprep_enareq(void)
 	u32 v = readl((void *)reg);
 
 	writel(v | SIFIVE_TMC_PGPREP_ENA_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
+	пока (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
 
 	v = readl((void *)reg);
-	return v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
+	вернуть v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
 }
 
 static void sifive_tmc0_set_pgprep_disreq(void)
@@ -164,7 +164,7 @@ static void sifive_tmc0_set_pgprep_disreq(void)
 	u32 v = readl((void *)reg);
 
 	writel(v | SIFIVE_TMC_PGPREP_DIS_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
+	пока (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
 }
 
 static u32 sifive_tmc0_get_pgprep_enarsp(void)
@@ -173,7 +173,7 @@ static u32 sifive_tmc0_get_pgprep_enarsp(void)
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
 	u32 v = readl((void *)reg);
 
-	return v & SIFIVE_TMC_PGPREP_ENARSP;
+	вернуть v & SIFIVE_TMC_PGPREP_ENARSP;
 }
 
 static void sifive_tmc0_set_pg_enareq(void)
@@ -185,22 +185,22 @@ static void sifive_tmc0_set_pg_enareq(void)
 	writel(v | SIFIVE_TMC_PG_ENA_REQ, (void *)reg);
 }
 
-static int sifive_tmc0_prep(void)
+static целое sifive_tmc0_prep(void)
 {
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
-	if (!tmc0_ptr_get(scratch))
-		return SBI_ENODEV;
+	если (!tmc0_ptr_get(scratch))
+		вернуть SBI_ENODEV;
 
 	rc = sifive_tmc0_set_pgprep_enareq();
-	if (rc) {
+	если (rc) {
 		sbi_printf("TMC0 error: Internal Abort (Wake detect)\n");
 		goto fail;
 	}
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	если (rc) {
 		sifive_tmc0_set_pgprep_disreq();
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
 		goto fail;
@@ -208,52 +208,52 @@ static int sifive_tmc0_prep(void)
 
 	sifive_tmc0_set_resumepc(scratch->warmboot_addr);
 
-	return SBI_OK;
+	вернуть SBI_OK;
 
 fail:
-	return SBI_EFAIL;
+	вернуть SBI_EFAIL;
 }
 
-static int sifive_tmc0_enter(void)
+static целое sifive_tmc0_enter(void)
 {
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
 	/* Flush cache and check if there is wake detect or bus error */
-	if (fdt_cmo_private_flc_flush_all() &&
+	если (fdt_cmo_private_flc_flush_all() &&
 	    sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CFLUSH_D_L1))
 		sifive_cflush();
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	если (rc) {
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
 		goto fail;
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
+	если (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
 		sifive_tmc0_set_pg_enareq();
-		while (1)
+		пока (1)
 			sifive_cease();
 	}
 
 	rc = SBI_ENOTSUPP;
 fail:
 	sifive_tmc0_set_pgprep_disreq();
-	return rc;
+	вернуть rc;
 }
 
-static int sifive_tmc0_tile_pg(void)
+static целое sifive_tmc0_tile_pg(void)
 {
-	int rc;
+	целое rc;
 
 	rc = sifive_tmc0_prep();
-	if (rc)
-		return rc;
+	если (rc)
+		вернуть rc;
 
-	return sifive_tmc0_enter();
+	вернуть sifive_tmc0_enter();
 }
 
-static int sifive_tmc0_start(u32 hartid, ulong saddr)
+static целое sifive_tmc0_start(u32 hartid, ulong saddr)
 {
 	/*
 	 * In system suspend, the IMSIC will be reset in SiFive platform so
@@ -261,23 +261,23 @@ static int sifive_tmc0_start(u32 hartid, ulong saddr)
 	 */
 	sbi_ipi_raw_send(sbi_hartid_to_hartindex(hartid), true);
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
-static int sifive_tmc0_stop(void)
+static целое sifive_tmc0_stop(void)
 {
 	unsigned long mie = csr_read(CSR_MIE);
-	int rc;
+	целое rc;
 	/* Set IPI as wake up source */
 	csr_set(CSR_MIE, MIP_MEIP | MIP_MSIP);
 
 	rc = sifive_tmc0_tile_pg();
-	if (rc) {
+	если (rc) {
 		csr_write(CSR_MIE, mie);
-		return rc;
+		вернуть rc;
 	}
 
-	return SBI_OK;
+	вернуть SBI_OK;
 }
 
 static struct sbi_hsm_device tmc0_hsm_dev = {
@@ -286,74 +286,74 @@ static struct sbi_hsm_device tmc0_hsm_dev = {
 	.hart_stop = sifive_tmc0_stop,
 };
 
-static int sifive_tmc0_bind_cpu(struct sifive_tmc0 *tmc0)
+static целое sifive_tmc0_bind_cpu(struct sifive_tmc0 *tmc0)
 {
 	const void *fdt = fdt_get_address();
 	struct sbi_scratch *scratch;
-	int cpus_off, cpu_off, rc;
+	целое cpus_off, cpu_off, rc;
 	const fdt32_t *val;
 	u32 hartid;
 
 	cpus_off = fdt_path_offset(fdt, "/cpus");
-	if (cpus_off < 0)
-		return SBI_ENOENT;
+	если (cpus_off < 0)
+		вернуть SBI_ENOENT;
 
 	fdt_for_each_subnode(cpu_off, fdt, cpus_off) {
 		rc = fdt_parse_hart_id(fdt, cpu_off, &hartid);
-		if (rc)
+		если (rc)
 			continue;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
+		если (!scratch)
 			continue;
 
 		val = fdt_getprop(fdt, cpu_off, "power-domains", NULL);
-		if (!val)
-			return SBI_ENOENT;
+		если (!val)
+			вернуть SBI_ENOENT;
 
-		if (tmc0->id == fdt32_to_cpu(val[0])) {
+		если (tmc0->id == fdt32_to_cpu(val[0])) {
 			tmc0_ptr_set(scratch, tmc0);
-			return SBI_OK;
+			вернуть SBI_OK;
 		}
 	}
 
-	return SBI_ENODEV;
+	вернуть SBI_ENODEV;
 }
 
-static int sifive_tmc0_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+static целое sifive_tmc0_probe(const void *fdt, целое nodeoff, const struct fdt_match *match)
 {
 	struct sifive_tmc0 *tmc0;
 	u64 addr;
-	int rc;
+	целое rc;
 
-	if (!tmc0_offset) {
+	если (!tmc0_offset) {
 		tmc0_offset = sbi_scratch_alloc_type_offset(struct sifive_tmc0 *);
-		if (!tmc0_offset)
-			return SBI_ENOMEM;
+		если (!tmc0_offset)
+			вернуть SBI_ENOMEM;
 
 		sbi_hsm_set_device(&tmc0_hsm_dev);
 	}
 
 	tmc0 = sbi_zalloc(sizeof(*tmc0));
-	if (!tmc0)
-		return SBI_ENOMEM;
+	если (!tmc0)
+		вернуть SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
+	если (rc)
 		goto free_tmc0;
 
 	tmc0->reg = (unsigned long)addr;
 	tmc0->id = fdt_get_phandle(fdt_get_address(), nodeoff);
 
 	rc = sifive_tmc0_bind_cpu(tmc0);
-	if (rc)
+	если (rc)
 		goto free_tmc0;
 
-	return SBI_OK;
+	вернуть SBI_OK;
 
 free_tmc0:
 	sbi_free(tmc0);
-	return rc;
+	вернуть rc;
 }
 
 static const struct fdt_match sifive_tmc0_match[] = {
