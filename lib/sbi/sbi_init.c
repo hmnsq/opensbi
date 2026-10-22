@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_cppc.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_double_trap.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_fwft.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_hart_pmp.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_dbtr.h>
-#include <sbi/sbi_mpxy.h>
-#include <sbi/sbi_sse.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_version.h>
-#include <sbi/sbi_unit_test.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_atomic.h>
+#ضمن <sbi/riscv_barrier.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_cppc.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_double_trap.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_fwft.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_hartmask.h>
+#ضمن <sbi/sbi_hart_pmp.h>
+#ضمن <sbi/sbi_hart_protection.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_hsm.h>
+#ضمن <sbi/sbi_ipi.h>
+#ضمن <sbi/sbi_irqchip.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_pmu.h>
+#ضمن <sbi/sbi_dbtr.h>
+#ضمن <sbi/sbi_mpxy.h>
+#ضمن <sbi/sbi_sse.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi/sbi_tlb.h>
+#ضمن <sbi/sbi_version.h>
+#ضمن <sbi/sbi_unit_test.h>
 
 #define BANNER                                              \
 	"   ____                    _____ ____ _____\n"     \
@@ -46,14 +46,14 @@
 	"        | |\n"                                     \
 	"        |_|\n\n"
 
-static void sbi_boot_print_banner(struct sbi_scratch *scratch)
+ساكن فراغ sbi_boot_print_banner(بنية sbi_scratch *scratch)
 {
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	𐤀𐤌 (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		أرجع;
 
 #ifdef OPENSBI_VERSION_GIT
 	sbi_printf("\nOpenSBI %s\n", OPENSBI_VERSION_GIT);
-#else
+#وإلا
 	sbi_printf("\nOpenSBI v%d.%d\n", OPENSBI_VERSION_MAJOR,
 		   OPENSBI_VERSION_MINOR);
 #endif
@@ -69,30 +69,30 @@ static void sbi_boot_print_banner(struct sbi_scratch *scratch)
 	sbi_printf(BANNER);
 }
 
-static void sbi_boot_print_general(struct sbi_scratch *scratch)
+ساكن فراغ sbi_boot_print_general(بنية sbi_scratch *scratch)
 {
-	char str[128];
-	const struct sbi_pmu_device *pdev;
-	const struct sbi_hsm_device *hdev;
-	const struct sbi_ipi_device *idev;
-	const struct sbi_timer_device *tdev;
-	const struct sbi_console_device *cdev;
-	const struct sbi_system_reset_device *srdev;
-	const struct sbi_system_suspend_device *susp_dev;
-	const struct sbi_cppc_device *cppc_dev;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	حرف str[128];
+	ثابت بنية sbi_pmu_device *pdev;
+	ثابت بنية sbi_hsm_device *hdev;
+	ثابت بنية sbi_ipi_device *idev;
+	ثابت بنية sbi_timer_device *tdev;
+	ثابت بنية sbi_console_device *cdev;
+	ثابت بنية sbi_system_reset_device *srdev;
+	ثابت بنية sbi_system_suspend_device *susp_dev;
+	ثابت بنية sbi_cppc_device *cppc_dev;
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	𐤀𐤌 (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		أرجع;
 
 	/* Platform details */
 	sbi_printf("Platform Name               : %s\n",
 		   sbi_platform_name(plat));
-	sbi_platform_get_features_str(plat, str, sizeof(str));
+	sbi_platform_get_features_str(plat, str, حجم(str));
 	sbi_printf("Platform Features           : %s\n", str);
 	sbi_printf("Platform HART Count         : %u\n",
 		   sbi_platform_hart_count(plat));
-	sbi_hart_protection_get_str(str, sizeof(str));
+	sbi_hart_protection_get_str(str, حجم(str));
 	sbi_printf("Platform HART Protection    : %s\n", str);
 	idev = sbi_ipi_get_device();
 	sbi_printf("Platform IPI Device         : %s\n",
@@ -146,34 +146,34 @@ static void sbi_boot_print_general(struct sbi_scratch *scratch)
 	/* SBI details */
 	sbi_printf("Runtime SBI Version         : %d.%d\n",
 		   sbi_ecall_version_major(), sbi_ecall_version_minor());
-	sbi_ecall_get_extensions_str(str, sizeof(str), false);
+	sbi_ecall_get_extensions_str(str, حجم(str), false);
 	sbi_printf("Standard SBI Extensions     : %s\n", str);
-	sbi_ecall_get_extensions_str(str, sizeof(str), true);
+	sbi_ecall_get_extensions_str(str, حجم(str), true);
 	sbi_printf("Experimental SBI Extensions : %s\n", str);
 	sbi_printf("\n");
 }
 
-static void sbi_boot_print_domains(struct sbi_scratch *scratch)
+ساكن فراغ sbi_boot_print_domains(بنية sbi_scratch *scratch)
 {
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	𐤀𐤌 (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		أرجع;
 
 	/* Domain details */
 	sbi_domain_dump_all("        ");
 }
 
-static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
+ساكن فراغ sbi_boot_print_hart(بنية sbi_scratch *scratch, u32 hartid)
 {
-	int xlen;
-	char str[256];
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	صحيح xlen;
+	حرف str[256];
+	ثابت بنية sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	𐤀𐤌 (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		أرجع;
 
 	/* Determine MISA XLEN and MISA string */
 	xlen = misa_xlen();
-	if (xlen < 1) {
+	𐤀𐤌 (xlen < 1) {
 		sbi_printf("Error %d getting MISA XLEN\n", xlen);
 		sbi_hart_hang();
 	}
@@ -181,11 +181,11 @@ static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
 	/* Boot HART details */
 	sbi_printf("Boot HART ID                : %u\n", hartid);
 	sbi_printf("Boot HART Domain            : %s\n", dom->name);
-	sbi_hart_get_priv_version_str(scratch, str, sizeof(str));
+	sbi_hart_get_priv_version_str(scratch, str, حجم(str));
 	sbi_printf("Boot HART Priv Version      : %s\n", str);
-	misa_string(xlen, str, sizeof(str));
+	misa_string(xlen, str, حجم(str));
 	sbi_printf("Boot HART Base ISA          : %s\n", str);
-	sbi_hart_get_extensions_str(scratch, str, sizeof(str));
+	sbi_hart_get_extensions_str(scratch, str, حجم(str));
 	sbi_printf("Boot HART ISA Extensions    : %s\n", str);
 	sbi_printf("Boot HART PMP Count         : %d\n",
 		   sbi_hart_pmp_count(scratch));
@@ -201,16 +201,16 @@ static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
 	sbi_hart_delegation_dump(scratch, "Boot HART ", "           ");
 }
 
-static unsigned long coldboot_done;
+ساكن unsigned long coldboot_done;
 
-static void wait_for_coldboot(struct sbi_scratch *scratch)
+ساكن فراغ wait_for_coldboot(بنية sbi_scratch *scratch)
 {
 	/* Wait for coldboot to finish */
-	while (!__smp_load_acquire(&coldboot_done))
+	طالما (!__smp_load_acquire(&coldboot_done))
 		cpu_relax();
 }
 
-static void wake_coldboot_harts(struct sbi_scratch *scratch)
+ساكن فراغ wake_coldboot_harts(بنية sbi_scratch *scratch)
 {
 	/* Mark coldboot done */
 	__smp_store_release(&coldboot_done, 1);
@@ -218,43 +218,43 @@ static void wake_coldboot_harts(struct sbi_scratch *scratch)
 
 unsigned long __attribute__((weak)) __stack_chk_guard = 0x95B5FF5A;
 
-static unsigned long entry_count_offset;
-static unsigned long init_count_offset;
+ساكن unsigned long entry_count_offset;
+ساكن unsigned long init_count_offset;
 
-static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
+ساكن فراغ __noreturn init_coldboot(بنية sbi_scratch *scratch, u32 hartid)
 {
-	int rc;
+	صحيح rc;
 	unsigned long *count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
 	/* Note: This has to be first thing in coldboot init sequence */
 	rc = sbi_scratch_init(scratch);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	/* Note: This has to be second thing in coldboot init sequence */
 	rc = sbi_heap_init(scratch);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	/* Note: This has to be the third thing in coldboot init sequence */
 	rc = sbi_domain_init(scratch, hartid);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	entry_count_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
-	if (!entry_count_offset)
+	𐤀𐤌 (!entry_count_offset)
 		sbi_hart_hang();
 
 	init_count_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
-	if (!init_count_offset)
+	𐤀𐤌 (!init_count_offset)
 		sbi_hart_hang();
 
 	count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
 	(*count)++;
 
 	rc = sbi_hsm_init(scratch, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	/*
@@ -266,7 +266,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	wake_coldboot_harts(scratch);
 
 	rc = sbi_hart_init(scratch, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	/*
@@ -275,24 +275,24 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * to __stack_chk_guard is safe here because function doesn't
 	 * return and no check against value on entry will be done.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
+	𐤀𐤌 (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
 		unsigned long guard_val = 0;
-		int chunks = sizeof(unsigned long) / sizeof(uint16_t);
+		صحيح chunks = حجم(unsigned long) / حجم(uint16_t);
 #ifndef CONFIG_ZKR_POLL_BUDGET
 #define CONFIG_ZKR_POLL_BUDGET		1000
 #endif
-		unsigned int tries = CONFIG_ZKR_POLL_BUDGET;
+		unsigned صحيح tries = CONFIG_ZKR_POLL_BUDGET;
 		bool res = false;
 
-		while (chunks && tries) {
+		طالما (chunks && tries) {
 			unsigned long seed = csr_swap(CSR_SEED, 0);
 			unsigned long opst = seed & SEED_OPTS_MASK;
 			res = false;
 
-			if (opst == SEED_OPTS_DEAD) {
-				break;
+			𐤀𐤌 (opst == SEED_OPTS_DEAD) {
+				اكسر;
 			}
-			if (opst == SEED_OPTS_ES16) {
+			𐤀𐤌 (opst == SEED_OPTS_ES16) {
 				guard_val = (guard_val << 16) | (seed & SEED_ENTROPY_MASK);
 				chunks--;
 				res = true;
@@ -301,33 +301,33 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 			}
 
 			tries--;
-			continue;
+			استمر;
 		}
-		if (res)
+		𐤀𐤌 (res)
 			__stack_chk_guard = guard_val;
 	}
 
 	rc = sbi_trap_init(scratch, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_timer_init(scratch, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_early_init(plat, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_pmu_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: pmu init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_dbtr_init(scratch, true);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	sbi_boot_print_banner(scratch);
@@ -335,32 +335,32 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	sbi_double_trap_init(scratch);
 
 	rc = sbi_irqchip_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: irqchip init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_ipi_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: ipi init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_tlb_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: tlb init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_fwft_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: fwft init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_mpxy_init(scratch);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: mpxy init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -371,7 +371,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * that we use correct domain for configuring PMP.
 	 */
 	rc = sbi_domain_finalize(scratch);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: domain finalize failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -383,7 +383,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * configuration for FDT fixups.
 	 */
 	rc = sbi_platform_final_init(plat, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: platform final init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -394,7 +394,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * sbi_sse_init() needs to be called after all drivers have been probed.
 	 */
 	rc = sbi_sse_init(scratch, true);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: sse init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -405,7 +405,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * already registered.
 	 */
 	rc = sbi_ecall_init();
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: ecall init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -423,7 +423,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * otherwise boot HART of non-root domain can crash.
 	 */
 	rc = sbi_domain_startup(scratch, hartid);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: domain startup failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -434,7 +434,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * detected, M-mode access to the S/U space will be rescinded.
 	 */
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_printf("%s: hart protection configure failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -446,14 +446,14 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	sbi_hsm_hart_start_finish(scratch, hartid);
 }
 
-static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
+ساكن فراغ __noreturn init_warm_startup(بنية sbi_scratch *scratch,
 					 u32 hartid)
 {
-	int rc;
+	صحيح rc;
 	unsigned long *count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (!entry_count_offset || !init_count_offset)
+	𐤀𐤌 (!entry_count_offset || !init_count_offset)
 		sbi_hart_hang();
 
 	count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
@@ -461,55 +461,55 @@ static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
 
 	/* Note: This has to be first thing in warmboot init sequence */
 	rc = sbi_hsm_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_hart_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_trap_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_timer_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_early_init(plat, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_pmu_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_dbtr_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_irqchip_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_ipi_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_tlb_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_fwft_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_final_init(plat, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_sse_init(scratch, false);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	/*
@@ -517,7 +517,7 @@ static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
 	 * detected, M-mode access to the S/U space will be rescinded.
 	 */
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	count = sbi_scratch_offset_ptr(scratch, init_count_offset);
@@ -526,43 +526,43 @@ static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
 	sbi_hsm_hart_start_finish(scratch, hartid);
 }
 
-static void __noreturn init_warm_resume(struct sbi_scratch *scratch,
+ساكن فراغ __noreturn init_warm_resume(بنية sbi_scratch *scratch,
 					u32 hartid)
 {
-	int rc;
+	صحيح rc;
 
 	sbi_hsm_hart_resume_start(scratch);
 
 	rc = sbi_hart_reinit(scratch);
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc)
+	𐤀𐤌 (rc)
 		sbi_hart_hang();
 
 	sbi_hsm_hart_resume_finish(scratch, hartid);
 }
 
-static void __noreturn init_warmboot(struct sbi_scratch *scratch, u32 hartid)
+ساكن فراغ __noreturn init_warmboot(بنية sbi_scratch *scratch, u32 hartid)
 {
-	int hstate;
+	صحيح hstate;
 
 	wait_for_coldboot(scratch);
 
 	hstate = sbi_hsm_hart_get_state(sbi_domain_thishart_ptr(), hartid);
-	if (hstate < 0)
+	𐤀𐤌 (hstate < 0)
 		sbi_hart_hang();
 
-	if (hstate == SBI_HSM_STATE_SUSPENDED) {
+	𐤀𐤌 (hstate == SBI_HSM_STATE_SUSPENDED) {
 		init_warm_resume(scratch, hartid);
-	} else {
+	} وإلا {
 		sbi_ipi_raw_clear(true);
 		init_warm_startup(scratch, hartid);
 	}
 }
 
-static atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
+ساكن atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
 
 /**
  * Initialize OpenSBI library for current HART and jump to next
@@ -576,26 +576,26 @@ static atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
  *
  * @param scratch pointer to sbi_scratch of current HART
  */
-void __noreturn sbi_init(struct sbi_scratch *scratch)
+فراغ __noreturn sbi_init(بنية sbi_scratch *scratch)
 {
 	bool next_mode_supported	= false;
 	bool coldboot			= false;
 	u32 hartid			= current_hartid();
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	switch (scratch->next_mode) {
-	case PRV_M:
+	بدل (scratch->next_mode) {
+	حالة PRV_M:
 		next_mode_supported = true;
-		break;
-	case PRV_S:
-		if (misa_extension('S'))
+		اكسر;
+	حالة PRV_S:
+		𐤀𐤌 (misa_extension('S'))
 			next_mode_supported = true;
-		break;
-	case PRV_U:
-		if (misa_extension('U'))
+		اكسر;
+	حالة PRV_U:
+		𐤀𐤌 (misa_extension('U'))
 			next_mode_supported = true;
-		break;
-	default:
+		اكسر;
+	افتراضي:
 		sbi_hart_hang();
 	}
 
@@ -609,8 +609,8 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
 	 * HARTs which satisfy above condition.
 	 */
 
-	if (sbi_platform_cold_boot_allowed(plat, hartid)) {
-		if (next_mode_supported &&
+	𐤀𐤌 (sbi_platform_cold_boot_allowed(plat, hartid)) {
+		𐤀𐤌 (next_mode_supported &&
 		    atomic_xchg(&coldboot_lottery, 1) == 0)
 			coldboot = true;
 	}
@@ -620,20 +620,20 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
 	 * that platform can initialize platform specific per-HART CSRs
 	 * or per-HART devices.
 	 */
-	if (sbi_platform_nascent_init(plat))
+	𐤀𐤌 (sbi_platform_nascent_init(plat))
 		sbi_hart_hang();
 
-	if (coldboot)
+	𐤀𐤌 (coldboot)
 		init_coldboot(scratch, hartid);
-	else
+	وإلا
 		init_warmboot(scratch, hartid);
 }
 
-void sbi_revert_entry_count(struct sbi_scratch *scratch)
+فراغ sbi_revert_entry_count(بنية sbi_scratch *scratch)
 {
 	unsigned long *entry_count, *init_count;
 
-	if (!entry_count_offset || !init_count_offset)
+	𐤀𐤌 (!entry_count_offset || !init_count_offset)
 		sbi_hart_hang();
 
 	entry_count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
@@ -644,36 +644,36 @@ void sbi_revert_entry_count(struct sbi_scratch *scratch)
 
 unsigned long sbi_entry_count(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 	unsigned long *entry_count;
 
-	if (!entry_count_offset)
-		return 0;
+	𐤀𐤌 (!entry_count_offset)
+		أرجع 0;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return 0;
+	𐤀𐤌 (!scratch)
+		أرجع 0;
 
 	entry_count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
 
-	return *entry_count;
+	أرجع *entry_count;
 }
 
 unsigned long sbi_init_count(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 	unsigned long *init_count;
 
-	if (!init_count_offset)
-		return 0;
+	𐤀𐤌 (!init_count_offset)
+		أرجع 0;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return 0;
+	𐤀𐤌 (!scratch)
+		أرجع 0;
 
 	init_count = sbi_scratch_offset_ptr(scratch, init_count_offset);
 
-	return *init_count;
+	أرجع *init_count;
 }
 
 /**
@@ -685,12 +685,12 @@ unsigned long sbi_init_count(u32 hartindex)
  *
  * @param scratch pointer to sbi_scratch of current HART
  */
-void __noreturn sbi_exit(struct sbi_scratch *scratch)
+فراغ __noreturn sbi_exit(بنية sbi_scratch *scratch)
 {
 	u32 hartid			= current_hartid();
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (!sbi_hartid_valid(hartid))
+	𐤀𐤌 (!sbi_hartid_valid(hartid))
 		sbi_hart_hang();
 
 	sbi_platform_early_exit(plat);

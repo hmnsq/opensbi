@@ -4,15 +4,15 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
 #define ATCWDT200_WP_NUM 0x5aa5
 #define WREN_REG 0x18
@@ -40,25 +40,25 @@
 
 #define AE350_FLASH_BASE 0x80000000
 
-static volatile char *wdt_addr = NULL;
+ساكن متطاير حرف *wdt_addr = عدم;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+ساكن صحيح ae350_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	default:
-		return 0;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		أرجع 1;
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	افتراضي:
+		أرجع 0;
 	}
 }
 
-static void ae350_system_reset(u32 type, u32 reason)
+ساكن فراغ ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
-			goto fail;
+		𐤀𐤌 (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
+			اذهب fail;
 
 	/* Program WDT control register  */
 	writew(ATCWDT200_WP_NUM, wdt_addr + WREN_REG);
@@ -69,34 +69,34 @@ fail:
 	sbi_hart_hang();
 }
 
-static struct sbi_system_reset_device atcwdt200_reset = {
+ساكن بنية sbi_system_reset_device atcwdt200_reset = {
 	.name		    = "atcwdt200",
 	.system_reset_check = ae350_system_reset_check,
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ساكن صحيح atcwdt200_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+				ثابت بنية fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	صحيح rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, عدم);
+	𐤀𐤌 (rc < 0 || !reg_addr)
+		أرجع SBI_ENODEV;
 
-	wdt_addr = (volatile char *)(unsigned long)reg_addr;
+	wdt_addr = (متطاير حرف *)(unsigned long)reg_addr;
 	sbi_system_reset_add_device(&atcwdt200_reset);
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match atcwdt200_reset_match[] = {
+ساكن ثابت بنية fdt_match atcwdt200_reset_match[] = {
 	{ .compatible = "andestech,atcwdt200" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_atcwdt200 = {
+ثابت بنية fdt_driver fdt_reset_atcwdt200 = {
 	.match_table = atcwdt200_reset_match,
 	.init	     = atcwdt200_reset_init,
 };

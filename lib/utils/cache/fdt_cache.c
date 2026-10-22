@@ -4,86 +4,86 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi_utils/cache/fdt_cache.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
 
 /* List of FDT cache drivers generated at compile time */
-extern const struct fdt_driver *const fdt_cache_drivers[];
+خارجي ثابت بنية fdt_driver *ثابت fdt_cache_drivers[];
 
-int fdt_cache_add(const void *fdt, int noff, struct cache_device *dev)
+صحيح fdt_cache_add(ثابت فراغ *fdt, صحيح noff, بنية cache_device *dev)
 {
-	int rc;
+	صحيح rc;
 
 	dev->id = noff;
-	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, NULL), sizeof(dev->name) - 1);
+	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, عدم), حجم(dev->name) - 1);
 	sbi_dprintf("%s: %s\n", __func__, dev->name);
 
 	rc = fdt_next_cache_get(fdt, noff, &dev->next);
-	if (rc == SBI_ENOENT)
-		dev->next = NULL;
-	else if (rc)
-		return rc;
+	𐤀𐤌 (rc == SBI_ENOENT)
+		dev->next = عدم;
+	وإلا 𐤀𐤌 (rc)
+		أرجع rc;
 
-	return cache_add(dev);
+	أرجع cache_add(dev);
 }
 
-static int fdt_cache_add_generic(const void *fdt, int noff)
+ساكن صحيح fdt_cache_add_generic(ثابت فراغ *fdt, صحيح noff)
 {
-	struct cache_device *dev;
-	int rc;
+	بنية cache_device *dev;
+	صحيح rc;
 
-	dev = sbi_zalloc(sizeof(*dev));
-	if (!dev)
-		return SBI_ENOMEM;
+	dev = sbi_zalloc(حجم(*dev));
+	𐤀𐤌 (!dev)
+		أرجع SBI_ENOMEM;
 
 	rc = fdt_cache_add(fdt, noff, dev);
-	if (rc) {
+	𐤀𐤌 (rc) {
 		sbi_free(dev);
-		return rc;
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int fdt_cache_find(const void *fdt, int noff, struct cache_device **out_dev)
+ساكن صحيح fdt_cache_find(ثابت فراغ *fdt, صحيح noff, بنية cache_device **out_dev)
 {
-	struct cache_device *dev = cache_find(noff);
-	int rc;
+	بنية cache_device *dev = cache_find(noff);
+	صحيح rc;
 
-	if (!dev) {
+	𐤀𐤌 (!dev) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_cache_drivers);
-		if (rc == SBI_ENODEV)
+		𐤀𐤌 (rc == SBI_ENODEV)
 			rc = fdt_cache_add_generic(fdt, noff);
-		if (rc)
-			return rc;
+		𐤀𐤌 (rc)
+			أرجع rc;
 
 		dev = cache_find(noff);
-		if (!dev)
-			return SBI_EFAIL;
+		𐤀𐤌 (!dev)
+			أرجع SBI_EFAIL;
 	}
 
-	if (out_dev)
+	𐤀𐤌 (out_dev)
 		*out_dev = dev;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-int fdt_next_cache_get(const void *fdt, int noff, struct cache_device **out_dev)
+صحيح fdt_next_cache_get(ثابت فراغ *fdt, صحيح noff, بنية cache_device **out_dev)
 {
-	const fdt32_t *val;
-	int len;
+	ثابت fdt32_t *val;
+	صحيح len;
 
 	val = fdt_getprop(fdt, noff, "next-level-cache", &len);
-	if (!val || len < sizeof(*val))
-		return SBI_ENOENT;
+	𐤀𐤌 (!val || len < حجم(*val))
+		أرجع SBI_ENOENT;
 
 	noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
-	if (noff < 0)
-		return noff;
+	𐤀𐤌 (noff < 0)
+		أرجع noff;
 
-	return fdt_cache_find(fdt, noff, out_dev);
+	أرجع fdt_cache_find(fdt, noff, out_dev);
 }

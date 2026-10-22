@@ -3,29 +3,29 @@
  * Copyright (C) 2022 Renesas Electronics Corporation
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/renesas-scif.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/serial/fdt_serial.h>
+#ضمن <sbi_utils/serial/renesas-scif.h>
 
-static int serial_renesas_scif_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+ساكن صحيح serial_renesas_scif_init(ثابت فراغ *fdt, صحيح nodeoff,
+				    ثابت بنية fdt_match *match)
 {
-	struct platform_uart_data uart = { 0 };
-	int ret;
+	بنية platform_uart_data uart = { 0 };
+	صحيح ret;
 
 	ret = fdt_parse_renesas_scif_node(fdt, nodeoff, &uart);
-	if (ret)
-		return ret;
+	𐤀𐤌 (ret)
+		أرجع ret;
 
-	return renesas_scif_init(uart.addr, uart.freq, uart.baud);
+	أرجع renesas_scif_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_renesas_scif_match[] = {
+ساكن ثابت بنية fdt_match serial_renesas_scif_match[] = {
 	{ .compatible = "renesas,scif-r9a07g043" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_serial_renesas_scif = {
+ثابت بنية fdt_driver fdt_serial_renesas_scif = {
 	.match_table = serial_renesas_scif_match,
 	.init = serial_renesas_scif_init
 };
