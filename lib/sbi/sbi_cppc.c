@@ -5,106 +5,106 @@
  *
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_cppc.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_cppc.h>
 
-static const struct sbi_cppc_device *cppc_dev = NULL;
+ساكن ثابت بنية sbi_cppc_device *cppc_dev = عدم;
 
-const struct sbi_cppc_device *sbi_cppc_get_device(void)
+ثابت بنية sbi_cppc_device *sbi_cppc_get_device(فراغ)
 {
-	return cppc_dev;
+	أرجع cppc_dev;
 }
 
-void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
+فراغ sbi_cppc_set_device(ثابت بنية sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	إذا (!dev || cppc_dev)
+		أرجع;
 
 	cppc_dev = dev;
 }
 
-static bool sbi_cppc_is_reserved(unsigned long reg)
+ساكن bool sbi_cppc_is_reserved(unsigned long reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	إذا ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
 	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+		أرجع true;
 
-	return false;
+	أرجع false;
 }
 
-static bool sbi_cppc_readable(unsigned long reg)
+ساكن bool sbi_cppc_readable(unsigned long reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	أرجع true;
 }
 
-static bool sbi_cppc_writable(unsigned long reg)
+ساكن bool sbi_cppc_writable(unsigned long reg)
 {
-	switch (reg) {
-	case SBI_CPPC_HIGHEST_PERF:
-	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
-	case SBI_CPPC_LOWEST_PERF:
-	case SBI_CPPC_GUARANTEED_PERF:
-	case SBI_CPPC_CTR_WRAP_TIME:
-	case SBI_CPPC_REFERENCE_CTR:
-	case SBI_CPPC_DELIVERED_CTR:
-	case SBI_CPPC_REFERENCE_PERF:
-	case SBI_CPPC_LOWEST_FREQ:
-	case SBI_CPPC_NOMINAL_FREQ:
-	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+	بدل (reg) {
+	حالة SBI_CPPC_HIGHEST_PERF:
+	حالة SBI_CPPC_NOMINAL_PERF:
+	حالة SBI_CPPC_كس_NON_LINEAR_PERF:
+	حالة SBI_CPPC_LOWEST_PERF:
+	حالة SBI_CPPC_GUARANTEED_PERF:
+	حالة SBI_CPPC_CTR_WRAP_TIME:
+	حالة SBI_CPPC_REFERENCE_CTR:
+	حالة SBI_CPPC_DELIVERED_CTR:
+	حالة SBI_CPPC_REFERENCE_PERF:
+	حالة SBI_CPPC_LOWEST_FREQ:
+	حالة SBI_CPPC_NOMINAL_FREQ:
+	حالة SBI_CPPC_TRANSITION_LATENCY:
+		أرجع false;
 	}
 
-	return true;
+	أرجع true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+صحيح sbi_cppc_probe(unsigned long reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	إذا (!cppc_dev || !cppc_dev->cppc_probe)
+		أرجع SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	إذا (sbi_cppc_is_reserved(reg))
+		أرجع SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	أرجع cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+صحيح sbi_cppc_read(unsigned long reg, uint64_t *val)
 {
-	int ret;
+	صحيح ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	إذا (!cppc_dev || !cppc_dev->cppc_read)
+		أرجع SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	إذا (ret <= 0)
+		أرجع SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	إذا (!sbi_cppc_readable(reg))
+		أرجع SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	أرجع cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+صحيح sbi_cppc_write(unsigned long reg, uint64_t val)
 {
-	int ret;
+	صحيح ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	إذا (!cppc_dev || !cppc_dev->cppc_write)
+		أرجع SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	إذا (ret <= 0)
+		أرجع SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	إذا (!sbi_cppc_writable(reg))
+		أرجع SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	أرجع cppc_dev->cppc_write(reg, val);
 }
