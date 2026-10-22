@@ -7,281 +7,281 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/riscv_locks.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_list.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
-#define HEAP_ALLOC_ALIGN		64
+#تعریف_کرو ڈھیر_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#تعریف_کرو ڈھیر_گرہ_BATCH_ناپ		8
 
-struct heap_node {
-	struct sbi_dlist head;
-	unsigned long addr;
-	unsigned long size;
+بنية ڈھیر_گرہ {
+	بنية sbi_dlist سر;
+	بنانشانی لما addr;
+	بنانشانی لما ناپ;
 };
 
-struct sbi_heap_control {
-	spinlock_t lock;
-	unsigned long base GUARDED_BY(&lock);
-	unsigned long size GUARDED_BY(&lock);
-	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+بنية sbi_ڈھیر_control {
+	spinlock_t جندرا;
+	بنانشانی لما ادھار_2 GUARDED_BY(&جندرا);
+	بنانشانی لما ناپ GUARDED_BY(&جندرا);
+	بنانشانی لما resv GUARDED_BY(&جندرا);
+	بنية sbi_dlist free_گرہ_list GUARDED_BY(&جندرا);
+	بنية sbi_dlist free_space_list GUARDED_BY(&جندرا);
+	بنية sbi_dlist ورتیا_space_list GUARDED_BY(&جندرا);
+	بنية ڈھیر_گرہ init_free_space_گرہ GUARDED_BY(&جندرا);
 };
 
-struct sbi_heap_control global_hpctrl;
+بنية sbi_ڈھیر_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+ساكن bool alloc_nodes(بنية sbi_ڈھیر_control *hpctrl) MUST_HOLD(&hpctrl->جندرا)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t ناپ = ڈھیر_گرہ_BATCH_ناپ * حجم(بنية ڈھیر_گرہ);
+	بنية ڈھیر_گرہ *n, *new = عدم;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	إذا (hpctrl->free_گرہ_list.اگلا != hpctrl->free_گرہ_list.prev)
+		أرجع true;
 
-	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
-			n->size -= size;
-			if (!n->size) {
-				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+	sbi_list_for_each_اندراج_الٹ(n, &hpctrl->free_space_list, سر) {
+		إذا (n->ناپ >= ناپ) {
+			n->ناپ -= ناپ;
+			إذا (!n->ناپ) {
+				sbi_list_del(&n->سر);
+				sbi_list_جوڑو_پوچھ(&n->سر, &hpctrl->free_گرہ_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (فراغ *)(n->addr + n->ناپ);
+			اكسر;
 		}
 	}
-	if (!new)
-		return false;
+	إذا (!new)
+		أرجع false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
-	hpctrl->resv += size;
+	لكل (size_t i = 0; i < ڈھیر_گرہ_BATCH_ناپ; i++)
+		sbi_list_جوڑو_پوچھ(&new[i].سر, &hpctrl->free_گرہ_list);
+	hpctrl->resv += ناپ;
 
-	return true;
+	أرجع true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
-			      size_t size)
-	MUST_NOT_HOLD(&hpctrl->lock)
+ساكن فراغ *alloc_with_align(بنية sbi_ڈھیر_control *hpctrl, size_t align,
+			      size_t ناپ)
+	MUST_NOT_HOLD(&hpctrl->جندرا)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
-	unsigned long lowest_aligned;
+	فراغ *ret = عدم;
+	بنية ڈھیر_گرہ *n, *np;
+	بنانشانی لما سبھ_توں_نیواں_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	إذا (!ناپ)
+		أرجع عدم;
 
-	size += align - 1;
-	size &= ~((unsigned long)align - 1);
+	ناپ += align - 1;
+	ناپ &= ~((بنانشانی لما)align - 1);
 
-	spin_lock(&hpctrl->lock);
+	spin_جندرا(&hpctrl->جندرا);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	إذا (!alloc_nodes(hpctrl))
+		اذهب باہرلا;
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		lowest_aligned = ROUNDUP(n->addr, align);
-		pad = lowest_aligned - n->addr;
+	np = عدم;
+	sbi_list_for_each_اندراج(n, &hpctrl->free_space_list, سر) {
+		سبھ_توں_نیواں_aligned = ROUNDUP(n->addr, align);
+		pad = سبھ_توں_نیواں_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		إذا (ناپ + pad <= n->ناپ) {
 			np = n;
-			break;
+			اكسر;
 		}
 	}
-	if (!np)
-		goto out;
+	إذا (!np)
+		اذهب باہرلا;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	إذا (pad) {
+		n = sbi_list_پہلا_اندراج(&hpctrl->free_گرہ_list,
+					 بنية ڈھیر_گرہ, سر);
+		sbi_list_del(&n->سر);
 
 		n->addr = np->addr;
-		n->size = pad;
-		sbi_list_add_tail(&n->head, &np->head);
+		n->ناپ = pad;
+		sbi_list_جوڑو_پوچھ(&n->سر, &np->سر);
 
 		np->addr += pad;
-		np->size -= pad;
+		np->ناپ -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	إذا (ناپ < np->ناپ) {
+		n = sbi_list_پہلا_اندراج(&hpctrl->free_گرہ_list,
+					 بنية ڈھیر_گرہ, سر);
+		sbi_list_del(&n->سر);
 
-		n->addr = np->addr + size;
-		n->size = np->size - size;
-		sbi_list_add(&n->head, &np->head);
+		n->addr = np->addr + ناپ;
+		n->ناپ = np->ناپ - ناپ;
+		sbi_list_جوڑو(&n->سر, &np->سر);
 
-		np->size = size;
+		np->ناپ = ناپ;
 	}
 
-	sbi_list_del(&np->head);
-	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	sbi_list_del(&np->سر);
+	sbi_list_جوڑو_پوچھ(&np->سر, &hpctrl->ورتیا_space_list);
+	ret = (فراغ *)np->addr;
 
-out:
-	spin_unlock(&hpctrl->lock);
+باہرلا:
+	spin_unlock(&hpctrl->جندرا);
 
-	return ret;
+	أرجع ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+فراغ *sbi_malloc_from(بنية sbi_ڈھیر_control *hpctrl, size_t ناپ)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	أرجع alloc_with_align(hpctrl, ڈھیر_ALLOC_ALIGN, ناپ);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
-			     size_t alignment, size_t size)
+فراغ *sbi_aligned_alloc_from(بنية sbi_ڈھیر_control *hpctrl,
+			     size_t alignment, size_t ناپ)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
-		alignment = HEAP_ALLOC_ALIGN;
+	إذا (alignment < ڈھیر_ALLOC_ALIGN)
+		alignment = ڈھیر_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	إذا ((alignment & (alignment - 1)) != 0)
+		أرجع عدم;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	إذا (ناپ % alignment != 0)
+		أرجع عدم;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	أرجع alloc_with_align(hpctrl, alignment, ناپ);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+فراغ *sbi_zalloc_from(بنية sbi_ڈھیر_control *hpctrl, size_t ناپ)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	فراغ *ret = sbi_malloc_from(hpctrl, ناپ);
 
-	if (ret)
-		sbi_memset(ret, 0, size);
-	return ret;
+	إذا (ret)
+		sbi_memset(ret, 0, ناپ);
+	أرجع ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+فراغ sbi_free_from(بنية sbi_ڈھیر_control *hpctrl, فراغ *ptr)
 {
-	struct heap_node *n, *np;
+	بنية ڈھیر_گرہ *n, *np;
 
-	if (!ptr)
-		return;
+	إذا (!ptr)
+		أرجع;
 
-	spin_lock(&hpctrl->lock);
+	spin_جندرا(&hpctrl->جندرا);
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
-		    ((unsigned long)ptr < (n->addr + n->size))) {
+	np = عدم;
+	sbi_list_for_each_اندراج(n, &hpctrl->ورتیا_space_list, سر) {
+		إذا ((n->addr <= (بنانشانی لما)ptr) &&
+		    ((بنانشانی لما)ptr < (n->addr + n->ناپ))) {
 			np = n;
-			break;
+			اكسر;
 		}
 	}
-	if (!np) {
-		spin_unlock(&hpctrl->lock);
-		return;
+	إذا (!np) {
+		spin_unlock(&hpctrl->جندرا);
+		أرجع;
 	}
 
-	sbi_list_del(&np->head);
+	sbi_list_del(&np->سر);
 
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+	sbi_list_for_each_اندراج(n, &hpctrl->free_space_list, سر) {
+		إذا ((np->addr + np->ناپ) == n->addr) {
 			n->addr = np->addr;
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
-			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			n->ناپ += np->ناپ;
+			sbi_list_جوڑو_پوچھ(&np->سر, &hpctrl->free_گرہ_list);
+			np = عدم;
+			اكسر;
+		} وإلا إذا (np->addr == (n->addr + n->ناپ)) {
+			n->ناپ += np->ناپ;
+			sbi_list_جوڑو_پوچھ(&np->سر, &hpctrl->free_گرہ_list);
+			np = عدم;
+			اكسر;
+		} وإلا إذا ((n->addr + n->ناپ) < np->addr) {
+			sbi_list_جوڑو(&np->سر, &n->سر);
+			np = عدم;
+			اكسر;
 		}
 	}
-	if (np)
-		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
+	إذا (np)
+		sbi_list_جوڑو_پوچھ(&np->سر, &hpctrl->free_space_list);
 
-	spin_unlock(&hpctrl->lock);
+	spin_unlock(&hpctrl->جندرا);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+بنانشانی لما sbi_ڈھیر_free_space_from(بنية sbi_ڈھیر_control *hpctrl)
 {
-	struct heap_node *n;
-	unsigned long ret = 0;
+	بنية ڈھیر_گرہ *n;
+	بنانشانی لما ret = 0;
 
-	spin_lock(&hpctrl->lock);
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head)
-		ret += n->size;
-	spin_unlock(&hpctrl->lock);
+	spin_جندرا(&hpctrl->جندرا);
+	sbi_list_for_each_اندراج(n, &hpctrl->free_space_list, سر)
+		ret += n->ناپ;
+	spin_unlock(&hpctrl->جندرا);
 
-	return ret;
+	أرجع ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+بنانشانی لما sbi_ڈھیر_ورتیا_space_from(بنية sbi_ڈھیر_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	أرجع hpctrl->ناپ - hpctrl->resv - sbi_ڈھیر_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+بنانشانی لما sbi_ڈھیر_reserved_space_from(بنية sbi_ڈھیر_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	أرجع hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
-		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
+صحيح sbi_ڈھیر_init_new(بنية sbi_ڈھیر_control *hpctrl, بنانشانی لما ادھار_2,
+		      بنانشانی لما ناپ) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	بنية ڈھیر_گرہ *n;
 
 	/* Initialize heap control */
-	SPIN_LOCK_INIT(hpctrl->lock);
-	hpctrl->base = base;
-	hpctrl->size = size;
+	SPIN_جندرا_INIT(hpctrl->جندرا);
+	hpctrl->ادھار_2 = ادھار_2;
+	hpctrl->ناپ = ناپ;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
+	SBI_INIT_LIST_سر(&hpctrl->free_گرہ_list);
+	SBI_INIT_LIST_سر(&hpctrl->free_space_list);
+	SBI_INIT_LIST_سر(&hpctrl->ورتیا_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
-	n->addr = base;
-	n->size = size;
-	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
+	n = &hpctrl->init_free_space_گرہ;
+	n->addr = ادھار_2;
+	n->ناپ = ناپ;
+	sbi_list_جوڑو_پوچھ(&n->سر, &hpctrl->free_space_list);
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+صحيح sbi_ڈھیر_init(بنية sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
-	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
-	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
-	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
-	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+	إذا (!scratch->fw_ڈھیر_ناپ ||
+	    (scratch->fw_ڈھیر_ناپ & (ڈھیر_ادھار_ALIGN - 1)) ||
+	    (scratch->fw_ڈھیر_وتھ < scratch->fw_rw_وتھ) ||
+	    (scratch->fw_ناپ < (scratch->fw_ڈھیر_وتھ + scratch->fw_ڈھیر_ناپ)) ||
+	    (scratch->fw_ڈھیر_وتھ & (ڈھیر_ادھار_ALIGN - 1)))
+		أرجع SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
-				  scratch->fw_start + scratch->fw_heap_offset,
-				  scratch->fw_heap_size);
+	أرجع sbi_ڈھیر_init_new(&global_hpctrl,
+				  scratch->fw_شروع + scratch->fw_ڈھیر_وتھ,
+				  scratch->fw_ڈھیر_ناپ);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+صحيح sbi_ڈھیر_alloc_new(بنية sbi_ڈھیر_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, حجم(بنية sbi_ڈھیر_control));
+	أرجع 0;
 }

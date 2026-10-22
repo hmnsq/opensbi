@@ -7,30 +7,30 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/serial/fdt_serial.h>
+#ضمن <sbi_utils/serial/sifive-uart.h>
 
-static int serial_sifive_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ساكن صحيح serial_sifive_init(ثابت فراغ *fdt, صحيح nodeoff,
+			      ثابت بنية fdt_میل *میل)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	صحيح rc;
+	بنية platform_uart_انکڑے uart = { 0 };
 
-	rc = fdt_parse_sifive_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_sifive_uart_گرہ(fdt, nodeoff, &uart);
+	إذا (rc)
+		أرجع rc;
 
-	return sifive_uart_init(uart.addr, uart.freq, uart.baud);
+	أرجع sifive_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_sifive_match[] = {
+ساكن ثابت بنية fdt_میل serial_sifive_میل[] = {
 	{ .compatible = "sifive,fu540-c000-uart" },
 	{ .compatible = "sifive,uart0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_sifive = {
-	.match_table = serial_sifive_match,
+ثابت بنية fdt_driver fdt_serial_sifive = {
+	.میل_جدول = serial_sifive_میل,
 	.init = serial_sifive_init
 };

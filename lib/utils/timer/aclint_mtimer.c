@@ -7,275 +7,275 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/aclint_mtimer.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_atomic.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_bitops.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi_utils/timer/aclint_mtimer.h>
 
-static unsigned long mtimer_ptr_offset;
+ساكن بنانشانی لما mtimer_ptr_وتھ;
 
-#define mtimer_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, mtimer_ptr_offset)
+#تعریف_کرو mtimer_get_hart_انکڑے_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), فراغ *, mtimer_ptr_وتھ)
 
-#define mtimer_set_hart_data_ptr(__scratch, __mtimer)			\
-	sbi_scratch_write_type((__scratch), void *, mtimer_ptr_offset, (__mtimer))
+#تعریف_کرو mtimer_سیٹ_hart_انکڑے_ptr(__scratch, __mtimer)			\
+	sbi_scratch_write_type((__scratch), فراغ *, mtimer_ptr_وتھ, (__mtimer))
 
-#if __riscv_xlen != 32
-static u64 mtimer_time_rd64(volatile u64 *addr)
+#إذا __riscv_xlen != 32
+ساكن u64 mtimer_ویلا_rd64(متطاير u64 *addr)
 {
-	return readq_relaxed(addr);
+	أرجع readq_relaxed(addr);
 }
 
-static void mtimer_time_wr64(bool timecmp, u64 value, volatile u64 *addr)
+ساكن فراغ mtimer_ویلا_wr64(bool timecmp, u64 قدر, متطاير u64 *addr)
 {
-	writeq_relaxed(value, addr);
+	writeq_relaxed(قدر, addr);
 }
-#endif
+#جے_انت
 
-static u64 mtimer_time_rd32(volatile u64 *addr)
+ساكن u64 mtimer_ویلا_rd32(متطاير u64 *addr)
 {
 	u32 lo, hi;
 
-	do {
+	افعل {
 		hi = readl_relaxed((u32 *)addr + 1);
 		lo = readl_relaxed((u32 *)addr);
-	} while (hi != readl_relaxed((u32 *)addr + 1));
+	} طالما (hi != readl_relaxed((u32 *)addr + 1));
 
-	return ((u64)hi << 32) | (u64)lo;
+	أرجع ((u64)hi << 32) | (u64)lo;
 }
 
-static void mtimer_time_wr32(bool timecmp, u64 value, volatile u64 *addr)
+ساكن فراغ mtimer_ویلا_wr32(bool timecmp, u64 قدر, متطاير u64 *addr)
 {
-	writel_relaxed((timecmp) ? -1U : 0U, (void *)(addr));
-	writel_relaxed((u32)(value >> 32), (char *)(addr) + 0x04);
-	writel_relaxed((u32)value, (void *)(addr));
+	writel_relaxed((timecmp) ? -1U : 0U, (فراغ *)(addr));
+	writel_relaxed((u32)(قدر >> 32), (حرف *)(addr) + 0x04);
+	writel_relaxed((u32)قدر, (فراغ *)(addr));
 }
 
-static u64 mtimer_value(void)
+ساكن u64 mtimer_قدر(فراغ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية aclint_mtimer_انکڑے *mt;
 
-	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return 0;
+	mt = mtimer_get_hart_انکڑے_ptr(scratch);
+	إذا (!mt)
+		أرجع 0;
 
 	/* Read MTIMER Time Value */
-	return mt->time_rd((void *)mt->mtime_addr);
+	أرجع mt->ویلا_rd((فراغ *)mt->mtime_addr);
 }
 
-static void mtimer_event_stop(void)
+ساكن فراغ mtimer_event_stop(فراغ)
 {
-	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
-	u64 *time_cmp;
+	u32 نشانہ_hart = current_hartid();
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية aclint_mtimer_انکڑے *mt;
+	u64 *ویلا_cmp;
 
-	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	mt = mtimer_get_hart_انکڑے_ptr(scratch);
+	إذا (!mt)
+		أرجع;
 
 	/* Clear MTIMER Time Compare */
-	time_cmp = (void *)mt->mtimecmp_addr;
-	mt->time_wr(true, -1ULL, &time_cmp[target_hart - mt->first_hartid]);
+	ویلا_cmp = (فراغ *)mt->mtimecmp_addr;
+	mt->ویلا_wr(true, -1ULL, &ویلا_cmp[نشانہ_hart - mt->پہلا_hartid]);
 }
 
-static void mtimer_event_start(u64 next_event)
+ساكن فراغ mtimer_event_شروع(u64 اگلا_event)
 {
-	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
-	u64 *time_cmp;
+	u32 نشانہ_hart = current_hartid();
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية aclint_mtimer_انکڑے *mt;
+	u64 *ویلا_cmp;
 
-	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	mt = mtimer_get_hart_انکڑے_ptr(scratch);
+	إذا (!mt)
+		أرجع;
 
 	/* Program MTIMER Time Compare */
-	time_cmp = (void *)mt->mtimecmp_addr;
-	mt->time_wr(true, next_event,
-		    &time_cmp[target_hart - mt->first_hartid]);
+	ویلا_cmp = (فراغ *)mt->mtimecmp_addr;
+	mt->ویلا_wr(true, اگلا_event,
+		    &ویلا_cmp[نشانہ_hart - mt->پہلا_hartid]);
 }
 
-static struct sbi_timer_device mtimer = {
+ساكن بنية sbi_timer_device mtimer = {
 	.name = "aclint-mtimer",
-	.timer_value = mtimer_value,
-	.timer_event_start = mtimer_event_start,
+	.timer_قدر = mtimer_قدر,
+	.timer_event_شروع = mtimer_event_شروع,
 	.timer_event_stop = mtimer_event_stop
 };
 
-struct aclint_mtimer_data *aclint_get_mtimer_data(void)
+بنية aclint_mtimer_انکڑے *aclint_get_mtimer_انکڑے(فراغ)
 {
-	return mtimer_get_hart_data_ptr(sbi_scratch_thishart_ptr());
+	أرجع mtimer_get_hart_انکڑے_ptr(sbi_scratch_thishart_ptr());
 }
 
-void aclint_mtimer_update(struct aclint_mtimer_data *mt,
-			  struct aclint_mtimer_data *ref)
+فراغ aclint_mtimer_update(بنية aclint_mtimer_انکڑے *mt,
+			  بنية aclint_mtimer_انکڑے *ref)
 {
 	u64 v1, v2, mv, delta;
-	u64 *mt_time_val, *ref_time_val;
+	u64 *mt_ویلا_val, *ref_ویلا_val;
 
-	if (!mt || !ref || !mt->time_rd || !mt->time_wr || !ref->time_rd)
-		return;
+	إذا (!mt || !ref || !mt->ویلا_rd || !mt->ویلا_wr || !ref->ویلا_rd)
+		أرجع;
 
-	mt_time_val = (void *)mt->mtime_addr;
-	ref_time_val = (void *)ref->mtime_addr;
-	if (!atomic_raw_xchg_ulong(&mt->time_delta_computed, 1)) {
-		v1 = mt->time_rd(mt_time_val);
-		mv = ref->time_rd(ref_time_val);
-		v2 = mt->time_rd(mt_time_val);
+	mt_ویلا_val = (فراغ *)mt->mtime_addr;
+	ref_ویلا_val = (فراغ *)ref->mtime_addr;
+	إذا (!atomic_raw_xchg_ulong(&mt->ویلا_delta_computed, 1)) {
+		v1 = mt->ویلا_rd(mt_ویلا_val);
+		mv = ref->ویلا_rd(ref_ویلا_val);
+		v2 = mt->ویلا_rd(mt_ویلا_val);
 		delta = mv - ((v1 / 2) + (v2 / 2));
-		mt->time_wr(false, mt->time_rd(mt_time_val) + delta,
-			    mt_time_val);
+		mt->ویلا_wr(false, mt->ویلا_rd(mt_ویلا_val) + delta,
+			    mt_ویلا_val);
 	}
 }
 
-void aclint_mtimer_sync(struct aclint_mtimer_data *mt)
+فراغ aclint_mtimer_sync(بنية aclint_mtimer_انکڑے *mt)
 {
-	struct aclint_mtimer_data *reference;
+	بنية aclint_mtimer_انکڑے *reference;
 
 	/* Sync-up non-shared MTIME if reference is available */
-	if (mt->has_shared_mtime || !mt->time_delta_reference)
-		return;
+	إذا (mt->has_shared_mtime || !mt->ویلا_delta_reference)
+		أرجع;
 
-	reference = mt->time_delta_reference;
+	reference = mt->ویلا_delta_reference;
 	aclint_mtimer_update(mt, reference);
 }
 
-void aclint_mtimer_set_reference(struct aclint_mtimer_data *mt,
-				 struct aclint_mtimer_data *ref)
+فراغ aclint_mtimer_سیٹ_reference(بنية aclint_mtimer_انکڑے *mt,
+				 بنية aclint_mtimer_انکڑے *ref)
 {
-	if (!mt || !ref || mt == ref)
-		return;
+	إذا (!mt || !ref || mt == ref)
+		أرجع;
 
-	mt->time_delta_reference = ref;
-	mt->time_delta_computed = 0;
+	mt->ویلا_delta_reference = ref;
+	mt->ویلا_delta_computed = 0;
 }
 
-static int aclint_mtimer_warm_init(void)
+ساكن صحيح aclint_mtimer_warm_init(فراغ)
 {
-	u64 *mt_time_cmp;
-	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	u64 *mt_ویلا_cmp;
+	u32 نشانہ_hart = current_hartid();
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية aclint_mtimer_انکڑے *mt;
 
-	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return SBI_ENODEV;
+	mt = mtimer_get_hart_انکڑے_ptr(scratch);
+	إذا (!mt)
+		أرجع SBI_ENODEV;
 
 	/* Sync-up MTIME register */
 	aclint_mtimer_sync(mt);
 
 	/* Clear Time Compare */
-	mt_time_cmp = (void *)mt->mtimecmp_addr;
-	mt->time_wr(true, -1ULL,
-		    &mt_time_cmp[target_hart - mt->first_hartid]);
+	mt_ویلا_cmp = (فراغ *)mt->mtimecmp_addr;
+	mt->ویلا_wr(true, -1ULL,
+		    &mt_ویلا_cmp[نشانہ_hart - mt->پہلا_hartid]);
 
-	return 0;
+	أرجع 0;
 }
 
-int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
-			    struct aclint_mtimer_data *reference)
+صحيح aclint_mtimer_cold_init(بنية aclint_mtimer_انکڑے *mt,
+			    بنية aclint_mtimer_انکڑے *reference)
 {
 	u32 i;
-	int rc;
-	struct sbi_scratch *scratch;
+	صحيح rc;
+	بنية sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mt ||
-	    (mt->hart_count && !mt->mtimecmp_size) ||
-	    (mt->mtime_size && (mt->mtime_addr & (ACLINT_MTIMER_ALIGN - 1))) ||
-	    (mt->mtime_size && (mt->mtime_size & (ACLINT_MTIMER_ALIGN - 1))) ||
+	إذا (!mt ||
+	    (mt->hart_گنتی && !mt->mtimecmp_ناپ) ||
+	    (mt->mtime_ناپ && (mt->mtime_addr & (ACLINT_MTIMER_ALIGN - 1))) ||
+	    (mt->mtime_ناپ && (mt->mtime_ناپ & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtimecmp_addr & (ACLINT_MTIMER_ALIGN - 1)) ||
-	    (mt->mtimecmp_size & (ACLINT_MTIMER_ALIGN - 1)) ||
-	    (mt->hart_count > ACLINT_MTIMER_MAX_HARTS))
-		return SBI_EINVAL;
-	if (reference && mt->mtime_freq != reference->mtime_freq)
-		return SBI_EINVAL;
+	    (mt->mtimecmp_ناپ & (ACLINT_MTIMER_ALIGN - 1)) ||
+	    (mt->hart_گنتی > ACLINT_MTIMER_MAX_HARTS))
+		أرجع SBI_EINVAL;
+	إذا (reference && mt->mtime_freq != reference->mtime_freq)
+		أرجع SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mtimer_ptr_offset) {
-		mtimer_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mtimer_ptr_offset)
-			return SBI_ENOMEM;
+	إذا (!mtimer_ptr_وتھ) {
+		mtimer_ptr_وتھ = sbi_scratch_alloc_type_وتھ(فراغ *);
+		إذا (!mtimer_ptr_وتھ)
+			أرجع SBI_ENOMEM;
 	}
 
 	/* Initialize private data */
-	aclint_mtimer_set_reference(mt, reference);
-	mt->time_rd = mtimer_time_rd32;
-	mt->time_wr = mtimer_time_wr32;
+	aclint_mtimer_سیٹ_reference(mt, reference);
+	mt->ویلا_rd = mtimer_ویلا_rd32;
+	mt->ویلا_wr = mtimer_ویلا_wr32;
 
 	/* Override read/write accessors for 64bit MMIO */
-#if __riscv_xlen != 32
-	if (mt->has_64bit_mmio) {
-		mt->time_rd = mtimer_time_rd64;
-		mt->time_wr = mtimer_time_wr64;
+#إذا __riscv_xlen != 32
+	إذا (mt->has_64bit_mmio) {
+		mt->ویلا_rd = mtimer_ویلا_rd64;
+		mt->ویلا_wr = mtimer_ویلا_wr64;
 	}
-#endif
+#جے_انت
 
 	/* Update MTIMER pointer in scratch space */
-	for (i = 0; i < mt->hart_count; i++) {
-		scratch = sbi_hartid_to_scratch(mt->first_hartid + i);
+	لكل (i = 0; i < mt->hart_گنتی; i++) {
+		scratch = sbi_hartid_منزل_scratch(mt->پہلا_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
-			continue;
-		mtimer_set_hart_data_ptr(scratch, mt);
+		إذا (!scratch)
+			استمر;
+		mtimer_سیٹ_hart_انکڑے_ptr(scratch, mt);
 	}
 
-	if (!mt->mtime_size) {
+	إذا (!mt->mtime_ناپ) {
 		/* Disable reading mtime when mtime is not available */
-		mtimer.timer_value = NULL;
+		mtimer.timer_قدر = عدم;
 	}
 
 	/* Add MTIMER regions to the root domain */
-	if (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
-					mt->mtime_size + mt->mtimecmp_size,
+	إذا (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_ناپ)) {
+		rc = sbi_domain_جڑ_جوڑو_memrange(mt->mtimecmp_addr,
+					mt->mtime_ناپ + mt->mtimecmp_ناپ,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else if (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
-					mt->mtime_size + mt->mtimecmp_size,
+		إذا (rc)
+			أرجع rc;
+	} وإلا إذا (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_ناپ)) {
+		rc = sbi_domain_جڑ_جوڑو_memrange(mt->mtime_addr,
+					mt->mtime_ناپ + mt->mtimecmp_ناپ,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
-						mt->mtime_size, MTIMER_REGION_ALIGN,
+		إذا (rc)
+			أرجع rc;
+	} وإلا {
+		rc = sbi_domain_جڑ_جوڑو_memrange(mt->mtime_addr,
+						mt->mtime_ناپ, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
-						mt->mtimecmp_size, MTIMER_REGION_ALIGN,
+		rc = sbi_domain_جڑ_جوڑو_memrange(mt->mtimecmp_addr,
+						mt->mtimecmp_ناپ, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
 	mtimer.timer_freq = mt->mtime_freq;
 	mtimer.warm_init = aclint_mtimer_warm_init;
-	sbi_timer_set_device(&mtimer);
+	sbi_timer_سیٹ_device(&mtimer);
 
-	return 0;
+	أرجع 0;
 }

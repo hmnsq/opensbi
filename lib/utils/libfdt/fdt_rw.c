@@ -3,116 +3,116 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-static int fdt_blocks_misordered_(const void *fdt,
-				  int mem_rsv_size, int struct_size)
+ساكن صحيح fdt_بلاکاں_misordered(ثابت فراغ *fdt,
+				  صحيح mem_rsv_ناپ, صحيح struct_ناپ)
 {
-	return (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(sizeof(struct fdt_header), 8))
+	أرجع (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(حجم(بنية fdt_سرخی), 8))
 		|| (fdt_off_dt_struct(fdt) <
-		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))
-		|| (fdt_off_dt_strings(fdt) <
-		    (fdt_off_dt_struct(fdt) + struct_size))
+		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_ناپ))
+		|| (fdt_off_dt_لڑیاں(fdt) <
+		    (fdt_off_dt_struct(fdt) + struct_ناپ))
 		|| (fdt_totalsize(fdt) <
-		    (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));
+		    (fdt_off_dt_لڑیاں(fdt) + fdt_ناپ_dt_لڑیاں(fdt)));
 }
 
-static int fdt_rw_probe_(void *fdt)
+ساكن صحيح fdt_rw_probe_(فراغ *fdt)
 {
-	if (can_assume(VALID_DTB))
-		return 0;
+	إذا (can_assume(VALID_DTB))
+		أرجع 0;
 	FDT_RO_PROBE(fdt);
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 17)
-		return -FDT_ERR_BADVERSION;
-	if (fdt_blocks_misordered_(fdt, sizeof(struct fdt_reserve_entry),
-				   fdt_size_dt_struct(fdt)))
-		return -FDT_ERR_BADLAYOUT;
-	if (!can_assume(LATEST) && fdt_version(fdt) > 17)
-		fdt_set_version(fdt, 17);
+	إذا (!can_assume(LATEST) && fdt_نسخہ(fdt) < 17)
+		أرجع -FDT_ERR_BADVERSION;
+	إذا (fdt_بلاکاں_misordered(fdt, حجم(بنية fdt_reserve_اندراج),
+				   fdt_ناپ_dt_struct(fdt)))
+		أرجع -FDT_ERR_BADLAYOUT;
+	إذا (!can_assume(LATEST) && fdt_نسخہ(fdt) > 17)
+		fdt_سیٹ_نسخہ(fdt, 17);
 
-	return 0;
+	أرجع 0;
 }
 
-#define FDT_RW_PROBE(fdt) \
+#تعریف_کرو FDT_RW_PROBE(fdt) \
 	{ \
-		int err_; \
-		if ((err_ = fdt_rw_probe_(fdt)) != 0) \
-			return err_; \
+		صحيح err_; \
+		إذا ((err_ = fdt_rw_probe_(fdt)) != 0) \
+			أرجع err_; \
 	}
 
-static inline unsigned int fdt_data_size_(void *fdt)
+ساكن مضمن بنانشانی صحيح fdt_انکڑے_ناپ(فراغ *fdt)
 {
-	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
+	أرجع fdt_off_dt_لڑیاں(fdt) + fdt_ناپ_dt_لڑیاں(fdt);
 }
 
-static int fdt_splice_(void *fdt, void *splicepoint, int oldlen, int newlen)
+ساكن صحيح fdt_splice_(فراغ *fdt, فراغ *splicepoint, صحيح oldlen, صحيح newlen)
 {
-	char *p = splicepoint;
-	unsigned int dsize = fdt_data_size_(fdt);
-	size_t soff = p - (char *)fdt;
+	حرف *p = splicepoint;
+	بنانشانی صحيح dsize = fdt_انکڑے_ناپ(fdt);
+	size_t soff = p - (حرف *)fdt;
 
-	if ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
-		return -FDT_ERR_BADOFFSET;
-	if ((p < (char *)fdt) || (dsize + newlen < (unsigned)oldlen))
-		return -FDT_ERR_BADOFFSET;
-	if (dsize - oldlen + newlen > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
-	memmove(p + newlen, p + oldlen, ((char *)fdt + dsize) - (p + oldlen));
-	return 0;
+	إذا ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
+		أرجع -FDT_ERR_BADOFFSET;
+	إذا ((p < (حرف *)fdt) || (dsize + newlen < (بنانشانی)oldlen))
+		أرجع -FDT_ERR_BADOFFSET;
+	إذا (dsize - oldlen + newlen > fdt_totalsize(fdt))
+		أرجع -FDT_ERR_NOSPACE;
+	memmove(p + newlen, p + oldlen, ((حرف *)fdt + dsize) - (p + oldlen));
+	أرجع 0;
 }
 
-static int fdt_splice_mem_rsv_(void *fdt, struct fdt_reserve_entry *p,
-			       int oldn, int newn)
+ساكن صحيح fdt_splice_mem_rsv_(فراغ *fdt, بنية fdt_reserve_اندراج *p,
+			       صحيح oldn, صحيح newn)
 {
-	int delta = (newn - oldn) * sizeof(*p);
-	int err;
-	err = fdt_splice_(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
-	if (err)
-		return err;
-	fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
-	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	صحيح delta = (newn - oldn) * حجم(*p);
+	صحيح err;
+	err = fdt_splice_(fdt, p, oldn * حجم(*p), newn * حجم(*p));
+	إذا (err)
+		أرجع err;
+	fdt_سیٹ_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
+	fdt_سیٹ_off_dt_لڑیاں(fdt, fdt_off_dt_لڑیاں(fdt) + delta);
+	أرجع 0;
 }
 
-static int fdt_splice_struct_(void *fdt, void *p,
-			      int oldlen, int newlen)
+ساكن صحيح fdt_splice_struct_(فراغ *fdt, فراغ *p,
+			      صحيح oldlen, صحيح newlen)
 {
-	int delta = newlen - oldlen;
-	int err;
+	صحيح delta = newlen - oldlen;
+	صحيح err;
 
-	if ((err = fdt_splice_(fdt, p, oldlen, newlen)))
-		return err;
+	إذا ((err = fdt_splice_(fdt, p, oldlen, newlen)))
+		أرجع err;
 
-	fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);
-	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	fdt_سیٹ_ناپ_dt_struct(fdt, fdt_ناپ_dt_struct(fdt) + delta);
+	fdt_سیٹ_off_dt_لڑیاں(fdt, fdt_off_dt_لڑیاں(fdt) + delta);
+	أرجع 0;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+ساكن فراغ fdt_del_آخری_string(فراغ *fdt, ثابت حرف *s)
 {
-	int newlen = strlen(s) + 1;
+	صحيح newlen = لڑی_لمبائی(s) + 1;
 
-	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) - newlen);
+	fdt_سیٹ_ناپ_dt_لڑیاں(fdt, fdt_ناپ_dt_لڑیاں(fdt) - newlen);
 }
 
-static int fdt_splice_string_(void *fdt, int newlen)
+ساكن صحيح fdt_splice_string_(فراغ *fdt, صحيح newlen)
 {
-	void *p = (char *)fdt
-		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
-	int err;
+	فراغ *p = (حرف *)fdt
+		+ fdt_off_dt_لڑیاں(fdt) + fdt_ناپ_dt_لڑیاں(fdt);
+	صحيح err;
 
-	if ((err = fdt_splice_(fdt, p, 0, newlen)))
-		return err;
+	إذا ((err = fdt_splice_(fdt, p, 0, newlen)))
+		أرجع err;
 
-	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);
-	return 0;
+	fdt_سیٹ_ناپ_dt_لڑیاں(fdt, fdt_ناپ_dt_لڑیاں(fdt) + newlen);
+	أرجع 0;
 }
 
 /**
@@ -124,377 +124,377 @@ static int fdt_splice_string_(void *fdt, int newlen)
  *	allocated. Ignored if can_assume(NO_ROLLBACK)
  * @return offset of string in the string table (whether found or added)
  */
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+ساكن صحيح fdt_لبھو_جوڑو_string(فراغ *fdt, ثابت حرف *s, صحيح *allocated)
 {
-	char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);
-	const char *p;
-	char *new;
-	int len = strlen(s) + 1;
-	int err;
+	حرف *strtab = (حرف *)fdt + fdt_off_dt_لڑیاں(fdt);
+	ثابت حرف *p;
+	حرف *new;
+	صحيح len = لڑی_لمبائی(s) + 1;
+	صحيح err;
 
-	if (!can_assume(NO_ROLLBACK))
+	إذا (!can_assume(NO_ROLLBACK))
 		*allocated = 0;
 
-	p = fdt_find_string_(strtab, fdt_size_dt_strings(fdt), s);
-	if (p)
+	p = fdt_لبھو_string(strtab, fdt_ناپ_dt_لڑیاں(fdt), s);
+	إذا (p)
 		/* found it */
-		return (p - strtab);
+		أرجع (p - strtab);
 
-	new = strtab + fdt_size_dt_strings(fdt);
+	new = strtab + fdt_ناپ_dt_لڑیاں(fdt);
 	err = fdt_splice_string_(fdt, len);
-	if (err)
-		return err;
+	إذا (err)
+		أرجع err;
 
-	if (!can_assume(NO_ROLLBACK))
+	إذا (!can_assume(NO_ROLLBACK))
 		*allocated = 1;
 
-	memcpy(new, s, len);
-	return (new - strtab);
+	حافظہ_نقل(new, s, len);
+	أرجع (new - strtab);
 }
 
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
+صحيح fdt_جوڑو_mem_rsv(فراغ *fdt, uint64_t پتہ, uint64_t ناپ)
 {
-	struct fdt_reserve_entry *re;
-	int err;
+	بنية fdt_reserve_اندراج *re;
+	صحيح err;
 
 	FDT_RW_PROBE(fdt);
 
-	re = fdt_mem_rsv_w_(fdt, fdt_num_mem_rsv(fdt));
+	re = fdt_mem_rsv_w_(fdt, fdt_عدد_mem_rsv(fdt));
 	err = fdt_splice_mem_rsv_(fdt, re, 0, 1);
-	if (err)
-		return err;
+	إذا (err)
+		أرجع err;
 
-	re->address = cpu_to_fdt64(address);
-	re->size = cpu_to_fdt64(size);
-	return 0;
+	re->پتہ = cpu_منزل_fdt64(پتہ);
+	re->ناپ = cpu_منزل_fdt64(ناپ);
+	أرجع 0;
 }
 
-int fdt_del_mem_rsv(void *fdt, int n)
+صحيح fdt_del_mem_rsv(فراغ *fdt, صحيح n)
 {
-	struct fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
+	بنية fdt_reserve_اندراج *re = fdt_mem_rsv_w_(fdt, n);
 
 	FDT_RW_PROBE(fdt);
 
-	if (n >= fdt_num_mem_rsv(fdt))
-		return -FDT_ERR_NOTFOUND;
+	إذا (n >= fdt_عدد_mem_rsv(fdt))
+		أرجع -FDT_ERR_NOTFOUND;
 
-	return fdt_splice_mem_rsv_(fdt, re, 1, 0);
+	أرجع fdt_splice_mem_rsv_(fdt, re, 1, 0);
 }
 
-static int fdt_resize_property_(void *fdt, int nodeoffset, const char *name,
-				int len, struct fdt_property **prop)
+ساكن صحيح fdt_resize_property_(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+				صحيح len, بنية fdt_property **prop)
 {
-	int oldlen;
-	int err;
+	صحيح oldlen;
+	صحيح err;
 
 	*prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (!*prop)
-		return oldlen;
+	إذا (!*prop)
+		أرجع oldlen;
 
-	if ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
+	إذا ((err = fdt_splice_struct_(fdt, (*prop)->انکڑے, FDT_TAGALIGN(oldlen),
 				      FDT_TAGALIGN(len))))
-		return err;
+		أرجع err;
 
-	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	(*prop)->len = cpu_منزل_fdt32(len);
+	أرجع 0;
 }
 
-static int fdt_add_property_(void *fdt, int nodeoffset, const char *name,
-			     int len, struct fdt_property **prop)
+ساكن صحيح fdt_جوڑو_property(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+			     صحيح len, بنية fdt_property **prop)
 {
-	int proplen;
-	int nextoffset;
-	int namestroff;
-	int err;
-	int allocated;
+	صحيح proplen;
+	صحيح nextoffset;
+	صحيح namestroff;
+	صحيح err;
+	صحيح allocated;
 
-	if ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return nextoffset;
+	إذا ((nextoffset = fdt_check_گرہ_وتھ(fdt, nodeoffset)) < 0)
+		أرجع nextoffset;
 
-	namestroff = fdt_find_add_string_(fdt, name, &allocated);
-	if (namestroff < 0)
-		return namestroff;
+	namestroff = fdt_لبھو_جوڑو_string(fdt, name, &allocated);
+	إذا (namestroff < 0)
+		أرجع namestroff;
 
-	*prop = fdt_offset_ptr_w_(fdt, nextoffset);
-	proplen = sizeof(**prop) + FDT_TAGALIGN(len);
+	*prop = fdt_وتھ_ptr_w(fdt, nextoffset);
+	proplen = حجم(**prop) + FDT_TAGALIGN(len);
 
 	err = fdt_splice_struct_(fdt, *prop, 0, proplen);
-	if (err) {
+	إذا (err) {
 		/* Delete the string if we failed to add it */
-		if (!can_assume(NO_ROLLBACK) && allocated)
-			fdt_del_last_string_(fdt, name);
-		return err;
+		إذا (!can_assume(NO_ROLLBACK) && allocated)
+			fdt_del_آخری_string(fdt, name);
+		أرجع err;
 	}
 
-	(*prop)->tag = cpu_to_fdt32(FDT_PROP);
-	(*prop)->nameoff = cpu_to_fdt32(namestroff);
-	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	(*prop)->ٹیگ = cpu_منزل_fdt32(FDT_PROP);
+	(*prop)->nameoff = cpu_منزل_fdt32(namestroff);
+	(*prop)->len = cpu_منزل_fdt32(len);
+	أرجع 0;
 }
 
-int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+صحيح fdt_سیٹ_name(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name)
 {
-	char *namep;
-	int oldlen, newlen;
-	int err;
+	حرف *namep;
+	صحيح oldlen, newlen;
+	صحيح err;
 
 	FDT_RW_PROBE(fdt);
 
-	namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
-	if (!namep)
-		return oldlen;
+	namep = (حرف *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
+	إذا (!namep)
+		أرجع oldlen;
 
-	newlen = strlen(name);
+	newlen = لڑی_لمبائی(name);
 
 	err = fdt_splice_struct_(fdt, namep, FDT_TAGALIGN(oldlen+1),
 				 FDT_TAGALIGN(newlen+1));
-	if (err)
-		return err;
+	إذا (err)
+		أرجع err;
 
-	memcpy(namep, name, newlen+1);
-	return 0;
+	حافظہ_نقل(namep, name, newlen+1);
+	أرجع 0;
 }
 
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data)
+صحيح fdt_setprop_placeholder(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+			    صحيح len, فراغ **prop_انکڑے)
 {
-	struct fdt_property *prop;
-	int err;
+	بنية fdt_property *prop;
+	صحيح err;
 
 	FDT_RW_PROBE(fdt);
 
 	err = fdt_resize_property_(fdt, nodeoffset, name, len, &prop);
-	if (err == -FDT_ERR_NOTFOUND)
-		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-	if (err)
-		return err;
+	إذا (err == -FDT_ERR_NOTFOUND)
+		err = fdt_جوڑو_property(fdt, nodeoffset, name, len, &prop);
+	إذا (err)
+		أرجع err;
 
-	*prop_data = prop->data;
-	return 0;
+	*prop_انکڑے = prop->انکڑے;
+	أرجع 0;
 }
 
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len)
+صحيح fdt_setprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+		ثابت فراغ *val, صحيح len)
 {
-	void *prop_data;
-	int err;
+	فراغ *prop_انکڑے;
+	صحيح err;
 
-	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_data);
-	if (err)
-		return err;
+	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_انکڑے);
+	إذا (err)
+		أرجع err;
 
-	if (len)
-		memcpy(prop_data, val, len);
-	return 0;
+	إذا (len)
+		حافظہ_نقل(prop_انکڑے, val, len);
+	أرجع 0;
 }
 
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len)
+صحيح fdt_appendprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+		   ثابت فراغ *val, صحيح len)
 {
-	struct fdt_property *prop;
-	int err, oldlen, newlen;
+	بنية fdt_property *prop;
+	صحيح err, oldlen, newlen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (prop) {
+	إذا (prop) {
 		newlen = len + oldlen;
-		err = fdt_splice_struct_(fdt, prop->data,
+		err = fdt_splice_struct_(fdt, prop->انکڑے,
 					 FDT_TAGALIGN(oldlen),
 					 FDT_TAGALIGN(newlen));
-		if (err)
-			return err;
-		prop->len = cpu_to_fdt32(newlen);
-		memcpy(prop->data + oldlen, val, len);
-	} else {
-		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-		if (err)
-			return err;
-		memcpy(prop->data, val, len);
+		إذا (err)
+			أرجع err;
+		prop->len = cpu_منزل_fdt32(newlen);
+		حافظہ_نقل(prop->انکڑے + oldlen, val, len);
+	} وإلا {
+		err = fdt_جوڑو_property(fdt, nodeoffset, name, len, &prop);
+		إذا (err)
+			أرجع err;
+		حافظہ_نقل(prop->انکڑے, val, len);
 	}
-	return 0;
+	أرجع 0;
 }
 
-int fdt_delprop(void *fdt, int nodeoffset, const char *name)
+صحيح fdt_delprop(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name)
 {
-	struct fdt_property *prop;
-	int len, proplen;
+	بنية fdt_property *prop;
+	صحيح len, proplen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	إذا (!prop)
+		أرجع len;
 
-	proplen = sizeof(*prop) + FDT_TAGALIGN(len);
-	return fdt_splice_struct_(fdt, prop, proplen, 0);
+	proplen = حجم(*prop) + FDT_TAGALIGN(len);
+	أرجع fdt_splice_struct_(fdt, prop, proplen, 0);
 }
 
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen)
+صحيح fdt_جوڑو_subnode_namelen(فراغ *fdt, صحيح parentoffset,
+			    ثابت حرف *name, صحيح namelen)
 {
-	struct fdt_node_header *nh;
-	int offset, nextoffset;
-	int nodelen;
-	int err;
-	uint32_t tag;
+	بنية fdt_گرہ_سرخی *nh;
+	صحيح وتھ, nextoffset;
+	صحيح nodelen;
+	صحيح err;
+	uint32_t ٹیگ;
 	fdt32_t *endtag;
 
 	FDT_RW_PROBE(fdt);
 
-	offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);
-	if (offset >= 0)
-		return -FDT_ERR_EXISTS;
-	else if (offset != -FDT_ERR_NOTFOUND)
-		return offset;
+	وتھ = fdt_subnode_وتھ_namelen(fdt, parentoffset, name, namelen);
+	إذا (وتھ >= 0)
+		أرجع -FDT_ERR_EXISTS;
+	وإلا إذا (وتھ != -FDT_ERR_NOTFOUND)
+		أرجع وتھ;
 
 	/* Try to place the new node after the parent's properties */
-	tag = fdt_next_tag(fdt, parentoffset, &nextoffset);
+	ٹیگ = fdt_اگلا_ٹیگ(fdt, parentoffset, &nextoffset);
 	/* the fdt_subnode_offset_namelen() should ensure this never hits */
-	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
-		return -FDT_ERR_INTERNAL;
-	do {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
-	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
+	إذا (!can_assume(LIBFDT_FLAWLESS) && (ٹیگ != FDT_BEGIN_گرہ))
+		أرجع -FDT_ERR_اندرونی;
+	افعل {
+		وتھ = nextoffset;
+		ٹیگ = fdt_اگلا_ٹیگ(fdt, وتھ, &nextoffset);
+	} طالما ((ٹیگ == FDT_PROP) || (ٹیگ == FDT_NOP));
 
-	nh = fdt_offset_ptr_w_(fdt, offset);
-	nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
+	nh = fdt_وتھ_ptr_w(fdt, وتھ);
+	nodelen = حجم(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
 
 	err = fdt_splice_struct_(fdt, nh, 0, nodelen);
-	if (err)
-		return err;
+	إذا (err)
+		أرجع err;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->ٹیگ = cpu_منزل_fdt32(FDT_BEGIN_گرہ);
 	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
-	memcpy(nh->name, name, namelen);
-	endtag = (fdt32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
-	*endtag = cpu_to_fdt32(FDT_END_NODE);
+	حافظہ_نقل(nh->name, name, namelen);
+	endtag = (fdt32_t *)((حرف *)nh + nodelen - FDT_TAGSIZE);
+	*endtag = cpu_منزل_fdt32(FDT_سرا_گرہ);
 
-	return offset;
+	أرجع وتھ;
 }
 
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name)
+صحيح fdt_جوڑو_subnode(فراغ *fdt, صحيح parentoffset, ثابت حرف *name)
 {
-	return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
+	أرجع fdt_جوڑو_subnode_namelen(fdt, parentoffset, name, لڑی_لمبائی(name));
 }
 
-int fdt_del_node(void *fdt, int nodeoffset)
+صحيح fdt_del_گرہ(فراغ *fdt, صحيح nodeoffset)
 {
-	int endoffset;
+	صحيح endoffset;
 
 	FDT_RW_PROBE(fdt);
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_گرہ_سرا_وتھ(fdt, nodeoffset);
+	إذا (endoffset < 0)
+		أرجع endoffset;
 
-	return fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
+	أرجع fdt_splice_struct_(fdt, fdt_وتھ_ptr_w(fdt, nodeoffset),
 				  endoffset - nodeoffset, 0);
 }
 
-static void fdt_packblocks_(const char *old, char *new,
-			    int mem_rsv_size,
-			    int struct_size,
-			    int strings_size)
+ساكن فراغ fdt_packblocks_(ثابت حرف *old, حرف *new,
+			    صحيح mem_rsv_ناپ,
+			    صحيح struct_ناپ,
+			    صحيح لڑیاں_ناپ)
 {
-	int mem_rsv_off, struct_off, strings_off;
+	صحيح mem_rsv_off, struct_off, لڑیاں_off;
 
-	mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);
-	struct_off = mem_rsv_off + mem_rsv_size;
-	strings_off = struct_off + struct_size;
+	mem_rsv_off = FDT_ALIGN(حجم(بنية fdt_سرخی), 8);
+	struct_off = mem_rsv_off + mem_rsv_ناپ;
+	لڑیاں_off = struct_off + struct_ناپ;
 
-	memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_size);
-	fdt_set_off_mem_rsvmap(new, mem_rsv_off);
+	memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_ناپ);
+	fdt_سیٹ_off_mem_rsvmap(new, mem_rsv_off);
 
-	memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_size);
-	fdt_set_off_dt_struct(new, struct_off);
-	fdt_set_size_dt_struct(new, struct_size);
+	memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_ناپ);
+	fdt_سیٹ_off_dt_struct(new, struct_off);
+	fdt_سیٹ_ناپ_dt_struct(new, struct_ناپ);
 
-	memmove(new + strings_off, old + fdt_off_dt_strings(old), strings_size);
-	fdt_set_off_dt_strings(new, strings_off);
-	fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));
+	memmove(new + لڑیاں_off, old + fdt_off_dt_لڑیاں(old), لڑیاں_ناپ);
+	fdt_سیٹ_off_dt_لڑیاں(new, لڑیاں_off);
+	fdt_سیٹ_ناپ_dt_لڑیاں(new, fdt_ناپ_dt_لڑیاں(old));
 }
 
-int fdt_open_into(const void *fdt, void *buf, int bufsize)
+صحيح fdt_open_into(ثابت فراغ *fdt, فراغ *buf, صحيح bufsize)
 {
-	int err;
-	int mem_rsv_size, struct_size;
-	int newsize;
-	const char *fdtstart = fdt;
-	const char *fdtend = fdtstart + fdt_totalsize(fdt);
-	char *tmp;
+	صحيح err;
+	صحيح mem_rsv_ناپ, struct_ناپ;
+	صحيح newsize;
+	ثابت حرف *fdtstart = fdt;
+	ثابت حرف *fdtend = fdtstart + fdt_totalsize(fdt);
+	حرف *tmp;
 
 	FDT_RO_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+	mem_rsv_ناپ = (fdt_عدد_mem_rsv(fdt)+1)
+		* حجم(بنية fdt_reserve_اندراج);
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-		struct_size = fdt_size_dt_struct(fdt);
-	} else if (fdt_version(fdt) == 16) {
-		struct_size = 0;
-		while (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
+	إذا (can_assume(LATEST) || fdt_نسخہ(fdt) >= 17) {
+		struct_ناپ = fdt_ناپ_dt_struct(fdt);
+	} وإلا إذا (fdt_نسخہ(fdt) == 16) {
+		struct_ناپ = 0;
+		طالما (fdt_اگلا_ٹیگ(fdt, struct_ناپ, &struct_ناپ) != FDT_سرا)
 			;
-		if (struct_size < 0)
-			return struct_size;
-	} else {
-		return -FDT_ERR_BADVERSION;
+		إذا (struct_ناپ < 0)
+			أرجع struct_ناپ;
+	} وإلا {
+		أرجع -FDT_ERR_BADVERSION;
 	}
 
-	if (can_assume(LIBFDT_ORDER) ||
-	    !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
+	إذا (can_assume(LIBFDT_ترتیب) ||
+	    !fdt_بلاکاں_misordered(fdt, mem_rsv_ناپ, struct_ناپ)) {
 		/* no further work necessary */
 		err = fdt_move(fdt, buf, bufsize);
-		if (err)
-			return err;
-		fdt_set_version(buf, 17);
-		fdt_set_size_dt_struct(buf, struct_size);
-		fdt_set_totalsize(buf, bufsize);
-		return 0;
+		إذا (err)
+			أرجع err;
+		fdt_سیٹ_نسخہ(buf, 17);
+		fdt_سیٹ_ناپ_dt_struct(buf, struct_ناپ);
+		fdt_سیٹ_totalsize(buf, bufsize);
+		أرجع 0;
 	}
 
 	/* Need to reorder */
-	newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
-		+ struct_size + fdt_size_dt_strings(fdt);
+	newsize = FDT_ALIGN(حجم(بنية fdt_سرخی), 8) + mem_rsv_ناپ
+		+ struct_ناپ + fdt_ناپ_dt_لڑیاں(fdt);
 
-	if (bufsize < newsize)
-		return -FDT_ERR_NOSPACE;
+	إذا (bufsize < newsize)
+		أرجع -FDT_ERR_NOSPACE;
 
 	/* First attempt to build converted tree at beginning of buffer */
 	tmp = buf;
 	/* But if that overlaps with the old tree... */
-	if (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
+	إذا (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
 		/* Try right after the old tree instead */
-		tmp = (char *)(uintptr_t)fdtend;
-		if ((tmp + newsize) > ((char *)buf + bufsize))
-			return -FDT_ERR_NOSPACE;
+		tmp = (حرف *)(uintptr_t)fdtend;
+		إذا ((tmp + newsize) > ((حرف *)buf + bufsize))
+			أرجع -FDT_ERR_NOSPACE;
 	}
 
-	fdt_packblocks_(fdt, tmp, mem_rsv_size, struct_size,
-			fdt_size_dt_strings(fdt));
+	fdt_packblocks_(fdt, tmp, mem_rsv_ناپ, struct_ناپ,
+			fdt_ناپ_dt_لڑیاں(fdt));
 	memmove(buf, tmp, newsize);
 
-	fdt_set_magic(buf, FDT_MAGIC);
-	fdt_set_totalsize(buf, bufsize);
-	fdt_set_version(buf, 17);
-	fdt_set_last_comp_version(buf, 16);
-	fdt_set_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
+	fdt_سیٹ_magic(buf, FDT_MAGIC);
+	fdt_سیٹ_totalsize(buf, bufsize);
+	fdt_سیٹ_نسخہ(buf, 17);
+	fdt_سیٹ_آخری_comp_نسخہ(buf, 16);
+	fdt_سیٹ_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
 
-	return 0;
+	أرجع 0;
 }
 
-int fdt_pack(void *fdt)
+صحيح fdt_pack(فراغ *fdt)
 {
-	int mem_rsv_size;
+	صحيح mem_rsv_ناپ;
 
 	FDT_RW_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
-	fdt_packblocks_(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt),
-			fdt_size_dt_strings(fdt));
-	fdt_set_totalsize(fdt, fdt_data_size_(fdt));
+	mem_rsv_ناپ = (fdt_عدد_mem_rsv(fdt)+1)
+		* حجم(بنية fdt_reserve_اندراج);
+	fdt_packblocks_(fdt, fdt, mem_rsv_ناپ, fdt_ناپ_dt_struct(fdt),
+			fdt_ناپ_dt_لڑیاں(fdt));
+	fdt_سیٹ_totalsize(fdt, fdt_انکڑے_ناپ(fdt));
 
-	return 0;
+	أرجع 0;
 }

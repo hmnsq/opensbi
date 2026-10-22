@@ -8,132 +8,132 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_hart.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_ipi.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi/sbi_tlb.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_unpriv.h>
+#ضمن <sbi/sbi_hart.h>
 
-static bool sbi_load_hart_mask_unpriv(ulong *pmask, ulong *hmask, ulong *hbase,
-				      struct sbi_trap_info *uptrap)
+ساكن bool sbi_لدو_hart_نقاب_unpriv(ulong *pmask, ulong *hmask, ulong *hbase,
+				      بنية sbi_trap_info *uptrap)
 {
-	ulong mask = 0;
+	ulong نقاب = 0;
 
-	if (pmask) {
-		mask = sbi_load_ulong(pmask, uptrap);
-		if (uptrap->cause)
-			return false;
+	إذا (pmask) {
+		نقاب = sbi_لدو_ulong(pmask, uptrap);
+		إذا (uptrap->cause)
+			أرجع false;
 		*hbase = 0;
-	} else {
+	} وإلا {
 		*hbase = -1UL;
 	}
-	*hmask = mask;
+	*hmask = نقاب;
 
-	return true;
+	أرجع true;
 }
 
-static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+ساكن صحيح sbi_ecall_legacy_handler(بنانشانی لما extid, بنانشانی لما funcid,
+				    بنية sbi_trap_regs *regs,
+				    بنية sbi_ecall_return *باہرلا)
 {
-	int ret = 0;
-	struct sbi_tlb_info tlb_info;
-	u32 source_hart = current_hartid();
-	struct sbi_trap_info trap = {0};
+	صحيح ret = 0;
+	بنية sbi_tlb_info tlb_info;
+	u32 سروت_hart = current_hartid();
+	بنية sbi_trap_info trap = {0};
 	ulong hmask, hbase;
 
-	switch (extid) {
-	case SBI_EXT_0_1_SET_TIMER:
-#if __riscv_xlen == 32
-		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
-		sbi_timer_smode_event_start((u64)regs->a0);
-#endif
-		break;
-	case SBI_EXT_0_1_CONSOLE_PUTCHAR:
+	بدل (extid) {
+	حالة SBI_EXT_0_1_سیٹ_TIMER:
+#إذا __riscv_xlen == 32
+		sbi_timer_smode_event_شروع((((u64)regs->a1 << 32) | (u64)regs->a0));
+#وإلا
+		sbi_timer_smode_event_شروع((u64)regs->a0);
+#جے_انت
+		اكسر;
+	حالة SBI_EXT_0_1_CONSOLE_PUTCHAR:
 		sbi_putc(regs->a0);
-		break;
-	case SBI_EXT_0_1_CONSOLE_GETCHAR:
+		اكسر;
+	حالة SBI_EXT_0_1_CONSOLE_GETCHAR:
 		ret = sbi_getc();
-		break;
-	case SBI_EXT_0_1_CLEAR_IPI:
+		اكسر;
+	حالة SBI_EXT_0_1_CLEAR_IPI:
 		sbi_ipi_clear_smode();
-		break;
-	case SBI_EXT_0_1_SEND_IPI:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		اكسر;
+	حالة SBI_EXT_0_1_SEND_IPI:
+		إذا (sbi_لدو_hart_نقاب_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			ret = sbi_ipi_send_smode(hmask, hbase);
-		} else {
+		} وإلا {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			باہرلا->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_FENCE_I:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		اكسر;
+	حالة SBI_EXT_0_1_REMOTE_FENCE_I:
+		إذا (sbi_لدو_hart_نقاب_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, 0, 0, 0, 0,
-					  SBI_TLB_FENCE_I, source_hart);
+					  SBI_TLB_FENCE_I, سروت_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} وإلا {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			باہرلا->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_SFENCE_VMA:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		اكسر;
+	حالة SBI_EXT_0_1_REMOTE_SFENCE_VMA:
+		إذا (sbi_لدو_hart_نقاب_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1, regs->a2, 0, 0,
-					  SBI_TLB_SFENCE_VMA, source_hart);
+					  SBI_TLB_SFENCE_VMA, سروت_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} وإلا {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			باہرلا->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		اكسر;
+	حالة SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID:
+		إذا (sbi_لدو_hart_نقاب_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1,
 					  regs->a2, regs->a3, 0,
 					  SBI_TLB_SFENCE_VMA_ASID,
-					  source_hart);
+					  سروت_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} وإلا {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			باہرلا->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_SHUTDOWN:
+		اكسر;
+	حالة SBI_EXT_0_1_SHUTDOWN:
 		sbi_system_reset(SBI_SRST_RESET_TYPE_SHUTDOWN,
 				 SBI_SRST_RESET_REASON_NONE);
-		break;
-	default:
+		اكسر;
+	افتراضي:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-struct sbi_ecall_extension ecall_legacy;
+بنية sbi_ecall_extension ecall_legacy;
 
-static int sbi_ecall_legacy_register_extensions(void)
+ساكن صحيح sbi_ecall_legacy_رجسٹر_extensions(فراغ)
 {
-	return sbi_ecall_register_extension(&ecall_legacy);
+	أرجع sbi_ecall_رجسٹر_extension(&ecall_legacy);
 }
 
-struct sbi_ecall_extension ecall_legacy = {
+بنية sbi_ecall_extension ecall_legacy = {
 	.name			= "legacy",
-	.extid_start		= SBI_EXT_0_1_SET_TIMER,
-	.extid_end		= SBI_EXT_0_1_SHUTDOWN,
-	.register_extensions	= sbi_ecall_legacy_register_extensions,
+	.extid_شروع		= SBI_EXT_0_1_سیٹ_TIMER,
+	.extid_سرا		= SBI_EXT_0_1_SHUTDOWN,
+	.رجسٹر_extensions	= sbi_ecall_legacy_رجسٹر_extensions,
 	.handle			= sbi_ecall_legacy_handler,
 };

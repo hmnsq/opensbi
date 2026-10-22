@@ -7,30 +7,30 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_fp.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap_ldst.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_platform.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/riscv_fp.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_trap_ldst.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_unpriv.h>
+#ضمن <sbi/sbi_platform.h>
 
 /**
  * Load emulator callback:
  *   Refer to comments of `sbi_platform_emulate_load`.
  */
-typedef int (*sbi_trap_ld_emulator)(ulong insn, int rlen, ulong raddr,
-				    union sbi_ldst_data *out_val,
-				    struct sbi_trap_context *tcntx);
+تعريفنوع صحيح (*sbi_trap_ld_emulator)(ulong insn, صحيح rlen, ulong raddr,
+				    اتحاد sbi_ldst_انکڑے *باہرلا_val,
+				    بنية sbi_trap_context *tcntx);
 
 /**
  * Store emulator callback:
  *   Refer to comments of `sbi_platform_emulate_store`.
  */
-typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
-				    union sbi_ldst_data in_val,
-				    struct sbi_trap_context *tcntx);
+تعريفنوع صحيح (*sbi_trap_st_emulator)(ulong insn, صحيح wlen, ulong waddr,
+				    اتحاد sbi_ldst_انکڑے وچ_val,
+				    بنية sbi_trap_context *tcntx);
 
 /**
  * Handling of misaligned fault is done by a collection of smaller, but
@@ -40,21 +40,21 @@ typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
  * Specifically, fixup the offset field using the tval diff between the
  * new trap and the original one (if required).
  */
-static inline void sbi_misaligned_tinst_fixup(
-			const struct sbi_trap_info *orig_trap,
-			      struct sbi_trap_info *uptrap)
+ساكن مضمن فراغ sbi_misaligned_tinst_fixup(
+			ثابت بنية sbi_trap_info *orig_trap,
+			      بنية sbi_trap_info *uptrap)
 {
-	ulong offset = uptrap->tval - orig_trap->tval;
+	ulong وتھ = uptrap->tval - orig_trap->tval;
 
 	/*
 	 * The function is called in code path for handling a scalar
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	إذا (uptrap->tinst == INSN_PSEUDO_VS_لدو ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		أرجع;
 	/*
 	 * Only fixup if orig tinst is valid. Otherwise, discard the
 	 * new tinst to be on the safe side. Never use new tinst as-is!
@@ -62,13 +62,13 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * For vector, discard it regardless. It doesn't make sense to
 	 * have a transformed tinst
 	 */
-	else if (orig_trap->tinst == 0)
+	وإلا إذا (orig_trap->tinst == 0)
 		uptrap->tinst = 0;
-	else
-		uptrap->tinst = orig_trap->tinst | (offset << SH_RS1);
+	وإلا
+		uptrap->tinst = orig_trap->tinst | (وتھ << SH_RS1);
 }
 
-static inline bool sbi_trap_tinst_valid(ulong tinst)
+ساكن مضمن bool sbi_trap_tinst_valid(ulong tinst)
 {
 	/*
 	 * Bit[0] == 1 implies trapped instruction value is
@@ -76,29 +76,29 @@ static inline bool sbi_trap_tinst_valid(ulong tinst)
 	 * Also do proper checking per Privileged ISA 19.6.3,
 	 * and make sure high 32 bits of tinst is 0
 	 */
-	return tinst == (uint32_t)tinst && (tinst & 0x1);
+	أرجع tinst == (uint32_t)tinst && (tinst & 0x1);
 }
 
-static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
+ساكن صحيح sbi_trap_emulate_لدو(بنية sbi_trap_context *tcntx,
 				 sbi_trap_ld_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	ulong insn, insn_len, imm = 0, shift = 0, off = 0;
-	union sbi_ldst_data val = { 0 };
-	struct sbi_trap_info uptrap;
-	bool xform = false, fp = false, c_load = false, c_ldsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	ulong insn, insn_len, imm = 0, کھسکاؤ = 0, off = 0;
+	اتحاد sbi_ldst_انکڑے val = { 0 };
+	بنية sbi_trap_info uptrap;
+	bool xform = false, fp = false, c_لدو = false, c_ldsp = false;
+	صحيح rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	إذا (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
-		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
+		insn	 = orig_trap->tinst | INSN_16_ثنائی_ہندسہ_نقاب;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} وإلا {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		إذا (uptrap.cause) {
+			أرجع sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -108,63 +108,63 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *    lb, lbu, lh, lhu, lw, flw, flw
 	 *    c.lbu, c.lh, c.lhu, c.lw, c.lwsp, c.fld, c.fldsp
 	 */
-	if ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
+	إذا ((insn & INSN_نقاب_LB) == INSN_میل_LB) {
 		len = -1;
-	} else if ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
+	} وإلا إذا ((insn & INSN_نقاب_LBU) == INSN_میل_LBU) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
+	} وإلا إذا ((insn & INSN_نقاب_C_LBU) == INSN_میل_C_LBU) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_LB_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
+		c_لدو = true;
+	} وإلا إذا ((insn & INSN_نقاب_LH) == INSN_میل_LH) {
 		len = -2;
-	} else if ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
+	} وإلا إذا ((insn & INSN_نقاب_C_LH) == INSN_میل_C_LH) {
 		/* Zcb */
 		len = -2;
 		imm = RVC_LH_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
+		c_لدو = true;
+	} وإلا إذا ((insn & INSN_نقاب_LHU) == INSN_میل_LHU) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
+	} وإلا إذا ((insn & INSN_نقاب_C_LHU) == INSN_میل_C_LHU) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_LH_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
+		c_لدو = true;
+	} وإلا إذا ((insn & INSN_نقاب_LW) == INSN_میل_LW) {
 		len = -4;
-	} else if ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
+	} وإلا إذا ((insn & INSN_نقاب_C_LW) == INSN_میل_C_LW) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LW_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
-		GET_RD_NUM(insn)) {
+		c_لدو = true;
+	} وإلا إذا ((insn & INSN_نقاب_C_LWSP) == INSN_میل_C_LWSP &&
+		GET_RD_عدد(insn)) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LWSP_IMM(insn);
 		c_ldsp = true;
-#ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا ((insn & INSN_نقاب_FLW) == INSN_میل_FLW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
+	} وإلا إذا ((insn & INSN_نقاب_FLD) == INSN_میل_FLD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
+	} وإلا إذا ((insn & INSN_نقاب_C_FLD) == INSN_میل_C_FLD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LD_IMM(insn);
-		c_load = true;
+		c_لدو = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
+	} وإلا إذا ((insn & INSN_نقاب_C_FLDSP) == INSN_میل_C_FLDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LDSP_IMM(insn);
 		c_ldsp = true;
 		fp = true;
-#endif
-	} else {
+#جے_انت
+	} وإلا {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -174,70 +174,70 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *     c.ld in rv64 == c.flw in rv32
 	 *     c.ldsp in rv64 == c.flwsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	إذا (prev_xlen == 64) {
 		/* RV64 Only: lwu, ld, c.ld, c.ldsp  */
-		if ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
+		إذا ((insn & INSN_نقاب_LWU) == INSN_میل_LWU) {
 			len = 4;
-		} else if ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
+		} وإلا إذا ((insn & INSN_نقاب_LD) == INSN_میل_LD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
+		} وإلا إذا ((insn & INSN_نقاب_C_LD) == INSN_میل_C_LD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LD_IMM(insn);
-			c_load = true;
-		} else if ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
-			GET_RD_NUM(insn)) {
+			c_لدو = true;
+		} وإلا إذا ((insn & INSN_نقاب_C_LDSP) == INSN_میل_C_LDSP &&
+			GET_RD_عدد(insn)) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LDSP_IMM(insn);
 			c_ldsp = true;
 		}
-#ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا (prev_xlen == 32) {
 		/* RV32 Only: c.flw, c.flwsp */
-		if ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
+		إذا ((insn & INSN_نقاب_C_FLW) == INSN_میل_C_FLW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LW_IMM(insn);
-			c_load = true;
+			c_لدو = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
+		} وإلا إذا ((insn & INSN_نقاب_C_FLWSP) == INSN_میل_C_FLWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LWSP_IMM(insn);
 			c_ldsp = true;
 			fp = true;
 		}
-#endif
+#جے_انت
 	}
 
-	if (len < 0) {
+	إذا (len < 0) {
 		len = -len;
-		shift = 8 * (sizeof(ulong) - len);
+		کھسکاؤ = 8 * (حجم(ulong) - len);
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	إذا (!len) // Unknown instruction
+		اذهب do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#إذا !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
-		goto do_emu;
-#endif
+	إذا (orig_trap->cause == CAUSE_MISALIGNED_لدو)
+		اذهب do_emu;
+#جے_انت
 
-	if (xform)
+	إذا (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_load)
+		off = GET_RS1_عدد(insn);
+	وإلا إذا (c_لدو)
 		/* non SP-based compressed load */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_ldsp)
+	وإلا إذا (c_ldsp)
 		/* SP-based compressed load */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	وإلا
 		/* I-type non-compressed load */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_I(insn);
 	/**
@@ -248,58 +248,58 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, &val, tcntx);
-	if (rc <= 0)
-		return rc;
-	if (!len)
-		goto epc_fixup;
+	إذا (rc <= 0)
+		أرجع rc;
+	إذا (!len)
+		اذهب epc_fixup;
 
-	if (!fp) {
-		ulong v = ((long)(val.data_ulong << shift)) >> shift;
+	إذا (!fp) {
+		ulong v = ((لما)(val.انکڑے_ulong << کھسکاؤ)) >> کھسکاؤ;
 
-		if (c_load)
-			SET_RDS(insn, regs, v);
-		else
-			SET_RD(insn, regs, v);
-#ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_load)
-			SET_F64_RDS(insn, regs, val.data_u64);
-		else
-			SET_F64_RD(insn, regs, val.data_u64);
-	} else {
-		if (c_load)
-			SET_F32_RDS(insn, regs, val.data_ulong);
-		else
-			SET_F32_RD(insn, regs, val.data_ulong);
-#endif
+		إذا (c_لدو)
+			سیٹ_RDS(insn, regs, v);
+		وإلا
+			سیٹ_RD(insn, regs, v);
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا (len == 8) {
+		إذا (c_لدو)
+			سیٹ_F64_RDS(insn, regs, val.انکڑے_u64);
+		وإلا
+			سیٹ_F64_RD(insn, regs, val.انکڑے_u64);
+	} وإلا {
+		إذا (c_لدو)
+			سیٹ_F32_RDS(insn, regs, val.انکڑے_ulong);
+		وإلا
+			سیٹ_F32_RD(insn, regs, val.انکڑے_ulong);
+#جے_انت
 	}
 
 epc_fixup:
 	regs->mepc += insn_len;
 
-	return 0;
+	أرجع 0;
 }
 
-static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
+ساكن صحيح sbi_trap_emulate_store(بنية sbi_trap_context *tcntx,
 				  sbi_trap_st_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn, insn_len, imm = 0, off = 0;
-	union sbi_ldst_data val;
-	struct sbi_trap_info uptrap;
+	اتحاد sbi_ldst_انکڑے val;
+	بنية sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_store = false, c_stsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	صحيح rc, len = 0, prev_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	إذا (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
-		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
+		insn	 = orig_trap->tinst | INSN_16_ثنائی_ہندسہ_نقاب;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} وإلا {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		إذا (uptrap.cause) {
+			أرجع sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -309,53 +309,53 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *    sb, sh, sw, fsw, fsd
 	 *    c.sb, c.sh, c.sw, c.swsp, c.fsd, c.fsdsp
 	 */
-	if ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
+	إذا ((insn & INSN_نقاب_SB) == INSN_میل_SB) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
+	} وإلا إذا ((insn & INSN_نقاب_C_SB) == INSN_میل_C_SB) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_SB_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
+	} وإلا إذا ((insn & INSN_نقاب_SH) == INSN_میل_SH) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
+	} وإلا إذا ((insn & INSN_نقاب_C_SH) == INSN_میل_C_SH) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_SH_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
+	} وإلا إذا ((insn & INSN_نقاب_SW) == INSN_میل_SW) {
 		len = 4;
-	} else if ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
+	} وإلا إذا ((insn & INSN_نقاب_C_SW) == INSN_میل_C_SW) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SW_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
+	} وإلا إذا ((insn & INSN_نقاب_C_SWSP) == INSN_میل_C_SWSP) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SWSP_IMM(insn);
 		c_stsp = true;
-#ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا ((insn & INSN_نقاب_FSW) == INSN_میل_FSW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
+	} وإلا إذا ((insn & INSN_نقاب_FSD) == INSN_میل_FSD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
+	} وإلا إذا ((insn & INSN_نقاب_C_FSD) == INSN_میل_C_FSD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SD_IMM(insn);
 		c_store = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
+	} وإلا إذا ((insn & INSN_نقاب_C_FSDSP) == INSN_میل_C_FSDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SDSP_IMM(insn);
 		c_stsp = true;
 		fp = true;
-#endif
-	} else {
+#جے_انت
+	} وإلا {
 		prev_xlen = sbi_regs_prev_xlen(regs);
 	}
 
@@ -365,87 +365,87 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *     c.sd in rv64 == c.fsw in rv32
 	 *     c.sdsp in rv64 == c.fswsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	إذا (prev_xlen == 64) {
 		/* RV64 Only: sd, c.sd, c.sdsp */
-		if ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
+		إذا ((insn & INSN_نقاب_SD) == INSN_میل_SD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
+		} وإلا إذا ((insn & INSN_نقاب_C_SD) == INSN_میل_C_SD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SD_IMM(insn);
 			c_store = true;
-		} else if ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
+		} وإلا إذا ((insn & INSN_نقاب_C_SDSP) == INSN_میل_C_SDSP) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SDSP_IMM(insn);
 			c_stsp = true;
 		}
-#ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا (prev_xlen == 32) {
 		/* RV32 Only: c.fsw, c.fswsp */
-		if ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
+		إذا ((insn & INSN_نقاب_C_FSW) == INSN_میل_C_FSW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SW_IMM(insn);
 			c_store = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
+		} وإلا إذا ((insn & INSN_نقاب_C_FSWSP) == INSN_میل_C_FSWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SWSP_IMM(insn);
 			c_stsp = true;
 			fp = true;
 		}
-#endif
+#جے_انت
 	}
 
-	if (!fp) {
-		if (c_store)
-			val.data_ulong = GET_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_ulong = GET_RS2C(insn, regs);
-		else
-			val.data_ulong = GET_RS2(insn, regs);
-#ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_store)
-			val.data_u64 = GET_F64_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_u64 = GET_F64_RS2C(insn, regs);
-		else
-			val.data_u64 = GET_F64_RS2(insn, regs);
-	} else {
-		if (c_store)
-			val.data_ulong = GET_F32_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_ulong = GET_F32_RS2C(insn, regs);
-		else
-			val.data_ulong = GET_F32_RS2(insn, regs);
-#endif
+	إذا (!fp) {
+		إذا (c_store)
+			val.انکڑے_ulong = GET_RS2S(insn, regs);
+		وإلا إذا (c_stsp)
+			val.انکڑے_ulong = GET_RS2C(insn, regs);
+		وإلا
+			val.انکڑے_ulong = GET_RS2(insn, regs);
+#جے_تعریف_شدہ __riscv_flen
+	} وإلا إذا (len == 8) {
+		إذا (c_store)
+			val.انکڑے_u64 = GET_F64_RS2S(insn, regs);
+		وإلا إذا (c_stsp)
+			val.انکڑے_u64 = GET_F64_RS2C(insn, regs);
+		وإلا
+			val.انکڑے_u64 = GET_F64_RS2(insn, regs);
+	} وإلا {
+		إذا (c_store)
+			val.انکڑے_ulong = GET_F32_RS2S(insn, regs);
+		وإلا إذا (c_stsp)
+			val.انکڑے_ulong = GET_F32_RS2C(insn, regs);
+		وإلا
+			val.انکڑے_ulong = GET_F32_RS2(insn, regs);
+#جے_انت
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	إذا (!len) // Unknown instruction
+		اذهب do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#إذا !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_STORE)
-		goto do_emu;
-#endif
+	إذا (orig_trap->cause == CAUSE_MISALIGNED_STORE)
+		اذهب do_emu;
+#جے_انت
 
-	if (xform)
+	إذا (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_store)
+		off = GET_RS1_عدد(insn);
+	وإلا إذا (c_store)
 		/* non SP-based compressed store */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_stsp)
+	وإلا إذا (c_stsp)
 		/* SP-based compressed store */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	وإلا
 		/* S-type non-compressed store */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_S(insn);
 	/**
@@ -456,128 +456,128 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, val, tcntx);
-	if (rc <= 0)
-		return rc;
+	إذا (rc <= 0)
+		أرجع rc;
 
 	regs->mepc += insn_len;
 
-	return 0;
+	أرجع 0;
 }
 
-static int sbi_misaligned_ld_emulator(ulong insn, int rlen, ulong addr,
-				      union sbi_ldst_data *out_val,
-				      struct sbi_trap_context *tcntx)
+ساكن صحيح sbi_misaligned_ld_emulator(ulong insn, صحيح rlen, ulong addr,
+				      اتحاد sbi_ldst_انکڑے *باہرلا_val,
+				      بنية sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	بنية sbi_trap_info uptrap;
 
-	if (!rlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_ld_emulator(insn, tcntx);
-		else
+	إذا (!rlen) {
+		إذا (IS_سمتیہ_لدو_STORE(insn))
+			أرجع sbi_misaligned_v_ld_emulator(insn, tcntx);
+		وإلا
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			أرجع sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	إذا (addr != orig_trap->tval)
+		أرجع SBI_EFAIL;
 
-	sbi_load_loop(out_val->data_bytes, addr, rlen, &uptrap);
-	if (uptrap.cause) {
+	sbi_لدو_loop(باہرلا_val->انکڑے_بائٹاں, addr, rlen, &uptrap);
+	إذا (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		أرجع sbi_trap_redirect(regs, &uptrap);
 	}
-	return rlen;
+	أرجع rlen;
 }
 
-int sbi_misaligned_load_handler(struct sbi_trap_context *tcntx)
+صحيح sbi_misaligned_لدو_handler(بنية sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
+	أرجع sbi_trap_emulate_لدو(tcntx, sbi_misaligned_ld_emulator);
 }
 
-static int sbi_misaligned_st_emulator(ulong insn, int wlen, ulong addr,
-				      union sbi_ldst_data in_val,
-				      struct sbi_trap_context *tcntx)
+ساكن صحيح sbi_misaligned_st_emulator(ulong insn, صحيح wlen, ulong addr,
+				      اتحاد sbi_ldst_انکڑے وچ_val,
+				      بنية sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	بنية sbi_trap_info uptrap;
 
-	if (!wlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_st_emulator(insn, tcntx);
-		else
+	إذا (!wlen) {
+		إذا (IS_سمتیہ_لدو_STORE(insn))
+			أرجع sbi_misaligned_v_st_emulator(insn, tcntx);
+		وإلا
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			أرجع sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	إذا (addr != orig_trap->tval)
+		أرجع SBI_EFAIL;
 
-	sbi_store_loop(in_val.data_bytes, addr, wlen, &uptrap);
-	if (uptrap.cause) {
+	sbi_store_loop(وچ_val.انکڑے_بائٹاں, addr, wlen, &uptrap);
+	إذا (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		أرجع sbi_trap_redirect(regs, &uptrap);
 	}
-	return wlen;
+	أرجع wlen;
 }
 
-int sbi_misaligned_store_handler(struct sbi_trap_context *tcntx)
+صحيح sbi_misaligned_store_handler(بنية sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
+	أرجع sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
 }
 
-static int sbi_ld_access_emulator(ulong insn, int rlen, ulong addr,
-				  union sbi_ldst_data *out_val,
-				  struct sbi_trap_context *tcntx)
+ساكن صحيح sbi_ld_access_emulator(ulong insn, صحيح rlen, ulong addr,
+				  اتحاد sbi_ldst_انکڑے *باہرلا_val,
+				  بنية sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	صحيح rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	إذا (sbi_mstatus_prev_منوال(regs->mstatus) == PRV_M)
+		أرجع SBI_EINVAL;
 
-	rc = sbi_platform_emulate_load(sbi_platform_thishart_ptr(),
-				       insn, rlen, addr, out_val, tcntx);
+	rc = sbi_platform_emulate_لدو(sbi_platform_thishart_ptr(),
+				       insn, rlen, addr, باہرلا_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	إذا (rc < 0)
+		أرجع sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	أرجع rc;
 }
 
-int sbi_load_access_handler(struct sbi_trap_context *tcntx)
+صحيح sbi_لدو_access_handler(بنية sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
+	أرجع sbi_trap_emulate_لدو(tcntx, sbi_ld_access_emulator);
 }
 
-static int sbi_st_access_emulator(ulong insn, int wlen, ulong addr,
-				  union sbi_ldst_data in_val,
-				  struct sbi_trap_context *tcntx)
+ساكن صحيح sbi_st_access_emulator(ulong insn, صحيح wlen, ulong addr,
+				  اتحاد sbi_ldst_انکڑے وچ_val,
+				  بنية sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	ثابت بنية sbi_trap_info *orig_trap = &tcntx->trap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	صحيح rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	إذا (sbi_mstatus_prev_منوال(regs->mstatus) == PRV_M)
+		أرجع SBI_EINVAL;
 
 	rc = sbi_platform_emulate_store(sbi_platform_thishart_ptr(),
-					insn, wlen, addr, in_val, tcntx);
+					insn, wlen, addr, وچ_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	إذا (rc < 0)
+		أرجع sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	أرجع rc;
 }
 
-int sbi_store_access_handler(struct sbi_trap_context *tcntx)
+صحيح sbi_store_access_handler(بنية sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
+	أرجع sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
 }

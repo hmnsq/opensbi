@@ -7,73 +7,73 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/riscv_locks.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_hartmask.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
 
-#define DEFAULT_SCRATCH_ALLOC_ALIGN __SIZEOF_POINTER__
+#تعریف_کرو DEFAULT_SCRATCH_ALLOC_ALIGN __SIZEOF_POINTER__
 
-u32 sbi_scratch_hart_count;
-u32 hartindex_to_hartid_table[SBI_HARTMASK_MAX_BITS] = { [0 ... SBI_HARTMASK_MAX_BITS-1] = -1U };
-struct sbi_scratch *hartindex_to_scratch_table[SBI_HARTMASK_MAX_BITS];
+u32 sbi_scratch_hart_گنتی;
+u32 hartindex_منزل_hartid_جدول[SBI_HARTMASK_MAX_بٹ] = { [0 ... SBI_HARTMASK_MAX_بٹ-1] = -1U };
+بنية sbi_scratch *hartindex_منزل_scratch_جدول[SBI_HARTMASK_MAX_بٹ];
 
-static spinlock_t extra_lock = SPIN_LOCK_INITIALIZER;
-static unsigned long
-	extra_offset GUARDED_BY(&extra_lock) = SBI_SCRATCH_EXTRA_SPACE_OFFSET;
+ساكن spinlock_t extra_جندرا = SPIN_جندرا_INITIALIZER;
+ساكن بنانشانی لما
+	extra_وتھ GUARDED_BY(&extra_جندرا) = SBI_SCRATCH_EXTRA_SPACE_وتھ;
 
 /*
  * Get the alignment size.
  * Return DEFAULT_SCRATCH_ALLOC_ALIGNMENT or riscv,cbom_block_size
  */
-static unsigned long sbi_get_scratch_alloc_align(void)
+ساكن بنانشانی لما sbi_get_scratch_alloc_align(فراغ)
 {
-	const struct sbi_platform *plat = sbi_platform_thishart_ptr();
+	ثابت بنية sbi_platform *plat = sbi_platform_thishart_ptr();
 
-	if (!plat || !plat->cbom_block_size)
-		return DEFAULT_SCRATCH_ALLOC_ALIGN;
-	return plat->cbom_block_size;
+	إذا (!plat || !plat->cbom_بلاک_ناپ)
+		أرجع DEFAULT_SCRATCH_ALLOC_ALIGN;
+	أرجع plat->cbom_بلاک_ناپ;
 }
 
-u32 sbi_hartid_to_hartindex(u32 hartid)
+u32 sbi_hartid_منزل_hartindex(u32 hartid)
 {
 	sbi_for_each_hartindex(i)
-		if (hartindex_to_hartid_table[i] == hartid)
-			return i;
+		إذا (hartindex_منزل_hartid_جدول[i] == hartid)
+			أرجع i;
 
-	return -1U;
+	أرجع -1U;
 }
 
-typedef struct sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
+تعريفنوع بنية sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
 
-int sbi_scratch_init(struct sbi_scratch *scratch)
+صحيح sbi_scratch_init(بنية sbi_scratch *scratch)
 {
-	u32 h, hart_count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	u32 h, hart_گنتی;
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	hart_count = plat->hart_count;
-	if (hart_count > SBI_HARTMASK_MAX_BITS)
-		hart_count = SBI_HARTMASK_MAX_BITS;
-	sbi_scratch_hart_count = hart_count;
+	hart_گنتی = plat->hart_گنتی;
+	إذا (hart_گنتی > SBI_HARTMASK_MAX_بٹ)
+		hart_گنتی = SBI_HARTMASK_MAX_بٹ;
+	sbi_scratch_hart_گنتی = hart_گنتی;
 
 	sbi_for_each_hartindex(i) {
 		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;
-		hartindex_to_hartid_table[i] = h;
-		hartindex_to_scratch_table[i] =
-			((hartid2scratch)scratch->hartid_to_scratch)(h, i);
+		hartindex_منزل_hartid_جدول[i] = h;
+		hartindex_منزل_scratch_جدول[i] =
+			((hartid2scratch)scratch->hartid_منزل_scratch)(h, i);
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-unsigned long sbi_scratch_alloc_offset(unsigned long size)
+بنانشانی لما sbi_scratch_alloc_وتھ(بنانشانی لما ناپ)
 {
-	void *ptr;
-	unsigned long ret = 0;
-	struct sbi_scratch *rscratch;
-	unsigned long scratch_alloc_align = 0;
+	فراغ *ptr;
+	بنانشانی لما ret = 0;
+	بنية sbi_scratch *rscratch;
+	بنانشانی لما scratch_alloc_align = 0;
 
 	/*
 	 * We have a simple brain-dead allocator which never expects
@@ -84,8 +84,8 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 	 * will allow us to re-claim free-ed space.
 	 */
 
-	if (!size)
-		return 0;
+	إذا (!ناپ)
+		أرجع 0;
 
 	scratch_alloc_align = sbi_get_scratch_alloc_align();
 
@@ -93,38 +93,38 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 	 * We let the allocation align to cacheline bytes to avoid livelock on
 	 * certain platforms due to atomic variables from the same cache line.
 	 */
-	size += scratch_alloc_align - 1;
-	size &= ~(scratch_alloc_align - 1);
+	ناپ += scratch_alloc_align - 1;
+	ناپ &= ~(scratch_alloc_align - 1);
 
-	spin_lock(&extra_lock);
+	spin_جندرا(&extra_جندرا);
 
-	if (SBI_SCRATCH_SIZE < (extra_offset + size))
-		goto done;
+	إذا (SBI_SCRATCH_ناپ < (extra_وتھ + ناپ))
+		اذهب پورا;
 
-	ret = extra_offset;
-	extra_offset += size;
+	ret = extra_وتھ;
+	extra_وتھ += ناپ;
 
-done:
-	spin_unlock(&extra_lock);
+پورا:
+	spin_unlock(&extra_جندرا);
 
-	if (ret) {
+	إذا (ret) {
 		sbi_for_each_hartindex(i) {
-			rscratch = sbi_hartindex_to_scratch(i);
-			if (!rscratch)
-				continue;
-			ptr = sbi_scratch_offset_ptr(rscratch, ret);
-			sbi_memset(ptr, 0, size);
+			rscratch = sbi_hartindex_منزل_scratch(i);
+			إذا (!rscratch)
+				استمر;
+			ptr = sbi_scratch_وتھ_ptr(rscratch, ret);
+			sbi_memset(ptr, 0, ناپ);
 		}
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-void sbi_scratch_free_offset(unsigned long offset)
+فراغ sbi_scratch_free_وتھ(بنانشانی لما وتھ)
 {
-	if ((offset < SBI_SCRATCH_EXTRA_SPACE_OFFSET) ||
-	    (SBI_SCRATCH_SIZE <= offset))
-		return;
+	إذا ((وتھ < SBI_SCRATCH_EXTRA_SPACE_وتھ) ||
+	    (SBI_SCRATCH_ناپ <= وتھ))
+		أرجع;
 
 	/*
 	 * We don't actually free-up because it's a simple
@@ -132,13 +132,13 @@ void sbi_scratch_free_offset(unsigned long offset)
 	 */
 }
 
-unsigned long sbi_scratch_used_space(void)
+بنانشانی لما sbi_scratch_ورتیا_space(فراغ)
 {
-	unsigned long ret = 0;
+	بنانشانی لما ret = 0;
 
-	spin_lock(&extra_lock);
-	ret = extra_offset;
-	spin_unlock(&extra_lock);
+	spin_جندرا(&extra_جندرا);
+	ret = extra_وتھ;
+	spin_unlock(&extra_جندرا);
 
-	return ret;
+	أرجع ret;
 }

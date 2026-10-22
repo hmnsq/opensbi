@@ -4,63 +4,63 @@
  * Copyright (c) 2026 Inochi Amaoto <inochiama@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
 
-#define RESET_CTRL			0x0
+#تعریف_کرو RESET_CTRL			0x0
 
-static volatile u32 *litex_soc_base;
+ساكن متطاير u32 *litex_soc_ادھار;
 
-static int litex_reset_check(u32 type, u32 reason)
+ساكن صحيح litex_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		أرجع 255;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static void litex_do_reset(u32 type, u32 reason)
+ساكن فراغ litex_do_reset(u32 type, u32 reason)
 {
-	writel_relaxed(0x1, litex_soc_base + RESET_CTRL);
+	writel_relaxed(0x1, litex_soc_ادھار + RESET_CTRL);
 }
 
-static struct sbi_system_reset_device litex_reset = {
+ساكن بنية sbi_system_reset_device litex_reset = {
 	.name = "litex-reset",
 	.system_reset_check = litex_reset_check,
 	.system_reset = litex_do_reset
 };
 
-static int litex_reset_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ساكن صحيح litex_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			    ثابت بنية fdt_میل *میل)
 {
 	uint64_t reg_addr;
-	int rc;
+	صحيح rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_گرہ_addr_ناپ(fdt, nodeoff, 0, &reg_addr, عدم);
+	إذا (rc < 0 || !reg_addr)
+		أرجع SBI_ENODEV;
 
 
-	litex_soc_base = (volatile u32 *)(unsigned long)reg_addr;
+	litex_soc_ادھار = (متطاير u32 *)(بنانشانی لما)reg_addr;
 
-	sbi_system_reset_add_device(&litex_reset);
+	sbi_system_reset_جوڑو_device(&litex_reset);
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match litex_reset_match[] = {
+ساكن ثابت بنية fdt_میل litex_reset_میل[] = {
 	{ .compatible = "litex,soc-controller" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_litex = {
-	.match_table = litex_reset_match,
+ثابت بنية fdt_driver fdt_reset_litex = {
+	.میل_جدول = litex_reset_میل,
 	.init = litex_reset_init,
 };

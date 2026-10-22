@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#ضمن <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+صحيح sbi_strcmp(ثابت حرف *a, ثابت حرف *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	لكل (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	أرجع *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+صحيح sbi_strncmp(ثابت حرف *a, ثابت حرف *b, size_t گنتی)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	لكل (; گنتی > 0 && *a == *b && *a != '\0'; a++, b++, گنتی--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	إذا (!گنتی)
+		أرجع 0;
 
-	return *a - *b;
+	أرجع *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ثابت حرف *str)
 {
-	unsigned long ret = 0;
+	بنانشانی لما ret = 0;
 
-	while (*str != '\0') {
+	طالما (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ثابت حرف *str, size_t گنتی)
 {
-	unsigned long ret = 0;
+	بنانشانی لما ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	طالما (*str != '\0' && ret < گنتی) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+حرف *sbi_strcpy(حرف *dest, ثابت حرف *src)
 {
-	char *ret = dest;
+	حرف *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	طالما ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	أرجع ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+حرف *sbi_strncpy(حرف *dest, ثابت حرف *src, size_t گنتی)
 {
-	char *tmp = dest;
+	حرف *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	طالما (گنتی) {
+		إذا ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		گنتی--;
 	}
-	return dest;
+	أرجع dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+حرف *sbi_strchr(ثابت حرف *s, صحيح c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	افعل {
+		إذا (*s == (حرف)c)
+			أرجع (حرف *)s;
+	} طالما (*s++ != '\0');
 
-	return NULL;
+	أرجع عدم;
 }
 
-char *sbi_strrchr(const char *s, int c)
+حرف *sbi_strrchr(ثابت حرف *s, صحيح c)
 {
-	const char *last = s + sbi_strlen(s);
+	ثابت حرف *آخری = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
-		last--;
+	طالما (آخری > s && *آخری != (حرف)c)
+		آخری--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	إذا (*آخری != (حرف)c)
+		أرجع عدم;
+	وإلا
+		أرجع (حرف *)آخری;
 }
-void *sbi_memset(void *s, int c, size_t count)
+فراغ *sbi_memset(فراغ *s, صحيح c, size_t گنتی)
 {
-	char *temp = s;
+	حرف *عارضی = s;
 
-	while (count > 0) {
-		count--;
-		*temp++ = c;
+	طالما (گنتی > 0) {
+		گنتی--;
+		*عارضی++ = c;
 	}
 
-	return s;
+	أرجع s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+فراغ *sbi_memcpy(فراغ *dest, ثابت فراغ *src, size_t گنتی)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	حرف *temp1	  = dest;
+	ثابت حرف *temp2 = src;
 
-	while (count > 0) {
+	طالما (گنتی > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		گنتی--;
 	}
 
-	return dest;
+	أرجع dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+فراغ *sbi_memmove(فراغ *dest, ثابت فراغ *src, size_t گنتی)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	حرف *temp1	  = (حرف *)dest;
+	ثابت حرف *temp2 = (حرف *)src;
 
-	if (src == dest)
-		return dest;
+	إذا (src == dest)
+		أرجع dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	إذا (dest < src) {
+		طالما (گنتی > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			گنتی--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} وإلا {
+		temp1 = (حرف *)dest + گنتی - 1;
+		temp2 = (حرف *)src + گنتی - 1;
 
-		while (count > 0) {
+		طالما (گنتی > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			گنتی--;
 		}
 	}
 
-	return dest;
+	أرجع dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+صحيح sbi_memcmp(ثابت فراغ *s1, ثابت فراغ *s2, size_t گنتی)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ثابت حرف *temp1 = s1;
+	ثابت حرف *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	لكل (; گنتی > 0 && (*temp1 == *temp2); گنتی--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	إذا (گنتی > 0)
+		أرجع *(بنانشانی حرف *)temp1 - *(بنانشانی حرف *)temp2;
+	وإلا
+		أرجع 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+فراغ *sbi_memchr(ثابت فراغ *s, صحيح c, size_t گنتی)
 {
-	const unsigned char *temp = s;
+	ثابت بنانشانی حرف *عارضی = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	طالما (گنتی > 0) {
+		إذا ((بنانشانی حرف)c == *عارضی++) {
+			أرجع (فراغ *)(عارضی - 1);
 		}
-		count--;
+		گنتی--;
 	}
 
-	return NULL;
+	أرجع عدم;
 }

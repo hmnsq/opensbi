@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/timer/fdt_timer.h>
+#ضمن <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+خارجي بنية plmt_انکڑے plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+ساكن صحيح fdt_plmt_cold_timer_init(ثابت فراغ *fdt, صحيح nodeoff,
+				    ثابت بنية fdt_میل *میل)
 {
-	int rc;
-	unsigned long plmt_base;
+	صحيح rc;
+	بنانشانی لما plmt_ادھار;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_گرہ(fdt, nodeoff, &plmt_ادھار, &plmt.ناپ,
+				 &plmt.hart_گنتی);
+	إذا (rc)
+		أرجع rc;
 
-	plmt.time_val = (u64 *)plmt_base;
-	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
+	plmt.ویلا_val = (u64 *)plmt_ادھار;
+	plmt.ویلا_cmp = (u64 *)(plmt_ادھار + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+ساكن ثابت بنية fdt_میل timer_plmt_میل[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
-	.match_table = timer_plmt_match,
+ثابت بنية fdt_driver fdt_timer_plmt = {
+	.میل_جدول = timer_plmt_میل,
 	.init = fdt_plmt_cold_timer_init,
 };

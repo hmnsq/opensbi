@@ -7,149 +7,149 @@
  *   Himanshu Chauhan <hchauhan@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_byteorder.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_dbtr.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_csr_detect.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_byteorder.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_dbtr.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_hart_protection.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/riscv_asm.h>
 
 
 /** Offset of pointer to HART's debug triggers info in scratch space */
-static unsigned long hart_state_ptr_offset;
+ساكن بنانشانی لما hart_state_ptr_وتھ;
 
 /** Device specific debug trigger operations */
-static const struct sbi_dbtr_device *dbtr_dev = NULL;
+ساكن ثابت بنية sbi_dbtr_device *dbtr_dev = عدم;
 
-const struct sbi_dbtr_device *sbi_dbtr_get_device(void)
+ثابت بنية sbi_dbtr_device *sbi_dbtr_get_device(فراغ)
 {
-	return dbtr_dev;
+	أرجع dbtr_dev;
 }
 
-void sbi_dbtr_set_device(const struct sbi_dbtr_device *dev)
+فراغ sbi_dbtr_سیٹ_device(ثابت بنية sbi_dbtr_device *dev)
 {
-	if (!dev || dbtr_dev)
-		return;
+	إذا (!dev || dbtr_dev)
+		أرجع;
 
 	dbtr_dev = dev;
 }
 
-#define dbtr_get_hart_state_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, hart_state_ptr_offset)
+#تعریف_کرو dbtr_get_hart_state_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), فراغ *, hart_state_ptr_وتھ)
 
-#define dbtr_thishart_state_ptr()				\
+#تعریف_کرو dbtr_thishart_state_ptr()				\
 	dbtr_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define dbtr_set_hart_state_ptr(__scratch, __hart_state)		\
-	sbi_scratch_write_type((__scratch), void *, hart_state_ptr_offset, \
+#تعریف_کرو dbtr_سیٹ_hart_state_ptr(__scratch, __hart_state)		\
+	sbi_scratch_write_type((__scratch), فراغ *, hart_state_ptr_وتھ, \
 			       (__hart_state))
 
-#define tdata_read_safe(__csr)						\
+#تعریف_کرو tdata_read_محفوظ(__csr)						\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		بنية sbi_trap_info __trap = {0};			\
 		csr_read_allowed((__csr), &__trap);			\
 	})
 
-#define tdata_write_safe(__csr, __value)				\
+#تعریف_کرو tdata_write_محفوظ(__csr, __value)				\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		بنية sbi_trap_info __trap = {0};			\
 		csr_write_allowed((__csr), &__trap, (__value));		\
 	})
 
-#define tdata_implemented(__csr)					\
+#تعریف_کرو tdata_implemented(__csr)					\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		بنية sbi_trap_info __trap = {0};			\
 		csr_read_allowed((__csr), &__trap);			\
 		!__trap.cause;						\
 	})
 
-#define INDEX_TO_TRIGGER(_index)					\
+#تعریف_کرو اشاریہ_منزل_TRIGGER(اشاریہ)					\
 	({								\
-		struct sbi_dbtr_trigger *__trg = NULL;			\
-		struct sbi_dbtr_hart_triggers_state *__hs = NULL;	\
+		بنية sbi_dbtr_trigger *__trg = عدم;			\
+		بنية sbi_dbtr_hart_triggers_state *__hs = عدم;	\
 		__hs = dbtr_get_hart_state_ptr(sbi_scratch_thishart_ptr()); \
-		__trg = &__hs->triggers[_index];			\
+		__trg = &__hs->triggers[اشاریہ];			\
 		(__trg);						\
 	})
 
-#define for_each_trig_entry(_base, _max, _etype, _entry)		\
-	for (int _idx = 0; _entry = ((_etype *)_base + _idx),		\
+#تعریف_کرو for_each_trig_اندراج(ادھار, _max, _etype, اندراج)		\
+	لكل (صحيح _idx = 0; اندراج = ((_etype *)ادھار + _idx),		\
 	     _idx < _max;						\
-	     _idx++, _entry = ((_etype *)_base + _idx))
+	     _idx++, اندراج = ((_etype *)ادھار + _idx))
 
-#define DBTR_SHMEM_MAKE_PHYS(_p_hi, _p_lo) (_p_lo)
+#تعریف_کرو DBTR_SHMEM_MAKE_PHYS(_p_hi, _p_lo) (_p_lo)
 
 /* must call with hs != NULL */
-static inline bool sbi_dbtr_shmem_disabled(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ساكن مضمن bool sbi_dbtr_shmem_disabled(
+	بنية sbi_dbtr_hart_triggers_state *hs)
 {
-	return (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
+	أرجع (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
 		hs->shmem.phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR
 		? true : false);
 }
 
 /* must call with hs != NULL */
-static inline void sbi_dbtr_disable_shmem(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ساكن مضمن فراغ sbi_dbtr_disable_shmem(
+	بنية sbi_dbtr_hart_triggers_state *hs)
 {
 	hs->shmem.phys_lo = SBI_DBTR_SHMEM_INVALID_ADDR;
 	hs->shmem.phys_hi = SBI_DBTR_SHMEM_INVALID_ADDR;
 }
 
 /* must call with hs which is not disabled */
-static inline void *hart_shmem_base(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ساكن مضمن فراغ *hart_shmem_ادھار(
+	بنية sbi_dbtr_hart_triggers_state *hs)
 {
-	return ((void *)(unsigned long)DBTR_SHMEM_MAKE_PHYS(
+	أرجع ((فراغ *)(بنانشانی لما)DBTR_SHMEM_MAKE_PHYS(
 			hs->shmem.phys_hi, hs->shmem.phys_lo));
 }
 
-static void sbi_trigger_init(struct sbi_dbtr_trigger *trig,
-			     unsigned long type_mask, unsigned long idx)
+ساكن فراغ sbi_trigger_init(بنية sbi_dbtr_trigger *trig,
+			     بنانشانی لما type_نقاب, بنانشانی لما idx)
 {
-	trig->type_mask = type_mask;
+	trig->type_نقاب = type_نقاب;
 	trig->state = 0;
 	trig->tdata1 = 0;
 	trig->tdata2 = 0;
 	trig->tdata3 = 0;
-	trig->index = idx;
+	trig->اشاریہ_2 = idx;
 }
 
-static bool dbtr_trigger_hw_supported(unsigned long idx, unsigned long tdata1,
-				      unsigned long tdata2,
-				      unsigned long tdata3)
+ساكن bool dbtr_trigger_hw_supported(بنانشانی لما idx, بنانشانی لما tdata1,
+				      بنانشانی لما tdata2,
+				      بنانشانی لما tdata3)
 {
-	if (dbtr_dev && dbtr_dev->trigger_supported)
-		return dbtr_dev->trigger_supported(idx, tdata1, tdata2,
+	إذا (dbtr_dev && dbtr_dev->trigger_supported)
+		أرجع dbtr_dev->trigger_supported(idx, tdata1, tdata2,
 						   tdata3);
 
-	return true;
+	أرجع true;
 }
 
-static bool dbtr_trigger_any_hw_supported(
-			struct sbi_dbtr_hart_triggers_state *hs,
-			unsigned long tdata1, unsigned long tdata2,
-			unsigned long tdata3)
+ساكن bool dbtr_trigger_any_hw_supported(
+			بنية sbi_dbtr_hart_triggers_state *hs,
+			بنانشانی لما tdata1, بنانشانی لما tdata2,
+			بنانشانی لما tdata3)
 {
-	unsigned long type = TDATA1_GET_TYPE(tdata1);
-	struct sbi_dbtr_trigger *trig;
-	int i;
+	بنانشانی لما type = TDATA1_GET_TYPE(tdata1);
+	بنية sbi_dbtr_trigger *trig;
+	صحيح i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
-		if (__test_bit(type, &trig->type_mask) &&
-		    dbtr_trigger_hw_supported(trig->index, tdata1, tdata2,
+	لكل (i = 0; i < hs->کل_trigs; i++) {
+		trig = اشاریہ_منزل_TRIGGER(i);
+		إذا (__test_bit(type, &trig->type_نقاب) &&
+		    dbtr_trigger_hw_supported(trig->اشاریہ_2, tdata1, tdata2,
 					      tdata3))
-			return true;
+			أرجع true;
 	}
 
-	return false;
+	أرجع false;
 }
 
 /*
@@ -158,128 +158,128 @@ static bool dbtr_trigger_any_hw_supported(
  * to track slot availability. A 32-bit mask covers RV_MAX_TRIGGERS (32);
  * for a larger number of triggers, this function needs to be updated.
  */
-static int dbtr_find_free_slot(struct sbi_dbtr_hart_triggers_state *hs,
-			       u32 claimed_mask,
-			       unsigned long tdata1, unsigned long tdata2,
-			       unsigned long tdata3)
+ساكن صحيح dbtr_لبھو_free_تھاں(بنية sbi_dbtr_hart_triggers_state *hs,
+			       u32 claimed_نقاب,
+			       بنانشانی لما tdata1, بنانشانی لما tdata2,
+			       بنانشانی لما tdata3)
 {
-	unsigned long type = TDATA1_GET_TYPE(tdata1);
-	struct sbi_dbtr_trigger *trig;
-	int i;
+	بنانشانی لما type = TDATA1_GET_TYPE(tdata1);
+	بنية sbi_dbtr_trigger *trig;
+	صحيح i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
-		if (trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))
-			continue;
-		if (claimed_mask & BIT(i))
-			continue;
-		if (!__test_bit(type, &trig->type_mask))
-			continue;
-		if (!dbtr_trigger_hw_supported(trig->index, tdata1,
+	لكل (i = 0; i < hs->کل_trigs; i++) {
+		trig = اشاریہ_منزل_TRIGGER(i);
+		إذا (trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED))
+			استمر;
+		إذا (claimed_نقاب & ثنائی_ہندسہ(i))
+			استمر;
+		إذا (!__test_bit(type, &trig->type_نقاب))
+			استمر;
+		إذا (!dbtr_trigger_hw_supported(trig->اشاریہ_2, tdata1,
 					       tdata2, tdata3))
-			continue;
-		return i;
+			استمر;
+		أرجع i;
 	}
 
-	return SBI_ENOENT;
+	أرجع SBI_ENOENT;
 }
 
-static inline struct sbi_dbtr_trigger *sbi_alloc_trigger(unsigned long tdata1,
-							 unsigned long tdata2,
-							 unsigned long tdata3)
+ساكن مضمن بنية sbi_dbtr_trigger *sbi_alloc_trigger(بنانشانی لما tdata1,
+							 بنانشانی لما tdata2,
+							 بنانشانی لما tdata3)
 {
-	int i;
-	struct sbi_dbtr_trigger *f_trig;
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	صحيح i;
+	بنية sbi_dbtr_trigger *f_trig;
+	بنية sbi_dbtr_hart_triggers_state *hart_state;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return NULL;
+	إذا (!hart_state)
+		أرجع عدم;
 
-	if (hart_state->available_trigs <= 0)
-		return NULL;
+	إذا (hart_state->دستیاب_trigs <= 0)
+		أرجع عدم;
 
-	i = dbtr_find_free_slot(hart_state, 0, tdata1, tdata2, tdata3);
-	if (i < 0)
-		return NULL;
+	i = dbtr_لبھو_free_تھاں(hart_state, 0, tdata1, tdata2, tdata3);
+	إذا (i < 0)
+		أرجع عدم;
 
-	f_trig = INDEX_TO_TRIGGER(i);
-	hart_state->available_trigs--;
-	__set_bit(RV_DBTR_BIT(TS, MAPPED), &f_trig->state);
+	f_trig = اشاریہ_منزل_TRIGGER(i);
+	hart_state->دستیاب_trigs--;
+	__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, MAPPED), &f_trig->state);
 
-	return f_trig;
+	أرجع f_trig;
 }
 
-static inline void sbi_free_trigger(struct sbi_dbtr_trigger *trig)
+ساكن مضمن فراغ sbi_free_trigger(بنية sbi_dbtr_trigger *trig)
 {
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	بنية sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (trig == NULL)
-		return;
+	إذا (trig == عدم)
+		أرجع;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return;
+	إذا (!hart_state)
+		أرجع;
 
 	trig->state = 0;
 	trig->tdata1 = 0;
 	trig->tdata2 = 0;
 	trig->tdata3 = 0;
 
-	hart_state->available_trigs++;
+	hart_state->دستیاب_trigs++;
 }
 
-int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
+صحيح sbi_dbtr_init(بنية sbi_scratch *scratch, bool coldboot)
 {
-	struct sbi_trap_info trap = {0};
-	unsigned long tdata1;
-	unsigned long val;
-	int i;
-	struct sbi_dbtr_hart_triggers_state *hart_state = NULL;
+	بنية sbi_trap_info trap = {0};
+	بنانشانی لما tdata1;
+	بنانشانی لما val;
+	صحيح i;
+	بنية sbi_dbtr_hart_triggers_state *hart_state = عدم;
 
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return SBI_SUCCESS;
+	إذا (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		أرجع SBI_SUCCESS;
 
-	if (coldboot) {
-		hart_state_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!hart_state_ptr_offset)
-			return SBI_ENOMEM;
+	إذا (coldboot) {
+		hart_state_ptr_وتھ = sbi_scratch_alloc_type_وتھ(فراغ *);
+		إذا (!hart_state_ptr_وتھ)
+			أرجع SBI_ENOMEM;
 	}
 
 	hart_state = dbtr_get_hart_state_ptr(scratch);
-	if (!hart_state) {
-		hart_state = sbi_zalloc(sizeof(*hart_state));
-		if (!hart_state)
-			return SBI_ENOMEM;
+	إذا (!hart_state) {
+		hart_state = sbi_zalloc(حجم(*hart_state));
+		إذا (!hart_state)
+			أرجع SBI_ENOMEM;
 		hart_state->hartid = current_hartid();
-		dbtr_set_hart_state_ptr(scratch, hart_state);
+		dbtr_سیٹ_hart_state_ptr(scratch, hart_state);
 	}
 
 	/* disable the shared memory */
 	sbi_dbtr_disable_shmem(hart_state);
 
 	/* Skip probing triggers if already probed */
-	if (hart_state->probed)
-		goto _probed;
+	إذا (hart_state->probed)
+		اذهب _probed;
 
-	for (i = 0; i < RV_MAX_TRIGGERS; i++) {
+	لكل (i = 0; i < RV_MAX_TRIGGERS; i++) {
 		csr_write_allowed(CSR_TSELECT, &trap, i);
-		if (trap.cause)
-			break;
+		إذا (trap.cause)
+			اكسر;
 
 		val = csr_read_allowed(CSR_TSELECT, &trap);
-		if (trap.cause)
-			break;
+		إذا (trap.cause)
+			اكسر;
 
 		/*
 		 * Read back tselect and check that it contains the
 		 * written value
 		 */
-		if (val != i)
-			break;
+		إذا (val != i)
+			اكسر;
 
 		val = csr_read_allowed(CSR_TINFO, &trap);
-		if (trap.cause) {
+		إذا (trap.cause) {
 			/*
 			 * If reading tinfo caused an exception, the
 			 * debugger must read tdata1 to discover the
@@ -287,37 +287,37 @@ int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
 			 */
 			tdata1 = csr_read_allowed(CSR_TDATA1,
 						  &trap);
-			if (trap.cause)
-				break;
+			إذا (trap.cause)
+				اكسر;
 
-			if (TDATA1_GET_TYPE(tdata1) == 0)
-				break;
+			إذا (TDATA1_GET_TYPE(tdata1) == 0)
+				اكسر;
 
-			sbi_trigger_init(INDEX_TO_TRIGGER(i),
-					 BIT(TDATA1_GET_TYPE(tdata1)),
+			sbi_trigger_init(اشاریہ_منزل_TRIGGER(i),
+					 ثنائی_ہندسہ(TDATA1_GET_TYPE(tdata1)),
 					 i);
-			hart_state->total_trigs++;
-		} else {
-			if (val == 1)
-				break;
+			hart_state->کل_trigs++;
+		} وإلا {
+			إذا (val == 1)
+				اكسر;
 
-			sbi_trigger_init(INDEX_TO_TRIGGER(i), val, i);
-			hart_state->total_trigs++;
+			sbi_trigger_init(اشاریہ_منزل_TRIGGER(i), val, i);
+			hart_state->کل_trigs++;
 		}
 	}
 
 	hart_state->probed = 1;
 
  _probed:
-	hart_state->available_trigs = hart_state->total_trigs;
+	hart_state->دستیاب_trigs = hart_state->کل_trigs;
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_get_total_triggers(void)
+صحيح sbi_dbtr_get_کل_triggers(فراغ)
 {
-	struct sbi_dbtr_hart_triggers_state *hs;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية sbi_dbtr_hart_triggers_state *hs;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	/*
 	 * This function may be used during ecall registration.
@@ -325,46 +325,46 @@ int sbi_dbtr_get_total_triggers(void)
 	 * initialized. If the extension is not supported, report
 	 * number of triggers as 0.
 	 */
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return 0;
+	إذا (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		أرجع 0;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return 0;
+	إذا (!hs)
+		أرجع 0;
 
-	return hs->total_trigs;
+	أرجع hs->کل_trigs;
 }
 
-int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
-			 unsigned long shmem_phys_lo,
-			 unsigned long shmem_phys_hi)
+صحيح sbi_dbtr_تیاری_shmem(ثابت بنية sbi_domain *dom, بنانشانی لما smode,
+			 بنانشانی لما shmem_phys_lo,
+			 بنانشانی لما shmem_phys_hi)
 {
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	بنية sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
+	إذا (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
 		sbi_dprintf("%s: calling hart not assigned to this domain\n",
 			   __func__);
-		return SBI_ERR_DENIED;
+		أرجع SBI_ERR_DENIED;
 	}
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return SBI_ERR_FAILED;
+	إذا (!hart_state)
+		أرجع SBI_ERR_FAILED;
 
 	/* call is to disable shared memory */
-	if (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
+	إذا (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
 	    && shmem_phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR) {
 		sbi_dbtr_disable_shmem(hart_state);
-		return SBI_SUCCESS;
+		أرجع SBI_SUCCESS;
 	}
 
 	/* the shared memory must be disabled on this hart */
-	if (!sbi_dbtr_shmem_disabled(hart_state))
-		return SBI_ERR_ALREADY_AVAILABLE;
+	إذا (!sbi_dbtr_shmem_disabled(hart_state))
+		أرجع SBI_ERR_ALREADY_دستیاب;
 
 	/* lower physical address must be XLEN/8 bytes aligned */
-	if (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	إذا (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_نقاب)
+		أرجع SBI_ERR_INVALID_PARAM;
 
 	/*
 	* On RV32, the M-mode can only access the first 4GB of
@@ -377,129 +377,129 @@ int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
 	* So fail if the upper 64bit of the physical address
 	* is non-zero on RV64.
 	*/
-	if (shmem_phys_hi)
-		return SBI_EINVALID_ADDR;
+	إذا (shmem_phys_hi)
+		أرجع SBI_EINVALID_ADDR;
 
-	if (dom && !sbi_domain_check_addr(dom,
+	إذا (dom && !sbi_domain_check_addr(dom,
 		  DBTR_SHMEM_MAKE_PHYS(shmem_phys_hi, shmem_phys_lo), smode,
 		  SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		أرجع SBI_ERR_INVALID_پتہ;
 
 	hart_state->shmem.phys_lo = shmem_phys_lo;
 	hart_state->shmem.phys_hi = shmem_phys_hi;
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
-			       struct sbi_dbtr_data_msg *recv)
+ساكن فراغ dbtr_trigger_تیاری(بنية sbi_dbtr_trigger *trig,
+			       بنية sbi_dbtr_انکڑے_پیغام *recv)
 {
-	unsigned long tdata1;
+	بنانشانی لما tdata1;
 
-	if (!trig)
-		return;
+	إذا (!trig)
+		أرجع;
 
-	trig->tdata1 = lle_to_cpu(recv->tdata1);
-	trig->tdata2 = lle_to_cpu(recv->tdata2);
-	trig->tdata3 = lle_to_cpu(recv->tdata3);
+	trig->tdata1 = lle_منزل_cpu(recv->tdata1);
+	trig->tdata2 = lle_منزل_cpu(recv->tdata2);
+	trig->tdata3 = lle_منزل_cpu(recv->tdata3);
 
-	tdata1 = lle_to_cpu(recv->tdata1);
+	tdata1 = lle_منزل_cpu(recv->tdata1);
 
 	trig->state = 0;
 
-	__set_bit(RV_DBTR_BIT(TS, MAPPED), &trig->state);
+	__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, MAPPED), &trig->state);
 
-	SET_TRIG_HW_INDEX(trig->state, trig->index);
+	سیٹ_TRIG_HW_اشاریہ(trig->state, trig->اشاریہ_2);
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		if (__test_bit(RV_DBTR_BIT(MC, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+	بدل (TDATA1_GET_TYPE(tdata1)) {
+	حالة RISCV_DBTR_TRIG_MCONTROL:
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC, U), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (__test_bit(RV_DBTR_BIT(MC6, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC, S), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, S), &trig->state);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_MCONTROL6:
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC6, U), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC6, S), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VU), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC6, VU), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VS), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(MC6, VS), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, VS), &trig->state);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_ICOUNT:
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, U), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, S), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VU), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, VU), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VS), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
-		break;
-	default:
+		إذا (__test_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, VS), &tdata1))
+			__set_bit(RV_DBTR_ثنائی_ہندسہ(TS, VS), &trig->state);
+		اكسر;
+	افتراضي:
 		sbi_dprintf("%s: Unknown type (tdata1: 0x%lx Type: %ld)\n",
 			    __func__, tdata1, TDATA1_GET_TYPE(tdata1));
-		break;
+		اكسر;
 	}
 }
 
-static inline void update_bit(unsigned long new, int nr, volatile unsigned long *addr)
+ساكن مضمن فراغ update_ثنائی_ہندسہ(بنانشانی لما new, صحيح nr, متطاير بنانشانی لما *addr)
 {
-	if (new)
+	إذا (new)
 		__set_bit(nr, addr);
-	else
+	وإلا
 		__clear_bit(nr, addr);
 }
 
-static void dbtr_trigger_enable(struct sbi_dbtr_trigger *trig)
+ساكن فراغ dbtr_trigger_enable(بنية sbi_dbtr_trigger *trig)
 {
-	unsigned long state;
-	unsigned long tdata1;
+	بنانشانی لما state;
+	بنانشانی لما tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	إذا (!trig || !(trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED)))
+		أرجع;
 
 	state = trig->state;
 	tdata1 = trig->tdata1;
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(MC, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(MC, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VU),
-			   RV_DBTR_BIT(MC6, VU), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VS),
-			   RV_DBTR_BIT(MC6, VS), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(MC6, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(MC6, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VU),
-			   RV_DBTR_BIT(ICOUNT, VU), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VS),
-			   RV_DBTR_BIT(ICOUNT, VS), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(ICOUNT, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(ICOUNT, S), &trig->tdata1);
-		break;
-	default:
-		break;
+	بدل (TDATA1_GET_TYPE(tdata1)) {
+	حالة RISCV_DBTR_TRIG_MCONTROL:
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, U),
+			   RV_DBTR_ثنائی_ہندسہ(MC, U), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, S),
+			   RV_DBTR_ثنائی_ہندسہ(MC, S), &trig->tdata1);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_MCONTROL6:
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, VU),
+			   RV_DBTR_ثنائی_ہندسہ(MC6, VU), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, VS),
+			   RV_DBTR_ثنائی_ہندسہ(MC6, VS), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, U),
+			   RV_DBTR_ثنائی_ہندسہ(MC6, U), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, S),
+			   RV_DBTR_ثنائی_ہندسہ(MC6, S), &trig->tdata1);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_ICOUNT:
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, VU),
+			   RV_DBTR_ثنائی_ہندسہ(ICOUNT, VU), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, VS),
+			   RV_DBTR_ثنائی_ہندسہ(ICOUNT, VS), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, U),
+			   RV_DBTR_ثنائی_ہندسہ(ICOUNT, U), &trig->tdata1);
+		update_ثنائی_ہندسہ(state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, S),
+			   RV_DBTR_ثنائی_ہندسہ(ICOUNT, S), &trig->tdata1);
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 
 	/*
@@ -511,196 +511,196 @@ static void dbtr_trigger_enable(struct sbi_dbtr_trigger *trig)
 	 * where tdata2 and tdata3 can be written with any value that makes
 	 * sense for any trigger type supported by this trigger.
 	 */
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->اشاریہ_2);
 	csr_write(CSR_TDATA1, 0x0);
-	tdata_write_safe(CSR_TDATA2, trig->tdata2);
-	tdata_write_safe(CSR_TDATA3, trig->tdata3);
+	tdata_write_محفوظ(CSR_TDATA2, trig->tdata2);
+	tdata_write_محفوظ(CSR_TDATA3, trig->tdata3);
 	csr_write(CSR_TDATA1, trig->tdata1);
 }
 
-static void dbtr_trigger_disable(struct sbi_dbtr_trigger *trig)
+ساكن فراغ dbtr_trigger_disable(بنية sbi_dbtr_trigger *trig)
 {
-	unsigned long tdata1;
+	بنانشانی لما tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	إذا (!trig || !(trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED)))
+		أرجع;
 
 	tdata1 = trig->tdata1;
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		__clear_bit(RV_DBTR_BIT(MC, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		__clear_bit(RV_DBTR_BIT(MC6, VU), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, VS), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		__clear_bit(RV_DBTR_BIT(ICOUNT, VU), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, VS), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, S), &trig->tdata1);
-		break;
-	default:
-		break;
+	بدل (TDATA1_GET_TYPE(tdata1)) {
+	حالة RISCV_DBTR_TRIG_MCONTROL:
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC, S), &trig->tdata1);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_MCONTROL6:
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC6, VU), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC6, VS), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC6, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(MC6, S), &trig->tdata1);
+		اكسر;
+	حالة RISCV_DBTR_TRIG_ICOUNT:
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, VU), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, VS), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ثنائی_ہندسہ(ICOUNT, S), &trig->tdata1);
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->اشاریہ_2);
 	csr_write(CSR_TDATA1, trig->tdata1);
 }
 
-static void dbtr_trigger_clear(struct sbi_dbtr_trigger *trig)
+ساكن فراغ dbtr_trigger_clear(بنية sbi_dbtr_trigger *trig)
 {
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	إذا (!trig || !(trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED)))
+		أرجع;
 
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->اشاریہ_2);
 	csr_write(CSR_TDATA1, 0x0);
-	tdata_write_safe(CSR_TDATA2, 0x0);
-	tdata_write_safe(CSR_TDATA3, 0x0);
+	tdata_write_محفوظ(CSR_TDATA2, 0x0);
+	tdata_write_محفوظ(CSR_TDATA3, 0x0);
 }
 
-static int dbtr_trigger_supported(unsigned long type)
+ساكن صحيح dbtr_trigger_supported(بنانشانی لما type)
 {
-	switch (type) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-	case RISCV_DBTR_TRIG_MCONTROL6:
-	case RISCV_DBTR_TRIG_ICOUNT:
-		return 1;
-	default:
-		break;
+	بدل (type) {
+	حالة RISCV_DBTR_TRIG_MCONTROL:
+	حالة RISCV_DBTR_TRIG_MCONTROL6:
+	حالة RISCV_DBTR_TRIG_ICOUNT:
+		أرجع 1;
+	افتراضي:
+		اكسر;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int dbtr_trigger_valid(unsigned long type, unsigned long tdata)
+ساكن صحيح dbtr_trigger_valid(بنانشانی لما type, بنانشانی لما tdata)
 {
-	switch (type) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(MC, M)))
-			return 1;
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC6, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(MC6, M)))
-			return 1;
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		if (!(tdata & RV_DBTR_BIT_MASK(ICOUNT, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(ICOUNT, M)))
-			return 1;
-		break;
-	default:
-		break;
+	بدل (type) {
+	حالة RISCV_DBTR_TRIG_MCONTROL:
+		إذا (!(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(MC, DMODE)) &&
+		    !(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(MC, M)))
+			أرجع 1;
+		اكسر;
+	حالة RISCV_DBTR_TRIG_MCONTROL6:
+		إذا (!(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(MC6, DMODE)) &&
+		    !(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(MC6, M)))
+			أرجع 1;
+		اكسر;
+	حالة RISCV_DBTR_TRIG_ICOUNT:
+		إذا (!(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(ICOUNT, DMODE)) &&
+		    !(tdata & RV_DBTR_ثنائی_ہندسہ_نقاب(ICOUNT, M)))
+			أرجع 1;
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
+صحيح sbi_dbtr_عدد_trig(بنانشانی لما انکڑے, بنانشانی لما *باہرلا)
 {
-	unsigned long type = TDATA1_GET_TYPE(data);
+	بنانشانی لما type = TDATA1_GET_TYPE(انکڑے);
 	u32 hartid = current_hartid();
-	unsigned long total = 0;
-	struct sbi_dbtr_trigger *trig;
-	int i;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	بنانشانی لما کل = 0;
+	بنية sbi_dbtr_trigger *trig;
+	صحيح i;
+	بنية sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	if (data == 0) {
-		*out = hs->total_trigs;
-		return SBI_SUCCESS;
+	إذا (انکڑے == 0) {
+		*باہرلا = hs->کل_trigs;
+		أرجع SBI_SUCCESS;
 	}
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
+	لكل (i = 0; i < hs->کل_trigs; i++) {
+		trig = اشاریہ_منزل_TRIGGER(i);
 
-		if (__test_bit(type, &trig->type_mask) &&
-		    dbtr_trigger_hw_supported(trig->index, data, 0, 0))
-			total++;
+		إذا (__test_bit(type, &trig->type_نقاب) &&
+		    dbtr_trigger_hw_supported(trig->اشاریہ_2, انکڑے, 0, 0))
+			کل++;
 	}
 
 	sbi_dprintf("%s: hart%d: total triggers of type %lu: %lu\n",
-		    __func__, hartid, type, total);
+		    __func__, hartid, type, کل);
 
-	*out = total;
-	return SBI_SUCCESS;
+	*باہرلا = کل;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_read_trig(unsigned long smode,
-		       unsigned long trig_idx_base, unsigned long trig_count)
+صحيح sbi_dbtr_read_trig(بنانشانی لما smode,
+		       بنانشانی لما trig_idx_ادھار, بنانشانی لما trig_گنتی)
 {
-	struct sbi_dbtr_data_msg *xmit;
-	struct sbi_dbtr_trigger *trig;
-	union sbi_dbtr_shmem_entry *entry;
-	void *shmem_base = NULL;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	بنية sbi_dbtr_انکڑے_پیغام *xmit;
+	بنية sbi_dbtr_trigger *trig;
+	اتحاد sbi_dbtr_shmem_اندراج *اندراج_2;
+	فراغ *shmem_ادھار = عدم;
+	بنية sbi_dbtr_hart_triggers_state *hs = عدم;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	if (trig_idx_base >= hs->total_trigs ||
-	    trig_idx_base + trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+	إذا (trig_idx_ادھار >= hs->کل_trigs ||
+	    trig_idx_ادھار + trig_گنتی >= hs->کل_trigs)
+		أرجع SBI_ERR_BAD_RANGE;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	إذا (sbi_dbtr_shmem_disabled(hs))
+		أرجع SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
+	shmem_ادھار = hart_shmem_ادھار(hs);
 
-	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		xmit = &entry->data;
-		trig = INDEX_TO_TRIGGER((_idx + trig_idx_base));
-		csr_write(CSR_TSELECT, trig->index);
+	sbi_hart_protection_عارضی_map_range((بنانشانی لما)shmem_ادھار,
+					   trig_گنتی * حجم(*اندراج_2));
+	for_each_trig_اندراج(shmem_ادھار, trig_گنتی, typeof(*اندراج_2), اندراج_2) {
+		xmit = &اندراج_2->انکڑے;
+		trig = اشاریہ_منزل_TRIGGER((_idx + trig_idx_ادھار));
+		csr_write(CSR_TSELECT, trig->اشاریہ_2);
 		trig->tdata1 = csr_read(CSR_TDATA1);
-		trig->tdata2 = tdata_read_safe(CSR_TDATA2);
-		trig->tdata3 = tdata_read_safe(CSR_TDATA3);
-		xmit->tstate = cpu_to_lle(trig->state);
-		xmit->tdata1 = cpu_to_lle(trig->tdata1);
-		xmit->tdata2 = cpu_to_lle(trig->tdata2);
-		xmit->tdata3 = cpu_to_lle(trig->tdata3);
+		trig->tdata2 = tdata_read_محفوظ(CSR_TDATA2);
+		trig->tdata3 = tdata_read_محفوظ(CSR_TDATA3);
+		xmit->tstate = cpu_منزل_lle(trig->state);
+		xmit->tdata1 = cpu_منزل_lle(trig->tdata1);
+		xmit->tdata2 = cpu_منزل_lle(trig->tdata2);
+		xmit->tdata3 = cpu_منزل_lle(trig->tdata3);
 	}
-	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+	sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+					     trig_گنتی * حجم(*اندراج_2));
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_install_trig(unsigned long smode,
-			  unsigned long trig_count, unsigned long *out)
+صحيح sbi_dbtr_install_trig(بنانشانی لما smode,
+			  بنانشانی لما trig_گنتی, بنانشانی لما *باہرلا)
 {
-	void *shmem_base = NULL;
-	union sbi_dbtr_shmem_entry *entry;
-	struct sbi_dbtr_data_msg *recv;
-	struct sbi_dbtr_id_msg *xmit;
-	unsigned long ctrl;
+	فراغ *shmem_ادھار = عدم;
+	اتحاد sbi_dbtr_shmem_اندراج *اندراج_2;
+	بنية sbi_dbtr_انکڑے_پیغام *recv;
+	بنية sbi_dbtr_id_پیغام *xmit;
+	بنانشانی لما ctrl;
 	u32 claimed = 0;
-	int slot;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	صحيح تھاں;
+	بنية sbi_dbtr_trigger *trig;
+	بنية sbi_dbtr_hart_triggers_state *hs = عدم;
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	إذا (sbi_dbtr_shmem_disabled(hs))
+		أرجع SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
-	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
+	shmem_ادھار = hart_shmem_ادھار(hs);
+	sbi_hart_protection_عارضی_map_range((بنانشانی لما)shmem_ادھار,
+					   trig_گنتی * حجم(*اندراج_2));
 
 	/*
 	 * SBI v3.0 sec 19.4 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -714,48 +714,48 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
 	/* Check requested triggers configuration */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
+	for_each_trig_اندراج(shmem_ادھار, trig_گنتی, typeof(*اندراج_2), اندراج_2) {
+		recv = (بنية sbi_dbtr_انکڑے_پیغام *)(&اندراج_2->انکڑے);
 		ctrl = recv->tdata1;
 
-		if (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+		إذا (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
+			*باہرلا = _idx;
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+							     trig_گنتی * حجم(*اندراج_2));
+			أرجع SBI_ERR_FAILED;
 		}
 
-		if (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+		إذا (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
+			*باہرلا = _idx;
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+							     trig_گنتی * حجم(*اندراج_2));
+			أرجع SBI_ERR_INVALID_PARAM;
 		}
 
-		if ((recv->tdata2 && !tdata2_impl) ||
+		إذا ((recv->tdata2 && !tdata2_impl) ||
 		    (recv->tdata3 && !tdata3_impl)) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			*باہرلا = _idx;
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+							     trig_گنتی * حجم(*اندراج_2));
+			أرجع SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_any_hw_supported(hs,
-						   lle_to_cpu(recv->tdata1),
-						   lle_to_cpu(recv->tdata2),
-						   lle_to_cpu(recv->tdata3))) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		إذا (!dbtr_trigger_any_hw_supported(hs,
+						   lle_منزل_cpu(recv->tdata1),
+						   lle_منزل_cpu(recv->tdata2),
+						   lle_منزل_cpu(recv->tdata3))) {
+			*باہرلا = _idx;
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+							     trig_گنتی * حجم(*اندراج_2));
+			أرجع SBI_ERR_NOT_SUPPORTED;
 		}
 	}
 
-	if (hs->available_trigs < trig_count) {
-		*out = hs->available_trigs;
-		sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-						     trig_count * sizeof(*entry));
-		return SBI_ERR_FAILED;
+	إذا (hs->دستیاب_trigs < trig_گنتی) {
+		*باہرلا = hs->دستیاب_trigs;
+		sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+						     trig_گنتی * حجم(*اندراج_2));
+		أرجع SBI_ERR_FAILED;
 	}
 
 	/*
@@ -763,114 +763,114 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	 * is installed if any of the requested configurations cannot be
 	 * matched to a free hardware trigger slot.
 	 */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
-		slot = dbtr_find_free_slot(hs, claimed,
-					   lle_to_cpu(recv->tdata1),
-					   lle_to_cpu(recv->tdata2),
-					   lle_to_cpu(recv->tdata3));
-		if (slot < 0) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+	for_each_trig_اندراج(shmem_ادھار, trig_گنتی, typeof(*اندراج_2), اندراج_2) {
+		recv = (بنية sbi_dbtr_انکڑے_پیغام *)(&اندراج_2->انکڑے);
+		تھاں = dbtr_لبھو_free_تھاں(hs, claimed,
+					   lle_منزل_cpu(recv->tdata1),
+					   lle_منزل_cpu(recv->tdata2),
+					   lle_منزل_cpu(recv->tdata3));
+		إذا (تھاں < 0) {
+			*باہرلا = _idx;
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+							     trig_گنتی * حجم(*اندراج_2));
+			أرجع SBI_ERR_FAILED;
 		}
-		claimed |= BIT(slot);
+		claimed |= ثنائی_ہندسہ(تھاں);
 	}
 
 	/* Install triggers */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
-		xmit = (struct sbi_dbtr_id_msg *)(&entry->id);
+	for_each_trig_اندراج(shmem_ادھار, trig_گنتی, typeof(*اندراج_2), اندراج_2) {
+		recv = (بنية sbi_dbtr_انکڑے_پیغام *)(&اندراج_2->انکڑے);
+		xmit = (بنية sbi_dbtr_id_پیغام *)(&اندراج_2->id);
 
 		/*
 		 * The dry-run above matched every requested configuration
 		 * to a free hardware trigger slot, so allocation must
 		 * succeed.
 		 */
-		trig = sbi_alloc_trigger(lle_to_cpu(recv->tdata1),
-					 lle_to_cpu(recv->tdata2),
-					 lle_to_cpu(recv->tdata3));
+		trig = sbi_alloc_trigger(lle_منزل_cpu(recv->tdata1),
+					 lle_منزل_cpu(recv->tdata2),
+					 lle_منزل_cpu(recv->tdata3));
 
-		dbtr_trigger_setup(trig,  recv);
+		dbtr_trigger_تیاری(trig,  recv);
 		dbtr_trigger_enable(trig);
-		xmit->idx = cpu_to_lle(trig->index);
+		xmit->idx = cpu_منزل_lle(trig->اشاریہ_2);
 
 	}
 
-	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+	sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)shmem_ادھار,
+					     trig_گنتی * حجم(*اندراج_2));
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_uninstall_trig(unsigned long trig_idx_base,
-			    unsigned long trig_idx_mask)
+صحيح sbi_dbtr_uninstall_trig(بنانشانی لما trig_idx_ادھار,
+			    بنانشانی لما trig_idx_نقاب)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	بنانشانی لما trig_نقاب = trig_idx_نقاب << trig_idx_ادھار;
+	بنانشانی لما idx = trig_idx_ادھار;
+	بنية sbi_dbtr_trigger *trig;
+	بنية sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-			return SBI_ERR_INVALID_PARAM;
+	for_each_سیٹ_ثنائی_ہندسہ_from(idx, &trig_نقاب, hs->کل_trigs) {
+		trig = اشاریہ_منزل_TRIGGER(idx);
+		إذا (!(trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED)))
+			أرجع SBI_ERR_INVALID_PARAM;
 
 		dbtr_trigger_clear(trig);
 
 		sbi_free_trigger(trig);
 	}
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
-			 unsigned long trig_idx_mask)
+صحيح sbi_dbtr_enable_trig(بنانشانی لما trig_idx_ادھار,
+			 بنانشانی لما trig_idx_نقاب)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	بنانشانی لما trig_نقاب = trig_idx_نقاب << trig_idx_ادھار;
+	بنانشانی لما idx = trig_idx_ادھار;
+	بنية sbi_dbtr_trigger *trig;
+	بنية sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
+	for_each_سیٹ_ثنائی_ہندسہ_from(idx, &trig_نقاب, hs->کل_trigs) {
+		trig = اشاریہ_منزل_TRIGGER(idx);
 		sbi_dprintf("%s: enable trigger %lu\n", __func__, idx);
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_update_trig(unsigned long smode,
-			 unsigned long trig_count)
+صحيح sbi_dbtr_update_trig(بنانشانی لما smode,
+			 بنانشانی لما trig_گنتی)
 {
-	unsigned long trig_idx;
-	struct sbi_dbtr_trigger *trig;
-	union sbi_dbtr_shmem_entry *entry;
-	void *shmem_base = NULL;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	بنانشانی لما trig_idx;
+	بنية sbi_dbtr_trigger *trig;
+	اتحاد sbi_dbtr_shmem_اندراج *اندراج_2;
+	فراغ *shmem_ادھار = عدم;
+	بنية sbi_dbtr_hart_triggers_state *hs = عدم;
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	إذا (sbi_dbtr_shmem_disabled(hs))
+		أرجع SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
+	shmem_ادھار = hart_shmem_ادھار(hs);
 
-	if (trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+	إذا (trig_گنتی >= hs->کل_trigs)
+		أرجع SBI_ERR_BAD_RANGE;
 
 	/*
 	 * SBI v3.0 sec 19.5 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -881,60 +881,60 @@ int sbi_dbtr_update_trig(unsigned long smode,
 	tdata2_impl = tdata_implemented(CSR_TDATA2);
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		sbi_hart_protection_temp_map_range((unsigned long)entry, sizeof(*entry));
-		trig_idx = entry->id.idx;
+	for_each_trig_اندراج(shmem_ادھار, trig_گنتی, typeof(*اندراج_2), اندراج_2) {
+		sbi_hart_protection_عارضی_map_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
+		trig_idx = اندراج_2->id.idx;
 
-		if (trig_idx >= hs->total_trigs) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+		إذا (trig_idx >= hs->کل_trigs) {
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
+			أرجع SBI_ERR_INVALID_PARAM;
 		}
 
-		trig = INDEX_TO_TRIGGER(trig_idx);
+		trig = اشاریہ_منزل_TRIGGER(trig_idx);
 
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_FAILED;
+		إذا (!(trig->state & RV_DBTR_ثنائی_ہندسہ_نقاب(TS, MAPPED))) {
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
+			أرجع SBI_ERR_FAILED;
 		}
 
-		if ((entry->data.tdata2 && !tdata2_impl) ||
-		    (entry->data.tdata3 && !tdata3_impl)) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		إذا ((اندراج_2->انکڑے.tdata2 && !tdata2_impl) ||
+		    (اندراج_2->انکڑے.tdata3 && !tdata3_impl)) {
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
+			أرجع SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_hw_supported(trig->index,
-					       lle_to_cpu(entry->data.tdata1),
-					       lle_to_cpu(entry->data.tdata2),
-					       lle_to_cpu(entry->data.tdata3))) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		إذا (!dbtr_trigger_hw_supported(trig->اشاریہ_2,
+					       lle_منزل_cpu(اندراج_2->انکڑے.tdata1),
+					       lle_منزل_cpu(اندراج_2->انکڑے.tdata2),
+					       lle_منزل_cpu(اندراج_2->انکڑے.tdata3))) {
+			sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
+			أرجع SBI_ERR_NOT_SUPPORTED;
 		}
 
-		dbtr_trigger_setup(trig, &entry->data);
-		sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
+		dbtr_trigger_تیاری(trig, &اندراج_2->انکڑے);
+		sbi_hart_protection_عارضی_unmap_range((بنانشانی لما)اندراج_2, حجم(*اندراج_2));
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-int sbi_dbtr_disable_trig(unsigned long trig_idx_base,
-			  unsigned long trig_idx_mask)
+صحيح sbi_dbtr_disable_trig(بنانشانی لما trig_idx_ادھار,
+			  بنانشانی لما trig_idx_نقاب)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	بنانشانی لما trig_نقاب = trig_idx_نقاب << trig_idx_ادھار;
+	بنانشانی لما idx = trig_idx_ادھار;
+	بنية sbi_dbtr_trigger *trig;
+	بنية sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	إذا (!hs)
+		أرجع SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
+	for_each_سیٹ_ثنائی_ہندسہ_from(idx, &trig_نقاب, hs->کل_trigs) {
+		trig = اشاریہ_منزل_TRIGGER(idx);
 		dbtr_trigger_disable(trig);
 	}
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }

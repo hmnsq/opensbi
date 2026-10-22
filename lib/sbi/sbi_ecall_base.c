@@ -8,80 +8,80 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_version.h>
+#ضمن <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+ساكن صحيح sbi_ecall_ادھار_probe(بنانشانی لما extid, بنانشانی لما *باہرلا_val)
 {
-	struct sbi_ecall_extension *ext;
+	بنية sbi_ecall_extension *ext;
 
-	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
-		*out_val = 0;
-		return 0;
+	ext = sbi_ecall_لبھو_extension(extid);
+	إذا (!ext) {
+		*باہرلا_val = 0;
+		أرجع 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	إذا (ext->probe)
+		أرجع ext->probe(extid, باہرلا_val);
 
-	*out_val = 1;
-	return 0;
+	*باہرلا_val = 1;
+	أرجع 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ساكن صحيح sbi_ecall_ادھار_handler(بنانشانی لما extid, بنانشانی لما funcid,
+				  بنية sbi_trap_regs *regs,
+				  بنية sbi_ecall_return *باہرلا)
 {
-	int ret = 0;
+	صحيح ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
-			     (SBI_SPEC_VERSION_MAJOR_MASK <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
-	default:
+	بدل (funcid) {
+	حالة SBI_EXT_ادھار_GET_SPEC_نسخہ:
+		باہرلا->قدر = (SBI_ECALL_نسخہ_MAJOR <<
+			      SBI_SPEC_نسخہ_MAJOR_وتھ) &
+			     (SBI_SPEC_نسخہ_MAJOR_نقاب <<
+			      SBI_SPEC_نسخہ_MAJOR_وتھ);
+		باہرلا->قدر = باہرلا->قدر | SBI_ECALL_نسخہ_MINOR;
+		اكسر;
+	حالة SBI_EXT_ادھار_GET_IMP_ID:
+		باہرلا->قدر = sbi_ecall_get_impid();
+		اكسر;
+	حالة SBI_EXT_ادھار_GET_IMP_نسخہ:
+		باہرلا->قدر = OPENSBI_نسخہ;
+		اكسر;
+	حالة SBI_EXT_ادھار_GET_MVENDORID:
+		باہرلا->قدر = csr_read(CSR_MVENDORID);
+		اكسر;
+	حالة SBI_EXT_ادھار_GET_MARCHID:
+		باہرلا->قدر = csr_read(CSR_MARCHID);
+		اكسر;
+	حالة SBI_EXT_ادھار_GET_MIMPID:
+		باہرلا->قدر = csr_read(CSR_MIMPID);
+		اكسر;
+	حالة SBI_EXT_ادھار_PROBE_EXT:
+		ret = sbi_ecall_ادھار_probe(regs->a0, &باہرلا->قدر);
+		اكسر;
+	افتراضي:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+بنية sbi_ecall_extension ecall_ادھار;
 
-static int sbi_ecall_base_register_extensions(void)
+ساكن صحيح sbi_ecall_ادھار_رجسٹر_extensions(فراغ)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	أرجع sbi_ecall_رجسٹر_extension(&ecall_ادھار);
 }
 
-struct sbi_ecall_extension ecall_base = {
+بنية sbi_ecall_extension ecall_ادھار = {
 	.name			= "base",
-	.extid_start		= SBI_EXT_BASE,
-	.extid_end		= SBI_EXT_BASE,
-	.register_extensions	= sbi_ecall_base_register_extensions,
-	.handle			= sbi_ecall_base_handler,
+	.extid_شروع		= SBI_EXT_ادھار,
+	.extid_سرا		= SBI_EXT_ادھار,
+	.رجسٹر_extensions	= sbi_ecall_ادھار_رجسٹر_extensions,
+	.handle			= sbi_ecall_ادھار_handler,
 };
