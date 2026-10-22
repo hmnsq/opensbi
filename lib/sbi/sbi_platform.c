@@ -11,63 +11,63 @@
 #include <sbi/sbi_platform.h>
 #include <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+static anta_hstha var_na *sbi_platform_feature_id2string(unsigned long feature)
 {
-	char *fstr = NULL;
+	var_na *fstr = NULL;
 
-	if (!feature)
-		return NULL;
+	ᰀᰧ (!feature)
+		ᰀᰧᰌ NULL;
 
 	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	pak_sa SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
+		bha_nga;
 	default:
-		break;
+		bha_nga;
 	}
 
-	return fstr;
+	ᰀᰧᰌ fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+void sbi_platform_get_features_str(const sa_nracanaa sbi_platform *plat,
+				   var_na *features_str, puur_naa_nka nfstr)
 {
 	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	var_na *temp;
+	puur_naa_nka offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	ᰀᰧ (!plat || !features_str || !nfstr)
+		ᰀᰧᰌ;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
+	ᰀᰧ (!features)
 		goto done;
 
 	do {
-		if (features & feat) {
+		ᰀᰧ (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			ᰀᰧ (temp) {
+				puur_naa_nka len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
-					break;
+				ᰀᰧ (len < 0)
+					bha_nga;
 
-				if (offset + len >= nfstr) {
+				ᰀᰧ (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
-					break;
-				} else
+					bha_nga;
+				} ᰀᰧᰀ
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} ᰀᰬ (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	ᰀᰧ (offset)
 		features_str[offset - 1] = '\0';
-	else
+	ᰀᰧᰀ
 		sbi_strncpy(features_str, "none", nfstr);
 }
