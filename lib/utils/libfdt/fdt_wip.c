@@ -3,92 +3,92 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ଅନ୍ତର୍ଭାଵ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <fdt.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
 
-#include "libfdt_internal.h"
+#ଅନ୍ତର୍ଭାଵ "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_setprop_inplace_namelen_partial(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoffset,
+					ଅଚଳ ଅକ୍ଷର *name, ପୂର୍ଣ୍ଣସଂଖ୍ୟା namelen,
+					uint32_t idx, ଅଚଳ ଶୂନ୍ୟ *val,
+					ପୂର୍ଣ୍ଣସଂଖ୍ୟା len)
 {
-	void *propval;
-	int proplen;
+	ଶୂନ୍ୟ *propval;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	ଯଦି (!propval)
+		ଫେରନ୍ତୁ proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	ଯଦି ((unsigned)proplen < (len + idx))
+		ଫେରନ୍ତୁ -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	memcpy((ଅକ୍ଷର *)propval + idx, val, len);
+	ଫେରନ୍ତୁ 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_setprop_inplace(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoffset, ଅଚଳ ଅକ୍ଷର *name,
+			ଅଚଳ ଶୂନ୍ୟ *val, ପୂର୍ଣ୍ଣସଂଖ୍ୟା len)
 {
-	const void *propval;
-	int proplen;
+	ଅଚଳ ଶୂନ୍ୟ *propval;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	ଯଦି (!propval)
+		ଫେରନ୍ତୁ proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	ଯଦି (proplen != len)
+		ଫେରନ୍ତୁ -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	ଫେରନ୍ତୁ fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+ସ୍ଥିର ଶୂନ୍ୟ fdt_nop_region_(ଶୂନ୍ୟ *start, ପୂର୍ଣ୍ଣସଂଖ୍ୟା len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	ପାଇଁ (p = start; (ଅକ୍ଷର *)p < ((ଅକ୍ଷର *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_nop_property(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoffset, ଅଚଳ ଅକ୍ଷର *name)
 {
-	struct fdt_property *prop;
-	int len;
+	ସଂରଚନା fdt_property *prop;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	ଯଦି (!prop)
+		ଫେରନ୍ତୁ len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + ଆକାର(*prop));
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_ଗଣ୍ଠି_end_offset(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା offset)
 {
-	int depth = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
-		offset = fdt_next_node(fdt, offset, &depth);
+	ଯେତେବେଳେ ((offset >= 0) && (depth >= 0))
+		offset = fdt_next_ଗଣ୍ଠି(fdt, offset, &depth);
 
-	return offset;
+	ଫେରନ୍ତୁ offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_nop_ଗଣ୍ଠି(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoffset)
 {
-	int endoffset;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା endoffset;
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_ଗଣ୍ଠି_end_offset(fdt, nodeoffset);
+	ଯଦି (endoffset < 0)
+		ଫେରନ୍ତୁ endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

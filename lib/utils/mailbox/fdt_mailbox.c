@@ -7,90 +7,90 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_helper.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/mailbox/fdt_mailbox.h>
 
 /* List of FDT mailbox drivers generated at compile time */
-extern const struct fdt_driver *const fdt_mailbox_drivers[];
+ବାହ୍ୟ ଅଚଳ ସଂରଚନା fdt_driver *ଅଚଳ fdt_mailbox_drivers[];
 
-static int fdt_mbox_controller_find(const void *fdt, int nodeoff,
-				    struct mbox_controller **out_mbox)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_mbox_controller_find(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff,
+				    ସଂରଚନା mbox_controller **out_mbox)
 {
-	int rc;
-	struct mbox_controller *mbox = mbox_controller_find(nodeoff);
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ସଂରଚନା mbox_controller *mbox = mbox_controller_find(nodeoff);
 
-	if (!mbox) {
+	ଯଦି (!mbox) {
 		/* mailbox not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, fdt_mailbox_drivers);
-		if (rc)
-			return rc;
+		ଯଦି (rc)
+			ଫେରନ୍ତୁ rc;
 
 		/* Try to find mailbox controller again */
 		mbox = mbox_controller_find(nodeoff);
-		if (!mbox)
-			return SBI_ENOSYS;
+		ଯଦି (!mbox)
+			ଫେରନ୍ତୁ SBI_ENOSYS;
 	}
 
-	if (out_mbox)
+	ଯଦି (out_mbox)
 		*out_mbox = mbox;
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
-			     struct mbox_chan **out_chan)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_mailbox_request_chan(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff, ପୂର୍ଣ୍ଣସଂଖ୍ୟା index,
+			     ସଂରଚନା mbox_chan **out_chan)
 {
-	int rc;
-	struct mbox_chan *chan;
-	struct fdt_mailbox *drv;
-	struct fdt_phandle_args pargs;
-	struct mbox_controller *mbox = NULL;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ସଂରଚନା mbox_chan *chan;
+	ସଂରଚନା fdt_mailbox *drv;
+	ସଂରଚନା fdt_phandle_args pargs;
+	ସଂରଚନା mbox_controller *mbox = ଖାଲି;
 	u32 chan_args[MBOX_CHAN_MAX_ARGS];
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
-		return SBI_EINVAL;
+	ଯଦି (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
+	pargs.ଗଣ୍ଠି_offset = pargs.args_ଗଣନା = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "mboxes", "#mbox-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
-	rc = fdt_mbox_controller_find(fdt, pargs.node_offset, &mbox);
-	if (rc)
-		return rc;
+	rc = fdt_mbox_controller_find(fdt, pargs.ଗଣ୍ଠି_offset, &mbox);
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
 	drv = mbox->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	ଯଦି (!drv || !drv->xlate)
+		ଫେରନ୍ତୁ SBI_ENOSYS;
 
 	rc = drv->xlate(mbox, &pargs, chan_args);
-	if (rc)
-		return rc;
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
 	chan = mbox_controller_request_chan(mbox, chan_args);
-	if (!chan)
-		return SBI_ENOENT;
+	ଯଦି (!chan)
+		ଫେରନ୍ତୁ SBI_ENOENT;
 
 	*out_chan = chan;
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-int fdt_mailbox_simple_xlate(struct mbox_controller *mbox,
-			     const struct fdt_phandle_args *pargs,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_mailbox_simple_xlate(ସଂରଚନା mbox_controller *mbox,
+			     ଅଚଳ ସଂରଚନା fdt_phandle_args *pargs,
 			     u32 *out_chan_args)
 {
-	int i;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
-	if (pargs->args_count < 1)
-		return SBI_EINVAL;
+	ଯଦି (pargs->args_ଗଣନା < 1)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 
 	out_chan_args[0] = pargs->args[0];
-	for (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
+	ପାଇଁ (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
 		out_chan_args[i] = 0;
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

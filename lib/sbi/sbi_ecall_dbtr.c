@@ -7,65 +7,65 @@
  *   Himanshu Chauhan <hchauhan@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_dbtr.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall_interface.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_trap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_domain.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_dbtr.h>
 
-static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
+				  ସଂରଚନା sbi_trap_regs *regs,
+				  ସଂରଚନା sbi_ecall_return *out)
 {
 	unsigned long smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
-	int ret = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_DBTR_NUM_TRIGGERS:
-		ret = sbi_dbtr_num_trig(regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_SETUP_SHMEM:
+	ବାଛ (funcid) {
+	ସ୍ଥିତି SBI_EXT_DBTR_ଅଙ୍କ_TRIGGERS:
+		ret = sbi_dbtr_ଅଙ୍କ_trig(regs->a0, &out->ମୂଲ୍ୟ);
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_SETUP_SHMEM:
 		ret = sbi_dbtr_setup_shmem(sbi_domain_thishart_ptr(), smode,
 					   regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_READ:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_READ:
 		ret = sbi_dbtr_read_trig(smode, regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_INSTALL:
-		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->value);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UNINSTALL:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_INSTALL:
+		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->ମୂଲ୍ୟ);
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_UNINSTALL:
 		ret = sbi_dbtr_uninstall_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_ENABLE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_ENABLE:
 		ret = sbi_dbtr_enable_trig(regs->a0, regs->a1);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_UPDATE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_UPDATE:
 		ret = sbi_dbtr_update_trig(smode, regs->a0);
-		break;
-	case SBI_EXT_DBTR_TRIGGER_DISABLE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_DBTR_TRIGGER_DISABLE:
 		ret = sbi_dbtr_disable_trig(regs->a0, regs->a1);
-		break;
-	default:
+		ଭାଙ୍ଗ;
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 		ret = SBI_ENOTSUPP;
 	};
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-struct sbi_ecall_extension ecall_dbtr;
+ସଂରଚନା sbi_ecall_extension ecall_dbtr;
 
-static int sbi_ecall_dbtr_register_extensions(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_dbtr_register_extensions(ଶୂନ୍ୟ)
 {
-	if (sbi_dbtr_get_total_triggers() == 0)
-		return 0;
+	ଯଦି (sbi_dbtr_get_total_triggers() == 0)
+		ଫେରନ୍ତୁ 0;
 
-	return sbi_ecall_register_extension(&ecall_dbtr);
+	ଫେରନ୍ତୁ sbi_ecall_register_extension(&ecall_dbtr);
 }
 
-struct sbi_ecall_extension ecall_dbtr = {
+ସଂରଚନା sbi_ecall_extension ecall_dbtr = {
 	.name			= "dbtr",
 	.extid_start		= SBI_EXT_DBTR,
 	.extid_end		= SBI_EXT_DBTR,

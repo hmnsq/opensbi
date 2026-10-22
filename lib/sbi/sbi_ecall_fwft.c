@@ -7,41 +7,41 @@
  *   Clément Léger <cleger@rivosinc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fwft.h>
-#include <sbi/sbi_trap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall_interface.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_fwft.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_trap.h>
 
-static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
+				 ସଂରଚନା sbi_trap_regs *regs,
+				 ସଂରଚନା sbi_ecall_return *out)
 {
-	int ret = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_FWFT_SET:
+	ବାଛ (funcid) {
+	ସ୍ଥିତି SBI_EXT_FWFT_SET:
 		ret = sbi_fwft_set(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_FWFT_GET:
-		ret = sbi_fwft_get(regs->a0, &out->value);
-		break;
-	default:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_FWFT_GET:
+		ret = sbi_fwft_get(regs->a0, &out->ମୂଲ୍ୟ);
+		ଭାଙ୍ଗ;
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 		ret = SBI_ENOTSUPP;
-		break;
+		ଭାଙ୍ଗ;
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-struct sbi_ecall_extension ecall_fwft;
+ସଂରଚନା sbi_ecall_extension ecall_fwft;
 
-static int sbi_ecall_fwft_register_extensions(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_fwft_register_extensions(ଶୂନ୍ୟ)
 {
-	return sbi_ecall_register_extension(&ecall_fwft);
+	ଫେରନ୍ତୁ sbi_ecall_register_extension(&ecall_fwft);
 }
 
-struct sbi_ecall_extension ecall_fwft = {
+ସଂରଚନା sbi_ecall_extension ecall_fwft = {
 	.name			= "fwft",
 	.extid_start		= SBI_EXT_FWFT,
 	.extid_end		= SBI_EXT_FWFT,

@@ -7,84 +7,84 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_locks.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_fifo.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_hart.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_platform.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_scratch.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_string.h>
 
 #define CONSOLE_TBUF_MAX 256
 
-static const struct sbi_console_device *console_dev = NULL;
-static char console_tbuf[CONSOLE_TBUF_MAX];
-static u32 console_tbuf_len;
-static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
+ସ୍ଥିର ଅଚଳ ସଂରଚନା sbi_console_device *console_dev = ଖାଲି;
+ସ୍ଥିର ଅକ୍ଷର console_tbuf[CONSOLE_TBUF_MAX];
+ସ୍ଥିର u32 console_tbuf_len;
+ସ୍ଥିର spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
 
 #ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
 #define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
+#ଅନ୍ୟଥା
 #define CONSOLE_EARLY_BUFFER_SIZE	256
 #endif
-static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
-static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
-		       CONSOLE_EARLY_BUFFER_SIZE, sizeof(char));
+ସ୍ଥିର ଅକ୍ଷର console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
+ସ୍ଥିର SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
+		       CONSOLE_EARLY_BUFFER_SIZE, ଆକାର(ଅକ୍ଷର));
 
-bool sbi_isprintable(char c)
+bool sbi_isprintable(ଅକ୍ଷର c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	ଯଦି (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		ଫେରନ୍ତୁ true;
 	}
-	return false;
+	ଫେରନ୍ତୁ false;
 }
 
-int sbi_getc(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_getc(ଶୂନ୍ୟ)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	ଯଦି (console_dev && console_dev->console_getc)
+		ଫେରନ୍ତୁ console_dev->console_getc();
+	ଫେରନ୍ତୁ -1;
 }
 
-static unsigned long nputs(const char *str, unsigned long len)
+ସ୍ଥିର unsigned long nputs(ଅଚଳ ଅକ୍ଷର *str, unsigned long len)
 {
-	char ch;
+	ଅକ୍ଷର ch;
 	unsigned long i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	ଯଦି (console_dev) {
+		ଯଦି (console_dev->console_puts)
+			ଫେରନ୍ତୁ console_dev->console_puts(str, len);
+		ଅନ୍ୟଥା ଯଦି (console_dev->console_putc) {
+			ପାଇଁ (i = 0; i < len; i++) {
+				ଯଦି (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} ଅନ୍ୟଥା {
+		ପାଇଁ (i = 0; i < len; i++) {
 			ch = str[i];
 			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	ଫେରନ୍ତୁ len;
 }
 
-static void nputs_all(const char *str, unsigned long len)
+ସ୍ଥିର ଶୂନ୍ୟ nputs_all(ଅଚଳ ଅକ୍ଷର *str, unsigned long len)
 {
 	unsigned long p = 0;
 
-	while (p < len)
+	ଯେତେବେଳେ (p < len)
 		p += nputs(&str[p], len - p);
 }
 
-void sbi_putc(char ch)
+ଶୂନ୍ୟ sbi_putc(ଅକ୍ଷର ch)
 {
 	nputs_all(&ch, 1);
 }
 
-void sbi_puts(const char *str)
+ଶୂନ୍ୟ sbi_puts(ଅଚଳ ଅକ୍ଷର *str)
 {
 	unsigned long len = sbi_strlen(str);
 
@@ -93,7 +93,7 @@ void sbi_puts(const char *str)
 	spin_unlock(&console_out_lock);
 }
 
-unsigned long sbi_nputs(const char *str, unsigned long len)
+unsigned long sbi_nputs(ଅଚଳ ଅକ୍ଷର *str, unsigned long len)
 {
 	unsigned long ret;
 
@@ -101,38 +101,38 @@ unsigned long sbi_nputs(const char *str, unsigned long len)
 	ret = nputs(str, len);
 	spin_unlock(&console_out_lock);
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+ଶୂନ୍ୟ sbi_gets(ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା maxwidth, ଅକ୍ଷର endchar)
 {
-	int ch;
-	char *retval = s;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ch;
+	ଅକ୍ଷର *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
-		*retval = (char)ch;
+	ଯେତେବେଳେ ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+		*retval = (ଅକ୍ଷର)ch;
 		retval++;
 		maxwidth--;
 	}
 	*retval = '\0';
 }
 
-unsigned long sbi_ngets(char *str, unsigned long len)
+unsigned long sbi_ngets(ଅକ୍ଷର *str, unsigned long len)
 {
-	int ch;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ch;
 	unsigned long i;
 
-	for (i = 0; i < len; i++) {
+	ପାଇଁ (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
-			break;
+		ଯଦି (ch < 0)
+			ଭାଙ୍ଗ;
 		str[i] = ch;
 	}
 
-	return i;
+	ଫେରନ୍ତୁ i;
 }
 
-#define PAD_RIGHT 1
+#define PAD_ଡାହାଣ 1
 #define PAD_ZERO 2
 #define PAD_ALTERNATE 4
 #define PAD_SIGN 8
@@ -142,25 +142,25 @@ unsigned long sbi_ngets(char *str, unsigned long len)
 #define va_start(v, l) __builtin_va_start((v), l)
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
-typedef __builtin_va_list va_list;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+ସ୍ଥିର ଶୂନ୍ୟ printc(ଅକ୍ଷର **out, u32 *out_len, ଅକ୍ଷର ch, ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
-	if (!out) {
+	ଯଦି (!out) {
 		sbi_putc(ch);
-		return;
+		ଫେରନ୍ତୁ;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
+	ଯଦି (!out_len || *out_len > 1) {
 		*(*out)++ = ch;
 		**out = '\0';
-		if (out_len) {
+		ଯଦି (out_len) {
 			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
+			ଯଦି ((flags & USE_TBUF) && *out_len == 1) {
 				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
 				*out = console_tbuf;
 				*out_len = CONSOLE_TBUF_MAX;
@@ -169,41 +169,41 @@ static void printc(char **out, u32 *out_len, char ch, int flags)
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା prints(ଅକ୍ଷର **out, u32 *out_len, ଅଚଳ ଅକ୍ଷର *string, ପୂର୍ଣ୍ଣସଂଖ୍ୟା width,
+		  ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags)
 {
-	int pc = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା pc = 0;
 	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
+	ଯଦି (!(flags & PAD_ଡାହାଣ)) {
+		ପାଇଁ (; width > 0; --width) {
 			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
+	ପାଇଁ (; *string; ++string) {
 		printc(out, out_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
+	ପାଇଁ (; width > 0; --width) {
 		printc(out, out_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	ଫେରନ୍ତୁ pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା printi(ଅକ୍ଷର **out, u32 *out_len, long long i,
+		  ପୂର୍ଣ୍ଣସଂଖ୍ୟା width, ପୂର୍ଣ୍ଣସଂଖ୍ୟା flags, ପୂର୍ଣ୍ଣସଂଖ୍ୟା type)
 {
-	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା pc = 0;
+	ଅକ୍ଷର *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
 	unsigned long long u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	ଯଦି (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	ଅନ୍ୟଥା ଯଦି (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	ଯଦି (type == 'i' || type == 'd') {
+		ଯଦି ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		ଯଦି (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,55 +223,55 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	ଯଦି (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} ଅନ୍ୟଥା {
+		ଯେତେବେଳେ (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			ଯଦି (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
+	ଯଦି (flags & PAD_ZERO) {
+		ଯଦି (sign) {
 			printc(out, out_len, sign, flags);
 			++pc;
 			--width;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
+		ଯଦି (i && (flags & PAD_ALTERNATE)) {
+			ଯଦି (b == 16 || b == 8) {
 				printc(out, out_len, '0', flags);
 				++pc;
 				--width;
 			}
-			if (b == 16) {
+			ଯଦି (b == 16) {
 				printc(out, out_len, 'x' - 'a' + letbase, flags);
 				++pc;
 				--width;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} ଅନ୍ୟଥା {
+		ଯଦି (i && (flags & PAD_ALTERNATE)) {
+			ଯଦି (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			ଯଦି (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		ଯଦି (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	ଫେରନ୍ତୁ pc + prints(out, out_len, s, width, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା print(ଅକ୍ଷର **out, u32 *out_len, ଅଚଳ ଅକ୍ଷର *format, va_list args)
 {
 	bool flags_done;
-	int width, flags, pc = 0;
-	char type, scr[2], *tout;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା width, flags, pc = 0;
+	ଅକ୍ଷର type, scr[2], *tout;
 	bool use_tbuf = (!out) ? true : false;
 
 	/*
@@ -279,7 +279,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	ଯଦି (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
 		out = &tout;
@@ -287,82 +287,82 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
+	ଯଦି (out) {
+		ଯଦି(!out_len || *out_len)
 			**out = '\0';
 	}
 
-	for (; *format != 0; ++format) {
+	ପାଇଁ (; *format != 0; ++format) {
 		width = flags = 0;
-		if (use_tbuf)
+		ଯଦି (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		ଯଦି (*format == '%') {
 			++format;
-			if (*format == '\0')
-				break;
-			if (*format == '%')
-				goto literal;
+			ଯଦି (*format == '\0')
+				ଭାଙ୍ଗ;
+			ଯଦି (*format == '%')
+				ଯାଅ literal;
 			/* Get flags */
 			flags_done = false;
-			while (!flags_done) {
-				switch (*format) {
-				case '-':
-					flags |= PAD_RIGHT;
-					break;
-				case '+':
+			ଯେତେବେଳେ (!flags_done) {
+				ବାଛ (*format) {
+				ସ୍ଥିତି '-':
+					flags |= PAD_ଡାହାଣ;
+					ଭାଙ୍ଗ;
+				ସ୍ଥିତି '+':
 					flags |= PAD_SIGN;
-					break;
-				case '#':
+					ଭାଙ୍ଗ;
+				ସ୍ଥିତି '#':
 					flags |= PAD_ALTERNATE;
-					break;
-				case '0':
+					ଭାଙ୍ଗ;
+				ସ୍ଥିତି '0':
 					flags |= PAD_ZERO;
-					break;
-				case ' ':
-				case '\'':
+					ଭାଙ୍ଗ;
+				ସ୍ଥିତି ' ':
+				ସ୍ଥିତି '\'':
 					/* Ignored flags, do nothing */
-					break;
-				default:
+					ଭାଙ୍ଗ;
+				ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 					flags_done = true;
-					break;
+					ଭାଙ୍ଗ;
 				}
-				if (!flags_done)
+				ଯଦି (!flags_done)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			ଯଦି (flags & PAD_ଡାହାଣ)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
+			ପାଇଁ (; *format >= '0' && *format <= '9'; ++format) {
 				width *= 10;
 				width += *format - '0';
 			}
-			if (*format == 's') {
-				char *s = va_arg(args, char *);
+			ଯଦି (*format == 's') {
+				ଅକ୍ଷର *s = va_arg(args, ଅକ୍ଷର *);
 				pc += prints(out, out_len, s ? s : "(null)",
 					     width, flags);
-				continue;
+				ଜାରି;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
+			ଯଦି ((*format == 'd') || (*format == 'i')) {
+				pc += printi(out, out_len, va_arg(args, ପୂର୍ଣ୍ଣସଂଖ୍ୟା),
 					     width, flags, *format);
-				continue;
+				ଜାରି;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			ଯଦି ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
+				pc += printi(out, out_len, va_arg(args, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା),
 					     width, flags, *format);
-				continue;
+				ଜାରି;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
+			ଯଦି ((*format == 'p') || (*format == 'P')) {
+				pc += printi(out, out_len, (uintptr_t)va_arg(args, ଶୂନ୍ୟ*),
 					     width, flags, *format);
-				continue;
+				ଜାରି;
 			}
-			if (*format == 'l') {
+			ଯଦି (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				ଯଦି (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					ଯଦି ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
@@ -370,63 +370,63 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 					}
 					pc += printi(out, out_len, va_arg(args, long long),
 						width, flags, type);
-					continue;
+					ଜାରି;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				ଯଦି ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
+				ଯଦି ((type == 'd') || (type == 'i'))
 					pc += printi(out, out_len, va_arg(args, long),
 					     width, flags, type);
-				else
+				ଅନ୍ୟଥା
 					pc += printi(out, out_len, va_arg(args, unsigned long),
 					     width, flags, type);
-				continue;
+				ଜାରି;
 			}
-			if (*format == 'c') {
+			ଯଦି (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(args, ପୂର୍ଣ୍ଣସଂଖ୍ୟା);
 				scr[1] = '\0';
 				pc += prints(out, out_len, scr, width, flags);
-				continue;
+				ଜାରି;
 			}
-		} else {
+		} ଅନ୍ୟଥା {
 literal:
 			printc(out, out_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	ଯଦି (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	ଫେରନ୍ତୁ pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_sprintf(ଅକ୍ଷର *out, ଅଚଳ ଅକ୍ଷର *format, ...)
 {
 	va_list args;
-	int retval;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା retval;
 
-	if (unlikely(!out))
+	ଯଦି (unlikely(!out))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
 	va_start(args, format);
-	retval = print(&out, NULL, format, args);
+	retval = print(&out, ଖାଲି, format, args);
 	va_end(args);
 
-	return retval;
+	ଫେରନ୍ତୁ retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_snprintf(ଅକ୍ଷର *out, u32 out_sz, ଅଚଳ ଅକ୍ଷର *format, ...)
 {
 	va_list args;
-	int retval;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା retval;
 
-	if (unlikely(!out && out_sz != 0))
+	ଯଦି (unlikely(!out && out_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
@@ -434,73 +434,73 @@ int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 	retval = print(&out, &out_sz, format, args);
 	va_end(args);
 
-	return retval;
+	ଫେରନ୍ତୁ retval;
 }
 
-int sbi_printf(const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_printf(ଅଚଳ ଅକ୍ଷର *format, ...)
 {
 	va_list args;
-	int retval;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା retval;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
+	retval = print(ଖାଲି, ଖାଲି, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
-	return retval;
+	ଫେରନ୍ତୁ retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_dprintf(ଅଚଳ ଅକ୍ଷର *format, ...)
 {
 	va_list args;
-	int retval = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା retval = 0;
+	ସଂରଚନା sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+	ଯଦି (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
 		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
+		retval = print(ଖାଲି, ଖାଲି, format, args);
 		spin_unlock(&console_out_lock);
 	}
 	va_end(args);
 
-	return retval;
+	ଫେରନ୍ତୁ retval;
 }
 
-void sbi_panic(const char *format, ...)
+ଶୂନ୍ୟ sbi_panic(ଅଚଳ ଅକ୍ଷର *format, ...)
 {
 	va_list args;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	print(NULL, NULL, format, args);
+	print(ଖାଲି, ଖାଲି, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
 	sbi_hart_hang();
 }
 
-const struct sbi_console_device *sbi_console_get_device(void)
+ଅଚଳ ସଂରଚନା sbi_console_device *sbi_console_get_device(ଶୂନ୍ୟ)
 {
-	return console_dev;
+	ଫେରନ୍ତୁ console_dev;
 }
 
-void sbi_console_set_device(const struct sbi_console_device *dev)
+ଶୂନ୍ୟ sbi_console_set_device(ଅଚଳ ସଂରଚନା sbi_console_device *dev)
 {
-	char ch;
+	ଅକ୍ଷର ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	ଯଦି (!dev)
+		ଫେରନ୍ତୁ;
 
-	if (!console_dev)
+	ଯଦି (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	ଯଦି (flush_early_fifo) {
+		ଯେତେବେଳେ (!sbi_fifo_dequeue(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

@@ -4,63 +4,63 @@
  * Copyright (c) 2026 Inochi Amaoto <inochiama@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_io.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_system.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_driver.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_helper.h>
 
 #define RESET_CTRL			0x0
 
-static volatile u32 *litex_soc_base;
+ସ୍ଥିର ଅସ୍ଥିର u32 *litex_soc_base;
 
-static int litex_reset_check(u32 type, u32 reason)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା litex_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	ବାଛ (type) {
+	ସ୍ଥିତି SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	ସ୍ଥିତି SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ଫେରନ୍ତୁ 255;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-static void litex_do_reset(u32 type, u32 reason)
+ସ୍ଥିର ଶୂନ୍ୟ litex_do_reset(u32 type, u32 reason)
 {
 	writel_relaxed(0x1, litex_soc_base + RESET_CTRL);
 }
 
-static struct sbi_system_reset_device litex_reset = {
+ସ୍ଥିର ସଂରଚନା sbi_system_reset_device litex_reset = {
 	.name = "litex-reset",
 	.system_reset_check = litex_reset_check,
 	.system_reset = litex_do_reset
 };
 
-static int litex_reset_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା litex_reset_init(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff,
+			    ଅଚଳ ସଂରଚନା fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ଗଣ୍ଠି_addr_size(fdt, nodeoff, 0, &reg_addr, ଖାଲି);
+	ଯଦି (rc < 0 || !reg_addr)
+		ଫେରନ୍ତୁ SBI_ENODEV;
 
 
-	litex_soc_base = (volatile u32 *)(unsigned long)reg_addr;
+	litex_soc_base = (ଅସ୍ଥିର u32 *)(unsigned long)reg_addr;
 
 	sbi_system_reset_add_device(&litex_reset);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-static const struct fdt_match litex_reset_match[] = {
+ସ୍ଥିର ଅଚଳ ସଂରଚନା fdt_match litex_reset_match[] = {
 	{ .compatible = "litex,soc-controller" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_litex = {
+ଅଚଳ ସଂରଚନା fdt_driver fdt_reset_litex = {
 	.match_table = litex_reset_match,
 	.init = litex_reset_init,
 };

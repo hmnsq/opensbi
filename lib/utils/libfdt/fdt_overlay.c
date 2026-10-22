@@ -4,12 +4,12 @@
  * Copyright (C) 2016 Free Electrons
  * Copyright (C) 2016 NextThing Co.
  */
-#include "libfdt_env.h"
+#ଅନ୍ତର୍ଭାଵ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <fdt.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
 
-#include "libfdt_internal.h"
+#ଅନ୍ତର୍ଭାଵ "libfdt_internal.h"
 
 /**
  * overlay_get_target_phandle - retrieves the target phandle of a fragment
@@ -25,19 +25,19 @@
  *      0, if the phandle was not found
  *	-1, if the phandle was malformed
  */
-static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
+ସ୍ଥିର uint32_t overlay_get_target_phandle(ଅଚଳ ଶୂନ୍ୟ *fdto, ପୂର୍ଣ୍ଣସଂଖ୍ୟା fragment)
 {
-	const fdt32_t *val;
-	int len;
+	ଅଚଳ fdt32_t *val;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
 
 	val = fdt_getprop(fdto, fragment, "target", &len);
-	if (!val)
-		return 0;
+	ଯଦି (!val)
+		ଫେରନ୍ତୁ 0;
 
-	if ((len != sizeof(*val)) || (fdt32_to_cpu(*val) == (uint32_t)-1))
-		return (uint32_t)-1;
+	ଯଦି ((len != ଆକାର(*val)) || (fdt32_to_cpu(*val) == (uint32_t)-1))
+		ଫେରନ୍ତୁ (uint32_t)-1;
 
-	return fdt32_to_cpu(*val);
+	ଫେରନ୍ତୁ fdt32_to_cpu(*val);
 }
 
 /**
@@ -55,28 +55,28 @@ static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
  *      the targeted node offset in the base device tree
  *      Negative error code on error
  */
-static int overlay_get_target(const void *fdt, const void *fdto,
-			      int fragment, char const **pathp)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_get_target(ଅଚଳ ଶୂନ୍ୟ *fdt, ଅଚଳ ଶୂନ୍ୟ *fdto,
+			      ପୂର୍ଣ୍ଣସଂଖ୍ୟା fragment, ଅକ୍ଷର ଅଚଳ **pathp)
 {
 	uint32_t phandle;
-	const char *path = NULL;
-	int path_len = 0, ret;
+	ଅଚଳ ଅକ୍ଷର *path = ଖାଲି;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା path_len = 0, ret;
 
 	/* Try first to do a phandle based lookup */
 	phandle = overlay_get_target_phandle(fdto, fragment);
-	if (phandle == (uint32_t)-1)
-		return -FDT_ERR_BADPHANDLE;
+	ଯଦି (phandle == (uint32_t)-1)
+		ଫେରନ୍ତୁ -FDT_ERR_BADPHANDLE;
 
 	/* no phandle, try path */
-	if (!phandle) {
+	ଯଦି (!phandle) {
 		/* And then a path based lookup */
 		path = fdt_getprop(fdto, fragment, "target-path", &path_len);
-		if (path)
+		ଯଦି (path)
 			ret = fdt_path_offset(fdt, path);
-		else
+		ଅନ୍ୟଥା
 			ret = path_len;
-	} else
-		ret = fdt_node_offset_by_phandle(fdt, phandle);
+	} ଅନ୍ୟଥା
+		ret = fdt_ଗଣ୍ଠି_offset_by_phandle(fdt, phandle);
 
 	/*
 	* If we haven't found either a target or a
@@ -85,18 +85,18 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 	* otherwise), consider it a improperly written
 	* overlay
 	*/
-	if (ret < 0 && path_len == -FDT_ERR_NOTFOUND)
+	ଯଦି (ret < 0 && path_len == -FDT_ERR_NOTFOUND)
 		ret = -FDT_ERR_BADOVERLAY;
 
 	/* return on error */
-	if (ret < 0)
-		return ret;
+	ଯଦି (ret < 0)
+		ଫେରନ୍ତୁ ret;
 
 	/* return pointer to path (if available) */
-	if (pathp)
-		*pathp = path ? path : NULL;
+	ଯଦି (pathp)
+		*pathp = path ? path : ଖାଲି;
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
 /**
@@ -113,29 +113,29 @@ static int overlay_get_target(const void *fdt, const void *fdto,
  *      0 on success.
  *      Negative error code on error
  */
-static int overlay_phandle_add_offset(void *fdt, int node,
-				      const char *name, uint32_t delta)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_phandle_add_offset(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି,
+				      ଅଚଳ ଅକ୍ଷର *name, uint32_t delta)
 {
-	const fdt32_t *val;
+	ଅଚଳ fdt32_t *val;
 	uint32_t adj_val;
-	int len;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
 
-	val = fdt_getprop(fdt, node, name, &len);
-	if (!val)
-		return len;
+	val = fdt_getprop(fdt, ଗଣ୍ଠି, name, &len);
+	ଯଦି (!val)
+		ଫେରନ୍ତୁ len;
 
-	if (len != sizeof(*val))
-		return -FDT_ERR_BADPHANDLE;
+	ଯଦି (len != ଆକାର(*val))
+		ଫେରନ୍ତୁ -FDT_ERR_BADPHANDLE;
 
 	adj_val = fdt32_to_cpu(*val);
-	if ((adj_val + delta) < adj_val)
-		return -FDT_ERR_NOPHANDLES;
+	ଯଦି ((adj_val + delta) < adj_val)
+		ଫେରନ୍ତୁ -FDT_ERR_NOPHANDLES;
 
 	adj_val += delta;
-	if (adj_val == (uint32_t)-1)
-		return -FDT_ERR_NOPHANDLES;
+	ଯଦି (adj_val == (uint32_t)-1)
+		ଫେରନ୍ତୁ -FDT_ERR_NOPHANDLES;
 
-	return fdt_setprop_inplace_u32(fdt, node, name, adj_val);
+	ଫେରନ୍ତୁ fdt_setprop_inplace_u32(fdt, ଗଣ୍ଠି, name, adj_val);
 }
 
 /**
@@ -153,27 +153,27 @@ static int overlay_phandle_add_offset(void *fdt, int node,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_adjust_node_phandles(void *fdto, int node,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_adjust_ଗଣ୍ଠି_phandles(ଶୂନ୍ୟ *fdto, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି,
 					uint32_t delta)
 {
-	int child;
-	int ret;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା child;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "phandle", delta);
-	if (ret && ret != -FDT_ERR_NOTFOUND)
-		return ret;
+	ret = overlay_phandle_add_offset(fdto, ଗଣ୍ଠି, "phandle", delta);
+	ଯଦି (ret && ret != -FDT_ERR_NOTFOUND)
+		ଫେରନ୍ତୁ ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "linux,phandle", delta);
-	if (ret && ret != -FDT_ERR_NOTFOUND)
-		return ret;
+	ret = overlay_phandle_add_offset(fdto, ଗଣ୍ଠି, "linux,phandle", delta);
+	ଯଦି (ret && ret != -FDT_ERR_NOTFOUND)
+		ଫେରନ୍ତୁ ret;
 
-	fdt_for_each_subnode(child, fdto, node) {
-		ret = overlay_adjust_node_phandles(fdto, child, delta);
-		if (ret)
-			return ret;
+	fdt_for_each_subnode(child, fdto, ଗଣ୍ଠି) {
+		ret = overlay_adjust_ଗଣ୍ଠି_phandles(fdto, child, delta);
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 /**
@@ -190,12 +190,12 @@ static int overlay_adjust_node_phandles(void *fdto, int node,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_adjust_local_phandles(ଶୂନ୍ୟ *fdto, uint32_t delta)
 {
 	/*
 	 * Start adjusting the phandles from the overlay root
 	 */
-	return overlay_adjust_node_phandles(fdto, 0, delta);
+	ଫେରନ୍ତୁ overlay_adjust_ଗଣ୍ଠି_phandles(fdto, 0, delta);
 }
 
 /**
@@ -217,41 +217,41 @@ static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_update_local_node_references(void *fdto,
-						int tree_node,
-						int fixup_node,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_update_local_ଗଣ୍ଠି_references(ଶୂନ୍ୟ *fdto,
+						ପୂର୍ଣ୍ଣସଂଖ୍ୟା ବୃକ୍ଷ_ଗଣ୍ଠି,
+						ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixup_ଗଣ୍ଠି,
 						uint32_t delta)
 {
-	int fixup_prop;
-	int fixup_child;
-	int ret;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixup_prop;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixup_child;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
-	fdt_for_each_property_offset(fixup_prop, fdto, fixup_node) {
-		const fdt32_t *fixup_val;
-		const char *tree_val;
-		const char *name;
-		int fixup_len;
-		int tree_len;
-		int i;
+	fdt_for_each_property_offset(fixup_prop, fdto, fixup_ଗଣ୍ଠି) {
+		ଅଚଳ fdt32_t *fixup_val;
+		ଅଚଳ ଅକ୍ଷର *ବୃକ୍ଷ_val;
+		ଅଚଳ ଅକ୍ଷର *name;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixup_len;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ବୃକ୍ଷ_len;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା i;
 
 		fixup_val = fdt_getprop_by_offset(fdto, fixup_prop,
 						  &name, &fixup_len);
-		if (!fixup_val)
-			return fixup_len;
+		ଯଦି (!fixup_val)
+			ଫେରନ୍ତୁ fixup_len;
 
-		if (fixup_len % sizeof(uint32_t))
-			return -FDT_ERR_BADOVERLAY;
-		fixup_len /= sizeof(uint32_t);
+		ଯଦି (fixup_len % ଆକାର(uint32_t))
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
+		fixup_len /= ଆକାର(uint32_t);
 
-		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
-		if (!tree_val) {
-			if (tree_len == -FDT_ERR_NOTFOUND)
-				return -FDT_ERR_BADOVERLAY;
+		ବୃକ୍ଷ_val = fdt_getprop(fdto, ବୃକ୍ଷ_ଗଣ୍ଠି, name, &ବୃକ୍ଷ_len);
+		ଯଦି (!ବୃକ୍ଷ_val) {
+			ଯଦି (ବୃକ୍ଷ_len == -FDT_ERR_NOTFOUND)
+				ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
-			return tree_len;
+			ଫେରନ୍ତୁ ବୃକ୍ଷ_len;
 		}
 
-		for (i = 0; i < fixup_len; i++) {
+		ପାଇଁ (i = 0; i < fixup_len; i++) {
 			fdt32_t adj_val;
 			uint32_t poffset;
 
@@ -263,46 +263,46 @@ static int overlay_update_local_node_references(void *fdto,
 			 * Use a memcpy for the architectures that do
 			 * not support unaligned accesses.
 			 */
-			memcpy(&adj_val, tree_val + poffset, sizeof(adj_val));
+			memcpy(&adj_val, ବୃକ୍ଷ_val + poffset, ଆକାର(adj_val));
 
 			adj_val = cpu_to_fdt32(fdt32_to_cpu(adj_val) + delta);
 
 			ret = fdt_setprop_inplace_namelen_partial(fdto,
-								  tree_node,
+								  ବୃକ୍ଷ_ଗଣ୍ଠି,
 								  name,
 								  strlen(name),
 								  poffset,
 								  &adj_val,
-								  sizeof(adj_val));
-			if (ret == -FDT_ERR_NOSPACE)
-				return -FDT_ERR_BADOVERLAY;
+								  ଆକାର(adj_val));
+			ଯଦି (ret == -FDT_ERR_NOSPACE)
+				ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
-			if (ret)
-				return ret;
+			ଯଦି (ret)
+				ଫେରନ୍ତୁ ret;
 		}
 	}
 
-	fdt_for_each_subnode(fixup_child, fdto, fixup_node) {
-		const char *fixup_child_name = fdt_get_name(fdto, fixup_child,
-							    NULL);
-		int tree_child;
+	fdt_for_each_subnode(fixup_child, fdto, fixup_ଗଣ୍ଠି) {
+		ଅଚଳ ଅକ୍ଷର *fixup_child_name = fdt_get_name(fdto, fixup_child,
+							    ଖାଲି);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ବୃକ୍ଷ_child;
 
-		tree_child = fdt_subnode_offset(fdto, tree_node,
+		ବୃକ୍ଷ_child = fdt_subnode_offset(fdto, ବୃକ୍ଷ_ଗଣ୍ଠି,
 						fixup_child_name);
-		if (tree_child == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_BADOVERLAY;
-		if (tree_child < 0)
-			return tree_child;
+		ଯଦି (ବୃକ୍ଷ_child == -FDT_ERR_NOTFOUND)
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
+		ଯଦି (ବୃକ୍ଷ_child < 0)
+			ଫେରନ୍ତୁ ବୃକ୍ଷ_child;
 
-		ret = overlay_update_local_node_references(fdto,
-							   tree_child,
+		ret = overlay_update_local_ଗଣ୍ଠି_references(fdto,
+							   ବୃକ୍ଷ_child,
 							   fixup_child,
 							   delta);
-		if (ret)
-			return ret;
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 /**
@@ -322,23 +322,23 @@ static int overlay_update_local_node_references(void *fdto,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_update_local_references(void *fdto, uint32_t delta)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_update_local_references(ଶୂନ୍ୟ *fdto, uint32_t delta)
 {
-	int fixups;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixups;
 
 	fixups = fdt_path_offset(fdto, "/__local_fixups__");
-	if (fixups < 0) {
+	ଯଦି (fixups < 0) {
 		/* There's no local phandles to adjust, bail out */
-		if (fixups == -FDT_ERR_NOTFOUND)
-			return 0;
+		ଯଦି (fixups == -FDT_ERR_NOTFOUND)
+			ଫେରନ୍ତୁ 0;
 
-		return fixups;
+		ଫେରନ୍ତୁ fixups;
 	}
 
 	/*
 	 * Update our local references from the root of the tree
 	 */
-	return overlay_update_local_node_references(fdto, 0, fixups,
+	ଫେରନ୍ତୁ overlay_update_local_ଗଣ୍ଠି_references(fdto, 0, fixups,
 						    delta);
 }
 
@@ -365,45 +365,45 @@ static int overlay_update_local_references(void *fdto, uint32_t delta)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_one_phandle(void *fdt, void *fdto,
-				     int symbols_off,
-				     const char *path, uint32_t path_len,
-				     const char *name, uint32_t name_len,
-				     int poffset, const char *label)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_fixup_one_phandle(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto,
+				     ପୂର୍ଣ୍ଣସଂଖ୍ୟା symbols_off,
+				     ଅଚଳ ଅକ୍ଷର *path, uint32_t path_len,
+				     ଅଚଳ ଅକ୍ଷର *name, uint32_t name_len,
+				     ପୂର୍ଣ୍ଣସଂଖ୍ୟା poffset, ଅଚଳ ଅକ୍ଷର *label)
 {
-	const char *symbol_path;
+	ଅଚଳ ଅକ୍ଷର *ପ୍ରତୀକ_path;
 	uint32_t phandle;
 	fdt32_t phandle_prop;
-	int symbol_off, fixup_off;
-	int prop_len;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ପ୍ରତୀକ_off, fixup_off;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା prop_len;
 
-	if (symbols_off < 0)
-		return symbols_off;
+	ଯଦି (symbols_off < 0)
+		ଫେରନ୍ତୁ symbols_off;
 
-	symbol_path = fdt_getprop(fdt, symbols_off, label,
+	ପ୍ରତୀକ_path = fdt_getprop(fdt, symbols_off, label,
 				  &prop_len);
-	if (!symbol_path)
-		return prop_len;
+	ଯଦି (!ପ୍ରତୀକ_path)
+		ଫେରନ୍ତୁ prop_len;
 
-	symbol_off = fdt_path_offset(fdt, symbol_path);
-	if (symbol_off < 0)
-		return symbol_off;
+	ପ୍ରତୀକ_off = fdt_path_offset(fdt, ପ୍ରତୀକ_path);
+	ଯଦି (ପ୍ରତୀକ_off < 0)
+		ଫେରନ୍ତୁ ପ୍ରତୀକ_off;
 
-	phandle = fdt_get_phandle(fdt, symbol_off);
-	if (!phandle)
-		return -FDT_ERR_NOTFOUND;
+	phandle = fdt_get_phandle(fdt, ପ୍ରତୀକ_off);
+	ଯଦି (!phandle)
+		ଫେରନ୍ତୁ -FDT_ERR_NOTFOUND;
 
 	fixup_off = fdt_path_offset_namelen(fdto, path, path_len);
-	if (fixup_off == -FDT_ERR_NOTFOUND)
-		return -FDT_ERR_BADOVERLAY;
-	if (fixup_off < 0)
-		return fixup_off;
+	ଯଦି (fixup_off == -FDT_ERR_NOTFOUND)
+		ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
+	ଯଦି (fixup_off < 0)
+		ଫେରନ୍ତୁ fixup_off;
 
 	phandle_prop = cpu_to_fdt32(phandle);
-	return fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
+	ଫେରନ୍ତୁ fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
 						   name, name_len, poffset,
 						   &phandle_prop,
-						   sizeof(phandle_prop));
+						   ଆକାର(phandle_prop));
 }
 
 /**
@@ -425,69 +425,69 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
-				 int property)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_fixup_phandle(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto, ପୂର୍ଣ୍ଣସଂଖ୍ୟା symbols_off,
+				 ପୂର୍ଣ୍ଣସଂଖ୍ୟା property)
 {
-	const char *value;
-	const char *label;
-	int len;
+	ଅଚଳ ଅକ୍ଷର *ମୂଲ୍ୟ;
+	ଅଚଳ ଅକ୍ଷର *label;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len;
 
-	value = fdt_getprop_by_offset(fdto, property,
+	ମୂଲ୍ୟ = fdt_getprop_by_offset(fdto, property,
 				      &label, &len);
-	if (!value) {
-		if (len == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_INTERNAL;
+	ଯଦି (!ମୂଲ୍ୟ) {
+		ଯଦି (len == -FDT_ERR_NOTFOUND)
+			ଫେରନ୍ତୁ -FDT_ERR_INTERNAL;
 
-		return len;
+		ଫେରନ୍ତୁ len;
 	}
 
-	do {
-		const char *path, *name, *fixup_end;
-		const char *fixup_str = value;
+	କର {
+		ଅଚଳ ଅକ୍ଷର *path, *name, *fixup_end;
+		ଅଚଳ ଅକ୍ଷର *fixup_str = ମୂଲ୍ୟ;
 		uint32_t path_len, name_len;
 		uint32_t fixup_len;
-		char *sep, *endptr;
-		int poffset, ret;
+		ଅକ୍ଷର *sep, *endptr;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା poffset, ret;
 
-		fixup_end = memchr(value, '\0', len);
-		if (!fixup_end)
-			return -FDT_ERR_BADOVERLAY;
+		fixup_end = memchr(ମୂଲ୍ୟ, '\0', len);
+		ଯଦି (!fixup_end)
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 		fixup_len = fixup_end - fixup_str;
 
 		len -= fixup_len + 1;
-		value += fixup_len + 1;
+		ମୂଲ୍ୟ += fixup_len + 1;
 
 		path = fixup_str;
 		sep = memchr(fixup_str, ':', fixup_len);
-		if (!sep || *sep != ':')
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (!sep || *sep != ':')
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		path_len = sep - path;
-		if (path_len == (fixup_len - 1))
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (path_len == (fixup_len - 1))
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		fixup_len -= path_len + 1;
 		name = sep + 1;
 		sep = memchr(name, ':', fixup_len);
-		if (!sep || *sep != ':')
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (!sep || *sep != ':')
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		name_len = sep - name;
-		if (!name_len)
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (!name_len)
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		poffset = strtoul(sep + 1, &endptr, 10);
-		if ((*endptr != '\0') || (endptr <= (sep + 1)))
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି ((*endptr != '\0') || (endptr <= (sep + 1)))
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		ret = overlay_fixup_one_phandle(fdt, fdto, symbols_off,
 						path, path_len, name, name_len,
 						poffset, label);
-		if (ret)
-			return ret;
-	} while (len > 0);
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
+	} ଯେତେବେଳେ (len > 0);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 /**
@@ -507,32 +507,32 @@ static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_phandles(void *fdt, void *fdto)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_fixup_phandles(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto)
 {
-	int fixups_off, symbols_off;
-	int property;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fixups_off, symbols_off;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା property;
 
 	/* We can have overlays without any fixups */
 	fixups_off = fdt_path_offset(fdto, "/__fixups__");
-	if (fixups_off == -FDT_ERR_NOTFOUND)
-		return 0; /* nothing to do */
-	if (fixups_off < 0)
-		return fixups_off;
+	ଯଦି (fixups_off == -FDT_ERR_NOTFOUND)
+		ଫେରନ୍ତୁ 0; /* nothing to do */
+	ଯଦି (fixups_off < 0)
+		ଫେରନ୍ତୁ fixups_off;
 
 	/* And base DTs without symbols */
 	symbols_off = fdt_path_offset(fdt, "/__symbols__");
-	if ((symbols_off < 0 && (symbols_off != -FDT_ERR_NOTFOUND)))
-		return symbols_off;
+	ଯଦି ((symbols_off < 0 && (symbols_off != -FDT_ERR_NOTFOUND)))
+		ଫେରନ୍ତୁ symbols_off;
 
 	fdt_for_each_property_offset(property, fdto, fixups_off) {
-		int ret;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 		ret = overlay_fixup_phandle(fdt, fdto, symbols_off, property);
-		if (ret)
-			return ret;
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 /**
@@ -554,51 +554,51 @@ static int overlay_fixup_phandles(void *fdt, void *fdto)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_apply_node(void *fdt, int target,
-			      void *fdto, int node)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_apply_ଗଣ୍ଠି(ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା target,
+			      ଶୂନ୍ୟ *fdto, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ଗଣ୍ଠି)
 {
-	int property;
-	int subnode;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା property;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା subnode;
 
-	fdt_for_each_property_offset(property, fdto, node) {
-		const char *name;
-		const void *prop;
-		int prop_len;
-		int ret;
+	fdt_for_each_property_offset(property, fdto, ଗଣ୍ଠି) {
+		ଅଚଳ ଅକ୍ଷର *name;
+		ଅଚଳ ଶୂନ୍ୟ *prop;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା prop_len;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 		prop = fdt_getprop_by_offset(fdto, property, &name,
 					     &prop_len);
-		if (prop_len == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_INTERNAL;
-		if (prop_len < 0)
-			return prop_len;
+		ଯଦି (prop_len == -FDT_ERR_NOTFOUND)
+			ଫେରନ୍ତୁ -FDT_ERR_INTERNAL;
+		ଯଦି (prop_len < 0)
+			ଫେରନ୍ତୁ prop_len;
 
 		ret = fdt_setprop(fdt, target, name, prop, prop_len);
-		if (ret)
-			return ret;
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	fdt_for_each_subnode(subnode, fdto, node) {
-		const char *name = fdt_get_name(fdto, subnode, NULL);
-		int nnode;
-		int ret;
+	fdt_for_each_subnode(subnode, fdto, ଗଣ୍ଠି) {
+		ଅଚଳ ଅକ୍ଷର *name = fdt_get_name(fdto, subnode, ଖାଲି);
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା nnode;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 		nnode = fdt_add_subnode(fdt, target, name);
-		if (nnode == -FDT_ERR_EXISTS) {
+		ଯଦି (nnode == -FDT_ERR_EXISTS) {
 			nnode = fdt_subnode_offset(fdt, target, name);
-			if (nnode == -FDT_ERR_NOTFOUND)
-				return -FDT_ERR_INTERNAL;
+			ଯଦି (nnode == -FDT_ERR_NOTFOUND)
+				ଫେରନ୍ତୁ -FDT_ERR_INTERNAL;
 		}
 
-		if (nnode < 0)
-			return nnode;
+		ଯଦି (nnode < 0)
+			ଫେରନ୍ତୁ nnode;
 
-		ret = overlay_apply_node(fdt, nnode, fdto, subnode);
-		if (ret)
-			return ret;
+		ret = overlay_apply_ଗଣ୍ଠି(fdt, nnode, fdto, subnode);
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
 /**
@@ -616,64 +616,64 @@ static int overlay_apply_node(void *fdt, int target,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_merge(void *fdt, void *fdto)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_merge(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto)
 {
-	int fragment;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା fragment;
 
 	fdt_for_each_subnode(fragment, fdto, 0) {
-		int overlay;
-		int target;
-		int ret;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା target;
+		ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 		/*
 		 * Each fragments will have an __overlay__ node. If
 		 * they don't, it's not supposed to be merged
 		 */
 		overlay = fdt_subnode_offset(fdto, fragment, "__overlay__");
-		if (overlay == -FDT_ERR_NOTFOUND)
-			continue;
+		ଯଦି (overlay == -FDT_ERR_NOTFOUND)
+			ଜାରି;
 
-		if (overlay < 0)
-			return overlay;
+		ଯଦି (overlay < 0)
+			ଫେରନ୍ତୁ overlay;
 
-		target = overlay_get_target(fdt, fdto, fragment, NULL);
-		if (target < 0)
-			return target;
+		target = overlay_get_target(fdt, fdto, fragment, ଖାଲି);
+		ଯଦି (target < 0)
+			ଫେରନ୍ତୁ target;
 
-		ret = overlay_apply_node(fdt, target, fdto, overlay);
-		if (ret)
-			return ret;
+		ret = overlay_apply_ଗଣ୍ଠି(fdt, target, fdto, overlay);
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-static int get_path_len(const void *fdt, int nodeoffset)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା get_path_len(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoffset)
 {
-	int len = 0, namelen;
-	const char *name;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len = 0, namelen;
+	ଅଚଳ ଅକ୍ଷର *name;
 
 	FDT_RO_PROBE(fdt);
 
-	for (;;) {
+	ପାଇଁ (;;) {
 		name = fdt_get_name(fdt, nodeoffset, &namelen);
-		if (!name)
-			return namelen;
+		ଯଦି (!name)
+			ଫେରନ୍ତୁ namelen;
 
 		/* root? we're done */
-		if (namelen == 0)
-			break;
+		ଯଦି (namelen == 0)
+			ଭାଙ୍ଗ;
 
 		nodeoffset = fdt_parent_offset(fdt, nodeoffset);
-		if (nodeoffset < 0)
-			return nodeoffset;
+		ଯଦି (nodeoffset < 0)
+			ଫେରନ୍ତୁ nodeoffset;
 		len += namelen + 1;
 	}
 
 	/* in case of root pretend it's "/" */
-	if (len == 0)
+	ଯଦି (len == 0)
 		len++;
-	return len;
+	ଫେରନ୍ତୁ len;
 }
 
 /**
@@ -692,131 +692,131 @@ static int get_path_len(const void *fdt, int nodeoffset)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_symbol_update(void *fdt, void *fdto)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା overlay_ପ୍ରତୀକ_update(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto)
 {
-	int root_sym, ov_sym, prop, path_len, fragment, target;
-	int len, frag_name_len, ret, rel_path_len;
-	const char *s, *e;
-	const char *path;
-	const char *name;
-	const char *frag_name;
-	const char *rel_path;
-	const char *target_path;
-	char *buf;
-	void *p;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଳ_sym, ov_sym, prop, path_len, fragment, target;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା len, frag_name_len, ret, rel_path_len;
+	ଅଚଳ ଅକ୍ଷର *s, *e;
+	ଅଚଳ ଅକ୍ଷର *path;
+	ଅଚଳ ଅକ୍ଷର *name;
+	ଅଚଳ ଅକ୍ଷର *frag_name;
+	ଅଚଳ ଅକ୍ଷର *rel_path;
+	ଅଚଳ ଅକ୍ଷର *target_path;
+	ଅକ୍ଷର *buf;
+	ଶୂନ୍ୟ *p;
 
 	ov_sym = fdt_subnode_offset(fdto, 0, "__symbols__");
 
 	/* if no overlay symbols exist no problem */
-	if (ov_sym < 0)
-		return 0;
+	ଯଦି (ov_sym < 0)
+		ଫେରନ୍ତୁ 0;
 
-	root_sym = fdt_subnode_offset(fdt, 0, "__symbols__");
+	ମୂଳ_sym = fdt_subnode_offset(fdt, 0, "__symbols__");
 
 	/* it no root symbols exist we should create them */
-	if (root_sym == -FDT_ERR_NOTFOUND)
-		root_sym = fdt_add_subnode(fdt, 0, "__symbols__");
+	ଯଦି (ମୂଳ_sym == -FDT_ERR_NOTFOUND)
+		ମୂଳ_sym = fdt_add_subnode(fdt, 0, "__symbols__");
 
 	/* any error is fatal now */
-	if (root_sym < 0)
-		return root_sym;
+	ଯଦି (ମୂଳ_sym < 0)
+		ଫେରନ୍ତୁ ମୂଳ_sym;
 
 	/* iterate over each overlay symbol */
 	fdt_for_each_property_offset(prop, fdto, ov_sym) {
 		path = fdt_getprop_by_offset(fdto, prop, &name, &path_len);
-		if (!path)
-			return path_len;
+		ଯଦି (!path)
+			ଫେରନ୍ତୁ path_len;
 
 		/* verify it's a string property (terminated by a single \0) */
-		if (path_len < 1 || memchr(path, '\0', path_len) != &path[path_len - 1])
-			return -FDT_ERR_BADVALUE;
+		ଯଦି (path_len < 1 || memchr(path, '\0', path_len) != &path[path_len - 1])
+			ଫେରନ୍ତୁ -FDT_ERR_BADVALUE;
 
 		/* keep end marker to avoid strlen() */
 		e = path + path_len;
 
-		if (*path != '/')
-			return -FDT_ERR_BADVALUE;
+		ଯଦି (*path != '/')
+			ଫେରନ୍ତୁ -FDT_ERR_BADVALUE;
 
 		/* get fragment name first */
 		s = strchr(path + 1, '/');
-		if (!s) {
+		ଯଦି (!s) {
 			/* Symbol refers to something that won't end
 			 * up in the target tree */
-			continue;
+			ଜାରି;
 		}
 
 		frag_name = path + 1;
 		frag_name_len = s - path - 1;
 
 		/* verify format; safe since "s" lies in \0 terminated prop */
-		len = sizeof("/__overlay__/") - 1;
-		if ((e - s) > len && (memcmp(s, "/__overlay__/", len) == 0)) {
+		len = ଆକାର("/__overlay__/") - 1;
+		ଯଦି ((e - s) > len && (memcmp(s, "/__overlay__/", len) == 0)) {
 			/* /<fragment-name>/__overlay__/<relative-subnode-path> */
 			rel_path = s + len;
 			rel_path_len = e - rel_path - 1;
-		} else if ((e - s) == len
+		} ଅନ୍ୟଥା ଯଦି ((e - s) == len
 			   && (memcmp(s, "/__overlay__", len - 1) == 0)) {
 			/* /<fragment-name>/__overlay__ */
 			rel_path = "";
 			rel_path_len = 0;
-		} else {
+		} ଅନ୍ୟଥା {
 			/* Symbol refers to something that won't end
 			 * up in the target tree */
-			continue;
+			ଜାରି;
 		}
 
 		/* find the fragment index in which the symbol lies */
 		ret = fdt_subnode_offset_namelen(fdto, 0, frag_name,
 					       frag_name_len);
 		/* not found? */
-		if (ret < 0)
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (ret < 0)
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 		fragment = ret;
 
 		/* an __overlay__ subnode must exist */
 		ret = fdt_subnode_offset(fdto, fragment, "__overlay__");
-		if (ret < 0)
-			return -FDT_ERR_BADOVERLAY;
+		ଯଦି (ret < 0)
+			ଫେରନ୍ତୁ -FDT_ERR_BADOVERLAY;
 
 		/* get the target of the fragment */
 		ret = overlay_get_target(fdt, fdto, fragment, &target_path);
-		if (ret < 0)
-			return ret;
+		ଯଦି (ret < 0)
+			ଫେରନ୍ତୁ ret;
 		target = ret;
 
 		/* if we have a target path use */
-		if (!target_path) {
+		ଯଦି (!target_path) {
 			ret = get_path_len(fdt, target);
-			if (ret < 0)
-				return ret;
+			ଯଦି (ret < 0)
+				ଫେରନ୍ତୁ ret;
 			len = ret;
-		} else {
+		} ଅନ୍ୟଥା {
 			len = strlen(target_path);
 		}
 
-		ret = fdt_setprop_placeholder(fdt, root_sym, name,
+		ret = fdt_setprop_placeholder(fdt, ମୂଳ_sym, name,
 				len + (len > 1) + rel_path_len + 1, &p);
-		if (ret < 0)
-			return ret;
+		ଯଦି (ret < 0)
+			ଫେରନ୍ତୁ ret;
 
-		if (!target_path) {
+		ଯଦି (!target_path) {
 			/* again in case setprop_placeholder changed it */
 			ret = overlay_get_target(fdt, fdto, fragment, &target_path);
-			if (ret < 0)
-				return ret;
+			ଯଦି (ret < 0)
+				ଫେରନ୍ତୁ ret;
 			target = ret;
 		}
 
 		buf = p;
-		if (len > 1) { /* target is not root */
-			if (!target_path) {
+		ଯଦି (len > 1) { /* target is not root */
+			ଯଦି (!target_path) {
 				ret = fdt_get_path(fdt, target, buf, len + 1);
-				if (ret < 0)
-					return ret;
-			} else
+				ଯଦି (ret < 0)
+					ଫେରନ୍ତୁ ret;
+			} ଅନ୍ୟଥା
 				memcpy(buf, target_path, len + 1);
 
-		} else
+		} ଅନ୍ୟଥା
 			len--;
 
 		buf[len] = '/';
@@ -824,47 +824,47 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 		buf[len + 1 + rel_path_len] = '\0';
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-int fdt_overlay_apply(void *fdt, void *fdto)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା fdt_overlay_apply(ଶୂନ୍ୟ *fdt, ଶୂନ୍ୟ *fdto)
 {
 	uint32_t delta;
-	int ret;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
 
 	FDT_RO_PROBE(fdt);
 	FDT_RO_PROBE(fdto);
 
 	ret = fdt_find_max_phandle(fdt, &delta);
-	if (ret)
-		goto err;
+	ଯଦି (ret)
+		ଯାଅ err;
 
 	ret = overlay_adjust_local_phandles(fdto, delta);
-	if (ret)
-		goto err;
+	ଯଦି (ret)
+		ଯାଅ err;
 
 	ret = overlay_update_local_references(fdto, delta);
-	if (ret)
-		goto err;
+	ଯଦି (ret)
+		ଯାଅ err;
 
 	ret = overlay_fixup_phandles(fdt, fdto);
-	if (ret)
-		goto err;
+	ଯଦି (ret)
+		ଯାଅ err;
 
 	ret = overlay_merge(fdt, fdto);
-	if (ret)
-		goto err;
+	ଯଦି (ret)
+		ଯାଅ err;
 
-	ret = overlay_symbol_update(fdt, fdto);
-	if (ret)
-		goto err;
+	ret = overlay_ପ୍ରତୀକ_update(fdt, fdto);
+	ଯଦି (ret)
+		ଯାଅ err;
 
 	/*
 	 * The overlay has been damaged, erase its magic.
 	 */
 	fdt_set_magic(fdto, ~0);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 
 err:
 	/*
@@ -878,5 +878,5 @@ err:
 	 */
 	fdt_set_magic(fdt, ~0);
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }

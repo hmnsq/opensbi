@@ -7,23 +7,23 @@
  *   Dave Patel <dave.patel@riscstar.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_fp.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_asm.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_encoding.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_fp.h>
 
-#if defined(__riscv_f) || defined(__riscv_d)
+#ଯଦି defined(__riscv_f) || defined(__riscv_d)
 
-void sbi_fp_save(struct sbi_fp_context *dst)
+ଶୂନ୍ୟ sbi_fp_save(ସଂରଚନା sbi_fp_context *dst)
 {
 	unsigned long mstatus_orig;
 
-	if (!dst)
-		return;
+	ଯଦି (!dst)
+		ଫେରନ୍ତୁ;
 
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_FS);
 
-	asm volatile(
-#if defined(__riscv_d)
+	asm ଅସ୍ଥିର(
+#ଯଦି defined(__riscv_d)
 		"fsd f0,  0(%0)\n"
 		"fsd f1,  8(%0)\n"
 		"fsd f2,  16(%0)\n"
@@ -56,7 +56,7 @@ void sbi_fp_save(struct sbi_fp_context *dst)
 		"fsd f29, 232(%0)\n"
 		"fsd f30, 240(%0)\n"
 		"fsd f31, 248(%0)\n"
-#else
+#ଅନ୍ୟଥା
 		"fsw f0,  0(%0)\n"
 		"fsw f1,  4(%0)\n"
 		"fsw f2,  8(%0)\n"
@@ -101,18 +101,18 @@ void sbi_fp_save(struct sbi_fp_context *dst)
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_fp_restore(const struct sbi_fp_context *src)
+ଶୂନ୍ୟ sbi_fp_restore(ଅଚଳ ସଂରଚନା sbi_fp_context *src)
 {
 	unsigned long mstatus_orig;
 
-	if (!src)
-		return;
+	ଯଦି (!src)
+		ଫେରନ୍ତୁ;
 
 	/* Save original mstatus */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_FS);
 
-	asm volatile(
-#if defined(__riscv_d)
+	asm ଅସ୍ଥିର(
+#ଯଦି defined(__riscv_d)
 		"fld f0,  0(%0)\n"
 		"fld f1,  8(%0)\n"
 		"fld f2,  16(%0)\n"
@@ -145,7 +145,7 @@ void sbi_fp_restore(const struct sbi_fp_context *src)
 		"fld f29, 232(%0)\n"
 		"fld f30, 240(%0)\n"
 		"fld f31, 248(%0)\n"
-#else
+#ଅନ୍ୟଥା
 		"flw f0,   0(%0)\n"
 		"flw f1,   4(%0)\n"
 		"flw f2,   8(%0)\n"

@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/mailbox/mailbox.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rpmi_xlate_error(ଗଣନା rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	ବାଛ(error) {
+	ସ୍ଥିତି RPMI_SUCCESS:
+		ଫେରନ୍ତୁ SBI_OK;
+	ସ୍ଥିତି RPMI_ERR_FAILED:
+		ଫେରନ୍ତୁ SBI_EFAIL;
+	ସ୍ଥିତି RPMI_ERR_NOTSUPP:
+		ଫେରନ୍ତୁ SBI_ENOTSUPP;
+	ସ୍ଥିତି RPMI_ERR_INVALID_PARAM:
+		ଫେରନ୍ତୁ SBI_EINVAL;
+	ସ୍ଥିତି RPMI_ERR_DENIED:
+		ଫେରନ୍ତୁ SBI_EDENIED;
+	ସ୍ଥିତି RPMI_ERR_INVALID_ADDR:
+		ଫେରନ୍ତୁ SBI_EINVALID_ADDR;
+	ସ୍ଥିତି RPMI_ERR_ALREADY:
+		ଫେରନ୍ତୁ SBI_EALREADY;
+	ସ୍ଥିତି RPMI_ERR_EXTENSION:
+		ଫେରନ୍ତୁ SBI_EFAIL;
+	ସ୍ଥିତି RPMI_ERR_HW_FAULT:
+		ଫେରନ୍ତୁ SBI_EIO;
+	ସ୍ଥିତି RPMI_ERR_BUSY:
+		ଫେରନ୍ତୁ SBI_EFAIL;
+	ସ୍ଥିତି RPMI_ERR_INVALID_STATE:
+		ଫେରନ୍ତୁ SBI_EINVALID_STATE;
+	ସ୍ଥିତି RPMI_ERR_BAD_RANGE:
+		ଫେରନ୍ତୁ SBI_EBAD_RANGE;
+	ସ୍ଥିତି RPMI_ERR_TIMEOUT:
+		ଫେରନ୍ତୁ SBI_ETIMEDOUT;
+	ସ୍ଥିତି RPMI_ERR_IO:
+		ଫେରନ୍ତୁ SBI_EIO;
+	ସ୍ଥିତି RPMI_ERR_NO_DATA:
+		ଫେରନ୍ତୁ SBI_EFAIL;
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
+		ଫେରନ୍ତୁ SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rpmi_normal_request_with_status(
+			ସଂରଚନା mbox_chan *chan, u32 service_id,
+			ଶୂନ୍ୟ *req, u32 req_ଶବ୍ଦଗୁଡ଼ିକ, u32 req_endian_ଶବ୍ଦଗୁଡ଼ିକ,
+			ଶୂନ୍ୟ *resp, u32 resp_ଶବ୍ଦଗୁଡ଼ିକ, u32 resp_endian_ଶବ୍ଦଗୁଡ଼ିକ)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+	ସଂରଚନା mbox_xfer xfer;
+	ସଂରଚନା rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
+	args.type = RPMI_ସନ୍ଦେଶ_NORMAL_REQUEST;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
+	args.tx_endian_ଶବ୍ଦଗୁଡ଼ିକ = req_endian_ଶବ୍ଦଗୁଡ଼ିକ;
+	args.rx_endian_ଶବ୍ଦଗୁଡ଼ିକ = resp_endian_ଶବ୍ଦଗୁଡ଼ିକ;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, ଆକାର(u32) * req_ଶବ୍ଦଗୁଡ଼ିକ, RPMI_DEF_TX_TIMEOUT,
+			resp, ଆକାର(u32) * resp_ଶବ୍ଦଗୁଡ଼ିକ, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	ଯଦି (ret)
+		ଫେରନ୍ତୁ ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	ଫେରନ୍ତୁ rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା rpmi_posted_request(
+		ସଂରଚନା mbox_chan *chan, u32 service_id,
+		ଶୂନ୍ୟ *req, u32 req_ଶବ୍ଦଗୁଡ଼ିକ, u32 req_endian_ଶବ୍ଦଗୁଡ଼ିକ)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	ସଂରଚନା mbox_xfer xfer;
+	ସଂରଚନା rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
+	args.type = RPMI_ସନ୍ଦେଶ_POSTED_REQUEST;
+	args.flags = RPMI_ସନ୍ଦେଶ_FLAGS_NO_RX;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
+	args.tx_endian_ଶବ୍ଦଗୁଡ଼ିକ = req_endian_ଶବ୍ଦଗୁଡ଼ିକ;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, ଆକାର(u32) * req_ଶବ୍ଦଗୁଡ଼ିକ, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	ଫେରନ୍ତୁ mbox_chan_xfer(chan, &xfer);
 }

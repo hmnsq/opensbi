@@ -33,13 +33,13 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
+#ଯଦି defined(LIBC_SCCS) && !defined(lint)
+ସ୍ଥିର ଅକ୍ଷର sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
-#include <sys/cdefs.h>
+#ଅନ୍ତର୍ଭାଵ <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
-#include "quad.h"
+#ଅନ୍ତର୍ଭାଵ "quad.h"
 
 /*
  * Return remainder after dividing two signed quads.
@@ -51,16 +51,16 @@ quad_t
 __moddi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, ur;
-	int neg;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା neg;
 
-	if (a < 0)
+	ଯଦି (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	ଅନ୍ୟଥା
 		ua = a, neg = 0;
-	if (b < 0)
+	ଯଦି (b < 0)
 		ub = -(u_quad_t)b;
-	else
+	ଅନ୍ୟଥା
 		ub = b;
-	(void)__qdivrem(ua, ub, &ur);
-	return (neg ? -ur : ur);
+	(ଶୂନ୍ୟ)__qdivrem(ua, ub, &ur);
+	ଫେରନ୍ତୁ (neg ? -ur : ur);
 }

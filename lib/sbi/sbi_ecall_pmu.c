@@ -7,92 +7,92 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/riscv_asm.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall_interface.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_hart.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_trap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_version.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_pmu.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_scratch.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_asm.h>
 
-static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
+				 ସଂରଚନା sbi_trap_regs *regs,
+				 ସଂରଚନା sbi_ecall_return *out)
 {
-	int ret = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 	uint64_t temp;
 
-	switch (funcid) {
-	case SBI_EXT_PMU_NUM_COUNTERS:
-		ret = sbi_pmu_num_ctr();
-		if (ret >= 0) {
-			out->value = ret;
+	ବାଛ (funcid) {
+	ସ୍ଥିତି SBI_EXT_PMU_ଅଙ୍କ_COUNTERS:
+		ret = sbi_pmu_ଅଙ୍କ_ctr();
+		ଯଦି (ret >= 0) {
+			out->ମୂଲ୍ୟ = ret;
 			ret = 0;
 		}
-		break;
-	case SBI_EXT_PMU_COUNTER_GET_INFO:
-		ret = sbi_pmu_ctr_get_info(regs->a0, &out->value);
-		break;
-	case SBI_EXT_PMU_COUNTER_CFG_MATCH:
-#if __riscv_xlen == 32
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_GET_INFO:
+		ret = sbi_pmu_ctr_get_info(regs->a0, &out->ମୂଲ୍ୟ);
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_CFG_MATCH:
+#ଯଦି __riscv_xlen == 32
 		temp = ((uint64_t)regs->a5 << 32) | regs->a4;
-#else
+#ଅନ୍ୟଥା
 		temp = regs->a4;
 #endif
 		ret = sbi_pmu_ctr_cfg_match(regs->a0, regs->a1, regs->a2,
 					    regs->a3, temp);
-		if (ret >= 0) {
-			out->value = ret;
+		ଯଦି (ret >= 0) {
+			out->ମୂଲ୍ୟ = ret;
 			ret = 0;
 		}
 
-		break;
-	case SBI_EXT_PMU_COUNTER_FW_READ:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_FW_READ:
 		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, false);
-		out->value = temp;
-		break;
-	case SBI_EXT_PMU_COUNTER_FW_READ_HI:
+		out->ମୂଲ୍ୟ = temp;
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_FW_READ_HI:
 		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, true);
-#if __riscv_xlen == 32
-		out->value = temp >> 32;
-#else
-		out->value = 0;
+#ଯଦି __riscv_xlen == 32
+		out->ମୂଲ୍ୟ = temp >> 32;
+#ଅନ୍ୟଥା
+		out->ମୂଲ୍ୟ = 0;
 #endif
-		break;
-	case SBI_EXT_PMU_COUNTER_START:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_START:
 
-#if __riscv_xlen == 32
+#ଯଦି __riscv_xlen == 32
 		temp = ((uint64_t)regs->a4 << 32) | regs->a3;
-#else
+#ଅନ୍ୟଥା
 		temp = regs->a3;
 #endif
 		ret = sbi_pmu_ctr_start(regs->a0, regs->a1, regs->a2, temp);
-		break;
-	case SBI_EXT_PMU_COUNTER_STOP:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_COUNTER_STOP:
 		ret = sbi_pmu_ctr_stop(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_PMU_EVENT_GET_INFO:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_EVENT_GET_INFO:
 		ret = sbi_pmu_event_get_info(regs->a0, regs->a1, regs->a2, regs->a3);
-		break;
-	case SBI_EXT_PMU_SNAPSHOT_SET_SHMEM:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_PMU_SNAPSHOT_SET_SHMEM:
 		/* fallthrough as OpenSBI doesn't support snapshot yet */
-	default:
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-struct sbi_ecall_extension ecall_pmu;
+ସଂରଚନା sbi_ecall_extension ecall_pmu;
 
-static int sbi_ecall_pmu_register_extensions(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_pmu_register_extensions(ଶୂନ୍ୟ)
 {
-	return sbi_ecall_register_extension(&ecall_pmu);
+	ଫେରନ୍ତୁ sbi_ecall_register_extension(&ecall_pmu);
 }
 
-struct sbi_ecall_extension ecall_pmu = {
+ସଂରଚନା sbi_ecall_extension ecall_pmu = {
 	.name			= "pmu",
 	.extid_start		= SBI_EXT_PMU,
 	.extid_end		= SBI_EXT_PMU,

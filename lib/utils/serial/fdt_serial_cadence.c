@@ -6,31 +6,31 @@
  * Author: Jun Liang Tan <junliang.tan@linux.starfivetech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/cadence-uart.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_helper.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/serial/fdt_serial.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/serial/cadence-uart.h>
 
-static int serial_cadence_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା serial_cadence_init(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff,
+			       ଅଚଳ ସଂରଚନା fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	ସଂରଚନା platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_ଗଣ୍ଠି(fdt, nodeoff, &uart);
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
-	return cadence_uart_init(uart.addr, uart.freq, uart.baud);
+	ଫେରନ୍ତୁ cadence_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_cadence_match[] = {
+ସ୍ଥିର ଅଚଳ ସଂରଚନା fdt_match serial_cadence_match[] = {
 	{ .compatible = "cdns,uart-r1p8", },
 	{ .compatible = "cdns,uart-r1p12" },
 	{ .compatible = "starfive,jh8100-uart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_cadence = {
+ଅଚଳ ସଂରଚନା fdt_driver fdt_serial_cadence = {
 	.match_table = serial_cadence_match,
 	.init = serial_cadence_init
 };

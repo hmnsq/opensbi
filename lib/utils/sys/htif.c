@@ -5,11 +5,11 @@
  * (Regents).  All Rights Reserved.
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/sys/htif.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_locks.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_system.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/sys/htif.h>
 
 #define HTIF_DATA_BITS		48
 #define HTIF_DATA_MASK		((1ULL << HTIF_DATA_BITS) - 1)
@@ -27,124 +27,124 @@
 #define HTIF_CONSOLE_CMD_GETC	0
 #define HTIF_CONSOLE_CMD_PUTC	1
 
-#if __riscv_xlen == 64
+#ଯଦି __riscv_xlen == 64
 # define TOHOST_CMD(dev, cmd, payload) \
 	(((uint64_t)(dev) << HTIF_DEV_SHIFT) | \
 	 ((uint64_t)(cmd) << HTIF_CMD_SHIFT) | \
 	 (uint64_t)(payload))
-#else
+#ଅନ୍ୟଥା
 # define TOHOST_CMD(dev, cmd, payload) ({ \
-  if ((dev) || (cmd)) __builtin_trap(); \
+  ଯଦି ((dev) || (cmd)) __builtin_trap(); \
   (payload); })
 #endif
-#define FROMHOST_DEV(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
-#define FROMHOST_CMD(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
-#define FROMHOST_DATA(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
+#define FROMHOST_DEV(fromhost_ମୂଲ୍ୟ) \
+	((uint64_t)((fromhost_ମୂଲ୍ୟ) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
+#define FROMHOST_CMD(fromhost_ମୂଲ୍ୟ) \
+	((uint64_t)((fromhost_ମୂଲ୍ୟ) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
+#define FROMHOST_DATA(fromhost_ମୂଲ୍ୟ) \
+	((uint64_t)((fromhost_ମୂଲ୍ୟ) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
 
 #define PK_SYS_write 64
 
-static spinlock_t htif_lock = SPIN_LOCK_INITIALIZER;
+ସ୍ଥିର spinlock_t htif_lock = SPIN_LOCK_INITIALIZER;
 
-volatile uint64_t tohost
+ଅସ୍ଥିର uint64_t tohost
 	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
-volatile uint64_t fromhost
+ଅସ୍ଥିର uint64_t fromhost
 	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
 
-static uint64_t *htif_fromhost PT_GUARDED_BY(&htif_lock) = NULL;
-static uint64_t *htif_tohost PT_GUARDED_BY(&htif_lock)	 = NULL;
-static bool htif_custom = false;
+ସ୍ଥିର uint64_t *htif_fromhost PT_GUARDED_BY(&htif_lock) = ଖାଲି;
+ସ୍ଥିର uint64_t *htif_tohost PT_GUARDED_BY(&htif_lock)	 = ଖାଲି;
+ସ୍ଥିର bool htif_custom = false;
 
-static int htif_console_buf GUARDED_BY(&htif_lock);
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା htif_console_buf GUARDED_BY(&htif_lock);
 
-static inline uint64_t __read_tohost(void) MUST_HOLD(&htif_lock)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ uint64_t __read_tohost(ଶୂନ୍ୟ) MUST_HOLD(&htif_lock)
 {
-	return (htif_custom) ? *htif_tohost : tohost;
+	ଫେରନ୍ତୁ (htif_custom) ? *htif_tohost : tohost;
 }
 
-static inline void __write_tohost(uint64_t val) MUST_HOLD(&htif_lock)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ __write_tohost(uint64_t val) MUST_HOLD(&htif_lock)
 {
-	if (htif_custom)
+	ଯଦି (htif_custom)
 		*htif_tohost = val;
-	else
+	ଅନ୍ୟଥା
 		tohost = val;
 }
 
-static inline uint64_t __read_fromhost(void) MUST_HOLD(&htif_lock)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ uint64_t __read_fromhost(ଶୂନ୍ୟ) MUST_HOLD(&htif_lock)
 {
-	return (htif_custom) ? *htif_fromhost : fromhost;
+	ଫେରନ୍ତୁ (htif_custom) ? *htif_fromhost : fromhost;
 }
 
-static inline void __write_fromhost(uint64_t val) MUST_HOLD(&htif_lock)
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ ଶୂନ୍ୟ __write_fromhost(uint64_t val) MUST_HOLD(&htif_lock)
 {
-	if (htif_custom)
+	ଯଦି (htif_custom)
 		*htif_fromhost = val;
-	else
+	ଅନ୍ୟଥା
 		fromhost = val;
 }
 
-static void __check_fromhost() MUST_HOLD(&htif_lock)
+ସ୍ଥିର ଶୂନ୍ୟ __check_fromhost() MUST_HOLD(&htif_lock)
 {
 	uint64_t fh = __read_fromhost();
-	if (!fh)
-		return;
+	ଯଦି (!fh)
+		ଫେରନ୍ତୁ;
 	__write_fromhost(0);
 
 	/* this should be from the console */
-	if (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
+	ଯଦି (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
 		__builtin_trap();
-	switch (FROMHOST_CMD(fh)) {
-		case HTIF_CONSOLE_CMD_GETC:
+	ବାଛ (FROMHOST_CMD(fh)) {
+		ସ୍ଥିତି HTIF_CONSOLE_CMD_GETC:
 			htif_console_buf = 1 + (uint8_t)FROMHOST_DATA(fh);
-			break;
-		case HTIF_CONSOLE_CMD_PUTC:
-			break;
-		default:
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି HTIF_CONSOLE_CMD_PUTC:
+			ଭାଙ୍ଗ;
+		ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 			__builtin_trap();
 	}
 }
 
-static void __set_tohost(uint64_t dev, uint64_t cmd, uint64_t data)
+ସ୍ଥିର ଶୂନ୍ୟ __set_tohost(uint64_t dev, uint64_t cmd, uint64_t data)
 	MUST_HOLD(&htif_lock)
 {
-	while (__read_tohost())
+	ଯେତେବେଳେ (__read_tohost())
 		__check_fromhost();
 	__write_tohost(TOHOST_CMD(dev, cmd, data));
 }
 
-static int set_custom_addr(bool custom_addr,
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା set_custom_addr(bool custom_addr,
 			   unsigned long custom_fromhost_addr,
 			   unsigned long custom_tohost_addr)
 {
-	if (custom_addr) {
-		if (htif_custom &&
+	ଯଦି (custom_addr) {
+		ଯଦି (htif_custom &&
 		    ((custom_fromhost_addr != (unsigned long)htif_fromhost) ||
 		     (custom_tohost_addr != (unsigned long)htif_tohost)))
-			return SBI_EINVAL;
+			ଫେରନ୍ତୁ SBI_EINVAL;
 		htif_fromhost = (uint64_t *)custom_fromhost_addr;
 		htif_tohost = (uint64_t *)custom_tohost_addr;
 		htif_custom = true;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-#if __riscv_xlen == 32
-static void do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
+#ଯଦି __riscv_xlen == 32
+ସ୍ଥିର ଶୂନ୍ୟ do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
 {
 	spin_lock(&htif_lock);
 
 	__set_tohost(HTIF_DEV_SYSTEM, cmd, data);
 
-	while (1) {
+	ଯେତେବେଳେ (1) {
 		uint64_t fh = __read_fromhost();
-		if (fh) {
-			if (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
+		ଯଦି (fh) {
+			ଯଦି (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
 			    FROMHOST_CMD(fh) == cmd) {
 				__write_fromhost(0);
-				break;
+				ଭାଙ୍ଗ;
 			}
 			__check_fromhost();
 		}
@@ -153,18 +153,18 @@ static void do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
 	spin_unlock(&htif_lock);
 }
 
-static void htif_putc(char ch)
+ସ୍ଥିର ଶୂନ୍ୟ htif_putc(ଅକ୍ଷର ch)
 {
 	/* HTIF devices are not supported on RV32, so do a proxy write call */
-	volatile uint64_t magic_mem[8];
+	ଅସ୍ଥିର uint64_t magic_mem[8];
 	magic_mem[0] = PK_SYS_write;
 	magic_mem[1] = HTIF_DEV_CONSOLE;
 	magic_mem[2] = (uint64_t)(uintptr_t)&ch;
 	magic_mem[3] = HTIF_CONSOLE_CMD_PUTC;
 	do_tohost_fromhost(HTIF_DEV_SYSTEM, 0, (uint64_t)(uintptr_t)magic_mem);
 }
-#else
-static void htif_putc(char ch)
+#ଅନ୍ୟଥା
+ସ୍ଥିର ଶୂନ୍ୟ htif_putc(ଅକ୍ଷର ch)
 {
 	spin_lock(&htif_lock);
 	__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_PUTC, ch);
@@ -172,80 +172,80 @@ static void htif_putc(char ch)
 }
 #endif
 
-static int htif_getc(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା htif_getc(ଶୂନ୍ୟ)
 {
-	int ch;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ch;
 
-#if __riscv_xlen == 32
+#ଯଦି __riscv_xlen == 32
 	/* HTIF devices are not supported on RV32 */
-	return -1;
+	ଫେରନ୍ତୁ -1;
 #endif
 
 	spin_lock(&htif_lock);
 
 	__check_fromhost();
 	ch = htif_console_buf;
-	if (ch >= 0) {
+	ଯଦି (ch >= 0) {
 		htif_console_buf = -1;
 		__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_GETC, 0);
 	}
 
 	spin_unlock(&htif_lock);
 
-	return ch - 1;
+	ଫେରନ୍ତୁ ch - 1;
 }
 
-static struct sbi_console_device htif_console = {
+ସ୍ଥିର ସଂରଚନା sbi_console_device htif_console = {
 	.name = "htif",
 	.console_putc = htif_putc,
 	.console_getc = htif_getc
 };
 
-int htif_serial_init(bool custom_addr,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା htif_serial_init(bool custom_addr,
 		     unsigned long custom_fromhost_addr,
 		     unsigned long custom_tohost_addr)
 {
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
 	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
 	sbi_console_set_device(&htif_console);
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-static int htif_system_reset_check(u32 type, u32 reason)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା htif_system_reset_check(u32 type, u32 reason)
 {
-	return 1;
+	ଫେରନ୍ତୁ 1;
 }
 
-static void htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
+ସ୍ଥିର ଶୂନ୍ୟ htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
 {
-	while (1) {
+	ଯେତେବେଳେ (1) {
 		__write_fromhost(0);
 		__write_tohost(1);
 	}
 }
 
-static struct sbi_system_reset_device htif_reset = {
+ସ୍ଥିର ସଂରଚନା sbi_system_reset_device htif_reset = {
 	.name = "htif",
 	.system_reset_check = htif_system_reset_check,
 	.system_reset = htif_system_reset
 };
 
-int htif_system_reset_init(bool custom_addr,
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା htif_system_reset_init(bool custom_addr,
 			   unsigned long custom_fromhost_addr,
 			   unsigned long custom_tohost_addr)
 {
-	int rc;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
 
 	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
 	sbi_system_reset_add_device(&htif_reset);
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

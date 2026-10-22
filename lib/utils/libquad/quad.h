@@ -52,14 +52,14 @@
  * with 48-bit longs.
  */
 
-#include <sys/types.h>
-#include <limits.h>
+#ଅନ୍ତର୍ଭାଵ <sys/types.h>
+#ଅନ୍ତର୍ଭାଵ <limits.h>
 
 /*
  * Depending on the desired operation, we view a `long long' (aka quad_t) in
  * one or more of the following formats.
  */
-union uu {
+ସଂଘ uu {
 	quad_t	q;		/* as a (signed) quad */
 	quad_t	uq;		/* as an unsigned quad */
 	long	sl[2];		/* as two signed longs */
@@ -77,9 +77,9 @@ union uu {
  * These are used for shifting, and also below for halfword extraction
  * and assembly.
  */
-#define	QUAD_BITS	(sizeof(quad_t) * CHAR_BIT)
-#define	LONG_BITS	(sizeof(long) * CHAR_BIT)
-#define	HALF_BITS	(sizeof(long) * CHAR_BIT / 2)
+#define	QUAD_BITS	(ଆକାର(quad_t) * CHAR_BIT)
+#define	LONG_BITS	(ଆକାର(long) * CHAR_BIT)
+#define	HALF_BITS	(ଆକାର(long) * CHAR_BIT / 2)
 
 /*
  * Extract high and low shortwords from longword, and move low shortword of
@@ -94,12 +94,12 @@ union uu {
 #define	LHALF(x)	((x) & ((1L << HALF_BITS) - 1))
 #define	LHUP(x)		((x) << HALF_BITS)
 
-int		__cmpdi2(quad_t a, quad_t b);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା		__cmpdi2(quad_t a, quad_t b);
 quad_t		__divdi3(quad_t a, quad_t b);
 quad_t		__moddi3(quad_t a, quad_t b);
 u_quad_t	__qdivrem(u_quad_t u, u_quad_t v, u_quad_t *rem);
-int		__ucmpdi2(u_quad_t a, u_quad_t b);
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା		__ucmpdi2(u_quad_t a, u_quad_t b);
 u_quad_t	__udivdi3(u_quad_t a, u_quad_t b);
 u_quad_t	__umoddi3(u_quad_t a, u_quad_t b);
 
-typedef unsigned int	qshift_t;
+ପ୍ରକାରବ୍ୟାଖ୍ୟା unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା	qshift_t;

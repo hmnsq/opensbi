@@ -5,66 +5,66 @@
  *
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_cppc.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall_interface.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_trap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_cppc.h>
 
-static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
+				  ସଂରଚନା sbi_trap_regs *regs,
+				  ସଂରଚନା sbi_ecall_return *out)
 {
-	int ret = 0;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
 	uint64_t temp;
 
-	switch (funcid) {
-	case SBI_EXT_CPPC_READ:
+	ବାଛ (funcid) {
+	ସ୍ଥିତି SBI_EXT_CPPC_READ:
 		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp;
-		break;
-	case SBI_EXT_CPPC_READ_HI:
-#if __riscv_xlen == 32
+		out->ମୂଲ୍ୟ = temp;
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_CPPC_READ_HI:
+#ଯଦି __riscv_xlen == 32
 		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp >> 32;
-#else
-		out->value = 0;
+		out->ମୂଲ୍ୟ = temp >> 32;
+#ଅନ୍ୟଥା
+		out->ମୂଲ୍ୟ = 0;
 #endif
-		break;
-	case SBI_EXT_CPPC_WRITE:
-#if __riscv_xlen == 32
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_CPPC_WRITE:
+#ଯଦି __riscv_xlen == 32
 		temp = regs->a2;
 		temp = (temp << 32) | regs->a1;
-#else
+#ଅନ୍ୟଥା
 		temp = regs->a1;
 #endif
 		ret = sbi_cppc_write(regs->a0, temp);
-		break;
-	case SBI_EXT_CPPC_PROBE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି SBI_EXT_CPPC_PROBE:
 		ret = sbi_cppc_probe(regs->a0);
-		if (ret >= 0) {
-			out->value = ret;
+		ଯଦି (ret >= 0) {
+			out->ମୂଲ୍ୟ = ret;
 			ret = 0;
 		}
-		break;
-	default:
+		ଭାଙ୍ଗ;
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-struct sbi_ecall_extension ecall_cppc;
+ସଂରଚନା sbi_ecall_extension ecall_cppc;
 
-static int sbi_ecall_cppc_register_extensions(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_cppc_register_extensions(ଶୂନ୍ୟ)
 {
-	if (!sbi_cppc_get_device())
-		return 0;
+	ଯଦି (!sbi_cppc_get_device())
+		ଫେରନ୍ତୁ 0;
 
-	return sbi_ecall_register_extension(&ecall_cppc);
+	ଫେରନ୍ତୁ sbi_ecall_register_extension(&ecall_cppc);
 }
 
-struct sbi_ecall_extension ecall_cppc = {
+ସଂରଚନା sbi_ecall_extension ecall_cppc = {
 	.name			= "cppc",
 	.extid_start		= SBI_EXT_CPPC,
 	.extid_end		= SBI_EXT_CPPC,

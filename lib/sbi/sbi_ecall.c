@@ -7,140 +7,140 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ecall_interface.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_string.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_trap.h>
 
-extern struct sbi_ecall_extension *const sbi_ecall_exts[];
+ବାହ୍ୟ ସଂରଚନା sbi_ecall_extension *ଅଚଳ sbi_ecall_exts[];
 
-u16 sbi_ecall_version_major(void)
+u16 sbi_ecall_version_major(ଶୂନ୍ୟ)
 {
-	return SBI_ECALL_VERSION_MAJOR;
+	ଫେରନ୍ତୁ SBI_ECALL_VERSION_MAJOR;
 }
 
-u16 sbi_ecall_version_minor(void)
+u16 sbi_ecall_version_minor(ଶୂନ୍ୟ)
 {
-	return SBI_ECALL_VERSION_MINOR;
+	ଫେରନ୍ତୁ SBI_ECALL_VERSION_MINOR;
 }
 
-static unsigned long ecall_impid = SBI_OPENSBI_IMPID;
+ସ୍ଥିର unsigned long ecall_impid = SBI_OPENSBI_IMPID;
 
-unsigned long sbi_ecall_get_impid(void)
+unsigned long sbi_ecall_get_impid(ଶୂନ୍ୟ)
 {
-	return ecall_impid;
+	ଫେରନ୍ତୁ ecall_impid;
 }
 
-void sbi_ecall_set_impid(unsigned long impid)
+ଶୂନ୍ୟ sbi_ecall_set_impid(unsigned long impid)
 {
 	ecall_impid = impid;
 }
 
-static SBI_LIST_HEAD(ecall_exts_list);
+ସ୍ଥିର SBI_LIST_HEAD(ecall_exts_list);
 
-struct sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
+ସଂରଚନା sbi_ecall_extension *sbi_ecall_find_extension(unsigned long extid)
 {
-	struct sbi_ecall_extension *t, *ret = NULL;
+	ସଂରଚନା sbi_ecall_extension *t, *ret = ଖାଲି;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t->extid_start <= extid && extid <= t->extid_end) {
+		ଯଦି (t->extid_start <= extid && extid <= t->extid_end) {
 			ret = t;
-			break;
+			ଭାଙ୍ଗ;
 		}
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-void sbi_ecall_get_extensions_str(char *exts_str, int exts_str_size, bool experimental)
+ଶୂନ୍ୟ sbi_ecall_get_extensions_str(ଅକ୍ଷର *exts_str, ପୂର୍ଣ୍ଣସଂଖ୍ୟା exts_str_size, bool experimental)
 {
-	struct sbi_ecall_extension *t;
-	int offset = 0;
+	ସଂରଚନା sbi_ecall_extension *t;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା offset = 0;
 
-	if (!exts_str || exts_str_size <= 0)
-		return;
+	ଯଦି (!exts_str || exts_str_size <= 0)
+		ଫେରନ୍ତୁ;
 	sbi_memset(exts_str, 0, exts_str_size);
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (experimental != t->experimental)
-			continue;
-		if (offset + sbi_strlen(t->name) + 1 > exts_str_size)
-			break;
+		ଯଦି (experimental != t->experimental)
+			ଜାରି;
+		ଯଦି (offset + sbi_strlen(t->name) + 1 > exts_str_size)
+			ଭାଙ୍ଗ;
 		sbi_snprintf(exts_str + offset, exts_str_size - offset,
 			     "%s,", t->name);
 		offset = offset + sbi_strlen(t->name) + 1;
 	}
 
-	if (offset)
+	ଯଦି (offset)
 		exts_str[offset - 1] = '\0';
-	else
+	ଅନ୍ୟଥା
 		sbi_strncpy(exts_str, "none", exts_str_size);
 }
 
-int sbi_ecall_register_extension(struct sbi_ecall_extension *ext)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_register_extension(ସଂରଚନା sbi_ecall_extension *ext)
 {
-	struct sbi_ecall_extension *t;
+	ସଂରଚନା sbi_ecall_extension *t;
 
-	if (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
-		return SBI_EINVAL;
+	ଯଦି (!ext || (ext->extid_end < ext->extid_start) || !ext->handle)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
 		unsigned long start = t->extid_start;
 		unsigned long end = t->extid_end;
-		if (end < ext->extid_start || ext->extid_end < start)
+		ଯଦି (end < ext->extid_start || ext->extid_end < start)
 			/* no overlap */;
-		else
-			return SBI_EINVAL;
+		ଅନ୍ୟଥା
+			ଫେରନ୍ତୁ SBI_EINVAL;
 	}
 
 	sbi_list_add_tail(&ext->head, &ecall_exts_list);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-void sbi_ecall_unregister_extension(struct sbi_ecall_extension *ext)
+ଶୂନ୍ୟ sbi_ecall_unregister_extension(ସଂରଚନା sbi_ecall_extension *ext)
 {
 	bool found = false;
-	struct sbi_ecall_extension *t;
+	ସଂରଚନା sbi_ecall_extension *t;
 
-	if (!ext)
-		return;
+	ଯଦି (!ext)
+		ଫେରନ୍ତୁ;
 
 	sbi_list_for_each_entry(t, &ecall_exts_list, head) {
-		if (t == ext) {
+		ଯଦି (t == ext) {
 			found = true;
-			break;
+			ଭାଙ୍ଗ;
 		}
 	}
 
-	if (found)
+	ଯଦି (found)
 		sbi_list_del_init(&ext->head);
 }
 
-int sbi_ecall_handler(struct sbi_trap_context *tcntx)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_handler(ସଂରଚନା sbi_trap_context *tcntx)
 {
-	int ret = 0;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_ecall_extension *ext;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret = 0;
+	ସଂରଚନା sbi_trap_regs *regs = &tcntx->regs;
+	ସଂରଚନା sbi_ecall_extension *ext;
 	unsigned long extension_id = regs->a7;
 	unsigned long func_id = regs->a6;
-	struct sbi_ecall_return out = {0};
+	ସଂରଚନା sbi_ecall_return out = {0};
 	bool is_0_1_spec = 0;
 
 	ext = sbi_ecall_find_extension(extension_id);
-	if (ext && ext->handle) {
+	ଯଦି (ext && ext->handle) {
 		ret = ext->handle(extension_id, func_id, regs, &out);
-		if (extension_id >= SBI_EXT_0_1_SET_TIMER &&
+		ଯଦି (extension_id >= SBI_EXT_0_1_SET_TIMER &&
 		    extension_id <= SBI_EXT_0_1_SHUTDOWN)
 			is_0_1_spec = 1;
-	} else {
+	} ଅନ୍ୟଥା {
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (!out.skip_regs_update) {
-		if (ret < SBI_LAST_ERR ||
+	ଯଦି (!out.skip_regs_update) {
+		ଯଦି (ret < SBI_LAST_ERR ||
 		    (extension_id != SBI_EXT_0_1_CONSOLE_GETCHAR &&
 		     SBI_SUCCESS < ret)) {
 			sbi_printf("%s: Invalid error %d for ext=0x%lx "
@@ -159,28 +159,28 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		 */
 		regs->mepc += 4;
 		regs->a0 = ret;
-		if (!is_0_1_spec)
-			regs->a1 = out.value;
+		ଯଦି (!is_0_1_spec)
+			regs->a1 = out.ମୂଲ୍ୟ;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-int sbi_ecall_init(void)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_ecall_init(ଶୂନ୍ୟ)
 {
-	int ret;
-	struct sbi_ecall_extension *ext;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା ret;
+	ସଂରଚନା sbi_ecall_extension *ext;
 	unsigned long i;
 
-	for (i = 0; sbi_ecall_exts[i]; i++) {
+	ପାଇଁ (i = 0; sbi_ecall_exts[i]; i++) {
 		ext = sbi_ecall_exts[i];
 		ret = SBI_ENODEV;
 
-		if (ext->register_extensions)
+		ଯଦି (ext->register_extensions)
 			ret = ext->register_extensions();
-		if (ret)
-			return ret;
+		ଯଦି (ret)
+			ଫେରନ୍ତୁ ret;
 	}
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

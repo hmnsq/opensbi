@@ -7,9 +7,9 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_io.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
@@ -29,48 +29,48 @@
 
 /* clang-format on */
 
-static volatile char *uart_base;
+ସ୍ଥିର ଅସ୍ଥିର ଅକ୍ଷର *uart_base;
 
-static u32 get_reg(u32 num)
+ସ୍ଥିର u32 get_reg(u32 ଅଙ୍କ)
 {
-	return readl(uart_base + (num * 0x4));
+	ଫେରନ୍ତୁ readl(uart_base + (ଅଙ୍କ * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ସ୍ଥିର ଶୂନ୍ୟ set_reg(u32 ଅଙ୍କ, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (ଅଙ୍କ * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+ସ୍ଥିର ଶୂନ୍ୟ gaisler_uart_putc(ଅକ୍ଷର ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	ଯେତେବେଳେ (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
 		;
 
 	set_reg(UART_REG_DATA, ch);
 }
 
-static int gaisler_uart_getc(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା gaisler_uart_getc(ଶୂନ୍ୟ)
 {
 	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	ଯଦି (!(ret & UART_STATUS_DATAREADY))
+		ଫେରନ୍ତୁ -1;
+	ଫେରନ୍ତୁ get_reg(UART_REG_DATA) & UART_DATA_DATA;
 }
 
-static struct sbi_console_device gaisler_console = {
+ସ୍ଥିର ସଂରଚନା sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_base = (ଅସ୍ଥିର ଅକ୍ଷର *)base;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
+	ଯଦି (in_freq && baudrate)
 		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
@@ -82,5 +82,5 @@ int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&gaisler_console);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }

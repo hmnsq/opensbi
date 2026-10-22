@@ -4,101 +4,101 @@
  * Author: Marcos Oduardo <marcos.oduardo@gmail.com>
  */
 
-#include <sbi/sbi_unit_test.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ubsan.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_unit_test.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_types.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_ubsan.h>
 
 #define UBSAN_EXPECT_FIRES(test, stmt)                                    \
-	do {                                                              \
-		unsigned long _before = sbi_ubsan_report_count;           \
+	କର {                                                              \
+		unsigned long _before = sbi_ubsan_report_ଗଣନା;           \
 		stmt;                                                     \
-		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_count, _before); \
-	} while (0)
+		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_ଗଣନା, _before); \
+	} ଯେତେବେଳେ (0)
 
-static void test_ubsan_add_overflow(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_add_overflow(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF; //INT_MAx
-	volatile int b = 1;
-	volatile int c;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା a = 0x7FFFFFFF; //INT_MAx
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା b = 1;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା c;
 	UBSAN_EXPECT_FIRES(test, c = a + b);
-	(void)c;
+	(ଶୂନ୍ୟ)c;
 }
 
-static void test_ubsan_sub_overflow(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_sub_overflow(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int a = 0x80000000; //INT_MIN
-	volatile int b = 1;
-	volatile int c;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା a = 0x80000000; //INT_MIN
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା b = 1;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା c;
 	UBSAN_EXPECT_FIRES(test, c = a - b);
-	(void)c;
+	(ଶୂନ୍ୟ)c;
 }
 
-static void test_ubsan_mul_overflow(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_mul_overflow(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF;
-	volatile int b = 2;
-	volatile int c;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା a = 0x7FFFFFFF;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା b = 2;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା c;
 	UBSAN_EXPECT_FIRES(test, c = a * b);
-	(void)c;
+	(ଶୂନ୍ୟ)c;
 }
 
-static void test_ubsan_divrem(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_divrem(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int a = 10;
-	volatile int b = 0;
-	volatile int c;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା a = 10;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା b = 0;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା c;
 	UBSAN_EXPECT_FIRES(test, c = a / b);
-	(void)c;
+	(ଶୂନ୍ୟ)c;
 }
 
-static void test_ubsan_oob(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_oob(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int idx = 5;
-	int arr[3]	 = { 1, 2, 3 };
-	volatile int val;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା idx = 5;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା arr[3]	 = { 1, 2, 3 };
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା val;
 	UBSAN_EXPECT_FIRES(test, val = arr[idx]);
-	(void)val;
+	(ଶୂନ୍ୟ)val;
 }
 
-static void test_ubsan_shift_too_large(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_shift_too_large(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile unsigned long val = 1;
-	volatile int shift	   = 64;
-	volatile unsigned long res;
+	ଅସ୍ଥିର unsigned long val = 1;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା shift	   = 64;
+	ଅସ୍ଥିର unsigned long res;
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
-	(void)res;
+	(ଶୂନ୍ୟ)res;
 }
 
-static void test_ubsan_shift_negative(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_shift_negative(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile int val   = 1;
-	volatile int shift = -1;
-	volatile int res;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା val   = 1;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା shift = -1;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା res;
 
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
-	(void)res;
+	(ଶୂନ୍ୟ)res;
 }
 
-static void test_ubsan_load_invalid_bool(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_load_invalid_bool(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile char bool_val = 5;
-	volatile bool *b_ptr   = (bool *)&bool_val;
-	volatile int taken     = 0;
-	UBSAN_EXPECT_FIRES(test, if (*b_ptr) taken = 1);
-	(void)taken;
+	ଅସ୍ଥିର ଅକ୍ଷର bool_val = 5;
+	ଅସ୍ଥିର bool *b_ptr   = (bool *)&bool_val;
+	ଅସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା taken     = 0;
+	UBSAN_EXPECT_FIRES(test, ଯଦି (*b_ptr) taken = 1);
+	(ଶୂନ୍ୟ)taken;
 }
 
-static void test_ubsan_pointer_overflow(struct sbiunit_test_case *test)
+ସ୍ଥିର ଶୂନ୍ୟ test_ubsan_pointer_overflow(ସଂରଚନା sbiunit_test_case *test)
 {
-	volatile uintptr_t base = 0xFFFFFFFFFFFFFFFEUL;
-	volatile char *ptr	= (char *)base;
-	volatile char *res;
+	ଅସ୍ଥିର uintptr_t base = 0xFFFFFFFFFFFFFFFEUL;
+	ଅସ୍ଥିର ଅକ୍ଷର *ptr	= (ଅକ୍ଷର *)base;
+	ଅସ୍ଥିର ଅକ୍ଷର *res;
 	UBSAN_EXPECT_FIRES(test, res = ptr + 5);
-	(void)res;
+	(ଶୂନ୍ୟ)res;
 }
 
-static struct sbiunit_test_case ubsan_tests[] = {
+ସ୍ଥିର ସଂରଚନା sbiunit_test_case ubsan_tests[] = {
 	SBIUNIT_TEST_CASE(test_ubsan_add_overflow),
 	SBIUNIT_TEST_CASE(test_ubsan_sub_overflow),
 	SBIUNIT_TEST_CASE(test_ubsan_mul_overflow),

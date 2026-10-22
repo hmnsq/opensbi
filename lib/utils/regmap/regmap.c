@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+ସ୍ଥିର SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+ସଂରଚନା regmap *regmap_find(unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା id)
 {
-	struct sbi_dlist *pos;
+	ସଂରଚନା sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		ସଂରଚନା regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		ଯଦି (rmap->id == id)
+			ଫେରନ୍ତୁ rmap;
 	}
 
-	return NULL;
+	ଫେରନ୍ତୁ ଖାଲି;
 }
 
-int regmap_add(struct regmap *rmap)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_add(ସଂରଚନା regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	ଯଦି (!rmap)
+		ଫେରନ୍ତୁ SBI_EINVAL;
+	ଯଦି (regmap_find(rmap->id))
+		ଫେରନ୍ତୁ SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_add(&(rmap->ଗଣ୍ଠି), &(regmap_list));
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+ଶୂନ୍ୟ regmap_remove(ସଂରଚନା regmap *rmap)
 {
-	if (!rmap)
-		return;
+	ଯଦି (!rmap)
+		ଫେରନ୍ତୁ;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->ଗଣ୍ଠି));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+ସ୍ଥିର bool regmap_reg_valid(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	ଯଦି ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		ଫେରନ୍ତୁ false;
+	ଫେରନ୍ତୁ true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+ସ୍ଥିର unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_reg_addr(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	ଯଦି (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	ଅନ୍ୟଥା ଯଦି (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	ଫେରନ୍ତୁ reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_read(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	ଯଦି (!rmap || !regmap_reg_valid(rmap, reg))
+		ଫେରନ୍ତୁ SBI_EINVAL;
+	ଯଦି (!rmap->reg_read)
+		ଫେରନ୍ତୁ SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	ଫେରନ୍ତୁ rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_write(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	ଯଦି (!rmap || !regmap_reg_valid(rmap, reg))
+		ଫେରନ୍ତୁ SBI_EINVAL;
+	ଯଦି (!rmap->reg_write)
+		ଫେରନ୍ତୁ SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	ଫେରନ୍ତୁ rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_update_bits(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+		       unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା mask, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	int rc;
-	unsigned int reg_val;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc;
+	unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	ଯଦି (!rmap || !regmap_reg_valid(rmap, reg))
+		ଫେରନ୍ତୁ SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	ଯଦି (rmap->reg_update_bits) {
+		ଫେରନ୍ତୁ rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} ଅନ୍ୟଥା ଯଦି (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		ଯଦି (rc)
+			ଫେରନ୍ତୁ rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		ଫେରନ୍ତୁ rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	ଫେରନ୍ତୁ SBI_ENOSYS;
 }

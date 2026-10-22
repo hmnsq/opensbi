@@ -6,11 +6,11 @@
  * Author: Jun Liang Tan <junliang.tan@linux.starfivetech.com>
  */
 
-#include <sbi/sbi_domain.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/cadence-uart.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_domain.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_asm.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_io.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_console.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/serial/cadence-uart.h>
 
 /* clang-format off */
 
@@ -38,63 +38,63 @@
 
 /* clang-format on */
 
-static volatile void *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+ସ୍ଥିର ଅସ୍ଥିର ଶୂନ୍ୟ *uart_base;
+ସ୍ଥିର u32 uart_in_freq;
+ସ୍ଥିର u32 uart_baudrate;
 
 /*
  * Find minimum divisor divides in_freq to max_target_hz;
  * Based on SiFive UART driver (sifive-uart.c)
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+ସ୍ଥିର ଧାଡ଼ିଭିତରେ unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା uart_min_clk_ଭାଜକ(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	ଯଦି (quotient == 0)
+		ଫେରନ୍ତୁ 0;
+	ଅନ୍ୟଥା
+		ଫେରନ୍ତୁ quotient - 1;
 }
 
-static u32 get_reg(u32 offset)
+ସ୍ଥିର u32 get_reg(u32 offset)
 {
-	return readl(uart_base + offset);
+	ଫେରନ୍ତୁ readl(uart_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+ସ୍ଥିର ଶୂନ୍ୟ set_reg(u32 offset, u32 val)
 {
 	writel(val, uart_base + offset);
 }
 
-static void cadence_uart_putc(char ch)
+ସ୍ଥିର ଶୂନ୍ୟ cadence_uart_putc(ଅକ୍ଷର ch)
 {
-	while (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
+	ଯେତେବେଳେ (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
 		;
 
 	set_reg(UART_REG_RFIFO_TFIFO, ch);
 }
 
-static int cadence_uart_getc(void)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା cadence_uart_getc(ଶୂନ୍ୟ)
 {
 	u32 ret = get_reg(UART_REG_CSR);
 
-	if (!(ret & UART_CSR_REMPTY))
-		return get_reg(UART_REG_RFIFO_TFIFO);
+	ଯଦି (!(ret & UART_CSR_REMPTY))
+		ଫେରନ୍ତୁ get_reg(UART_REG_RFIFO_TFIFO);
 
-	return -1;
+	ଫେରନ୍ତୁ -1;
 }
 
-static struct sbi_console_device cadence_console = {
+ସ୍ଥିର ସଂରଚନା sbi_console_device cadence_console = {
 	.name = "cadence_uart",
 	.console_putc = cadence_uart_putc,
 	.console_getc = cadence_uart_getc
 };
 
-int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
-	uart_base     = (volatile void *)base;
+	uart_base     = (ଅସ୍ଥିର ଶୂନ୍ୟ *)base;
 	uart_in_freq  = in_freq;
 	uart_baudrate = baudrate;
 
@@ -105,10 +105,10 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 	set_reg(UART_REG_CTRL, UART_CTRL_TXDIS | UART_CTRL_RXDIS);
 
 	/* Configure baudrate */
-	if (in_freq && baudrate) {
+	ଯଦି (in_freq && baudrate) {
 		set_reg(UART_REG_BRGR, UART_BRGR_CD_CLKDIVISOR);
 		set_reg(UART_REG_BDIVR,
-			uart_min_clk_divisor(in_freq, baudrate));
+			uart_min_clk_ଭାଜକ(in_freq, baudrate));
 	}
 
 	/* Software reset TX RX data path and enable TX RX */
@@ -126,7 +126,7 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&cadence_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	ଫେରନ୍ତୁ sbi_domain_ମୂଳ_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

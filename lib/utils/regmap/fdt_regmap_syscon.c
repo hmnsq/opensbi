@@ -7,185 +7,185 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_byteorder.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_asm.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_io.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_byteorder.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_heap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_helper.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/regmap/fdt_regmap.h>
 
-enum syscon_regmap_endian {
+ଗଣନା syscon_regmap_endian {
 	SYSCON_ENDIAN_NATIVE = 0,
 	SYSCON_ENDIAN_LITTLE,
 	SYSCON_ENDIAN_BIG,
 	SYSCON_ENDIAN_MAX
 };
 
-struct syscon_regmap {
+ସଂରଚନା syscon_regmap {
 	u32 reg_io_width;
-	enum syscon_regmap_endian reg_endian;
+	ଗଣନା syscon_regmap_endian reg_endian;
 	unsigned long addr;
-	struct regmap rmap;
+	ସଂରଚନା regmap rmap;
 };
 
 #define to_syscon_regmap(__rmap)	\
-	container_of((__rmap), struct syscon_regmap, rmap)
+	container_of((__rmap), ସଂରଚନା syscon_regmap, rmap)
 
-static int regmap_syscon_read_8(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_8(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = readb((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readb((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_8(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_8(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				 unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writeb(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writeb(val, (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_16(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = readw((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readw((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_16(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				 unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writew(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writew(val, (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_32(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = readl((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readl((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_32(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				 unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writel(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(val, (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_le16(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_le16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				   unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = le16_to_cpu(readw((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = le16_to_cpu(readw((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg)));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_le16(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_le16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				    unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writew(cpu_to_le16(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writew(cpu_to_le16(val), (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_le32(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_le32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				   unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = le32_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = le32_to_cpu(readl((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg)));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_le32(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_le32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				    unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writel(cpu_to_le32(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_to_le32(val), (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_be16(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_be16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				   unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = be16_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = be16_to_cpu(readl((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg)));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_be16(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_be16(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				    unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writel(cpu_to_be16(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_to_be16(val), (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_read_be32(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_read_be32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				   unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	*val = be32_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = be32_to_cpu(readl((ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg)));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_write_be32(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_write_be32(ସଂରଚନା regmap *rmap, unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା reg,
+				    unsigned ପୂର୍ଣ୍ଣସଂଖ୍ୟା val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	ସଂରଚନା syscon_regmap *srm = to_syscon_regmap(rmap);
 
-	writel(cpu_to_be32(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_to_be32(val), (ଅସ୍ଥିର ଶୂନ୍ୟ *)(srm->addr + reg));
+	ଫେରନ୍ତୁ 0;
 }
 
-static int regmap_syscon_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା regmap_syscon_init(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff,
+			      ଅଚଳ ସଂରଚନା fdt_match *match)
 {
-	struct syscon_regmap *srm;
+	ସଂରଚନା syscon_regmap *srm;
 	uint64_t addr, size;
-	const fdt32_t *val;
-	int rc, len;
+	ଅଚଳ fdt32_t *val;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc, len;
 
-	srm = sbi_zalloc(sizeof(*srm));
-	if (!srm)
-		return SBI_ENOMEM;
+	srm = sbi_zalloc(ଆକାର(*srm));
+	ଯଦି (!srm)
+		ଫେରନ୍ତୁ SBI_ENOMEM;
 
 	val = fdt_getprop(fdt, nodeoff, "reg-io-width", &len);
 	srm->reg_io_width = val ? fdt32_to_cpu(*val) : 4;
 
-	if (fdt_getprop(fdt, nodeoff, "native-endian", &len))
+	ଯଦି (fdt_getprop(fdt, nodeoff, "native-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_NATIVE;
-	else if (fdt_getprop(fdt, nodeoff, "little-endian", &len))
+	ଅନ୍ୟଥା ଯଦି (fdt_getprop(fdt, nodeoff, "little-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_LITTLE;
-	else if (fdt_getprop(fdt, nodeoff, "big-endian", &len))
+	ଅନ୍ୟଥା ଯଦି (fdt_getprop(fdt, nodeoff, "big-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_BIG;
-	else
+	ଅନ୍ୟଥା
 		srm->reg_endian = SYSCON_ENDIAN_NATIVE;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, &size);
-	if (rc)
-		goto fail_free_syscon;
+	rc = fdt_get_ଗଣ୍ଠି_addr_size(fdt, nodeoff, 0, &addr, &size);
+	ଯଦି (rc)
+		ଯାଅ fail_free_syscon;
 	srm->addr = addr;
 
 	srm->rmap.id = nodeoff;
@@ -193,77 +193,77 @@ static int regmap_syscon_init(const void *fdt, int nodeoff,
 	srm->rmap.reg_stride = srm->reg_io_width;
 	srm->rmap.reg_base = 0;
 	srm->rmap.reg_max = size / srm->reg_io_width;
-	switch (srm->reg_io_width) {
-	case 1:
+	ବାଛ (srm->reg_io_width) {
+	ସ୍ଥିତି 1:
 		srm->rmap.reg_read = regmap_syscon_read_8;
 		srm->rmap.reg_write = regmap_syscon_write_8;
-		break;
-	case 2:
-		switch (srm->reg_endian) {
-		case SYSCON_ENDIAN_NATIVE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି 2:
+		ବାଛ (srm->reg_endian) {
+		ସ୍ଥିତି SYSCON_ENDIAN_NATIVE:
 			srm->rmap.reg_read = regmap_syscon_read_16;
 			srm->rmap.reg_write = regmap_syscon_write_16;
-			break;
-		case SYSCON_ENDIAN_LITTLE:
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି SYSCON_ENDIAN_LITTLE:
 			srm->rmap.reg_read = regmap_syscon_read_le16;
 			srm->rmap.reg_write = regmap_syscon_write_le16;
-			break;
-		case SYSCON_ENDIAN_BIG:
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି SYSCON_ENDIAN_BIG:
 			srm->rmap.reg_read = regmap_syscon_read_be16;
 			srm->rmap.reg_write = regmap_syscon_write_be16;
-			break;
-		default:
+			ଭାଙ୍ଗ;
+		ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 			rc = SBI_EINVAL;
-			goto fail_free_syscon;
+			ଯାଅ fail_free_syscon;
 		}
-		break;
-	case 4:
-		switch (srm->reg_endian) {
-		case SYSCON_ENDIAN_NATIVE:
+		ଭାଙ୍ଗ;
+	ସ୍ଥିତି 4:
+		ବାଛ (srm->reg_endian) {
+		ସ୍ଥିତି SYSCON_ENDIAN_NATIVE:
 			srm->rmap.reg_read = regmap_syscon_read_32;
 			srm->rmap.reg_write = regmap_syscon_write_32;
-			break;
-		case SYSCON_ENDIAN_LITTLE:
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି SYSCON_ENDIAN_LITTLE:
 			srm->rmap.reg_read = regmap_syscon_read_le32;
 			srm->rmap.reg_write = regmap_syscon_write_le32;
-			break;
-		case SYSCON_ENDIAN_BIG:
+			ଭାଙ୍ଗ;
+		ସ୍ଥିତି SYSCON_ENDIAN_BIG:
 			srm->rmap.reg_read = regmap_syscon_read_be32;
 			srm->rmap.reg_write = regmap_syscon_write_be32;
-			break;
-		default:
+			ଭାଙ୍ଗ;
+		ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 			rc = SBI_EINVAL;
-			goto fail_free_syscon;
+			ଯାଅ fail_free_syscon;
 		}
-		break;
-	default:
+		ଭାଙ୍ଗ;
+	ପୂର୍ବନିର୍ଦ୍ଧାରିତ:
 		rc = SBI_EINVAL;
-		goto fail_free_syscon;
+		ଯାଅ fail_free_syscon;
 	}
 
-	rc = sbi_domain_root_add_memrange(addr, size, PAGE_SIZE,
+	rc = sbi_domain_ମୂଳ_add_memrange(addr, size, PAGE_SIZE,
 				(SBI_DOMAIN_MEMREGION_MMIO |
 				 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		goto fail_free_syscon;
+	ଯଦି (rc)
+		ଯାଅ fail_free_syscon;
 
 	rc = regmap_add(&srm->rmap);
-	if (rc)
-		goto fail_free_syscon;
+	ଯଦି (rc)
+		ଯାଅ fail_free_syscon;
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 
 fail_free_syscon:
 	sbi_free(srm);
-	return rc;
+	ଫେରନ୍ତୁ rc;
 }
 
-static const struct fdt_match regmap_syscon_match[] = {
+ସ୍ଥିର ଅଚଳ ସଂରଚନା fdt_match regmap_syscon_match[] = {
 	{ .compatible = "syscon" },
 	{ },
 };
 
-const struct fdt_driver fdt_regmap_syscon = {
+ଅଚଳ ସଂରଚନା fdt_driver fdt_regmap_syscon = {
 	.match_table = regmap_syscon_match,
 	.init = regmap_syscon_init,
 };

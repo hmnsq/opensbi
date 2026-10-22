@@ -9,14 +9,14 @@
  *   Ben Dooks <ben.dooks@sifive.com>
  */
 
-#include <libfdt.h>
+#ଅନ୍ତର୍ଭାଵ <libfdt.h>
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/riscv_io.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_error.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_heap.h>
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/fdt/fdt_helper.h>
+#ଅନ୍ତର୍ଭାଵ <sbi_utils/gpio/fdt_gpio.h>
 
 #define DW_GPIO_PINS_MAX	32
 
@@ -24,25 +24,25 @@
 #define DW_GPIO_DR	0x0
 #define DW_GPIO_BIT(_b)	(1UL << (_b))
 
-struct dw_gpio_chip {
-	void *dr;
-	void *ext;
-	struct gpio_chip chip;
+ସଂରଚନା dw_gpio_chip {
+	ଶୂନ୍ୟ *dr;
+	ଶୂନ୍ୟ *ext;
+	ସଂରଚନା gpio_chip chip;
 };
 
-const struct fdt_gpio fdt_gpio_designware;
+ଅଚଳ ସଂରଚନା fdt_gpio fdt_gpio_designware;
 
-#define pin_to_chip(__p) container_of((__p)->chip, struct dw_gpio_chip, chip);
+#define pin_to_chip(__p) container_of((__p)->chip, ସଂରଚନା dw_gpio_chip, chip);
 
-static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା dw_gpio_direction_output(ସଂରଚନା gpio_pin *gp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
+	ସଂରଚନା dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	ଯଦି (!ମୂଲ୍ୟ)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	ଅନ୍ୟଥା
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 
@@ -53,18 +53,18 @@ static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
 	v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DDR);
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 }
 
-static void dw_gpio_set(struct gpio_pin *gp, int value)
+ସ୍ଥିର ଶୂନ୍ୟ dw_gpio_set(ସଂରଚନା gpio_pin *gp, ପୂର୍ଣ୍ଣସଂଖ୍ୟା ମୂଲ୍ୟ)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
+	ସଂରଚନା dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	ଯଦି (!ମୂଲ୍ୟ)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	ଅନ୍ୟଥା
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 }
@@ -75,64 +75,64 @@ static void dw_gpio_set(struct gpio_pin *gp, int value)
  * bank A is the only one with irq support but we're not using it here
 */
 
-static int dw_gpio_init_bank(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ସ୍ଥିର ପୂର୍ଣ୍ଣସଂଖ୍ୟା dw_gpio_init_bank(ଅଚଳ ଶୂନ୍ୟ *fdt, ପୂର୍ଣ୍ଣସଂଖ୍ୟା nodeoff,
+			     ଅଚଳ ସଂରଚନା fdt_match *match)
 {
-	struct dw_gpio_chip *chip;
-	const fdt32_t *val;
+	ସଂରଚନା dw_gpio_chip *chip;
+	ଅଚଳ fdt32_t *val;
 	uint64_t addr;
-	int rc, poff, nr_pins, bank, len;
+	ପୂର୍ଣ୍ଣସଂଖ୍ୟା rc, poff, nr_pins, bank, len;
 
 	/* need to get parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	ଯଦି (poff < 0)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	rc = fdt_get_ଗଣ୍ଠି_addr_size(fdt, poff, 0, &addr, ଖାଲି);
+	ଯଦି (rc)
+		ଫେରନ୍ତୁ rc;
 
 	val = fdt_getprop(fdt, nodeoff, "reg", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	ଯଦି (!val || len <= 0)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 	bank = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "snps,nr-gpios", &len);
-	if (!val)
+	ଯଦି (!val)
 		val = fdt_getprop(fdt, nodeoff, "ngpios", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	ଯଦି (!val || len <= 0)
+		ଫେରନ୍ତୁ SBI_EINVAL;
 	nr_pins = fdt32_to_cpu(*val);
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(ଆକାର(*chip));
+	ଯଦି (!chip)
+		ଫେରନ୍ତୁ SBI_ENOMEM;
 
-	chip->dr = (void *)(uintptr_t)addr + (bank * 0xc);
-	chip->ext = (void *)(uintptr_t)addr + (bank * 4) + 0x50;
+	chip->dr = (ଶୂନ୍ୟ *)(uintptr_t)addr + (bank * 0xc);
+	chip->ext = (ଶୂନ୍ୟ *)(uintptr_t)addr + (bank * 4) + 0x50;
 	chip->chip.driver = &fdt_gpio_designware;
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = nr_pins;
 	chip->chip.set = dw_gpio_set;
 	chip->chip.direction_output = dw_gpio_direction_output;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc)
-		goto err_free_chip;
+	ଯଦି (rc)
+		ଯାଅ err_free_chip;
 
-	return 0;
+	ଫେରନ୍ତୁ 0;
 
 err_free_chip:
 	sbi_free(chip);
-	return rc;
+	ଫେରନ୍ତୁ rc;
 }
 
 /* since we're only probed when used, match on port not main controller node */
-static const struct fdt_match dw_gpio_match[] = {
+ସ୍ଥିର ଅଚଳ ସଂରଚନା fdt_match dw_gpio_match[] = {
 	{ .compatible = "snps,dw-apb-gpio-port" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_designware = {
+ଅଚଳ ସଂରଚନା fdt_gpio fdt_gpio_designware = {
 	.driver = {
 		.match_table = dw_gpio_match,
 		.init = dw_gpio_init_bank,

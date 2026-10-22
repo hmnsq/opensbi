@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#ଅନ୍ତର୍ଭାଵ <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_strcmp(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	ପାଇଁ (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	ଫେରନ୍ତୁ *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_strncmp(ଅଚଳ ଅକ୍ଷର *a, ଅଚଳ ଅକ୍ଷର *b, size_t ଗଣନା_2)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	ପାଇଁ (; ଗଣନା_2 > 0 && *a == *b && *a != '\0'; a++, b++, ଗଣନା_2--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	ଯଦି (!ଗଣନା_2)
+		ଫେରନ୍ତୁ 0;
 
-	return *a - *b;
+	ଫେରନ୍ତୁ *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ଅଚଳ ଅକ୍ଷର *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	ଯେତେବେଳେ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ଅଚଳ ଅକ୍ଷର *str, size_t ଗଣନା_2)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	ଯେତେବେଳେ (*str != '\0' && ret < ଗଣନା_2) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+ଅକ୍ଷର *sbi_strcpy(ଅକ୍ଷର *dest, ଅଚଳ ଅକ୍ଷର *src)
 {
-	char *ret = dest;
+	ଅକ୍ଷର *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	ଯେତେବେଳେ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	ଫେରନ୍ତୁ ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+ଅକ୍ଷର *sbi_strncpy(ଅକ୍ଷର *dest, ଅଚଳ ଅକ୍ଷର *src, size_t ଗଣନା_2)
 {
-	char *tmp = dest;
+	ଅକ୍ଷର *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	ଯେତେବେଳେ (ଗଣନା_2) {
+		ଯଦି ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		ଗଣନା_2--;
 	}
-	return dest;
+	ଫେରନ୍ତୁ dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+ଅକ୍ଷର *sbi_strchr(ଅଚଳ ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	କର {
+		ଯଦି (*s == (ଅକ୍ଷର)c)
+			ଫେରନ୍ତୁ (ଅକ୍ଷର *)s;
+	} ଯେତେବେଳେ (*s++ != '\0');
 
-	return NULL;
+	ଫେରନ୍ତୁ ଖାଲି;
 }
 
-char *sbi_strrchr(const char *s, int c)
+ଅକ୍ଷର *sbi_strrchr(ଅଚଳ ଅକ୍ଷର *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା c)
 {
-	const char *last = s + sbi_strlen(s);
+	ଅଚଳ ଅକ୍ଷର *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	ଯେତେବେଳେ (last > s && *last != (ଅକ୍ଷର)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	ଯଦି (*last != (ଅକ୍ଷର)c)
+		ଫେରନ୍ତୁ ଖାଲି;
+	ଅନ୍ୟଥା
+		ଫେରନ୍ତୁ (ଅକ୍ଷର *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+ଶୂନ୍ୟ *sbi_memset(ଶୂନ୍ୟ *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା c, size_t ଗଣନା_2)
 {
-	char *temp = s;
+	ଅକ୍ଷର *temp = s;
 
-	while (count > 0) {
-		count--;
+	ଯେତେବେଳେ (ଗଣନା_2 > 0) {
+		ଗଣନା_2--;
 		*temp++ = c;
 	}
 
-	return s;
+	ଫେରନ୍ତୁ s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+ଶୂନ୍ୟ *sbi_memcpy(ଶୂନ୍ୟ *dest, ଅଚଳ ଶୂନ୍ୟ *src, size_t ଗଣନା_2)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	ଅକ୍ଷର *temp1	  = dest;
+	ଅଚଳ ଅକ୍ଷର *temp2 = src;
 
-	while (count > 0) {
+	ଯେତେବେଳେ (ଗଣନା_2 > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		ଗଣନା_2--;
 	}
 
-	return dest;
+	ଫେରନ୍ତୁ dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+ଶୂନ୍ୟ *sbi_memmove(ଶୂନ୍ୟ *dest, ଅଚଳ ଶୂନ୍ୟ *src, size_t ଗଣନା_2)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	ଅକ୍ଷର *temp1	  = (ଅକ୍ଷର *)dest;
+	ଅଚଳ ଅକ୍ଷର *temp2 = (ଅକ୍ଷର *)src;
 
-	if (src == dest)
-		return dest;
+	ଯଦି (src == dest)
+		ଫେରନ୍ତୁ dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	ଯଦି (dest < src) {
+		ଯେତେବେଳେ (ଗଣନା_2 > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			ଗଣନା_2--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} ଅନ୍ୟଥା {
+		temp1 = (ଅକ୍ଷର *)dest + ଗଣନା_2 - 1;
+		temp2 = (ଅକ୍ଷର *)src + ଗଣନା_2 - 1;
 
-		while (count > 0) {
+		ଯେତେବେଳେ (ଗଣନା_2 > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			ଗଣନା_2--;
 		}
 	}
 
-	return dest;
+	ଫେରନ୍ତୁ dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+ପୂର୍ଣ୍ଣସଂଖ୍ୟା sbi_memcmp(ଅଚଳ ଶୂନ୍ୟ *s1, ଅଚଳ ଶୂନ୍ୟ *s2, size_t ଗଣନା_2)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ଅଚଳ ଅକ୍ଷର *temp1 = s1;
+	ଅଚଳ ଅକ୍ଷର *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	ପାଇଁ (; ଗଣନା_2 > 0 && (*temp1 == *temp2); ଗଣନା_2--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	ଯଦି (ଗଣନା_2 > 0)
+		ଫେରନ୍ତୁ *(unsigned ଅକ୍ଷର *)temp1 - *(unsigned ଅକ୍ଷର *)temp2;
+	ଅନ୍ୟଥା
+		ଫେରନ୍ତୁ 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+ଶୂନ୍ୟ *sbi_memchr(ଅଚଳ ଶୂନ୍ୟ *s, ପୂର୍ଣ୍ଣସଂଖ୍ୟା c, size_t ଗଣନା_2)
 {
-	const unsigned char *temp = s;
+	ଅଚଳ unsigned ଅକ୍ଷର *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	ଯେତେବେଳେ (ଗଣନା_2 > 0) {
+		ଯଦି ((unsigned ଅକ୍ଷର)c == *temp++) {
+			ଫେରନ୍ତୁ (ଶୂନ୍ୟ *)(temp - 1);
 		}
-		count--;
+		ଗଣନା_2--;
 	}
 
-	return NULL;
+	ଫେରନ୍ତୁ ଖାଲି;
 }
