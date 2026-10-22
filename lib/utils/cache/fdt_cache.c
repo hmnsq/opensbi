@@ -4,86 +4,86 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#अन्तर्भाव <libfdt.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi_utils/cache/fdt_cache.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_driver.h>
 
 /* List of FDT cache drivers generated at compile time */
-extern const struct fdt_driver *const fdt_cache_drivers[];
+बाह्य ध्रुव संरचना fdt_driver *ध्रुव fdt_cache_drivers[];
 
-int fdt_cache_add(const void *fdt, int noff, struct cache_device *dev)
+पूर्णाङ्क fdt_cache_add(ध्रुव शून्य *fdt, पूर्णाङ्क noff, संरचना cache_device *dev)
 {
-	int rc;
+	पूर्णाङ्क rc;
 
 	dev->id = noff;
-	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, NULL), sizeof(dev->name) - 1);
+	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, रिक्त), परिमाण(dev->name) - 1);
 	sbi_dprintf("%s: %s\n", __func__, dev->name);
 
 	rc = fdt_next_cache_get(fdt, noff, &dev->next);
-	if (rc == SBI_ENOENT)
-		dev->next = NULL;
-	else if (rc)
-		return rc;
+	यदि (rc == SBI_ENOENT)
+		dev->next = रिक्त;
+	अन्यथा यदि (rc)
+		प्रत्यागम rc;
 
-	return cache_add(dev);
+	प्रत्यागम cache_add(dev);
 }
 
-static int fdt_cache_add_generic(const void *fdt, int noff)
+स्थिर पूर्णाङ्क fdt_cache_add_generic(ध्रुव शून्य *fdt, पूर्णाङ्क noff)
 {
-	struct cache_device *dev;
-	int rc;
+	संरचना cache_device *dev;
+	पूर्णाङ्क rc;
 
-	dev = sbi_zalloc(sizeof(*dev));
-	if (!dev)
-		return SBI_ENOMEM;
+	dev = sbi_zalloc(परिमाण(*dev));
+	यदि (!dev)
+		प्रत्यागम SBI_ENOMEM;
 
 	rc = fdt_cache_add(fdt, noff, dev);
-	if (rc) {
+	यदि (rc) {
 		sbi_free(dev);
-		return rc;
+		प्रत्यागम rc;
 	}
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-static int fdt_cache_find(const void *fdt, int noff, struct cache_device **out_dev)
+स्थिर पूर्णाङ्क fdt_cache_find(ध्रुव शून्य *fdt, पूर्णाङ्क noff, संरचना cache_device **out_dev)
 {
-	struct cache_device *dev = cache_find(noff);
-	int rc;
+	संरचना cache_device *dev = cache_find(noff);
+	पूर्णाङ्क rc;
 
-	if (!dev) {
+	यदि (!dev) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_cache_drivers);
-		if (rc == SBI_ENODEV)
+		यदि (rc == SBI_ENODEV)
 			rc = fdt_cache_add_generic(fdt, noff);
-		if (rc)
-			return rc;
+		यदि (rc)
+			प्रत्यागम rc;
 
 		dev = cache_find(noff);
-		if (!dev)
-			return SBI_EFAIL;
+		यदि (!dev)
+			प्रत्यागम SBI_EFAIL;
 	}
 
-	if (out_dev)
+	यदि (out_dev)
 		*out_dev = dev;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-int fdt_next_cache_get(const void *fdt, int noff, struct cache_device **out_dev)
+पूर्णाङ्क fdt_next_cache_get(ध्रुव शून्य *fdt, पूर्णाङ्क noff, संरचना cache_device **out_dev)
 {
-	const fdt32_t *val;
-	int len;
+	ध्रुव fdt32_t *val;
+	पूर्णाङ्क len;
 
 	val = fdt_getprop(fdt, noff, "next-level-cache", &len);
-	if (!val || len < sizeof(*val))
-		return SBI_ENOENT;
+	यदि (!val || len < परिमाण(*val))
+		प्रत्यागम SBI_ENOENT;
 
-	noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
-	if (noff < 0)
-		return noff;
+	noff = fdt_गाठ_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
+	यदि (noff < 0)
+		प्रत्यागम noff;
 
-	return fdt_cache_find(fdt, noff, out_dev);
+	प्रत्यागम fdt_cache_find(fdt, noff, out_dev);
 }

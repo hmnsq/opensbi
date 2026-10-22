@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+पूर्णाङ्क sbi_strcmp(ध्रुव वर्ण *a, ध्रुव वर्ण *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	प्रति (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	प्रत्यागम *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+पूर्णाङ्क sbi_strncmp(ध्रुव वर्ण *a, ध्रुव वर्ण *b, size_t मोजणी)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	प्रति (; मोजणी > 0 && *a == *b && *a != '\0'; a++, b++, मोजणी--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	यदि (!मोजणी)
+		प्रत्यागम 0;
 
-	return *a - *b;
+	प्रत्यागम *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ध्रुव वर्ण *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	यावत् (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ध्रुव वर्ण *str, size_t मोजणी)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	यावत् (*str != '\0' && ret < मोजणी) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+वर्ण *sbi_strcpy(वर्ण *dest, ध्रुव वर्ण *src)
 {
-	char *ret = dest;
+	वर्ण *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	यावत् ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	प्रत्यागम ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+वर्ण *sbi_strncpy(वर्ण *dest, ध्रुव वर्ण *src, size_t मोजणी)
 {
-	char *tmp = dest;
+	वर्ण *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	यावत् (मोजणी) {
+		यदि ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		मोजणी--;
 	}
-	return dest;
+	प्रत्यागम dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+वर्ण *sbi_strchr(ध्रुव वर्ण *s, पूर्णाङ्क c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	कुरु {
+		यदि (*s == (वर्ण)c)
+			प्रत्यागम (वर्ण *)s;
+	} यावत् (*s++ != '\0');
 
-	return NULL;
+	प्रत्यागम रिक्त;
 }
 
-char *sbi_strrchr(const char *s, int c)
+वर्ण *sbi_strrchr(ध्रुव वर्ण *s, पूर्णाङ्क c)
 {
-	const char *last = s + sbi_strlen(s);
+	ध्रुव वर्ण *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	यावत् (last > s && *last != (वर्ण)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	यदि (*last != (वर्ण)c)
+		प्रत्यागम रिक्त;
+	अन्यथा
+		प्रत्यागम (वर्ण *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+शून्य *sbi_memset(शून्य *s, पूर्णाङ्क c, size_t मोजणी)
 {
-	char *temp = s;
+	वर्ण *temp = s;
 
-	while (count > 0) {
-		count--;
+	यावत् (मोजणी > 0) {
+		मोजणी--;
 		*temp++ = c;
 	}
 
-	return s;
+	प्रत्यागम s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+शून्य *sbi_memcpy(शून्य *dest, ध्रुव शून्य *src, size_t मोजणी)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	वर्ण *temp1	  = dest;
+	ध्रुव वर्ण *temp2 = src;
 
-	while (count > 0) {
+	यावत् (मोजणी > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		मोजणी--;
 	}
 
-	return dest;
+	प्रत्यागम dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+शून्य *sbi_memmove(शून्य *dest, ध्रुव शून्य *src, size_t मोजणी)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	वर्ण *temp1	  = (वर्ण *)dest;
+	ध्रुव वर्ण *temp2 = (वर्ण *)src;
 
-	if (src == dest)
-		return dest;
+	यदि (src == dest)
+		प्रत्यागम dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	यदि (dest < src) {
+		यावत् (मोजणी > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			मोजणी--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} अन्यथा {
+		temp1 = (वर्ण *)dest + मोजणी - 1;
+		temp2 = (वर्ण *)src + मोजणी - 1;
 
-		while (count > 0) {
+		यावत् (मोजणी > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			मोजणी--;
 		}
 	}
 
-	return dest;
+	प्रत्यागम dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+पूर्णाङ्क sbi_memcmp(ध्रुव शून्य *s1, ध्रुव शून्य *s2, size_t मोजणी)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ध्रुव वर्ण *temp1 = s1;
+	ध्रुव वर्ण *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	प्रति (; मोजणी > 0 && (*temp1 == *temp2); मोजणी--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	यदि (मोजणी > 0)
+		प्रत्यागम *(unsigned वर्ण *)temp1 - *(unsigned वर्ण *)temp2;
+	अन्यथा
+		प्रत्यागम 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+शून्य *sbi_memchr(ध्रुव शून्य *s, पूर्णाङ्क c, size_t मोजणी)
 {
-	const unsigned char *temp = s;
+	ध्रुव unsigned वर्ण *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	यावत् (मोजणी > 0) {
+		यदि ((unsigned वर्ण)c == *temp++) {
+			प्रत्यागम (शून्य *)(temp - 1);
 		}
-		count--;
+		मोजणी--;
 	}
 
-	return NULL;
+	प्रत्यागम रिक्त;
 }

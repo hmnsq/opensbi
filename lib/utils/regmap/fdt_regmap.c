@@ -7,65 +7,65 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#अन्तर्भाव <libfdt.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/regmap/fdt_regmap.h>
 
 /* List of FDT regmap drivers generated at compile time */
-extern const struct fdt_driver *const fdt_regmap_drivers[];
+बाह्य ध्रुव संरचना fdt_driver *ध्रुव fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
-			   struct regmap **out_rmap)
+स्थिर पूर्णाङ्क fdt_regmap_find(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+			   संरचना regmap **out_rmap)
 {
-	int rc;
-	struct regmap *rmap = regmap_find(nodeoff);
+	पूर्णाङ्क rc;
+	संरचना regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	यदि (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		यदि (rc)
+			प्रत्यागम rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		यदि (!rmap)
+			प्रत्यागम SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	यदि (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
-			      struct regmap **out_rmap)
+पूर्णाङ्क fdt_regmap_get_by_phandle(ध्रुव शून्य *fdt, u32 phandle,
+			      संरचना regmap **out_rmap)
 {
-	int pnodeoff;
+	पूर्णाङ्क pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	यदि (!fdt || !out_rmap)
+		प्रत्यागम SBI_EINVAL;
 
-	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	pnodeoff = fdt_गाठ_offset_by_phandle(fdt, phandle);
+	यदि (pnodeoff < 0)
+		प्रत्यागम pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	प्रत्यागम fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+पूर्णाङ्क fdt_regmap_get(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff, संरचना regmap **out_rmap)
 {
-	int len;
-	const fdt32_t *val;
+	पूर्णाङ्क len;
+	ध्रुव fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	यदि (!fdt || (nodeoff < 0) || !out_rmap)
+		प्रत्यागम SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	यदि (!val)
+		प्रत्यागम SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	प्रत्यागम fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }
