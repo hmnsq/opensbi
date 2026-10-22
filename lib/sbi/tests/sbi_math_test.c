@@ -5,14 +5,14 @@
  *
  * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
  */
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_unit_test.h>
+#अन्तर्भाव <sbi/sbi_math.h>
+#अन्तर्भाव <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+स्थिर शून्य log2roundup_test(संरचना sbiunit_test_case *test)
 {
-    struct {
-        unsigned long input;
-        unsigned long expected;
+    संरचना {
+        अचिन्हित दीर्घ आगत;
+        अचिन्हित दीर्घ expected;
     } cases[] = {
         {1, 0},
         {2, 1},
@@ -32,13 +32,13 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
+    लागि (पूर्णाङ्क i = 0; i < परिमाण(cases)/परिमाण(cases[0]); i++) {
+        अचिन्हित दीर्घ result = log2roundup(cases[i].आगत);
         SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+स्थिर संरचना sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
     SBIUNIT_END_CASE,
 };

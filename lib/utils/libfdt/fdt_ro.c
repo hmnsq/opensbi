@@ -3,661 +3,661 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#अन्तर्भाव "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#अन्तर्भाव <fdt.h>
+#अन्तर्भाव <libfdt.h>
 
-#include "libfdt_internal.h"
+#अन्तर्भाव "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+स्थिर पूर्णाङ्क fdt_nodename_eq_(अचर शून्य *fdt, पूर्णाङ्क offset,
+			    अचर वर्ण *s, पूर्णाङ्क len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	पूर्णाङ्क olen;
+	अचर वर्ण *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	यदि (!p || olen < len)
 		/* short match */
-		return 0;
+		फर्काऊ 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	यदि (स_भेद(p, s, len) != 0)
+		फर्काऊ 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	यदि (p[len] == '\0')
+		फर्काऊ 1;
+	अन्यथा यदि (!स_प्रथम(s, '@', len) && (p[len] == '@'))
+		फर्काऊ 1;
+	अन्यथा
+		फर्काऊ 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+अचर वर्ण *fdt_get_string(अचर शून्य *fdt, पूर्णाङ्क stroffset, पूर्णाङ्क *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
-	size_t len;
-	int err;
-	const char *s, *n;
+	माप_प्रकार len;
+	पूर्णाङ्क err;
+	अचर वर्ण *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	यदि (can_assume(VALID_आगत)) {
+		s = (अचर वर्ण *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
-			*lenp = strlen(s);
-		return s;
+		यदि (lenp)
+			*lenp = म_माप(s);
+		फर्काऊ s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
-		goto fail;
+	यदि (totalsize < 0)
+		गच्छ fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
-		goto fail;
+	यदि (absoffset >= (अचिन्हित)totalsize)
+		गच्छ fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
-			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
-				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+	यदि (fdt_magic(fdt) == FDT_MAGIC) {
+		यदि (stroffset < 0)
+			गच्छ fail;
+		यदि (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			यदि ((अचिन्हित)stroffset >= fdt_size_dt_strings(fdt))
+				गच्छ fail;
+			यदि ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} अन्यथा यदि (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		अचिन्हित पूर्णाङ्क sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		यदि ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
-			goto fail;
-		if (sw_stroffset < len)
+			गच्छ fail;
+		यदि (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} अन्यथा {
 		err = -FDT_ERR_INTERNAL;
-		goto fail;
+		गच्छ fail;
 	}
 
-	s = (const char *)fdt + absoffset;
-	n = memchr(s, '\0', len);
-	if (!n) {
+	s = (अचर वर्ण *)fdt + absoffset;
+	n = स_प्रथम(s, '\0', len);
+	यदि (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
-		goto fail;
+		गच्छ fail;
 	}
 
-	if (lenp)
+	यदि (lenp)
 		*lenp = n - s;
-	return s;
+	फर्काऊ s;
 
 fail:
-	if (lenp)
+	यदि (lenp)
 		*lenp = err;
-	return NULL;
+	फर्काऊ रिक्त;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+अचर वर्ण *fdt_string(अचर शून्य *fdt, पूर्णाङ्क stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	फर्काऊ fdt_get_string(fdt, stroffset, रिक्त);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+स्थिर पूर्णाङ्क fdt_string_eq_(अचर शून्य *fdt, पूर्णाङ्क stroffset,
+			  अचर वर्ण *s, पूर्णाङ्क len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	पूर्णाङ्क slen;
+	अचर वर्ण *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	फर्काऊ p && (slen == len) && (स_भेद(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+पूर्णाङ्क fdt_find_max_phandle(अचर शून्य *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	पूर्णाङ्क offset = -1;
 
-	while (true) {
-		uint32_t value;
+	जबसम्म (true) {
+		uint32_t मान;
 
-		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		offset = fdt_next_गाँठो(fdt, offset, रिक्त);
+		यदि (offset < 0) {
+			यदि (offset == -FDT_ERR_NOTFOUND)
+				रोक;
 
-			return offset;
+			फर्काऊ offset;
 		}
 
-		value = fdt_get_phandle(fdt, offset);
+		मान = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
-			max = value;
+		यदि (मान > max)
+			max = मान;
 	}
 
-	if (phandle)
+	यदि (phandle)
 		*phandle = max;
 
-	return 0;
+	फर्काऊ 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+पूर्णाङ्क fdt_generate_phandle(अचर शून्य *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	पूर्णाङ्क err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	यदि (err < 0)
+		फर्काऊ err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	यदि (max == FDT_MAX_PHANDLE)
+		फर्काऊ -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	यदि (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	फर्काऊ 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+स्थिर अचर संरचना fdt_reserve_entry *fdt_mem_rsv(अचर शून्य *fdt, पूर्णाङ्क n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	अचिन्हित पूर्णाङ्क offset = n * परिमाण(संरचना fdt_reserve_entry);
+	अचिन्हित पूर्णाङ्क absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	यदि (!can_assume(VALID_आगत)) {
+		यदि (absoffset < fdt_off_mem_rsvmap(fdt))
+			फर्काऊ रिक्त;
+		यदि (absoffset > fdt_totalsize(fdt) -
+		    परिमाण(संरचना fdt_reserve_entry))
+			फर्काऊ रिक्त;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	फर्काऊ fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+पूर्णाङ्क fdt_get_mem_rsv(अचर शून्य *fdt, पूर्णाङ्क n, uint64_t *address, uint64_t *size)
 {
-	const struct fdt_reserve_entry *re;
+	अचर संरचना fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	यदि (!can_assume(VALID_आगत) && !re)
+		फर्काऊ -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	फर्काऊ 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+पूर्णाङ्क fdt_अङ्क_mem_rsv(अचर शून्य *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	पूर्णाङ्क i;
+	अचर संरचना fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	लागि (i = 0; (re = fdt_mem_rsv(fdt, i)) != रिक्त; i++) {
+		यदि (fdt64_ld_(&re->size) == 0)
+			फर्काऊ i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	फर्काऊ -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+स्थिर पूर्णाङ्क nextprop_(अचर शून्य *fdt, पूर्णाङ्क offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	पूर्णाङ्क nextoffset;
 
-	do {
+	गर {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		विकल्प (tag) {
+		पक्ष FDT_END:
+			यदि (nextoffset >= 0)
+				फर्काऊ -FDT_ERR_BADSTRUCTURE;
+			अन्यथा
+				फर्काऊ nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		पक्ष FDT_PROP:
+			फर्काऊ offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} जबसम्म (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	फर्काऊ -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+पूर्णाङ्क fdt_subnode_offset_namelen(अचर शून्य *fdt, पूर्णाङ्क offset,
+			       अचर वर्ण *name, पूर्णाङ्क namelen)
 {
-	int depth;
+	पूर्णाङ्क depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	लागि (depth = 0;
 	     (offset >= 0) && (depth >= 0);
-	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+	     offset = fdt_next_गाँठो(fdt, offset, &depth))
+		यदि ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			फर्काऊ offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	यदि (depth < 0)
+		फर्काऊ -FDT_ERR_NOTFOUND;
+	फर्काऊ offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+पूर्णाङ्क fdt_subnode_offset(अचर शून्य *fdt, पूर्णाङ्क parentoffset,
+		       अचर वर्ण *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	फर्काऊ fdt_subnode_offset_namelen(fdt, parentoffset, name, म_माप(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+पूर्णाङ्क fdt_path_offset_namelen(अचर शून्य *fdt, अचर वर्ण *path, पूर्णाङ्क namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	अचर वर्ण *end = path + namelen;
+	अचर वर्ण *p = path;
+	पूर्णाङ्क offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	यदि (*path != '/') {
+		अचर वर्ण *q = स_प्रथम(path, '/', end - p);
 
-		if (!q)
+		यदि (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		यदि (!p)
+			फर्काऊ -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	जबसम्म (p < end) {
+		अचर वर्ण *q;
 
-		while (*p == '/') {
+		जबसम्म (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			यदि (p == end)
+				फर्काऊ offset;
 		}
-		q = memchr(p, '/', end - p);
-		if (! q)
+		q = स_प्रथम(p, '/', end - p);
+		यदि (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		यदि (offset < 0)
+			फर्काऊ offset;
 
 		p = q;
 	}
 
-	return offset;
+	फर्काऊ offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+पूर्णाङ्क fdt_path_offset(अचर शून्य *fdt, अचर वर्ण *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	फर्काऊ fdt_path_offset_namelen(fdt, path, म_माप(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+अचर वर्ण *fdt_get_name(अचर शून्य *fdt, पूर्णाङ्क nodeoffset, पूर्णाङ्क *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	अचर संरचना fdt_गाँठो_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	अचर वर्ण *nameptr;
+	पूर्णाङ्क err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
-	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
-			goto fail;
+	यदि (((err = fdt_ro_probe_(fdt)) < 0)
+	    || ((err = fdt_check_गाँठो_offset(fdt, nodeoffset)) < 0))
+			गच्छ fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	यदि (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
-		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		अचर वर्ण *leaf;
+		leaf = म_खोजप(nameptr, '/');
+		यदि (leaf == रिक्त) {
 			err = -FDT_ERR_BADSTRUCTURE;
-			goto fail;
+			गच्छ fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
-		*len = strlen(nameptr);
+	यदि (len)
+		*len = म_माप(nameptr);
 
-	return nameptr;
+	फर्काऊ nameptr;
 
  fail:
-	if (len)
+	यदि (len)
 		*len = err;
-	return NULL;
+	फर्काऊ रिक्त;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+पूर्णाङ्क fdt_first_property_offset(अचर शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	int offset;
+	पूर्णाङ्क offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	यदि ((offset = fdt_check_गाँठो_offset(fdt, nodeoffset)) < 0)
+		फर्काऊ offset;
 
-	return nextprop_(fdt, offset);
+	फर्काऊ nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+पूर्णाङ्क fdt_next_property_offset(अचर शून्य *fdt, पूर्णाङ्क offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	यदि ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		फर्काऊ offset;
 
-	return nextprop_(fdt, offset);
+	फर्काऊ nextprop_(fdt, offset);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+स्थिर अचर संरचना fdt_property *fdt_get_property_by_offset_(अचर शून्य *fdt,
+						              पूर्णाङ्क offset,
+						              पूर्णाङ्क *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	पूर्णाङ्क err;
+	अचर संरचना fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	यदि (!can_assume(VALID_आगत) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		यदि (lenp)
 			*lenp = err;
-		return NULL;
+		फर्काऊ रिक्त;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	यदि (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	फर्काऊ prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+अचर संरचना fdt_property *fdt_get_property_by_offset(अचर शून्य *fdt,
+						      पूर्णाङ्क offset,
+						      पूर्णाङ्क *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	यदि (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		यदि (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		फर्काऊ रिक्त;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	फर्काऊ fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+स्थिर अचर संरचना fdt_property *fdt_get_property_namelen_(अचर शून्य *fdt,
+						            पूर्णाङ्क offset,
+						            अचर वर्ण *name,
+						            पूर्णाङ्क namelen,
+							    पूर्णाङ्क *lenp,
+							    पूर्णाङ्क *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	लागि (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+		अचर संरचना fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		यदि (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
-			break;
+			रोक;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		यदि (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			यदि (poffset)
 				*poffset = offset;
-			return prop;
+			फर्काऊ prop;
 		}
 	}
 
-	if (lenp)
+	यदि (lenp)
 		*lenp = offset;
-	return NULL;
+	फर्काऊ रिक्त;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+अचर संरचना fdt_property *fdt_get_property_namelen(अचर शून्य *fdt,
+						    पूर्णाङ्क offset,
+						    अचर वर्ण *name,
+						    पूर्णाङ्क namelen, पूर्णाङ्क *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	यदि (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		यदि (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		फर्काऊ रिक्त;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
-					 NULL);
+	फर्काऊ fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+					 रिक्त);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+अचर संरचना fdt_property *fdt_get_property(अचर शून्य *fdt,
+					    पूर्णाङ्क nodeoffset,
+					    अचर वर्ण *name, पूर्णाङ्क *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
-					strlen(name), lenp);
+	फर्काऊ fdt_get_property_namelen(fdt, nodeoffset, name,
+					म_माप(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+अचर शून्य *fdt_getprop_namelen(अचर शून्य *fdt, पूर्णाङ्क nodeoffset,
+				अचर वर्ण *name, पूर्णाङ्क namelen, पूर्णाङ्क *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	पूर्णाङ्क poffset;
+	अचर संरचना fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	यदि (!prop)
+		फर्काऊ रिक्त;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	यदि (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (poffset + परिमाण(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		फर्काऊ prop->data + 4;
+	फर्काऊ prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+अचर शून्य *fdt_getprop_by_offset(अचर शून्य *fdt, पूर्णाङ्क offset,
+				  अचर वर्ण **namep, पूर्णाङ्क *lenp)
 {
-	const struct fdt_property *prop;
+	अचर संरचना fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	यदि (!prop)
+		फर्काऊ रिक्त;
+	यदि (namep) {
+		अचर वर्ण *name;
+		पूर्णाङ्क namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		यदि (!can_assume(VALID_आगत)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			यदि (!name) {
+				यदि (lenp)
 					*lenp = namelen;
-				return NULL;
+				फर्काऊ रिक्त;
 			}
 			*namep = name;
-		} else {
+		} अन्यथा {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	यदि (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (offset + परिमाण(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		फर्काऊ prop->data + 4;
+	फर्काऊ prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+अचर शून्य *fdt_getprop(अचर शून्य *fdt, पूर्णाङ्क nodeoffset,
+			अचर वर्ण *name, पूर्णाङ्क *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	फर्काऊ fdt_getprop_namelen(fdt, nodeoffset, name, म_माप(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(अचर शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	const fdt32_t *php;
-	int len;
+	अचर fdt32_t *php;
+	पूर्णाङ्क len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	यदि (!php || (len != परिमाण(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		यदि (!php || (len != परिमाण(*php)))
+			फर्काऊ 0;
 	}
 
-	return fdt32_ld_(php);
+	फर्काऊ fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+अचर वर्ण *fdt_get_alias_namelen(अचर शून्य *fdt,
+				  अचर वर्ण *name, पूर्णाङ्क namelen)
 {
-	int aliasoffset;
+	पूर्णाङ्क aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	यदि (aliasoffset < 0)
+		फर्काऊ रिक्त;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	फर्काऊ fdt_getprop_namelen(fdt, aliasoffset, name, namelen, रिक्त);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+अचर वर्ण *fdt_get_alias(अचर शून्य *fdt, अचर वर्ण *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	फर्काऊ fdt_get_alias_namelen(fdt, name, म_माप(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+पूर्णाङ्क fdt_get_path(अचर शून्य *fdt, पूर्णाङ्क nodeoffset, वर्ण *buf, पूर्णाङ्क buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	पूर्णाङ्क pdepth = 0, p = 0;
+	पूर्णाङ्क offset, depth, namelen;
+	अचर वर्ण *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	यदि (buflen < 2)
+		फर्काऊ -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	लागि (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
-			do {
+	     offset = fdt_next_गाँठो(fdt, offset, &depth)) {
+		जबसम्म (pdepth > depth) {
+			गर {
 				p--;
-			} while (buf[p-1] != '/');
+			} जबसम्म (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		यदि (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
-				memcpy(buf + p, name, namelen);
+			यदि (!name)
+				फर्काऊ namelen;
+			यदि ((p + namelen + 1) <= buflen) {
+				स_नकल(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
 				pdepth++;
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		यदि (offset == nodeoffset) {
+			यदि (pdepth < (depth + 1))
+				फर्काऊ -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			यदि (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			फर्काऊ 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	यदि ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		फर्काऊ -FDT_ERR_BADOFFSET;
+	अन्यथा यदि (offset == -FDT_ERR_BADOFFSET)
+		फर्काऊ -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	फर्काऊ offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+पूर्णाङ्क fdt_supernode_atdepth_offset(अचर शून्य *fdt, पूर्णाङ्क nodeoffset,
+				 पूर्णाङ्क supernodedepth, पूर्णाङ्क *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	पूर्णाङ्क offset, depth;
+	पूर्णाङ्क supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	यदि (supernodedepth < 0)
+		फर्काऊ -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	लागि (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+	     offset = fdt_next_गाँठो(fdt, offset, &depth)) {
+		यदि (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		यदि (offset == nodeoffset) {
+			यदि (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			यदि (supernodedepth > depth)
+				फर्काऊ -FDT_ERR_NOTFOUND;
+			अन्यथा
+				फर्काऊ supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	यदि (!can_assume(VALID_आगत)) {
+		यदि ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			फर्काऊ -FDT_ERR_BADOFFSET;
+		अन्यथा यदि (offset == -FDT_ERR_BADOFFSET)
+			फर्काऊ -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	फर्काऊ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+पूर्णाङ्क fdt_गाँठो_depth(अचर शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	int nodedepth;
-	int err;
+	पूर्णाङ्क nodedepth;
+	पूर्णाङ्क err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	यदि (err)
+		फर्काऊ (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	फर्काऊ nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+पूर्णाङ्क fdt_parent_offset(अचर शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	पूर्णाङ्क nodedepth = fdt_गाँठो_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
-					    nodedepth - 1, NULL);
+	यदि (nodedepth < 0)
+		फर्काऊ nodedepth;
+	फर्काऊ fdt_supernode_atdepth_offset(fdt, nodeoffset,
+					    nodedepth - 1, रिक्त);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+पूर्णाङ्क fdt_गाँठो_offset_by_prop_मान(अचर शून्य *fdt, पूर्णाङ्क startoffset,
+				  अचर वर्ण *propname,
+				  अचर शून्य *propval, पूर्णाङ्क proplen)
 {
-	int offset;
-	const void *val;
-	int len;
+	पूर्णाङ्क offset;
+	अचर शून्य *val;
+	पूर्णाङ्क len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	लागि (offset = fdt_next_गाँठो(fdt, startoffset, रिक्त);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
+	     offset = fdt_next_गाँठो(fdt, offset, रिक्त)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
-		    && (memcmp(val, propval, len) == 0))
-			return offset;
+		यदि (val && (len == proplen)
+		    && (स_भेद(val, propval, len) == 0))
+			फर्काऊ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	फर्काऊ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+पूर्णाङ्क fdt_गाँठो_offset_by_phandle(अचर शून्य *fdt, uint32_t phandle)
 {
-	int offset;
+	पूर्णाङ्क offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	यदि ((phandle == 0) || (phandle == ~0U))
+		फर्काऊ -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	लागि (offset = fdt_next_गाँठो(fdt, -1, रिक्त);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+	     offset = fdt_next_गाँठो(fdt, offset, रिक्त)) {
+		यदि (fdt_get_phandle(fdt, offset) == phandle)
+			फर्काऊ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	फर्काऊ offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+पूर्णाङ्क fdt_stringlist_contains(अचर वर्ण *strlist, पूर्णाङ्क listlen, अचर वर्ण *str)
 {
-	int len = strlen(str);
-	const char *p;
+	पूर्णाङ्क len = म_माप(str);
+	अचर वर्ण *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
-		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+	जबसम्म (listlen >= len) {
+		यदि (स_भेद(str, strlist, len+1) == 0)
+			फर्काऊ 1;
+		p = स_प्रथम(strlist, '\0', listlen);
+		यदि (!p)
+			फर्काऊ 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	फर्काऊ 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+पूर्णाङ्क fdt_stringlist_गन्ती(अचर शून्य *fdt, पूर्णाङ्क nodeoffset, अचर वर्ण *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	अचर वर्ण *list, *end;
+	पूर्णाङ्क length, गन्ती = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	यदि (!list)
+		फर्काऊ length;
 
 	end = list + length;
 
-	while (list < end) {
+	जबसम्म (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		यदि (list + length > end)
+			फर्काऊ -FDT_ERR_BADVALUE;
 
 		list += length;
-		count++;
+		गन्ती++;
 	}
 
-	return count;
+	फर्काऊ गन्ती;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+पूर्णाङ्क fdt_stringlist_खोज(अचर शून्य *fdt, पूर्णाङ्क nodeoffset, अचर वर्ण *property,
+			  अचर वर्ण *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	पूर्णाङ्क length, len, idx = 0;
+	अचर वर्ण *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	यदि (!list)
+		फर्काऊ length;
 
-	len = strlen(string) + 1;
+	len = म_माप(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	जबसम्म (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		यदि (list + length > end)
+			फर्काऊ -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		यदि (length == len && स_भेद(list, string, length) == 0)
+			फर्काऊ idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	फर्काऊ -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+अचर वर्ण *fdt_stringlist_get(अचर शून्य *fdt, पूर्णाङ्क nodeoffset,
+			       अचर वर्ण *property, पूर्णाङ्क idx,
+			       पूर्णाङ्क *lenp)
 {
-	const char *list, *end;
-	int length;
+	अचर वर्ण *list, *end;
+	पूर्णाङ्क length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	यदि (!list) {
+		यदि (lenp)
 			*lenp = length;
 
-		return NULL;
+		फर्काऊ रिक्त;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	जबसम्म (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		यदि (list + length > end) {
+			यदि (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			फर्काऊ रिक्त;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		यदि (idx == 0) {
+			यदि (lenp)
 				*lenp = length - 1;
 
-			return list;
+			फर्काऊ list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	यदि (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	फर्काऊ रिक्त;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+पूर्णाङ्क fdt_गाँठो_check_compatible(अचर शून्य *fdt, पूर्णाङ्क nodeoffset,
+			      अचर वर्ण *compatible)
 {
-	const void *prop;
-	int len;
+	अचर शून्य *prop;
+	पूर्णाङ्क len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	यदि (!prop)
+		फर्काऊ len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	फर्काऊ !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+पूर्णाङ्क fdt_गाँठो_offset_by_compatible(अचर शून्य *fdt, पूर्णाङ्क startoffset,
+				  अचर वर्ण *compatible)
 {
-	int offset, err;
+	पूर्णाङ्क offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	लागि (offset = fdt_next_गाँठो(fdt, startoffset, रिक्त);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+	     offset = fdt_next_गाँठो(fdt, offset, रिक्त)) {
+		err = fdt_गाँठो_check_compatible(fdt, offset, compatible);
+		यदि ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			फर्काऊ err;
+		अन्यथा यदि (err == 0)
+			फर्काऊ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	फर्काऊ offset; /* error from fdt_next_node() */
 }

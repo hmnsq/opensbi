@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/mailbox/mailbox.h>
+#अन्तर्भाव <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+पूर्णाङ्क rpmi_xlate_error(गणना rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	विकल्प(error) {
+	पक्ष RPMI_SUCCESS:
+		फर्काऊ SBI_OK;
+	पक्ष RPMI_ERR_FAILED:
+		फर्काऊ SBI_EFAIL;
+	पक्ष RPMI_ERR_NOTSUPP:
+		फर्काऊ SBI_ENOTSUPP;
+	पक्ष RPMI_ERR_INVALID_PARAM:
+		फर्काऊ SBI_EINVAL;
+	पक्ष RPMI_ERR_DENIED:
+		फर्काऊ SBI_EDENIED;
+	पक्ष RPMI_ERR_INVALID_ADDR:
+		फर्काऊ SBI_EINVALID_ADDR;
+	पक्ष RPMI_ERR_ALREADY:
+		फर्काऊ SBI_EALREADY;
+	पक्ष RPMI_ERR_EXTENSION:
+		फर्काऊ SBI_EFAIL;
+	पक्ष RPMI_ERR_HW_FAULT:
+		फर्काऊ SBI_EIO;
+	पक्ष RPMI_ERR_BUSY:
+		फर्काऊ SBI_EFAIL;
+	पक्ष RPMI_ERR_INVALID_STATE:
+		फर्काऊ SBI_EINVALID_STATE;
+	पक्ष RPMI_ERR_BAD_RANGE:
+		फर्काऊ SBI_EBAD_RANGE;
+	पक्ष RPMI_ERR_TIMEOUT:
+		फर्काऊ SBI_ETIMEDOUT;
+	पक्ष RPMI_ERR_IO:
+		फर्काऊ SBI_EIO;
+	पक्ष RPMI_ERR_NO_DATA:
+		फर्काऊ SBI_EFAIL;
+	स्वभाव:
+		फर्काऊ SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+पूर्णाङ्क rpmi_normal_request_with_status(
+			संरचना mbox_chan *chan, u32 service_id,
+			शून्य *req, u32 req_शब्दहरू, u32 req_endian_शब्दहरू,
+			शून्य *resp, u32 resp_शब्दहरू, u32 resp_endian_शब्दहरू)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	पूर्णाङ्क ret;
+	संरचना mbox_xfer xfer;
+	संरचना rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
+	args.type = RPMI_सन्देश_NORMAL_REQUEST;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
+	args.tx_endian_शब्दहरू = req_endian_शब्दहरू;
+	args.rx_endian_शब्दहरू = resp_endian_शब्दहरू;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, परिमाण(u32) * req_शब्दहरू, RPMI_DEF_TX_TIMEOUT,
+			resp, परिमाण(u32) * resp_शब्दहरू, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	यदि (ret)
+		फर्काऊ ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	फर्काऊ rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+पूर्णाङ्क rpmi_posted_request(
+		संरचना mbox_chan *chan, u32 service_id,
+		शून्य *req, u32 req_शब्दहरू, u32 req_endian_शब्दहरू)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	संरचना mbox_xfer xfer;
+	संरचना rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
+	args.type = RPMI_सन्देश_POSTED_REQUEST;
+	args.flags = RPMI_सन्देश_FLAGS_NO_RX;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
+	args.tx_endian_शब्दहरू = req_endian_शब्दहरू;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, परिमाण(u32) * req_शब्दहरू, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	फर्काऊ mbox_chan_xfer(chan, &xfer);
 }

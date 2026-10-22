@@ -7,108 +7,108 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
+#अन्तर्भाव <sbi/sbi_bitops.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/riscv_atomic.h>
+#अन्तर्भाव <sbi/riscv_barrier.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#यदि !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
 #error "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
 #endif
 
-long atomic_read(atomic_t *atom)
+दीर्घ atomic_read(atomic_t *atom)
 {
-	long ret = atom->counter;
+	दीर्घ ret = atom->counter;
 	rmb();
-	return ret;
+	फर्काऊ ret;
 }
 
-void atomic_write(atomic_t *atom, long value)
+शून्य atomic_write(atomic_t *atom, दीर्घ मान)
 {
-	atom->counter = value;
+	atom->counter = मान;
 	wmb();
 }
 
-long atomic_add_return(atomic_t *atom, long value)
+दीर्घ atomic_add_return(atomic_t *atom, दीर्घ मान)
 {
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
-	long ret;
-#if __SIZEOF_LONG__ == 4
+#यदि defined(__riscv_atomic) || defined(__riscv_zaamo)
+	दीर्घ ret;
+#यदि __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(मान)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#अथवायदि __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("	amoadd.d.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(मान)
 			     : "memory");
 #endif
-#elif defined(__riscv_zalrsc)
-	long ret, temp;
-#if __SIZEOF_LONG__ == 4
+#अथवायदि defined(__riscv_zalrsc)
+	दीर्घ ret, temp;
+#यदि __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("1:lr.w.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.w.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
 			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "r"(मान)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#अथवायदि __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("1:lr.d.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.d.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
 			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "r"(मान)
 			     : "memory");
 #endif
-#else
+#अन्यथा
 #error "need A or Zaamo or Zalrsc"
 #endif
 
-	return ret + value;
+	फर्काऊ ret + मान;
 }
 
-long atomic_sub_return(atomic_t *atom, long value)
+दीर्घ atomic_sub_return(atomic_t *atom, दीर्घ मान)
 {
-	return atomic_add_return(atom, -value);
+	फर्काऊ atomic_add_return(atom, -मान);
 }
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#यदि defined(__riscv_atomic) || defined(__riscv_zaamo)
 #define __axchg(ptr, new, size)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret;					\
-		switch (size) {							\
-		case 4:								\
+		विकल्प (size) {							\
+		पक्ष 4:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.w.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			रोक;							\
+		पक्ष 8:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.d.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			रोक;							\
+		स्वभाव:							\
+			रोक;							\
 		}								\
 		__ret;								\
 	})
-#elif defined(__riscv_zalrsc)
+#अथवायदि defined(__riscv_zalrsc)
 #define __axchg(ptr, new, size)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret, __temp;					\
-		switch (size) {							\
-		case 4:								\
+		विकल्प (size) {							\
+		पक्ष 4:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.w.aqrl %0, %1\n"			\
 				"	sc.w.aqrl %2, %3, %1\n"			\
@@ -116,8 +116,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			रोक;							\
+		पक्ष 8:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.d.aqrl %0, %1\n"			\
 				"	sc.d.aqrl %2, %3, %1\n"			\
@@ -125,67 +125,67 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			रोक;							\
+		स्वभाव:							\
+			रोक;							\
 		}								\
 		__ret;								\
 	})
-#else
+#अन्यथा
 #error "need A or Zaamo or Zalrsc"
 #endif
 
 #define axchg(ptr, x)								\
 	({									\
 		__typeof__(*(ptr)) _x_ = (x);					\
-		(__typeof__(*(ptr))) __axchg((ptr), _x_, sizeof(*(ptr)));	\
+		(__typeof__(*(ptr))) __axchg((ptr), _x_, परिमाण(*(ptr)));	\
 	})
 
-long atomic_cmpxchg(atomic_t *atom, long oldval, long newval)
+दीर्घ atomic_cmpxchg(atomic_t *atom, दीर्घ oldval, दीर्घ newval)
 {
-	return __sync_val_compare_and_swap(&atom->counter, oldval, newval);
+	फर्काऊ __sync_val_compare_and_swap(&atom->counter, oldval, newval);
 }
 
-long atomic_xchg(atomic_t *atom, long newval)
+दीर्घ atomic_xchg(atomic_t *atom, दीर्घ newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(&atom->counter, newval);
+	फर्काऊ axchg(&atom->counter, newval);
 }
 
-unsigned int atomic_raw_xchg_uint(volatile unsigned int *ptr,
-				  unsigned int newval)
+अचिन्हित पूर्णाङ्क atomic_raw_xchg_uint(चञ्चल अचिन्हित पूर्णाङ्क *ptr,
+				  अचिन्हित पूर्णाङ्क newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	फर्काऊ axchg(ptr, newval);
 }
 
-unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
-				    unsigned long newval)
+अचिन्हित दीर्घ atomic_raw_xchg_ulong(चञ्चल अचिन्हित दीर्घ *ptr,
+				    अचिन्हित दीर्घ newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	फर्काऊ axchg(ptr, newval);
 }
 
-int atomic_raw_set_bit(int nr, volatile unsigned long *addr)
+पूर्णाङ्क atomic_raw_set_bit(पूर्णाङ्क nr, चञ्चल अचिन्हित दीर्घ *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
+	अचिन्हित दीर्घ res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_or(&addr[BIT_WORD(nr)], mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	फर्काऊ res & mask ? 1 : 0;
 }
 
-int atomic_raw_clear_bit(int nr, volatile unsigned long *addr)
+पूर्णाङ्क atomic_raw_clear_bit(पूर्णाङ्क nr, चञ्चल अचिन्हित दीर्घ *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
+	अचिन्हित दीर्घ res, mask = BIT_MASK(nr);
 	res = __atomic_fetch_and(&addr[BIT_WORD(nr)], ~mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	फर्काऊ res & mask ? 1 : 0;
 }
 
-int atomic_set_bit(int nr, atomic_t *atom)
+पूर्णाङ्क atomic_set_bit(पूर्णाङ्क nr, atomic_t *atom)
 {
-	return atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
+	फर्काऊ atomic_raw_set_bit(nr, (अचिन्हित दीर्घ *)&atom->counter);
 }
 
-int atomic_clear_bit(int nr, atomic_t *atom)
+पूर्णाङ्क atomic_clear_bit(पूर्णाङ्क nr, atomic_t *atom)
 {
-	return atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
+	फर्काऊ atomic_raw_clear_bit(nr, (अचिन्हित दीर्घ *)&atom->counter);
 }
