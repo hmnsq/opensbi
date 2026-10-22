@@ -7,68 +7,68 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
-#define JUART_DATA_OFFSET		0x00
-# define JUART_DATA_DATA_MASK		0x000000ff
-# define JUART_DATA_RVALID		(1 << 15)
-# define JUART_DATA_RAVAIL_MASK		0xffff0000
-# define JUART_DATA_RAVAIL_SHIFT	16
-#define JUART_CTRL_OFFSET		0x04
+#परिभाषय JUART_दत्त_विस्थापनम्		0x00
+# define JUART_दत्त_दत्त_आवरणम्		0x000000ff
+# define JUART_दत्त_RVALID		(1 << 15)
+# define JUART_दत्त_RAVAIL_आवरणम्		0xffff0000
+# define JUART_दत्त_RAVAIL_सरणम्	16
+#परिभाषय JUART_CTRL_विस्थापनम्		0x04
 # define JUART_CTRL_RE			(1 << 0)
 # define JUART_CTRL_WE			(1 << 1)
 # define JUART_CTRL_RI			(1 << 8)
 # define JUART_CTRL_WI			(1 << 9)
 # define JUART_CTRL_AC			(1 << 10)
-# define JUART_CTRL_WSPACE_MASK		0xffff0000
-# define JUART_CTRL_WSPACE_SHIFT	16
+# define JUART_CTRL_WSPACE_आवरणम्		0xffff0000
+# define JUART_CTRL_WSPACE_सरणम्	16
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+स्थिर चञ्चल वर्ण *altr_juart_आधारः;
 
-static u32 get_reg(u32 offset)
+स्थिर u32 get_reg(u32 विस्थापनम्)
 {
-	return readl(altr_juart_base + offset);
+	प्रत्यागम readl(altr_juart_आधारः + विस्थापनम्);
 }
 
-static void set_reg(u32 offset, u32 val)
+स्थिर शून्य समुच्चयः_reg(u32 विस्थापनम्, u32 val)
 {
-	writel(val, altr_juart_base + offset);
+	writel(val, altr_juart_आधारः + विस्थापनम्);
 }
 
-static void altr_juart_putc(char ch)
+स्थिर शून्य altr_juart_putc(वर्ण ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	यावत्(!(get_reg(JUART_CTRL_विस्थापनम्) & JUART_CTRL_WSPACE_आवरणम्))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	समुच्चयः_reg(JUART_दत्त_विस्थापनम्, (अचिह्नित वर्ण)ch);
 }
 
-static int altr_juart_getc(void)
+स्थिर पूर्णाङ्क altr_juart_getc(शून्य)
 {
-	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	u32 reg = get_reg(JUART_दत्त_विस्थापनम्);
+	यदि (reg & JUART_दत्त_RVALID)
+		प्रत्यागम reg & JUART_दत्त_दत्त_आवरणम्;
 
-	return -1;
+	प्रत्यागम -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+स्थिर संरचना sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+पूर्णाङ्क altr_juart_init(अचिह्नित दीर्घ आधारः_2)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_आधारः = (चञ्चल वर्ण *)आधारः_2;
 
-	sbi_console_set_device(&altr_juart_console);
+	sbi_console_समुच्चयः_device(&altr_juart_console);
 
-	return 0;
+	प्रत्यागम 0;
 }

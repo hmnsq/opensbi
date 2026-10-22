@@ -24,7 +24,7 @@
 	 */
 
 	.align 3
-	.global __sbi_hfence_gvma_vmid_gpa
+	.वैश्विक __sbi_hfence_gvma_vmid_gpa
 __sbi_hfence_gvma_vmid_gpa:
 	/*
 	 * rs1 = a0 (GPA >> 2)
@@ -33,10 +33,10 @@ __sbi_hfence_gvma_vmid_gpa:
 	 * 0110001 01011 01010 000 00000 1110011
 	 */
 	.word 0x62b50073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_gvma_vmid
+	.वैश्विक __sbi_hfence_gvma_vmid
 __sbi_hfence_gvma_vmid:
 	/*
 	 * rs1 = zero
@@ -45,10 +45,10 @@ __sbi_hfence_gvma_vmid:
 	 * 0110001 01010 00000 000 00000 1110011
 	 */
 	.word 0x62a00073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_gvma_gpa
+	.वैश्विक __sbi_hfence_gvma_gpa
 __sbi_hfence_gvma_gpa:
 	/*
 	 * rs1 = a0 (GPA >> 2)
@@ -57,10 +57,10 @@ __sbi_hfence_gvma_gpa:
 	 * 0110001 00000 01010 000 00000 1110011
 	 */
 	.word 0x62050073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_gvma_all
+	.वैश्विक __sbi_hfence_gvma_all
 __sbi_hfence_gvma_all:
 	/*
 	 * rs1 = zero
@@ -69,7 +69,7 @@ __sbi_hfence_gvma_all:
 	 * 0110001 00000 00000 000 00000 1110011
 	 */
 	.word 0x62000073
-	ret
+	प्रत्यागच्छ
 
 	/*
 	 * HFENCE.VVMA rs1, rs2
@@ -87,7 +87,7 @@ __sbi_hfence_gvma_all:
 	 */
 
 	.align 3
-	.global __sbi_hfence_vvma_asid_va
+	.वैश्विक __sbi_hfence_vvma_asid_va
 __sbi_hfence_vvma_asid_va:
 	/*
 	 * rs1 = a0 (VA)
@@ -96,10 +96,10 @@ __sbi_hfence_vvma_asid_va:
 	 * 0010001 01011 01010 000 00000 1110011
 	 */
 	.word 0x22b50073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_vvma_asid
+	.वैश्विक __sbi_hfence_vvma_asid
 __sbi_hfence_vvma_asid:
 	/*
 	 * rs1 = zero
@@ -108,10 +108,10 @@ __sbi_hfence_vvma_asid:
 	 * 0010001 01010 00000 000 00000 1110011
 	 */
 	.word 0x22a00073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_vvma_va
+	.वैश्विक __sbi_hfence_vvma_va
 __sbi_hfence_vvma_va:
 	/*
 	 * rs1 = a0 (VA)
@@ -120,10 +120,10 @@ __sbi_hfence_vvma_va:
 	 * 0010001 00000 01010 000 00000 1110011
 	 */
 	.word 0x22050073
-	ret
+	प्रत्यागच्छ
 
 	.align 3
-	.global __sbi_hfence_vvma_all
+	.वैश्विक __sbi_hfence_vvma_all
 __sbi_hfence_vvma_all:
 	/*
 	 * rs1 = zero
@@ -132,4 +132,4 @@ __sbi_hfence_vvma_all:
 	 * 0010001 00000 00000 000 00000 1110011
 	 */
 	.word 0x22000073
-	ret
+	प्रत्यागच्छ

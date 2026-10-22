@@ -7,168 +7,168 @@
  *   Atish Patra<atish.patra@wdc.com>
  *
  */
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/riscv_locks.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_fifo.h>
+#अन्तर्भाव <sbi/sbi_string.h>
 
-void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
-		   u16 entry_size) NO_THREAD_SAFETY_ANALYSIS
+शून्य sbi_fifo_init(संरचना sbi_fifo *fifo, शून्य *queue_mem, u16 entries,
+		   u16 प्रविष्टिः_आकार) NO_THREAD_SAFETY_ANALYSIS
 {
 	fifo->queue	  = queue_mem;
-	fifo->num_entries = entries;
-	fifo->entry_size  = entry_size;
-	SPIN_LOCK_INIT(fifo->qlock);
-	fifo->avail = fifo->tail = 0;
-	sbi_memset(fifo->queue, 0, (size_t)entries * entry_size);
+	fifo->अङ्कः_entries = entries;
+	fifo->प्रविष्टिः_आकार  = प्रविष्टिः_आकार;
+	SPIN_तालकम्_INIT(fifo->qlock);
+	fifo->avail = fifo->पुच्छ = 0;
+	sbi_memset(fifo->queue, 0, (size_t)entries * प्रविष्टिः_आकार);
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
+स्थिर अन्तःस्थ bool __sbi_fifo_is_full(संरचना sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	प्रत्यागम (fifo->avail == fifo->अङ्कः_entries) ? true : false;
 }
 
-u16 sbi_fifo_avail(struct sbi_fifo *fifo)
+u16 sbi_fifo_avail(संरचना sbi_fifo *fifo)
 {
 	u16 ret;
 
-	if (!fifo)
-		return 0;
+	यदि (!fifo)
+		प्रत्यागम 0;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 	ret = fifo->avail;
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-int sbi_fifo_is_full(struct sbi_fifo *fifo)
+पूर्णाङ्क sbi_fifo_is_पूर्णम्(संरचना sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	यदि (!fifo)
+		प्रत्यागम SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 	ret = __sbi_fifo_is_full(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	प्रत्यागम ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
+स्थिर अन्तःस्थ शून्य __sbi_fifo_enqueue(संरचना sbi_fifo *fifo, शून्य *दत्त)
 	MUST_HOLD(&fifo->qlock)
 {
-	u32 head;
+	u32 शीर्ष;
 
-	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
-		head = head - fifo->num_entries;
+	शीर्ष = (u32)fifo->पुच्छ + fifo->avail;
+	यदि (शीर्ष >= fifo->अङ्कः_entries)
+		शीर्ष = शीर्ष - fifo->अङ्कः_entries;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)(fifo->queue + head * fifo->entry_size) = *(char *)data;
-		break;
-	case 2:
-		*(u16 *)(fifo->queue + head * fifo->entry_size) = *(u16 *)data;
-		break;
-	case 4:
-		*(u32 *)(fifo->queue + head * fifo->entry_size) = *(u32 *)data;
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)(fifo->queue + head * fifo->entry_size) = *(u64 *)data;
-		break;
-#endif
-	default:
-		sbi_memcpy(fifo->queue + head * fifo->entry_size,
-			   data, fifo->entry_size);
-		break;
+	विकल्प (fifo->प्रविष्टिः_आकार) {
+	पक्ष 1:
+		*(वर्ण *)(fifo->queue + शीर्ष * fifo->प्रविष्टिः_आकार) = *(वर्ण *)दत्त;
+		भङ्ग;
+	पक्ष 2:
+		*(u16 *)(fifo->queue + शीर्ष * fifo->प्रविष्टिः_आकार) = *(u16 *)दत्त;
+		भङ्ग;
+	पक्ष 4:
+		*(u32 *)(fifo->queue + शीर्ष * fifo->प्रविष्टिः_आकार) = *(u32 *)दत्त;
+		भङ्ग;
+#यदि __riscv_xlen > 32
+	पक्ष 8:
+		*(u64 *)(fifo->queue + शीर्ष * fifo->प्रविष्टिः_आकार) = *(u64 *)दत्त;
+		भङ्ग;
+#यदि_अन्तः
+	स्वभाव:
+		sbi_memcpy(fifo->queue + शीर्ष * fifo->प्रविष्टिः_आकार,
+			   दत्त, fifo->प्रविष्टिः_आकार);
+		भङ्ग;
 	}
 
 	fifo->avail++;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+स्थिर अन्तःस्थ शून्य __sbi_fifo_dequeue(संरचना sbi_fifo *fifo, शून्य *दत्त)
 	MUST_HOLD(&fifo->qlock)
 {
-	if (!data)
-		goto skip_data_copy;
+	यदि (!दत्त)
+		गच्छ skip_दत्त_copy;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)data = *(char *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 2:
-		*(u16 *)data = *(u16 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 4:
-		*(u32 *)data = *(u32 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)data = *(u64 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#endif
-	default:
-		sbi_memcpy(data, fifo->queue + (u32)fifo->tail * fifo->entry_size,
-			   fifo->entry_size);
-		break;
+	विकल्प (fifo->प्रविष्टिः_आकार) {
+	पक्ष 1:
+		*(वर्ण *)दत्त = *(वर्ण *)(fifo->queue + (u32)fifo->पुच्छ * fifo->प्रविष्टिः_आकार);
+		भङ्ग;
+	पक्ष 2:
+		*(u16 *)दत्त = *(u16 *)(fifo->queue + (u32)fifo->पुच्छ * fifo->प्रविष्टिः_आकार);
+		भङ्ग;
+	पक्ष 4:
+		*(u32 *)दत्त = *(u32 *)(fifo->queue + (u32)fifo->पुच्छ * fifo->प्रविष्टिः_आकार);
+		भङ्ग;
+#यदि __riscv_xlen > 32
+	पक्ष 8:
+		*(u64 *)दत्त = *(u64 *)(fifo->queue + (u32)fifo->पुच्छ * fifo->प्रविष्टिः_आकार);
+		भङ्ग;
+#यदि_अन्तः
+	स्वभाव:
+		sbi_memcpy(दत्त, fifo->queue + (u32)fifo->पुच्छ * fifo->प्रविष्टिः_आकार,
+			   fifo->प्रविष्टिः_आकार);
+		भङ्ग;
 	}
 
-skip_data_copy:
+skip_दत्त_copy:
 	fifo->avail--;
-	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
-		fifo->tail = 0;
+	fifo->पुच्छ++;
+	यदि (fifo->पुच्छ >= fifo->अङ्कः_entries)
+		fifo->पुच्छ = 0;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_empty(struct sbi_fifo *fifo)
+स्थिर अन्तःस्थ bool __sbi_fifo_is_empty(संरचना sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == 0) ? true : false;
+	प्रत्यागम (fifo->avail == 0) ? true : false;
 }
 
-int sbi_fifo_is_empty(struct sbi_fifo *fifo)
+पूर्णाङ्क sbi_fifo_is_रिक्तानि(संरचना sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	यदि (!fifo)
+		प्रत्यागम SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 	ret = __sbi_fifo_is_empty(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	प्रत्यागम ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
+स्थिर अन्तःस्थ शून्य __sbi_fifo_reset(संरचना sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	size_t size = (size_t)fifo->num_entries * fifo->entry_size;
+	size_t आकार = (size_t)fifo->अङ्कः_entries * fifo->प्रविष्टिः_आकार;
 
 	fifo->avail = 0;
-	fifo->tail  = 0;
-	sbi_memset(fifo->queue, 0, size);
+	fifo->पुच्छ  = 0;
+	sbi_memset(fifo->queue, 0, आकार);
 }
 
-bool sbi_fifo_reset(struct sbi_fifo *fifo)
+bool sbi_fifo_reset(संरचना sbi_fifo *fifo)
 {
-	if (!fifo)
-		return false;
+	यदि (!fifo)
+		प्रत्यागम false;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 	__sbi_fifo_reset(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return true;
+	प्रत्यागम true;
 }
 
 /**
@@ -178,76 +178,76 @@ bool sbi_fifo_reset(struct sbi_fifo *fifo)
  * **Do not** invoke any other fifo function from callback. Otherwise, it will
  * lead to deadlock.
  */
-int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
-			    int (*fptr)(void *in, void *data))
+पूर्णाङ्क sbi_fifo_inplace_update(संरचना sbi_fifo *fifo, शून्य *अन्तर्,
+			    पूर्णाङ्क (*fptr)(शून्य *अन्तर्, शून्य *दत्त))
 {
-	int i, index;
-	int ret = SBI_FIFO_UNCHANGED;
-	void *entry;
+	पूर्णाङ्क i, सूचकांक_2;
+	पूर्णाङ्क ret = SBI_FIFO_UNCHANGED;
+	शून्य *प्रविष्टिः_2;
 
-	if (!fifo || !in)
-		return ret;
+	यदि (!fifo || !अन्तर्)
+		प्रत्यागम ret;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	यदि (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return ret;
+		प्रत्यागम ret;
 	}
 
-	for (i = 0; i < fifo->avail; i++) {
-		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
-			index -= fifo->num_entries;
-		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
-		ret = fptr(in, entry);
+	प्रति (i = 0; i < fifo->avail; i++) {
+		सूचकांक_2 = fifo->पुच्छ + i;
+		यदि (सूचकांक_2 >= fifo->अङ्कः_entries)
+			सूचकांक_2 -= fifo->अङ्कः_entries;
+		प्रविष्टिः_2 = (वर्ण *)fifo->queue + (u32)सूचकांक_2 * fifo->प्रविष्टिः_आकार;
+		ret = fptr(अन्तर्, प्रविष्टिः_2);
 
-		if (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
-			break;
+		यदि (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
+			भङ्ग;
 		}
 	}
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
+पूर्णाङ्क sbi_fifo_पङ्क्तौ_निक्षिप(संरचना sbi_fifo *fifo, शून्य *दत्त, bool force)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	यदि (!fifo || !दत्त)
+		प्रत्यागम SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 
-	if (__sbi_fifo_is_full(fifo)) {
-		if (!force) {
+	यदि (__sbi_fifo_is_full(fifo)) {
+		यदि (!force) {
 			spin_unlock(&fifo->qlock);
-			return SBI_ENOSPC;
+			प्रत्यागम SBI_ENOSPC;
 		}
-		__sbi_fifo_dequeue(fifo, NULL);
+		__sbi_fifo_dequeue(fifo, रिक्त);
 	}
 
-	__sbi_fifo_enqueue(fifo, data);
+	__sbi_fifo_enqueue(fifo, दत्त);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-int sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+पूर्णाङ्क sbi_fifo_पङ्क्तेः_निष्कासय(संरचना sbi_fifo *fifo, शून्य *दत्त)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	यदि (!fifo || !दत्त)
+		प्रत्यागम SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_तालकम्(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	यदि (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return SBI_ENOENT;
+		प्रत्यागम SBI_ENOENT;
 	}
 
-	__sbi_fifo_dequeue(fifo, data);
+	__sbi_fifo_dequeue(fifo, दत्त);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	प्रत्यागम 0;
 }

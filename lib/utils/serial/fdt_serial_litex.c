@@ -7,33 +7,33 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/litex-uart.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/serial/fdt_serial.h>
+#अन्तर्भाव <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+स्थिर पूर्णाङ्क serial_litex_init(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+			     ध्रुव संरचना fdt_मेलनम् *मेलनम्)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_आकार;
+	पूर्णाङ्क rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	यदि (nodeoff < 0 || !fdt)
+		प्रत्यागम SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ग्रन्थिः_addr_आकार(fdt, nodeoff, 0, &reg_addr, &reg_आकार);
+	यदि (rc < 0 || !reg_addr || !reg_आकार)
+		प्रत्यागम SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	प्रत्यागम litex_uart_init(reg_addr);
 }
 
-static const struct fdt_match serial_litex_match[] = {
+स्थिर ध्रुव संरचना fdt_मेलनम् serial_litex_मेलनम्[] = {
 	{ .compatible = "litex,liteuart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_litex = {
-	.match_table = serial_litex_match,
+ध्रुव संरचना fdt_driver fdt_serial_litex = {
+	.मेलनम्_सारणी = serial_litex_मेलनम्,
 	.init = serial_litex_init
 };

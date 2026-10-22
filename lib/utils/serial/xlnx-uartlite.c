@@ -7,61 +7,61 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi_utils/serial/xlnx_uartlite.h>
 
 /* clang-format off */
 
-#define UART_RX_OFFSET		0x00
-#define UART_TX_OFFSET		0x04
-#define UART_STATUS_OFFSET	0x08
-# define UART_STATUS_RXVALID	0x01
-# define UART_STATUS_RXFULL	0x02
-# define UART_STATUS_TXEMPTY	0x04
-# define UART_STATUS_TXFULL	0x08
-# define UART_STATUS_IE	0x10
-# define UART_STATUS_OVERRUN	0x20
-# define UART_STATUS_FRAME	0x40
-# define UART_STATUS_PARITY	0x80
-#define UART_CTRL_OFFSET	0x0C
+#परिभाषय UART_RX_विस्थापनम्		0x00
+#परिभाषय UART_TX_विस्थापनम्		0x04
+#परिभाषय UART_स्थितिः_विस्थापनम्	0x08
+# define UART_स्थितिः_RXVALID	0x01
+# define UART_स्थितिः_RXFULL	0x02
+# define UART_स्थितिः_TXEMPTY	0x04
+# define UART_स्थितिः_TXFULL	0x08
+# define UART_स्थितिः_IE	0x10
+# define UART_स्थितिः_OVERRUN	0x20
+# define UART_स्थितिः_FRAME	0x40
+# define UART_स्थितिः_PARITY	0x80
+#परिभाषय UART_CTRL_विस्थापनम्	0x0C
 # define UART_CTRL_RST_TX	0x01
 # define UART_CTRL_RST_RX	0x02
 # define UART_CTRL_IE		0x10
 
 /* clang-format on */
 
-static volatile char *xlnx_uartlite_base;
+स्थिर चञ्चल वर्ण *xlnx_uartlite_आधारः;
 
-static void xlnx_uartlite_putc(char ch)
+स्थिर शून्य xlnx_uartlite_putc(वर्ण ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	यावत्((readb(xlnx_uartlite_आधारः + UART_स्थितिः_विस्थापनम्) & UART_स्थितिः_TXFULL))
 		;
 
-	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
+	writeb(ch, xlnx_uartlite_आधारः + UART_TX_विस्थापनम्);
 }
 
-static int xlnx_uartlite_getc(void)
+स्थिर पूर्णाङ्क xlnx_uartlite_getc(शून्य)
 {
-	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
+	u16 स्थितिः = readb(xlnx_uartlite_आधारः + UART_स्थितिः_विस्थापनम्);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	यदि (स्थितिः & UART_स्थितिः_RXVALID)
+		प्रत्यागम readb(xlnx_uartlite_आधारः + UART_RX_विस्थापनम्);
 
-	return -1;
+	प्रत्यागम -1;
 }
 
-static struct sbi_console_device xlnx_uartlite_console = {
+स्थिर संरचना sbi_console_device xlnx_uartlite_console = {
 	.name = "xlnx-uartlite",
 	.console_putc = xlnx_uartlite_putc,
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+पूर्णाङ्क xlnx_uartlite_init(अचिह्नित दीर्घ आधारः_2)
 {
-	xlnx_uartlite_base = (volatile char *)base;
+	xlnx_uartlite_आधारः = (चञ्चल वर्ण *)आधारः_2;
 
-	sbi_console_set_device(&xlnx_uartlite_console);
+	sbi_console_समुच्चयः_device(&xlnx_uartlite_console);
 
-	return 0;
+	प्रत्यागम 0;
 }

@@ -7,158 +7,158 @@
  *   Clément Léger <cleger@rivosinc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_types.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_bitmap.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_hart.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi/sbi_hfence.h>
+#अन्तर्भाव <sbi/sbi_scratch.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_tlb.h>
+#अन्तर्भाव <sbi/sbi_types.h>
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/riscv_encoding.h>
 
 /** Offset of pointer to FWFT HART state in scratch space */
-static unsigned long fwft_ptr_offset;
+स्थिर अचिह्नित दीर्घ fwft_ptr_विस्थापनम्;
 
-#define fwft_get_hart_state_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, fwft_ptr_offset)
+#परिभाषय fwft_get_hart_state_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), शून्य *, fwft_ptr_विस्थापनम्)
 
-#define fwft_thishart_state_ptr()					\
+#परिभाषय fwft_thishart_state_ptr()					\
 	fwft_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define fwft_set_hart_state_ptr(__scratch, __phs)			\
-	sbi_scratch_write_type((__scratch), void *, fwft_ptr_offset, (__phs))
+#परिभाषय fwft_समुच्चयः_hart_state_ptr(__scratch, __phs)			\
+	sbi_scratch_write_type((__scratch), शून्य *, fwft_ptr_विस्थापनम्, (__phs))
 
-#define MIS_DELEG (1UL << CAUSE_MISALIGNED_LOAD | 1UL << CAUSE_MISALIGNED_STORE)
+#परिभाषय MIS_DELEG (1UL << CAUSE_MISALIGNED_आरोपय | 1UL << CAUSE_MISALIGNED_STORE)
 
-struct fwft_config;
+संरचना fwft_config;
 
-struct fwft_feature {
-	enum sbi_fwft_feature_t id;
-	int (*supported)(struct fwft_config *conf);
-	int (*set)(struct fwft_config *conf, unsigned long value);
-	int (*get)(struct fwft_config *conf, unsigned long *value);
+संरचना fwft_feature {
+	गणना sbi_fwft_feature_t id;
+	पूर्णाङ्क (*supported)(संरचना fwft_config *conf);
+	पूर्णाङ्क (*समुच्चयः)(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्);
+	पूर्णाङ्क (*get)(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्);
 };
 
-struct fwft_config {
-	const struct fwft_feature *feature;
-	unsigned long flags;
+संरचना fwft_config {
+	ध्रुव संरचना fwft_feature *feature;
+	अचिह्नित दीर्घ flags;
 };
 
-struct fwft_hart_state {
-	unsigned int config_count;
-	struct fwft_config configs[];
+संरचना fwft_hart_state {
+	अचिह्नित पूर्णाङ्क config_गणनम्;
+	संरचना fwft_config configs[];
 };
 
-static const unsigned long fwft_defined_features[] = {
+स्थिर ध्रुव अचिह्नित दीर्घ fwft_defined_features[] = {
 	SBI_FWFT_MISALIGNED_EXC_DELEG,
 	SBI_FWFT_LANDING_PAD,
-	SBI_FWFT_SHADOW_STACK,
+	SBI_FWFT_SHADOW_राशिः,
 	SBI_FWFT_DOUBLE_TRAP,
 	SBI_FWFT_PTE_AD_HW_UPDATING,
 	SBI_FWFT_POINTER_MASKING_PMLEN,
 };
 
-static bool fwft_is_defined_feature(enum sbi_fwft_feature_t feature)
+स्थिर bool fwft_is_defined_feature(गणना sbi_fwft_feature_t feature)
 {
-	int i;
+	पूर्णाङ्क i;
 
-	for (i = 0; i < array_size(fwft_defined_features); i++) {
-		if (fwft_defined_features[i] == feature)
-			return true;
+	प्रति (i = 0; i < array_आकार(fwft_defined_features); i++) {
+		यदि (fwft_defined_features[i] == feature)
+			प्रत्यागम true;
 	}
 
-	return false;
+	प्रत्यागम false;
 }
 
-static int fwft_menvcfg_set_bit(unsigned long value, unsigned long bit)
+स्थिर पूर्णाङ्क fwft_menvcfg_समुच्चयः_bit(अचिह्नित दीर्घ मानम्, अचिह्नित दीर्घ bit)
 {
-	if (value == 1) {
-		if (bit >= 32 && __riscv_xlen == 32)
-			csr_set(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
-			csr_set(CSR_MENVCFG, _ULL(1) << bit);
+	यदि (मानम् == 1) {
+		यदि (bit >= 32 && __riscv_xlen == 32)
+			csr_समुच्चयः(CSR_MENVCFGH, _ULL(1) << (bit - 32));
+		अन्यथा
+			csr_समुच्चयः(CSR_MENVCFG, _ULL(1) << bit);
 
-	} else if (value == 0) {
-		if (bit >= 32 && __riscv_xlen == 32)
+	} अन्यथा यदि (मानम् == 0) {
+		यदि (bit >= 32 && __riscv_xlen == 32)
 			csr_clear(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
+		अन्यथा
 			csr_clear(CSR_MENVCFG, _ULL(1) << bit);
-	} else {
-		return SBI_EINVAL;
+	} अन्यथा {
+		प्रत्यागम SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_menvcfg_read_bit(unsigned long *value, unsigned long bit)
+स्थिर पूर्णाङ्क fwft_menvcfg_read_bit(अचिह्नित दीर्घ *मानम्, अचिह्नित दीर्घ bit)
 {
-	unsigned long cfg;
+	अचिह्नित दीर्घ cfg;
 
-	if (bit >= 32 && __riscv_xlen == 32)
+	यदि (bit >= 32 && __riscv_xlen == 32)
 		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (bit - 32));
-	else
+	अन्यथा
 		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << bit);
 
-	*value = cfg != 0;
+	*मानम् = cfg != 0;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_misaligned_delegation_supported(struct fwft_config *conf)
+स्थिर पूर्णाङ्क fwft_misaligned_delegation_supported(संरचना fwft_config *conf)
 {
-	if (!misa_extension('S'))
-		return SBI_ENOTSUPP;
+	यदि (!misa_extension('S'))
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_set_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long value)
+स्थिर पूर्णाङ्क fwft_समुच्चयः_misaligned_delegation(संरचना fwft_config *conf,
+					 अचिह्नित दीर्घ मानम्)
 {
-	if (value == 1)
-		csr_set(CSR_MEDELEG, MIS_DELEG);
-	else if (value == 0)
+	यदि (मानम् == 1)
+		csr_समुच्चयः(CSR_MEDELEG, MIS_DELEG);
+	अन्यथा यदि (मानम् == 0)
 		csr_clear(CSR_MEDELEG, MIS_DELEG);
-	else
-		return SBI_EINVAL;
+	अन्यथा
+		प्रत्यागम SBI_EINVAL;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_get_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_misaligned_delegation(संरचना fwft_config *conf,
+					 अचिह्नित दीर्घ *मानम्)
 {
-	*value = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
+	*मानम् = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_double_trap_supported(struct fwft_config *conf)
+स्थिर पूर्णाङ्क fwft_double_trap_supported(संरचना fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	यदि (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SSDBLTRP))
-		return SBI_ENOTSUPP;
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_set_double_trap(struct fwft_config *conf, unsigned long value)
+स्थिर पूर्णाङ्क fwft_समुच्चयः_double_trap(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_DTE_SHIFT);
+	प्रत्यागम fwft_menvcfg_समुच्चयः_bit(मानम्, ENVCFG_DTE_सरणम्);
 }
 
-static int fwft_get_double_trap(struct fwft_config *conf, unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_double_trap(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_DTE_SHIFT);
+	प्रत्यागम fwft_menvcfg_read_bit(मानम्, ENVCFG_DTE_सरणम्);
 }
 
-static int fwft_adue_supported(struct fwft_config *conf)
+स्थिर पूर्णाङ्क fwft_adue_supported(संरचना fwft_config *conf)
 {
 	/*
 	 * FWFT.PTE_AD_HW_UPDATING is only supported when both Svade and Svadu
@@ -166,287 +166,287 @@ static int fwft_adue_supported(struct fwft_config *conf)
 	 * ensure the reset value of zero is valid (it wouldn't be when only
 	 * Svadu is supported).
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	यदि (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADU) ||
 	    !sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADE))
-		return SBI_ENOTSUPP;
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_set_adue(struct fwft_config *conf, unsigned long value)
+स्थिर पूर्णाङ्क fwft_समुच्चयः_adue(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्)
 {
-	int res = fwft_menvcfg_set_bit(value, ENVCFG_ADUE_SHIFT);
+	पूर्णाङ्क res = fwft_menvcfg_समुच्चयः_bit(मानम्, ENVCFG_ADUE_सरणम्);
 
-	if (res == SBI_OK) {
+	यदि (res == SBI_OK) {
 		__sbi_sfence_vma_all();
 
-		if (misa_extension('H'))
+		यदि (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 
-	return res;
+	प्रत्यागम res;
 }
 
-static int fwft_get_adue(struct fwft_config *conf, unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_adue(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_ADUE_SHIFT);
+	प्रत्यागम fwft_menvcfg_read_bit(मानम्, ENVCFG_ADUE_सरणम्);
 }
 
-static int fwft_lpad_supported(struct fwft_config *conf)
+स्थिर पूर्णाङ्क fwft_lpad_supported(संरचना fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	यदि (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFILP))
-		return SBI_ENOTSUPP;
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_enable_lpad(struct fwft_config *conf, unsigned long value)
+स्थिर पूर्णाङ्क fwft_enable_lpad(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_LPE_SHIFT);
+	प्रत्यागम fwft_menvcfg_समुच्चयः_bit(मानम्, ENVCFG_LPE_सरणम्);
 }
 
-static int fwft_get_lpad(struct fwft_config *conf, unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_lpad(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_LPE_SHIFT);
+	प्रत्यागम fwft_menvcfg_read_bit(मानम्, ENVCFG_LPE_सरणम्);
 }
 
-static int fwft_sstack_supported(struct fwft_config *conf)
+स्थिर पूर्णाङ्क fwft_sstack_supported(संरचना fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	यदि (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFISS))
-		return SBI_ENOTSUPP;
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_enable_sstack(struct fwft_config *conf, unsigned long value)
+स्थिर पूर्णाङ्क fwft_enable_sstack(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_SSE_SHIFT);
+	प्रत्यागम fwft_menvcfg_समुच्चयः_bit(मानम्, ENVCFG_SSE_सरणम्);
 }
 
-static int fwft_get_sstack(struct fwft_config *conf, unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_sstack(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_SSE_SHIFT);
+	प्रत्यागम fwft_menvcfg_read_bit(मानम्, ENVCFG_SSE_सरणम्);
 }
 
-#if __riscv_xlen > 32
-static int fwft_pmlen_supported(struct fwft_config *conf)
+#यदि __riscv_xlen > 32
+स्थिर पूर्णाङ्क fwft_pmlen_supported(संरचना fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	यदि (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SMNPM))
-		return SBI_ENOTSUPP;
+		प्रत्यागम SBI_ENOTSUPP;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
+स्थिर पूर्णाङ्क fwft_समुच्चयः_pmlen(संरचना fwft_config *conf, अचिह्नित दीर्घ मानम्)
 {
-	unsigned long pmm, prev;
+	अचिह्नित दीर्घ pmm, पूर्व;
 
-	switch (value) {
-	case 0:
+	विकल्प (मानम्) {
+	पक्ष 0:
 		pmm = ENVCFG_PMM_PMLEN_0;
-		break;
-	case 7:
+		भङ्ग;
+	पक्ष 7:
 		pmm = ENVCFG_PMM_PMLEN_7;
-		break;
-	case 16:
+		भङ्ग;
+	पक्ष 16:
 		pmm = ENVCFG_PMM_PMLEN_16;
-		break;
-	default:
-		return SBI_EINVAL;
+		भङ्ग;
+	स्वभाव:
+		प्रत्यागम SBI_EINVAL;
 	}
 
-	prev = csr_read_clear(CSR_MENVCFG, ENVCFG_PMM);
-	csr_set(CSR_MENVCFG, pmm);
-	if ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
-		csr_write(CSR_MENVCFG, prev);
-		return SBI_EINVAL;
+	पूर्व = csr_read_clear(CSR_MENVCFG, ENVCFG_PMM);
+	csr_समुच्चयः(CSR_MENVCFG, pmm);
+	यदि ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
+		csr_write(CSR_MENVCFG, पूर्व);
+		प्रत्यागम SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-static int fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
+स्थिर पूर्णाङ्क fwft_get_pmlen(संरचना fwft_config *conf, अचिह्नित दीर्घ *मानम्)
 {
-	switch (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
-	case ENVCFG_PMM_PMLEN_0:
-		*value = 0;
-		break;
-	case ENVCFG_PMM_PMLEN_7:
-		*value = 7;
-		break;
-	case ENVCFG_PMM_PMLEN_16:
-		*value = 16;
-		break;
-	default:
-		return SBI_EFAIL;
+	विकल्प (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
+	पक्ष ENVCFG_PMM_PMLEN_0:
+		*मानम् = 0;
+		भङ्ग;
+	पक्ष ENVCFG_PMM_PMLEN_7:
+		*मानम् = 7;
+		भङ्ग;
+	पक्ष ENVCFG_PMM_PMLEN_16:
+		*मानम् = 16;
+		भङ्ग;
+	स्वभाव:
+		प्रत्यागम SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
-#endif
+#यदि_अन्तः
 
-static struct fwft_config* get_feature_config(enum sbi_fwft_feature_t feature)
+स्थिर संरचना fwft_config* get_feature_config(गणना sbi_fwft_feature_t feature)
 {
-	int i;
-	struct fwft_hart_state *fhs = fwft_thishart_state_ptr();
+	पूर्णाङ्क i;
+	संरचना fwft_hart_state *fhs = fwft_thishart_state_ptr();
 
-	if (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
-		return NULL;
+	यदि (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
+		प्रत्यागम रिक्त;
 
-	for (i = 0; i < fhs->config_count; i++){
-		if (feature == fhs->configs[i].feature->id)
-			return &fhs->configs[i];
+	प्रति (i = 0; i < fhs->config_गणनम्; i++){
+		यदि (feature == fhs->configs[i].feature->id)
+			प्रत्यागम &fhs->configs[i];
 	}
 
-	return NULL;
+	प्रत्यागम रिक्त;
 }
 
-static int fwft_get_feature(enum sbi_fwft_feature_t feature,
-			    struct fwft_config **conf)
+स्थिर पूर्णाङ्क fwft_get_feature(गणना sbi_fwft_feature_t feature,
+			    संरचना fwft_config **conf)
 {
-	int ret;
-	struct fwft_config *tconf;
+	पूर्णाङ्क ret;
+	संरचना fwft_config *tconf;
 
 	tconf = get_feature_config(feature);
-	if (!tconf) {
-		if (fwft_is_defined_feature(feature))
-			return SBI_ENOTSUPP;
+	यदि (!tconf) {
+		यदि (fwft_is_defined_feature(feature))
+			प्रत्यागम SBI_ENOTSUPP;
 
-		return SBI_EDENIED;
+		प्रत्यागम SBI_EDENIED;
 	}
 
-	if (tconf->feature->supported) {
+	यदि (tconf->feature->supported) {
 		ret = tconf->feature->supported(tconf);
-		if (ret)
-			return ret;
+		यदि (ret)
+			प्रत्यागम ret;
 	}
 	*conf = tconf;
 
-	return SBI_SUCCESS;
+	प्रत्यागम SBI_SUCCESS;
 }
 
-static void fwft_clear_config_lock(enum sbi_fwft_feature_t feature)
+स्थिर शून्य fwft_clear_config_तालकम्(गणना sbi_fwft_feature_t feature)
 {
-	int ret;
-	struct fwft_config *conf;
+	पूर्णाङ्क ret;
+	संरचना fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return;
+	यदि (ret)
+		प्रत्यागम;
 
-	conf->flags &= ~SBI_FWFT_SET_FLAG_LOCK;
+	conf->flags &= ~SBI_FWFT_समुच्चयः_FLAG_तालकम्;
 }
 
-int sbi_fwft_set(enum sbi_fwft_feature_t feature, unsigned long value,
-		 unsigned long flags)
+पूर्णाङ्क sbi_fwft_समुच्चयः(गणना sbi_fwft_feature_t feature, अचिह्नित दीर्घ मानम्,
+		 अचिह्नित दीर्घ flags)
 {
-	int ret;
-	struct fwft_config *conf;
+	पूर्णाङ्क ret;
+	संरचना fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	यदि (ret)
+		प्रत्यागम ret;
 
-	if ((flags & ~SBI_FWFT_SET_FLAG_LOCK) != 0)
-		return SBI_EINVAL;
+	यदि ((flags & ~SBI_FWFT_समुच्चयः_FLAG_तालकम्) != 0)
+		प्रत्यागम SBI_EINVAL;
 
-	if (conf->flags & SBI_FWFT_SET_FLAG_LOCK)
-		return SBI_EDENIED_LOCKED;
+	यदि (conf->flags & SBI_FWFT_समुच्चयः_FLAG_तालकम्)
+		प्रत्यागम SBI_EDENIED_LOCKED;
 
-	ret = conf->feature->set(conf, value);
-	if (ret)
-		return ret;
+	ret = conf->feature->समुच्चयः(conf, मानम्);
+	यदि (ret)
+		प्रत्यागम ret;
 
 	conf->flags = flags;
 
-	return SBI_OK;
+	प्रत्यागम SBI_OK;
 }
 
-int sbi_fwft_get(enum sbi_fwft_feature_t feature, unsigned long *out_val)
+पूर्णाङ्क sbi_fwft_get(गणना sbi_fwft_feature_t feature, अचिह्नित दीर्घ *बहिर्गमनम्_val)
 {
-	int ret;
-	struct fwft_config *conf;
+	पूर्णाङ्क ret;
+	संरचना fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	यदि (ret)
+		प्रत्यागम ret;
 
-	return conf->feature->get(conf, out_val);
+	प्रत्यागम conf->feature->get(conf, बहिर्गमनम्_val);
 }
 
-static const struct fwft_feature features[] =
+स्थिर ध्रुव संरचना fwft_feature features[] =
 {
 	{
 		.id = SBI_FWFT_MISALIGNED_EXC_DELEG,
 		.supported = fwft_misaligned_delegation_supported,
-		.set = fwft_set_misaligned_delegation,
+		.समुच्चयः = fwft_समुच्चयः_misaligned_delegation,
 		.get = fwft_get_misaligned_delegation,
 	},
 	{
 		.id = SBI_FWFT_LANDING_PAD,
 		.supported = fwft_lpad_supported,
-		.set = fwft_enable_lpad,
+		.समुच्चयः = fwft_enable_lpad,
 		.get = fwft_get_lpad,
 	},
 	{
-		.id = SBI_FWFT_SHADOW_STACK,
+		.id = SBI_FWFT_SHADOW_राशिः,
 		.supported = fwft_sstack_supported,
-		.set = fwft_enable_sstack,
+		.समुच्चयः = fwft_enable_sstack,
 		.get = fwft_get_sstack,
 	},
 	{
 		.id = SBI_FWFT_DOUBLE_TRAP,
 		.supported = fwft_double_trap_supported,
-		.set = fwft_set_double_trap,
+		.समुच्चयः = fwft_समुच्चयः_double_trap,
 		.get = fwft_get_double_trap,
 	},
 	{
 		.id = SBI_FWFT_PTE_AD_HW_UPDATING,
 		.supported = fwft_adue_supported,
-		.set = fwft_set_adue,
+		.समुच्चयः = fwft_समुच्चयः_adue,
 		.get = fwft_get_adue,
 	},
-#if __riscv_xlen > 32
+#यदि __riscv_xlen > 32
 	{
 		.id = SBI_FWFT_POINTER_MASKING_PMLEN,
 		.supported = fwft_pmlen_supported,
-		.set = fwft_set_pmlen,
+		.समुच्चयः = fwft_समुच्चयः_pmlen,
 		.get = fwft_get_pmlen,
 	},
-#endif
+#यदि_अन्तः
 };
 
-int sbi_fwft_init(struct sbi_scratch *scratch, bool cold_boot)
+पूर्णाङ्क sbi_fwft_init(संरचना sbi_scratch *scratch, bool cold_boot)
 {
-	int i;
-	struct fwft_hart_state *fhs;
+	पूर्णाङ्क i;
+	संरचना fwft_hart_state *fhs;
 
-	if (cold_boot) {
-		fwft_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!fwft_ptr_offset)
-			return SBI_ENOMEM;
+	यदि (cold_boot) {
+		fwft_ptr_विस्थापनम् = sbi_scratch_alloc_type_विस्थापनम्(शून्य *);
+		यदि (!fwft_ptr_विस्थापनम्)
+			प्रत्यागम SBI_ENOMEM;
 	}
 
 	fhs = fwft_get_hart_state_ptr(scratch);
-	if (!fhs) {
-		fhs = sbi_zalloc(sizeof(*fhs) + array_size(features) * sizeof(struct fwft_config));
-		if (!fhs)
-			return SBI_ENOMEM;
+	यदि (!fhs) {
+		fhs = sbi_zalloc(परिमाण(*fhs) + array_आकार(features) * परिमाण(संरचना fwft_config));
+		यदि (!fhs)
+			प्रत्यागम SBI_ENOMEM;
 
-		fhs->config_count = array_size(features);
-		for (i = 0; i < array_size(features); i++)
+		fhs->config_गणनम् = array_आकार(features);
+		प्रति (i = 0; i < array_आकार(features); i++)
 			fhs->configs[i].feature = &features[i];
 
-		fwft_set_hart_state_ptr(scratch, fhs);
+		fwft_समुच्चयः_hart_state_ptr(scratch, fhs);
 	}
 
-	for (i = 0; i < array_size(features); i++)
-		fwft_clear_config_lock(features[i].id);
+	प्रति (i = 0; i < array_आकार(features); i++)
+		fwft_clear_config_तालकम्(features[i].id);
 
-	return 0;
+	प्रत्यागम 0;
 }

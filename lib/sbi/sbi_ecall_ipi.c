@@ -8,37 +8,37 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_ipi.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_ipi.h>
 
-static int sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+स्थिर पूर्णाङ्क sbi_ecall_ipi_handler(अचिह्नित दीर्घ extid, अचिह्नित दीर्घ funcid,
+				 संरचना sbi_trap_regs *regs,
+				 संरचना sbi_ecall_return *बहिर्गमनम्)
 {
-	int ret = 0;
+	पूर्णाङ्क ret = 0;
 
-	if (funcid == SBI_EXT_IPI_SEND_IPI)
+	यदि (funcid == SBI_EXT_IPI_SEND_IPI)
 		ret = sbi_ipi_send_smode(regs->a0, regs->a1);
-	else
+	अन्यथा
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-struct sbi_ecall_extension ecall_ipi;
+संरचना sbi_ecall_extension ecall_ipi;
 
-static int sbi_ecall_ipi_register_extensions(void)
+स्थिर पूर्णाङ्क sbi_ecall_ipi_पञ्जिकाकोशः_extensions(शून्य)
 {
-	return sbi_ecall_register_extension(&ecall_ipi);
+	प्रत्यागम sbi_ecall_पञ्जिकाकोशः_extension(&ecall_ipi);
 }
 
-struct sbi_ecall_extension ecall_ipi = {
+संरचना sbi_ecall_extension ecall_ipi = {
 	.name			= "ipi",
 	.extid_start		= SBI_EXT_IPI,
-	.extid_end		= SBI_EXT_IPI,
-	.register_extensions	= sbi_ecall_ipi_register_extensions,
+	.extid_अन्तः		= SBI_EXT_IPI,
+	.पञ्जिकाकोशः_extensions	= sbi_ecall_ipi_पञ्जिकाकोशः_extensions,
 	.handle			= sbi_ecall_ipi_handler,
 };

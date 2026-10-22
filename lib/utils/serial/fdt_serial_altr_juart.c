@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/serial/fdt_serial.h>
+#अन्तर्भाव <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+स्थिर पूर्णाङ्क serial_altr_juart_init(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+				  ध्रुव संरचना fdt_मेलनम् *मेलनम्)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_आकार;
+	पूर्णाङ्क rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	यदि (nodeoff < 0 || !fdt)
+		प्रत्यागम SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_ग्रन्थिः_addr_आकार(fdt, nodeoff, 0, &reg_addr, &reg_आकार);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	यदि (rc < 0 || !reg_addr || !reg_आकार || reg_आकार < 0x8)
+		प्रत्यागम SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	प्रत्यागम altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+स्थिर ध्रुव संरचना fdt_मेलनम् serial_altr_juart_मेलनम्[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
-	.match_table = serial_altr_juart_match,
+ध्रुव संरचना fdt_driver fdt_serial_altr_juart = {
+	.मेलनम्_सारणी = serial_altr_juart_मेलनम्,
 	.init = serial_altr_juart_init,
 };

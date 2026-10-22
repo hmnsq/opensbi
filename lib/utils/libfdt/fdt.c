@@ -3,333 +3,333 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#अन्तर्भाव "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#अन्तर्भाव <fdt.h>
+#अन्तर्भाव <libfdt.h>
 
-#include "libfdt_internal.h"
+#अन्तर्भाव "libfdt_internal.h"
 
 /*
  * Minimal sanity check for a read-only tree. fdt_ro_probe_() checks
  * that the given buffer contains what appears to be a flattened
  * device tree with sane information in its header.
  */
-int32_t fdt_ro_probe_(const void *fdt)
+int32_t fdt_ro_probe_(ध्रुव शून्य *fdt)
 {
 	uint32_t totalsize = fdt_totalsize(fdt);
 
-	if (can_assume(VALID_DTB))
-		return totalsize;
+	यदि (can_assume(VALID_DTB))
+		प्रत्यागम totalsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	यदि ((uintptr_t)fdt & 7)
+		प्रत्यागम -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
+	यदि (fdt_magic(fdt) == FDT_MAGIC) {
 		/* Complete tree */
-		if (!can_assume(LATEST)) {
-			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
-			if (fdt_last_comp_version(fdt) >
-					FDT_LAST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
+		यदि (!can_assume(LATEST)) {
+			यदि (fdt_संस्करणम्(fdt) < FDT_FIRST_SUPPORTED_संस्करणम्)
+				प्रत्यागम -FDT_ERR_BADVERSION;
+			यदि (fdt_चरमः_comp_संस्करणम्(fdt) >
+					FDT_चरमः_SUPPORTED_संस्करणम्)
+				प्रत्यागम -FDT_ERR_BADVERSION;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
+	} अन्यथा यदि (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
-		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
-			return -FDT_ERR_BADSTATE;
-	} else {
-		return -FDT_ERR_BADMAGIC;
+		यदि (!can_assume(VALID_निवेशः) && fdt_आकार_dt_struct(fdt) == 0)
+			प्रत्यागम -FDT_ERR_BADSTATE;
+	} अन्यथा {
+		प्रत्यागम -FDT_ERR_BADMAGIC;
 	}
 
-	if (totalsize < INT32_MAX)
-		return totalsize;
-	else
-		return -FDT_ERR_TRUNCATED;
+	यदि (totalsize < INT32_MAX)
+		प्रत्यागम totalsize;
+	अन्यथा
+		प्रत्यागम -FDT_ERR_TRUNCATED;
 }
 
-static int check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
+स्थिर पूर्णाङ्क check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
 {
-	return (off >= hdrsize) && (off <= totalsize);
+	प्रत्यागम (off >= hdrsize) && (off <= totalsize);
 }
 
-static int check_block_(uint32_t hdrsize, uint32_t totalsize,
-			uint32_t base, uint32_t size)
+स्थिर पूर्णाङ्क check_खण्डम्(uint32_t hdrsize, uint32_t totalsize,
+			uint32_t आधारः_2, uint32_t आकार)
 {
-	if (!check_off_(hdrsize, totalsize, base))
-		return 0; /* block start out of bounds */
-	if ((base + size) < base)
-		return 0; /* overflow */
-	if (!check_off_(hdrsize, totalsize, base + size))
-		return 0; /* block end out of bounds */
-	return 1;
+	यदि (!check_off_(hdrsize, totalsize, आधारः_2))
+		प्रत्यागम 0; /* block start out of bounds */
+	यदि ((आधारः_2 + आकार) < आधारः_2)
+		प्रत्यागम 0; /*अतिप्रवाहः*/
+	यदि (!check_off_(hdrsize, totalsize, आधारः_2 + आकार))
+		प्रत्यागम 0; /* block end out of bounds */
+	प्रत्यागम 1;
 }
 
-size_t fdt_header_size_(uint32_t version)
+size_t fdt_शीर्षकम्_आकार(uint32_t संस्करणम्)
 {
-	if (version <= 1)
-		return FDT_V1_SIZE;
-	else if (version <= 2)
-		return FDT_V2_SIZE;
-	else if (version <= 3)
-		return FDT_V3_SIZE;
-	else if (version <= 16)
-		return FDT_V16_SIZE;
-	else
-		return FDT_V17_SIZE;
+	यदि (संस्करणम् <= 1)
+		प्रत्यागम FDT_V1_आकार;
+	अन्यथा यदि (संस्करणम् <= 2)
+		प्रत्यागम FDT_V2_आकार;
+	अन्यथा यदि (संस्करणम् <= 3)
+		प्रत्यागम FDT_V3_आकार;
+	अन्यथा यदि (संस्करणम् <= 16)
+		प्रत्यागम FDT_V16_आकार;
+	अन्यथा
+		प्रत्यागम FDT_V17_आकार;
 }
 
-size_t fdt_header_size(const void *fdt)
+size_t fdt_शीर्षकम्_आकार_2(ध्रुव शून्य *fdt)
 {
-	return can_assume(LATEST) ? FDT_V17_SIZE :
-		fdt_header_size_(fdt_version(fdt));
+	प्रत्यागम can_assume(LATEST) ? FDT_V17_आकार :
+		fdt_शीर्षकम्_आकार(fdt_संस्करणम्(fdt));
 }
 
-int fdt_check_header(const void *fdt)
+पूर्णाङ्क fdt_check_शीर्षकम्(ध्रुव शून्य *fdt)
 {
 	size_t hdrsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	यदि ((uintptr_t)fdt & 7)
+		प्रत्यागम -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) != FDT_MAGIC)
-		return -FDT_ERR_BADMAGIC;
-	if (!can_assume(LATEST)) {
-		if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-		    || (fdt_last_comp_version(fdt) >
-			FDT_LAST_SUPPORTED_VERSION))
-			return -FDT_ERR_BADVERSION;
-		if (fdt_version(fdt) < fdt_last_comp_version(fdt))
-			return -FDT_ERR_BADVERSION;
+	यदि (fdt_magic(fdt) != FDT_MAGIC)
+		प्रत्यागम -FDT_ERR_BADMAGIC;
+	यदि (!can_assume(LATEST)) {
+		यदि ((fdt_संस्करणम्(fdt) < FDT_FIRST_SUPPORTED_संस्करणम्)
+		    || (fdt_चरमः_comp_संस्करणम्(fdt) >
+			FDT_चरमः_SUPPORTED_संस्करणम्))
+			प्रत्यागम -FDT_ERR_BADVERSION;
+		यदि (fdt_संस्करणम्(fdt) < fdt_चरमः_comp_संस्करणम्(fdt))
+			प्रत्यागम -FDT_ERR_BADVERSION;
 	}
-	hdrsize = fdt_header_size(fdt);
-	if (!can_assume(VALID_DTB)) {
+	hdrsize = fdt_शीर्षकम्_आकार_2(fdt);
+	यदि (!can_assume(VALID_DTB)) {
 
-		if ((fdt_totalsize(fdt) < hdrsize)
-		    || (fdt_totalsize(fdt) > INT_MAX))
-			return -FDT_ERR_TRUNCATED;
+		यदि ((fdt_totalsize(fdt) < hdrsize)
+		    || (fdt_totalsize(fdt) > अधिकतम_पूर्णाङ्कः))
+			प्रत्यागम -FDT_ERR_TRUNCATED;
 
 		/* Bounds check memrsv block */
-		if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		यदि (!check_off_(hdrsize, fdt_totalsize(fdt),
 				fdt_off_mem_rsvmap(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			प्रत्यागम -FDT_ERR_TRUNCATED;
 	}
 
-	if (!can_assume(VALID_DTB)) {
+	यदि (!can_assume(VALID_DTB)) {
 		/* Bounds check structure block */
-		if (!can_assume(LATEST) && fdt_version(fdt) < 17) {
-			if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		यदि (!can_assume(LATEST) && fdt_संस्करणम्(fdt) < 17) {
+			यदि (!check_off_(hdrsize, fdt_totalsize(fdt),
 					fdt_off_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
-		} else {
-			if (!check_block_(hdrsize, fdt_totalsize(fdt),
+				प्रत्यागम -FDT_ERR_TRUNCATED;
+		} अन्यथा {
+			यदि (!check_खण्डम्(hdrsize, fdt_totalsize(fdt),
 					  fdt_off_dt_struct(fdt),
-					  fdt_size_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
+					  fdt_आकार_dt_struct(fdt)))
+				प्रत्यागम -FDT_ERR_TRUNCATED;
 		}
 
 		/* Bounds check strings block */
-		if (!check_block_(hdrsize, fdt_totalsize(fdt),
-				  fdt_off_dt_strings(fdt),
-				  fdt_size_dt_strings(fdt)))
-			return -FDT_ERR_TRUNCATED;
+		यदि (!check_खण्डम्(hdrsize, fdt_totalsize(fdt),
+				  fdt_off_dt_वाक्यानि(fdt),
+				  fdt_आकार_dt_वाक्यानि(fdt)))
+			प्रत्यागम -FDT_ERR_TRUNCATED;
 	}
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
+ध्रुव शून्य *fdt_विस्थापनम्_ptr(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्, अचिह्नित पूर्णाङ्क len)
 {
-	unsigned int uoffset = offset;
-	unsigned int absoffset = offset + fdt_off_dt_struct(fdt);
+	अचिह्नित पूर्णाङ्क uoffset = विस्थापनम्;
+	अचिह्नित पूर्णाङ्क absoffset = विस्थापनम् + fdt_off_dt_struct(fdt);
 
-	if (offset < 0)
-		return NULL;
+	यदि (विस्थापनम् < 0)
+		प्रत्यागम रिक्त;
 
-	if (!can_assume(VALID_INPUT))
-		if ((absoffset < uoffset)
+	यदि (!can_assume(VALID_निवेशः))
+		यदि ((absoffset < uoffset)
 		    || ((absoffset + len) < absoffset)
 		    || (absoffset + len) > fdt_totalsize(fdt))
-			return NULL;
+			प्रत्यागम रिक्त;
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
-		if (((uoffset + len) < uoffset)
-		    || ((offset + len) > fdt_size_dt_struct(fdt)))
-			return NULL;
+	यदि (can_assume(LATEST) || fdt_संस्करणम्(fdt) >= 0x11)
+		यदि (((uoffset + len) < uoffset)
+		    || ((विस्थापनम् + len) > fdt_आकार_dt_struct(fdt)))
+			प्रत्यागम रिक्त;
 
-	return fdt_offset_ptr_(fdt, offset);
+	प्रत्यागम fdt_विस्थापनम्_ptr_2(fdt, विस्थापनम्);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
+uint32_t fdt_अग्र_चिह्नकम्(ध्रुव शून्य *fdt, पूर्णाङ्क startoffset, पूर्णाङ्क *nextoffset)
 {
-	const fdt32_t *tagp, *lenp;
-	uint32_t tag;
-	int offset = startoffset;
-	const char *p;
+	ध्रुव fdt32_t *tagp, *lenp;
+	uint32_t चिह्नकम्;
+	पूर्णाङ्क विस्थापनम् = startoffset;
+	ध्रुव वर्ण *p;
 
 	*nextoffset = -FDT_ERR_TRUNCATED;
-	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
-	if (!can_assume(VALID_DTB) && !tagp)
-		return FDT_END; /* premature end */
-	tag = fdt32_to_cpu(*tagp);
-	offset += FDT_TAGSIZE;
+	tagp = fdt_विस्थापनम्_ptr(fdt, विस्थापनम्, FDT_TAGSIZE);
+	यदि (!can_assume(VALID_DTB) && !tagp)
+		प्रत्यागम FDT_अन्तः; /* premature end */
+	चिह्नकम् = fdt32_गन्तव्यम्_cpu(*tagp);
+	विस्थापनम् += FDT_TAGSIZE;
 
 	*nextoffset = -FDT_ERR_BADSTRUCTURE;
-	switch (tag) {
-	case FDT_BEGIN_NODE:
+	विकल्प (चिह्नकम्) {
+	पक्ष FDT_BEGIN_ग्रन्थिः:
 		/* skip name */
-		do {
-			p = fdt_offset_ptr(fdt, offset++, 1);
-		} while (p && (*p != '\0'));
-		if (!can_assume(VALID_DTB) && !p)
-			return FDT_END; /* premature end */
-		break;
+		कुरु {
+			p = fdt_विस्थापनम्_ptr(fdt, विस्थापनम्++, 1);
+		} यावत् (p && (*p != '\0'));
+		यदि (!can_assume(VALID_DTB) && !p)
+			प्रत्यागम FDT_अन्तः; /* premature end */
+		भङ्ग;
 
-	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (!can_assume(VALID_DTB) && !lenp)
-			return FDT_END; /* premature end */
+	पक्ष FDT_PROP:
+		lenp = fdt_विस्थापनम्_ptr(fdt, विस्थापनम्, परिमाण(*lenp));
+		यदि (!can_assume(VALID_DTB) && !lenp)
+			प्रत्यागम FDT_अन्तः; /* premature end */
 		/* skip-name offset, length and value */
-		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
-			+ fdt32_to_cpu(*lenp);
-		if (!can_assume(LATEST) &&
-		    fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
-		    ((offset - fdt32_to_cpu(*lenp)) % 8) != 0)
-			offset += 4;
-		break;
+		विस्थापनम् += परिमाण(संरचना fdt_property) - FDT_TAGSIZE
+			+ fdt32_गन्तव्यम्_cpu(*lenp);
+		यदि (!can_assume(LATEST) &&
+		    fdt_संस्करणम्(fdt) < 0x10 && fdt32_गन्तव्यम्_cpu(*lenp) >= 8 &&
+		    ((विस्थापनम् - fdt32_गन्तव्यम्_cpu(*lenp)) % 8) != 0)
+			विस्थापनम् += 4;
+		भङ्ग;
 
-	case FDT_END:
-	case FDT_END_NODE:
-	case FDT_NOP:
-		break;
+	पक्ष FDT_अन्तः:
+	पक्ष FDT_अन्तः_ग्रन्थिः:
+	पक्ष FDT_NOP:
+		भङ्ग;
 
-	default:
-		return FDT_END;
+	स्वभाव:
+		प्रत्यागम FDT_अन्तः;
 	}
 
-	if (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
-		return FDT_END; /* premature end */
+	यदि (!fdt_विस्थापनम्_ptr(fdt, startoffset, विस्थापनम् - startoffset))
+		प्रत्यागम FDT_अन्तः; /* premature end */
 
-	*nextoffset = FDT_TAGALIGN(offset);
-	return tag;
+	*nextoffset = FDT_TAGALIGN(विस्थापनम्);
+	प्रत्यागम चिह्नकम्;
 }
 
-int fdt_check_node_offset_(const void *fdt, int offset)
+पूर्णाङ्क fdt_check_ग्रन्थिः_विस्थापनम्(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्)
 {
-	if (!can_assume(VALID_INPUT)
-	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+	यदि (!can_assume(VALID_निवेशः)
+	    && ((विस्थापनम् < 0) || (विस्थापनम् % FDT_TAGSIZE)))
+		प्रत्यागम -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
-		return -FDT_ERR_BADOFFSET;
+	यदि (fdt_अग्र_चिह्नकम्(fdt, विस्थापनम्, &विस्थापनम्) != FDT_BEGIN_ग्रन्थिः)
+		प्रत्यागम -FDT_ERR_BADOFFSET;
 
-	return offset;
+	प्रत्यागम विस्थापनम्;
 }
 
-int fdt_check_prop_offset_(const void *fdt, int offset)
+पूर्णाङ्क fdt_check_prop_विस्थापनम्(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्)
 {
-	if (!can_assume(VALID_INPUT)
-	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+	यदि (!can_assume(VALID_निवेशः)
+	    && ((विस्थापनम् < 0) || (विस्थापनम् % FDT_TAGSIZE)))
+		प्रत्यागम -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
-		return -FDT_ERR_BADOFFSET;
+	यदि (fdt_अग्र_चिह्नकम्(fdt, विस्थापनम्, &विस्थापनम्) != FDT_PROP)
+		प्रत्यागम -FDT_ERR_BADOFFSET;
 
-	return offset;
+	प्रत्यागम विस्थापनम्;
 }
 
-int fdt_next_node(const void *fdt, int offset, int *depth)
+पूर्णाङ्क fdt_अग्र_ग्रन्थिः(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्, पूर्णाङ्क *गभीरता)
 {
-	int nextoffset = 0;
-	uint32_t tag;
+	पूर्णाङ्क nextoffset = 0;
+	uint32_t चिह्नकम्;
 
-	if (offset >= 0)
-		if ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
-			return nextoffset;
+	यदि (विस्थापनम् >= 0)
+		यदि ((nextoffset = fdt_check_ग्रन्थिः_विस्थापनम्(fdt, विस्थापनम्)) < 0)
+			प्रत्यागम nextoffset;
 
-	do {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+	कुरु {
+		विस्थापनम् = nextoffset;
+		चिह्नकम् = fdt_अग्र_चिह्नकम्(fdt, विस्थापनम्, &nextoffset);
 
-		switch (tag) {
-		case FDT_PROP:
-		case FDT_NOP:
-			break;
+		विकल्प (चिह्नकम्) {
+		पक्ष FDT_PROP:
+		पक्ष FDT_NOP:
+			भङ्ग;
 
-		case FDT_BEGIN_NODE:
-			if (depth)
-				(*depth)++;
-			break;
+		पक्ष FDT_BEGIN_ग्रन्थिः:
+			यदि (गभीरता)
+				(*गभीरता)++;
+			भङ्ग;
 
-		case FDT_END_NODE:
-			if (depth && ((--(*depth)) < 0))
-				return nextoffset;
-			break;
+		पक्ष FDT_अन्तः_ग्रन्थिः:
+			यदि (गभीरता && ((--(*गभीरता)) < 0))
+				प्रत्यागम nextoffset;
+			भङ्ग;
 
-		case FDT_END:
-			if ((nextoffset >= 0)
-			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !depth))
-				return -FDT_ERR_NOTFOUND;
-			else
-				return nextoffset;
+		पक्ष FDT_अन्तः:
+			यदि ((nextoffset >= 0)
+			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !गभीरता))
+				प्रत्यागम -FDT_ERR_NOTFOUND;
+			अन्यथा
+				प्रत्यागम nextoffset;
 		}
-	} while (tag != FDT_BEGIN_NODE);
+	} यावत् (चिह्नकम् != FDT_BEGIN_ग्रन्थिः);
 
-	return offset;
+	प्रत्यागम विस्थापनम्;
 }
 
-int fdt_first_subnode(const void *fdt, int offset)
+पूर्णाङ्क fdt_first_subnode(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्)
 {
-	int depth = 0;
+	पूर्णाङ्क गभीरता = 0;
 
-	offset = fdt_next_node(fdt, offset, &depth);
-	if (offset < 0 || depth != 1)
-		return -FDT_ERR_NOTFOUND;
+	विस्थापनम् = fdt_अग्र_ग्रन्थिः(fdt, विस्थापनम्, &गभीरता);
+	यदि (विस्थापनम् < 0 || गभीरता != 1)
+		प्रत्यागम -FDT_ERR_NOTFOUND;
 
-	return offset;
+	प्रत्यागम विस्थापनम्;
 }
 
-int fdt_next_subnode(const void *fdt, int offset)
+पूर्णाङ्क fdt_अग्र_subnode(ध्रुव शून्य *fdt, पूर्णाङ्क विस्थापनम्)
 {
-	int depth = 1;
+	पूर्णाङ्क गभीरता = 1;
 
 	/*
 	 * With respect to the parent, the depth of the next subnode will be
 	 * the same as the last.
 	 */
-	do {
-		offset = fdt_next_node(fdt, offset, &depth);
-		if (offset < 0 || depth < 1)
-			return -FDT_ERR_NOTFOUND;
-	} while (depth > 1);
+	कुरु {
+		विस्थापनम् = fdt_अग्र_ग्रन्थिः(fdt, विस्थापनम्, &गभीरता);
+		यदि (विस्थापनम् < 0 || गभीरता < 1)
+			प्रत्यागम -FDT_ERR_NOTFOUND;
+	} यावत् (गभीरता > 1);
 
-	return offset;
+	प्रत्यागम विस्थापनम्;
 }
 
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
+ध्रुव वर्ण *fdt_find_string_(ध्रुव वर्ण *strtab, पूर्णाङ्क tabsize, ध्रुव वर्ण *s)
 {
-	int len = strlen(s) + 1;
-	const char *last = strtab + tabsize - len;
-	const char *p;
+	पूर्णाङ्क len = वाक्यदैर्घ्यम्(s) + 1;
+	ध्रुव वर्ण *चरमः = strtab + tabsize - len;
+	ध्रुव वर्ण *p;
 
-	for (p = strtab; p <= last; p++)
-		if (memcmp(p, s, len) == 0)
-			return p;
-	return NULL;
+	प्रति (p = strtab; p <= चरमः; p++)
+		यदि (memcmp(p, s, len) == 0)
+			प्रत्यागम p;
+	प्रत्यागम रिक्त;
 }
 
-int fdt_move(const void *fdt, void *buf, int bufsize)
+पूर्णाङ्क fdt_move(ध्रुव शून्य *fdt, शून्य *buf, पूर्णाङ्क bufsize)
 {
-	if (!can_assume(VALID_INPUT) && bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	यदि (!can_assume(VALID_निवेशः) && bufsize < 0)
+		प्रत्यागम -FDT_ERR_NOSPACE;
 
 	FDT_RO_PROBE(fdt);
 
-	if (fdt_totalsize(fdt) > (unsigned int)bufsize)
-		return -FDT_ERR_NOSPACE;
+	यदि (fdt_totalsize(fdt) > (अचिह्नित पूर्णाङ्क)bufsize)
+		प्रत्यागम -FDT_ERR_NOSPACE;
 
 	memmove(buf, fdt, fdt_totalsize(fdt));
-	return 0;
+	प्रत्यागम 0;
 }

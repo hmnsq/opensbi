@@ -7,45 +7,45 @@
  *   Subrahmanya Lingappa <subrahmanya.lingappa@oss.qualcomm.com>
  */
 
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#अन्तर्भाव <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
 
-static struct mpxy_rpmi_service_data logging_services[] = {
+स्थिर संरचना mpxy_rpmi_service_दत्त logging_services[] = {
 	[0] = {
 		.id = RPMI_LOGGING_SRV_ENABLE_NOTIFICATION,
-		.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-		.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+		.min_tx_len = परिमाण(संरचना rpmi_enable_notification_req),
+		.max_tx_len = परिमाण(संरचना rpmi_enable_notification_req),
+		.min_rx_len = परिमाण(संरचना rpmi_enable_notification_resp),
+		.max_rx_len = परिमाण(संरचना rpmi_enable_notification_resp),
 	},
 	[1] = {
-		.id = RPMI_LOGGING_SRV_LOG_DATA,
-		.min_tx_len = sizeof(u32) * 2,
-		.max_tx_len = sizeof(struct rpmi_logging_log_data_req),
-		.min_rx_len = sizeof(struct rpmi_logging_log_data_resp),
-		.max_rx_len = sizeof(struct rpmi_logging_log_data_resp),
+		.id = RPMI_LOGGING_SRV_LOG_दत्त,
+		.min_tx_len = परिमाण(u32) * 2,
+		.max_tx_len = परिमाण(संरचना rpmi_logging_log_दत्त_req),
+		.min_rx_len = परिमाण(संरचना rpmi_logging_log_दत्त_resp),
+		.max_rx_len = परिमाण(संरचना rpmi_logging_log_दत्त_resp),
 	},
 	/*
 	 * Keep a local terminator for safe lookup because only service ID 0x02
 	 * is intentionally exposed by this MPXY service group handler.
 	 */
 	[2] = {
-		.id = RPMI_LOGGING_SRV_MAX_COUNT,
+		.id = RPMI_LOGGING_SRV_MAX_गणनम्,
 	},
 };
 
-static const struct mpxy_rpmi_mbox_data logging_data = {
+स्थिर ध्रुव संरचना mpxy_rpmi_mbox_दत्त logging_दत्त = {
 	.servicegrp_id = RPMI_SRVGRP_LOGGING,
-	.num_services = RPMI_LOGGING_SRV_MAX_COUNT,
-	.service_data = logging_services,
+	.अङ्कः_services = RPMI_LOGGING_SRV_MAX_गणनम्,
+	.service_दत्त = logging_services,
 };
 
-static const struct fdt_match logging_match[] = {
-	{ .compatible = "riscv,rpmi-mpxy-logging", .data = &logging_data },
+स्थिर ध्रुव संरचना fdt_मेलनम् logging_मेलनम्[] = {
+	{ .compatible = "riscv,rpmi-mpxy-logging", .दत्त = &logging_दत्त },
 	{ },
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_logging = {
-	.match_table = logging_match,
+ध्रुव संरचना fdt_driver fdt_mpxy_rpmi_logging = {
+	.मेलनम्_सारणी = logging_मेलनम्,
 	.init = mpxy_rpmi_mbox_init,
 	.experimental = true,
 };

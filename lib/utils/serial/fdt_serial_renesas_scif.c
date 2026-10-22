@@ -3,29 +3,29 @@
  * Copyright (C) 2022 Renesas Electronics Corporation
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/renesas-scif.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/serial/fdt_serial.h>
+#अन्तर्भाव <sbi_utils/serial/renesas-scif.h>
 
-static int serial_renesas_scif_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+स्थिर पूर्णाङ्क serial_renesas_scif_init(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+				    ध्रुव संरचना fdt_मेलनम् *मेलनम्)
 {
-	struct platform_uart_data uart = { 0 };
-	int ret;
+	संरचना platform_uart_दत्त uart = { 0 };
+	पूर्णाङ्क ret;
 
-	ret = fdt_parse_renesas_scif_node(fdt, nodeoff, &uart);
-	if (ret)
-		return ret;
+	ret = fdt_parse_renesas_scif_ग्रन्थिः(fdt, nodeoff, &uart);
+	यदि (ret)
+		प्रत्यागम ret;
 
-	return renesas_scif_init(uart.addr, uart.freq, uart.baud);
+	प्रत्यागम renesas_scif_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_renesas_scif_match[] = {
+स्थिर ध्रुव संरचना fdt_मेलनम् serial_renesas_scif_मेलनम्[] = {
 	{ .compatible = "renesas,scif-r9a07g043" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_serial_renesas_scif = {
-	.match_table = serial_renesas_scif_match,
+ध्रुव संरचना fdt_driver fdt_serial_renesas_scif = {
+	.मेलनम्_सारणी = serial_renesas_scif_मेलनम्,
 	.init = serial_renesas_scif_init
 };

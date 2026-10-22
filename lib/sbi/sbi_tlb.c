@@ -8,36 +8,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/riscv_atomic.h>
+#अन्तर्भाव <sbi/riscv_barrier.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_fifo.h>
+#अन्तर्भाव <sbi/sbi_hart.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi/sbi_ipi.h>
+#अन्तर्भाव <sbi/sbi_scratch.h>
+#अन्तर्भाव <sbi/sbi_tlb.h>
+#अन्तर्भाव <sbi/sbi_hfence.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_platform.h>
+#अन्तर्भाव <sbi/sbi_pmu.h>
 
-static unsigned long tlb_sync_off;
-static unsigned long tlb_fifo_off;
-static unsigned long tlb_fifo_mem_off;
-static unsigned long tlb_range_flush_limit;
+स्थिर अचिह्नित दीर्घ tlb_sync_off;
+स्थिर अचिह्नित दीर्घ tlb_fifo_off;
+स्थिर अचिह्नित दीर्घ tlb_fifo_mem_off;
+स्थिर अचिह्नित दीर्घ tlb_range_flush_सीमा;
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_fence_i(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_sfence_vma(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_sfence_vma_asid(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_hfence_gvma_vmid(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_hfence_gvma(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_hfence_vvma_asid(संरचना sbi_tlb_info *tinfo);
+स्थिर शून्य sbi_tlb_local_hfence_vvma(संरचना sbi_tlb_info *tinfo);
 
-static struct sbi_tlb_local_operations default_tlb_local_ops = {
+स्थिर संरचना sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_fence_i = sbi_tlb_local_fence_i,
 	.local_sfence_vma = sbi_tlb_local_sfence_vma,
 	.local_sfence_vma_asid = sbi_tlb_local_sfence_vma_asid,
@@ -47,82 +47,82 @@ static struct sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_hfence_vvma = sbi_tlb_local_hfence_vvma
 };
 
-static const struct sbi_tlb_local_operations *tlb_local_ops =
+स्थिर ध्रुव संरचना sbi_tlb_local_operations *tlb_local_ops =
 	&default_tlb_local_ops;
 
-const struct sbi_tlb_local_operations *sbi_tlb_get_local_operations(void)
+ध्रुव संरचना sbi_tlb_local_operations *sbi_tlb_get_local_operations(शून्य)
 {
-	return tlb_local_ops;
+	प्रत्यागम tlb_local_ops;
 }
 
-void sbi_tlb_set_local_operations(
-		const struct sbi_tlb_local_operations *ops)
+शून्य sbi_tlb_समुच्चयः_local_operations(
+		ध्रुव संरचना sbi_tlb_local_operations *ops)
 {
 	tlb_local_ops = ops;
 }
 
-void __sbi_sfence_vma_all(void)
+शून्य __sbi_sfence_vma_all(शून्य)
 {
 	__asm__ __volatile("sfence.vma");
 }
 
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_hfence_vvma(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i, hgatp;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ vmid  = tinfo->vmid;
+	अचिह्नित दीर्घ i, hgatp;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_VVMA_RCVD);
 
 	hgatp = csr_swap(CSR_HGATP,
-			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
+			 (vmid << HGATP_VMID_सरणम्) & HGATP_VMID_आवरणम्);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_all();
-		goto done;
+		गच्छ समाप्तम्;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__sbi_hfence_vvma_va(start+i);
 	}
 
-done:
+समाप्तम्:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_hfence_gvma(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long i;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_all();
-		return;
+		प्रत्यागम;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__sbi_hfence_gvma_gpa((start + i) >> 2);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_sfence_vma(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long i;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__sbi_sfence_vma_all();
-		return;
+		प्रत्यागम;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__asm__ __volatile__("sfence.vma %0"
 				     :
 				     : "r"(start + i)
@@ -130,70 +130,70 @@ static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
 	}
 }
 
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_hfence_vvma_asid(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long asid  = tinfo->asid;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i, hgatp;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ asid  = tinfo->asid;
+	अचिह्नित दीर्घ vmid  = tinfo->vmid;
+	अचिह्नित दीर्घ i, hgatp;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_VVMA_ASID_RCVD);
 
 	hgatp = csr_swap(CSR_HGATP,
-			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
+			 (vmid << HGATP_VMID_सरणम्) & HGATP_VMID_आवरणम्);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_asid(asid);
-		goto done;
+		गच्छ समाप्तम्;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__sbi_hfence_vvma_asid_va(start + i, asid);
 	}
 
-done:
+समाप्तम्:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_hfence_gvma_vmid(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ vmid  = tinfo->vmid;
+	अचिह्नित दीर्घ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_VMID_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_vmid(vmid);
-		return;
+		प्रत्यागम;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__sbi_hfence_gvma_vmid_gpa((start + i) >> 2, vmid);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_sfence_vma_asid(संरचना sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long asid  = tinfo->asid;
-	unsigned long i;
+	अचिह्नित दीर्घ start = tinfo->start;
+	अचिह्नित दीर्घ आकार  = tinfo->आकार;
+	अचिह्नित दीर्घ asid  = tinfo->asid;
+	अचिह्नित दीर्घ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_ASID_RCVD);
 
 	/* Flush entire MM context for a given ASID */
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	यदि ((start == 0 && आकार == 0) || (आकार == SBI_TLB_FLUSH_ALL)) {
 		__asm__ __volatile__("sfence.vma x0, %0"
 				     :
 				     : "r"(asid)
 				     : "memory");
-		return;
+		प्रत्यागम;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	प्रति (i = 0; i < आकार; i += PAGE_आकार) {
 		__asm__ __volatile__("sfence.vma %0, %1"
 				     :
 				     : "r"(start + i), "r"(asid)
@@ -201,88 +201,88 @@ static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
 	}
 }
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo)
+स्थिर शून्य sbi_tlb_local_fence_i(संरचना sbi_tlb_info *tinfo)
 {
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_FENCE_I_RECVD);
 
 	__asm__ __volatile("fence.i");
 }
 
-static void tlb_entry_local_process(struct sbi_tlb_info *data)
+स्थिर शून्य tlb_प्रविष्टिः_local_process(संरचना sbi_tlb_info *दत्त)
 {
-	if (unlikely(!data))
-		return;
+	यदि (unlikely(!दत्त))
+		प्रत्यागम;
 
-	switch (data->type) {
-	case SBI_TLB_FENCE_I:
-		tlb_local_ops->local_fence_i(data);
-		break;
-	case SBI_TLB_SFENCE_VMA:
-		tlb_local_ops->local_sfence_vma(data);
-		break;
-	case SBI_TLB_SFENCE_VMA_ASID:
-		tlb_local_ops->local_sfence_vma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA_VMID:
-		tlb_local_ops->local_hfence_gvma_vmid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA:
-		tlb_local_ops->local_hfence_gvma(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA_ASID:
-		tlb_local_ops->local_hfence_vvma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA:
-		tlb_local_ops->local_hfence_vvma(data);
-		break;
-	default:
-		break;
+	विकल्प (दत्त->type) {
+	पक्ष SBI_TLB_FENCE_I:
+		tlb_local_ops->local_fence_i(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_SFENCE_VMA:
+		tlb_local_ops->local_sfence_vma(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_SFENCE_VMA_ASID:
+		tlb_local_ops->local_sfence_vma_asid(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_HFENCE_GVMA_VMID:
+		tlb_local_ops->local_hfence_gvma_vmid(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_HFENCE_GVMA:
+		tlb_local_ops->local_hfence_gvma(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_HFENCE_VVMA_ASID:
+		tlb_local_ops->local_hfence_vvma_asid(दत्त);
+		भङ्ग;
+	पक्ष SBI_TLB_HFENCE_VVMA:
+		tlb_local_ops->local_hfence_vvma(दत्त);
+		भङ्ग;
+	स्वभाव:
+		भङ्ग;
 	};
 }
 
-static void tlb_entry_process(struct sbi_tlb_info *tinfo)
+स्थिर शून्य tlb_प्रविष्टिः_process(संरचना sbi_tlb_info *tinfo)
 {
 	u32 rindex;
-	struct sbi_scratch *rscratch = NULL;
-	atomic_t *rtlb_sync = NULL;
+	संरचना sbi_scratch *rscratch = रिक्त;
+	atomic_t *rtlb_sync = रिक्त;
 
-	tlb_entry_local_process(tinfo);
+	tlb_प्रविष्टिः_local_process(tinfo);
 
 	sbi_hartmask_for_each_hartindex(rindex, &tinfo->smask) {
-		rscratch = sbi_hartindex_to_scratch(rindex);
-		if (!rscratch)
-			continue;
+		rscratch = sbi_hartindex_गन्तव्यम्_scratch(rindex);
+		यदि (!rscratch)
+			अनुवर्त;
 
-		rtlb_sync = sbi_scratch_offset_ptr(rscratch, tlb_sync_off);
+		rtlb_sync = sbi_scratch_विस्थापनम्_ptr(rscratch, tlb_sync_off);
 		atomic_sub_return(rtlb_sync, 1);
 	}
 }
 
-static bool tlb_process_once(struct sbi_scratch *scratch)
+स्थिर bool tlb_process_once(संरचना sbi_scratch *scratch)
 {
-	struct sbi_tlb_info tinfo;
-	struct sbi_fifo *tlb_fifo =
-			sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
+	संरचना sbi_tlb_info tinfo;
+	संरचना sbi_fifo *tlb_fifo =
+			sbi_scratch_विस्थापनम्_ptr(scratch, tlb_fifo_off);
 
-	if (!sbi_fifo_dequeue(tlb_fifo, &tinfo)) {
-		tlb_entry_process(&tinfo);
-		return true;
+	यदि (!sbi_fifo_पङ्क्तेः_निष्कासय(tlb_fifo, &tinfo)) {
+		tlb_प्रविष्टिः_process(&tinfo);
+		प्रत्यागम true;
 	}
 
-	return false;
+	प्रत्यागम false;
 }
 
-static void tlb_process(struct sbi_scratch *scratch)
+स्थिर शून्य tlb_process(संरचना sbi_scratch *scratch)
 {
-	while (tlb_process_once(scratch));
+	यावत् (tlb_process_once(scratch));
 }
 
-static void tlb_sync(struct sbi_scratch *scratch)
+स्थिर शून्य tlb_sync(संरचना sbi_scratch *scratch)
 {
 	atomic_t *tlb_sync =
-			sbi_scratch_offset_ptr(scratch, tlb_sync_off);
+			sbi_scratch_विस्थापनम्_ptr(scratch, tlb_sync_off);
 
-	while (atomic_read(tlb_sync) > 0) {
+	यावत् (atomic_read(tlb_sync) > 0) {
 		/*
 		 * While we are waiting for remote hart to set the sync,
 		 * consume fifo requests to avoid deadlock.
@@ -290,32 +290,32 @@ static void tlb_sync(struct sbi_scratch *scratch)
 		tlb_process_once(scratch);
 	}
 
-	return;
+	प्रत्यागम;
 }
 
-static inline int tlb_range_check(struct sbi_tlb_info *curr,
-					struct sbi_tlb_info *next)
+स्थिर अन्तःस्थ पूर्णाङ्क tlb_range_check(संरचना sbi_tlb_info *curr,
+					संरचना sbi_tlb_info *अग्र)
 {
-	unsigned long curr_end;
-	unsigned long next_end;
-	int ret = SBI_FIFO_UNCHANGED;
+	अचिह्नित दीर्घ curr_अन्तः;
+	अचिह्नित दीर्घ अग्र_अन्तः;
+	पूर्णाङ्क ret = SBI_FIFO_UNCHANGED;
 
-	if (!curr || !next)
-		return ret;
+	यदि (!curr || !अग्र)
+		प्रत्यागम ret;
 
-	next_end = next->start + next->size;
-	curr_end = curr->start + curr->size;
-	if (next->start <= curr->start && next_end > curr_end) {
-		curr->start = next->start;
-		curr->size  = next->size;
-		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
+	अग्र_अन्तः = अग्र->start + अग्र->आकार;
+	curr_अन्तः = curr->start + curr->आकार;
+	यदि (अग्र->start <= curr->start && अग्र_अन्तः > curr_अन्तः) {
+		curr->start = अग्र->start;
+		curr->आकार  = अग्र->आकार;
+		sbi_hartmask_or(&curr->smask, &curr->smask, &अग्र->smask);
 		ret = SBI_FIFO_UPDATED;
-	} else if (next->start >= curr->start && next_end <= curr_end) {
-		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
+	} अन्यथा यदि (अग्र->start >= curr->start && अग्र_अन्तः <= curr_अन्तः) {
+		sbi_hartmask_or(&curr->smask, &curr->smask, &अग्र->smask);
 		ret = SBI_FIFO_SKIP;
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
 /**
@@ -336,55 +336,55 @@ static inline int tlb_range_check(struct sbi_tlb_info *curr,
  *	before continuing the while loop. This method is preferred over wfi/ipi because
  *	of MMIO cost involved in later method.
  */
-static int tlb_update_cb(void *in, void *data)
+स्थिर पूर्णाङ्क tlb_update_cb(शून्य *अन्तर्, शून्य *दत्त)
 {
-	struct sbi_tlb_info *curr;
-	struct sbi_tlb_info *next;
-	int ret = SBI_FIFO_UNCHANGED;
+	संरचना sbi_tlb_info *curr;
+	संरचना sbi_tlb_info *अग्र;
+	पूर्णाङ्क ret = SBI_FIFO_UNCHANGED;
 
-	if (!in || !data)
-		return ret;
+	यदि (!अन्तर् || !दत्त)
+		प्रत्यागम ret;
 
-	curr = (struct sbi_tlb_info *)data;
-	next = (struct sbi_tlb_info *)in;
+	curr = (संरचना sbi_tlb_info *)दत्त;
+	अग्र = (संरचना sbi_tlb_info *)अन्तर्;
 
-	if (next->type == SBI_TLB_SFENCE_VMA_ASID &&
+	यदि (अग्र->type == SBI_TLB_SFENCE_VMA_ASID &&
 	    curr->type == SBI_TLB_SFENCE_VMA_ASID) {
-		if (next->asid == curr->asid)
-			ret = tlb_range_check(curr, next);
-	} else if (next->type == SBI_TLB_SFENCE_VMA &&
+		यदि (अग्र->asid == curr->asid)
+			ret = tlb_range_check(curr, अग्र);
+	} अन्यथा यदि (अग्र->type == SBI_TLB_SFENCE_VMA &&
 		   curr->type == SBI_TLB_SFENCE_VMA) {
-		ret = tlb_range_check(curr, next);
+		ret = tlb_range_check(curr, अग्र);
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-static int tlb_update(struct sbi_scratch *scratch,
-			  struct sbi_scratch *remote_scratch,
-			  u32 remote_hartindex, void *data)
+स्थिर पूर्णाङ्क tlb_update(संरचना sbi_scratch *scratch,
+			  संरचना sbi_scratch *remote_scratch,
+			  u32 remote_hartindex, शून्य *दत्त)
 {
-	int ret;
+	पूर्णाङ्क ret;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_fifo_r;
-	struct sbi_tlb_info *tinfo = data;
+	संरचना sbi_fifo *tlb_fifo_r;
+	संरचना sbi_tlb_info *tinfo = दत्त;
 	u32 curr_hartid = current_hartid();
 
 	/*
 	 * If the request is to queue a tlb flush entry for itself
 	 * then just do a local flush and return;
 	 */
-	if (sbi_hartindex_to_hartid(remote_hartindex) == curr_hartid) {
-		tlb_entry_local_process(tinfo);
-		return SBI_IPI_UPDATE_BREAK;
+	यदि (sbi_hartindex_गन्तव्यम्_hartid(remote_hartindex) == curr_hartid) {
+		tlb_प्रविष्टिः_local_process(tinfo);
+		प्रत्यागम SBI_IPI_UPDATE_BREAK;
 	}
 
-	tlb_fifo_r = sbi_scratch_offset_ptr(remote_scratch, tlb_fifo_off);
+	tlb_fifo_r = sbi_scratch_विस्थापनम्_ptr(remote_scratch, tlb_fifo_off);
 
-	ret = sbi_fifo_inplace_update(tlb_fifo_r, data, tlb_update_cb);
+	ret = sbi_fifo_inplace_update(tlb_fifo_r, दत्त, tlb_update_cb);
 
-	if (ret == SBI_FIFO_UNCHANGED &&
-	    sbi_fifo_enqueue(tlb_fifo_r, data, false) < 0) {
+	यदि (ret == SBI_FIFO_UNCHANGED &&
+	    sbi_fifo_पङ्क्तौ_निक्षिप(tlb_fifo_r, दत्त, false) < 0) {
 		/**
 		 * For now, Busy loop until there is space in the fifo.
 		 * There may be case where target hart is also
@@ -395,111 +395,111 @@ static int tlb_update(struct sbi_scratch *scratch,
 		 */
 		tlb_process_once(scratch);
 		sbi_dprintf("hart%d: hart%d tlb fifo full\n", curr_hartid,
-			    sbi_hartindex_to_hartid(remote_hartindex));
-		return SBI_IPI_UPDATE_RETRY;
+			    sbi_hartindex_गन्तव्यम्_hartid(remote_hartindex));
+		प्रत्यागम SBI_IPI_UPDATE_RETRY;
 	}
 
-	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
-	atomic_add_return(tlb_sync, 1);
+	tlb_sync = sbi_scratch_विस्थापनम्_ptr(scratch, tlb_sync_off);
+	atomic_सङ्कलय_return(tlb_sync, 1);
 
-	return SBI_IPI_UPDATE_SUCCESS;
+	प्रत्यागम SBI_IPI_UPDATE_SUCCESS;
 }
 
-static struct sbi_ipi_event_ops tlb_ops = {
+स्थिर संरचना sbi_ipi_event_ops tlb_ops = {
 	.name = "IPI_TLB",
 	.update = tlb_update,
 	.sync = tlb_sync,
 	.process = tlb_process,
 };
 
-static u32 tlb_event = SBI_IPI_EVENT_MAX;
+स्थिर u32 tlb_event = SBI_IPI_EVENT_MAX;
 
-static const u32 tlb_type_to_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
-	[SBI_TLB_FENCE_I] = SBI_PMU_FW_FENCE_I_SENT,
-	[SBI_TLB_SFENCE_VMA] = SBI_PMU_FW_SFENCE_VMA_SENT,
-	[SBI_TLB_SFENCE_VMA_ASID] = SBI_PMU_FW_SFENCE_VMA_ASID_SENT,
-	[SBI_TLB_HFENCE_GVMA_VMID] = SBI_PMU_FW_HFENCE_GVMA_VMID_SENT,
-	[SBI_TLB_HFENCE_GVMA] = SBI_PMU_FW_HFENCE_GVMA_SENT,
-	[SBI_TLB_HFENCE_VVMA_ASID] = SBI_PMU_FW_HFENCE_VVMA_ASID_SENT,
-	[SBI_TLB_HFENCE_VVMA] = SBI_PMU_FW_HFENCE_VVMA_SENT,
+स्थिर ध्रुव u32 tlb_type_गन्तव्यम्_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
+	[SBI_TLB_FENCE_I] = SBI_PMU_FW_FENCE_I_प्रेषितम्,
+	[SBI_TLB_SFENCE_VMA] = SBI_PMU_FW_SFENCE_VMA_प्रेषितम्,
+	[SBI_TLB_SFENCE_VMA_ASID] = SBI_PMU_FW_SFENCE_VMA_ASID_प्रेषितम्,
+	[SBI_TLB_HFENCE_GVMA_VMID] = SBI_PMU_FW_HFENCE_GVMA_VMID_प्रेषितम्,
+	[SBI_TLB_HFENCE_GVMA] = SBI_PMU_FW_HFENCE_GVMA_प्रेषितम्,
+	[SBI_TLB_HFENCE_VVMA_ASID] = SBI_PMU_FW_HFENCE_VVMA_ASID_प्रेषितम्,
+	[SBI_TLB_HFENCE_VVMA] = SBI_PMU_FW_HFENCE_VVMA_प्रेषितम्,
 };
 
-int sbi_tlb_request(ulong hmask, ulong hbase, struct sbi_tlb_info *tinfo)
+पूर्णाङ्क sbi_tlb_request(ulong hmask, ulong hbase, संरचना sbi_tlb_info *tinfo)
 {
-	if (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
-		return SBI_EINVAL;
+	यदि (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
+		प्रत्यागम SBI_EINVAL;
 
 	/*
 	 * If address range to flush is too big then simply
 	 * upgrade it to flush all because we can only flush
 	 * 4KB at a time.
 	 */
-	if (tinfo->size > tlb_range_flush_limit) {
+	यदि (tinfo->आकार > tlb_range_flush_सीमा) {
 		tinfo->start = 0;
-		tinfo->size = SBI_TLB_FLUSH_ALL;
+		tinfo->आकार = SBI_TLB_FLUSH_ALL;
 	}
 
-	sbi_pmu_ctr_incr_fw(tlb_type_to_pmu_fw_event[tinfo->type]);
+	sbi_pmu_ctr_incr_fw(tlb_type_गन्तव्यम्_pmu_fw_event[tinfo->type]);
 
-	return sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
+	प्रत्यागम sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
 }
 
-int sbi_tlb_init(struct sbi_scratch *scratch, bool cold_boot)
+पूर्णाङ्क sbi_tlb_init(संरचना sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	void *tlb_mem;
+	पूर्णाङ्क ret;
+	शून्य *tlb_mem;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_q;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	संरचना sbi_fifo *tlb_q;
+	ध्रुव संरचना sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (cold_boot) {
-		tlb_sync_off = sbi_scratch_alloc_offset(sizeof(*tlb_sync));
-		if (!tlb_sync_off)
-			return SBI_ENOMEM;
-		tlb_fifo_off = sbi_scratch_alloc_offset(sizeof(*tlb_q));
-		if (!tlb_fifo_off) {
-			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+	यदि (cold_boot) {
+		tlb_sync_off = sbi_scratch_alloc_विस्थापनम्(परिमाण(*tlb_sync));
+		यदि (!tlb_sync_off)
+			प्रत्यागम SBI_ENOMEM;
+		tlb_fifo_off = sbi_scratch_alloc_विस्थापनम्(परिमाण(*tlb_q));
+		यदि (!tlb_fifo_off) {
+			sbi_scratch_free_विस्थापनम्(tlb_sync_off);
+			प्रत्यागम SBI_ENOMEM;
 		}
-		tlb_fifo_mem_off = sbi_scratch_alloc_offset(sizeof(tlb_mem));
-		if (!tlb_fifo_mem_off) {
-			sbi_scratch_free_offset(tlb_fifo_off);
-			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+		tlb_fifo_mem_off = sbi_scratch_alloc_विस्थापनम्(परिमाण(tlb_mem));
+		यदि (!tlb_fifo_mem_off) {
+			sbi_scratch_free_विस्थापनम्(tlb_fifo_off);
+			sbi_scratch_free_विस्थापनम्(tlb_sync_off);
+			प्रत्यागम SBI_ENOMEM;
 		}
 		ret = sbi_ipi_event_create(&tlb_ops);
-		if (ret < 0) {
-			sbi_scratch_free_offset(tlb_fifo_mem_off);
-			sbi_scratch_free_offset(tlb_fifo_off);
-			sbi_scratch_free_offset(tlb_sync_off);
-			return ret;
+		यदि (ret < 0) {
+			sbi_scratch_free_विस्थापनम्(tlb_fifo_mem_off);
+			sbi_scratch_free_विस्थापनम्(tlb_fifo_off);
+			sbi_scratch_free_विस्थापनम्(tlb_sync_off);
+			प्रत्यागम ret;
 		}
 		tlb_event = ret;
-		tlb_range_flush_limit = sbi_platform_tlbr_flush_limit(plat);
-	} else {
-		if (!tlb_sync_off ||
+		tlb_range_flush_सीमा = sbi_platform_tlbr_flush_सीमा(plat);
+	} अन्यथा {
+		यदि (!tlb_sync_off ||
 		    !tlb_fifo_off ||
 		    !tlb_fifo_mem_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= tlb_event)
-			return SBI_ENOSPC;
+			प्रत्यागम SBI_ENOMEM;
+		यदि (SBI_IPI_EVENT_MAX <= tlb_event)
+			प्रत्यागम SBI_ENOSPC;
 	}
 
-	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
-	tlb_q = sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
-	tlb_mem = sbi_scratch_read_type(scratch, void *, tlb_fifo_mem_off);
-	if (!tlb_mem) {
+	tlb_sync = sbi_scratch_विस्थापनम्_ptr(scratch, tlb_sync_off);
+	tlb_q = sbi_scratch_विस्थापनम्_ptr(scratch, tlb_fifo_off);
+	tlb_mem = sbi_scratch_read_type(scratch, शून्य *, tlb_fifo_mem_off);
+	यदि (!tlb_mem) {
 		tlb_mem = sbi_malloc(
-				sbi_platform_tlb_fifo_num_entries(plat) * SBI_TLB_INFO_SIZE);
-		if (!tlb_mem)
-			return SBI_ENOMEM;
-		sbi_scratch_write_type(scratch, void *, tlb_fifo_mem_off, tlb_mem);
+				sbi_platform_tlb_fifo_अङ्कः_entries(plat) * SBI_TLB_INFO_आकार);
+		यदि (!tlb_mem)
+			प्रत्यागम SBI_ENOMEM;
+		sbi_scratch_write_type(scratch, शून्य *, tlb_fifo_mem_off, tlb_mem);
 	}
 
 	ATOMIC_INIT(tlb_sync, 0);
 
 	sbi_fifo_init(tlb_q, tlb_mem,
-		      sbi_platform_tlb_fifo_num_entries(plat), SBI_TLB_INFO_SIZE);
+		      sbi_platform_tlb_fifo_अङ्कः_entries(plat), SBI_TLB_INFO_आकार);
 
-	return 0;
+	प्रत्यागम 0;
 }

@@ -7,80 +7,80 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_DATA		0
-#define UART_REG_STATUS		1
-#define UART_REG_CTRL		2
-#define UART_REG_SCALER		3
+#परिभाषय UART_REG_दत्त		0
+#परिभाषय UART_REG_स्थितिः		1
+#परिभाषय UART_REG_CTRL		2
+#परिभाषय UART_REG_SCALER		3
 
-#define UART_DATA_DATA		0x000000ff
-#define UART_STATUS_FIFOFULL	0x00000200
-#define UART_STATUS_DATAREADY	0x00000001
+#परिभाषय UART_दत्त_दत्त		0x000000ff
+#परिभाषय UART_स्थितिः_FIFOFULL	0x00000200
+#परिभाषय UART_स्थितिः_DATAREADY	0x00000001
 
-#define UART_CTRL_DB		(1<<11)
-#define UART_CTRL_FL		(1<<6)
-#define UART_CTRL_TE		(1<<1)
-#define UART_CTRL_RE		(1<<0)
+#परिभाषय UART_CTRL_DB		(1<<11)
+#परिभाषय UART_CTRL_FL		(1<<6)
+#परिभाषय UART_CTRL_TE		(1<<1)
+#परिभाषय UART_CTRL_RE		(1<<0)
 
 /* clang-format on */
 
-static volatile char *uart_base;
+स्थिर चञ्चल वर्ण *uart_आधारः;
 
-static u32 get_reg(u32 num)
+स्थिर u32 get_reg(u32 अङ्कः)
 {
-	return readl(uart_base + (num * 0x4));
+	प्रत्यागम readl(uart_आधारः + (अङ्कः * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+स्थिर शून्य समुच्चयः_reg(u32 अङ्कः, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_आधारः + (अङ्कः * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+स्थिर शून्य gaisler_uart_putc(वर्ण ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	यावत् (get_reg(UART_REG_स्थितिः) & UART_स्थितिः_FIFOFULL)
 		;
 
-	set_reg(UART_REG_DATA, ch);
+	समुच्चयः_reg(UART_REG_दत्त, ch);
 }
 
-static int gaisler_uart_getc(void)
+स्थिर पूर्णाङ्क gaisler_uart_getc(शून्य)
 {
-	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	u32 ret = get_reg(UART_REG_स्थितिः);
+	यदि (!(ret & UART_स्थितिः_DATAREADY))
+		प्रत्यागम -1;
+	प्रत्यागम get_reg(UART_REG_दत्त) & UART_दत्त_दत्त;
 }
 
-static struct sbi_console_device gaisler_console = {
+स्थिर संरचना sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+पूर्णाङ्क gaisler_uart_init(अचिह्नित दीर्घ आधारः_2, u32 अन्तर्_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_आधारः = (चञ्चल वर्ण *)आधारः_2;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
+	यदि (अन्तर्_freq && baudrate)
+		समुच्चयः_reg(UART_REG_SCALER, अन्तर्_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
 	/* Preserve debug mode and flow control */
 	ctrl &= (UART_CTRL_DB | UART_CTRL_FL);
 	/* Enable TX and RX */
 	ctrl |= UART_CTRL_TE | UART_CTRL_RE;
-	set_reg(UART_REG_CTRL, ctrl);
+	समुच्चयः_reg(UART_REG_CTRL, ctrl);
 
-	sbi_console_set_device(&gaisler_console);
+	sbi_console_समुच्चयः_device(&gaisler_console);
 
-	return 0;
+	प्रत्यागम 0;
 }

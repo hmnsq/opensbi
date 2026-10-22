@@ -7,49 +7,49 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_fp.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_pmp.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/riscv_barrier.h>
+#अन्तर्भाव <sbi/riscv_encoding.h>
+#अन्तर्भाव <sbi/riscv_fp.h>
+#अन्तर्भाव <sbi/sbi_bitops.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_csr_detect.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_hart.h>
+#अन्तर्भाव <sbi/sbi_hart_pmp.h>
+#अन्तर्भाव <sbi/sbi_platform.h>
+#अन्तर्भाव <sbi/sbi_pmu.h>
+#अन्तर्भाव <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
 
-extern void __sbi_expected_trap(void);
-extern void __sbi_expected_trap_hext(void);
+बाह्य शून्य __sbi_expected_trap(शून्य);
+बाह्य शून्य __sbi_expected_trap_hext(शून्य);
 
-void (*sbi_hart_expected_trap)(void) = &__sbi_expected_trap;
+शून्य (*sbi_hart_expected_trap)(शून्य) = &__sbi_expected_trap;
 
-unsigned long hart_features_offset;
+अचिह्नित दीर्घ hart_features_विस्थापनम्;
 
-static void mstatus_init(struct sbi_scratch *scratch)
+स्थिर शून्य mstatus_init(संरचना sbi_scratch *scratch)
 {
-	int cidx;
-	unsigned long mstatus_val = 0;
-	unsigned int mhpm_mask = sbi_hart_mhpm_mask(scratch);
+	पूर्णाङ्क cidx;
+	अचिह्नित दीर्घ mstatus_val = 0;
+	अचिह्नित पूर्णाङ्क mhpm_आवरणम् = sbi_hart_mhpm_आवरणम्(scratch);
 	uint64_t mhpmevent_init_val = 0;
 	uint64_t menvcfg_val, mstateen_val;
 
 	/* Enable FPU */
-	if (misa_extension('D') || misa_extension('F'))
+	यदि (misa_extension('D') || misa_extension('F'))
 		mstatus_val |=  MSTATUS_FS;
 
 	/* Enable Vector context */
-	if (misa_extension('V'))
+	यदि (misa_extension('V'))
 		mstatus_val |=  MSTATUS_VS;
 
 	csr_write(CSR_MSTATUS, mstatus_val);
 
 	/* Disable user mode usage of all perf counters except TM */
-	if (misa_extension('S') &&
-	    sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	यदि (misa_extension('S') &&
+	    sbi_hart_priv_संस्करणम्(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_SCOUNTEREN, 0x02);
 
 	/**
@@ -57,60 +57,60 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	 * Supervisor mode usage for all counters are enabled by default
 	 * But counters will not run until mcountinhibit is set.
 	 */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	यदि (sbi_hart_priv_संस्करणम्(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_MCOUNTEREN, -1);
 
 	/* All programmable counters will start running at runtime after S-mode request */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
+	यदि (sbi_hart_priv_संस्करणम्(scratch) >= SBI_HART_PRIV_VER_1_11)
 		csr_write(CSR_MCOUNTINHIBIT, 0xFFFFFFF8);
 
 	/**
 	 * The mhpmeventn[h] CSR should be initialized with interrupt disabled
 	 * and inhibited running in M-mode during init.
 	 */
-	mhpmevent_init_val |= (MHPMEVENT_OF | MHPMEVENT_MINH);
-	for (cidx = 0; cidx <= 28; cidx++) {
-		if (!(mhpm_mask & 1UL << (cidx + 3)))
-			continue;
-#if __riscv_xlen == 32
-		csr_write_num(CSR_MHPMEVENT3 + cidx,
+	mhpmevent_init_val |= (MHPMEVENT_सम्बन्धि | MHPMEVENT_MINH);
+	प्रति (cidx = 0; cidx <= 28; cidx++) {
+		यदि (!(mhpm_आवरणम् & 1UL << (cidx + 3)))
+			अनुवर्त;
+#यदि __riscv_xlen == 32
+		csr_write_अङ्कः(CSR_MHPMEVENT3 + cidx,
 			       mhpmevent_init_val & 0xFFFFFFFF);
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-			csr_write_num(CSR_MHPMEVENT3H + cidx,
-				      mhpmevent_init_val >> BITS_PER_LONG);
-#else
-		csr_write_num(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
-#endif
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+			csr_write_अङ्कः(CSR_MHPMEVENT3H + cidx,
+				      mhpmevent_init_val >> द्वयङ्काः_प्रत्येकम्_LONG);
+#अन्यथा
+		csr_write_अङ्कः(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
+#यदि_अन्तः
 	}
 
-	if (misa_extension('H'))
+	यदि (misa_extension('H'))
 		csr_write(CSR_HSTATUS, 0);
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
+	यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
 		mstateen_val = 0;
 		mstateen_val |= SMSTATEEN_STATEN;
 		mstateen_val |= SMSTATEEN0_CONTEXT;
 		mstateen_val |= SMSTATEEN0_HSENVCFG;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
 			mstateen_val |= (SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
-		else
+		अन्यथा
 			mstateen_val &= ~(SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
 		    sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCSRIND))
 			mstateen_val |= (SMSTATEEN0_SVSLCT);
-		else
+		अन्यथा
 			mstateen_val &= ~(SMSTATEEN0_SVSLCT);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
 			mstateen_val |= SMSTATEEN0_CTR;
-		else
+		अन्यथा
 			mstateen_val &= ~SMSTATEEN0_CTR;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
 			mstateen_val |= SMSTATEEN0_SRMCFG;
-		else
+		अन्यथा
 			mstateen_val &= ~SMSTATEEN0_SRMCFG;
 
 		csr_write64(CSR_MSTATEEN0, mstateen_val);
@@ -119,14 +119,14 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		csr_write64(CSR_MSTATEEN3, SMSTATEEN_STATEN);
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
-		if (misa_extension('S')) {
+	यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
+		यदि (misa_extension('S')) {
 			csr_write(CSR_SSTATEEN0, 0);
 			csr_write(CSR_SSTATEEN1, 0);
 			csr_write(CSR_SSTATEEN2, 0);
 			csr_write(CSR_SSTATEEN3, 0);
 		}
-		if (misa_extension('H')) {
+		यदि (misa_extension('H')) {
 			csr_write64(CSR_HSTATEEN0, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN1, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN2, (uint64_t)0);
@@ -134,7 +134,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		}
 	}
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12) {
+	यदि (sbi_hart_priv_संस्करणम्(scratch) >= SBI_HART_PRIV_VER_1_12) {
 		menvcfg_val = csr_read64(CSR_MENVCFG);
 
 		/* Disable HW A/D updating by default */
@@ -143,8 +143,8 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		/* Disable double trap by default */
 		menvcfg_val &= ~ENVCFG_DTE;
 
-#define __set_menvcfg_ext(__ext, __bits)				\
-		if (sbi_hart_has_extension(scratch, __ext))		\
+#परिभाषय __set_menvcfg_ext(__ext, __bits)				\
+		यदि (sbi_hart_has_extension(scratch, __ext))		\
 			menvcfg_val |= __bits;
 
 		/*
@@ -155,10 +155,10 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOZ, ENVCFG_CBZE)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM, ENVCFG_CBCFE)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM,
-				  ENVCFG_CBIE_INV << ENVCFG_CBIE_SHIFT)
-#if __riscv_xlen > 32
+				  ENVCFG_CBIE_INV << ENVCFG_CBIE_सरणम्)
+#यदि __riscv_xlen > 32
 		__set_menvcfg_ext(SBI_HART_EXT_SVPBMT, ENVCFG_PBMTE)
-#endif
+#यदि_अन्तः
 		__set_menvcfg_ext(SBI_HART_EXT_SSTC, ENVCFG_STCE)
 		__set_menvcfg_ext(SBI_HART_EXT_SMCDELEG, ENVCFG_CDE);
 
@@ -168,16 +168,16 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		 * present. When both are present we must default to Svade (see
 		 * the zero reset value of FWFT.PTE_AD_HW_UPDATING).
 		 */
-		if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
+		यदि (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
 			__set_menvcfg_ext(SBI_HART_EXT_SVADU, ENVCFG_ADUE);
 
-#undef __set_menvcfg_ext
+#अपरिभाषय __set_menvcfg_ext
 
 		csr_write64(CSR_MENVCFG, menvcfg_val);
 
 		/* Enable S-mode access to seed CSR */
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
-			csr_set(CSR_MSECCFG, MSECCFG_SSEED);
+		यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
+			csr_समुच्चयः(CSR_MSECCFG, MSECCFG_SSEED);
 			csr_clear(CSR_MSECCFG, MSECCFG_USEED);
 		}
 	}
@@ -186,101 +186,101 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	csr_write(CSR_MIE, 0);
 
 	/* Disable S-mode paging */
-	if (misa_extension('S'))
+	यदि (misa_extension('S'))
 		csr_write(CSR_SATP, 0);
 }
 
-static int fp_init(struct sbi_scratch *scratch)
+स्थिर पूर्णाङ्क fp_init(संरचना sbi_scratch *scratch)
 {
-#ifdef __riscv_flen
-	int i;
-#endif
+#यदि_परिभाषितम् __riscv_flen
+	पूर्णाङ्क i;
+#यदि_अन्तः
 
-	if (!misa_extension('D') && !misa_extension('F'))
-		return 0;
+	यदि (!misa_extension('D') && !misa_extension('F'))
+		प्रत्यागम 0;
 
-	if (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
-		return SBI_EINVAL;
+	यदि (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
+		प्रत्यागम SBI_EINVAL;
 
-#ifdef __riscv_flen
-	for (i = 0; i < 32; i++)
+#यदि_परिभाषितम् __riscv_flen
+	प्रति (i = 0; i < 32; i++)
 		init_fp_reg(i);
 	csr_write(CSR_FCSR, 0);
-#endif
+#यदि_अन्तः
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-void sbi_hart_delegation_dump(struct sbi_scratch *scratch,
-			      const char *prefix, const char *suffix)
+शून्य sbi_hart_delegation_dump(संरचना sbi_scratch *scratch,
+			      ध्रुव वर्ण *उपसर्गः, ध्रुव वर्ण *suffix)
 {
-	if (!misa_extension('S'))
+	यदि (!misa_extension('S'))
 		/* No delegation possible as mideleg does not exist*/
-		return;
+		प्रत्यागम;
 
 	sbi_printf("%sMIDELEG%s: 0x%" PRILX "\n",
-		   prefix, suffix, csr_read(CSR_MIDELEG));
+		   उपसर्गः, suffix, csr_read(CSR_MIDELEG));
 	sbi_printf("%sMEDELEG%s: 0x%" PRILX "\n",
-		   prefix, suffix, csr_read(CSR_MEDELEG));
+		   उपसर्गः, suffix, csr_read(CSR_MEDELEG));
 }
 
-unsigned int sbi_hart_mhpm_mask(struct sbi_scratch *scratch)
+अचिह्नित पूर्णाङ्क sbi_hart_mhpm_आवरणम्(संरचना sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	return hfeatures->mhpm_mask;
+	प्रत्यागम hfeatures->mhpm_आवरणम्;
 }
 
-unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch)
+अचिह्नित पूर्णाङ्क sbi_hart_mhpm_द्वयङ्काः(संरचना sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	return hfeatures->mhpm_bits;
+	प्रत्यागम hfeatures->mhpm_द्वयङ्काः;
 }
 
-int sbi_hart_priv_version(struct sbi_scratch *scratch)
+पूर्णाङ्क sbi_hart_priv_संस्करणम्(संरचना sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	return hfeatures->priv_version;
+	प्रत्यागम hfeatures->priv_संस्करणम्;
 }
 
-void sbi_hart_get_priv_version_str(struct sbi_scratch *scratch,
-				   char *version_str, int nvstr)
+शून्य sbi_hart_get_priv_संस्करणम्_str(संरचना sbi_scratch *scratch,
+				   वर्ण *संस्करणम्_str, पूर्णाङ्क nvstr)
 {
-	char *temp;
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	वर्ण *अस्थायी;
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	switch (hfeatures->priv_version) {
-	case SBI_HART_PRIV_VER_1_10:
-		temp = "v1.10";
-		break;
-	case SBI_HART_PRIV_VER_1_11:
-		temp = "v1.11";
-		break;
-	case SBI_HART_PRIV_VER_1_12:
-		temp = "v1.12";
-		break;
-	default:
-		temp = "unknown";
-		break;
+	विकल्प (hfeatures->priv_संस्करणम्) {
+	पक्ष SBI_HART_PRIV_VER_1_10:
+		अस्थायी = "v1.10";
+		भङ्ग;
+	पक्ष SBI_HART_PRIV_VER_1_11:
+		अस्थायी = "v1.11";
+		भङ्ग;
+	पक्ष SBI_HART_PRIV_VER_1_12:
+		अस्थायी = "v1.12";
+		भङ्ग;
+	स्वभाव:
+		अस्थायी = "unknown";
+		भङ्ग;
 	}
 
-	sbi_snprintf(version_str, nvstr, "%s", temp);
+	sbi_snprintf(संस्करणम्_str, nvstr, "%s", अस्थायी);
 }
 
-static inline void __sbi_hart_update_extension(
-					struct sbi_hart_features *hfeatures,
-					enum sbi_hart_extensions ext,
+स्थिर अन्तःस्थ शून्य __sbi_hart_update_extension(
+					संरचना sbi_hart_features *hfeatures,
+					गणना sbi_hart_extensions ext,
 					bool enable)
 {
-	if (enable)
+	यदि (enable)
 		__set_bit(ext, hfeatures->extensions);
-	else
+	अन्यथा
 		__clear_bit(ext, hfeatures->extensions);
 }
 
@@ -291,12 +291,12 @@ static inline void __sbi_hart_update_extension(
  * @param ext the extension number to check
  * @param enable new state of hart extension
  */
-void sbi_hart_update_extension(struct sbi_scratch *scratch,
-			       enum sbi_hart_extensions ext,
+शून्य sbi_hart_update_extension(संरचना sbi_scratch *scratch,
+			       गणना sbi_hart_extensions ext,
 			       bool enable)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
 	__sbi_hart_update_extension(hfeatures, ext, enable);
 }
@@ -308,24 +308,24 @@ void sbi_hart_update_extension(struct sbi_scratch *scratch,
  * @param ext the extension number to check
  * @returns true (available) or false (not available)
  */
-bool sbi_hart_has_extension(struct sbi_scratch *scratch,
-			    enum sbi_hart_extensions ext)
+bool sbi_hart_has_extension(संरचना sbi_scratch *scratch,
+			    गणना sbi_hart_extensions ext)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	if (__test_bit(ext, hfeatures->extensions))
-		return true;
-	else
-		return false;
+	यदि (__test_bit(ext, hfeatures->extensions))
+		प्रत्यागम true;
+	अन्यथा
+		प्रत्यागम false;
 }
 
-#define __SBI_HART_EXT_DATA(_name, _id) {	\
+#परिभाषय __SBI_HART_EXT_DATA(_name, _id) {	\
 	.name = #_name,				\
 	.id = _id,				\
 }
 
-const struct sbi_hart_ext_data sbi_hart_ext[] = {
+ध्रुव संरचना sbi_hart_ext_दत्त sbi_hart_ext[] = {
 	__SBI_HART_EXT_DATA(smaia, SBI_HART_EXT_SMAIA),
 	__SBI_HART_EXT_DATA(smepmp, SBI_HART_EXT_SMEPMP),
 	__SBI_HART_EXT_DATA(smstateen, SBI_HART_EXT_SMSTATEEN),
@@ -362,7 +362,7 @@ const struct sbi_hart_ext_data sbi_hart_ext[] = {
 	__SBI_HART_EXT_DATA(d, SBI_HART_EXT_D),
 };
 
-_Static_assert(SBI_HART_EXT_MAX == array_size(sbi_hart_ext),
+_Static_assert(SBI_HART_EXT_MAX == array_आकार(sbi_hart_ext),
 	       "sbi_hart_ext[]: wrong number of entries");
 
 /**
@@ -374,31 +374,31 @@ _Static_assert(SBI_HART_EXT_MAX == array_size(sbi_hart_ext),
  * @param nestr length of the features_str. The feature string will be
  *		truncated if nestr is not long enough.
  */
-void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
-				 char *extensions_str, int nestr)
+शून्य sbi_hart_get_extensions_str(संरचना sbi_scratch *scratch,
+				 वर्ण *extensions_str, पूर्णाङ्क nestr)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
-	int offset = 0, ext = 0;
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
+	पूर्णाङ्क विस्थापनम् = 0, ext = 0;
 
-	if (!extensions_str || nestr <= 0)
-		return;
+	यदि (!extensions_str || nestr <= 0)
+		प्रत्यागम;
 	sbi_memset(extensions_str, 0, nestr);
 
-	for_each_set_bit(ext, hfeatures->extensions, SBI_HART_EXT_MAX) {
-		if (offset + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
+	for_each_समुच्चयः_bit(ext, hfeatures->extensions, SBI_HART_EXT_MAX) {
+		यदि (विस्थापनम् + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
 			sbi_printf("%s:extension name is longer than buffer (error)\n", __func__);
-			break;
+			भङ्ग;
 		}
-		sbi_snprintf(extensions_str + offset,
-				 nestr - offset,
+		sbi_snprintf(extensions_str + विस्थापनम्,
+				 nestr - विस्थापनम्,
 				 "%s,", sbi_hart_ext[ext].name);
-		offset = offset + sbi_strlen(sbi_hart_ext[ext].name) + 1;
+		विस्थापनम् = विस्थापनम् + sbi_strlen(sbi_hart_ext[ext].name) + 1;
 	}
 
-	if (offset)
-		extensions_str[offset - 1] = '\0';
-	else
+	यदि (विस्थापनम्)
+		extensions_str[विस्थापनम् - 1] = '\0';
+	अन्यथा
 		sbi_strncpy(extensions_str, "none", nestr);
 }
 
@@ -408,75 +408,75 @@ void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
  * @param scratch pointer to the HART scratch space
  * @param csr the CSR number to check
  */
-bool sbi_hart_has_csr(struct sbi_scratch *scratch, enum sbi_hart_csrs csr)
+bool sbi_hart_has_csr(संरचना sbi_scratch *scratch, गणना sbi_hart_csrs csr)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	संरचना sbi_hart_features *hfeatures =
+			sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
 
-	return __test_bit(csr, hfeatures->csrs);
+	प्रत्यागम __test_bit(csr, hfeatures->csrs);
 }
 
-static unsigned long hart_pmp_get_allowed_addr(void)
+स्थिर अचिह्नित दीर्घ hart_pmp_get_allowed_addr(शून्य)
 {
-	unsigned long val = 0;
-	struct sbi_trap_info trap = {0};
+	अचिह्नित दीर्घ val = 0;
+	संरचना sbi_trap_info trap = {0};
 
 	csr_write_allowed(CSR_PMPCFG0, &trap, 0);
-	if (trap.cause)
-		return 0;
+	यदि (trap.cause)
+		प्रत्यागम 0;
 
-	csr_write_allowed(CSR_PMPADDR0, &trap, PMP_ADDR_MASK);
-	if (!trap.cause) {
+	csr_write_allowed(CSR_PMPADDR0, &trap, PMP_ADDR_आवरणम्);
+	यदि (!trap.cause) {
 		val = csr_read_allowed(CSR_PMPADDR0, &trap);
-		if (trap.cause)
+		यदि (trap.cause)
 			val = 0;
 	}
 
-	return val;
+	प्रत्यागम val;
 }
 
-static int hart_mhpm_get_allowed_bits(void)
+स्थिर पूर्णाङ्क hart_mhpm_get_allowed_द्वयङ्काः(शून्य)
 {
-	unsigned long val = ~(0UL);
-	struct sbi_trap_info trap = {0};
-	int num_bits = 0;
+	अचिह्नित दीर्घ val = ~(0UL);
+	संरचना sbi_trap_info trap = {0};
+	पूर्णाङ्क अङ्कः_द्वयङ्काः = 0;
 
 	/**
 	 * It is assumed that platforms will implement same number of bits for
 	 * all the performance counters including mcycle/minstret.
 	 */
 	csr_write_allowed(CSR_MHPMCOUNTER3, &trap, val);
-	if (!trap.cause) {
+	यदि (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3, &trap);
-		if (trap.cause)
-			return 0;
+		यदि (trap.cause)
+			प्रत्यागम 0;
 	}
-	num_bits = sbi_fls(val) + 1;
-#if __riscv_xlen == 32
+	अङ्कः_द्वयङ्काः = sbi_fls(val) + 1;
+#यदि __riscv_xlen == 32
 	csr_write_allowed(CSR_MHPMCOUNTER3H, &trap, val);
-	if (!trap.cause) {
+	यदि (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3H, &trap);
-		if (trap.cause)
-			return num_bits;
+		यदि (trap.cause)
+			प्रत्यागम अङ्कः_द्वयङ्काः;
 	}
-	num_bits += sbi_fls(val) + 1;
+	अङ्कः_द्वयङ्काः += sbi_fls(val) + 1;
 
-#endif
+#यदि_अन्तः
 
-	return num_bits;
+	प्रत्यागम अङ्कः_द्वयङ्काः;
 }
 
-static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
+स्थिर पूर्णाङ्क hart_detect_features(संरचना sbi_scratch *scratch, bool cold_boot)
 {
-	struct sbi_trap_info trap = {0};
-	struct sbi_hart_features *hfeatures =
-		sbi_scratch_offset_ptr(scratch, hart_features_offset);
-	unsigned long val, oldval;
-	int rc;
+	संरचना sbi_trap_info trap = {0};
+	संरचना sbi_hart_features *hfeatures =
+		sbi_scratch_विस्थापनम्_ptr(scratch, hart_features_विस्थापनम्);
+	अचिह्नित दीर्घ val, oldval;
+	पूर्णाङ्क rc;
 
 	/* If hart features already detected then do nothing */
-	if (hfeatures->detected)
-		return 0;
+	यदि (hfeatures->detected)
+		प्रत्यागम 0;
 
 	/*
 	 * Parse device tree extensions early, before any trap-based checks.
@@ -484,16 +484,16 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * that may trigger traps.
 	 */
 	rc = sbi_platform_extensions_init(sbi_platform_ptr(scratch), cold_boot);
-	if (rc)
-		return rc;
+	यदि (rc)
+		प्रत्यागम rc;
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
-		const struct sbi_platform *plat = sbi_platform_thishart_ptr();
-		const struct sbi_platform_operations *ops = sbi_platform_ops(plat);
-		extern void _trap_rnmi_handler(void);
-		extern void _trap_handler(void);
+	यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
+		ध्रुव संरचना sbi_platform *plat = sbi_platform_thishart_ptr();
+		ध्रुव संरचना sbi_platform_operations *ops = sbi_platform_ops(plat);
+		बाह्य शून्य _trap_rnmi_handler(शून्य);
+		बाह्य शून्य _trap_handler(शून्य);
 
-		if (!ops || !ops->smrnmi_handlers_init)
+		यदि (!ops || !ops->smrnmi_handlers_init)
 			sbi_panic("Smrnmi detected, but platform lacks smrnmi_handlers_init callback\n");
 
 		/* Reuse _trap_handler for the RNME slot since RNME is taken
@@ -504,66 +504,66 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 		csr_write(CSR_MNSCRATCH, scratch);
 
 		/* Enable NMIs */
-		csr_set(CSR_MNSTATUS, MNSTATUS_NMIE);
+		csr_समुच्चयः(CSR_MNSTATUS, MNSTATUS_NMIE);
 	}
 
-#define __check_hpm_csr(__csr, __mask) 					  \
+#परिभाषय __check_hpm_csr(__csr, __mask) 					  \
 	oldval = csr_read_allowed(__csr, &trap);			  \
-	if (!trap.cause) {						  \
+	यदि (!trap.cause) {						  \
 		csr_write_allowed(__csr, &trap, 1UL);			  \
-		if (!trap.cause && csr_swap(__csr, oldval) == 1UL) {	  \
+		यदि (!trap.cause && csr_swap(__csr, oldval) == 1UL) {	  \
 			(hfeatures->__mask) |= 1 << (__csr - CSR_MCYCLE); \
 		}							  \
 	}
 
-#define __check_hpm_csr_2(__csr, __mask)	 		  \
+#परिभाषय __check_hpm_csr_2(__csr, __mask)	 		  \
 	__check_hpm_csr(__csr + 0, __mask)	 		  \
 	__check_hpm_csr(__csr + 1, __mask)
-#define __check_hpm_csr_4(__csr, __mask)	 		  \
+#परिभाषय __check_hpm_csr_4(__csr, __mask)	 		  \
 	__check_hpm_csr_2(__csr + 0, __mask) 			  \
 	__check_hpm_csr_2(__csr + 2, __mask)
-#define __check_hpm_csr_8(__csr, __mask)	 		  \
+#परिभाषय __check_hpm_csr_8(__csr, __mask)	 		  \
 	__check_hpm_csr_4(__csr + 0, __mask) 			  \
 	__check_hpm_csr_4(__csr + 4, __mask)
-#define __check_hpm_csr_16(__csr, __mask)	 		  \
+#परिभाषय __check_hpm_csr_16(__csr, __mask)	 		  \
 	__check_hpm_csr_8(__csr + 0, __mask) 			  \
 	__check_hpm_csr_8(__csr + 8, __mask)
 
-#define __check_csr(__csr, __rdonly, __wrval, __field, __skip)		\
+#परिभाषय __check_csr(__csr, __rdonly, __wrval, __field, __skip)		\
 	oldval = csr_read_allowed(__csr, &trap);			\
-	if (!trap.cause) {						\
-		if (__rdonly) {						\
+	यदि (!trap.cause) {						\
+		यदि (__rdonly) {						\
 			(hfeatures->__field)++;				\
-		} else {						\
+		} अन्यथा {						\
 			csr_write_allowed(__csr, &trap, __wrval);	\
-			if (!trap.cause) {				\
-				if ((csr_swap(__csr, oldval) & __wrval) == __wrval)	\
+			यदि (!trap.cause) {				\
+				यदि ((csr_swap(__csr, oldval) & __wrval) == __wrval)	\
 					(hfeatures->__field)++;		\
-				else					\
-					goto __skip;			\
-			} else {					\
-				goto __skip;				\
+				अन्यथा					\
+					गच्छ __skip;			\
+			} अन्यथा {					\
+				गच्छ __skip;				\
 			}						\
 		}							\
-	} else {							\
-		goto __skip;						\
+	} अन्यथा {							\
+		गच्छ __skip;						\
 	}
-#define __check_csr_2(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_2(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr(__csr + 1, __rdonly, __wrval, __field, __skip)
-#define __check_csr_4(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_4(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_2(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_2(__csr + 2, __rdonly, __wrval, __field, __skip)
-#define __check_csr_8(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_8(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_4(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_4(__csr + 4, __rdonly, __wrval, __field, __skip)
-#define __check_csr_16(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_16(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_8(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_8(__csr + 8, __rdonly, __wrval, __field, __skip)
-#define __check_csr_32(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_32(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_16(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_16(__csr + 16, __rdonly, __wrval, __field, __skip)
-#define __check_csr_64(__csr, __rdonly, __wrval, __field, __skip)	\
+#परिभाषय __check_csr_64(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_32(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_32(__csr + 32, __rdonly, __wrval, __field, __skip)
 
@@ -572,37 +572,37 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * should be implemented.
 	 */
 	val = hart_pmp_get_allowed_addr();
-	if (val) {
+	यदि (val) {
 		hfeatures->pmp_log2gran = sbi_ffs(val) + 2;
-		hfeatures->pmp_addr_bits = sbi_fls(val) + 1;
+		hfeatures->pmp_addr_द्वयङ्काः = sbi_fls(val) + 1;
 		/* Detect number of PMP regions. At least PMPADDR0 should be implemented*/
-		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_count, __pmp_skip);
+		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_गणनम्, __pmp_skip);
 	}
 __pmp_skip:
 	/* Detect number of MHPM counters */
-	__check_hpm_csr(CSR_MHPMCOUNTER3, mhpm_mask);
-	hfeatures->mhpm_bits = hart_mhpm_get_allowed_bits();
-	__check_hpm_csr_4(CSR_MHPMCOUNTER4, mhpm_mask);
-	__check_hpm_csr_8(CSR_MHPMCOUNTER8, mhpm_mask);
-	__check_hpm_csr_16(CSR_MHPMCOUNTER16, mhpm_mask);
+	__check_hpm_csr(CSR_MHPMCOUNTER3, mhpm_आवरणम्);
+	hfeatures->mhpm_द्वयङ्काः = hart_mhpm_get_allowed_द्वयङ्काः();
+	__check_hpm_csr_4(CSR_MHPMCOUNTER4, mhpm_आवरणम्);
+	__check_hpm_csr_8(CSR_MHPMCOUNTER8, mhpm_आवरणम्);
+	__check_hpm_csr_16(CSR_MHPMCOUNTER16, mhpm_आवरणम्);
 
 	/**
 	 * No need to check for MHPMCOUNTERH for RV32 as they are expected to be
 	 * implemented if MHPMCOUNTER is implemented.
 	 */
-#undef __check_csr_64
-#undef __check_csr_32
-#undef __check_csr_16
-#undef __check_csr_8
-#undef __check_csr_4
-#undef __check_csr_2
-#undef __check_csr
+#अपरिभाषय __check_csr_64
+#अपरिभाषय __check_csr_32
+#अपरिभाषय __check_csr_16
+#अपरिभाषय __check_csr_8
+#अपरिभाषय __check_csr_4
+#अपरिभाषय __check_csr_2
+#अपरिभाषय __check_csr
 
 
-#define __check_priv(__csr, __base_priv, __priv)			\
+#परिभाषय __check_priv(__csr, __base_priv, __priv)			\
 	val = csr_read_allowed(__csr, &trap);				\
-	if (!trap.cause && (hfeatures->priv_version >= __base_priv)) {	\
-		hfeatures->priv_version = __priv;			\
+	यदि (!trap.cause && (hfeatures->priv_संस्करणम् >= __base_priv)) {	\
+		hfeatures->priv_संस्करणम् = __priv;			\
 	}
 
 	/* Detect if hart supports Priv v1.10 */
@@ -615,12 +615,12 @@ __pmp_skip:
 	__check_priv(CSR_MENVCFG,
 		     SBI_HART_PRIV_VER_1_11, SBI_HART_PRIV_VER_1_12);
 
-#undef __check_priv_csr
+#अपरिभाषय __check_priv_csr
 
-#define __check_ext_csr(__base_priv, __csr, __ext)			\
-	if (hfeatures->priv_version >= __base_priv) {			\
+#परिभाषय __check_ext_csr(__base_priv, __csr, __ext)			\
+	यदि (hfeatures->priv_संस्करणम् >= __base_priv) {			\
 		csr_read_allowed(__csr, &trap);				\
-		if (!trap.cause)					\
+		यदि (!trap.cause)					\
 			__sbi_hart_update_extension(hfeatures,		\
 						    __ext, true);	\
 	}
@@ -648,27 +648,27 @@ __pmp_skip:
 	__check_ext_csr(SBI_HART_PRIV_VER_UNKNOWN,
 			CSR_TSELECT, SBI_HART_EXT_SDTRIG);
 
-#undef __check_ext_csr
+#अपरिभाषय __check_ext_csr
 
-#define __check_csr_existence(__csr, __csr_id)				\
+#परिभाषय __check_csr_existence(__csr, __csr_id)				\
 	csr_read_allowed(__csr, &trap);					\
-	if (!trap.cause)						\
+	यदि (!trap.cause)						\
 		__set_bit(__csr_id, hfeatures->csrs);
 
-	__check_csr_existence(CSR_CYCLE, SBI_HART_CSR_CYCLE);
+	__check_csr_existence(CSR_आवृत्तिः, SBI_HART_CSR_आवृत्तिः);
 	__check_csr_existence(CSR_TIME, SBI_HART_CSR_TIME);
 	__check_csr_existence(CSR_INSTRET, SBI_HART_CSR_INSTRET);
 
-#undef __check_csr_existence
+#अपरिभाषय __check_csr_existence
 
 	/* Zicntr should only be detected using traps */
 	__sbi_hart_update_extension(hfeatures, SBI_HART_EXT_ZICNTR,
-			    sbi_hart_has_csr(scratch, SBI_HART_CSR_CYCLE) &&
+			    sbi_hart_has_csr(scratch, SBI_HART_CSR_आवृत्तिः) &&
 			    sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME)  &&
 			    sbi_hart_has_csr(scratch, SBI_HART_CSR_INSTRET));
 
 	/* Extensions implied by other extensions and features */
-	if (hfeatures->mhpm_mask)
+	यदि (hfeatures->mhpm_आवरणम्)
 		__sbi_hart_update_extension(hfeatures,
 					SBI_HART_EXT_ZIHPM, true);
 
@@ -681,29 +681,29 @@ __pmp_skip:
 	 * to configure it's own M-mode only regions without depending
 	 * on the previous booting stage.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
+	यदि (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
 	    (csr_read(CSR_MSECCFG) & MSECCFG_MML))
-		return SBI_EILL;
+		प्रत्यागम SBI_EILL;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-int sbi_hart_reinit(struct sbi_scratch *scratch)
+पूर्णाङ्क sbi_hart_reinit(संरचना sbi_scratch *scratch)
 {
-	int rc;
+	पूर्णाङ्क rc;
 
 	mstatus_init(scratch);
 
 	rc = fp_init(scratch);
-	if (rc)
-		return rc;
+	यदि (rc)
+		प्रत्यागम rc;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
+पूर्णाङ्क sbi_hart_init(संरचना sbi_scratch *scratch, bool cold_boot)
 {
-	int rc;
+	पूर्णाङ्क rc;
 
 	/*
 	 * Clear mip CSR before proceeding with init to avoid any spurious
@@ -711,100 +711,100 @@ int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
 	 */
 	csr_write(CSR_MIP, 0);
 
-	if (cold_boot) {
-		if (misa_extension('H'))
+	यदि (cold_boot) {
+		यदि (misa_extension('H'))
 			sbi_hart_expected_trap = &__sbi_expected_trap_hext;
 
-		hart_features_offset = sbi_scratch_alloc_offset(
-					sizeof(struct sbi_hart_features));
-		if (!hart_features_offset)
-			return SBI_ENOMEM;
+		hart_features_विस्थापनम् = sbi_scratch_alloc_विस्थापनम्(
+					परिमाण(संरचना sbi_hart_features));
+		यदि (!hart_features_विस्थापनम्)
+			प्रत्यागम SBI_ENOMEM;
 	}
 
 	rc = hart_detect_features(scratch, cold_boot);
-	if (rc)
-		return rc;
+	यदि (rc)
+		प्रत्यागम rc;
 
-	if (cold_boot) {
+	यदि (cold_boot) {
 		rc = sbi_hart_pmp_init(scratch);
-		if (rc)
-			return rc;
+		यदि (rc)
+			प्रत्यागम rc;
 	}
 
-	return sbi_hart_reinit(scratch);
+	प्रत्यागम sbi_hart_reinit(scratch);
 }
 
-void __attribute__((noreturn)) sbi_hart_hang(void)
+शून्य __attribute__((noreturn)) sbi_hart_hang(शून्य)
 {
-	while (1)
+	यावत् (1)
 		wfi();
 	__builtin_unreachable();
 }
 
-void __attribute__((noreturn))
-sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
-		     unsigned long next_addr, unsigned long next_mode,
-		     bool next_virt)
+शून्य __attribute__((noreturn))
+sbi_hart_switch_बहुलकम्(अचिह्नित दीर्घ arg0, अचिह्नित दीर्घ arg1,
+		     अचिह्नित दीर्घ अग्र_addr, अचिह्नित दीर्घ अग्र_बहुलकम्,
+		     bool अग्र_virt)
 {
-#if __riscv_xlen == 32
-	unsigned long val, valH;
-#else
-	unsigned long val;
-#endif
+#यदि __riscv_xlen == 32
+	अचिह्नित दीर्घ val, valH;
+#अन्यथा
+	अचिह्नित दीर्घ val;
+#यदि_अन्तः
 
-	switch (next_mode) {
-	case PRV_M:
-		break;
-	case PRV_S:
-		if (!misa_extension('S'))
+	विकल्प (अग्र_बहुलकम्) {
+	पक्ष PRV_M:
+		भङ्ग;
+	पक्ष PRV_S:
+		यदि (!misa_extension('S'))
 			sbi_hart_hang();
-		break;
-	case PRV_U:
-		if (!misa_extension('U'))
+		भङ्ग;
+	पक्ष PRV_U:
+		यदि (!misa_extension('U'))
 			sbi_hart_hang();
-		break;
-	default:
+		भङ्ग;
+	स्वभाव:
 		sbi_hart_hang();
 	}
 
 	val = csr_read(CSR_MSTATUS);
-	val = INSERT_FIELD(val, MSTATUS_MPP, next_mode);
-	val = INSERT_FIELD(val, MSTATUS_MPIE, 0);
-#if __riscv_xlen == 32
-	if (misa_extension('H')) {
+	val = निवेशय_क्षेत्रम्(val, MSTATUS_MPP, अग्र_बहुलकम्);
+	val = निवेशय_क्षेत्रम्(val, MSTATUS_MPIE, 0);
+#यदि __riscv_xlen == 32
+	यदि (misa_extension('H')) {
 		valH = csr_read(CSR_MSTATUSH);
-		valH = INSERT_FIELD(valH, MSTATUSH_MPV, next_virt);
+		valH = निवेशय_क्षेत्रम्(valH, MSTATUSH_MPV, अग्र_virt);
 		csr_write(CSR_MSTATUSH, valH);
 	}
-#else
-	if (misa_extension('H'))
-		val = INSERT_FIELD(val, MSTATUS_MPV, next_virt);
-#endif
+#अन्यथा
+	यदि (misa_extension('H'))
+		val = निवेशय_क्षेत्रम्(val, MSTATUS_MPV, अग्र_virt);
+#यदि_अन्तः
 	csr_write(CSR_MSTATUS, val);
-	csr_write(CSR_MEPC, next_addr);
+	csr_write(CSR_MEPC, अग्र_addr);
 
-	if (next_mode == PRV_S) {
-		if (next_virt) {
-			csr_write(CSR_VSTVEC, next_addr);
+	यदि (अग्र_बहुलकम् == PRV_S) {
+		यदि (अग्र_virt) {
+			csr_write(CSR_VSTVEC, अग्र_addr);
 			csr_write(CSR_VSSCRATCH, 0);
 			csr_write(CSR_VSIE, 0);
 			csr_write(CSR_VSATP, 0);
-		} else {
-			csr_write(CSR_STVEC, next_addr);
+		} अन्यथा {
+			csr_write(CSR_STVEC, अग्र_addr);
 			csr_write(CSR_SSCRATCH, 0);
 			csr_write(CSR_SIE, 0);
 			csr_write(CSR_SATP, 0);
 		}
-	} else if (next_mode == PRV_U) {
-		if (misa_extension('N')) {
-			csr_write(CSR_UTVEC, next_addr);
+	} अन्यथा यदि (अग्र_बहुलकम् == PRV_U) {
+		यदि (misa_extension('N')) {
+			csr_write(CSR_UTVEC, अग्र_addr);
 			csr_write(CSR_USCRATCH, 0);
 			csr_write(CSR_UIE, 0);
 		}
 	}
 
-	register unsigned long a0 asm("a0") = arg0;
-	register unsigned long a1 asm("a1") = arg1;
+	पञ्जिका अचिह्नित दीर्घ a0 asm("a0") = arg0;
+	पञ्जिका अचिह्नित दीर्घ a1 asm("a1") = arg1;
 	__asm__ __volatile__("mret" : : "r"(a0), "r"(a1));
 	__builtin_unreachable();
 }

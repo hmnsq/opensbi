@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_driver.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+बाह्य संरचना plicsw_दत्त plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+पूर्णाङ्क fdt_plicsw_cold_ipi_init(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+			     ध्रुव संरचना fdt_मेलनम् *मेलनम्)
 {
-	int rc;
+	पूर्णाङ्क rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_ग्रन्थिः(fdt, nodeoff, &plicsw.addr, &plicsw.आकार,
+				   &plicsw.hart_गणनम्);
+	यदि (rc)
+		प्रत्यागम rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	यदि (rc)
+		प्रत्यागम rc;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+स्थिर ध्रुव संरचना fdt_मेलनम् ipi_plicsw_मेलनम्[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+ध्रुव संरचना fdt_driver fdt_ipi_plicsw = {
+	.मेलनम्_सारणी = ipi_plicsw_मेलनम्,
 	.init = fdt_plicsw_cold_ipi_init,
 };

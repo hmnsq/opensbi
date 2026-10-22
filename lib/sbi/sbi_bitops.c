@@ -8,9 +8,9 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#अन्तर्भाव <sbi/sbi_bitops.h>
 
-#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
+#परिभाषय BITOP_WORD(nr)		((nr) / द्वयङ्काः_प्रत्येकम्_LONG)
 
 /**
  * find_first_bit - find the first set bit in a memory region
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
-			     unsigned long size)
+अचिह्नित दीर्घ find_first_bit(ध्रुव अचिह्नित दीर्घ *addr,
+			     अचिह्नित दीर्घ आकार)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ध्रुव अचिह्नित दीर्घ *p = addr;
+	अचिह्नित दीर्घ परिणाम = 0;
+	अचिह्नित दीर्घ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	यावत् (आकार & ~(द्वयङ्काः_प्रत्येकम्_LONG-1)) {
+		यदि ((tmp = *(p++)))
+			गच्छ प्राप्तम्;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	if (!size)
-		return result;
+	यदि (!आकार)
+		प्रत्यागम परिणाम;
 
-	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffs(tmp);
+	tmp = (*p) & (~0UL >> (द्वयङ्काः_प्रत्येकम्_LONG - आकार));
+	यदि (tmp == 0UL)		/* Are any bits set? */
+		प्रत्यागम परिणाम + आकार;	/* Nope. */
+प्राप्तम्:
+	प्रत्यागम परिणाम + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
-				  unsigned long size)
+अचिह्नित दीर्घ find_first_zero_bit(ध्रुव अचिह्नित दीर्घ *addr,
+				  अचिह्नित दीर्घ आकार)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ध्रुव अचिह्नित दीर्घ *p = addr;
+	अचिह्नित दीर्घ परिणाम = 0;
+	अचिह्नित दीर्घ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	यावत् (आकार & ~(द्वयङ्काः_प्रत्येकम्_LONG-1)) {
+		यदि (~(tmp = *(p++)))
+			गच्छ प्राप्तम्;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	if (!size)
-		return result;
+	यदि (!आकार)
+		प्रत्यागम परिणाम;
 
-	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffz(tmp);
+	tmp = (*p) | (~0UL << आकार);
+	यदि (tmp == ~0UL)	/* Are any bits zero? */
+		प्रत्यागम परिणाम + आकार;	/* Nope. */
+प्राप्तम्:
+	प्रत्यागम परिणाम + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
-			    unsigned long size)
+अचिह्नित दीर्घ find_चरमः_bit(ध्रुव अचिह्नित दीर्घ *addr,
+			    अचिह्नित दीर्घ आकार)
 {
-	unsigned long words;
-	unsigned long tmp;
+	अचिह्नित दीर्घ शब्दाः;
+	अचिह्नित दीर्घ tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	शब्दाः = आकार / द्वयङ्काः_प्रत्येकम्_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
-					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+	यदि (आकार & (द्वयङ्काः_प्रत्येकम्_LONG-1)) {
+		tmp = (addr[शब्दाः] & (~0UL >> (द्वयङ्काः_प्रत्येकम्_LONG
+					 - (आकार & (द्वयङ्काः_प्रत्येकम्_LONG-1)))));
+		यदि (tmp)
+			गच्छ प्राप्तम्;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
-found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+	यावत् (शब्दाः) {
+		tmp = addr[--शब्दाः];
+		यदि (tmp) {
+प्राप्तम्:
+			प्रत्यागम शब्दाः * द्वयङ्काः_प्रत्येकम्_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	प्रत्यागम आकार;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
-			    unsigned long size, unsigned long offset)
+अचिह्नित दीर्घ find_अग्र_bit(ध्रुव अचिह्नित दीर्घ *addr,
+			    अचिह्नित दीर्घ आकार, अचिह्नित दीर्घ विस्थापनम्)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ध्रुव अचिह्नित दीर्घ *p = addr + BITOP_WORD(विस्थापनम्);
+	अचिह्नित दीर्घ परिणाम = विस्थापनम् & ~(द्वयङ्काः_प्रत्येकम्_LONG-1);
+	अचिह्नित दीर्घ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	यदि (विस्थापनम् >= आकार)
+		प्रत्यागम आकार;
+	आकार -= परिणाम;
+	विस्थापनम् %= द्वयङ्काः_प्रत्येकम्_LONG;
+	यदि (विस्थापनम्) {
 		tmp = *(p++);
-		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp &= (~0UL << विस्थापनम्);
+		यदि (आकार < द्वयङ्काः_प्रत्येकम्_LONG)
+			गच्छ प्राप्तम्_first;
+		यदि (tmp)
+			गच्छ प्राप्तम्_मध्यः;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	यावत् (आकार & ~(द्वयङ्काः_प्रत्येकम्_LONG-1)) {
+		यदि ((tmp = *(p++)))
+			गच्छ प्राप्तम्_मध्यः;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	if (!size)
-		return result;
+	यदि (!आकार)
+		प्रत्यागम परिणाम;
 	tmp = *p;
 
-found_first:
-	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+प्राप्तम्_first:
+	tmp &= (~0UL >> (द्वयङ्काः_प्रत्येकम्_LONG - आकार));
+	यदि (tmp == 0UL)		/* Are any bits set? */
+		प्रत्यागम परिणाम + आकार;	/* Nope. */
+प्राप्तम्_मध्यः:
+	प्रत्यागम परिणाम + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
-				 unsigned long size,
-				 unsigned long offset)
+अचिह्नित दीर्घ find_अग्र_zero_bit(ध्रुव अचिह्नित दीर्घ *addr,
+				 अचिह्नित दीर्घ आकार,
+				 अचिह्नित दीर्घ विस्थापनम्)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ध्रुव अचिह्नित दीर्घ *p = addr + BITOP_WORD(विस्थापनम्);
+	अचिह्नित दीर्घ परिणाम = विस्थापनम् & ~(द्वयङ्काः_प्रत्येकम्_LONG-1);
+	अचिह्नित दीर्घ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	यदि (विस्थापनम् >= आकार)
+		प्रत्यागम आकार;
+	आकार -= परिणाम;
+	विस्थापनम् %= द्वयङ्काः_प्रत्येकम्_LONG;
+	यदि (विस्थापनम्) {
 		tmp = *(p++);
-		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp |= ~0UL >> (द्वयङ्काः_प्रत्येकम्_LONG - विस्थापनम्);
+		यदि (आकार < द्वयङ्काः_प्रत्येकम्_LONG)
+			गच्छ प्राप्तम्_first;
+		यदि (~tmp)
+			गच्छ प्राप्तम्_मध्यः;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	यावत् (आकार & ~(द्वयङ्काः_प्रत्येकम्_LONG-1)) {
+		यदि (~(tmp = *(p++)))
+			गच्छ प्राप्तम्_मध्यः;
+		परिणाम += द्वयङ्काः_प्रत्येकम्_LONG;
+		आकार -= द्वयङ्काः_प्रत्येकम्_LONG;
 	}
-	if (!size)
-		return result;
+	यदि (!आकार)
+		प्रत्यागम परिणाम;
 	tmp = *p;
 
-found_first:
-	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+प्राप्तम्_first:
+	tmp |= ~0UL << आकार;
+	यदि (tmp == ~0UL)	/* Are any bits zero? */
+		प्रत्यागम परिणाम + आकार;	/* Nope. */
+प्राप्तम्_मध्यः:
+	प्रत्यागम परिणाम + sbi_ffz(tmp);
 }

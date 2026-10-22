@@ -7,30 +7,30 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_fp.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap_ldst.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_platform.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/riscv_encoding.h>
+#अन्तर्भाव <sbi/riscv_fp.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_trap_ldst.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_unpriv.h>
+#अन्तर्भाव <sbi/sbi_platform.h>
 
 /**
  * Load emulator callback:
  *   Refer to comments of `sbi_platform_emulate_load`.
  */
-typedef int (*sbi_trap_ld_emulator)(ulong insn, int rlen, ulong raddr,
-				    union sbi_ldst_data *out_val,
-				    struct sbi_trap_context *tcntx);
+प्रकारनिर्देश पूर्णाङ्क (*sbi_trap_ld_emulator)(ulong insn, पूर्णाङ्क rlen, ulong raddr,
+				    सङ्घ sbi_ldst_दत्त *बहिर्गमनम्_val,
+				    संरचना sbi_trap_context *tcntx);
 
 /**
  * Store emulator callback:
  *   Refer to comments of `sbi_platform_emulate_store`.
  */
-typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
-				    union sbi_ldst_data in_val,
-				    struct sbi_trap_context *tcntx);
+प्रकारनिर्देश पूर्णाङ्क (*sbi_trap_st_emulator)(ulong insn, पूर्णाङ्क wlen, ulong waddr,
+				    सङ्घ sbi_ldst_दत्त अन्तर्_val,
+				    संरचना sbi_trap_context *tcntx);
 
 /**
  * Handling of misaligned fault is done by a collection of smaller, but
@@ -40,21 +40,21 @@ typedef int (*sbi_trap_st_emulator)(ulong insn, int wlen, ulong waddr,
  * Specifically, fixup the offset field using the tval diff between the
  * new trap and the original one (if required).
  */
-static inline void sbi_misaligned_tinst_fixup(
-			const struct sbi_trap_info *orig_trap,
-			      struct sbi_trap_info *uptrap)
+स्थिर अन्तःस्थ शून्य sbi_misaligned_tinst_fixup(
+			ध्रुव संरचना sbi_trap_info *orig_trap,
+			      संरचना sbi_trap_info *uptrap)
 {
-	ulong offset = uptrap->tval - orig_trap->tval;
+	ulong विस्थापनम् = uptrap->tval - orig_trap->tval;
 
 	/*
 	 * The function is called in code path for handling a scalar
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	यदि (uptrap->tinst == INSN_PSEUDO_VS_आरोपय ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		प्रत्यागम;
 	/*
 	 * Only fixup if orig tinst is valid. Otherwise, discard the
 	 * new tinst to be on the safe side. Never use new tinst as-is!
@@ -62,13 +62,13 @@ static inline void sbi_misaligned_tinst_fixup(
 	 * For vector, discard it regardless. It doesn't make sense to
 	 * have a transformed tinst
 	 */
-	else if (orig_trap->tinst == 0)
+	अन्यथा यदि (orig_trap->tinst == 0)
 		uptrap->tinst = 0;
-	else
-		uptrap->tinst = orig_trap->tinst | (offset << SH_RS1);
+	अन्यथा
+		uptrap->tinst = orig_trap->tinst | (विस्थापनम् << SH_RS1);
 }
 
-static inline bool sbi_trap_tinst_valid(ulong tinst)
+स्थिर अन्तःस्थ bool sbi_trap_tinst_valid(ulong tinst)
 {
 	/*
 	 * Bit[0] == 1 implies trapped instruction value is
@@ -76,29 +76,29 @@ static inline bool sbi_trap_tinst_valid(ulong tinst)
 	 * Also do proper checking per Privileged ISA 19.6.3,
 	 * and make sure high 32 bits of tinst is 0
 	 */
-	return tinst == (uint32_t)tinst && (tinst & 0x1);
+	प्रत्यागम tinst == (uint32_t)tinst && (tinst & 0x1);
 }
 
-static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
+स्थिर पूर्णाङ्क sbi_trap_emulate_आरोपय(संरचना sbi_trap_context *tcntx,
 				 sbi_trap_ld_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	ulong insn, insn_len, imm = 0, shift = 0, off = 0;
-	union sbi_ldst_data val = { 0 };
-	struct sbi_trap_info uptrap;
-	bool xform = false, fp = false, c_load = false, c_ldsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
+	ulong insn, insn_len, imm = 0, सरणम् = 0, off = 0;
+	सङ्घ sbi_ldst_दत्त val = { 0 };
+	संरचना sbi_trap_info uptrap;
+	bool xform = false, fp = false, c_आरोपय = false, c_ldsp = false;
+	पूर्णाङ्क rc, len = 0, पूर्व_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	यदि (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
-		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
+		insn	 = orig_trap->tinst | INSN_16_BIT_आवरणम्;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} अन्यथा {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		यदि (uptrap.cause) {
+			प्रत्यागम sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -108,64 +108,64 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *    lb, lbu, lh, lhu, lw, flw, flw
 	 *    c.lbu, c.lh, c.lhu, c.lw, c.lwsp, c.fld, c.fldsp
 	 */
-	if ((insn & INSN_MASK_LB) == INSN_MATCH_LB) {
+	यदि ((insn & INSN_आवरणम्_LB) == INSN_मेलनम्_LB) {
 		len = -1;
-	} else if ((insn & INSN_MASK_LBU) == INSN_MATCH_LBU) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_LBU) == INSN_मेलनम्_LBU) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_LBU) == INSN_MATCH_C_LBU) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_LBU) == INSN_मेलनम्_C_LBU) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_LB_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LH) == INSN_MATCH_LH) {
+		c_आरोपय = true;
+	} अन्यथा यदि ((insn & INSN_आवरणम्_LH) == INSN_मेलनम्_LH) {
 		len = -2;
-	} else if ((insn & INSN_MASK_C_LH) == INSN_MATCH_C_LH) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_LH) == INSN_मेलनम्_C_LH) {
 		/* Zcb */
 		len = -2;
 		imm = RVC_LH_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LHU) == INSN_MATCH_LHU) {
+		c_आरोपय = true;
+	} अन्यथा यदि ((insn & INSN_आवरणम्_LHU) == INSN_मेलनम्_LHU) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_LHU) == INSN_MATCH_C_LHU) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_LHU) == INSN_मेलनम्_C_LHU) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_LH_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_LW) == INSN_MATCH_LW) {
+		c_आरोपय = true;
+	} अन्यथा यदि ((insn & INSN_आवरणम्_LW) == INSN_मेलनम्_LW) {
 		len = -4;
-	} else if ((insn & INSN_MASK_C_LW) == INSN_MATCH_C_LW) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_LW) == INSN_मेलनम्_C_LW) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LW_IMM(insn);
-		c_load = true;
-	} else if ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
-		GET_RD_NUM(insn)) {
+		c_आरोपय = true;
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_LWSP) == INSN_मेलनम्_C_LWSP &&
+		GET_RD_अङ्कः(insn)) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LWSP_IMM(insn);
 		c_ldsp = true;
-#ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FLW) == INSN_MATCH_FLW) {
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि ((insn & INSN_आवरणम्_FLW) == INSN_मेलनम्_FLW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FLD) == INSN_MATCH_FLD) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_FLD) == INSN_मेलनम्_FLD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLD) == INSN_MATCH_C_FLD) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_FLD) == INSN_मेलनम्_C_FLD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LD_IMM(insn);
-		c_load = true;
+		c_आरोपय = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FLDSP) == INSN_MATCH_C_FLDSP) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_FLDSP) == INSN_मेलनम्_C_FLDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_LDSP_IMM(insn);
 		c_ldsp = true;
 		fp = true;
-#endif
-	} else {
-		prev_xlen = sbi_regs_prev_xlen(regs);
+#यदि_अन्तः
+	} अन्यथा {
+		पूर्व_xlen = sbi_regs_पूर्व_xlen(regs);
 	}
 
 	/**
@@ -174,70 +174,70 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 	 *     c.ld in rv64 == c.flw in rv32
 	 *     c.ldsp in rv64 == c.flwsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	यदि (पूर्व_xlen == 64) {
 		/* RV64 Only: lwu, ld, c.ld, c.ldsp  */
-		if ((insn & INSN_MASK_LWU) == INSN_MATCH_LWU) {
+		यदि ((insn & INSN_आवरणम्_LWU) == INSN_मेलनम्_LWU) {
 			len = 4;
-		} else if ((insn & INSN_MASK_LD) == INSN_MATCH_LD) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_LD) == INSN_मेलनम्_LD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_LD) == INSN_MATCH_C_LD) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_LD) == INSN_मेलनम्_C_LD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LD_IMM(insn);
-			c_load = true;
-		} else if ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
-			GET_RD_NUM(insn)) {
+			c_आरोपय = true;
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_LDSP) == INSN_मेलनम्_C_LDSP &&
+			GET_RD_अङ्कः(insn)) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LDSP_IMM(insn);
 			c_ldsp = true;
 		}
-#ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि (पूर्व_xlen == 32) {
 		/* RV32 Only: c.flw, c.flwsp */
-		if ((insn & INSN_MASK_C_FLW) == INSN_MATCH_C_FLW) {
+		यदि ((insn & INSN_आवरणम्_C_FLW) == INSN_मेलनम्_C_FLW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LW_IMM(insn);
-			c_load = true;
+			c_आरोपय = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FLWSP) == INSN_MATCH_C_FLWSP) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_FLWSP) == INSN_मेलनम्_C_FLWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_LWSP_IMM(insn);
 			c_ldsp = true;
 			fp = true;
 		}
-#endif
+#यदि_अन्तः
 	}
 
-	if (len < 0) {
+	यदि (len < 0) {
 		len = -len;
-		shift = 8 * (sizeof(ulong) - len);
+		सरणम् = 8 * (परिमाण(ulong) - len);
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	यदि (!len) // Unknown instruction
+		गच्छ do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#यदि !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_LOAD)
-		goto do_emu;
-#endif
+	यदि (orig_trap->cause == CAUSE_MISALIGNED_आरोपय)
+		गच्छ do_emu;
+#यदि_अन्तः
 
-	if (xform)
+	यदि (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_load)
+		off = GET_RS1_अङ्कः(insn);
+	अन्यथा यदि (c_आरोपय)
 		/* non SP-based compressed load */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_ldsp)
+	अन्यथा यदि (c_ldsp)
 		/* SP-based compressed load */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	अन्यथा
 		/* I-type non-compressed load */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_I(insn);
 	/**
@@ -248,58 +248,58 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, &val, tcntx);
-	if (rc <= 0)
-		return rc;
-	if (!len)
-		goto epc_fixup;
+	यदि (rc <= 0)
+		प्रत्यागम rc;
+	यदि (!len)
+		गच्छ epc_fixup;
 
-	if (!fp) {
-		ulong v = ((long)(val.data_ulong << shift)) >> shift;
+	यदि (!fp) {
+		ulong v = ((दीर्घ)(val.दत्त_ulong << सरणम्)) >> सरणम्;
 
-		if (c_load)
-			SET_RDS(insn, regs, v);
-		else
-			SET_RD(insn, regs, v);
-#ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_load)
-			SET_F64_RDS(insn, regs, val.data_u64);
-		else
-			SET_F64_RD(insn, regs, val.data_u64);
-	} else {
-		if (c_load)
-			SET_F32_RDS(insn, regs, val.data_ulong);
-		else
-			SET_F32_RD(insn, regs, val.data_ulong);
-#endif
+		यदि (c_आरोपय)
+			समुच्चयः_RDS(insn, regs, v);
+		अन्यथा
+			समुच्चयः_RD(insn, regs, v);
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि (len == 8) {
+		यदि (c_आरोपय)
+			समुच्चयः_F64_RDS(insn, regs, val.दत्त_u64);
+		अन्यथा
+			समुच्चयः_F64_RD(insn, regs, val.दत्त_u64);
+	} अन्यथा {
+		यदि (c_आरोपय)
+			समुच्चयः_F32_RDS(insn, regs, val.दत्त_ulong);
+		अन्यथा
+			समुच्चयः_F32_RD(insn, regs, val.दत्त_ulong);
+#यदि_अन्तः
 	}
 
 epc_fixup:
 	regs->mepc += insn_len;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
+स्थिर पूर्णाङ्क sbi_trap_emulate_store(संरचना sbi_trap_context *tcntx,
 				  sbi_trap_st_emulator emu)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn, insn_len, imm = 0, off = 0;
-	union sbi_ldst_data val;
-	struct sbi_trap_info uptrap;
+	सङ्घ sbi_ldst_दत्त val;
+	संरचना sbi_trap_info uptrap;
 	bool xform = false, fp = false, c_store = false, c_stsp = false;
-	int rc, len = 0, prev_xlen = 0;
+	पूर्णाङ्क rc, len = 0, पूर्व_xlen = 0;
 
-	if (sbi_trap_tinst_valid(orig_trap->tinst)) {
+	यदि (sbi_trap_tinst_valid(orig_trap->tinst)) {
 		xform	 = true;
-		insn	 = orig_trap->tinst | INSN_16BIT_MASK;
+		insn	 = orig_trap->tinst | INSN_16_BIT_आवरणम्;
 		insn_len = (orig_trap->tinst & 0x2) ? INSN_LEN(insn) : 2;
-	} else {
+	} अन्यथा {
 		/* trapped instruction value is zero or special value */
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause) {
-			return sbi_trap_redirect(regs, &uptrap);
+		यदि (uptrap.cause) {
+			प्रत्यागम sbi_trap_redirect(regs, &uptrap);
 		}
 		insn_len = INSN_LEN(insn);
 	}
@@ -309,54 +309,54 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *    sb, sh, sw, fsw, fsd
 	 *    c.sb, c.sh, c.sw, c.swsp, c.fsd, c.fsdsp
 	 */
-	if ((insn & INSN_MASK_SB) == INSN_MATCH_SB) {
+	यदि ((insn & INSN_आवरणम्_SB) == INSN_मेलनम्_SB) {
 		len = 1;
-	} else if ((insn & INSN_MASK_C_SB) == INSN_MATCH_C_SB) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_SB) == INSN_मेलनम्_C_SB) {
 		/* Zcb */
 		len = 1;
 		imm = RVC_SB_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SH) == INSN_MATCH_SH) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_SH) == INSN_मेलनम्_SH) {
 		len = 2;
-	} else if ((insn & INSN_MASK_C_SH) == INSN_MATCH_C_SH) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_SH) == INSN_मेलनम्_C_SH) {
 		/* Zcb */
 		len = 2;
 		imm = RVC_SH_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_SW) == INSN_MATCH_SW) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_SW) == INSN_मेलनम्_SW) {
 		len = 4;
-	} else if ((insn & INSN_MASK_C_SW) == INSN_MATCH_C_SW) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_SW) == INSN_मेलनम्_C_SW) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SW_IMM(insn);
 		c_store = true;
-	} else if ((insn & INSN_MASK_C_SWSP) == INSN_MATCH_C_SWSP) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_SWSP) == INSN_मेलनम्_C_SWSP) {
 		/* Zca */
 		len = 4;
 		imm = RVC_SWSP_IMM(insn);
 		c_stsp = true;
-#ifdef __riscv_flen
-	} else if ((insn & INSN_MASK_FSW) == INSN_MATCH_FSW) {
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि ((insn & INSN_आवरणम्_FSW) == INSN_मेलनम्_FSW) {
 		len = 4;
 		fp = true;
-	} else if ((insn & INSN_MASK_FSD) == INSN_MATCH_FSD) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_FSD) == INSN_मेलनम्_FSD) {
 		len = 8;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSD) == INSN_MATCH_C_FSD) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_FSD) == INSN_मेलनम्_C_FSD) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SD_IMM(insn);
 		c_store = true;
 		fp = true;
-	} else if ((insn & INSN_MASK_C_FSDSP) == INSN_MATCH_C_FSDSP) {
+	} अन्यथा यदि ((insn & INSN_आवरणम्_C_FSDSP) == INSN_मेलनम्_C_FSDSP) {
 		/* Zcd */
 		len = 8;
 		imm = RVC_SDSP_IMM(insn);
 		c_stsp = true;
 		fp = true;
-#endif
-	} else {
-		prev_xlen = sbi_regs_prev_xlen(regs);
+#यदि_अन्तः
+	} अन्यथा {
+		पूर्व_xlen = sbi_regs_पूर्व_xlen(regs);
 	}
 
 	/**
@@ -365,87 +365,87 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 	 *     c.sd in rv64 == c.fsw in rv32
 	 *     c.sdsp in rv64 == c.fswsp in rv32
 	 */
-	if (prev_xlen == 64) {
+	यदि (पूर्व_xlen == 64) {
 		/* RV64 Only: sd, c.sd, c.sdsp */
-		if ((insn & INSN_MASK_SD) == INSN_MATCH_SD) {
+		यदि ((insn & INSN_आवरणम्_SD) == INSN_मेलनम्_SD) {
 			len = 8;
-		} else if ((insn & INSN_MASK_C_SD) == INSN_MATCH_C_SD) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_SD) == INSN_मेलनम्_C_SD) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SD_IMM(insn);
 			c_store = true;
-		} else if ((insn & INSN_MASK_C_SDSP) == INSN_MATCH_C_SDSP) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_SDSP) == INSN_मेलनम्_C_SDSP) {
 			/* Zca */
 			len = 8;
 			imm = RVC_SDSP_IMM(insn);
 			c_stsp = true;
 		}
-#ifdef __riscv_flen
-	} else if (prev_xlen == 32) {
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि (पूर्व_xlen == 32) {
 		/* RV32 Only: c.fsw, c.fswsp */
-		if ((insn & INSN_MASK_C_FSW) == INSN_MATCH_C_FSW) {
+		यदि ((insn & INSN_आवरणम्_C_FSW) == INSN_मेलनम्_C_FSW) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SW_IMM(insn);
 			c_store = true;
 			fp = true;
-		} else if ((insn & INSN_MASK_C_FSWSP) == INSN_MATCH_C_FSWSP) {
+		} अन्यथा यदि ((insn & INSN_आवरणम्_C_FSWSP) == INSN_मेलनम्_C_FSWSP) {
 			/* Zcf */
 			len = 4;
 			imm = RVC_SWSP_IMM(insn);
 			c_stsp = true;
 			fp = true;
 		}
-#endif
+#यदि_अन्तः
 	}
 
-	if (!fp) {
-		if (c_store)
-			val.data_ulong = GET_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_ulong = GET_RS2C(insn, regs);
-		else
-			val.data_ulong = GET_RS2(insn, regs);
-#ifdef __riscv_flen
-	} else if (len == 8) {
-		if (c_store)
-			val.data_u64 = GET_F64_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_u64 = GET_F64_RS2C(insn, regs);
-		else
-			val.data_u64 = GET_F64_RS2(insn, regs);
-	} else {
-		if (c_store)
-			val.data_ulong = GET_F32_RS2S(insn, regs);
-		else if (c_stsp)
-			val.data_ulong = GET_F32_RS2C(insn, regs);
-		else
-			val.data_ulong = GET_F32_RS2(insn, regs);
-#endif
+	यदि (!fp) {
+		यदि (c_store)
+			val.दत्त_ulong = GET_RS2S(insn, regs);
+		अन्यथा यदि (c_stsp)
+			val.दत्त_ulong = GET_RS2C(insn, regs);
+		अन्यथा
+			val.दत्त_ulong = GET_RS2(insn, regs);
+#यदि_परिभाषितम् __riscv_flen
+	} अन्यथा यदि (len == 8) {
+		यदि (c_store)
+			val.दत्त_u64 = GET_F64_RS2S(insn, regs);
+		अन्यथा यदि (c_stsp)
+			val.दत्त_u64 = GET_F64_RS2C(insn, regs);
+		अन्यथा
+			val.दत्त_u64 = GET_F64_RS2(insn, regs);
+	} अन्यथा {
+		यदि (c_store)
+			val.दत्त_ulong = GET_F32_RS2S(insn, regs);
+		अन्यथा यदि (c_stsp)
+			val.दत्त_ulong = GET_F32_RS2C(insn, regs);
+		अन्यथा
+			val.दत्त_ulong = GET_F32_RS2(insn, regs);
+#यदि_अन्तः
 	}
 
-	if (!len) // Unknown instruction
-		goto do_emu;
+	यदि (!len) // Unknown instruction
+		गच्छ do_emu;
 
-#if !defined(OPENSBI_DEBUG)
+#यदि !defined(OPENSBI_DEBUG)
 	/**
 	 * For misaligned faults. Skip offset calculation unless DEBUG
 	 * builds. It helps validating OpenSBI and HW.
 	 */
-	if (orig_trap->cause == CAUSE_MISALIGNED_STORE)
-		goto do_emu;
-#endif
+	यदि (orig_trap->cause == CAUSE_MISALIGNED_STORE)
+		गच्छ do_emu;
+#यदि_अन्तः
 
-	if (xform)
+	यदि (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
-	else if (c_store)
+		off = GET_RS1_अङ्कः(insn);
+	अन्यथा यदि (c_store)
 		/* non SP-based compressed store */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
-	else if (c_stsp)
+	अन्यथा यदि (c_stsp)
 		/* SP-based compressed store */
 		off = orig_trap->tval - REG_VAL(2, regs) - imm;
-	else
+	अन्यथा
 		/* S-type non-compressed store */
 		off = orig_trap->tval - GET_RS1(insn, regs) - (ulong)IMM_S(insn);
 	/**
@@ -456,128 +456,128 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 
 do_emu:
 	rc = emu(insn, len, orig_trap->tval - off, val, tcntx);
-	if (rc <= 0)
-		return rc;
+	यदि (rc <= 0)
+		प्रत्यागम rc;
 
 	regs->mepc += insn_len;
 
-	return 0;
+	प्रत्यागम 0;
 }
 
-static int sbi_misaligned_ld_emulator(ulong insn, int rlen, ulong addr,
-				      union sbi_ldst_data *out_val,
-				      struct sbi_trap_context *tcntx)
+स्थिर पूर्णाङ्क sbi_misaligned_ld_emulator(ulong insn, पूर्णाङ्क rlen, ulong addr,
+				      सङ्घ sbi_ldst_दत्त *बहिर्गमनम्_val,
+				      संरचना sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
+	संरचना sbi_trap_info uptrap;
 
-	if (!rlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_ld_emulator(insn, tcntx);
-		else
+	यदि (!rlen) {
+		यदि (IS_सदिशम्_आरोपय_STORE(insn))
+			प्रत्यागम sbi_misaligned_v_ld_emulator(insn, tcntx);
+		अन्यथा
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			प्रत्यागम sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	यदि (addr != orig_trap->tval)
+		प्रत्यागम SBI_EFAIL;
 
-	sbi_load_loop(out_val->data_bytes, addr, rlen, &uptrap);
-	if (uptrap.cause) {
+	sbi_आरोपय_loop(बहिर्गमनम्_val->दत्त_अष्टकानि, addr, rlen, &uptrap);
+	यदि (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		प्रत्यागम sbi_trap_redirect(regs, &uptrap);
 	}
-	return rlen;
+	प्रत्यागम rlen;
 }
 
-int sbi_misaligned_load_handler(struct sbi_trap_context *tcntx)
+पूर्णाङ्क sbi_misaligned_आरोपय_handler(संरचना sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_misaligned_ld_emulator);
+	प्रत्यागम sbi_trap_emulate_आरोपय(tcntx, sbi_misaligned_ld_emulator);
 }
 
-static int sbi_misaligned_st_emulator(ulong insn, int wlen, ulong addr,
-				      union sbi_ldst_data in_val,
-				      struct sbi_trap_context *tcntx)
+स्थिर पूर्णाङ्क sbi_misaligned_st_emulator(ulong insn, पूर्णाङ्क wlen, ulong addr,
+				      सङ्घ sbi_ldst_दत्त अन्तर्_val,
+				      संरचना sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
+	संरचना sbi_trap_info uptrap;
 
-	if (!wlen) {
-		if (IS_VECTOR_LOAD_STORE(insn))
-			return sbi_misaligned_v_st_emulator(insn, tcntx);
-		else
+	यदि (!wlen) {
+		यदि (IS_सदिशम्_आरोपय_STORE(insn))
+			प्रत्यागम sbi_misaligned_v_st_emulator(insn, tcntx);
+		अन्यथा
 			/* Unrecognized instruction. Can't emulate it. */
-			return sbi_trap_redirect(regs, orig_trap);
+			प्रत्यागम sbi_trap_redirect(regs, orig_trap);
 	}
 	/* For misaligned fault, addr must be the same as orig_trap->tval */
-	if (addr != orig_trap->tval)
-		return SBI_EFAIL;
+	यदि (addr != orig_trap->tval)
+		प्रत्यागम SBI_EFAIL;
 
-	sbi_store_loop(in_val.data_bytes, addr, wlen, &uptrap);
-	if (uptrap.cause) {
+	sbi_store_loop(अन्तर्_val.दत्त_अष्टकानि, addr, wlen, &uptrap);
+	यदि (uptrap.cause) {
 		sbi_misaligned_tinst_fixup(orig_trap, &uptrap);
-		return sbi_trap_redirect(regs, &uptrap);
+		प्रत्यागम sbi_trap_redirect(regs, &uptrap);
 	}
-	return wlen;
+	प्रत्यागम wlen;
 }
 
-int sbi_misaligned_store_handler(struct sbi_trap_context *tcntx)
+पूर्णाङ्क sbi_misaligned_store_handler(संरचना sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
+	प्रत्यागम sbi_trap_emulate_store(tcntx, sbi_misaligned_st_emulator);
 }
 
-static int sbi_ld_access_emulator(ulong insn, int rlen, ulong addr,
-				  union sbi_ldst_data *out_val,
-				  struct sbi_trap_context *tcntx)
+स्थिर पूर्णाङ्क sbi_ld_access_emulator(ulong insn, पूर्णाङ्क rlen, ulong addr,
+				  सङ्घ sbi_ldst_दत्त *बहिर्गमनम्_val,
+				  संरचना sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
+	पूर्णाङ्क rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	यदि (sbi_mstatus_पूर्व_बहुलकम्(regs->mstatus) == PRV_M)
+		प्रत्यागम SBI_EINVAL;
 
-	rc = sbi_platform_emulate_load(sbi_platform_thishart_ptr(),
-				       insn, rlen, addr, out_val, tcntx);
+	rc = sbi_platform_emulate_आरोपय(sbi_platform_thishart_ptr(),
+				       insn, rlen, addr, बहिर्गमनम्_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	यदि (rc < 0)
+		प्रत्यागम sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	प्रत्यागम rc;
 }
 
-int sbi_load_access_handler(struct sbi_trap_context *tcntx)
+पूर्णाङ्क sbi_आरोपय_access_handler(संरचना sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_load(tcntx, sbi_ld_access_emulator);
+	प्रत्यागम sbi_trap_emulate_आरोपय(tcntx, sbi_ld_access_emulator);
 }
 
-static int sbi_st_access_emulator(ulong insn, int wlen, ulong addr,
-				  union sbi_ldst_data in_val,
-				  struct sbi_trap_context *tcntx)
+स्थिर पूर्णाङ्क sbi_st_access_emulator(ulong insn, पूर्णाङ्क wlen, ulong addr,
+				  सङ्घ sbi_ldst_दत्त अन्तर्_val,
+				  संरचना sbi_trap_context *tcntx)
 {
-	const struct sbi_trap_info *orig_trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	int rc;
+	ध्रुव संरचना sbi_trap_info *orig_trap = &tcntx->trap;
+	संरचना sbi_trap_regs *regs = &tcntx->regs;
+	पूर्णाङ्क rc;
 
 	/* If fault came from M mode, just fail */
-	if (sbi_mstatus_prev_mode(regs->mstatus) == PRV_M)
-		return SBI_EINVAL;
+	यदि (sbi_mstatus_पूर्व_बहुलकम्(regs->mstatus) == PRV_M)
+		प्रत्यागम SBI_EINVAL;
 
 	rc = sbi_platform_emulate_store(sbi_platform_thishart_ptr(),
-					insn, wlen, addr, in_val, tcntx);
+					insn, wlen, addr, अन्तर्_val, tcntx);
 
 	/* If platform emulator failed, we redirect instead of fail */
-	if (rc < 0)
-		return sbi_trap_redirect(regs, orig_trap);
+	यदि (rc < 0)
+		प्रत्यागम sbi_trap_redirect(regs, orig_trap);
 
-	return rc;
+	प्रत्यागम rc;
 }
 
-int sbi_store_access_handler(struct sbi_trap_context *tcntx)
+पूर्णाङ्क sbi_store_access_handler(संरचना sbi_trap_context *tcntx)
 {
-	return sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
+	प्रत्यागम sbi_trap_emulate_store(tcntx, sbi_st_access_emulator);
 }
