@@ -8,7 +8,7 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#अन्तर्भाव <sbi/sbi_bitops.h>
 
 #define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
 
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
+unsigned long find_first_bit(ध्रुव unsigned long *addr,
 			     unsigned long size)
 {
-	const unsigned long *p = addr;
+	ध्रुव unsigned long *p = addr;
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
+	जाव (size & ~(BITS_PER_LONG-1)) {
+		जइ ((tmp = *(p++)))
+			गच्छ found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	जइ (!size)
+		प्रत्यागम result;
 
 	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	जइ (tmp == 0UL)		/* Are any bits set? */
+		प्रत्यागम result + size;	/* Nope. */
 found:
-	return result + sbi_ffs(tmp);
+	प्रत्यागम result + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
+unsigned long find_first_zero_bit(ध्रुव unsigned long *addr,
 				  unsigned long size)
 {
-	const unsigned long *p = addr;
+	ध्रुव unsigned long *p = addr;
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
+	जाव (size & ~(BITS_PER_LONG-1)) {
+		जइ (~(tmp = *(p++)))
+			गच्छ found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	जइ (!size)
+		प्रत्यागम result;
 
 	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	जइ (tmp == ~0UL)	/* Are any bits zero? */
+		प्रत्यागम result + size;	/* Nope. */
 found:
-	return result + sbi_ffz(tmp);
+	प्रत्यागम result + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
+unsigned long find_last_bit(ध्रुव unsigned long *addr,
 			    unsigned long size)
 {
-	unsigned long words;
+	unsigned long शब्दाः;
 	unsigned long tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	शब्दाः = size / BITS_PER_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
+	जइ (size & (BITS_PER_LONG-1)) {
+		tmp = (addr[शब्दाः] & (~0UL >> (BITS_PER_LONG
 					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+		जइ (tmp)
+			गच्छ found;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
+	जाव (शब्दाः) {
+		tmp = addr[--शब्दाः];
+		जइ (tmp) {
 found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+			प्रत्यागम शब्दाः * BITS_PER_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	प्रत्यागम size;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
+unsigned long find_next_bit(ध्रुव unsigned long *addr,
 			    unsigned long size, unsigned long offset)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
+	ध्रुव unsigned long *p = addr + BITOP_WORD(offset);
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	जइ (offset >= size)
+		प्रत्यागम size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	जइ (offset) {
 		tmp = *(p++);
 		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
+		जइ (size < BITS_PER_LONG)
+			गच्छ found_first;
+		जइ (tmp)
+			गच्छ found_मध्यः;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
+	जाव (size & ~(BITS_PER_LONG-1)) {
+		जइ ((tmp = *(p++)))
+			गच्छ found_मध्यः;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	जइ (!size)
+		प्रत्यागम result;
 	tmp = *p;
 
 found_first:
 	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+	जइ (tmp == 0UL)		/* Are any bits set? */
+		प्रत्यागम result + size;	/* Nope. */
+found_मध्यः:
+	प्रत्यागम result + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
+unsigned long find_next_zero_bit(ध्रुव unsigned long *addr,
 				 unsigned long size,
 				 unsigned long offset)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
+	ध्रुव unsigned long *p = addr + BITOP_WORD(offset);
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	जइ (offset >= size)
+		प्रत्यागम size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	जइ (offset) {
 		tmp = *(p++);
 		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
+		जइ (size < BITS_PER_LONG)
+			गच्छ found_first;
+		जइ (~tmp)
+			गच्छ found_मध्यः;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
+	जाव (size & ~(BITS_PER_LONG-1)) {
+		जइ (~(tmp = *(p++)))
+			गच्छ found_मध्यः;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	जइ (!size)
+		प्रत्यागम result;
 	tmp = *p;
 
 found_first:
 	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+	जइ (tmp == ~0UL)	/* Are any bits zero? */
+		प्रत्यागम result + size;	/* Nope. */
+found_मध्यः:
+	प्रत्यागम result + sbi_ffz(tmp);
 }

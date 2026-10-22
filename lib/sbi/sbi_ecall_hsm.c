@@ -7,60 +7,60 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/sbi_domain.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_hsm.h>
+#अन्तर्भाव <sbi/sbi_scratch.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
 
-static int sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+स्थिर पूर्णाङ्क sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
+				 संरचना sbi_trap_regs *regs,
+				 संरचना sbi_ecall_return *out)
 {
-	int ret = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	पूर्णाङ्क ret = 0;
+	संरचना sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	ulong smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
 
-	switch (funcid) {
-	case SBI_EXT_HSM_HART_START:
+	विकल्प (funcid) {
+	पक्ष SBI_EXT_HSM_HART_START:
 		ret = sbi_hsm_hart_start(scratch, sbi_domain_thishart_ptr(),
 					 regs->a0, regs->a1, smode, regs->a2);
-		break;
-	case SBI_EXT_HSM_HART_STOP:
+		भङ्ग;
+	पक्ष SBI_EXT_HSM_HART_STOP:
 		ret = sbi_hsm_hart_stop(scratch, true);
-		break;
-	case SBI_EXT_HSM_HART_GET_STATUS:
+		भङ्ग;
+	पक्ष SBI_EXT_HSM_HART_GET_STATUS:
 		ret = sbi_hsm_hart_get_state(sbi_domain_thishart_ptr(),
 					     regs->a0);
-		break;
-	case SBI_EXT_HSM_HART_SUSPEND:
+		भङ्ग;
+	पक्ष SBI_EXT_HSM_HART_SUSPEND:
 		ret = sbi_hsm_hart_suspend(scratch, regs->a0, regs->a1,
 					   smode, regs->a2);
-		break;
-	default:
+		भङ्ग;
+	स्वभाव:
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (ret >= 0) {
-		out->value = ret;
+	जइ (ret >= 0) {
+		out->मानम् = ret;
 		ret = 0;
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-struct sbi_ecall_extension ecall_hsm;
+संरचना sbi_ecall_extension ecall_hsm;
 
-static int sbi_ecall_hsm_register_extensions(void)
+स्थिर पूर्णाङ्क sbi_ecall_hsm_register_extensions(शून्य)
 {
-	return sbi_ecall_register_extension(&ecall_hsm);
+	प्रत्यागम sbi_ecall_register_extension(&ecall_hsm);
 }
 
-struct sbi_ecall_extension ecall_hsm = {
+संरचना sbi_ecall_extension ecall_hsm = {
 	.name			= "hsm",
 	.extid_start		= SBI_EXT_HSM,
 	.extid_end		= SBI_EXT_HSM,

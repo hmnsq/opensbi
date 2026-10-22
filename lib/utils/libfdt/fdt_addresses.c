@@ -4,98 +4,98 @@
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
  * Copyright (C) 2018 embedded brains GmbH
  */
-#include "libfdt_env.h"
+#अन्तर्भाव "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#अन्तर्भाव <fdt.h>
+#अन्तर्भाव <libfdt.h>
 
-#include "libfdt_internal.h"
+#अन्तर्भाव "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+स्थिर पूर्णाङ्क fdt_cells(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoffset, ध्रुव वर्ण *name)
 {
-	const fdt32_t *c;
+	ध्रुव fdt32_t *c;
 	uint32_t val;
-	int len;
+	पूर्णाङ्क len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	जइ (!c)
+		प्रत्यागम len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	जइ (len != परिमाण(*c))
+		प्रत्यागम -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	जइ (val > FDT_MAX_NCELLS)
+		प्रत्यागम -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	प्रत्यागम (पूर्णाङ्क)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+पूर्णाङ्क fdt_address_cells(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	int val;
+	पूर्णाङ्क val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	जइ (val == 0)
+		प्रत्यागम -FDT_ERR_BADNCELLS;
+	जइ (val == -FDT_ERR_NOTFOUND)
+		प्रत्यागम 2;
+	प्रत्यागम val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+पूर्णाङ्क fdt_size_cells(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoffset)
 {
-	int val;
+	पूर्णाङ्क val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	जइ (val == -FDT_ERR_NOTFOUND)
+		प्रत्यागम 1;
+	प्रत्यागम val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+पूर्णाङ्क fdt_appendprop_addrrange(शून्य *fdt, पूर्णाङ्क parent, पूर्णाङ्क nodeoffset,
+			     ध्रुव वर्ण *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	पूर्णाङ्क addr_cells, size_cells, ret;
+	uint8_t data[परिमाण(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	जइ (ret < 0)
+		प्रत्यागम ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	जइ (ret < 0)
+		प्रत्यागम ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	जइ (addr_cells == 1) {
+		जइ ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			प्रत्यागम -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} अण्णहा जइ (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} अण्णहा {
+		प्रत्यागम -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * परिमाण(fdt32_t);
+	जइ (size_cells == 1) {
+		जइ (size > UINT32_MAX)
+			प्रत्यागम -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} अण्णहा जइ (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} अण्णहा {
+		प्रत्यागम -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	प्रत्यागम fdt_appendprop(fdt, nodeoffset, name, data,
+			      (addr_cells + size_cells) * परिमाण(fdt32_t));
 }

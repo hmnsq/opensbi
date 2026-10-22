@@ -8,82 +8,82 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_tlb.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_ecall.h>
+#अन्तर्भाव <sbi/sbi_ecall_interface.h>
+#अन्तर्भाव <sbi/sbi_trap.h>
+#अन्तर्भाव <sbi/sbi_tlb.h>
 
-static int sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+स्थिर पूर्णाङ्क sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
+				    संरचना sbi_trap_regs *regs,
+				    संरचना sbi_ecall_return *out)
 {
-	int ret = 0;
+	पूर्णाङ्क ret = 0;
 	unsigned long vmid;
-	struct sbi_tlb_info tlb_info;
+	संरचना sbi_tlb_info tlb_info;
 	u32 source_hart = current_hartid();
 
-	if (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
+	जइ (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
 	    funcid <= SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA)
-		if (!misa_extension('H'))
-			return SBI_ENOTSUPP;
+		जइ (!misa_extension('H'))
+			प्रत्यागम SBI_ENOTSUPP;
 
-	switch (funcid) {
-	case SBI_EXT_RFENCE_REMOTE_FENCE_I:
+	विकल्प (funcid) {
+	पक्ष SBI_EXT_RFENCE_REMOTE_FENCE_I:
 		SBI_TLB_INFO_INIT(&tlb_info, 0, 0, 0, 0,
 				  SBI_TLB_FENCE_I, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, 0,
 				  SBI_TLB_HFENCE_GVMA, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, regs->a4,
 				  SBI_TLB_HFENCE_GVMA_VMID, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA:
 		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_MASK);
 		vmid = vmid >> HGATP_VMID_SHIFT;
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, vmid,
 				  SBI_TLB_HFENCE_VVMA, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID:
 		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_MASK);
 		vmid = vmid >> HGATP_VMID_SHIFT;
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, regs->a4,
 				  vmid, SBI_TLB_HFENCE_VVMA_ASID, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_SFENCE_VMA:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_SFENCE_VMA:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, 0,
 				  SBI_TLB_SFENCE_VMA, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID:
+		भङ्ग;
+	पक्ष SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, regs->a4, 0,
 				  SBI_TLB_SFENCE_VMA_ASID, source_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	default:
+		भङ्ग;
+	स्वभाव:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	प्रत्यागम ret;
 }
 
-struct sbi_ecall_extension ecall_rfence;
+संरचना sbi_ecall_extension ecall_rfence;
 
-static int sbi_ecall_rfence_register_extensions(void)
+स्थिर पूर्णाङ्क sbi_ecall_rfence_register_extensions(शून्य)
 {
-	return sbi_ecall_register_extension(&ecall_rfence);
+	प्रत्यागम sbi_ecall_register_extension(&ecall_rfence);
 }
 
-struct sbi_ecall_extension ecall_rfence = {
+संरचना sbi_ecall_extension ecall_rfence = {
 	.name			= "rfnc",
 	.extid_start		= SBI_EXT_RFENCE,
 	.extid_end		= SBI_EXT_RFENCE,
