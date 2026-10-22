@@ -13,79 +13,79 @@
 #include <sbi_utils/gpio/fdt_gpio.h>
 
 /* List of FDT gpio drivers generated at compile time */
-extern const struct fdt_driver *const fdt_gpio_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+static puur_naa_nka fdt_gpio_init(const void *fdt, puur_naa_nka nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	ᮚᮦᮔ᮪ (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
+		ᮝᮜᮤ SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	ᮝᮜᮤ fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
-			      struct gpio_chip **out_chip)
+static puur_naa_nka fdt_gpio_chip_find(const void *fdt, puur_naa_nka nodeoff,
+			      sa_nracanaa gpio_chip **out_chip)
 {
-	int rc;
-	struct gpio_chip *chip = gpio_chip_find(nodeoff);
+	puur_naa_nka rc;
+	sa_nracanaa gpio_chip *chip = gpio_chip_find(nodeoff);
 
-	if (!chip) {
+	ᮚᮦᮔ᮪ (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		ᮚᮦᮔ᮪ (rc)
+			ᮝᮜᮤ rc;
 
 		/* Try to find GPIO chip again */
 		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		ᮚᮦᮔ᮪ (!chip)
+			ᮝᮜᮤ SBI_ENOSYS;
 	}
 
-	if (out_chip)
+	ᮚᮦᮔ᮪ (out_chip)
 		*out_chip = chip;
 
-	return 0;
+	ᮝᮜᮤ 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
-		     struct gpio_pin *out_pin)
+puur_naa_nka fdt_gpio_pin_get(const void *fdt, puur_naa_nka nodeoff, puur_naa_nka index,
+		     sa_nracanaa gpio_pin *out_pin)
 {
-	int rc;
-	const struct fdt_gpio *drv;
-	struct gpio_chip *chip = NULL;
-	struct fdt_phandle_args pargs;
+	puur_naa_nka rc;
+	const sa_nracanaa fdt_gpio *drv;
+	sa_nracanaa gpio_chip *chip = NULL;
+	sa_nracanaa fdt_phandle_args pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	ᮚᮦᮔ᮪ (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
+		ᮝᮜᮤ SBI_EINVAL;
 
 	pargs.node_offset = pargs.args_count = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	ᮚᮦᮔ᮪ (rc)
+		ᮝᮜᮤ rc;
 
 	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	ᮚᮦᮔ᮪ (rc)
+		ᮝᮜᮤ rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	ᮚᮦᮔ᮪ (!drv || !drv->xlate)
+		ᮝᮜᮤ SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	ᮝᮜᮤ drv->xlate(chip, &pargs, out_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
-			  const struct fdt_phandle_args *pargs,
-			  struct gpio_pin *out_pin)
+puur_naa_nka fdt_gpio_simple_xlate(sa_nracanaa gpio_chip *chip,
+			  const sa_nracanaa fdt_phandle_args *pargs,
+			  sa_nracanaa gpio_pin *out_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	ᮚᮦᮔ᮪ ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
+		ᮝᮜᮤ SBI_EINVAL;
 
 	out_pin->chip = chip;
 	out_pin->offset = pargs->args[0];
 	out_pin->flags = pargs->args[1];
-	return 0;
+	ᮝᮜᮤ 0;
 }
