@@ -6,10 +6,10 @@
 #define ATOMIC_TEST_VAL2 30l
 #define ATOMIC_TEST_VAL3 2024l
 
-#define ATOMIC_TEST_BIT_NUM 3
+#define ATOMIC_TEST_BIT_नुमेरो 3
 
 #define ATOMIC_TEST_RAW_BIT_CELL 1
-#define ATOMIC_TEST_RAW_BIT_NUM 15
+#define ATOMIC_TEST_RAW_BIT_नुमेरो 15
 
 static atomic_t test_atomic;
 
@@ -69,11 +69,11 @@ static void atomic_raw_set_bit_test(struct sbiunit_test_case *test)
 {
 	unsigned long data[] = {0, 0, 0};
 	/* the bitpos points to the bit of one of the elements of the `data` array */
-	size_t bitpos = ATOMIC_TEST_RAW_BIT_CELL * BITS_PER_LONG + ATOMIC_TEST_RAW_BIT_NUM;
+	size_t bitpos = ATOMIC_TEST_RAW_BIT_CELL * BITS_PER_LONG + ATOMIC_TEST_RAW_BIT_नुमेरो;
 
 	/* check if the bit we set actually gets set */
 	SBIUNIT_EXPECT_EQ(test, atomic_raw_set_bit(bitpos, data), 0);
-	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 1 << ATOMIC_TEST_RAW_BIT_NUM);
+	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 1 << ATOMIC_TEST_RAW_BIT_नुमेरो);
 
 	/* Other elements of the `data` array should stay untouched */
 	SBIUNIT_EXPECT_EQ(test, data[0], 0);
@@ -81,14 +81,14 @@ static void atomic_raw_set_bit_test(struct sbiunit_test_case *test)
 
 	/* check that if we set the bit twice it stays set */
 	SBIUNIT_EXPECT_EQ(test, atomic_raw_set_bit(bitpos, data), 1);
-	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 1 << ATOMIC_TEST_RAW_BIT_NUM);
+	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 1 << ATOMIC_TEST_RAW_BIT_नुमेरो);
 }
 
 static void atomic_raw_clear_bit_test(struct sbiunit_test_case *test)
 {
-	unsigned long data[] = {~1UL, 1 << ATOMIC_TEST_RAW_BIT_NUM, ~1UL};
+	unsigned long data[] = {~1UL, 1 << ATOMIC_TEST_RAW_BIT_नुमेरो, ~1UL};
 	/* the bitpos points to the bit of one of the elements of the `data` array */
-	size_t bitpos = ATOMIC_TEST_RAW_BIT_CELL * BITS_PER_LONG + ATOMIC_TEST_RAW_BIT_NUM;
+	size_t bitpos = ATOMIC_TEST_RAW_BIT_CELL * BITS_PER_LONG + ATOMIC_TEST_RAW_BIT_नुमेरो;
 
 	/* check if the bit we clear actually gets cleared */
 	SBIUNIT_EXPECT_EQ(test, atomic_raw_clear_bit(bitpos, data), 1);
@@ -106,20 +106,20 @@ static void atomic_raw_clear_bit_test(struct sbiunit_test_case *test)
 static void atomic_set_bit_test(struct sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, 0);
-	SBIUNIT_EXPECT_EQ(test, atomic_set_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 0);
-	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 1 << ATOMIC_TEST_BIT_NUM);
+	SBIUNIT_EXPECT_EQ(test, atomic_set_bit(ATOMIC_TEST_BIT_नुमेरो, &test_atomic), 0);
+	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 1 << ATOMIC_TEST_BIT_नुमेरो);
 	/* If we set the bit twice, it stays 1 */
-	SBIUNIT_EXPECT_EQ(test, atomic_set_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 1);
-	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 1 << ATOMIC_TEST_BIT_NUM);
+	SBIUNIT_EXPECT_EQ(test, atomic_set_bit(ATOMIC_TEST_BIT_नुमेरो, &test_atomic), 1);
+	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 1 << ATOMIC_TEST_BIT_नुमेरो);
 }
 
 static void atomic_clear_bit_test(struct sbiunit_test_case *test)
 {
-	atomic_write(&test_atomic, 1 << ATOMIC_TEST_BIT_NUM);
-	SBIUNIT_EXPECT_EQ(test, atomic_clear_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 1);
+	atomic_write(&test_atomic, 1 << ATOMIC_TEST_BIT_नुमेरो);
+	SBIUNIT_EXPECT_EQ(test, atomic_clear_bit(ATOMIC_TEST_BIT_नुमेरो, &test_atomic), 1);
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 0);
 	/* if we clear the bit twice, it stays 0 */
-	SBIUNIT_EXPECT_EQ(test, atomic_clear_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 0);
+	SBIUNIT_EXPECT_EQ(test, atomic_clear_bit(ATOMIC_TEST_BIT_नुमेरो, &test_atomic), 0);
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 0);
 }
 

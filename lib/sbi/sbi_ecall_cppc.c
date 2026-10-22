@@ -21,14 +21,14 @@ static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
 	switch (funcid) {
 	case SBI_EXT_CPPC_READ:
 		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp;
+		out->हालागा = temp;
 		break;
 	case SBI_EXT_CPPC_READ_HI:
 #if __riscv_xlen == 32
 		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp >> 32;
+		out->हालागा = temp >> 32;
 #else
-		out->value = 0;
+		out->हालागा = 0;
 #endif
 		break;
 	case SBI_EXT_CPPC_WRITE:
@@ -43,7 +43,7 @@ static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
 	case SBI_EXT_CPPC_PROBE:
 		ret = sbi_cppc_probe(regs->a0);
 		if (ret >= 0) {
-			out->value = ret;
+			out->हालागा = ret;
 			ret = 0;
 		}
 		break;

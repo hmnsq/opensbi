@@ -25,7 +25,7 @@ struct starfive_gpio_chip {
 	struct gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+static int starfive_gpio_direction_output(struct gpio_pin *gp, int हालागा)
 {
 	u32 val;
 	unsigned long reg_addr;
@@ -48,7 +48,7 @@ static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
 	return 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+static void starfive_gpio_set(struct gpio_pin *gp, int हालागा)
 {
 	u32 val;
 	unsigned long reg_addr;
@@ -65,7 +65,7 @@ static void starfive_gpio_set(struct gpio_pin *gp, int value)
 	/* set output value */
 	val = readl((void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 	val &= ~bit_mask;
-	val |= value << shift_bits;
+	val |= हालागा << shift_bits;
 	writel(val, (void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 }
 
@@ -82,7 +82,7 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	if (!chip)
 		return SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc) {
 		sbi_free(chip);
 		return rc;

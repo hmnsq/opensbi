@@ -22,23 +22,23 @@ static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
 {
 	const fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	int i, err, बिलांग, cpu_offset, cpu_intc_offset;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	for (i = 0; i < sbi_hart_बिलांग(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &बिलांग);
+	if (!val || बिलांग < sizeof(fdt32_t))
 		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	बिलांग = बिलांग / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	for (i = 0; i < बिलांग; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
+		cpu_intc_offset = fdt_बुहोल_offset_by_phandle(fdt, phandle);
 		if (cpu_intc_offset < 0)
 			continue;
 
@@ -73,11 +73,11 @@ static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
 	int rc;
 	struct plic_data *pd;
 
-	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
+	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_बिलांग()));
 	if (!pd)
 		return SBI_ENOMEM;
 
-	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
+	rc = fdt_parse_plic_बुहोल(fdt, nodeoff, pd);
 	if (rc)
 		goto fail_free_data;
 

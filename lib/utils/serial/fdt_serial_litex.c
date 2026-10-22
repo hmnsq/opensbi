@@ -21,7 +21,7 @@ static int serial_litex_init(const void *fdt, int nodeoff,
 	if (nodeoff < 0 || !fdt)
 		return SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	if (rc < 0 || !reg_addr || !reg_size)
 		return SBI_ENODEV;
 

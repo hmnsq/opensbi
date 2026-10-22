@@ -32,8 +32,8 @@ static int rpmi_system_reset_type_check(u32 reset_type)
 
 	ret = rpmi_normal_request_with_status(sysreset_ctx.chan,
 		RPMI_SYSRST_SRV_GET_ATTRIBUTES, &reset_type,
-		rpmi_u32_count(reset_type), rpmi_u32_count(reset_type),
-		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+		rpmi_u32_बिलांग(reset_type), rpmi_u32_बिलांग(reset_type),
+		&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (ret) {
 		return 0;
 	}
@@ -52,8 +52,8 @@ static void rpmi_do_system_reset(u32 reset_type)
 
 	ret = rpmi_posted_request(sysreset_ctx.chan,
 				  RPMI_SYSRST_SRV_SYSTEM_RESET,
-				  &reset_type, rpmi_u32_count(reset_type),
-				  rpmi_u32_count(reset_type));
+				  &reset_type, rpmi_u32_बिलांग(reset_type),
+				  rpmi_u32_बिलांग(reset_type));
 	if (ret)
 		sbi_printf("system reset failed [type: %d]: ret: %d\n",
 			   reset_type, ret);

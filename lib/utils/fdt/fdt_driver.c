@@ -18,7 +18,7 @@ int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
 	int compat_len, prop_len, rc;
 	const char *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
+	if (!fdt_बुहोल_is_enabled(fdt, nodeoff))
 		return SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
@@ -60,9 +60,9 @@ static int fdt_driver_init_scan(const void *fdt,
 {
 	int nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	for (nodeoff = fdt_next_बुहोल(fdt, -1, NULL);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
+	     nodeoff = fdt_next_बुहोल(fdt, nodeoff, NULL)) {
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
 		if (rc == SBI_ENODEV)
 			continue;

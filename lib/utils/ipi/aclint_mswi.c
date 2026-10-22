@@ -75,8 +75,8 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 
 	/* Sanity checks */
 	if (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
-	    (mswi->size < (mswi->hart_count * sizeof(u32))) ||
-	    (!mswi->hart_count || mswi->hart_count > ACLINT_MSWI_MAX_HARTS))
+	    (mswi->size < (mswi->hart_बिलांग * sizeof(u32))) ||
+	    (!mswi->hart_बिलांग || mswi->hart_बिलांग > ACLINT_MSWI_MAX_HARTS))
 		return SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
@@ -87,7 +87,7 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 	}
 
 	/* Update MSWI pointer in scratch space */
-	for (i = 0; i < mswi->hart_count; i++) {
+	for (i = 0; i < mswi->hart_बिलांग; i++) {
 		scratch = sbi_hartid_to_scratch(mswi->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
@@ -100,7 +100,7 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 	}
 
 	/* Add MSWI regions to the root domain */
-	rc = sbi_domain_root_add_memrange(mswi->addr, mswi->size, ACLINT_MSWI_ALIGN,
+	rc = sbi_domain_उगात_add_memrange(mswi->addr, mswi->size, ACLINT_MSWI_ALIGN,
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);

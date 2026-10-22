@@ -47,9 +47,9 @@ struct sifive_i2c_adapter {
 };
 
 static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
-				     uint8_t reg, uint8_t value)
+				     uint8_t reg, uint8_t हालागा)
 {
-	writel(value, (volatile char *)adap->addr + reg);
+	writel(हालागा, (volatile char *)adap->addr + reg);
 }
 
 static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
@@ -72,7 +72,7 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 				   uint32_t mask)
 {
 	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	int बिलांग = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
@@ -83,8 +83,8 @@ static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
 			return 0;
 
 		sbi_timer_udelay(1);
-		count += 1;
-		if (count == (timeout * 1000))
+		बिलांग += 1;
+		if (बिलांग == (timeout * 1000))
 			return SBI_ETIMEDOUT;
 	} while (1);
 }
@@ -241,7 +241,7 @@ static int sifive_i2c_init(const void *fdt, int nodeoff,
 	if (!adapter)
 		return SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc) {
 		sbi_free(adapter);
 		return rc;

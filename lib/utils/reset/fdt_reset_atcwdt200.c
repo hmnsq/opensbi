@@ -14,7 +14,7 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define ATCWDT200_WP_NUM 0x5aa5
+#define ATCWDT200_WP_नुमेरो 0x5aa5
 #define WREN_REG 0x18
 #define CTRL_REG 0x10
 #define RST_TIME_OFF 8
@@ -61,7 +61,7 @@ static void ae350_system_reset(u32 type, u32 reason)
 			goto fail;
 
 	/* Program WDT control register  */
-	writew(ATCWDT200_WP_NUM, wdt_addr + WREN_REG);
+	writew(ATCWDT200_WP_नुमेरो, wdt_addr + WREN_REG);
 	writel(INT_CLK_32768 | INT_EN | RST_CLK_128 | RST_EN | WDT_EN,
 	       wdt_addr + CTRL_REG);
 
@@ -81,7 +81,7 @@ static int atcwdt200_reset_init(const void *fdt, int nodeoff,
 	uint64_t reg_addr;
 	int rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
 	if (rc < 0 || !reg_addr)
 		return SBI_ENODEV;
 

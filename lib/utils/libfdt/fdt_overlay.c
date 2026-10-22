@@ -76,7 +76,7 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 		else
 			ret = path_len;
 	} else
-		ret = fdt_node_offset_by_phandle(fdt, phandle);
+		ret = fdt_बुहोल_offset_by_phandle(fdt, phandle);
 
 	/*
 	* If we haven't found either a target or a
@@ -113,14 +113,14 @@ static int overlay_get_target(const void *fdt, const void *fdto,
  *      0 on success.
  *      Negative error code on error
  */
-static int overlay_phandle_add_offset(void *fdt, int node,
+static int overlay_phandle_add_offset(void *fdt, int बुहोल,
 				      const char *name, uint32_t delta)
 {
 	const fdt32_t *val;
 	uint32_t adj_val;
 	int len;
 
-	val = fdt_getprop(fdt, node, name, &len);
+	val = fdt_getprop(fdt, बुहोल, name, &len);
 	if (!val)
 		return len;
 
@@ -135,7 +135,7 @@ static int overlay_phandle_add_offset(void *fdt, int node,
 	if (adj_val == (uint32_t)-1)
 		return -FDT_ERR_NOPHANDLES;
 
-	return fdt_setprop_inplace_u32(fdt, node, name, adj_val);
+	return fdt_setprop_inplace_u32(fdt, बुहोल, name, adj_val);
 }
 
 /**
@@ -153,22 +153,22 @@ static int overlay_phandle_add_offset(void *fdt, int node,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_adjust_node_phandles(void *fdto, int node,
+static int overlay_adjust_बुहोल_phandles(void *fdto, int बुहोल,
 					uint32_t delta)
 {
 	int child;
 	int ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "phandle", delta);
+	ret = overlay_phandle_add_offset(fdto, बुहोल, "phandle", delta);
 	if (ret && ret != -FDT_ERR_NOTFOUND)
 		return ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "linux,phandle", delta);
+	ret = overlay_phandle_add_offset(fdto, बुहोल, "linux,phandle", delta);
 	if (ret && ret != -FDT_ERR_NOTFOUND)
 		return ret;
 
-	fdt_for_each_subnode(child, fdto, node) {
-		ret = overlay_adjust_node_phandles(fdto, child, delta);
+	fdt_for_each_subnode(child, fdto, बुहोल) {
+		ret = overlay_adjust_बुहोल_phandles(fdto, child, delta);
 		if (ret)
 			return ret;
 	}
@@ -195,7 +195,7 @@ static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
 	/*
 	 * Start adjusting the phandles from the overlay root
 	 */
-	return overlay_adjust_node_phandles(fdto, 0, delta);
+	return overlay_adjust_बुहोल_phandles(fdto, 0, delta);
 }
 
 /**
@@ -217,21 +217,21 @@ static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_update_local_node_references(void *fdto,
-						int tree_node,
-						int fixup_node,
+static int overlay_update_local_बुहोल_references(void *fdto,
+						int पुनो_बुहोल,
+						int fixup_बुहोल,
 						uint32_t delta)
 {
 	int fixup_prop;
 	int fixup_child;
 	int ret;
 
-	fdt_for_each_property_offset(fixup_prop, fdto, fixup_node) {
+	fdt_for_each_property_offset(fixup_prop, fdto, fixup_बुहोल) {
 		const fdt32_t *fixup_val;
-		const char *tree_val;
+		const char *पुनो_val;
 		const char *name;
 		int fixup_len;
-		int tree_len;
+		int पुनो_len;
 		int i;
 
 		fixup_val = fdt_getprop_by_offset(fdto, fixup_prop,
@@ -243,12 +243,12 @@ static int overlay_update_local_node_references(void *fdto,
 			return -FDT_ERR_BADOVERLAY;
 		fixup_len /= sizeof(uint32_t);
 
-		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
-		if (!tree_val) {
-			if (tree_len == -FDT_ERR_NOTFOUND)
+		पुनो_val = fdt_getprop(fdto, पुनो_बुहोल, name, &पुनो_len);
+		if (!पुनो_val) {
+			if (पुनो_len == -FDT_ERR_NOTFOUND)
 				return -FDT_ERR_BADOVERLAY;
 
-			return tree_len;
+			return पुनो_len;
 		}
 
 		for (i = 0; i < fixup_len; i++) {
@@ -263,12 +263,12 @@ static int overlay_update_local_node_references(void *fdto,
 			 * Use a memcpy for the architectures that do
 			 * not support unaligned accesses.
 			 */
-			memcpy(&adj_val, tree_val + poffset, sizeof(adj_val));
+			memcpy(&adj_val, पुनो_val + poffset, sizeof(adj_val));
 
 			adj_val = cpu_to_fdt32(fdt32_to_cpu(adj_val) + delta);
 
 			ret = fdt_setprop_inplace_namelen_partial(fdto,
-								  tree_node,
+								  पुनो_बुहोल,
 								  name,
 								  strlen(name),
 								  poffset,
@@ -282,20 +282,20 @@ static int overlay_update_local_node_references(void *fdto,
 		}
 	}
 
-	fdt_for_each_subnode(fixup_child, fdto, fixup_node) {
+	fdt_for_each_subnode(fixup_child, fdto, fixup_बुहोल) {
 		const char *fixup_child_name = fdt_get_name(fdto, fixup_child,
 							    NULL);
-		int tree_child;
+		int पुनो_child;
 
-		tree_child = fdt_subnode_offset(fdto, tree_node,
+		पुनो_child = fdt_subnode_offset(fdto, पुनो_बुहोल,
 						fixup_child_name);
-		if (tree_child == -FDT_ERR_NOTFOUND)
+		if (पुनो_child == -FDT_ERR_NOTFOUND)
 			return -FDT_ERR_BADOVERLAY;
-		if (tree_child < 0)
-			return tree_child;
+		if (पुनो_child < 0)
+			return पुनो_child;
 
-		ret = overlay_update_local_node_references(fdto,
-							   tree_child,
+		ret = overlay_update_local_बुहोल_references(fdto,
+							   पुनो_child,
 							   fixup_child,
 							   delta);
 		if (ret)
@@ -338,7 +338,7 @@ static int overlay_update_local_references(void *fdto, uint32_t delta)
 	/*
 	 * Update our local references from the root of the tree
 	 */
-	return overlay_update_local_node_references(fdto, 0, fixups,
+	return overlay_update_local_बुहोल_references(fdto, 0, fixups,
 						    delta);
 }
 
@@ -371,25 +371,25 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 				     const char *name, uint32_t name_len,
 				     int poffset, const char *label)
 {
-	const char *symbol_path;
+	const char *सिम्बोलो_path;
 	uint32_t phandle;
 	fdt32_t phandle_prop;
-	int symbol_off, fixup_off;
+	int सिम्बोलो_off, fixup_off;
 	int prop_len;
 
 	if (symbols_off < 0)
 		return symbols_off;
 
-	symbol_path = fdt_getprop(fdt, symbols_off, label,
+	सिम्बोलो_path = fdt_getprop(fdt, symbols_off, label,
 				  &prop_len);
-	if (!symbol_path)
+	if (!सिम्बोलो_path)
 		return prop_len;
 
-	symbol_off = fdt_path_offset(fdt, symbol_path);
-	if (symbol_off < 0)
-		return symbol_off;
+	सिम्बोलो_off = fdt_path_offset(fdt, सिम्बोलो_path);
+	if (सिम्बोलो_off < 0)
+		return सिम्बोलो_off;
 
-	phandle = fdt_get_phandle(fdt, symbol_off);
+	phandle = fdt_get_phandle(fdt, सिम्बोलो_off);
 	if (!phandle)
 		return -FDT_ERR_NOTFOUND;
 
@@ -428,13 +428,13 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
 static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
 				 int property)
 {
-	const char *value;
+	const char *हालागा;
 	const char *label;
 	int len;
 
-	value = fdt_getprop_by_offset(fdto, property,
+	हालागा = fdt_getprop_by_offset(fdto, property,
 				      &label, &len);
-	if (!value) {
+	if (!हालागा) {
 		if (len == -FDT_ERR_NOTFOUND)
 			return -FDT_ERR_INTERNAL;
 
@@ -443,19 +443,19 @@ static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
 
 	do {
 		const char *path, *name, *fixup_end;
-		const char *fixup_str = value;
+		const char *fixup_str = हालागा;
 		uint32_t path_len, name_len;
 		uint32_t fixup_len;
 		char *sep, *endptr;
 		int poffset, ret;
 
-		fixup_end = memchr(value, '\0', len);
+		fixup_end = memchr(हालागा, '\0', len);
 		if (!fixup_end)
 			return -FDT_ERR_BADOVERLAY;
 		fixup_len = fixup_end - fixup_str;
 
 		len -= fixup_len + 1;
-		value += fixup_len + 1;
+		हालागा += fixup_len + 1;
 
 		path = fixup_str;
 		sep = memchr(fixup_str, ':', fixup_len);
@@ -554,13 +554,13 @@ static int overlay_fixup_phandles(void *fdt, void *fdto)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_apply_node(void *fdt, int target,
-			      void *fdto, int node)
+static int overlay_apply_बुहोल(void *fdt, int target,
+			      void *fdto, int बुहोल)
 {
 	int property;
 	int subnode;
 
-	fdt_for_each_property_offset(property, fdto, node) {
+	fdt_for_each_property_offset(property, fdto, बुहोल) {
 		const char *name;
 		const void *prop;
 		int prop_len;
@@ -578,7 +578,7 @@ static int overlay_apply_node(void *fdt, int target,
 			return ret;
 	}
 
-	fdt_for_each_subnode(subnode, fdto, node) {
+	fdt_for_each_subnode(subnode, fdto, बुहोल) {
 		const char *name = fdt_get_name(fdto, subnode, NULL);
 		int nnode;
 		int ret;
@@ -593,7 +593,7 @@ static int overlay_apply_node(void *fdt, int target,
 		if (nnode < 0)
 			return nnode;
 
-		ret = overlay_apply_node(fdt, nnode, fdto, subnode);
+		ret = overlay_apply_बुहोल(fdt, nnode, fdto, subnode);
 		if (ret)
 			return ret;
 	}
@@ -640,7 +640,7 @@ static int overlay_merge(void *fdt, void *fdto)
 		if (target < 0)
 			return target;
 
-		ret = overlay_apply_node(fdt, target, fdto, overlay);
+		ret = overlay_apply_बुहोल(fdt, target, fdto, overlay);
 		if (ret)
 			return ret;
 	}
@@ -692,9 +692,9 @@ static int get_path_len(const void *fdt, int nodeoffset)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_symbol_update(void *fdt, void *fdto)
+static int overlay_सिम्बोलो_update(void *fdt, void *fdto)
 {
-	int root_sym, ov_sym, prop, path_len, fragment, target;
+	int उगात_sym, ov_sym, prop, path_len, fragment, target;
 	int len, frag_name_len, ret, rel_path_len;
 	const char *s, *e;
 	const char *path;
@@ -711,15 +711,15 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 	if (ov_sym < 0)
 		return 0;
 
-	root_sym = fdt_subnode_offset(fdt, 0, "__symbols__");
+	उगात_sym = fdt_subnode_offset(fdt, 0, "__symbols__");
 
 	/* it no root symbols exist we should create them */
-	if (root_sym == -FDT_ERR_NOTFOUND)
-		root_sym = fdt_add_subnode(fdt, 0, "__symbols__");
+	if (उगात_sym == -FDT_ERR_NOTFOUND)
+		उगात_sym = fdt_add_subnode(fdt, 0, "__symbols__");
 
 	/* any error is fatal now */
-	if (root_sym < 0)
-		return root_sym;
+	if (उगात_sym < 0)
+		return उगात_sym;
 
 	/* iterate over each overlay symbol */
 	fdt_for_each_property_offset(prop, fdto, ov_sym) {
@@ -794,7 +794,7 @@ static int overlay_symbol_update(void *fdt, void *fdto)
 			len = strlen(target_path);
 		}
 
-		ret = fdt_setprop_placeholder(fdt, root_sym, name,
+		ret = fdt_setprop_placeholder(fdt, उगात_sym, name,
 				len + (len > 1) + rel_path_len + 1, &p);
 		if (ret < 0)
 			return ret;
@@ -855,7 +855,7 @@ int fdt_overlay_apply(void *fdt, void *fdto)
 	if (ret)
 		goto err;
 
-	ret = overlay_symbol_update(fdt, fdto);
+	ret = overlay_सिम्बोलो_update(fdt, fdto);
 	if (ret)
 		goto err;
 

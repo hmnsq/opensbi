@@ -19,8 +19,8 @@ static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
 	int rc;
 	unsigned long plmt_base;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
+	rc = fdt_parse_plmt_बुहोल(fdt, nodeoff, &plmt_base, &plmt.size,
+				 &plmt.hart_बिलांग);
 	if (rc)
 		return rc;
 

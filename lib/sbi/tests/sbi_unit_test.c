@@ -16,7 +16,7 @@ extern struct sbiunit_test_suite *const sbi_unit_tests[];
 static void run_test_suite(struct sbiunit_test_suite *suite)
 {
 	struct sbiunit_test_case *s_case;
-	u32 count_pass = 0, count_fail = 0;
+	u32 बिलांग_pass = 0, बिलांग_fail = 0;
 
 	sbi_printf("## Running test suite: %s\n", suite->name);
 
@@ -27,9 +27,9 @@ static void run_test_suite(struct sbiunit_test_suite *suite)
 	while (s_case->test_func) {
 		s_case->test_func(s_case);
 		if (s_case->failed)
-			count_fail++;
+			बिलांग_fail++;
 		else
-			count_pass++;
+			बिलांग_pass++;
 		sbi_printf("%s[%s]%s %s\n",
 			   s_case->failed ? ANSI_COLOR_RED : ANSI_COLOR_GREEN,
 			   s_case->failed ? "FAILED" : "PASSED",
@@ -37,8 +37,8 @@ static void run_test_suite(struct sbiunit_test_suite *suite)
 		s_case++;
 	}
 
-	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", count_pass, count_fail,
-		   count_pass + count_fail);
+	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", बिलांग_pass, बिलांग_fail,
+		   बिलांग_pass + बिलांग_fail);
 }
 
 void run_all_tests(void)

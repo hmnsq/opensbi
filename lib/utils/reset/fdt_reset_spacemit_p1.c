@@ -80,7 +80,7 @@ static int p1_reset_init(const void *fdt, int nodeoff,
 	uint64_t addr;
 
 	/* we are spacemit,p1 node */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc)
 		return rc;
 

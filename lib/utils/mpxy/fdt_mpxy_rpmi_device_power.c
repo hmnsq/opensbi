@@ -9,11 +9,11 @@ static struct mpxy_rpmi_service_data dpwr_services[] = {
 	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_DPWR_SRV_GET_NUM_DOMAINS,
+	.id = RPMI_DPWR_SRV_GET_नुमेरो_DOMAINS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_dpwr_get_num_domain_resp),
-	.max_rx_len = sizeof(struct rpmi_dpwr_get_num_domain_resp),
+	.min_rx_len = sizeof(struct rpmi_dpwr_get_नुमेरो_domain_resp),
+	.max_rx_len = sizeof(struct rpmi_dpwr_get_नुमेरो_domain_resp),
 },
 {
 	.id = RPMI_DPWR_SRV_GET_ATTRIBUTES,
@@ -40,7 +40,7 @@ static struct mpxy_rpmi_service_data dpwr_services[] = {
 
 static const struct mpxy_rpmi_mbox_data dpwr_data = {
 	.servicegrp_id = RPMI_SRVGRP_DEVICE_POWER,
-	.num_services = RPMI_DPWR_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_DPWR_SRV_MAX_बिलांग,
 	.service_data = dpwr_services,
 };
 

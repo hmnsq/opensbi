@@ -9,11 +9,11 @@ static struct mpxy_rpmi_service_data voltage_services[] = {
 	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_VOLTAGE_SRV_GET_NUM_DOMAINS,
+	.id = RPMI_VOLTAGE_SRV_GET_नुमेरो_DOMAINS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_voltage_get_num_domains_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_get_num_domains_resp),
+	.min_rx_len = sizeof(struct rpmi_voltage_get_नुमेरो_domains_resp),
+	.max_rx_len = sizeof(struct rpmi_voltage_get_नुमेरो_domains_resp),
 },
 {
 	.id = RPMI_VOLTAGE_SRV_GET_ATTRIBUTES,
@@ -61,7 +61,7 @@ static struct mpxy_rpmi_service_data voltage_services[] = {
 
 static const struct mpxy_rpmi_mbox_data voltage_data = {
 	.servicegrp_id = RPMI_SRVGRP_VOLTAGE,
-	.num_services = RPMI_VOLTAGE_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_VOLTAGE_SRV_MAX_बिलांग,
 	.service_data = voltage_services,
 };
 

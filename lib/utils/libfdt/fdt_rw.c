@@ -159,7 +159,7 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
 
 	FDT_RW_PROBE(fdt);
 
-	re = fdt_mem_rsv_w_(fdt, fdt_num_mem_rsv(fdt));
+	re = fdt_mem_rsv_w_(fdt, fdt_नुमेरो_mem_rsv(fdt));
 	err = fdt_splice_mem_rsv_(fdt, re, 0, 1);
 	if (err)
 		return err;
@@ -175,7 +175,7 @@ int fdt_del_mem_rsv(void *fdt, int n)
 
 	FDT_RW_PROBE(fdt);
 
-	if (n >= fdt_num_mem_rsv(fdt))
+	if (n >= fdt_नुमेरो_mem_rsv(fdt))
 		return -FDT_ERR_NOTFOUND;
 
 	return fdt_splice_mem_rsv_(fdt, re, 1, 0);
@@ -208,7 +208,7 @@ static int fdt_add_property_(void *fdt, int nodeoffset, const char *name,
 	int err;
 	int allocated;
 
-	if ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+	if ((nextoffset = fdt_check_बुहोल_offset(fdt, nodeoffset)) < 0)
 		return nextoffset;
 
 	namestroff = fdt_find_add_string_(fdt, name, &allocated);
@@ -333,7 +333,7 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name)
 int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 			    const char *name, int namelen)
 {
-	struct fdt_node_header *nh;
+	struct fdt_बुहोल_header *nh;
 	int offset, nextoffset;
 	int nodelen;
 	int err;
@@ -351,7 +351,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	/* Try to place the new node after the parent's properties */
 	tag = fdt_next_tag(fdt, parentoffset, &nextoffset);
 	/* the fdt_subnode_offset_namelen() should ensure this never hits */
-	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
+	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_बुहोल))
 		return -FDT_ERR_INTERNAL;
 	do {
 		offset = nextoffset;
@@ -365,11 +365,11 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
 	if (err)
 		return err;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_बुहोल);
 	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
 	memcpy(nh->name, name, namelen);
 	endtag = (fdt32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
-	*endtag = cpu_to_fdt32(FDT_END_NODE);
+	*endtag = cpu_to_fdt32(FDT_END_बुहोल);
 
 	return offset;
 }
@@ -379,13 +379,13 @@ int fdt_add_subnode(void *fdt, int parentoffset, const char *name)
 	return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_del_node(void *fdt, int nodeoffset)
+int fdt_del_बुहोल(void *fdt, int nodeoffset)
 {
 	int endoffset;
 
 	FDT_RW_PROBE(fdt);
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
+	endoffset = fdt_बुहोल_end_offset(fdt, nodeoffset);
 	if (endoffset < 0)
 		return endoffset;
 
@@ -427,7 +427,7 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 
 	FDT_RO_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
+	mem_rsv_size = (fdt_नुमेरो_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);
 
 	if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
@@ -490,7 +490,7 @@ int fdt_pack(void *fdt)
 
 	FDT_RW_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
+	mem_rsv_size = (fdt_नुमेरो_mem_rsv(fdt)+1)
 		* sizeof(struct fdt_reserve_entry);
 	fdt_packblocks_(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt),
 			fdt_size_dt_strings(fdt));

@@ -16,7 +16,7 @@
 
 struct plmt_data plmt;
 
-static u64 plmt_timer_value(void)
+static u64 plmt_timer_हालागा(void)
 {
 #if __riscv_xlen == 64
 	return readq_relaxed(plmt.time_val);
@@ -36,7 +36,7 @@ static void plmt_timer_event_stop(void)
 {
 	u32 target_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	if (plmt.hart_बिलांग <= target_hart)
 		ebreak();
 
 	/* Clear PLMT Time Compare */
@@ -52,7 +52,7 @@ static void plmt_timer_event_start(u64 next_event)
 {
 	u32 target_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	if (plmt.hart_बिलांग <= target_hart)
 		ebreak();
 
 	/* Program PLMT Time Compare */
@@ -80,7 +80,7 @@ static int plmt_warm_timer_init(void)
 static struct sbi_timer_device plmt_timer = {
 	.name		   = "andes_plmt",
 	.timer_freq	   = DEFAULT_AE350_PLMT_FREQ,
-	.timer_value	   = plmt_timer_value,
+	.timer_हालागा	   = plmt_timer_हालागा,
 	.timer_event_start = plmt_timer_event_start,
 	.timer_event_stop  = plmt_timer_event_stop,
 	.warm_init	   = plmt_warm_timer_init,
@@ -91,7 +91,7 @@ int plmt_cold_timer_init(struct plmt_data *plmt)
 	int rc;
 
 	/* Add PLMT region to the root domain */
-	rc = sbi_domain_root_add_memrange(
+	rc = sbi_domain_उगात_add_memrange(
 		(unsigned long)plmt->time_val, plmt->size,
 		PLMT_REGION_ALIGN,
 		SBI_DOMAIN_MEMREGION_MMIO |

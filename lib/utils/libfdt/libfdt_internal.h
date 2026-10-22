@@ -18,10 +18,10 @@ int32_t fdt_ro_probe_(const void *fdt);
 			return totalsize_;			\
 	}
 
-int fdt_check_node_offset_(const void *fdt, int offset);
+int fdt_check_बुहोल_offset(const void *fdt, int offset);
 int fdt_check_prop_offset_(const void *fdt, int offset);
 const char *fdt_find_string_(const char *strtab, int tabsize, const char *s);
-int fdt_node_end_offset_(void *fdt, int nodeoffset);
+int fdt_बुहोल_end_offset(void *fdt, int nodeoffset);
 
 static inline const void *fdt_offset_ptr_(const void *fdt, int offset)
 {
@@ -130,7 +130,7 @@ enum {
 	 * It doesn't make sense to enable this assumption unless
 	 * ASSUME_VALID_DTB is also enabled.
 	 */
-	ASSUME_VALID_INPUT	= 1 << 1,
+	ASSUME_VALID_पासोक	= 1 << 1,
 
 	/*
 	 * This disables checks for device-tree version and removes all code

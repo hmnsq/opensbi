@@ -175,7 +175,7 @@ static void sbi_hsm_hart_wait(struct sbi_scratch *scratch)
 		 * use the hsm stop for more power saving
 		 */
 		if (hsm_device_has_hart_hotplug()) {
-			sbi_revert_entry_count(scratch);
+			sbi_revert_entry_बिलांग(scratch);
 			hsm_device_hart_stop();
 		}
 
@@ -309,7 +309,7 @@ int sbi_hsm_hart_start(struct sbi_scratch *scratch,
 		       u32 hartid, ulong saddr, ulong smode, ulong arg1)
 {
 	u32 hartindex = sbi_hartid_to_hartindex(hartid);
-	unsigned long init_count, entry_count;
+	unsigned long init_बिलांग, entry_बिलांग;
 	unsigned int hstate;
 	struct sbi_scratch *rscratch;
 	struct sbi_hsm_data *hdata;
@@ -332,8 +332,8 @@ int sbi_hsm_hart_start(struct sbi_scratch *scratch,
 	if (!hsm_start_ticket_acquire(hdata))
 		return SBI_EINVAL;
 
-	init_count = sbi_init_count(hartindex);
-	entry_count = sbi_entry_count(hartindex);
+	init_बिलांग = sbi_init_बिलांग(hartindex);
+	entry_बिलांग = sbi_entry_बिलांग(hartindex);
 
 	rscratch->next_arg1 = arg1;
 	rscratch->next_addr = saddr;
@@ -360,8 +360,8 @@ int sbi_hsm_hart_start(struct sbi_scratch *scratch,
 		goto err;
 	}
 
-	if ((hsm_device_has_hart_hotplug() && (entry_count == init_count)) ||
-	   (hsm_device_has_hart_secondary_boot() && !init_count)) {
+	if ((hsm_device_has_hart_hotplug() && (entry_बिलांग == init_बिलांग)) ||
+	   (hsm_device_has_hart_secondary_boot() && !init_बिलांग)) {
 		rc = hsm_device_hart_start(hartid, scratch->warmboot_addr);
 	} else {
 		rc = sbi_ipi_raw_send(hartindex, true);

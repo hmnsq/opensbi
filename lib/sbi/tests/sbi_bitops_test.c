@@ -11,7 +11,7 @@
 
 #define BPL BITS_PER_LONG
 
-unsigned long bits_to_search = 64;
+unsigned long bits_to_हानाप = 64;
 
 static unsigned long ffb1[] = {};
 static unsigned long ffb2[] = { 0 };

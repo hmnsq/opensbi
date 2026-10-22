@@ -50,7 +50,7 @@ static int metanoia_reset_init(const void *fdt, int nodeoff,
 	u64 reg_addr;
 	int rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
 	if (rc < 0 || !reg_addr)
 		return SBI_ENODEV;
 

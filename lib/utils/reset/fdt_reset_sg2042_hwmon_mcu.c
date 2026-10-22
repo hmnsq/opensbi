@@ -82,7 +82,7 @@ static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
 	int ret, i2c_bus;
 	uint64_t addr;
 
-	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	ret = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (ret)
 		return ret;
 

@@ -28,57 +28,57 @@
 
 /**************** RPMI Transport Structures and Macros ***********/
 
-#define GET_SERVICEGROUP_ID(msg)		\
+#define GET_SERVICEGROUP_ID(मेनसाहे)		\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
+	struct rpmi_message *mbuf = मेनसाहे;	\
 	le16_to_cpu(mbuf->header.servicegroup_id);\
 })
 
-#define GET_SERVICE_ID(msg)			\
+#define GET_SERVICE_ID(मेनसाहे)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
+	struct rpmi_message *mbuf = मेनसाहे;	\
 	mbuf->header.service_id;		\
 })
 
-#define GET_FLAGS(msg)				\
+#define GET_FLAGS(मेनसाहे)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
+	struct rpmi_message *mbuf = मेनसाहे;	\
 	mbuf->header.flags;			\
 })
 
-#define GET_MESSAGE_ID(msg)			\
+#define GET_MESSAGE_ID(मेनसाहे)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	((u32)mbuf->header.flags << (RPMI_MSG_FLAGS_OFFSET * 8)) | \
-	((u32)mbuf->header.service_id << (RPMI_MSG_SERVICE_ID_OFFSET * 8)) | \
+	struct rpmi_message *mbuf = मेनसाहे;	\
+	((u32)mbuf->header.flags << (RPMI_मेनसाहे_FLAGS_OFFSET * 8)) | \
+	((u32)mbuf->header.service_id << (RPMI_मेनसाहे_SERVICE_ID_OFFSET * 8)) | \
 	((u32)le16_to_cpu(mbuf->header.servicegroup_id)); \
 })
 
 #define MAKE_MESSAGE_ID(__group_id, __service_id, __flags)	\
 ({						\
 	u32 __ret = 0;				\
-	__ret |= (u32)(__group_id) << (RPMI_MSG_SERVICEGROUP_ID_OFFSET * 8); \
-	__ret |= (u32)(__service_id) << (RPMI_MSG_SERVICE_ID_OFFSET * 8); \
-	__ret |= (u32)(__flags) << (RPMI_MSG_FLAGS_OFFSET * 8); \
+	__ret |= (u32)(__group_id) << (RPMI_मेनसाहे_SERVICEGROUP_ID_OFFSET * 8); \
+	__ret |= (u32)(__service_id) << (RPMI_मेनसाहे_SERVICE_ID_OFFSET * 8); \
+	__ret |= (u32)(__flags) << (RPMI_मेनसाहे_FLAGS_OFFSET * 8); \
 	__ret;					\
 })
 
-#define GET_DLEN(msg)				\
+#define GET_DLEN(मेनसाहे)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
+	struct rpmi_message *mbuf = मेनसाहे;	\
 	le16_to_cpu(mbuf->header.datalen);	\
 })
 
-#define GET_TOKEN(msg)				\
+#define GET_TOKEN(मेनसाहे)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
+	struct rpmi_message *mbuf = मेनसाहे;	\
 	le16_to_cpu(mbuf->header.token);	\
 })
 
-#define GET_MESSAGE_TYPE(msg)						\
+#define GET_MESSAGE_TYPE(मेनसाहे)						\
 ({									\
-	uint8_t flags = *((uint8_t *)msg + RPMI_MSG_FLAGS_OFFSET);	\
-	((flags & RPMI_MSG_FLAGS_TYPE) >> RPMI_MSG_FLAGS_TYPE_POS));	\
+	uint8_t flags = *((uint8_t *)मेनसाहे + RPMI_मेनसाहे_FLAGS_OFFSET);	\
+	((flags & RPMI_मेनसाहे_FLAGS_TYPE) >> RPMI_मेनसाहे_FLAGS_TYPE_POS));	\
 })
 
 enum rpmi_queue_type {
@@ -91,12 +91,12 @@ enum rpmi_queue_idx {
 	RPMI_QUEUE_IDX_P2A_ACK = 1,
 	RPMI_QUEUE_IDX_P2A_REQ = 2,
 	RPMI_QUEUE_IDX_A2P_ACK = 3,
-	RPMI_QUEUE_IDX_MAX_COUNT,
+	RPMI_QUEUE_IDX_MAX_बिलांग,
 };
 
 enum rpmi_reg_idx {
 	RPMI_REG_IDX_DB_REG = 0, /* Doorbell register */
-	RPMI_REG_IDX_MAX_COUNT,
+	RPMI_REG_IDX_MAX_बिलांग,
 };
 
 /** Mailbox registers */
@@ -108,7 +108,7 @@ struct rpmi_mb_regs {
 /** Single Queue Context Structure */
 struct smq_queue_ctx {
 	u32 queue_id;
-	u32 num_slots;
+	u32 नुमेरो_slots;
 	spinlock_t queue_lock;
 	/* Type of queue - REQ or ACK */
 	enum rpmi_queue_type queue_type;
@@ -132,11 +132,11 @@ struct rpmi_srvgrp_chan {
 struct rpmi_shmem_mbox_controller {
 	/* Driver specific members */
 	u32 slot_size;
-	u32 queue_count;
+	u32 queue_बिलांग;
 	u32 p2a_doorbell_sysmsi_index;
-	u32 a2p_doorbell_value;
+	u32 a2p_doorbell_हालागा;
 	struct rpmi_mb_regs *mb_regs;
-	struct smq_queue_ctx queue_ctx_tbl[RPMI_QUEUE_IDX_MAX_COUNT];
+	struct smq_queue_ctx queue_ctx_tbl[RPMI_QUEUE_IDX_MAX_बिलांग];
 	/* Mailbox framework related members */
 	struct mbox_controller controller;
 	struct mbox_chan *base_chan;
@@ -156,7 +156,7 @@ struct rpmi_shmem_mbox_controller {
 static bool __smq_queue_full(struct smq_queue_ctx *qctx)
 	MUST_HOLD(&qctx->queue_lock)
 {
-	return ((le32_to_cpu(*qctx->tailptr) + 1) % qctx->num_slots ==
+	return ((le32_to_cpu(*qctx->tailptr) + 1) % qctx->नुमेरो_slots ==
 			le32_to_cpu(*qctx->headptr)) ? true : false;
 }
 
@@ -172,17 +172,17 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 	MUST_HOLD(&qctx->queue_lock)
 {
 	void *dst, *src;
-	struct rpmi_message *msg;
+	struct rpmi_message *मेनसाहे;
 	u32 i, tmp, pos, dlen, msgidn, headidx, tailidx;
-	struct rpmi_message_args *args = xfer->args;
-	bool no_rx_token = (args->flags & RPMI_MSG_FLAGS_NO_RX_TOKEN) ?
+	struct rpmi_message_मगा_कातविरान *मगा_कातविरान = xfer->मगा_कातविरान;
+	bool no_rx_token = (मगा_कातविरान->flags & RPMI_मेनसाहे_FLAGS_NO_RX_TOKEN) ?
 			   true : false;
 
 	/* Rx sanity checks */
-	if ((sizeof(u32) * args->rx_endian_words) >
+	if ((sizeof(u32) * मगा_कातविरान->rx_endian_मगा_सालिता) >
 	    (slot_size - sizeof(struct rpmi_message_header)))
 		return SBI_EINVAL;
-	if ((sizeof(u32) * args->rx_endian_words) > xfer->rx_len)
+	if ((sizeof(u32) * मगा_कातविरान->rx_endian_मगा_सालिता) > xfer->rx_len)
 		return SBI_EINVAL;
 
 	/* There should be some message in the queue */
@@ -197,16 +197,16 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 	 * Compute msgidn expected in the incoming message
 	 * NOTE: DOORBELL bit is not expected to be set.
 	 */
-	msgidn = MAKE_MESSAGE_ID(service_group_id, args->service_id, args->type);
+	msgidn = MAKE_MESSAGE_ID(service_group_id, मगा_कातविरान->service_id, मगा_कातविरान->type);
 
 	/* Find the Rx message with matching token */
 	pos = headidx;
 	while (pos != tailidx) {
 		src = (void *)qctx->buffer + (pos * slot_size);
 		if ((no_rx_token && GET_MESSAGE_ID(src) == msgidn) ||
-		    (GET_TOKEN(src) == (xfer->seq & RPMI_MSG_TOKEN_MASK)))
+		    (GET_TOKEN(src) == (xfer->seq & RPMI_मेनसाहे_TOKEN_MASK)))
 			break;
-		pos = (pos + 1) % qctx->num_slots;
+		pos = (pos + 1) % qctx->नुमेरो_slots;
 	}
 	if (pos == tailidx)
 		return SBI_ENOENT;
@@ -223,27 +223,27 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 	}
 
 	/* Update rx_token if not available */
-	msg = (void *)qctx->buffer + (headidx * slot_size);
+	मेनसाहे = (void *)qctx->buffer + (headidx * slot_size);
 	if (no_rx_token)
-		args->rx_token = GET_TOKEN(msg);
+		मगा_कातविरान->rx_token = GET_TOKEN(मेनसाहे);
 
 	/* Extract data from the first message */
 	if (xfer->rx) {
-		args->rx_data_len = dlen = GET_DLEN(msg);
+		मगा_कातविरान->rx_data_len = dlen = GET_DLEN(मेनसाहे);
 		if (dlen > xfer->rx_len)
 			dlen = xfer->rx_len;
-		src = (void *)msg + sizeof(struct rpmi_message_header);
+		src = (void *)मेनसाहे + sizeof(struct rpmi_message_header);
 		dst = xfer->rx;
-		for (i = 0; i < args->rx_endian_words; i++)
+		for (i = 0; i < मगा_कातविरान->rx_endian_मगा_सालिता; i++)
 			((u32 *)dst)[i] = le32_to_cpu(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->rx_endian_words;
-		src += sizeof(u32) * args->rx_endian_words;
+		dst += sizeof(u32) * मगा_कातविरान->rx_endian_मगा_सालिता;
+		src += sizeof(u32) * मगा_कातविरान->rx_endian_मगा_सालिता;
 		sbi_memcpy(dst, src,
-			xfer->rx_len - (sizeof(u32) * args->rx_endian_words));
+			xfer->rx_len - (sizeof(u32) * मगा_कातविरान->rx_endian_मगा_सालिता));
 	}
 
 	/* Update the head/read index */
-	*qctx->headptr = cpu_to_le32(headidx + 1) % qctx->num_slots;
+	*qctx->headptr = cpu_to_le32(headidx + 1) % qctx->नुमेरो_slots;
 
 	/* Make sure updates to head are immediately visible to PuC */
 	smp_wmb();
@@ -252,19 +252,19 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 }
 
 static int __smq_tx(struct smq_queue_ctx *qctx, struct rpmi_mb_regs *mb_regs,
-		    u32 a2p_doorbell_value, u32 slot_size, u32 service_group_id,
+		    u32 a2p_doorbell_हालागा, u32 slot_size, u32 service_group_id,
 		    struct mbox_xfer *xfer) MUST_HOLD(&qctx->queue_lock)
 {
 	u32 i, tailidx;
 	void *dst, *src;
 	struct rpmi_message_header header = { 0 };
-	struct rpmi_message_args *args = xfer->args;
+	struct rpmi_message_मगा_कातविरान *मगा_कातविरान = xfer->मगा_कातविरान;
 
 	/* Tx sanity checks */
-	if ((sizeof(u32) * args->tx_endian_words) >
+	if ((sizeof(u32) * मगा_कातविरान->tx_endian_मगा_सालिता) >
 	    (slot_size - sizeof(struct rpmi_message_header)))
 		return SBI_EINVAL;
-	if ((sizeof(u32) * args->tx_endian_words) > xfer->tx_len)
+	if ((sizeof(u32) * मगा_कातविरान->tx_endian_मगा_सालिता) > xfer->tx_len)
 		return SBI_EINVAL;
 
 	/* There should be some room in the queue */
@@ -276,8 +276,8 @@ static int __smq_tx(struct smq_queue_ctx *qctx, struct rpmi_mb_regs *mb_regs,
 
 	/* Prepare the header to be written into the slot */
 	header.servicegroup_id = cpu_to_le16(service_group_id);
-	header.service_id = args->service_id;
-	header.flags = args->type;
+	header.service_id = मगा_कातविरान->service_id;
+	header.flags = मगा_कातविरान->type;
 	header.datalen = cpu_to_le16((u16)xfer->tx_len);
 	header.token = cpu_to_le16((u16)xfer->seq);
 
@@ -289,23 +289,23 @@ static int __smq_tx(struct smq_queue_ctx *qctx, struct rpmi_mb_regs *mb_regs,
 	/* Write data into the slot */
 	if (xfer->tx) {
 		src = xfer->tx;
-		for (i = 0; i < args->tx_endian_words; i++)
+		for (i = 0; i < मगा_कातविरान->tx_endian_मगा_सालिता; i++)
 			((u32 *)dst)[i] = cpu_to_le32(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->tx_endian_words;
-		src += sizeof(u32) * args->tx_endian_words;
+		dst += sizeof(u32) * मगा_कातविरान->tx_endian_मगा_सालिता;
+		src += sizeof(u32) * मगा_कातविरान->tx_endian_मगा_सालिता;
 		sbi_memcpy(dst, src,
-			xfer->tx_len - (sizeof(u32) * args->tx_endian_words));
+			xfer->tx_len - (sizeof(u32) * मगा_कातविरान->tx_endian_मगा_सालिता));
 	}
 
 	/* Make sure queue chanages are visible to PuC before updating tail */
 	smp_wmb();
 
 	/* Update the tail/write index */
-	*qctx->tailptr = cpu_to_le32(tailidx + 1) % qctx->num_slots;
+	*qctx->tailptr = cpu_to_le32(tailidx + 1) % qctx->नुमेरो_slots;
 
 	/* Ring the RPMI doorbell if present */
 	if (mb_regs)
-		writel(a2p_doorbell_value, &mb_regs->db_reg);
+		writel(a2p_doorbell_हालागा, &mb_regs->db_reg);
 
 	return SBI_OK;
 }
@@ -316,7 +316,7 @@ static int smq_rx(struct rpmi_shmem_mbox_controller *mctl,
 	int ret, rxretry = 0;
 	struct smq_queue_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	if (mctl->queue_बिलांग < queue_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
 		return SBI_EINVAL;
@@ -351,7 +351,7 @@ static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
 	int ret, txretry = 0;
 	struct smq_queue_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	if (mctl->queue_बिलांग < queue_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
 		return SBI_EINVAL;
@@ -369,7 +369,7 @@ static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
 	 */
 	do {
 		spin_lock(&qctx->queue_lock);
-		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_value,
+		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_हालागा,
 				mctl->slot_size, service_group_id, xfer);
 		spin_unlock(&qctx->queue_lock);
 		if (!ret)
@@ -392,7 +392,7 @@ static int rpmi_get_platform_info(struct rpmi_shmem_mbox_controller *mctl)
 	 * per the format
 	 */
 	struct rpmi_base_get_platform_info_resp *resp =
-			sbi_zalloc(RPMI_MSG_DATA_SIZE(mctl->slot_size));
+			sbi_zalloc(RPMI_मेनसाहे_DATA_SIZE(mctl->slot_size));
 	if (!resp)
 		return SBI_ENOMEM;
 
@@ -400,8 +400,8 @@ static int rpmi_get_platform_info(struct rpmi_shmem_mbox_controller *mctl)
 				 RPMI_BASE_SRV_GET_PLATFORM_INFO,
 				 NULL, 0, 0,
 				 resp,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4);
+				 RPMI_मेनसाहे_DATA_SIZE(mctl->slot_size)/4,
+				 RPMI_मेनसाहे_DATA_SIZE(mctl->slot_size)/4);
 	if (ret)
 		goto fail_free_resp;
 
@@ -440,15 +440,15 @@ static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
 				     controller);
 	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
 
-	struct rpmi_message_args *args = xfer->args;
-	bool do_tx = (args->flags & RPMI_MSG_FLAGS_NO_TX) ? false : true;
-	bool do_rx = (args->flags & RPMI_MSG_FLAGS_NO_RX) ? false : true;
+	struct rpmi_message_मगा_कातविरान *मगा_कातविरान = xfer->मगा_कातविरान;
+	bool do_tx = (मगा_कातविरान->flags & RPMI_मेनसाहे_FLAGS_NO_TX) ? false : true;
+	bool do_rx = (मगा_कातविरान->flags & RPMI_मेनसाहे_FLAGS_NO_RX) ? false : true;
 
 	if (!do_tx && !do_rx)
 		return SBI_EINVAL;
 
-	switch (args->type) {
-	case RPMI_MSG_NORMAL_REQUEST:
+	switch (मगा_कातविरान->type) {
+	case RPMI_मेनसाहे_NORMAL_REQUEST:
 		if (do_tx && do_rx) {
 			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
 			rx_qid = RPMI_QUEUE_IDX_P2A_ACK;
@@ -458,7 +458,7 @@ static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
 			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
 		}
 		break;
-	case RPMI_MSG_POSTED_REQUEST:
+	case RPMI_मेनसाहे_POSTED_REQUEST:
 		if (do_tx && do_rx)
 			return SBI_EINVAL;
 		if (do_tx) {
@@ -467,7 +467,7 @@ static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
 			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
 		}
 		break;
-	case RPMI_MSG_ACKNOWLDGEMENT:
+	case RPMI_मेनसाहे_ACKNOWLDGEMENT:
 		if (do_tx && do_rx)
 			return SBI_EINVAL;
 		if (do_tx) {
@@ -496,7 +496,7 @@ static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
 }
 
 static int rpmi_shmem_mbox_get_attribute(struct mbox_chan *chan,
-					 int attr_id, void *out_value)
+					 int attr_id, void *out_हालागा)
 {
 	struct rpmi_shmem_mbox_controller *mctl =
 			container_of(chan->mbox,
@@ -506,31 +506,31 @@ static int rpmi_shmem_mbox_get_attribute(struct mbox_chan *chan,
 
 	switch (attr_id) {
 	case RPMI_CHANNEL_ATTR_PROTOCOL_VERSION:
-		*((u32 *)out_value) = mctl->spec_version;
+		*((u32 *)out_हालागा) = mctl->spec_version;
 		break;
 	case RPMI_CHANNEL_ATTR_MAX_DATA_LEN:
-		*((u32 *)out_value) = RPMI_MSG_DATA_SIZE(mctl->slot_size);
+		*((u32 *)out_हालागा) = RPMI_मेनसाहे_DATA_SIZE(mctl->slot_size);
 		break;
 	case RPMI_CHANNEL_ATTR_P2A_DOORBELL_SYSMSI_INDEX:
-		*((u32 *)out_value) = mctl->p2a_doorbell_sysmsi_index;
+		*((u32 *)out_हालागा) = mctl->p2a_doorbell_sysmsi_index;
 		break;
 	case RPMI_CHANNEL_ATTR_TX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_TX_TIMEOUT;
+		*((u32 *)out_हालागा) = RPMI_DEF_TX_TIMEOUT;
 		break;
 	case RPMI_CHANNEL_ATTR_RX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_RX_TIMEOUT;
+		*((u32 *)out_हालागा) = RPMI_DEF_RX_TIMEOUT;
 		break;
 	case RPMI_CHANNEL_ATTR_SERVICEGROUP_ID:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_id;
+		*((u32 *)out_हालागा) = srvgrp_chan->servicegroup_id;
 		break;
 	case RPMI_CHANNEL_ATTR_SERVICEGROUP_VERSION:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_version;
+		*((u32 *)out_हालागा) = srvgrp_chan->servicegroup_version;
 		break;
 	case RPMI_CHANNEL_ATTR_IMPL_ID:
-		*((u32 *)out_value) = mctl->impl_id;
+		*((u32 *)out_हालागा) = mctl->impl_id;
 		break;
 	case RPMI_CHANNEL_ATTR_IMPL_VERSION:
-		*((u32 *)out_value) = mctl->impl_version;
+		*((u32 *)out_हालागा) = mctl->impl_version;
 		break;
 	default:
 		return SBI_ENOTSUPP;
@@ -541,7 +541,7 @@ static int rpmi_shmem_mbox_get_attribute(struct mbox_chan *chan,
 
 static struct mbox_chan *rpmi_shmem_mbox_request_chan(
 						struct mbox_controller *mbox,
-						u32 *chan_args)
+						u32 *chan_मगा_कातविरान)
 {
 	int ret;
 	u32 tval[2] = { 0 };
@@ -552,16 +552,16 @@ static struct mbox_chan *rpmi_shmem_mbox_request_chan(
 				     controller);
 
 	/* Service group id not defined or in reserved range is invalid */
-	if (chan_args[0] >= RPMI_SRVGRP_ID_MAX_COUNT &&
-		chan_args[0] <= RPMI_SRVGRP_RESERVE_END)
+	if (chan_मगा_कातविरान[0] >= RPMI_SRVGRP_ID_MAX_बिलांग &&
+		chan_मगा_कातविरान[0] <= RPMI_SRVGRP_RESERVE_END)
 		return NULL;
 
 	/* Base serivce group is always present so probe other groups */
-	if (chan_args[0] != RPMI_SRVGRP_BASE) {
+	if (chan_मगा_कातविरान[0] != RPMI_SRVGRP_BASE) {
 		/* Probe service group */
 		ret = smq_base_get_two_u32(mctl,
 					   RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-					   chan_args, tval);
+					   chan_मगा_कातविरान, tval);
 		if (ret || !tval[1])
 			return NULL;
 	}
@@ -570,7 +570,7 @@ static struct mbox_chan *rpmi_shmem_mbox_request_chan(
 	if (!srvgrp_chan)
 		return NULL;
 
-	srvgrp_chan->servicegroup_id = chan_args[0];
+	srvgrp_chan->servicegroup_id = chan_मगा_कातविरान[0];
 	srvgrp_chan->servicegroup_version = tval[1];
 
 	return &srvgrp_chan->chan;
@@ -591,11 +591,11 @@ static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
 {
 	const char *name;
 	const fdt32_t *prop;
-	int count, len, ret, qid;
+	int बिलांग, len, ret, qid;
 	uint64_t reg_addr, reg_size;
 	struct smq_queue_ctx *qctx;
 
-	ret = fdt_node_check_compatible(fdt, nodeoff,
+	ret = fdt_बुहोल_check_compatible(fdt, nodeoff,
 					"riscv,rpmi-shmem-mbox");
 	if (ret)
 		return ret;
@@ -618,31 +618,31 @@ static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
 
 	/* get a2p doorbell value */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,a2p-doorbell-value", &len);
-	mctl->a2p_doorbell_value = prop ? fdt32_to_cpu(*prop) : 1;
+	mctl->a2p_doorbell_हालागा = prop ? fdt32_to_cpu(*prop) : 1;
 
 	/*
 	 * queue names count is taken as the number of queues
 	 * supported which make it mandatory to provide the
 	 * name of the queue.
 	 */
-	count = fdt_stringlist_count(fdt, nodeoff, "reg-names");
-	if (count < 0 ||
-	    count > (RPMI_QUEUE_IDX_MAX_COUNT + RPMI_REG_IDX_MAX_COUNT))
+	बिलांग = fdt_stringlist_बिलांग(fdt, nodeoff, "reg-names");
+	if (बिलांग < 0 ||
+	    बिलांग > (RPMI_QUEUE_IDX_MAX_बिलांग + RPMI_REG_IDX_MAX_बिलांग))
 		return SBI_EINVAL;
 
-	mctl->queue_count = count - RPMI_REG_IDX_MAX_COUNT;
+	mctl->queue_बिलांग = बिलांग - RPMI_REG_IDX_MAX_बिलांग;
 
 	/* parse all queues and populate queues context structure */
-	for (qid = 0; qid < mctl->queue_count; qid++) {
+	for (qid = 0; qid < mctl->queue_बिलांग; qid++) {
 		qctx = &mctl->queue_ctx_tbl[qid];
 
 		/* get each queue share-memory base address and size*/
-		ret = fdt_get_node_addr_size(fdt, nodeoff, qid,
+		ret = fdt_get_बुहोल_addr_size(fdt, nodeoff, qid,
 					     &reg_addr, &reg_size);
 		if (ret < 0 || !reg_addr || !reg_size)
 			return SBI_ENOENT;
 
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+		ret = sbi_domain_उगात_add_memrange(reg_addr, reg_size, reg_size,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
@@ -650,7 +650,7 @@ static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
 			return ret;
 
 		/* calculate number of slots in each queue */
-		qctx->num_slots =
+		qctx->नुमेरो_slots =
 			(reg_size - (mctl->slot_size * RPMI_QUEUE_HEADER_SLOTS)) / mctl->slot_size;
 
 		/* setup queue pointers */
@@ -681,11 +681,11 @@ static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
 		return len;
 
 	/* fetch doorbell register address*/
-	ret = fdt_get_node_addr_size(fdt, nodeoff, qid, &reg_addr,
+	ret = fdt_get_बुहोल_addr_size(fdt, nodeoff, qid, &reg_addr,
 				       &reg_size);
 	if (!ret && !(strncmp(name, "a2p-doorbell", strlen("a2p-doorbell")))) {
 		mctl->mb_regs = (void *)(unsigned long)reg_addr;
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+		ret = sbi_domain_उगात_add_memrange(reg_addr, reg_size, reg_size,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
@@ -702,7 +702,7 @@ static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
 	struct rpmi_base_get_attributes_resp resp;
 	struct rpmi_shmem_mbox_controller *mctl;
 	struct rpmi_srvgrp_chan *base_srvgrp;
-	u32 tval[2], args[1];
+	u32 tval[2], मगा_कातविरान[1];
 	int ret = 0;
 
 	mctl = sbi_zalloc(sizeof(*mctl));
@@ -738,9 +738,9 @@ static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
 
 	/* Update base service group version */
 	base_srvgrp = to_srvgrp_chan(mctl->base_chan);
-	args[0] = RPMI_SRVGRP_BASE;
+	मगा_कातविरान[0] = RPMI_SRVGRP_BASE;
 	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-				   &args[0], tval);
+				   &मगा_कातविरान[0], tval);
 	if (ret)
 		goto fail_free_chan;
 	base_srvgrp->servicegroup_version = tval[1];
@@ -780,7 +780,7 @@ static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
 	ret = rpmi_normal_request_with_status(
 			mctl->base_chan, RPMI_BASE_SRV_GET_ATTRIBUTES,
 			NULL, 0, 0,
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (ret)
 		goto fail_free_chan;
 

@@ -39,7 +39,7 @@ const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
 	int err;
 	const char *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
+	if (can_assume(VALID_पासोक)) {
 		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
 		if (lenp)
@@ -117,9 +117,9 @@ int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 	int offset = -1;
 
 	while (true) {
-		uint32_t value;
+		uint32_t हालागा;
 
-		offset = fdt_next_node(fdt, offset, NULL);
+		offset = fdt_next_बुहोल(fdt, offset, NULL);
 		if (offset < 0) {
 			if (offset == -FDT_ERR_NOTFOUND)
 				break;
@@ -127,10 +127,10 @@ int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 			return offset;
 		}
 
-		value = fdt_get_phandle(fdt, offset);
+		हालागा = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
-			max = value;
+		if (हालागा > max)
+			max = हालागा;
 	}
 
 	if (phandle)
@@ -162,7 +162,7 @@ static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
 	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
 	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
+	if (!can_assume(VALID_पासोक)) {
 		if (absoffset < fdt_off_mem_rsvmap(fdt))
 			return NULL;
 		if (absoffset > fdt_totalsize(fdt) -
@@ -178,7 +178,7 @@ int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
+	if (!can_assume(VALID_पासोक) && !re)
 		return -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
@@ -186,7 +186,7 @@ int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
 	return 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+int fdt_नुमेरो_mem_rsv(const void *fdt)
 {
 	int i;
 	const struct fdt_reserve_entry *re;
@@ -231,7 +231,7 @@ int fdt_subnode_offset_namelen(const void *fdt, int offset,
 
 	for (depth = 0;
 	     (offset >= 0) && (depth >= 0);
-	     offset = fdt_next_node(fdt, offset, &depth))
+	     offset = fdt_next_बुहोल(fdt, offset, &depth))
 		if ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
 			return offset;
@@ -299,12 +299,12 @@ int fdt_path_offset(const void *fdt, const char *path)
 
 const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	const struct fdt_बुहोल_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	const char *nameptr;
 	int err;
 
 	if (((err = fdt_ro_probe_(fdt)) < 0)
-	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
+	    || ((err = fdt_check_बुहोल_offset(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
@@ -339,7 +339,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset)
 {
 	int offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+	if ((offset = fdt_check_बुहोल_offset(fdt, nodeoffset)) < 0)
 		return offset;
 
 	return nextprop_(fdt, offset);
@@ -360,7 +360,7 @@ static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
 	int err;
 	const struct fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	if (!can_assume(VALID_पासोक) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
 		if (lenp)
 			*lenp = err;
@@ -478,7 +478,7 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
 		const char *name;
 		int namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		if (!can_assume(VALID_पासोक)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
 			if (!name) {
@@ -552,7 +552,7 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 
 	for (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
+	     offset = fdt_next_बुहोल(fdt, offset, &depth)) {
 		while (pdepth > depth) {
 			do {
 				p--;
@@ -604,7 +604,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
 
 	for (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
+	     offset = fdt_next_बुहोल(fdt, offset, &depth)) {
 		if (depth == supernodedepth)
 			supernodeoffset = offset;
 
@@ -619,7 +619,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
+	if (!can_assume(VALID_पासोक)) {
 		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
 			return -FDT_ERR_BADOFFSET;
 		else if (offset == -FDT_ERR_BADOFFSET)
@@ -629,7 +629,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
 	return offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+int fdt_बुहोल_depth(const void *fdt, int nodeoffset)
 {
 	int nodedepth;
 	int err;
@@ -643,7 +643,7 @@ int fdt_node_depth(const void *fdt, int nodeoffset)
 
 int fdt_parent_offset(const void *fdt, int nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	int nodedepth = fdt_बुहोल_depth(fdt, nodeoffset);
 
 	if (nodedepth < 0)
 		return nodedepth;
@@ -651,7 +651,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset)
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+int fdt_बुहोल_offset_by_prop_हालागा(const void *fdt, int startoffset,
 				  const char *propname,
 				  const void *propval, int proplen)
 {
@@ -666,9 +666,9 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	for (offset = fdt_next_बुहोल(fdt, startoffset, NULL);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
+	     offset = fdt_next_बुहोल(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
 		if (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
@@ -678,7 +678,7 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	return offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+int fdt_बुहोल_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
 	int offset;
 
@@ -693,9 +693,9 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	for (offset = fdt_next_बुहोल(fdt, -1, NULL);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
+	     offset = fdt_next_बुहोल(fdt, offset, NULL)) {
 		if (fdt_get_phandle(fdt, offset) == phandle)
 			return offset;
 	}
@@ -720,10 +720,10 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
 	return 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+int fdt_stringlist_बिलांग(const void *fdt, int nodeoffset, const char *property)
 {
 	const char *list, *end;
-	int length, count = 0;
+	int length, बिलांग = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
 	if (!list)
@@ -739,13 +739,13 @@ int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
 			return -FDT_ERR_BADVALUE;
 
 		list += length;
-		count++;
+		बिलांग++;
 	}
 
-	return count;
+	return बिलांग;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+int fdt_stringlist_हानाप(const void *fdt, int nodeoffset, const char *property,
 			  const char *string)
 {
 	int length, len, idx = 0;
@@ -820,7 +820,7 @@ const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
 	return NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+int fdt_बुहोल_check_compatible(const void *fdt, int nodeoffset,
 			      const char *compatible)
 {
 	const void *prop;
@@ -833,7 +833,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
 	return !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+int fdt_बुहोल_offset_by_compatible(const void *fdt, int startoffset,
 				  const char *compatible)
 {
 	int offset, err;
@@ -845,10 +845,10 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	for (offset = fdt_next_बुहोल(fdt, startoffset, NULL);
 	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		err = fdt_node_check_compatible(fdt, offset, compatible);
+	     offset = fdt_next_बुहोल(fdt, offset, NULL)) {
+		err = fdt_बुहोल_check_compatible(fdt, offset, compatible);
 		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
 			return err;
 		else if (err == 0)

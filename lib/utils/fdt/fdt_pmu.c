@@ -18,14 +18,14 @@
 #include <sbi_utils/fdt/fdt_pmu.h>
 
 static struct fdt_pmu_hw_event_select_map *fdt_pmu_evt_select;
-static uint32_t hw_event_count;
+static uint32_t hw_event_बिलांग;
 
-uint64_t fdt_pmu_get_select_value(uint32_t event_idx)
+uint64_t fdt_pmu_get_select_हालागा(uint32_t event_idx)
 {
 	int i;
 	struct fdt_pmu_hw_event_select_map *event;
 
-	for (i = 0; i < hw_event_count; i++) {
+	for (i = 0; i < hw_event_बिलांग; i++) {
 		event = &fdt_pmu_evt_select[i];
 		if (event->eidx == event_idx)
 			return event->select;
@@ -42,7 +42,7 @@ int fdt_pmu_fixup(void *fdt)
 	if (!fdt)
 		return SBI_EINVAL;
 
-	pmu_offset = fdt_node_offset_by_compatible(fdt, -1, "riscv,pmu");
+	pmu_offset = fdt_बुहोल_offset_by_compatible(fdt, -1, "riscv,pmu");
 	if (pmu_offset < 0)
 		return SBI_EFAIL;
 
@@ -67,7 +67,7 @@ int fdt_pmu_setup(const void *fdt)
 	if (!fdt)
 		return SBI_EINVAL;
 
-	pmu_offset = fdt_node_offset_by_compatible(fdt, -1, "riscv,pmu");
+	pmu_offset = fdt_बुहोल_offset_by_compatible(fdt, -1, "riscv,pmu");
 	if (pmu_offset < 0)
 		return SBI_ENOENT;
 
@@ -91,8 +91,8 @@ int fdt_pmu_setup(const void *fdt)
 	if (event_val) {
 		len = len / (sizeof(u32) * 3);
 
-		hw_event_count = len;
-		fdt_pmu_evt_select = sbi_calloc(hw_event_count,
+		hw_event_बिलांग = len;
+		fdt_pmu_evt_select = sbi_calloc(hw_event_बिलांग,
 						sizeof(*fdt_pmu_evt_select));
 		if (!fdt_pmu_evt_select)
 			return SBI_ENOMEM;

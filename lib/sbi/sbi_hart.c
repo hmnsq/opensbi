@@ -73,13 +73,13 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		if (!(mhpm_mask & 1UL << (cidx + 3)))
 			continue;
 #if __riscv_xlen == 32
-		csr_write_num(CSR_MHPMEVENT3 + cidx,
+		csr_write_नुमेरो(CSR_MHPMEVENT3 + cidx,
 			       mhpmevent_init_val & 0xFFFFFFFF);
 		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-			csr_write_num(CSR_MHPMEVENT3H + cidx,
+			csr_write_नुमेरो(CSR_MHPMEVENT3H + cidx,
 				      mhpmevent_init_val >> BITS_PER_LONG);
 #else
-		csr_write_num(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
+		csr_write_नुमेरो(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
 #endif
 	}
 
@@ -439,7 +439,7 @@ static int hart_mhpm_get_allowed_bits(void)
 {
 	unsigned long val = ~(0UL);
 	struct sbi_trap_info trap = {0};
-	int num_bits = 0;
+	int नुमेरो_bits = 0;
 
 	/**
 	 * It is assumed that platforms will implement same number of bits for
@@ -451,19 +451,19 @@ static int hart_mhpm_get_allowed_bits(void)
 		if (trap.cause)
 			return 0;
 	}
-	num_bits = sbi_fls(val) + 1;
+	नुमेरो_bits = sbi_fls(val) + 1;
 #if __riscv_xlen == 32
 	csr_write_allowed(CSR_MHPMCOUNTER3H, &trap, val);
 	if (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3H, &trap);
 		if (trap.cause)
-			return num_bits;
+			return नुमेरो_bits;
 	}
-	num_bits += sbi_fls(val) + 1;
+	नुमेरो_bits += sbi_fls(val) + 1;
 
 #endif
 
-	return num_bits;
+	return नुमेरो_bits;
 }
 
 static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
@@ -576,7 +576,7 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 		hfeatures->pmp_log2gran = sbi_ffs(val) + 2;
 		hfeatures->pmp_addr_bits = sbi_fls(val) + 1;
 		/* Detect number of PMP regions. At least PMPADDR0 should be implemented*/
-		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_count, __pmp_skip);
+		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_बिलांग, __pmp_skip);
 	}
 __pmp_skip:
 	/* Detect number of MHPM counters */
@@ -768,17 +768,17 @@ sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
 	}
 
 	val = csr_read(CSR_MSTATUS);
-	val = INSERT_FIELD(val, MSTATUS_MPP, next_mode);
-	val = INSERT_FIELD(val, MSTATUS_MPIE, 0);
+	val = इसिंगित_FIELD(val, MSTATUS_MPP, next_mode);
+	val = इसिंगित_FIELD(val, MSTATUS_MPIE, 0);
 #if __riscv_xlen == 32
 	if (misa_extension('H')) {
 		valH = csr_read(CSR_MSTATUSH);
-		valH = INSERT_FIELD(valH, MSTATUSH_MPV, next_virt);
+		valH = इसिंगित_FIELD(valH, MSTATUSH_MPV, next_virt);
 		csr_write(CSR_MSTATUSH, valH);
 	}
 #else
 	if (misa_extension('H'))
-		val = INSERT_FIELD(val, MSTATUS_MPV, next_virt);
+		val = इसिंगित_FIELD(val, MSTATUS_MPV, next_virt);
 #endif
 	csr_write(CSR_MSTATUS, val);
 	csr_write(CSR_MEPC, next_addr);

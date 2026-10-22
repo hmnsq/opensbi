@@ -54,19 +54,19 @@ int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
 	int rc;
 	const struct fdt_gpio *drv;
 	struct gpio_chip *chip = NULL;
-	struct fdt_phandle_args pargs;
+	struct fdt_phandle_मगा_कातविरान pargs;
 
 	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
 		return SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
-	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
+	pargs.बुहोल_offset = pargs.मगा_कातविरान_बिलांग = 0;
+	rc = fdt_parse_phandle_with_मगा_कातविरान(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
 					 index, &pargs);
 	if (rc)
 		return rc;
 
-	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
+	rc = fdt_gpio_chip_find(fdt, pargs.बुहोल_offset, &chip);
 	if (rc)
 		return rc;
 
@@ -78,14 +78,14 @@ int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
 }
 
 int fdt_gpio_simple_xlate(struct gpio_chip *chip,
-			  const struct fdt_phandle_args *pargs,
+			  const struct fdt_phandle_मगा_कातविरान *pargs,
 			  struct gpio_pin *out_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
+	if ((pargs->मगा_कातविरान_बिलांग < 2) || (chip->ngpio <= pargs->मगा_कातविरान[0]))
 		return SBI_EINVAL;
 
 	out_pin->chip = chip;
-	out_pin->offset = pargs->args[0];
-	out_pin->flags = pargs->args[1];
+	out_pin->offset = pargs->मगा_कातविरान[0];
+	out_pin->flags = pargs->मगा_कातविरान[1];
 	return 0;
 }

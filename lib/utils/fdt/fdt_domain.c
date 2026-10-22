@@ -31,13 +31,13 @@ int fdt_iterate_each_domain(void *fdt, void *opaque,
 	poffset = fdt_path_offset(fdt, "/chosen");
 	if (poffset < 0)
 		return 0;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_बुहोल_offset_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
 	if (poffset < 0)
 		return 0;
 
 	fdt_for_each_subnode(doffset, fdt, poffset) {
-		if (fdt_node_check_compatible(fdt, doffset,
+		if (fdt_बुहोल_check_compatible(fdt, doffset,
 					      "opensbi,domain,instance"))
 			continue;
 
@@ -69,7 +69,7 @@ int fdt_iterate_each_memregion(void *fdt, int domain_offset, void *opaque,
 	if (!fdt || (domain_offset < 0) || !fn)
 		return SBI_EINVAL;
 
-	if (fdt_node_check_compatible(fdt, domain_offset,
+	if (fdt_बुहोल_check_compatible(fdt, domain_offset,
 				      "opensbi,domain,instance"))
 		return SBI_EINVAL;
 
@@ -79,12 +79,12 @@ int fdt_iterate_each_memregion(void *fdt, int domain_offset, void *opaque,
 
 	rcount = (u32)len / (sizeof(u32) * 2);
 	for (i = 0; i < rcount; i++) {
-		region_offset = fdt_node_offset_by_phandle(fdt,
+		region_offset = fdt_बुहोल_offset_by_phandle(fdt,
 						fdt32_to_cpu(regions[2 * i]));
 		if (region_offset < 0)
 			return region_offset;
 
-		if (fdt_node_check_compatible(fdt, region_offset,
+		if (fdt_बुहोल_check_compatible(fdt, region_offset,
 					      "opensbi,domain,memregion"))
 			return SBI_EINVAL;
 
@@ -157,7 +157,7 @@ static int __fixup_disable_devices(void *fdt, int doff, int roff,
 	len = len / sizeof(u32);
 
 	for (i = 0; i < len; i++) {
-		coff = fdt_node_offset_by_phandle(fdt,
+		coff = fdt_बुहोल_offset_by_phandle(fdt,
 					fdt32_to_cpu(devices[i]));
 		if (coff < 0)
 			return coff;
@@ -216,20 +216,20 @@ skip_device_disable:
 	poffset = fdt_path_offset(fdt, "/chosen");
 	if (poffset < 0)
 		return;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_बुहोल_offset_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
 	if (poffset < 0)
 		return;
-	fdt_nop_node(fdt, poffset);
+	fdt_nop_बुहोल(fdt, poffset);
 }
 
-#define FDT_DOMAIN_REGION_MAX_COUNT		16
-#define FDT_ROOT_REGION_INHERIT_M_ONLY		0
-#define FDT_ROOT_REGION_INHERIT_ALL		1
+#define FDT_DOMAIN_REGION_MAX_बिलांग		16
+#define FDT_उगात_REGION_INHERIT_M_ONLY		0
+#define FDT_उगात_REGION_INHERIT_ALL		1
 
 struct parse_region_data {
 	struct sbi_domain *dom;
-	u32 region_count;
+	u32 region_बिलांग;
 	u32 max_regions;
 };
 
@@ -257,7 +257,7 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 		return SBI_EINVAL;
 
 	/* Find next region of the domain */
-	if (preg->max_regions <= preg->region_count)
+	if (preg->max_regions <= preg->region_बिलांग)
 		return SBI_ENOSPC;
 
 	/* Read "base" DT property */
@@ -285,9 +285,9 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 		flags |= SBI_DOMAIN_MEMREGION_MMIO;
 
 	sbi_domain_memregion_init(base, (order == __riscv_xlen) ? ~0UL : BIT(order),
-				  flags, &preg->dom->regions[preg->region_count]);
+				  flags, &preg->dom->regions[preg->region_बिलांग]);
 
-	preg->region_count++;
+	preg->region_बिलांग++;
 
 	return 0;
 }
@@ -302,7 +302,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	struct sbi_hartmask *mask;
 	struct parse_region_data preg;
 	struct sbi_domain_memregion *reg;
-	int inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
+	int inheritance_mode = FDT_उगात_REGION_INHERIT_M_ONLY;
 	int i, err = 0, len, cpu_offset;
 
 	dom = sbi_zalloc(sizeof(*dom));
@@ -310,14 +310,14 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 		return SBI_ENOMEM;
 
 	dom->regions = sbi_calloc(sizeof(*dom->regions),
-				  FDT_DOMAIN_REGION_MAX_COUNT + 1);
+				  FDT_DOMAIN_REGION_MAX_बिलांग + 1);
 	if (!dom->regions) {
 		err = SBI_ENOMEM;
 		goto fail_free_domain;
 	}
 	preg.dom = dom;
-	preg.region_count = 0;
-	preg.max_regions = FDT_DOMAIN_REGION_MAX_COUNT;
+	preg.region_बिलांग = 0;
+	preg.max_regions = FDT_DOMAIN_REGION_MAX_बिलांग;
 
 	mask = sbi_zalloc(sizeof(*mask));
 	if (!mask) {
@@ -345,7 +345,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	len = len / sizeof(u32);
 	if (val && len) {
 		for (i = 0; i < len; i++) {
-			cpu_offset = fdt_node_offset_by_phandle(fdt,
+			cpu_offset = fdt_बुहोल_offset_by_phandle(fdt,
 							fdt32_to_cpu(val[i]));
 			if (cpu_offset < 0) {
 				err = cpu_offset;
@@ -356,7 +356,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 			if (err)
 				goto fail_free_all;
 
-			if (!fdt_node_is_enabled(fdt, cpu_offset))
+			if (!fdt_बुहोल_is_enabled(fdt, cpu_offset))
 				continue;
 
 			sbi_hartmask_set_hartid(val32, mask);
@@ -374,9 +374,9 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 			       "root-regions-inheritance", &len);
 	if (inherit && len > 0) {
 		if (!strcmp(inherit, "all"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_ALL;
+			inheritance_mode = FDT_उगात_REGION_INHERIT_ALL;
 		else if (!strcmp(inherit, "m-only"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
+			inheritance_mode = FDT_उगात_REGION_INHERIT_M_ONLY;
 		else {
 			sbi_printf("%s: domain \"%s\" has unsupported "
 				   "root-regions-inheritance=\"%s\"\n",
@@ -387,14 +387,14 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	}
 
 	/* Copy over root domain memregions according to inheritance_mode. */
-	sbi_domain_for_each_memregion(&root, reg) {
+	sbi_domain_for_each_memregion(&उगात, reg) {
 		bool copy = false;
 
 		switch (inheritance_mode) {
-		case FDT_ROOT_REGION_INHERIT_ALL:
+		case FDT_उगात_REGION_INHERIT_ALL:
 			copy = true;
 			break;
-		case FDT_ROOT_REGION_INHERIT_M_ONLY:
+		case FDT_उगात_REGION_INHERIT_M_ONLY:
 			if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
 			    SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 				copy = true;
@@ -405,21 +405,21 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 		if (!copy)
 			continue;
 
-		if (preg.max_regions <= preg.region_count) {
+		if (preg.max_regions <= preg.region_बिलांग) {
 			err = SBI_EINVAL;
 			goto fail_free_all;
 		}
-		memcpy(&dom->regions[preg.region_count++], reg, sizeof(*reg));
+		memcpy(&dom->regions[preg.region_बिलांग++], reg, sizeof(*reg));
 	}
-	dom->fw_region_inited = root.fw_region_inited;
+	dom->fw_region_inited = उगात.fw_region_inited;
 
 	/* Read "boot-hart" DT property */
 	val32 = current_hartid();
 	val = fdt_getprop(fdt, domain_offset, "boot-hart", &len);
 	if (val && len >= 4) {
-		cpu_offset = fdt_node_offset_by_phandle(fdt,
+		cpu_offset = fdt_बुहोल_offset_by_phandle(fdt,
 							 fdt32_to_cpu(*val));
-		if (cpu_offset >= 0 && fdt_node_is_enabled(fdt, cpu_offset))
+		if (cpu_offset >= 0 && fdt_बुहोल_is_enabled(fdt, cpu_offset))
 			fdt_parse_hart_id(fdt, cpu_offset, &val32);
 	}
 	dom->boot_hartid = val32;
@@ -431,7 +431,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 		val64 = fdt32_to_cpu(val[0]);
 		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
 	} else {
-		val64 = root.next_arg1;
+		val64 = उगात.next_arg1;
 	}
 	dom->next_arg1 = val64;
 
@@ -442,7 +442,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 		val64 = fdt32_to_cpu(val[0]);
 		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
 	} else {
-		val64 = root.next_addr;
+		val64 = उगात.next_addr;
 	}
 	dom->next_addr = val64;
 
@@ -454,7 +454,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 		if (val32 != 0x0 && val32 != 0x1)
 			val32 = 0x1;
 	} else {
-		val32 = root.next_mode;
+		val32 = उगात.next_mode;
 	}
 	dom->next_mode = val32;
 

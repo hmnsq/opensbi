@@ -19,11 +19,11 @@ static struct mpxy_rpmi_service_data clock_services[] = {
 	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_CLOCK_SRV_GET_NUM_CLOCKS,
+	.id = RPMI_CLOCK_SRV_GET_नुमेरो_CLOCKS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_clock_get_num_clocks_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_get_num_clocks_resp),
+	.min_rx_len = sizeof(struct rpmi_clock_get_नुमेरो_clocks_resp),
+	.max_rx_len = sizeof(struct rpmi_clock_get_नुमेरो_clocks_resp),
 },
 {
 	.id = RPMI_CLOCK_SRV_GET_ATTRIBUTES,
@@ -71,7 +71,7 @@ static struct mpxy_rpmi_service_data clock_services[] = {
 
 static const struct mpxy_rpmi_mbox_data clock_data = {
 	.servicegrp_id = RPMI_SRVGRP_CLOCK,
-	.num_services = RPMI_CLOCK_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_CLOCK_SRV_MAX_बिलांग,
 	.service_data = clock_services,
 };
 

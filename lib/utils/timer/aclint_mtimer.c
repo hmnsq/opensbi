@@ -31,9 +31,9 @@ static u64 mtimer_time_rd64(volatile u64 *addr)
 	return readq_relaxed(addr);
 }
 
-static void mtimer_time_wr64(bool timecmp, u64 value, volatile u64 *addr)
+static void mtimer_time_wr64(bool timecmp, u64 हालागा, volatile u64 *addr)
 {
-	writeq_relaxed(value, addr);
+	writeq_relaxed(हालागा, addr);
 }
 #endif
 
@@ -49,14 +49,14 @@ static u64 mtimer_time_rd32(volatile u64 *addr)
 	return ((u64)hi << 32) | (u64)lo;
 }
 
-static void mtimer_time_wr32(bool timecmp, u64 value, volatile u64 *addr)
+static void mtimer_time_wr32(bool timecmp, u64 हालागा, volatile u64 *addr)
 {
 	writel_relaxed((timecmp) ? -1U : 0U, (void *)(addr));
-	writel_relaxed((u32)(value >> 32), (char *)(addr) + 0x04);
-	writel_relaxed((u32)value, (void *)(addr));
+	writel_relaxed((u32)(हालागा >> 32), (char *)(addr) + 0x04);
+	writel_relaxed((u32)हालागा, (void *)(addr));
 }
 
-static u64 mtimer_value(void)
+static u64 mtimer_हालागा(void)
 {
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	struct aclint_mtimer_data *mt;
@@ -104,7 +104,7 @@ static void mtimer_event_start(u64 next_event)
 
 static struct sbi_timer_device mtimer = {
 	.name = "aclint-mtimer",
-	.timer_value = mtimer_value,
+	.timer_हालागा = mtimer_हालागा,
 	.timer_event_start = mtimer_event_start,
 	.timer_event_stop = mtimer_event_stop
 };
@@ -188,12 +188,12 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 
 	/* Sanity checks */
 	if (!mt ||
-	    (mt->hart_count && !mt->mtimecmp_size) ||
+	    (mt->hart_बिलांग && !mt->mtimecmp_size) ||
 	    (mt->mtime_size && (mt->mtime_addr & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtime_size && (mt->mtime_size & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtimecmp_addr & (ACLINT_MTIMER_ALIGN - 1)) ||
 	    (mt->mtimecmp_size & (ACLINT_MTIMER_ALIGN - 1)) ||
-	    (mt->hart_count > ACLINT_MTIMER_MAX_HARTS))
+	    (mt->hart_बिलांग > ACLINT_MTIMER_MAX_HARTS))
 		return SBI_EINVAL;
 	if (reference && mt->mtime_freq != reference->mtime_freq)
 		return SBI_EINVAL;
@@ -219,7 +219,7 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 #endif
 
 	/* Update MTIMER pointer in scratch space */
-	for (i = 0; i < mt->hart_count; i++) {
+	for (i = 0; i < mt->hart_बिलांग; i++) {
 		scratch = sbi_hartid_to_scratch(mt->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
@@ -233,12 +233,12 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 
 	if (!mt->mtime_size) {
 		/* Disable reading mtime when mtime is not available */
-		mtimer.timer_value = NULL;
+		mtimer.timer_हालागा = NULL;
 	}
 
 	/* Add MTIMER regions to the root domain */
 	if (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
+		rc = sbi_domain_उगात_add_memrange(mt->mtimecmp_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
@@ -247,7 +247,7 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 		if (rc)
 			return rc;
 	} else if (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
+		rc = sbi_domain_उगात_add_memrange(mt->mtime_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
@@ -256,7 +256,7 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 		if (rc)
 			return rc;
 	} else {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
+		rc = sbi_domain_उगात_add_memrange(mt->mtime_addr,
 						mt->mtime_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
@@ -264,7 +264,7 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 		if (rc)
 			return rc;
 
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
+		rc = sbi_domain_उगात_add_memrange(mt->mtimecmp_addr,
 						mt->mtimecmp_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |

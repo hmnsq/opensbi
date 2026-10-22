@@ -31,8 +31,8 @@
 #define APLIC_SOURCECFG_SM_DETACH	0x1
 #define APLIC_SOURCECFG_SM_EDGE_RISE	0x4
 #define APLIC_SOURCECFG_SM_EDGE_FALL	0x5
-#define APLIC_SOURCECFG_SM_LEVEL_HIGH	0x6
-#define APLIC_SOURCECFG_SM_LEVEL_LOW	0x7
+#define APLIC_SOURCECFG_SM_LEVEL_माताअस	0x6
+#define APLIC_SOURCECFG_SM_LEVEL_माबाबा	0x7
 
 #define APLIC_MMSICFGADDR		0x1bc0
 #define APLIC_MMSICFGADDRH		0x1bc4
@@ -140,7 +140,7 @@ static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
 
 static inline bool aplic_is_direct_mode(struct aplic_data *aplic)
 {
-	return aplic && aplic->num_idc;
+	return aplic && aplic->नुमेरो_idc;
 }
 
 static inline void aplic_sourcecfg_write(struct aplic_data *aplic,
@@ -218,10 +218,10 @@ static u32 aplic_hwirq_flags_to_sourcecfg(u32 hwirq_flags)
 		return APLIC_SOURCECFG_SM_EDGE_RISE;
 	case SBI_HWIRQ_FLAGS_EDGE_FALLING:
 		return APLIC_SOURCECFG_SM_EDGE_FALL;
-	case SBI_HWIRQ_FLAGS_LEVEL_HIGH:
-		return APLIC_SOURCECFG_SM_LEVEL_HIGH;
-	case SBI_HWIRQ_FLAGS_LEVEL_LOW:
-		return APLIC_SOURCECFG_SM_LEVEL_LOW;
+	case SBI_HWIRQ_FLAGS_LEVEL_माताअस:
+		return APLIC_SOURCECFG_SM_LEVEL_माताअस;
+	case SBI_HWIRQ_FLAGS_LEVEL_माबाबा:
+		return APLIC_SOURCECFG_SM_LEVEL_माबाबा;
 	default:
 		return APLIC_SOURCECFG_SM_INACTIVE;
 	}
@@ -239,7 +239,7 @@ static int aplic_find_idc_index(struct aplic_data *aplic, u32 hart_index)
 {
 	u32 i;
 
-	for (i = 0; i < aplic->num_idc; i++) {
+	for (i = 0; i < aplic->नुमेरो_idc; i++) {
 		if (aplic->idc_map[i] == hart_index)
 			return i;
 	}
@@ -257,12 +257,12 @@ static void aplic_init(struct aplic_data *aplic)
 	writel(0, (void *)(aplic->addr + APLIC_DOMAINCFG));
 
 	/* Disable all interrupts */
-	for (i = 0; i <= aplic->num_source; i += 32)
+	for (i = 0; i <= aplic->नुमेरो_source; i += 32)
 		writel(-1U, (void *)(aplic->addr + APLIC_CLRIE_BASE +
 				     (i / 32) * sizeof(u32)));
 
 	/* Set interrupt type and priority for all interrupts */
-	for (i = 1; i <= aplic->num_source; i++) {
+	for (i = 1; i <= aplic->नुमेरो_source; i++) {
 		/* Set IRQ source configuration to 0 */
 		writel(0, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
 			  (i - 1) * sizeof(u32)));
@@ -277,8 +277,8 @@ static void aplic_init(struct aplic_data *aplic)
 		deleg = &aplic->delegate[i];
 		if (!deleg->first_irq || !deleg->last_irq)
 			continue;
-		if (aplic->num_source < deleg->first_irq ||
-		    aplic->num_source < deleg->last_irq)
+		if (aplic->नुमेरो_source < deleg->first_irq ||
+		    aplic->नुमेरो_source < deleg->last_irq)
 			continue;
 		if (deleg->child_index > APLIC_SOURCECFG_CHILDIDX_MASK)
 			continue;
@@ -293,7 +293,7 @@ static void aplic_init(struct aplic_data *aplic)
 
 	/* Default initialization of IDC structures */
 	if (aplic_is_direct_mode(aplic)) {
-		for (i = 0; i < aplic->num_idc; i++) {
+		for (i = 0; i < aplic->नुमेरो_idc; i++) {
 			aplic_idc_write(aplic, i, APLIC_IDC_IDELIVERY,
 					APLIC_DISABLE_IDELIVERY);
 			aplic_idc_write(aplic, i, APLIC_IDC_IFORCE, 0);
@@ -326,7 +326,7 @@ void aplic_reinit_all(void)
 {
 	struct aplic_data *aplic;
 
-	sbi_list_for_each_entry(aplic, &aplic_list, node)
+	sbi_list_for_each_entry(aplic, &aplic_list, बुहोल)
 		aplic_init(aplic);
 }
 
@@ -443,8 +443,8 @@ static void aplic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
 		return;
 
 	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_MASK;
-	if (sm == APLIC_SOURCECFG_SM_LEVEL_HIGH ||
-	    sm == APLIC_SOURCECFG_SM_LEVEL_LOW)
+	if (sm == APLIC_SOURCECFG_SM_LEVEL_माताअस ||
+	    sm == APLIC_SOURCECFG_SM_LEVEL_माबाबा)
 		aplic_msi_irq_retrigger_level(aplic, hwirq);
 }
 
@@ -462,9 +462,9 @@ static void aplic_program_msi_target(struct aplic_data *aplic,
 }
 
 static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
-			      const struct sbi_irqchip_msi_msg *msg)
+			      const struct sbi_irqchip_msi_मेनसाहे *मेनसाहे)
 {
-	u64 addr = ((u64)msg->address_hi << 32) | msg->address_lo;
+	u64 addr = ((u64)मेनसाहे->address_hi << 32) | मेनसाहे->address_lo;
 	u64 tppn = addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
 	u32 group_index, hart_index;
 
@@ -480,19 +480,19 @@ static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
 }
 
 static void aplic_write_msi(u32 parent_hwirq,
-			    const struct sbi_irqchip_msi_msg *msg,
+			    const struct sbi_irqchip_msi_मेनसाहे *मेनसाहे,
 			    void *priv)
 {
 	struct aplic_msi_data *msi_data = priv;
 	u32 guest_index = 0;
 	u32 eiid;
 
-	eiid = msg->data;
+	eiid = मेनसाहे->data;
 	if (!eiid || eiid > APLIC_TARGET_EIID_MASK)
 		return;
 
 	aplic_program_msi_target(msi_data->aplic, msi_data->hwirq,
-				derive_hart_index(&msi_data->aplic->msicfg_mmode, msg),
+				derive_hart_index(&msi_data->aplic->msicfg_mmode, मेनसाहे),
 				guest_index, eiid);
 }
 
@@ -684,23 +684,23 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 	bool msi_mode;
 
 	msi_mode = !aplic_is_direct_mode(aplic);
-	if (!aplic->num_source) {
+	if (!aplic->नुमेरो_source) {
 		sbi_printf("%s: num_source is zero\n", __func__);
 		return SBI_EINVAL;
 	}
 
-	if (APLIC_MAX_SOURCE <= aplic->num_source) {
+	if (APLIC_MAX_SOURCE <= aplic->नुमेरो_source) {
 		sbi_printf("%s: num_source=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_source,
+			(unsigned long)aplic->नुमेरो_source,
 			(unsigned long)APLIC_MAX_SOURCE);
 		return SBI_EINVAL;
 	}
 
-	if (!msi_mode && APLIC_MAX_IDC <= aplic->num_idc) {
+	if (!msi_mode && APLIC_MAX_IDC <= aplic->नुमेरो_idc) {
 		sbi_printf("%s: num_idc=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_idc,
+			(unsigned long)aplic->नुमेरो_idc,
 			(unsigned long)APLIC_MAX_IDC);
 		return SBI_EINVAL;
 	}
@@ -743,9 +743,9 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 
 	if (aplic->targets_mmode ||
 	    ((first_deleg_irq < last_deleg_irq) &&
-	    (last_deleg_irq == aplic->num_source) &&
+	    (last_deleg_irq == aplic->नुमेरो_source) &&
 	    (first_deleg_irq == 1))) {
-		rc = sbi_domain_root_add_memrange(aplic->addr, aplic->size, PAGE_SIZE,
+		rc = sbi_domain_उगात_add_memrange(aplic->addr, aplic->size, PAGE_SIZE,
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
@@ -757,7 +757,7 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 		aplic->irqchip		 = aplic_irqchip_template;
 		aplic->irqchip.id	 = aplic->unique_id;
 		aplic->irqchip.caps = SBI_IRQCHIP_CAPS_WIRED;
-		aplic->irqchip.num_hwirq = aplic->num_source + 1;
+		aplic->irqchip.नुमेरो_hwirq = aplic->नुमेरो_source + 1;
 
 		if (msi_mode) {
 			aplic->irqchip.warm_init      = NULL;
@@ -768,7 +768,7 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 		if (msi_mode)
 			sbi_hartmask_set_all(&aplic->irqchip.target_harts);
 		else
-			for (i = 0; i < aplic->num_idc; i++)
+			for (i = 0; i < aplic->नुमेरो_idc; i++)
 				sbi_hartmask_set_hartindex(aplic->idc_map[i],
 							   &aplic->irqchip.target_harts);
 
@@ -784,7 +784,7 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 		}
 	}
 	/* Attach to the aplic list */
-	sbi_list_add_tail(&aplic->node, &aplic_list);
+	sbi_list_add_tail(&aplic->बुहोल, &aplic_list);
 
 	return 0;
 }

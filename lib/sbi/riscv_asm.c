@@ -92,7 +92,7 @@ void misa_string(int xlen, char *out, unsigned int out_sz)
 		out[pos++] = '\0';
 }
 
-unsigned long csr_read_num(int csr_num)
+unsigned long csr_read_नुमेरो(int csr_नुमेरो)
 {
 #define switchcase_csr_read(__csr_num)			\
 	case __csr_num:					\
@@ -122,7 +122,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_128(__csr_num + 0)		\
 	switchcase_csr_read_128(__csr_num + 128)
 
-	switch (csr_num) {
+	switch (csr_नुमेरो) {
 	switchcase_csr_read_16(CSR_PMPCFG0)
 	switchcase_csr_read_64(CSR_PMPADDR0)
 	switchcase_csr_read(CSR_MCYCLE)
@@ -173,7 +173,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_BASE)
 
 	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_नुमेरो);
 		return 0;
 	}
 
@@ -188,7 +188,7 @@ unsigned long csr_read_num(int csr_num)
 #undef switchcase_csr_read
 }
 
-void csr_write_num(int csr_num, unsigned long val)
+void csr_write_नुमेरो(int csr_नुमेरो, unsigned long val)
 {
 #define switchcase_csr_write(__csr_num, __val)		\
 	case __csr_num:					\
@@ -219,7 +219,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_128(__csr_num + 0, __val)	\
 	switchcase_csr_write_128(__csr_num + 128, __val)
 
-	switch (csr_num) {
+	switch (csr_नुमेरो) {
 	switchcase_csr_write_16(CSR_PMPCFG0, val)
 	switchcase_csr_write_64(CSR_PMPADDR0, val)
 	switchcase_csr_write(CSR_MCYCLE, val)
@@ -258,7 +258,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_BASE, val)
 
 	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_नुमेरो);
 		break;
 	}
 

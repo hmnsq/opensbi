@@ -84,9 +84,9 @@ u32 atcsmu_get_sleep_type(u32 hartid)
 	return readl_relaxed((char *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
 }
 
-void atcsmu_write_scratch(u32 value)
+void atcsmu_write_scratch(u32 हालागा)
 {
-	writel_relaxed(value, (char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	writel_relaxed(हालागा, (char *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
 u32 atcsmu_read_scratch(void)
@@ -174,12 +174,12 @@ static int hsm_andes_atcsmu_probe(const void *fdt, int nodeoff, const struct fdt
 	if (poff < 0)
 		return SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, &size);
+	rc = fdt_get_बुहोल_addr_size(fdt, poff, 0, &addr, &size);
 	if (rc < 0 || !addr || !size)
 		return SBI_ENODEV;
 
 	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
+		rc = sbi_domain_उगात_add_memrange(
 			(unsigned long)addr, (unsigned long)size, PAGE_SIZE,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);

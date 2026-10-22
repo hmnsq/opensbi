@@ -15,7 +15,7 @@ static int serial_shakti_init(const void *fdt, int nodeoff,
 	int rc;
 	struct platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_shakti_uart_node(fdt, nodeoff, &uart);
+	rc = fdt_parse_shakti_uart_बुहोल(fdt, nodeoff, &uart);
 	if (rc)
 		return rc;
 

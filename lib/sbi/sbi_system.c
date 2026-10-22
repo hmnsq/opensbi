@@ -55,7 +55,7 @@ void sbi_system_reset_add_device(struct sbi_system_reset_device *dev)
 	if (!dev || !dev->system_reset_check)
 		return;
 
-	sbi_list_add(&(dev->node), &(reset_devices_list));
+	sbi_list_add(&(dev->बुहोल), &(reset_devices_list));
 }
 
 bool sbi_system_reset_supported(u32 reset_type, u32 reset_reason)

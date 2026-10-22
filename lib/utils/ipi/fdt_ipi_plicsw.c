@@ -22,8 +22,8 @@ int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
 {
 	int rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
+	rc = fdt_parse_plicsw_बुहोल(fdt, nodeoff, &plicsw.addr, &plicsw.size,
+				   &plicsw.hart_बिलांग);
 	if (rc)
 		return rc;
 

@@ -17,7 +17,7 @@
 #include <sbi/sbi_timer.h>
 #include <sbi/sbi_trap.h>
 
-static bool hpm_allowed(int hpm_num, ulong prev_mode, bool virt)
+static bool hpm_allowed(int hpm_नुमेरो, ulong prev_mode, bool virt)
 {
 	ulong cen = -1UL;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
@@ -38,10 +38,10 @@ static bool hpm_allowed(int hpm_num, ulong prev_mode, bool virt)
 			cen = 0;
 	}
 
-	return ((cen >> hpm_num) & 1) ? true : false;
+	return ((cen >> hpm_नुमेरो) & 1) ? true : false;
 }
 
-int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
+int sbi_emulate_csr_read(int csr_नुमेरो, struct sbi_trap_regs *regs,
 			 ulong *csr_val)
 {
 	int ret = 0;
@@ -49,7 +49,7 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
+	switch (csr_नुमेरो) {
 	case CSR_HTIMEDELTA:
 		if (prev_mode == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta();
@@ -57,22 +57,22 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 			ret = SBI_ENOTSUPP;
 		break;
 	case CSR_CYCLE:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLE, prev_mode, virt))
 			return SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLE);
 		break;
 	case CSR_TIME:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLE, prev_mode, virt))
 			return SBI_ENOTSUPP;
 		/*
 		 * We emulate TIME CSR for both Host (HS/U-mode) and
 		 * Guest (VS/VU-mode).
 		 */
-		*csr_val = (virt) ? sbi_timer_virt_value():
-				    sbi_timer_value();
+		*csr_val = (virt) ? sbi_timer_virt_हालागा():
+				    sbi_timer_हालागा();
 		break;
 	case CSR_INSTRET:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLE, prev_mode, virt))
 			return SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRET);
 		break;
@@ -85,18 +85,18 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 			ret = SBI_ENOTSUPP;
 		break;
 	case CSR_CYCLEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLEH, prev_mode, virt))
 			return SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLEH);
 		break;
 	case CSR_TIMEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLEH, prev_mode, virt))
 			return SBI_ENOTSUPP;
-		*csr_val = (virt) ? sbi_timer_virt_value() >> 32:
-				    sbi_timer_value() >> 32;
+		*csr_val = (virt) ? sbi_timer_virt_हालागा() >> 32:
+				    sbi_timer_हालागा() >> 32;
 		break;
 	case CSR_INSTRETH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
+		if (!hpm_allowed(csr_नुमेरो - CSR_CYCLEH, prev_mode, virt))
 			return SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRETH);
 		break;
@@ -149,14 +149,14 @@ int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
 	return ret;
 }
 
-int sbi_emulate_csr_write(int csr_num, struct sbi_trap_regs *regs,
+int sbi_emulate_csr_write(int csr_नुमेरो, struct sbi_trap_regs *regs,
 			  ulong csr_val)
 {
 	int ret = 0;
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
+	switch (csr_नुमेरो) {
 	case CSR_HTIMEDELTA:
 		if (prev_mode == PRV_S && !virt)
 			sbi_timer_set_delta(csr_val);

@@ -38,7 +38,7 @@ int i2c_adapter_add(struct i2c_adapter *ia)
 	if (i2c_adapter_find(ia->id))
 		return SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_add(&(ia->बुहोल), &(i2c_adapters_list));
 
 	return 0;
 }
@@ -48,7 +48,7 @@ void i2c_adapter_remove(struct i2c_adapter *ia)
 	if (!ia)
 		return;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->बुहोल));
 }
 
 int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,

@@ -21,7 +21,7 @@ static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
 
 	switch (funcid) {
 	case SBI_EXT_MPXY_GET_SHMEM_SIZE:
-		out->value = sbi_mpxy_get_shmem_size();
+		out->हालागा = sbi_mpxy_get_shmem_size();
 		break;
 	case SBI_EXT_MPXY_SET_SHMEM:
 		ret = sbi_mpxy_set_shmem(regs->a0, regs->a1, regs->a2);
@@ -35,16 +35,16 @@ static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
 	case SBI_EXT_MPXY_WRITE_ATTRS:
 		ret = sbi_mpxy_write_attrs(regs->a0, regs->a1, regs->a2);
 		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITH_RESP:
+	case SBI_EXT_MPXY_SEND_मेनसाहे_WITH_RESP:
 		ret = sbi_mpxy_send_message(regs->a0, regs->a1,
-					    regs->a2, &out->value);
+					    regs->a2, &out->हालागा);
 		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITHOUT_RESP:
+	case SBI_EXT_MPXY_SEND_मेनसाहे_WITHOUT_RESP:
 		ret = sbi_mpxy_send_message(regs->a0, regs->a1, regs->a2,
 					    NULL);
 		break;
 	case SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS:
-		ret = sbi_mpxy_get_notification_events(regs->a0, &out->value);
+		ret = sbi_mpxy_get_notification_events(regs->a0, &out->हालागा);
 		break;
 	default:
 		ret = SBI_ENOTSUPP;

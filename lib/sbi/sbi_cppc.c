@@ -43,7 +43,7 @@ static bool sbi_cppc_writable(unsigned long reg)
 	switch (reg) {
 	case SBI_CPPC_HIGHEST_PERF:
 	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
+	case SBI_CPPC_माबाबा_NON_LINEAR_PERF:
 	case SBI_CPPC_LOWEST_PERF:
 	case SBI_CPPC_GUARANTEED_PERF:
 	case SBI_CPPC_CTR_WRAP_TIME:

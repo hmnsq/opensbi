@@ -22,7 +22,7 @@ struct timer_mtimer_quirks {
 	bool		has_64bit_mmio;
 };
 
-struct timer_mtimer_node {
+struct timer_mtimer_बुहोल {
 	struct sbi_dlist head;
 	struct aclint_mtimer_data data;
 };
@@ -35,7 +35,7 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 {
 	int rc;
 	unsigned long addr[2], size[2];
-	struct timer_mtimer_node *mtn, *n;
+	struct timer_mtimer_बुहोल *mtn, *n;
 	struct aclint_mtimer_data *mt;
 	const struct timer_mtimer_quirks *quirks = match->data;
 	bool is_clint = quirks && quirks->is_clint;
@@ -46,9 +46,9 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 		return SBI_ENOMEM;
 	mt = &mtn->data;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, true, !is_clint,
+	rc = fdt_parse_aclint_बुहोल(fdt, nodeoff, true, !is_clint,
 				   &addr[0], &size[0], &addr[1], &size[1],
-				   &mt->first_hartid, &mt->hart_count);
+				   &mt->first_hartid, &mt->hart_बिलांग);
 	if (rc) {
 		sbi_free(mtn);
 		return rc;
@@ -117,7 +117,7 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	 */
 	if (fdt_getprop(fdt, nodeoff, "riscv,reference-mtimer", NULL))
 		is_ref = true;
-	else if (!mt->hart_count)
+	else if (!mt->hart_बिलांग)
 		is_ref = true;
 
 	if (is_ref && !mt_reference) {
@@ -133,7 +133,7 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	}
 
 	/* Explicitly sync-up MTIMER devices not associated with any HARTs */
-	if (!mt->hart_count)
+	if (!mt->hart_बिलांग)
 		aclint_mtimer_sync(mt);
 
 	sbi_list_add_tail(&mtn->head, &mtn_list);

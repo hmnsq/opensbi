@@ -25,15 +25,15 @@ static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 	uint64_t temp;
 
 	switch (funcid) {
-	case SBI_EXT_PMU_NUM_COUNTERS:
-		ret = sbi_pmu_num_ctr();
+	case SBI_EXT_PMU_नुमेरो_COUNTERS:
+		ret = sbi_pmu_नुमेरो_ctr();
 		if (ret >= 0) {
-			out->value = ret;
+			out->हालागा = ret;
 			ret = 0;
 		}
 		break;
 	case SBI_EXT_PMU_COUNTER_GET_INFO:
-		ret = sbi_pmu_ctr_get_info(regs->a0, &out->value);
+		ret = sbi_pmu_ctr_get_info(regs->a0, &out->हालागा);
 		break;
 	case SBI_EXT_PMU_COUNTER_CFG_MATCH:
 #if __riscv_xlen == 32
@@ -44,21 +44,21 @@ static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 		ret = sbi_pmu_ctr_cfg_match(regs->a0, regs->a1, regs->a2,
 					    regs->a3, temp);
 		if (ret >= 0) {
-			out->value = ret;
+			out->हालागा = ret;
 			ret = 0;
 		}
 
 		break;
 	case SBI_EXT_PMU_COUNTER_FW_READ:
 		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, false);
-		out->value = temp;
+		out->हालागा = temp;
 		break;
 	case SBI_EXT_PMU_COUNTER_FW_READ_HI:
 		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, true);
 #if __riscv_xlen == 32
-		out->value = temp >> 32;
+		out->हालागा = temp >> 32;
 #else
-		out->value = 0;
+		out->हालागा = 0;
 #endif
 		break;
 	case SBI_EXT_PMU_COUNTER_START:

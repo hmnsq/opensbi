@@ -61,9 +61,9 @@
 #define IC_INT_STATUS_STOPDET	BIT(9)
 
 static inline void dw_i2c_setreg(struct dw_i2c_adapter *adap,
-				 u8 reg, u32 value)
+				 u8 reg, u32 हालागा)
 {
-	writel(value, (void *)adap->addr + reg);
+	writel(हालागा, (void *)adap->addr + reg);
 }
 
 static inline u32 dw_i2c_getreg(struct dw_i2c_adapter *adap,
@@ -77,7 +77,7 @@ static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 			       bool inverted)
 {
 	unsigned int timeout = 10; /* msec */
-	int count = 0;
+	int बिलांग = 0;
 	u32 val;
 
 	do {
@@ -90,8 +90,8 @@ static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 				return 0;
 		}
 		sbi_timer_udelay(2);
-		count += 1;
-		if (count == (timeout * 1000))
+		बिलांग += 1;
+		if (बिलांग == (timeout * 1000))
 			return SBI_ETIMEDOUT;
 	} while (1);
 }

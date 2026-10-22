@@ -12,7 +12,7 @@
 
 static int fdt_sw_probe_(void *fdt)
 {
-	if (!can_assume(VALID_INPUT)) {
+	if (!can_assume(VALID_पासोक)) {
 		if (fdt_magic(fdt) == FDT_MAGIC)
 			return -FDT_ERR_BADSTATE;
 		else if (fdt_magic(fdt) != FDT_SW_MAGIC)
@@ -41,7 +41,7 @@ static int fdt_sw_probe_memrsv_(void *fdt)
 	if (err)
 		return err;
 
-	if (!can_assume(VALID_INPUT) && fdt_off_dt_strings(fdt) != 0)
+	if (!can_assume(VALID_पासोक) && fdt_off_dt_strings(fdt) != 0)
 		return -FDT_ERR_BADSTATE;
 	return 0;
 }
@@ -67,7 +67,7 @@ static int fdt_sw_probe_struct_(void *fdt)
 	if (err)
 		return err;
 
-	if (!can_assume(VALID_INPUT) &&
+	if (!can_assume(VALID_पासोक) &&
 	    fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
 		return -FDT_ERR_BADSTATE;
 	return 0;
@@ -216,9 +216,9 @@ int fdt_finish_reservemap(void *fdt)
 	return 0;
 }
 
-int fdt_begin_node(void *fdt, const char *name)
+int fdt_begin_बुहोल(void *fdt, const char *name)
 {
-	struct fdt_node_header *nh;
+	struct fdt_बुहोल_header *nh;
 	int namelen;
 
 	FDT_SW_PROBE_STRUCT(fdt);
@@ -228,12 +228,12 @@ int fdt_begin_node(void *fdt, const char *name)
 	if (! nh)
 		return -FDT_ERR_NOSPACE;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_बुहोल);
 	memcpy(nh->name, name, namelen);
 	return 0;
 }
 
-int fdt_end_node(void *fdt)
+int fdt_end_बुहोल(void *fdt)
 {
 	fdt32_t *en;
 
@@ -243,7 +243,7 @@ int fdt_end_node(void *fdt)
 	if (! en)
 		return -FDT_ERR_NOSPACE;
 
-	*en = cpu_to_fdt32(FDT_END_NODE);
+	*en = cpu_to_fdt32(FDT_END_बुहोल);
 	return 0;
 }
 
@@ -252,11 +252,11 @@ static int fdt_add_string_(void *fdt, const char *s)
 	char *strtab = (char *)fdt + fdt_totalsize(fdt);
 	unsigned int strtabsize = fdt_size_dt_strings(fdt);
 	unsigned int len = strlen(s) + 1;
-	unsigned int struct_top, offset;
+	unsigned int struct_इताअस, offset;
 
 	offset = strtabsize + len;
-	struct_top = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	if (fdt_totalsize(fdt) - offset < struct_top)
+	struct_इताअस = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
+	if (fdt_totalsize(fdt) - offset < struct_इताअस)
 		return 0; /* no more room :( */
 
 	memcpy(strtab - offset, s, len);

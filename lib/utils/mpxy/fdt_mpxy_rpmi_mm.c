@@ -47,8 +47,8 @@ static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
 
 	rc = rpmi_normal_request_with_status(chan, RPMI_MM_SRV_GET_ATTRIBUTES,
 					     NULL, 0, 0, &rsp,
-					     rpmi_u32_count(rsp),
-					     rpmi_u32_count(rsp));
+					     rpmi_u32_बिलांग(rsp),
+					     rpmi_u32_बिलांग(rsp));
 	if (rc)
 		return rc;
 
@@ -62,7 +62,7 @@ static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
 	mm_region_size = rsp.mma.shmem_size;
 	mm_region_flags = SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW;
 
-	rc = sbi_domain_root_add_memrange(mm_region_addr, mm_region_size,
+	rc = sbi_domain_उगात_add_memrange(mm_region_addr, mm_region_size,
 					  PAGE_SIZE, mm_region_flags);
 	return rc;
 }
@@ -70,20 +70,20 @@ static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
 static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
 			     struct mbox_xfer *xfer)
 {
-	struct rpmi_message_args *args = xfer->args;
+	struct rpmi_message_मगा_कातविरान *मगा_कातविरान = xfer->मगा_कातविरान;
 	int rc = 0;
 
-	if (!xfer->rx || (args->type != RPMI_MSG_NORMAL_REQUEST))
+	if (!xfer->rx || (मगा_कातविरान->type != RPMI_मेनसाहे_NORMAL_REQUEST))
 		return 0;
 
-	switch (args->service_id) {
+	switch (मगा_कातविरान->service_id) {
 	case RPMI_MM_SRV_GET_ATTRIBUTES:
 		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_SUCCESS);
 		((u32 *)xfer->rx)[1] = cpu_to_le32(rsp.mma.mm_version);
 		((u32 *)xfer->rx)[2] = cpu_to_le32(rsp.mma.shmem_addr_lo);
 		((u32 *)xfer->rx)[3] = cpu_to_le32(rsp.mma.shmem_addr_hi);
 		((u32 *)xfer->rx)[4] = cpu_to_le32(rsp.mma.shmem_size);
-		args->rx_data_len = 5 * sizeof(u32);
+		मगा_कातविरान->rx_data_len = 5 * sizeof(u32);
 		break;
 
 	case RPMI_MM_SRV_COMMUNICATE:
@@ -92,7 +92,7 @@ static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
 
 	default:
 		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_ERR_NOTSUPP);
-		args->rx_data_len = sizeof(u32);
+		मगा_कातविरान->rx_data_len = sizeof(u32);
 		break;
 	};
 
@@ -101,7 +101,7 @@ static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
 
 static const struct mpxy_rpmi_mbox_data mm_data = {
 	.servicegrp_id = RPMI_SRVGRP_MANAGEMENT_MODE,
-	.num_services = RPMI_MM_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_MM_SRV_MAX_बिलांग,
 	.service_data = mm_srvcdata,
 	.setup_group = mpxy_rpmi_mm_setup,
 	.xfer_group = mpxy_rpmi_mm_xfer,

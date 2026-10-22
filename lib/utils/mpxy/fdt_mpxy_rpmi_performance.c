@@ -9,11 +9,11 @@ static struct mpxy_rpmi_service_data performance_services[] = {
 	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_PERF_SRV_GET_NUM_DOMAINS,
+	.id = RPMI_PERF_SRV_GET_नुमेरो_DOMAINS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_perf_get_num_domain_resp),
-	.max_rx_len = sizeof(struct rpmi_perf_get_num_domain_resp),
+	.min_rx_len = sizeof(struct rpmi_perf_get_नुमेरो_domain_resp),
+	.max_rx_len = sizeof(struct rpmi_perf_get_नुमेरो_domain_resp),
 },
 {
 	.id = RPMI_PERF_SRV_GET_ATTRIBUTES,
@@ -75,7 +75,7 @@ static struct mpxy_rpmi_service_data performance_services[] = {
 
 static const struct mpxy_rpmi_mbox_data performance_data = {
 	.servicegrp_id = RPMI_SRVGRP_PERFORMANCE ,
-	.num_services = RPMI_PERF_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_PERF_SRV_MAX_बिलांग,
 	.service_data = performance_services,
 };
 

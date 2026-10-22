@@ -12,7 +12,7 @@
 #include <sbi_utils/fdt/fdt_driver.h>
 #include <sbi_utils/fdt/fdt_helper.h>
 
-#define WDT_KEY_VAL			0x16aa0000
+#define WDT_सुसि_VAL			0x16aa0000
 
 #define WDT_SOFT_RST_REG		0x08
 #define WDT_SOFT_RST_EN			BIT(0)
@@ -35,11 +35,11 @@ static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
 static void sunxi_wdt_system_reset(u32 type, u32 reason)
 {
 	/* Disable the watchdog. */
-	writel_relaxed(WDT_KEY_VAL,
+	writel_relaxed(WDT_सुसि_VAL,
 		       sunxi_wdt_base + WDT_MODE_REG);
 
 	/* Trigger soft reset. */
-	writel_relaxed(WDT_KEY_VAL | WDT_SOFT_RST_EN,
+	writel_relaxed(WDT_सुसि_VAL | WDT_SOFT_RST_EN,
 		       sunxi_wdt_base + WDT_SOFT_RST_REG);
 }
 
@@ -55,7 +55,7 @@ static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
 	uint64_t reg_addr;
 	int rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
 	if (rc < 0 || !reg_addr)
 		return SBI_ENODEV;
 

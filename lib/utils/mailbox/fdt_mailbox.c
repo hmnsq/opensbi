@@ -45,21 +45,21 @@ int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
 	int rc;
 	struct mbox_chan *chan;
 	struct fdt_mailbox *drv;
-	struct fdt_phandle_args pargs;
+	struct fdt_phandle_मगा_कातविरान pargs;
 	struct mbox_controller *mbox = NULL;
-	u32 chan_args[MBOX_CHAN_MAX_ARGS];
+	u32 chan_मगा_कातविरान[MBOX_CHAN_MAX_मगा_कातविरान];
 
 	if (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
 		return SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
-	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
+	pargs.बुहोल_offset = pargs.मगा_कातविरान_बिलांग = 0;
+	rc = fdt_parse_phandle_with_मगा_कातविरान(fdt, nodeoff,
 					 "mboxes", "#mbox-cells",
 					 index, &pargs);
 	if (rc)
 		return rc;
 
-	rc = fdt_mbox_controller_find(fdt, pargs.node_offset, &mbox);
+	rc = fdt_mbox_controller_find(fdt, pargs.बुहोल_offset, &mbox);
 	if (rc)
 		return rc;
 
@@ -67,11 +67,11 @@ int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
 	if (!drv || !drv->xlate)
 		return SBI_ENOSYS;
 
-	rc = drv->xlate(mbox, &pargs, chan_args);
+	rc = drv->xlate(mbox, &pargs, chan_मगा_कातविरान);
 	if (rc)
 		return rc;
 
-	chan = mbox_controller_request_chan(mbox, chan_args);
+	chan = mbox_controller_request_chan(mbox, chan_मगा_कातविरान);
 	if (!chan)
 		return SBI_ENOENT;
 
@@ -80,17 +80,17 @@ int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
 }
 
 int fdt_mailbox_simple_xlate(struct mbox_controller *mbox,
-			     const struct fdt_phandle_args *pargs,
-			     u32 *out_chan_args)
+			     const struct fdt_phandle_मगा_कातविरान *pargs,
+			     u32 *out_chan_मगा_कातविरान)
 {
 	int i;
 
-	if (pargs->args_count < 1)
+	if (pargs->मगा_कातविरान_बिलांग < 1)
 		return SBI_EINVAL;
 
-	out_chan_args[0] = pargs->args[0];
-	for (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
-		out_chan_args[i] = 0;
+	out_chan_मगा_कातविरान[0] = pargs->मगा_कातविरान[0];
+	for (i = 1; i < MBOX_CHAN_MAX_मगा_कातविरान; i++)
+		out_chan_मगा_कातविरान[i] = 0;
 
 	return 0;
 }

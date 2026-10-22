@@ -95,7 +95,7 @@ static int sifive_pl2_cold_init(const void *fdt, int nodeoff, const struct fdt_m
 	int rc;
 
 	/* find the pl2 control base address */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
 	if (rc < 0 && reg_addr)
 		return SBI_ENODEV;
 

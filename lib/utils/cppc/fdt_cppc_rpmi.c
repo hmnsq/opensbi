@@ -128,7 +128,7 @@ static int rpmi_cppc_read(unsigned long reg, u64 *val)
 		curr_freq <<= 32;
 		curr_freq |= readl((void *)cppc->fc_perf_feedback_addr);
 #endif
-		curr_time_csr = sbi_timer_value();
+		curr_time_csr = sbi_timer_हालागा();
 		time_csr_delta = curr_time_csr - cppc->prev_time_csr;
 		cppc->prev_time_csr = curr_time_csr;
 
@@ -141,14 +141,14 @@ static int rpmi_cppc_read(unsigned long reg, u64 *val)
 		resp.data_lo = cpu_to_le32(cppc->prev_delivered_counter & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(cppc->prev_delivered_counter >> 32);
 	} else if (reg == SBI_CPPC_REFERENCE_CTR) {
-		curr_time_csr = sbi_timer_value();
+		curr_time_csr = sbi_timer_हालागा();
 		resp.data_lo = cpu_to_le32(curr_time_csr & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(curr_time_csr >> 32);
 	} else {
 		rc = rpmi_normal_request_with_status(
 				cppc->chan, RPMI_CPPC_SRV_READ_REG,
-				&req, rpmi_u32_count(req), rpmi_u32_count(req),
-				&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+				&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+				&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 		if (rc)
 			return rc;
 	}
@@ -177,8 +177,8 @@ static int rpmi_cppc_write(unsigned long reg, u64 val)
 
 		rc = rpmi_normal_request_with_status(
 			cppc->chan, RPMI_CPPC_SRV_WRITE_REG,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	} else {
 		/* use fast path writes for desired_perf in passive mode */
 		writel((u32)val, (void *)cppc->fc_perf_request_addr);
@@ -206,8 +206,8 @@ static int rpmi_cppc_probe(unsigned long reg)
 
 	rc = rpmi_normal_request_with_status(
 			cppc->chan, RPMI_CPPC_SRV_PROBE_REG,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 
@@ -243,7 +243,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 	rc = rpmi_normal_request_with_status(
 		chan, RPMI_CPPC_SRV_GET_FAST_CHANNEL_REGION,
 		NULL, 0, 0,
-		&fresp, rpmi_u32_count(fresp), rpmi_u32_count(fresp));
+		&fresp, rpmi_u32_बिलांग(fresp), rpmi_u32_बिलांग(fresp));
 	if (rc && rc != SBI_ENOTSUPP)
 		return rc;
 
@@ -266,7 +266,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 		fc_db_addr = (ulong)fresp.db_addr_hi << 32 | fresp.db_addr_lo;
 
 #endif
-		rc = sbi_domain_root_add_memrange(fc_region_addr,
+		rc = sbi_domain_उगात_add_memrange(fc_region_addr,
 					fc_region_size,
 					RPMI_CPPC_HART_FASTCHAN_SIZE,
 					(SBI_DOMAIN_MEMREGION_MMIO |
@@ -294,8 +294,8 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 	do {
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_CPPC_SRV_GET_HART_LIST,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 		if (rc)
 			return rc;
 
@@ -318,11 +318,11 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 						chan,
 						RPMI_CPPC_SRV_GET_FAST_CHANNEL_OFFSET,
 						&hfreq,
-						rpmi_u32_count(hfreq),
-						rpmi_u32_count(hfreq),
+						rpmi_u32_बिलांग(hfreq),
+						rpmi_u32_बिलांग(hfreq),
 						&hfresp,
-						rpmi_u32_count(hfresp),
-						rpmi_u32_count(hfresp));
+						rpmi_u32_बिलांग(hfresp),
+						rpmi_u32_बिलांग(hfresp));
 				if (rc)
 					continue;
 

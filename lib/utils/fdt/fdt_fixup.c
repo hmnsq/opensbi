@@ -23,8 +23,8 @@
 
 int fdt_add_cpu_idle_states(void *fdt, const struct sbi_cpu_idle_state *state)
 {
-	int cpu_node, cpus_node, err, idle_states_node;
-	uint32_t count, phandle;
+	int cpu_बुहोल, cpus_बुहोल, err, idle_states_बुहोल;
+	uint32_t बिलांग, phandle;
 
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 1024);
 	if (err < 0)
@@ -35,72 +35,72 @@ int fdt_add_cpu_idle_states(void *fdt, const struct sbi_cpu_idle_state *state)
 	if (err < 0)
 		return err;
 
-	cpus_node = fdt_path_offset(fdt, "/cpus");
-	if (cpus_node < 0)
-		return cpus_node;
+	cpus_बुहोल = fdt_path_offset(fdt, "/cpus");
+	if (cpus_बुहोल < 0)
+		return cpus_बुहोल;
 
 	/* Do nothing if the idle-states node already exists. */
-	idle_states_node = fdt_subnode_offset(fdt, cpus_node, "idle-states");
-	if (idle_states_node >= 0)
+	idle_states_बुहोल = fdt_subnode_offset(fdt, cpus_बुहोल, "idle-states");
+	if (idle_states_बुहोल >= 0)
 		return 0;
 
 	/* Create the idle-states node and its child nodes. */
-	idle_states_node = fdt_add_subnode(fdt, cpus_node, "idle-states");
-	if (idle_states_node < 0)
-		return idle_states_node;
+	idle_states_बुहोल = fdt_add_subnode(fdt, cpus_बुहोल, "idle-states");
+	if (idle_states_बुहोल < 0)
+		return idle_states_बुहोल;
 
-	for (count = 0; state->name; count++, phandle++, state++) {
-		int idle_state_node;
+	for (बिलांग = 0; state->name; बिलांग++, phandle++, state++) {
+		int idle_state_बुहोल;
 
-		idle_state_node = fdt_add_subnode(fdt, idle_states_node,
+		idle_state_बुहोल = fdt_add_subnode(fdt, idle_states_बुहोल,
 						  state->name);
-		if (idle_state_node < 0)
-			return idle_state_node;
+		if (idle_state_बुहोल < 0)
+			return idle_state_बुहोल;
 
-		fdt_setprop_string(fdt, idle_state_node, "compatible",
+		fdt_setprop_string(fdt, idle_state_बुहोल, "compatible",
 				   "riscv,idle-state");
-		fdt_setprop_u32(fdt, idle_state_node,
+		fdt_setprop_u32(fdt, idle_state_बुहोल,
 				"riscv,sbi-suspend-param",
 				state->suspend_param);
 		if (state->local_timer_stop)
-			fdt_setprop_empty(fdt, idle_state_node,
+			fdt_setprop_empty(fdt, idle_state_बुहोल,
 					  "local-timer-stop");
-		fdt_setprop_u32(fdt, idle_state_node, "entry-latency-us",
+		fdt_setprop_u32(fdt, idle_state_बुहोल, "entry-latency-us",
 				state->entry_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "exit-latency-us",
+		fdt_setprop_u32(fdt, idle_state_बुहोल, "exit-latency-us",
 				state->exit_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "min-residency-us",
+		fdt_setprop_u32(fdt, idle_state_बुहोल, "min-residency-us",
 				state->min_residency_us);
 		if (state->wakeup_latency_us)
-			fdt_setprop_u32(fdt, idle_state_node,
+			fdt_setprop_u32(fdt, idle_state_बुहोल,
 					"wakeup-latency-us",
 					state->wakeup_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "phandle", phandle);
+		fdt_setprop_u32(fdt, idle_state_बुहोल, "phandle", phandle);
 	}
 
-	if (count == 0)
+	if (बिलांग == 0)
 		return 0;
 
 	/* Link each cpu node to the idle state nodes. */
-	fdt_for_each_subnode(cpu_node, fdt, cpus_node) {
+	fdt_for_each_subnode(cpu_बुहोल, fdt, cpus_बुहोल) {
 		const char *device_type;
-		fdt32_t *value;
+		fdt32_t *हालागा;
 
 		/* Only process child nodes with device_type = "cpu". */
-		device_type = fdt_getprop(fdt, cpu_node, "device_type", NULL);
+		device_type = fdt_getprop(fdt, cpu_बुहोल, "device_type", NULL);
 		if (!device_type || strcmp(device_type, "cpu"))
 			continue;
 
 		/* Allocate space for the list of phandles. */
-		err = fdt_setprop_placeholder(fdt, cpu_node, "cpu-idle-states",
-					      count * sizeof(phandle),
-					      (void **)&value);
+		err = fdt_setprop_placeholder(fdt, cpu_बुहोल, "cpu-idle-states",
+					      बिलांग * sizeof(phandle),
+					      (void **)&हालागा);
 		if (err < 0)
 			return err;
 
 		/* Fill in the phandles of the idle state nodes. */
-		for (uint32_t i = 0; i < count; ++i)
-			value[i] = cpu_to_fdt32(phandle - count + i);
+		for (uint32_t i = 0; i < बिलांग; ++i)
+			हालागा[i] = cpu_to_fdt32(phandle - बिलांग + i);
 	}
 
 	return 0;
@@ -125,7 +125,7 @@ static void fdt_cpu_fixup_needed(const void *fdt, int cpu_offset,
 	if (fdt_parse_hart_id(fdt, cpu_offset, &hartid))
 		return;
 
-	if (!fdt_node_is_enabled(fdt, cpu_offset))
+	if (!fdt_बुहोल_is_enabled(fdt, cpu_offset))
 		return;
 
 	/*
@@ -237,7 +237,7 @@ static void fdt_domain_based_fixup_one(void *fdt, int nodeoff)
 	uint64_t reg_addr, reg_size;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	if (rc < 0 || !reg_addr || !reg_size)
 		return;
 
@@ -250,79 +250,79 @@ static void fdt_domain_based_fixup_one(void *fdt, int nodeoff)
 	}
 }
 
-static void fdt_fixup_node(void *fdt, const char *compatible)
+static void fdt_fixup_बुहोल(void *fdt, const char *compatible)
 {
 	int noff = 0;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	while ((noff = fdt_बुहोल_offset_by_compatible(fdt, noff,
 						     compatible)) >= 0)
 		fdt_domain_based_fixup_one(fdt, noff);
 }
 
 void fdt_aplic_fixup(void *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,aplic");
+	fdt_fixup_बुहोल(fdt, "riscv,aplic");
 }
 
 void fdt_imsic_fixup(void *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,imsics");
+	fdt_fixup_बुहोल(fdt, "riscv,imsics");
 }
 
 void fdt_plic_fixup(void *fdt)
 {
 	u32 *cells;
-	int i, cells_count;
+	int i, cells_बिलांग;
 	int plic_off;
 
-	plic_off = fdt_node_offset_by_compatible(fdt, 0, "sifive,plic-1.0.0");
+	plic_off = fdt_बुहोल_offset_by_compatible(fdt, 0, "sifive,plic-1.0.0");
 	if (plic_off < 0) {
-		plic_off = fdt_node_offset_by_compatible(fdt, 0, "riscv,plic0");
+		plic_off = fdt_बुहोल_offset_by_compatible(fdt, 0, "riscv,plic0");
 		if (plic_off < 0)
 			return;
 	}
 
 	cells = (u32 *)fdt_getprop(fdt, plic_off,
-				   "interrupts-extended", &cells_count);
+				   "interrupts-extended", &cells_बिलांग);
 	if (!cells)
 		return;
 
-	cells_count = cells_count / sizeof(u32);
-	if (!cells_count)
+	cells_बिलांग = cells_बिलांग / sizeof(u32);
+	if (!cells_बिलांग)
 		return;
 
-	for (i = 0; i < (cells_count / 2); i++) {
+	for (i = 0; i < (cells_बिलांग / 2); i++) {
 		if (fdt32_to_cpu(cells[2 * i + 1]) == IRQ_M_EXT)
 			cells[2 * i + 1] = cpu_to_fdt32(0xffffffff);
 	}
 }
 
-static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
+static int fdt_resv_memory_update_बुहोल(void *fdt, unsigned long addr,
 				       unsigned long size, int index,
 				       int parent)
 {
 	int na = fdt_address_cells(fdt, 0);
 	int ns = fdt_size_cells(fdt, 0);
-	fdt32_t addr_high, addr_low;
-	fdt32_t size_high, size_low;
+	fdt32_t addr_माताअस, addr_माबाबा;
+	fdt32_t size_माताअस, size_माबाबा;
 	int subnode, err;
 	fdt32_t reg[4];
 	fdt32_t *val;
 	char name[32];
 
-	addr_high = (u64)addr >> 32;
-	addr_low = addr;
-	size_high = (u64)size >> 32;
-	size_low = size;
+	addr_माताअस = (u64)addr >> 32;
+	addr_माबाबा = addr;
+	size_माताअस = (u64)size >> 32;
+	size_माबाबा = size;
 
-	if (na > 1 && addr_high)
+	if (na > 1 && addr_माताअस)
 		sbi_snprintf(name, sizeof(name),
 			     "mmode_resv%d@%x,%x", index,
-			     addr_high, addr_low);
+			     addr_माताअस, addr_माबाबा);
 	else
 		sbi_snprintf(name, sizeof(name),
 			     "mmode_resv%d@%x", index,
-			     addr_low);
+			     addr_माबाबा);
 
 	subnode = fdt_add_subnode(fdt, parent, name);
 	if (subnode < 0)
@@ -340,11 +340,11 @@ static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
 	/* encode the <reg> property value */
 	val = reg;
 	if (na > 1)
-		*val++ = cpu_to_fdt32(addr_high);
-	*val++ = cpu_to_fdt32(addr_low);
+		*val++ = cpu_to_fdt32(addr_माताअस);
+	*val++ = cpu_to_fdt32(addr_माबाबा);
 	if (ns > 1)
-		*val++ = cpu_to_fdt32(size_high);
-	*val++ = cpu_to_fdt32(size_low);
+		*val++ = cpu_to_fdt32(size_माताअस);
+	*val++ = cpu_to_fdt32(size_माबाबा);
 
 	err = fdt_setprop(fdt, subnode, "reg", reg,
 			  (na + ns) * sizeof(fdt32_t));
@@ -373,8 +373,8 @@ int fdt_reserved_memory_fixup(void *fdt)
 {
 	struct sbi_domain_memregion *reg;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	unsigned long filtered_base[PMP_COUNT] = { 0 };
-	unsigned char filtered_order[PMP_COUNT] = { 0 };
+	unsigned long filtered_base[PMP_बिलांग] = { 0 };
+	unsigned char filtered_order[PMP_बिलांग] = { 0 };
 	unsigned long addr, size;
 	int err, parent, i, j;
 	int na = fdt_address_cells(fdt, 0);
@@ -441,7 +441,7 @@ int fdt_reserved_memory_fixup(void *fdt)
 		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
 			continue;
 
-		if (i >= PMP_COUNT) {
+		if (i >= PMP_बिलांग) {
 			sbi_printf("%s: Too many memory regions to fixup.\n",
 				   __func__);
 			return SBI_ENOSPC;
@@ -468,7 +468,7 @@ int fdt_reserved_memory_fixup(void *fdt)
 	for (j = 0; j < i; j++) {
 		addr = filtered_base[j];
 		size = 1UL << filtered_order[j];
-		fdt_resv_memory_update_node(fdt, addr, size, j, parent);
+		fdt_resv_memory_update_बुहोल(fdt, addr, size, j, parent);
 	}
 
 	return 0;
@@ -482,11 +482,11 @@ void fdt_config_fixup(void *fdt)
 	if (chosen_offset < 0)
 		return;
 
-	config_offset = fdt_node_offset_by_compatible(fdt, chosen_offset, "opensbi,config");
+	config_offset = fdt_बुहोल_offset_by_compatible(fdt, chosen_offset, "opensbi,config");
 	if (config_offset < 0)
 		return;
 
-	fdt_nop_node(fdt, config_offset);
+	fdt_nop_बुहोल(fdt, config_offset);
 }
 
 static SBI_LIST_HEAD(fixup_list);
@@ -528,7 +528,7 @@ void fdt_fixups(void *fdt)
 
 	fdt_reserved_memory_fixup(fdt);
 
-#ifndef CONFIG_FDT_FIXUPS_PRESERVE_PMU_NODE
+#ifndef CONFIG_FDT_FIXUPS_PRESERVE_PMU_बुहोल
 	fdt_pmu_fixup(fdt);
 #endif
 

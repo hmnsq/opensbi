@@ -34,14 +34,14 @@ _Static_assert(
 	"type of sbi_ipi_data.ipi_type has changed, please redefine SBI_IPI_EVENT_MAX"
 	);
 
-struct sbi_ipi_device_node {
+struct sbi_ipi_device_बुहोल {
 	struct sbi_dlist head;
 	const struct sbi_ipi_device *dev;
 };
 
 static unsigned long ipi_data_off;
 static const struct sbi_ipi_device *ipi_dev = NULL;
-static SBI_LIST_HEAD(ipi_dev_node_list);
+static SBI_LIST_HEAD(ipi_dev_बुहोल_list);
 static const struct sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
 
 static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
@@ -137,7 +137,7 @@ int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
 	if (hbase != -1UL) {
 		struct sbi_hartmask tmp_mask = { 0 };
 		struct sbi_hartmask domain_mask;
-		int count = sbi_popcount(hmask);
+		int बिलांग = sbi_popcount(hmask);
 
 		for (i = hbase; hmask; i++, hmask >>= 1) {
 			if (hmask & 1UL)
@@ -150,7 +150,7 @@ int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
 			return rc;
 
 		sbi_hartmask_and(&domain_mask, &domain_mask, &tmp_mask);
-		if (sbi_hartmask_weight(&domain_mask) != count)
+		if (sbi_hartmask_weight(&domain_mask) != बिलांग)
 			return SBI_EINVAL;
 
 		sbi_hartmask_and(&target_mask, &target_mask, &tmp_mask);
@@ -280,7 +280,7 @@ void sbi_ipi_process(void)
 
 int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	struct sbi_ipi_device_बुहोल *entry;
 
 	if (!ipi_dev || !ipi_dev->ipi_send)
 		return SBI_EINVAL;
@@ -297,7 +297,7 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 	wmb();
 
 	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
+		sbi_list_for_each_entry(entry, &ipi_dev_बुहोल_list, head) {
 			if (entry->dev->ipi_send)
 				entry->dev->ipi_send(hartindex);
 		}
@@ -310,10 +310,10 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 
 void sbi_ipi_raw_clear(bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	struct sbi_ipi_device_बुहोल *entry;
 
 	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
+		sbi_list_for_each_entry(entry, &ipi_dev_बुहोल_list, head) {
 			if (entry->dev->ipi_clear)
 				entry->dev->ipi_clear();
 		}
@@ -341,7 +341,7 @@ const struct sbi_ipi_device *sbi_ipi_get_device(void)
 
 void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
 {
-	struct sbi_ipi_device_node *entry;
+	struct sbi_ipi_device_बुहोल *entry;
 
 	if (!dev)
 		return;
@@ -351,7 +351,7 @@ void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
 		return;
 	SBI_INIT_LIST_HEAD(&entry->head);
 	entry->dev = dev;
-	sbi_list_add_tail(&entry->head, &ipi_dev_node_list);
+	sbi_list_add_tail(&entry->head, &ipi_dev_बुहोल_list);
 
 	if (!ipi_dev || ipi_dev->rating < dev->rating)
 		ipi_dev = dev;

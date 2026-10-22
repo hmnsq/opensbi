@@ -11,9 +11,9 @@
 
 #define UBSAN_EXPECT_FIRES(test, stmt)                                    \
 	do {                                                              \
-		unsigned long _before = sbi_ubsan_report_count;           \
+		unsigned long _before = sbi_ubsan_report_बिलांग;           \
 		stmt;                                                     \
-		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_count, _before); \
+		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_बिलांग, _before); \
 	} while (0)
 
 static void test_ubsan_add_overflow(struct sbiunit_test_case *test)

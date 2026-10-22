@@ -160,7 +160,7 @@ int sbi_ecall_handler(struct sbi_trap_context *tcntx)
 		regs->mepc += 4;
 		regs->a0 = ret;
 		if (!is_0_1_spec)
-			regs->a1 = out.value;
+			regs->a1 = out.हालागा;
 	}
 
 	return 0;

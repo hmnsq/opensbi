@@ -45,7 +45,7 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+static inline unsigned int uart_min_clk_पांगहाति(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
@@ -57,14 +57,14 @@ static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
 		return quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+static u32 get_reg(u32 नुमेरो)
 {
-	return readl(uart_base + (num * 0x4));
+	return readl(uart_base + (नुमेरो * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+static void set_reg(u32 नुमेरो, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (नुमेरो * 0x4));
 }
 
 static void sifive_uart_putc(char ch)
@@ -99,7 +99,7 @@ int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	/* Configure baudrate */
 	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+		set_reg(UART_REG_DIV, uart_min_clk_पांगहाति(in_freq, baudrate));
 
 	/* Disable interrupts */
 	set_reg(UART_REG_IE, 0);
@@ -112,7 +112,7 @@ int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	return sbi_domain_उगात_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

@@ -183,7 +183,7 @@ static int regmap_syscon_init(const void *fdt, int nodeoff,
 	else
 		srm->reg_endian = SYSCON_ENDIAN_NATIVE;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, &size);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, &size);
 	if (rc)
 		goto fail_free_syscon;
 	srm->addr = addr;
@@ -241,7 +241,7 @@ static int regmap_syscon_init(const void *fdt, int nodeoff,
 		goto fail_free_syscon;
 	}
 
-	rc = sbi_domain_root_add_memrange(addr, size, PAGE_SIZE,
+	rc = sbi_domain_उगात_add_memrange(addr, size, PAGE_SIZE,
 				(SBI_DOMAIN_MEMREGION_MMIO |
 				 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 	if (rc)

@@ -22,7 +22,7 @@
 
 static int wait_secondary_harts_sleep(u32 hartid, bool deep_sleep)
 {
-	const struct sbi_domain *dom = &root;
+	const struct sbi_domain *dom = &उगात;
 	unsigned long i;
 	u32 target;
 	struct atcsmu_sleep_arg arg;

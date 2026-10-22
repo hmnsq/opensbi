@@ -31,14 +31,14 @@
 
 static volatile char *uart_base;
 
-static u32 get_reg(u32 num)
+static u32 get_reg(u32 नुमेरो)
 {
-	return readl(uart_base + (num * 0x4));
+	return readl(uart_base + (नुमेरो * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+static void set_reg(u32 नुमेरो, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_base + (नुमेरो * 0x4));
 }
 
 static void gaisler_uart_putc(char ch)

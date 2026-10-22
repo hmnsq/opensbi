@@ -13,7 +13,7 @@ static int serial_renesas_scif_init(const void *fdt, int nodeoff,
 	struct platform_uart_data uart = { 0 };
 	int ret;
 
-	ret = fdt_parse_renesas_scif_node(fdt, nodeoff, &uart);
+	ret = fdt_parse_renesas_scif_बुहोल(fdt, nodeoff, &uart);
 	if (ret)
 		return ret;
 

@@ -22,7 +22,7 @@ static int hart_pmp_read(pmp_t *pmp, unsigned int n)
 	unsigned long cfgmask;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
+	if (n >= PMP_बिलांग)
 		return SBI_EINVAL;
 
 	/* calculate PMP register and offset */
@@ -38,8 +38,8 @@ static int hart_pmp_read(pmp_t *pmp, unsigned int n)
 	pmpaddr_csr = CSR_PMPADDR0 + n;
 
 	cfgmask = (0xffUL << pmpcfg_shift);
-	pmp->cfg = (csr_read_num(pmpcfg_csr) & cfgmask) >> pmpcfg_shift;
-	pmp->addr = csr_read_num(pmpaddr_csr);
+	pmp->cfg = (csr_read_नुमेरो(pmpcfg_csr) & cfgmask) >> pmpcfg_shift;
+	pmp->addr = csr_read_नुमेरो(pmpaddr_csr);
 
 	return SBI_OK;
 }
@@ -50,7 +50,7 @@ static int hart_pmp_write(pmp_t *pmp, unsigned int n)
 	unsigned long cfgmask, pmpcfg;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
+	if (n >= PMP_बिलांग)
 		return SBI_EINVAL;
 
 	/* calculate PMP register and offset */
@@ -66,11 +66,11 @@ static int hart_pmp_write(pmp_t *pmp, unsigned int n)
 	pmpaddr_csr = CSR_PMPADDR0 + n;
 
 	/* write csrs */
-	csr_write_num(pmpaddr_csr, pmp->addr);
+	csr_write_नुमेरो(pmpaddr_csr, pmp->addr);
 	cfgmask = ~(0xffUL << pmpcfg_shift);
-	pmpcfg  = (csr_read_num(pmpcfg_csr) & cfgmask);
+	pmpcfg  = (csr_read_नुमेरो(pmpcfg_csr) & cfgmask);
 	pmpcfg |= (((unsigned long)pmp->cfg << pmpcfg_shift) & ~cfgmask);
-	csr_write_num(pmpcfg_csr, pmpcfg);
+	csr_write_नुमेरो(pmpcfg_csr, pmpcfg);
 
 	return SBI_OK;
 }
@@ -140,14 +140,14 @@ int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *add
  */
 #define SBI_SMEPMP_RESV_ENTRY		0
 
-static DECLARE_BITMAP(fw_smepmp_ids, PMP_COUNT);
+static DECLARE_BITMAP(fw_smepmp_ids, PMP_बिलांग);
 static bool fw_smepmp_ids_inited;
 
-unsigned int sbi_hart_pmp_count(struct sbi_scratch *scratch)
+unsigned int sbi_hart_pmp_बिलांग(struct sbi_scratch *scratch)
 {
 	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_count;
+	return hfeatures->pmp_बिलांग;
 }
 
 unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch)
@@ -219,9 +219,9 @@ static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
 	}
 }
 
-static bool is_valid_pmp_idx(unsigned int pmp_count, unsigned int pmp_idx)
+static bool is_valid_pmp_idx(unsigned int pmp_बिलांग, unsigned int pmp_idx)
 {
-	if (pmp_count > pmp_idx)
+	if (pmp_बिलांग > pmp_idx)
 		return true;
 
 	sbi_printf("error: insufficient PMP entries\n");
@@ -233,11 +233,11 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 {
 	struct sbi_domain_memregion *reg;
 	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
+	unsigned int pmp_idx, pmp_बिलांग;
 	unsigned long pmp_addr_max;
 	unsigned int pmp_flags;
 
-	pmp_count = sbi_hart_pmp_count(scratch);
+	pmp_बिलांग = sbi_hart_pmp_बिलांग(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
 	pmp_bits = sbi_hart_pmp_addrbits(scratch) - 1;
 	pmp_addr_max = (1UL << pmp_bits) | ((1UL << pmp_bits) - 1);
@@ -257,7 +257,7 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 		/* Skip reserved entry */
 		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
+		if (!is_valid_pmp_idx(pmp_बिलांग, pmp_idx))
 			return SBI_EFAIL;
 
 		/* Skip shared and SU-only regions */
@@ -300,7 +300,7 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 		/* Skip reserved entry */
 		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
+		if (!is_valid_pmp_idx(pmp_बिलांग, pmp_idx))
 			return SBI_EFAIL;
 
 		/* Skip M-only regions */
@@ -315,7 +315,7 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 				    pmp_log2gran, pmp_addr_max);
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	for(; pmp_idx < pmp_बिलांग; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	/*
@@ -372,17 +372,17 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 	struct sbi_domain_memregion *reg;
 	unsigned long pmp_addr, pmp_addr_max;
 	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
+	unsigned int pmp_idx, pmp_बिलांग;
 	unsigned int pmp_flags;
 
-	pmp_count = sbi_hart_pmp_count(scratch);
+	pmp_बिलांग = sbi_hart_pmp_बिलांग(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
 	pmp_bits = sbi_hart_pmp_addrbits(scratch) - 1;
 	pmp_addr_max = (1UL << pmp_bits) | ((1UL << pmp_bits) - 1);
 
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
+		if (!is_valid_pmp_idx(pmp_बिलांग, pmp_idx))
 			return SBI_EFAIL;
 
 		pmp_flags = sbi_domain_get_oldpmp_flags(reg);
@@ -400,7 +400,7 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 		}
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	for(; pmp_idx < pmp_बिलांग; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	sbi_hart_pmp_fence();
@@ -410,9 +410,9 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 static void sbi_hart_pmp_unconfigure(struct sbi_scratch *scratch,
 				     struct sbi_domain *dom)
 {
-	int i, pmp_count = sbi_hart_pmp_count(scratch);
+	int i, pmp_बिलांग = sbi_hart_pmp_बिलांग(scratch);
 
-	for (i = 0; i < pmp_count; i++) {
+	for (i = 0; i < pmp_बिलांग; i++) {
 		/* Don't revoke firmware access permissions */
 		if (sbi_hart_smepmp_is_fw_region(i))
 			continue;
@@ -444,7 +444,7 @@ int sbi_hart_pmp_init(struct sbi_scratch *scratch)
 {
 	int rc;
 
-	if (sbi_hart_pmp_count(scratch)) {
+	if (sbi_hart_pmp_बिलांग(scratch)) {
 		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
 			rc = sbi_hart_protection_register(&epmp_protection);
 			if (rc)

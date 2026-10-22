@@ -25,14 +25,14 @@ static int serial_htif_init(const void *fdt, int nodeoff,
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	if (!fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
 		custom = true;
 		tohost_addr = fromhost_addr + sizeof(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_बुहोल_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
 
-	rc = sbi_domain_root_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
+	rc = sbi_domain_उगात_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
 					  (SBI_DOMAIN_MEMREGION_MMIO |
 					   SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 	if (rc)

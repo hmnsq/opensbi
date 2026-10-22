@@ -47,12 +47,12 @@ static SBI_LIST_HEAD(mpxy_channel_list);
 #define CAP_EVENTSSTATE_MASK	(1U << CAP_EVENTSSTATE_POS)
 
 /** Channel Capability - Send Message With Response function support */
-#define CAP_SEND_MSG_WITH_RESP_POS	3
-#define CAP_SEND_MSG_WITH_RESP_MASK	(1U << CAP_SEND_MSG_WITH_RESP_POS)
+#define CAP_SEND_मेनसाहे_WITH_RESP_POS	3
+#define CAP_SEND_मेनसाहे_WITH_RESP_MASK	(1U << CAP_SEND_मेनसाहे_WITH_RESP_POS)
 
 /** Channel Capability - Send Message Without Response function support */
-#define CAP_SEND_MSG_WITHOUT_RESP_POS	4
-#define CAP_SEND_MSG_WITHOUT_RESP_MASK	(1U << CAP_SEND_MSG_WITHOUT_RESP_POS)
+#define CAP_SEND_मेनसाहे_WITHOUT_RESP_POS	4
+#define CAP_SEND_मेनसाहे_WITHOUT_RESP_MASK	(1U << CAP_SEND_मेनसाहे_WITHOUT_RESP_POS)
 
 /** Channel Capability - Get Notification function support */
 #define CAP_GET_NOTIFICATIONS_POS	5
@@ -62,8 +62,8 @@ static SBI_LIST_HEAD(mpxy_channel_list);
  * _c: capability variable
  * _m: capability mask
  */
-#define CAP_ENABLE(_c, _m)	INSERT_FIELD(_c, _m, 1)
-#define CAP_DISABLE(_c, _m)	INSERT_FIELD(_c, _m, 0)
+#define CAP_ENABLE(_c, _m)	इसिंगित_FIELD(_c, _m, 1)
+#define CAP_DISABLE(_c, _m)	इसिंगित_FIELD(_c, _m, 0)
 #define CAP_GET(_c, _m)		EXTRACT_FIELD(_c, _m)
 
 #define SHMEM_PHYS_ADDR(_hi, _lo) (_lo)
@@ -121,11 +121,11 @@ static inline void *hart_shmem_base(struct mpxy_state *ms)
 		"field " #field						\
 		" from struct sbi_mpxy_channel_attrs invalid offset, expected " #attr_offset)
 
-assert_field_offset(msg_proto_id, SBI_MPXY_ATTR_MSG_PROT_ID);
-assert_field_offset(msg_proto_version, SBI_MPXY_ATTR_MSG_PROT_VER);
-assert_field_offset(msg_data_maxlen, SBI_MPXY_ATTR_MSG_MAX_LEN);
-assert_field_offset(msg_send_timeout, SBI_MPXY_ATTR_MSG_SEND_TIMEOUT);
-assert_field_offset(msg_completion_timeout, SBI_MPXY_ATTR_MSG_COMPLETION_TIMEOUT);
+assert_field_offset(मेनसाहे_proto_id, SBI_MPXY_ATTR_मेनसाहे_PROT_ID);
+assert_field_offset(मेनसाहे_proto_version, SBI_MPXY_ATTR_मेनसाहे_PROT_VER);
+assert_field_offset(मेनसाहे_data_maxlen, SBI_MPXY_ATTR_मेनसाहे_MAX_LEN);
+assert_field_offset(मेनसाहे_send_timeout, SBI_MPXY_ATTR_मेनसाहे_SEND_TIMEOUT);
+assert_field_offset(मेनसाहे_completion_timeout, SBI_MPXY_ATTR_मेनसाहे_COMPLETION_TIMEOUT);
 assert_field_offset(capability, SBI_MPXY_ATTR_CHANNEL_CAPABILITY);
 assert_field_offset(sse_event_id, SBI_MPXY_ATTR_SSE_EVENT_ID);
 assert_field_offset(msi_control, SBI_MPXY_ATTR_MSI_CONTROL);
@@ -180,10 +180,10 @@ struct sbi_mpxy_channel *sbi_mpxy_find_channel_any(u32 channel_id)
 }
 
 /** Copy attributes word size */
-static void mpxy_copy_std_attrs(u32 *outmem, u32 *inmem, u32 count)
+static void mpxy_copy_std_attrs(u32 *outmem, u32 *inmem, u32 बिलांग)
 {
 	int idx;
-	for (idx = 0; idx < count; idx++)
+	for (idx = 0; idx < बिलांग; idx++)
 		outmem[idx] = cpu_to_le32(inmem[idx]);
 }
 
@@ -207,10 +207,10 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
 	channel->attrs.eventsstate_ctrl = 0;
 
 	if (channel->send_message_with_response)
-		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITH_RESP_MASK);
+		capability = CAP_ENABLE(capability, CAP_SEND_मेनसाहे_WITH_RESP_MASK);
 
 	if (channel->send_message_without_response)
-		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITHOUT_RESP_MASK);
+		capability = CAP_ENABLE(capability, CAP_SEND_मेनसाहे_WITHOUT_RESP_MASK);
 
 	if (channel->get_notification_events) {
 		capability = CAP_ENABLE(capability, CAP_GET_NOTIFICATIONS_MASK);
@@ -256,8 +256,8 @@ int sbi_mpxy_register_channel(struct sbi_mpxy_channel *channel)
 	mpxy_std_attrs_init(channel);
 
 	/* Update shared memory size if required */
-	if (mpxy_shmem_size < channel->attrs.msg_data_maxlen) {
-		mpxy_shmem_size = ROUNDUP(channel->attrs.msg_data_maxlen,
+	if (mpxy_shmem_size < channel->attrs.मेनसाहे_data_maxlen) {
+		mpxy_shmem_size = ROUNDUP(channel->attrs.मेनसाहे_data_maxlen,
 					  PAGE_SIZE);
 	}
 
@@ -343,7 +343,7 @@ int sbi_mpxy_init(struct sbi_scratch *scratch)
 	 * domain_mpxy_state_setup(). Calculate needed size of memory space
 	 * here.
 	 */
-	dmstate.state_size = sizeof(struct mpxy_state *) * sbi_hart_count();
+	dmstate.state_size = sizeof(struct mpxy_state *) * sbi_hart_बिलांग();
 	ret = sbi_domain_register_state(&dmstate);
 	if (ret)
 		return ret;
@@ -418,9 +418,9 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 {
 	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 remaining, returned, max_channelids;
-	u32 node_index = 0, node_ret = 0;
+	u32 बुहोल_index = 0, बुहोल_ret = 0;
 	struct sbi_mpxy_channel *channel;
-	u32 channels_count = 0;
+	u32 channels_बिलांग = 0;
 	u32 *shmem_base;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 
@@ -429,10 +429,10 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
 		if (mpxy_channel_visible(channel, dom))
-			channels_count += 1;
+			channels_बिलांग += 1;
 	}
 
-	if (start_index > channels_count)
+	if (start_index > channels_बिलांग)
 		return SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
@@ -442,7 +442,7 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 	 * for remaining and returned fields */
 	max_channelids = (mpxy_shmem_size / sizeof(u32)) - 2;
 	/* total remaining from the start index */
-	remaining = channels_count - start_index;
+	remaining = channels_बिलांग - start_index;
 	/* how many can be returned */
 	returned = (remaining > max_channelids)? max_channelids : remaining;
 
@@ -451,17 +451,17 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 		if (!mpxy_channel_visible(channel, sbi_domain_thishart_ptr()))
 			continue;
 
-		if (node_index >= start_index &&
-			node_index < (start_index + returned)) {
-			shmem_base[2 + node_ret] = cpu_to_le32(channel->channel_id);
-			node_ret += 1;
+		if (बुहोल_index >= start_index &&
+			बुहोल_index < (start_index + returned)) {
+			shmem_base[2 + बुहोल_ret] = cpu_to_le32(channel->channel_id);
+			बुहोल_ret += 1;
 		}
 
-		node_index += 1;
+		बुहोल_index += 1;
 	}
 
 	/* final remaininig channel ids */
-	remaining = channels_count - (start_index + returned);
+	remaining = channels_बिलांग - (start_index + returned);
 
 	shmem_base[0] = cpu_to_le32(remaining);
 	shmem_base[1] = cpu_to_le32(returned);
@@ -471,7 +471,7 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 	return SBI_SUCCESS;
 }
 
-int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_बिलांग)
 {
 	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	int ret = SBI_SUCCESS;
@@ -492,11 +492,11 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		return SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
+	if (!attr_बिलांग || (attr_बिलांग > (mpxy_shmem_size / ATTR_SIZE)))
 		return SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
-	end_id = base_attr_id + attr_count - 1;
+	end_id = base_attr_id + attr_बिलांग - 1;
 
 	sbi_hart_protection_temp_map_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
@@ -509,7 +509,7 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 
 		attr_ptr = (u32 *)&channel->attrs;
 		mpxy_copy_std_attrs((u32 *)shmem_base, &attr_ptr[base_attr_id],
-				    attr_count);
+				    attr_बिलांग);
 	} else {
 		/**
 		 * Even if the message protocol driver does not provide
@@ -534,7 +534,7 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * protocol driver */
 		ret = channel->read_attributes(channel,
 					       (u32 *)shmem_base,
-					       base_attr_id, attr_count);
+					       base_attr_id, attr_बिलांग);
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
@@ -622,7 +622,7 @@ static void mpxy_write_std_attr(struct sbi_mpxy_channel *channel, u32 attr_id,
 	};
 }
 
-int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_बिलांग)
 {
 	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 *mem_ptr, attr_id, end_id, attr_val;
@@ -644,11 +644,11 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		return SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
+	if (!attr_बिलांग || (attr_बिलांग > (mpxy_shmem_size / ATTR_SIZE)))
 		return SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
-	end_id = base_attr_id + attr_count - 1;
+	end_id = base_attr_id + attr_बिलांग - 1;
 
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
 
@@ -704,15 +704,15 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * protocol driver */
 		ret = channel->write_attributes(channel,
 					       (u32 *)shmem_base,
-					       base_attr_id, attr_count);
+					       base_attr_id, attr_बिलांग);
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
 	return ret;
 }
 
-int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
-			  unsigned long msg_data_len,
+int sbi_mpxy_send_message(u32 channel_id, u8 मेनसाहे_id,
+			  unsigned long मेनसाहे_data_len,
 			  unsigned long *resp_data_len)
 {
 	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
@@ -735,8 +735,8 @@ int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 	if (!resp_data_len && !channel->send_message_without_response)
 		return SBI_ERR_NOT_SUPPORTED;
 
-	if (msg_data_len > mpxy_shmem_size ||
-		msg_data_len > channel->attrs.msg_data_maxlen)
+	if (मेनसाहे_data_len > mpxy_shmem_size ||
+		मेनसाहे_data_len > channel->attrs.मेनसाहे_data_maxlen)
 		return SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
@@ -745,16 +745,16 @@ int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 	if (resp_data_len) {
 		resp_buf = shmem_base;
 		resp_bufsize = mpxy_shmem_size;
-		ret = channel->send_message_with_response(channel, msg_id,
+		ret = channel->send_message_with_response(channel, मेनसाहे_id,
 							  shmem_base,
-							  msg_data_len,
+							  मेनसाहे_data_len,
 							  resp_buf,
 							  resp_bufsize,
 							  resp_data_len);
 	} else {
-		ret = channel->send_message_without_response(channel, msg_id,
+		ret = channel->send_message_without_response(channel, मेनसाहे_id,
 							     shmem_base,
-							     msg_data_len);
+							     मेनसाहे_data_len);
 	}
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
@@ -766,7 +766,7 @@ int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 
 	if (resp_data_len &&
 	    (*resp_data_len > mpxy_shmem_size ||
-	     *resp_data_len > channel->attrs.msg_data_maxlen))
+	     *resp_data_len > channel->attrs.मेनसाहे_data_maxlen))
 		return SBI_ERR_FAILED;
 
 	return SBI_SUCCESS;

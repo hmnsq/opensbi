@@ -328,7 +328,7 @@ int sbi_domain_context_init(void)
 	 * dynamically allocated by domain_setup_state_one(). Calculate needed
 	 * size of memory space here.
 	 */
-	dcstate.state_size = sizeof(struct hart_context *) * sbi_hart_count();
+	dcstate.state_size = sizeof(struct hart_context *) * sbi_hart_बिलांग();
 
 	return sbi_domain_register_state(&dcstate);
 }

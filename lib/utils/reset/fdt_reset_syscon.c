@@ -20,7 +20,7 @@ struct syscon_reset {
 	struct regmap *rmap;
 	u32 priority;
 	u32 offset;
-	u32 value;
+	u32 हालागा;
 	u32 mask;
 };
 
@@ -54,7 +54,7 @@ static void syscon_reset_exec(struct syscon_reset *reset)
 	/* Issue the reset through regmap */
 	if (reset)
 		regmap_update_bits(reset->rmap, reset->offset,
-				   reset->mask, reset->value);
+				   reset->mask, reset->हालागा);
 
 	/* hang !!! */
 	sbi_hart_hang();
@@ -127,14 +127,14 @@ static int syscon_reset_init(const void *fdt, int nodeoff,
 
 	if (!val) {
 		/* support old binding */
-		reset->value = fdt32_to_cpu(*mask);
+		reset->हालागा = fdt32_to_cpu(*mask);
 		reset->mask = 0xFFFFFFFF;
 	} else if (!mask) {
 		/* support value without mask */
-		reset->value = fdt32_to_cpu(*val);
+		reset->हालागा = fdt32_to_cpu(*val);
 		reset->mask = 0xFFFFFFFF;
 	} else {
-		reset->value = fdt32_to_cpu(*val);
+		reset->हालागा = fdt32_to_cpu(*val);
 		reset->mask = fdt32_to_cpu(*mask);
 	}
 

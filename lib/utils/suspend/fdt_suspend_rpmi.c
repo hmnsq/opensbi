@@ -34,8 +34,8 @@ static int rpmi_syssusp_attrs(uint32_t *attrs)
 
 	rc = rpmi_normal_request_with_status(
 		syssusp_ctx.chan, RPMI_SYSSUSP_SRV_GET_ATTRIBUTES,
-		&req, rpmi_u32_count(req), rpmi_u32_count(req),
-		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+		&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+		&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 
@@ -57,8 +57,8 @@ static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 
 	rc = rpmi_normal_request_with_status(
 			syssusp_ctx.chan, RPMI_SYSSUSP_SRV_SYSTEM_SUSPEND,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 

@@ -75,7 +75,7 @@ static void sbi_trap_error_one(const struct sbi_trap_context *tcntx,
 		   hartid, depth, "t6", regs->t6);
 }
 
-static void __noreturn sbi_trap_error(const char *msg, int rc,
+static void __noreturn sbi_trap_error(const char *मेनसाहे, int rc,
 				      const struct sbi_trap_context *tcntx)
 {
 	u32 depth = 0, hartid = current_hartid();
@@ -86,7 +86,7 @@ static void __noreturn sbi_trap_error(const char *msg, int rc,
 
 	sbi_printf("\n");
 	sbi_printf("%s: hart%d: trap%d: %s (error %d)\n", __func__,
-		   hartid, depth - 1, msg, rc);
+		   hartid, depth - 1, मेनसाहे, rc);
 	for (tc = tcntx; tc; tc = tc->prev_context)
 		sbi_trap_error_one(tc, __func__, hartid, --depth);
 
@@ -305,7 +305,7 @@ static int sbi_trap_aia_irq(void)
 struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
 {
 	int rc = SBI_ENOTSUPP;
-	const char *msg = "trap handler failed";
+	const char *मेनसाहे = "trap handler failed";
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	const struct sbi_trap_info *trap = &tcntx->trap;
 	struct sbi_trap_regs *regs = &tcntx->regs;
@@ -321,54 +321,54 @@ struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
 			rc = sbi_trap_aia_irq();
 		else
 			rc = sbi_trap_nonaia_irq(mcause & ~MCAUSE_IRQ_MASK);
-		msg = "unhandled local interrupt";
+		मेनसाहे = "unhandled local interrupt";
 		goto trap_done;
 	}
 
 	switch (mcause) {
 	case CAUSE_ILLEGAL_INSTRUCTION:
 		rc  = sbi_illegal_insn_handler(tcntx);
-		msg = "illegal instruction handler failed";
+		मेनसाहे = "illegal instruction handler failed";
 		break;
 	case CAUSE_MISALIGNED_LOAD:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_MISALIGNED_LOAD);
 		rc  = sbi_misaligned_load_handler(tcntx);
-		msg = "misaligned load handler failed";
+		मेनसाहे = "misaligned load handler failed";
 		break;
 	case CAUSE_MISALIGNED_STORE:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_MISALIGNED_STORE);
 		rc  = sbi_misaligned_store_handler(tcntx);
-		msg = "misaligned store handler failed";
+		मेनसाहे = "misaligned store handler failed";
 		break;
 	case CAUSE_SUPERVISOR_ECALL:
 	case CAUSE_MACHINE_ECALL:
 		rc  = sbi_ecall_handler(tcntx);
-		msg = "ecall handler failed";
+		मेनसाहे = "ecall handler failed";
 		break;
 	case CAUSE_LOAD_ACCESS:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_LOAD);
 		rc  = sbi_load_access_handler(tcntx);
-		msg = "load fault handler failed";
+		मेनसाहे = "load fault handler failed";
 		break;
 	case CAUSE_STORE_ACCESS:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_STORE);
 		rc  = sbi_store_access_handler(tcntx);
-		msg = "store fault handler failed";
+		मेनसाहे = "store fault handler failed";
 		break;
 	case CAUSE_DOUBLE_TRAP:
 		rc  = sbi_double_trap_handler(tcntx);
-		msg = "double trap handler failed";
+		मेनसाहे = "double trap handler failed";
 		break;
 	default:
 		/* If the trap came from S or U mode, redirect it there */
-		msg = "trap redirect failed";
+		मेनसाहे = "trap redirect failed";
 		rc  = sbi_trap_redirect(regs, trap);
 		break;
 	}
 
 trap_done:
 	if (rc)
-		sbi_trap_error(msg, rc, tcntx);
+		sbi_trap_error(मेनसाहे, rc, tcntx);
 
 	if (sbi_mstatus_prev_mode(regs->mstatus) != PRV_M)
 		sbi_sse_process_pending_events(regs);

@@ -16,7 +16,7 @@
 
 #define DEFAULT_SCRATCH_ALLOC_ALIGN __SIZEOF_POINTER__
 
-u32 sbi_scratch_hart_count;
+u32 sbi_scratch_hart_बिलांग;
 u32 hartindex_to_hartid_table[SBI_HARTMASK_MAX_BITS] = { [0 ... SBI_HARTMASK_MAX_BITS-1] = -1U };
 struct sbi_scratch *hartindex_to_scratch_table[SBI_HARTMASK_MAX_BITS];
 
@@ -50,13 +50,13 @@ typedef struct sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
 
 int sbi_scratch_init(struct sbi_scratch *scratch)
 {
-	u32 h, hart_count;
+	u32 h, hart_बिलांग;
 	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	hart_count = plat->hart_count;
-	if (hart_count > SBI_HARTMASK_MAX_BITS)
-		hart_count = SBI_HARTMASK_MAX_BITS;
-	sbi_scratch_hart_count = hart_count;
+	hart_बिलांग = plat->hart_बिलांग;
+	if (hart_बिलांग > SBI_HARTMASK_MAX_BITS)
+		hart_बिलांग = SBI_HARTMASK_MAX_BITS;
+	sbi_scratch_hart_बिलांग = hart_बिलांग;
 
 	sbi_for_each_hartindex(i) {
 		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;

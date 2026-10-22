@@ -37,7 +37,7 @@ int32_t fdt_ro_probe_(const void *fdt)
 		}
 	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
-		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
+		if (!can_assume(VALID_पासोक) && fdt_size_dt_struct(fdt) == 0)
 			return -FDT_ERR_BADSTATE;
 	} else {
 		return -FDT_ERR_BADMAGIC;
@@ -148,7 +148,7 @@ const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
 	if (offset < 0)
 		return NULL;
 
-	if (!can_assume(VALID_INPUT))
+	if (!can_assume(VALID_पासोक))
 		if ((absoffset < uoffset)
 		    || ((absoffset + len) < absoffset)
 		    || (absoffset + len) > fdt_totalsize(fdt))
@@ -178,7 +178,7 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 
 	*nextoffset = -FDT_ERR_BADSTRUCTURE;
 	switch (tag) {
-	case FDT_BEGIN_NODE:
+	case FDT_BEGIN_बुहोल:
 		/* skip name */
 		do {
 			p = fdt_offset_ptr(fdt, offset++, 1);
@@ -201,7 +201,7 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 		break;
 
 	case FDT_END:
-	case FDT_END_NODE:
+	case FDT_END_बुहोल:
 	case FDT_NOP:
 		break;
 
@@ -216,13 +216,13 @@ uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
 	return tag;
 }
 
-int fdt_check_node_offset_(const void *fdt, int offset)
+int fdt_check_बुहोल_offset(const void *fdt, int offset)
 {
-	if (!can_assume(VALID_INPUT)
+	if (!can_assume(VALID_पासोक)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
 		return -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
+	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_बुहोल)
 		return -FDT_ERR_BADOFFSET;
 
 	return offset;
@@ -230,7 +230,7 @@ int fdt_check_node_offset_(const void *fdt, int offset)
 
 int fdt_check_prop_offset_(const void *fdt, int offset)
 {
-	if (!can_assume(VALID_INPUT)
+	if (!can_assume(VALID_पासोक)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
 		return -FDT_ERR_BADOFFSET;
 
@@ -240,13 +240,13 @@ int fdt_check_prop_offset_(const void *fdt, int offset)
 	return offset;
 }
 
-int fdt_next_node(const void *fdt, int offset, int *depth)
+int fdt_next_बुहोल(const void *fdt, int offset, int *depth)
 {
 	int nextoffset = 0;
 	uint32_t tag;
 
 	if (offset >= 0)
-		if ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
+		if ((nextoffset = fdt_check_बुहोल_offset(fdt, offset)) < 0)
 			return nextoffset;
 
 	do {
@@ -258,12 +258,12 @@ int fdt_next_node(const void *fdt, int offset, int *depth)
 		case FDT_NOP:
 			break;
 
-		case FDT_BEGIN_NODE:
+		case FDT_BEGIN_बुहोल:
 			if (depth)
 				(*depth)++;
 			break;
 
-		case FDT_END_NODE:
+		case FDT_END_बुहोल:
 			if (depth && ((--(*depth)) < 0))
 				return nextoffset;
 			break;
@@ -275,7 +275,7 @@ int fdt_next_node(const void *fdt, int offset, int *depth)
 			else
 				return nextoffset;
 		}
-	} while (tag != FDT_BEGIN_NODE);
+	} while (tag != FDT_BEGIN_बुहोल);
 
 	return offset;
 }
@@ -284,7 +284,7 @@ int fdt_first_subnode(const void *fdt, int offset)
 {
 	int depth = 0;
 
-	offset = fdt_next_node(fdt, offset, &depth);
+	offset = fdt_next_बुहोल(fdt, offset, &depth);
 	if (offset < 0 || depth != 1)
 		return -FDT_ERR_NOTFOUND;
 
@@ -300,7 +300,7 @@ int fdt_next_subnode(const void *fdt, int offset)
 	 * the same as the last.
 	 */
 	do {
-		offset = fdt_next_node(fdt, offset, &depth);
+		offset = fdt_next_बुहोल(fdt, offset, &depth);
 		if (offset < 0 || depth < 1)
 			return -FDT_ERR_NOTFOUND;
 	} while (depth > 1);
@@ -322,7 +322,7 @@ const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
 
 int fdt_move(const void *fdt, void *buf, int bufsize)
 {
-	if (!can_assume(VALID_INPUT) && bufsize < 0)
+	if (!can_assume(VALID_पासोक) && bufsize < 0)
 		return -FDT_ERR_NOSPACE;
 
 	FDT_RO_PROBE(fdt);

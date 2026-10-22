@@ -33,7 +33,7 @@ struct fdt_reserve_entry {
 	fdt64_t size;
 };
 
-struct fdt_node_header {
+struct fdt_बुहोल_header {
 	fdt32_t tag;
 	char name[0];
 };
@@ -50,8 +50,8 @@ struct fdt_property {
 #define FDT_MAGIC	0xd00dfeed	/* 4: version, 4: total size */
 #define FDT_TAGSIZE	sizeof(fdt32_t)
 
-#define FDT_BEGIN_NODE	0x1		/* Start node: full name */
-#define FDT_END_NODE	0x2		/* End node */
+#define FDT_BEGIN_बुहोल	0x1		/* Start node: full name */
+#define FDT_END_बुहोल	0x2		/* End node */
 #define FDT_PROP	0x3		/* Property: name off,
 					   size, content */
 #define FDT_NOP		0x4		/* nop */

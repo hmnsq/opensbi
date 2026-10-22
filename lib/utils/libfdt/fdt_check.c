@@ -13,7 +13,7 @@
 int fdt_check_full(const void *fdt, size_t bufsize)
 {
 	int err;
-	int num_memrsv;
+	int नुमेरो_memrsv;
 	int offset, nextoffset = 0;
 	uint32_t tag;
 	unsigned int depth = 0;
@@ -31,9 +31,9 @@ int fdt_check_full(const void *fdt, size_t bufsize)
 	if (bufsize < fdt_totalsize(fdt))
 		return -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	नुमेरो_memrsv = fdt_नुमेरो_mem_rsv(fdt);
+	if (नुमेरो_memrsv < 0)
+		return नुमेरो_memrsv;
 
 	while (1) {
 		offset = nextoffset;
@@ -55,7 +55,7 @@ int fdt_check_full(const void *fdt, size_t bufsize)
 				return -FDT_ERR_BADSTRUCTURE;
 			return 0;
 
-		case FDT_BEGIN_NODE:
+		case FDT_BEGIN_बुहोल:
 			depth++;
 			if (depth > INT_MAX)
 				return -FDT_ERR_BADSTRUCTURE;
@@ -71,7 +71,7 @@ int fdt_check_full(const void *fdt, size_t bufsize)
 			}
 			break;
 
-		case FDT_END_NODE:
+		case FDT_END_बुहोल:
 			if (depth == 0)
 				return -FDT_ERR_BADSTRUCTURE;
 			depth--;

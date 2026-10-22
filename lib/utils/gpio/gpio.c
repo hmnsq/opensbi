@@ -33,7 +33,7 @@ int gpio_chip_add(struct gpio_chip *gc)
 	if (gpio_chip_find(gc->id))
 		return SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->बुहोल), &(gpio_chip_list));
 
 	return 0;
 }
@@ -43,7 +43,7 @@ void gpio_chip_remove(struct gpio_chip *gc)
 	if (!gc)
 		return;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->बुहोल));
 }
 
 int gpio_get_direction(struct gpio_pin *gp)
@@ -56,55 +56,55 @@ int gpio_get_direction(struct gpio_pin *gp)
 	return gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+int gpio_direction_पासोक(struct gpio_pin *gp)
 {
 	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
 		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
+	if (!gp->chip->direction_पासोक)
 		return SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	return gp->chip->direction_पासोक(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+int gpio_direction_output(struct gpio_pin *gp, int हालागा)
 {
 	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
 		return SBI_EINVAL;
 	if (!gp->chip->direction_output)
 		return SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	if (gp->flags & GPIO_FLAG_ACTIVE_माबाबा)
+		हालागा = हालागा == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	return gp->chip->direction_output(gp, हालागा);
 }
 
 int gpio_get(struct gpio_pin *gp)
 {
-	int value;
+	int हालागा;
 
 	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
 		return SBI_EINVAL;
 	if (!gp->chip->get)
 		return SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	हालागा = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	if (gp->flags & GPIO_FLAG_ACTIVE_माबाबा)
+		हालागा = हालागा == 0 ? 1 : 0;
+	return हालागा;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+int gpio_set(struct gpio_pin *gp, int हालागा)
 {
 	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
 		return SBI_EINVAL;
 	if (!gp->chip->set)
 		return SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	if (gp->flags & GPIO_FLAG_ACTIVE_माबाबा)
+		हालागा = हालागा == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
+	gp->chip->set(gp, हालागा);
 	return 0;
 }

@@ -94,12 +94,12 @@ void sbi_timer_delay_loop(ulong units, u64 unit_freq,
 bool sbi_timer_waitms_until(bool (*predicate)(void *), void *arg,
 			    uint64_t timeout_ms)
 {
-	uint64_t start_time = sbi_timer_value();
+	uint64_t start_time = sbi_timer_हालागा();
 	uint64_t ticks =
 		(sbi_timer_get_device()->timer_freq / 1000) *
 		timeout_ms;
 	while(!predicate(arg))
-		if (sbi_timer_value() - start_time  >= ticks)
+		if (sbi_timer_हालागा() - start_time  >= ticks)
 			return false;
 	return true;
 }
@@ -116,18 +116,18 @@ unsigned long sbi_timer_frequency(void)
 	return timer_dev->timer_freq;
 }
 
-u64 sbi_timer_value(void)
+u64 sbi_timer_हालागा(void)
 {
 	if (get_time_val)
 		return get_time_val();
 	return 0;
 }
 
-u64 sbi_timer_virt_value(void)
+u64 sbi_timer_virt_हालागा(void)
 {
 	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
 
-	return sbi_timer_value() + tstate->time_delta;
+	return sbi_timer_हालागा() + tstate->time_delta;
 }
 
 u64 sbi_timer_get_delta(void)
@@ -310,7 +310,7 @@ void sbi_timer_process(void)
 
 	while (!sbi_list_empty(&tstate->event_list)) {
 		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (ev->time_stamp > sbi_timer_value())
+		if (ev->time_stamp > sbi_timer_हालागा())
 			break;
 
 		__sbi_timer_event_stop(ev);
@@ -347,8 +347,8 @@ void sbi_timer_set_device(const struct sbi_timer_device *dev)
 		return;
 
 	timer_dev = dev;
-	if (!get_time_val && timer_dev->timer_value)
-		get_time_val = timer_dev->timer_value;
+	if (!get_time_val && timer_dev->timer_हालागा)
+		get_time_val = timer_dev->timer_हालागा;
 }
 
 int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)

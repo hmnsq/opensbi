@@ -48,7 +48,7 @@ int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
 	if (!fdt || !out_rmap)
 		return SBI_EINVAL;
 
-	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
+	pnodeoff = fdt_बुहोल_offset_by_phandle(fdt, phandle);
 	if (pnodeoff < 0)
 		return pnodeoff;
 

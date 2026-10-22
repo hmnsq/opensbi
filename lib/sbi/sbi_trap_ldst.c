@@ -139,7 +139,7 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 		imm = RVC_LW_IMM(insn);
 		c_load = true;
 	} else if ((insn & INSN_MASK_C_LWSP) == INSN_MATCH_C_LWSP &&
-		GET_RD_NUM(insn)) {
+		GET_RD_नुमेरो(insn)) {
 		/* Zca */
 		len = -4;
 		imm = RVC_LWSP_IMM(insn);
@@ -186,7 +186,7 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 			imm = RVC_LD_IMM(insn);
 			c_load = true;
 		} else if ((insn & INSN_MASK_C_LDSP) == INSN_MATCH_C_LDSP &&
-			GET_RD_NUM(insn)) {
+			GET_RD_नुमेरो(insn)) {
 			/* Zca */
 			len = 8;
 			imm = RVC_LDSP_IMM(insn);
@@ -230,7 +230,7 @@ static int sbi_trap_emulate_load(struct sbi_trap_context *tcntx,
 
 	if (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
+		off = GET_RS1_नुमेरो(insn);
 	else if (c_load)
 		/* non SP-based compressed load */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;
@@ -438,7 +438,7 @@ static int sbi_trap_emulate_store(struct sbi_trap_context *tcntx,
 
 	if (xform)
 		/* Transformed insn */
-		off = GET_RS1_NUM(insn);
+		off = GET_RS1_नुमेरो(insn);
 	else if (c_store)
 		/* non SP-based compressed store */
 		off = orig_trap->tval - GET_RS1S(insn, regs) - imm;

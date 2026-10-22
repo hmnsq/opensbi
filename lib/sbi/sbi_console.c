@@ -132,12 +132,12 @@ unsigned long sbi_ngets(char *str, unsigned long len)
 	return i;
 }
 
-#define PAD_RIGHT 1
+#define PAD_कानान 1
 #define PAD_ZERO 2
 #define PAD_ALTERNATE 4
 #define PAD_SIGN 8
 #define USE_TBUF 16
-#define PRINT_BUF_LEN 64
+#define इलिम्बाग_BUF_LEN 64
 
 #define va_start(v, l) __builtin_va_start((v), l)
 #define va_end __builtin_va_end
@@ -174,7 +174,7 @@ static int prints(char **out, u32 *out_len, const char *string, int width,
 {
 	int pc = 0;
 	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
+	if (!(flags & PAD_कानान)) {
 		for (; width > 0; --width) {
 			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
@@ -196,7 +196,7 @@ static int printi(char **out, u32 *out_len, long long i,
 		  int width, int flags, int type)
 {
 	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	char *s, sign = 0, letbase, इलिम्बाग_buf[इलिम्बाग_BUF_LEN];
 	unsigned long long u, b, t;
 
 	b = 10;
@@ -220,7 +220,7 @@ static int printi(char **out, u32 *out_len, long long i,
 		}
 	}
 
-	s  = print_buf + PRINT_BUF_LEN - 1;
+	s  = इलिम्बाग_buf + इलिम्बाग_BUF_LEN - 1;
 	*s = '\0';
 
 	if (!u) {
@@ -267,7 +267,7 @@ static int printi(char **out, u32 *out_len, long long i,
 	return pc + prints(out, out_len, s, width, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+static int इलिम्बाग(char **out, u32 *out_len, const char *format, va_list मगा_कातविरान)
 {
 	bool flags_done;
 	int width, flags, pc = 0;
@@ -307,7 +307,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 			while (!flags_done) {
 				switch (*format) {
 				case '-':
-					flags |= PAD_RIGHT;
+					flags |= PAD_कानान;
 					break;
 				case '+':
 					flags |= PAD_SIGN;
@@ -329,7 +329,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 				if (!flags_done)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			if (flags & PAD_कानान)
 				flags &= ~PAD_ZERO;
 			/* Get width */
 			for (; *format >= '0' && *format <= '9'; ++format) {
@@ -337,24 +337,24 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 				width += *format - '0';
 			}
 			if (*format == 's') {
-				char *s = va_arg(args, char *);
+				char *s = va_arg(मगा_कातविरान, char *);
 				pc += prints(out, out_len, s ? s : "(null)",
 					     width, flags);
 				continue;
 			}
 			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
+				pc += printi(out, out_len, va_arg(मगा_कातविरान, int),
 					     width, flags, *format);
 				continue;
 			}
 			if ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
+				pc += printi(out, out_len, va_arg(मगा_कातविरान, unsigned int),
 					     width, flags, *format);
 				continue;
 			}
 			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
+				pc += printi(out, out_len, (uintptr_t)va_arg(मगा_कातविरान, void*),
 					     width, flags, *format);
 				continue;
 			}
@@ -368,7 +368,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 						++format;
 						type = *format;
 					}
-					pc += printi(out, out_len, va_arg(args, long long),
+					pc += printi(out, out_len, va_arg(मगा_कातविरान, long long),
 						width, flags, type);
 					continue;
 				}
@@ -379,16 +379,16 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 					type = *format;
 				}
 				if ((type == 'd') || (type == 'i'))
-					pc += printi(out, out_len, va_arg(args, long),
+					pc += printi(out, out_len, va_arg(मगा_कातविरान, long),
 					     width, flags, type);
 				else
-					pc += printi(out, out_len, va_arg(args, unsigned long),
+					pc += printi(out, out_len, va_arg(मगा_कातविरान, unsigned long),
 					     width, flags, type);
 				continue;
 			}
 			if (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(मगा_कातविरान, int);
 				scr[1] = '\0';
 				pc += prints(out, out_len, scr, width, flags);
 				continue;
@@ -408,44 +408,44 @@ literal:
 
 int sbi_sprintf(char *out, const char *format, ...)
 {
-	va_list args;
+	va_list मगा_कातविरान;
 	int retval;
 
 	if (unlikely(!out))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
-	va_start(args, format);
-	retval = print(&out, NULL, format, args);
-	va_end(args);
+	va_start(मगा_कातविरान, format);
+	retval = इलिम्बाग(&out, NULL, format, मगा_कातविरान);
+	va_end(मगा_कातविरान);
 
 	return retval;
 }
 
 int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 {
-	va_list args;
+	va_list मगा_कातविरान;
 	int retval;
 
 	if (unlikely(!out && out_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
-	va_start(args, format);
-	retval = print(&out, &out_sz, format, args);
-	va_end(args);
+	va_start(मगा_कातविरान, format);
+	retval = इलिम्बाग(&out, &out_sz, format, मगा_कातविरान);
+	va_end(मगा_कातविरान);
 
 	return retval;
 }
 
 int sbi_printf(const char *format, ...)
 {
-	va_list args;
+	va_list मगा_कातविरान;
 	int retval;
 
 	spin_lock(&console_out_lock);
-	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
-	va_end(args);
+	va_start(मगा_कातविरान, format);
+	retval = इलिम्बाग(NULL, NULL, format, मगा_कातविरान);
+	va_end(मगा_कातविरान);
 	spin_unlock(&console_out_lock);
 
 	return retval;
@@ -453,29 +453,29 @@ int sbi_printf(const char *format, ...)
 
 int sbi_dprintf(const char *format, ...)
 {
-	va_list args;
+	va_list मगा_कातविरान;
 	int retval = 0;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	va_start(args, format);
+	va_start(मगा_कातविरान, format);
 	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
 		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
+		retval = इलिम्बाग(NULL, NULL, format, मगा_कातविरान);
 		spin_unlock(&console_out_lock);
 	}
-	va_end(args);
+	va_end(मगा_कातविरान);
 
 	return retval;
 }
 
 void sbi_panic(const char *format, ...)
 {
-	va_list args;
+	va_list मगा_कातविरान;
 
 	spin_lock(&console_out_lock);
-	va_start(args, format);
-	print(NULL, NULL, format, args);
-	va_end(args);
+	va_start(मगा_कातविरान, format);
+	इलिम्बाग(NULL, NULL, format, मगा_कातविरान);
+	va_end(मगा_कातविरान);
 	spin_unlock(&console_out_lock);
 
 	sbi_hart_hang();

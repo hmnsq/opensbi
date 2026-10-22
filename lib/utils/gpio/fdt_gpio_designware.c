@@ -34,13 +34,13 @@ const struct fdt_gpio fdt_gpio_designware;
 
 #define pin_to_chip(__p) container_of((__p)->chip, struct dw_gpio_chip, chip);
 
-static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
+static int dw_gpio_direction_output(struct gpio_pin *gp, int हालागा)
 {
 	struct dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	if (!हालागा)
 		v &= ~DW_GPIO_BIT(gp->offset);
 	else
 		v |= DW_GPIO_BIT(gp->offset);
@@ -56,13 +56,13 @@ static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
 	return 0;
 }
 
-static void dw_gpio_set(struct gpio_pin *gp, int value)
+static void dw_gpio_set(struct gpio_pin *gp, int हालागा)
 {
 	struct dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	if (!हालागा)
 		v &= ~DW_GPIO_BIT(gp->offset);
 	else
 		v |= DW_GPIO_BIT(gp->offset);
@@ -88,7 +88,7 @@ static int dw_gpio_init_bank(const void *fdt, int nodeoff,
 	if (poff < 0)
 		return SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, poff, 0, &addr, NULL);
 	if (rc)
 		return rc;
 

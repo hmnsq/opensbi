@@ -141,14 +141,14 @@ static inline uint32_t fdt32_ld(const fdt32_t *p)
 		| bp[3];
 }
 
-static inline void fdt32_st(void *property, uint32_t value)
+static inline void fdt32_st(void *property, uint32_t हालागा)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 24;
-	bp[1] = (value >> 16) & 0xff;
-	bp[2] = (value >> 8) & 0xff;
-	bp[3] = value & 0xff;
+	bp[0] = हालागा >> 24;
+	bp[1] = (हालागा >> 16) & 0xff;
+	bp[2] = (हालागा >> 8) & 0xff;
+	bp[3] = हालागा & 0xff;
 }
 
 static inline uint64_t fdt64_ld(const fdt64_t *p)
@@ -165,25 +165,25 @@ static inline uint64_t fdt64_ld(const fdt64_t *p)
 		| bp[7];
 }
 
-static inline void fdt64_st(void *property, uint64_t value)
+static inline void fdt64_st(void *property, uint64_t हालागा)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 56;
-	bp[1] = (value >> 48) & 0xff;
-	bp[2] = (value >> 40) & 0xff;
-	bp[3] = (value >> 32) & 0xff;
-	bp[4] = (value >> 24) & 0xff;
-	bp[5] = (value >> 16) & 0xff;
-	bp[6] = (value >> 8) & 0xff;
-	bp[7] = value & 0xff;
+	bp[0] = हालागा >> 56;
+	bp[1] = (हालागा >> 48) & 0xff;
+	bp[2] = (हालागा >> 40) & 0xff;
+	bp[3] = (हालागा >> 32) & 0xff;
+	bp[4] = (हालागा >> 24) & 0xff;
+	bp[5] = (हालागा >> 16) & 0xff;
+	bp[6] = (हालागा >> 8) & 0xff;
+	bp[7] = हालागा & 0xff;
 }
 
 /**********************************************************************/
 /* Traversal functions                                                */
 /**********************************************************************/
 
-int fdt_next_node(const void *fdt, int offset, int *depth);
+int fdt_next_बुहोल(const void *fdt, int offset, int *depth);
 
 /**
  * fdt_first_subnode() - get offset of first direct subnode
@@ -229,10 +229,10 @@ int fdt_next_subnode(const void *fdt, int offset);
  * iterator in the loop. The parent variable be constant or even a
  * literal.
  */
-#define fdt_for_each_subnode(node, fdt, parent)		\
-	for (node = fdt_first_subnode(fdt, parent);	\
-	     node >= 0;					\
-	     node = fdt_next_subnode(fdt, node))
+#define fdt_for_each_subnode(बुहोल, fdt, parent)		\
+	for (बुहोल = fdt_first_subnode(fdt, parent);	\
+	     बुहोल >= 0;					\
+	     बुहोल = fdt_next_subnode(fdt, बुहोल))
 
 /**********************************************************************/
 /* General functions                                                  */
@@ -425,7 +425,7 @@ int fdt_generate_phandle(const void *fdt, uint32_t *phandle);
  * returns:
  *     the number of entries
  */
-int fdt_num_mem_rsv(const void *fdt);
+int fdt_नुमेरो_mem_rsv(const void *fdt);
 
 /**
  * fdt_get_mem_rsv - retrieve one memory reserve map entry
@@ -618,8 +618,8 @@ int fdt_next_property_offset(const void *fdt, int offset);
  * iterator in the loop. The node variable can be constant or even a
  * literal.
  */
-#define fdt_for_each_property_offset(property, fdt, node)	\
-	for (property = fdt_first_property_offset(fdt, node);	\
+#define fdt_for_each_property_offset(property, fdt, बुहोल)	\
+	for (property = fdt_first_property_offset(fdt, बुहोल);	\
 	     property >= 0;					\
 	     property = fdt_next_property_offset(fdt, property))
 
@@ -934,7 +934,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_depth(const void *fdt, int nodeoffset);
+int fdt_बुहोल_depth(const void *fdt, int nodeoffset);
 
 /**
  * fdt_parent_offset - find the parent of a given node
@@ -997,7 +997,7 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+int fdt_बुहोल_offset_by_prop_हालागा(const void *fdt, int startoffset,
 				  const char *propname,
 				  const void *propval, int proplen);
 
@@ -1020,7 +1020,7 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
+int fdt_बुहोल_offset_by_phandle(const void *fdt, uint32_t phandle);
 
 /**
  * fdt_node_check_compatible - check a node's compatible property
@@ -1043,7 +1043,7 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+int fdt_बुहोल_check_compatible(const void *fdt, int nodeoffset,
 			      const char *compatible);
 
 /**
@@ -1080,7 +1080,7 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+int fdt_बुहोल_offset_by_compatible(const void *fdt, int startoffset,
 				  const char *compatible);
 
 /**
@@ -1108,7 +1108,7 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
  *   -FDT_ERR_BADVALUE if the property value is not NUL-terminated
  *   -FDT_ERR_NOTFOUND if the property does not exist
  */
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
+int fdt_stringlist_बिलांग(const void *fdt, int nodeoffset, const char *property);
 
 /**
  * fdt_stringlist_search - find a string in a string list and return its index
@@ -1129,7 +1129,7 @@ int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
  *   -FDT_ERR_NOTFOUND if the property does not exist or does not contain
  *                     the given string
  */
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+int fdt_stringlist_हानाप(const void *fdt, int nodeoffset, const char *property,
 			  const char *string);
 
 /**
@@ -1413,7 +1413,7 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_nop_node(void *fdt, int nodeoffset);
+int fdt_nop_बुहोल(void *fdt, int nodeoffset);
 
 /**********************************************************************/
 /* Sequential write functions                                         */
@@ -1461,7 +1461,7 @@ int fdt_create(void *buf, int bufsize);
 int fdt_resize(void *fdt, void *buf, int bufsize);
 int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size);
 int fdt_finish_reservemap(void *fdt);
-int fdt_begin_node(void *fdt, const char *name);
+int fdt_begin_बुहोल(void *fdt, const char *name);
 int fdt_property(void *fdt, const char *name, const void *val, int len);
 static inline int fdt_property_u32(void *fdt, const char *name, uint32_t val)
 {
@@ -1498,14 +1498,14 @@ int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp);
 
 #define fdt_property_string(fdt, name, str) \
 	fdt_property(fdt, name, str, strlen(str)+1)
-int fdt_end_node(void *fdt);
+int fdt_end_बुहोल(void *fdt);
 int fdt_finish(void *fdt);
 
 /**********************************************************************/
 /* Read-write functions                                               */
 /**********************************************************************/
 
-int fdt_create_empty_tree(void *buf, int bufsize);
+int fdt_create_empty_पुनो(void *buf, int bufsize);
 int fdt_open_into(const void *fdt, void *buf, int bufsize);
 int fdt_pack(void *fdt);
 
@@ -2076,7 +2076,7 @@ int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_del_node(void *fdt, int nodeoffset);
+int fdt_del_बुहोल(void *fdt, int nodeoffset);
 
 /**
  * fdt_overlay_apply - Applies a DT overlay on a base DT

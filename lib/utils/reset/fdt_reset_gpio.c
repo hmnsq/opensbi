@@ -127,7 +127,7 @@ static int gpio_reset_init(const void *fdt, int nodeoff,
 		return rc;
 
 	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
-		rc = gpio_direction_input(&reset->pin);
+		rc = gpio_direction_पासोक(&reset->pin);
 		if (rc)
 			return rc;
 	}

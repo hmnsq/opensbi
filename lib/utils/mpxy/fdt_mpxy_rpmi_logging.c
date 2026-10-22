@@ -29,13 +29,13 @@ static struct mpxy_rpmi_service_data logging_services[] = {
 	 * is intentionally exposed by this MPXY service group handler.
 	 */
 	[2] = {
-		.id = RPMI_LOGGING_SRV_MAX_COUNT,
+		.id = RPMI_LOGGING_SRV_MAX_बिलांग,
 	},
 };
 
 static const struct mpxy_rpmi_mbox_data logging_data = {
 	.servicegrp_id = RPMI_SRVGRP_LOGGING,
-	.num_services = RPMI_LOGGING_SRV_MAX_COUNT,
+	.नुमेरो_services = RPMI_LOGGING_SRV_MAX_बिलांग,
 	.service_data = logging_services,
 };
 

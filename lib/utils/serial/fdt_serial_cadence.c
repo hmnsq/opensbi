@@ -16,7 +16,7 @@ static int serial_cadence_init(const void *fdt, int nodeoff,
 	int rc;
 	struct platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
+	rc = fdt_parse_uart_बुहोल(fdt, nodeoff, &uart);
 	if (rc)
 		return rc;
 

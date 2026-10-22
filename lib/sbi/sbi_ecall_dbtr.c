@@ -23,8 +23,8 @@ static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
 	int ret = 0;
 
 	switch (funcid) {
-	case SBI_EXT_DBTR_NUM_TRIGGERS:
-		ret = sbi_dbtr_num_trig(regs->a0, &out->value);
+	case SBI_EXT_DBTR_नुमेरो_TRIGGERS:
+		ret = sbi_dbtr_नुमेरो_trig(regs->a0, &out->हालागा);
 		break;
 	case SBI_EXT_DBTR_SETUP_SHMEM:
 		ret = sbi_dbtr_setup_shmem(sbi_domain_thishart_ptr(), smode,
@@ -34,7 +34,7 @@ static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
 		ret = sbi_dbtr_read_trig(smode, regs->a0, regs->a1);
 		break;
 	case SBI_EXT_DBTR_TRIGGER_INSTALL:
-		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->value);
+		ret = sbi_dbtr_install_trig(smode, regs->a0, &out->हालागा);
 		break;
 	case SBI_EXT_DBTR_TRIGGER_UNINSTALL:
 		ret = sbi_dbtr_uninstall_trig(regs->a0, regs->a1);

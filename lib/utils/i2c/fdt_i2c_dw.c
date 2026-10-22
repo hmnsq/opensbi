@@ -26,7 +26,7 @@ static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
 	if (!adapter)
 		return SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc) {
 		sbi_free(adapter);
 		return rc;

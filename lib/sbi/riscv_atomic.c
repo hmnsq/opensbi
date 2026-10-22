@@ -23,25 +23,25 @@ long atomic_read(atomic_t *atom)
 	return ret;
 }
 
-void atomic_write(atomic_t *atom, long value)
+void atomic_write(atomic_t *atom, long हालागा)
 {
-	atom->counter = value;
+	atom->counter = हालागा;
 	wmb();
 }
 
-long atomic_add_return(atomic_t *atom, long value)
+long atomic_add_return(atomic_t *atom, long हालागा)
 {
 #if defined(__riscv_atomic) || defined(__riscv_zaamo)
 	long ret;
 #if __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(हालागा)
 			     : "memory");
 #elif __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("	amoadd.d.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(हालागा)
 			     : "memory");
 #endif
 #elif defined(__riscv_zalrsc)
@@ -52,7 +52,7 @@ long atomic_add_return(atomic_t *atom, long value)
 			     "  sc.w.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
 			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "r"(हालागा)
 			     : "memory");
 #elif __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("1:lr.d.aqrl	%1,%0\n"
@@ -60,19 +60,19 @@ long atomic_add_return(atomic_t *atom, long value)
 			     "  sc.d.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
 			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "r"(हालागा)
 			     : "memory");
 #endif
 #else
 #error "need A or Zaamo or Zalrsc"
 #endif
 
-	return ret + value;
+	return ret + हालागा;
 }
 
-long atomic_sub_return(atomic_t *atom, long value)
+long atomic_sub_return(atomic_t *atom, long हालागा)
 {
-	return atomic_add_return(atom, -value);
+	return atomic_add_return(atom, -हालागा);
 }
 
 #if defined(__riscv_atomic) || defined(__riscv_zaamo)

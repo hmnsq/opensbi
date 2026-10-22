@@ -13,7 +13,7 @@ struct cache_device *cache_find(u32 id)
 {
 	struct cache_device *dev;
 
-	sbi_list_for_each_entry(dev, &cache_list, node) {
+	sbi_list_for_each_entry(dev, &cache_list, बुहोल) {
 		if (dev->id == id)
 			return dev;
 	}
@@ -29,7 +29,7 @@ int cache_add(struct cache_device *dev)
 	if (cache_find(dev->id))
 		return SBI_EALREADY;
 
-	sbi_list_add(&dev->node, &cache_list);
+	sbi_list_add(&dev->बुहोल, &cache_list);
 
 	return SBI_OK;
 }

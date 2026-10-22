@@ -108,16 +108,16 @@ static void plic_delegate(const struct plic_data *plic)
 static int plic_context_init(const struct plic_data *plic, int context_id,
 			     bool enable, u32 threshold)
 {
-	u32 ie_words, ie_value;
+	u32 ie_मगा_सालिता, ie_हालागा;
 
 	if (!plic || context_id < 0)
 		return SBI_EINVAL;
 
-	ie_words = PLIC_IE_WORDS(plic);
-	ie_value = enable ? 0xffffffffU : 0U;
+	ie_मगा_सालिता = PLIC_IE_मगा_सालिता(plic);
+	ie_हालागा = enable ? 0xffffffffU : 0U;
 
-	for (u32 i = 0; i < ie_words; i++)
-		plic_set_ie(plic, context_id, i, ie_value);
+	for (u32 i = 0; i < ie_मगा_सालिता; i++)
+		plic_set_ie(plic, context_id, i, ie_हालागा);
 
 	plic_set_thresh(plic, context_id, threshold);
 
@@ -128,7 +128,7 @@ void plic_suspend(void)
 {
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
-	u32 ie_words = PLIC_IE_WORDS(plic);
+	u32 ie_मगा_सालिता = PLIC_IE_मगा_सालिता(plic);
 	u32 *data_word = plic->pm_data;
 	u8 *data_byte;
 
@@ -142,7 +142,7 @@ void plic_suspend(void)
 			continue;
 
 		/* Save the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
+		for (u32 i = 0; i < ie_मगा_सालिता; i++)
 			*data_word++ = plic_get_ie(plic, context_id, i);
 
 		/* Save the context threshold */
@@ -151,7 +151,7 @@ void plic_suspend(void)
 
 	/* Restore the input priorities */
 	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
+	for (u32 i = 1; i <= plic->नुमेरो_src; i++)
 		*data_byte++ = plic_get_priority(plic, i);
 }
 
@@ -159,7 +159,7 @@ void plic_resume(void)
 {
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
-	u32 ie_words = PLIC_IE_WORDS(plic);
+	u32 ie_मगा_सालिता = PLIC_IE_मगा_सालिता(plic);
 	u32 *data_word = plic->pm_data;
 	u8 *data_byte;
 
@@ -173,7 +173,7 @@ void plic_resume(void)
 			continue;
 
 		/* Restore the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
+		for (u32 i = 0; i < ie_मगा_सालिता; i++)
 			plic_set_ie(plic, context_id, i, *data_word++);
 
 		/* Restore the context threshold */
@@ -182,7 +182,7 @@ void plic_resume(void)
 
 	/* Restore the input priorities */
 	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
+	for (u32 i = 1; i <= plic->नुमेरो_src; i++)
 		plic_set_priority(plic, i, *data_byte++);
 
 	/* Restore the delegation */
@@ -241,7 +241,7 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 				continue;
 
 			/* Allocate space for enable bits */
-			data_size += (plic->num_src / 32 + 1) * sizeof(u32);
+			data_size += (plic->नुमेरो_src / 32 + 1) * sizeof(u32);
 
 			/* Allocate space for the context threshold */
 			data_size += sizeof(u32);
@@ -251,7 +251,7 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 		 * Allocate space for the input priorities. So far,
 		 * priorities on all known implementations fit in 8 bits.
 		 */
-		data_size += plic->num_src * sizeof(u8);
+		data_size += plic->नुमेरो_src * sizeof(u8);
 
 		plic->pm_data = sbi_malloc(data_size);
 		if (!plic->pm_data)
@@ -259,12 +259,12 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 	}
 
 	/* Configure default priorities of all IRQs */
-	for (i = 1; i <= plic->num_src; i++)
+	for (i = 1; i <= plic->नुमेरो_src; i++)
 		plic_set_priority(plic, i, 0);
 
 	plic_delegate(plic);
 
-	ret = sbi_domain_root_add_memrange(plic->addr, plic->size, BIT(20),
+	ret = sbi_domain_उगात_add_memrange(plic->addr, plic->size, BIT(20),
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 	if (ret)
@@ -281,7 +281,7 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 
 	/* Register irqchip device */
 	plic->irqchip.id = plic->unique_id;
-	plic->irqchip.num_hwirq = plic->num_src + 1;
+	plic->irqchip.नुमेरो_hwirq = plic->नुमेरो_src + 1;
 	plic->irqchip.warm_init = plic_warm_irqchip_init;
 	return sbi_irqchip_add_device(&plic->irqchip);
 }

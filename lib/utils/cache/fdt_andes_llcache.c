@@ -124,7 +124,7 @@ static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_ma
 	struct cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
 	if (rc < 0 || !llcache_base || !size)
 		return SBI_ENODEV;
 
@@ -155,7 +155,7 @@ static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_ma
 	}
 
 	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
+		rc = sbi_domain_उगात_add_memrange(
 			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);

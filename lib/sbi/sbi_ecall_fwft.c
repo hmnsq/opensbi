@@ -24,7 +24,7 @@ static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
 		ret = sbi_fwft_set(regs->a0, regs->a1, regs->a2);
 		break;
 	case SBI_EXT_FWFT_GET:
-		ret = sbi_fwft_get(regs->a0, &out->value);
+		ret = sbi_fwft_get(regs->a0, &out->हालागा);
 		break;
 	default:
 		ret = SBI_ENOTSUPP;

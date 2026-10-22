@@ -49,9 +49,9 @@
 
 static struct uart8250_device uart8250_dev;
 
-static u32 get_reg(struct uart8250_device *dev, u32 num)
+static u32 get_reg(struct uart8250_device *dev, u32 नुमेरो)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 offset = नुमेरो << dev->reg_shift;
 
 	if (dev->reg_width == 1)
 		return readb(dev->base + offset);
@@ -61,9 +61,9 @@ static u32 get_reg(struct uart8250_device *dev, u32 num)
 		return readl(dev->base + offset);
 }
 
-static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
+static void set_reg(struct uart8250_device *dev, u32 नुमेरो, u32 val)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 offset = नुमेरो << dev->reg_shift;
 
 	if (dev->reg_width == 1)
 		writeb(val, dev->base + offset);
@@ -155,7 +155,7 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 
 	sbi_console_set_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	return sbi_domain_उगात_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

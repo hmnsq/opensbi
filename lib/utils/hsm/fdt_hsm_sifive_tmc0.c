@@ -22,7 +22,7 @@
 
 struct sifive_tmc0 {
 	unsigned long reg;
-	struct sbi_dlist node;
+	struct sbi_dlist बुहोल;
 	u32 id;
 };
 
@@ -338,7 +338,7 @@ static int sifive_tmc0_probe(const void *fdt, int nodeoff, const struct fdt_matc
 	if (!tmc0)
 		return SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc)
 		goto free_tmc0;
 

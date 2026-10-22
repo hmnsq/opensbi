@@ -26,7 +26,7 @@ struct sifive_gpio_chip {
 	struct gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+static int sifive_gpio_direction_output(struct gpio_pin *gp, int हालागा)
 {
 	unsigned int v;
 	struct sifive_gpio_chip *chip =
@@ -37,7 +37,7 @@ static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
 	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
 	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	if (!हालागा)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
 	else
 		v |= SIFIVE_GPIO_BIT(gp->offset);
@@ -46,14 +46,14 @@ static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
 	return 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+static void sifive_gpio_set(struct gpio_pin *gp, int हालागा)
 {
 	unsigned int v;
 	struct sifive_gpio_chip *chip =
 		container_of(gp->chip, struct sifive_gpio_chip, chip);
 
 	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	if (!हालागा)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
 	else
 		v |= SIFIVE_GPIO_BIT(gp->offset);
@@ -73,7 +73,7 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	if (!chip)
 		return SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc) {
 		sbi_free(chip);
 		return rc;

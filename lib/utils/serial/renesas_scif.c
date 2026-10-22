@@ -44,7 +44,7 @@
 				 (reg == SCIF_REG_FTDR) || \
 				 (reg == SCIF_REG_SEMR))
 
-#define SCBRR_VALUE(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
+#define SCBRR_हालागा(clk, baudrate) ((clk) / (32 * (baudrate)) - 1)
 
 /* clang-format on */
 
@@ -105,7 +105,7 @@ int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	data16 = get_reg(SCIF_REG_SEMR);
 	set_reg(SCIF_REG_SEMR, data16 & (~SCIF_SEMR_MDDRS));
-	set_reg(SCIF_REG_BRR, SCBRR_VALUE(in_freq, baudrate));
+	set_reg(SCIF_REG_BRR, SCBRR_हालागा(in_freq, baudrate));
 
 	set_reg(SCIF_REG_FCR, SCIF_FCR_RST_NGATE_RFTF);
 	set_reg(SCIF_REG_SCR, SCIF_SCR_RCV_TRN_EN);

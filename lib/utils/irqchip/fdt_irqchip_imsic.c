@@ -21,18 +21,18 @@ static int irqchip_imsic_update_hartid_table(const void *fdt, int nodeoff,
 {
 	const fdt32_t *val;
 	u32 phandle, hwirq, hartid;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	int i, err, बिलांग, cpu_offset, cpu_intc_offset;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &बिलांग);
+	if (!val || बिलांग < sizeof(fdt32_t))
 		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	बिलांग = बिलांग / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	for (i = 0; i < बिलांग; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
+		cpu_intc_offset = fdt_बुहोल_offset_by_phandle(fdt, phandle);
 		if (cpu_intc_offset < 0)
 			continue;
 
@@ -68,7 +68,7 @@ static int irqchip_imsic_cold_init(const void *fdt, int nodeoff,
 	if (!id)
 		return SBI_ENOMEM;
 
-	rc = fdt_parse_imsic_node(fdt, nodeoff, id);
+	rc = fdt_parse_imsic_बुहोल(fdt, nodeoff, id);
 	if (rc || !id->targets_mmode)
 		goto fail_free_data;
 

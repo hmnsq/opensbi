@@ -70,21 +70,21 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
 	return 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+int fdt_बुहोल_end_offset(void *fdt, int offset)
 {
 	int depth = 0;
 
 	while ((offset >= 0) && (depth >= 0))
-		offset = fdt_next_node(fdt, offset, &depth);
+		offset = fdt_next_बुहोल(fdt, offset, &depth);
 
 	return offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+int fdt_nop_बुहोल(void *fdt, int nodeoffset)
 {
 	int endoffset;
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
+	endoffset = fdt_बुहोल_end_offset(fdt, nodeoffset);
 	if (endoffset < 0)
 		return endoffset;
 

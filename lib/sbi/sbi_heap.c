@@ -18,9 +18,9 @@
 #define HEAP_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#define HEAP_बुहोल_BATCH_SIZE		8
 
-struct heap_node {
+struct heap_बुहोल {
 	struct sbi_dlist head;
 	unsigned long addr;
 	unsigned long size;
@@ -31,21 +31,21 @@ struct sbi_heap_control {
 	unsigned long base GUARDED_BY(&lock);
 	unsigned long size GUARDED_BY(&lock);
 	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
+	struct sbi_dlist free_बुहोल_list GUARDED_BY(&lock);
 	struct sbi_dlist free_space_list GUARDED_BY(&lock);
 	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+	struct heap_बुहोल init_free_space_बुहोल GUARDED_BY(&lock);
 };
 
 struct sbi_heap_control global_hpctrl;
 
 static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t size = HEAP_बुहोल_BATCH_SIZE * sizeof(struct heap_बुहोल);
+	struct heap_बुहोल *n, *new = NULL;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
+	if (hpctrl->free_बुहोल_list.next != hpctrl->free_बुहोल_list.prev)
 		return true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
@@ -53,7 +53,7 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 			n->size -= size;
 			if (!n->size) {
 				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+				sbi_list_add_tail(&n->head, &hpctrl->free_बुहोल_list);
 			}
 			new = (void *)(n->addr + n->size);
 			break;
@@ -62,8 +62,8 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 	if (!new)
 		return false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
+	for (size_t i = 0; i < HEAP_बुहोल_BATCH_SIZE; i++)
+		sbi_list_add_tail(&new[i].head, &hpctrl->free_बुहोल_list);
 	hpctrl->resv += size;
 
 	return true;
@@ -74,7 +74,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	MUST_NOT_HOLD(&hpctrl->lock)
 {
 	void *ret = NULL;
-	struct heap_node *n, *np;
+	struct heap_बुहोल *n, *np;
 	unsigned long lowest_aligned;
 	size_t pad;
 
@@ -104,8 +104,8 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		goto out;
 
 	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+		n = sbi_list_first_entry(&hpctrl->free_बुहोल_list,
+					 struct heap_बुहोल, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr;
@@ -117,8 +117,8 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	}
 
 	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+		n = sbi_list_first_entry(&hpctrl->free_बुहोल_list,
+					 struct heap_बुहोल, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr + size;
@@ -171,7 +171,7 @@ void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
 
 void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
 {
-	struct heap_node *n, *np;
+	struct heap_बुहोल *n, *np;
 
 	if (!ptr)
 		return;
@@ -197,12 +197,12 @@ void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
 		if ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
+			sbi_list_add_tail(&np->head, &hpctrl->free_बुहोल_list);
 			np = NULL;
 			break;
 		} else if (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
+			sbi_list_add_tail(&np->head, &hpctrl->free_बुहोल_list);
 			np = NULL;
 			break;
 		} else if ((n->addr + n->size) < np->addr) {
@@ -219,7 +219,7 @@ void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
 
 unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 {
-	struct heap_node *n;
+	struct heap_बुहोल *n;
 	unsigned long ret = 0;
 
 	spin_lock(&hpctrl->lock);
@@ -245,19 +245,19 @@ unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
 int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	struct heap_बुहोल *n;
 
 	/* Initialize heap control */
 	SPIN_LOCK_INIT(hpctrl->lock);
 	hpctrl->base = base;
 	hpctrl->size = size;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
+	SBI_INIT_LIST_HEAD(&hpctrl->free_बुहोल_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
 	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
+	n = &hpctrl->init_free_space_बुहोल;
 	n->addr = base;
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);

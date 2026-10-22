@@ -37,7 +37,7 @@ static const struct mpxy_rpmi_service_data *mpxy_find_rpmi_srvid(u32 message_id,
 	const struct mpxy_rpmi_service_data *srv = mbox_data->service_data;
 	int mid = 0;
 
-	for (mid = 0; srv[mid].id < mbox_data->num_services; mid++) {
+	for (mid = 0; srv[mid].id < mbox_data->नुमेरो_services; mid++) {
 		if (srv[mid].id == (u8)message_id)
 			return &srv[mid];
 	}
@@ -46,27 +46,27 @@ static const struct mpxy_rpmi_service_data *mpxy_find_rpmi_srvid(u32 message_id,
 }
 
 /** Copy attributes word size */
-static void mpxy_copy_attrs(u32 *outmem, u32 *inmem, u32 count)
+static void mpxy_copy_attrs(u32 *outmem, u32 *inmem, u32 बिलांग)
 {
 	u32 idx;
-	for (idx = 0; idx < count; idx++)
+	for (idx = 0; idx < बिलांग; idx++)
 		outmem[idx] = cpu_to_le32(inmem[idx]);
 }
 
 static int mpxy_mbox_read_attributes(struct sbi_mpxy_channel *channel,
 				     u32 *outmem, u32 base_attr_id,
-				     u32 attr_count)
+				     u32 attr_बिलांग)
 {
 	struct mpxy_rpmi_mbox *rmb =
 		container_of(channel, struct mpxy_rpmi_mbox, channel);
 	u32 *attr_array = (u32 *)&rmb->msgprot_attrs;
-	u32 end_id = base_attr_id + attr_count - 1;
+	u32 end_id = base_attr_id + attr_बिलांग - 1;
 
 	if (end_id >= MPXY_MSGPROT_RPMI_ATTR_MAX_ID)
 		return SBI_EBAD_RANGE;
 
 	mpxy_copy_attrs(outmem, &attr_array[attr_id2index(base_attr_id)],
-			attr_count);
+			attr_बिलांग);
 
 	return SBI_OK;
 }
@@ -104,11 +104,11 @@ static void mpxy_write_attr(struct mpxy_rpmi_channel_attrs *attrs,
 
 static int mpxy_mbox_write_attributes(struct sbi_mpxy_channel *channel,
 				     u32 *outmem, u32 base_attr_id,
-				     u32 attr_count)
+				     u32 attr_बिलांग)
 {
 	struct mpxy_rpmi_mbox *rmb =
 		container_of(channel, struct mpxy_rpmi_mbox, channel);
-	u32 end_id = base_attr_id + attr_count - 1;
+	u32 end_id = base_attr_id + attr_बिलांग - 1;
 	u32 attr_val, idx;
 	int ret, mem_idx;
 
@@ -142,7 +142,7 @@ static int __mpxy_mbox_send_message(struct sbi_mpxy_channel *channel,
 	const struct mpxy_rpmi_mbox_data *data = rmb->mbox_data;
 	const struct mpxy_rpmi_service_data *srv =
 		mpxy_find_rpmi_srvid(message_id, data);
-	struct rpmi_message_args args = {0};
+	struct rpmi_message_मगा_कातविरान मगा_कातविरान = {0};
 	struct mbox_xfer xfer;
 	u32 rx_len = 0;
 	int ret;
@@ -161,23 +161,23 @@ static int __mpxy_mbox_send_message(struct sbi_mpxy_channel *channel,
 			return SBI_EFAIL;
 
 		/* Max rx data size it can expect */
-		if (srv->max_rx_len < channel->attrs.msg_data_maxlen)
+		if (srv->max_rx_len < channel->attrs.मेनसाहे_data_maxlen)
 			rx_len = srv->max_rx_len;
 		else
-			rx_len = channel->attrs.msg_data_maxlen;
+			rx_len = channel->attrs.मेनसाहे_data_maxlen;
 
-		args.type = RPMI_MSG_NORMAL_REQUEST;
-		args.flags = (rx) ? 0 : RPMI_MSG_FLAGS_NO_RX;
-		args.service_id = srv->id;
-		mbox_xfer_init_txrx(&xfer, &args,
+		मगा_कातविरान.type = RPMI_मेनसाहे_NORMAL_REQUEST;
+		मगा_कातविरान.flags = (rx) ? 0 : RPMI_मेनसाहे_FLAGS_NO_RX;
+		मगा_कातविरान.service_id = srv->id;
+		mbox_xfer_init_txrx(&xfer, &मगा_कातविरान,
 				    tx, tx_len, RPMI_DEF_TX_TIMEOUT,
 				    rx, rx_len, RPMI_DEF_RX_TIMEOUT);
 	}
 	else {
-		args.type = RPMI_MSG_POSTED_REQUEST;
-		args.flags = RPMI_MSG_FLAGS_NO_RX;
-		args.service_id = srv->id;
-		mbox_xfer_init_tx(&xfer, &args,
+		मगा_कातविरान.type = RPMI_मेनसाहे_POSTED_REQUEST;
+		मगा_कातविरान.flags = RPMI_मेनसाहे_FLAGS_NO_RX;
+		मगा_कातविरान.service_id = srv->id;
+		mbox_xfer_init_tx(&xfer, &मगा_कातविरान,
 				  tx, tx_len, RPMI_DEF_TX_TIMEOUT);
 	}
 
@@ -189,7 +189,7 @@ static int __mpxy_mbox_send_message(struct sbi_mpxy_channel *channel,
 		return ret;
 
 	if (ack_len)
-		*ack_len = args.rx_data_len;
+		*ack_len = मगा_कातविरान.rx_data_len;
 
 	return SBI_OK;
 }
@@ -236,7 +236,7 @@ int mpxy_rpmi_mbox_init(const void *fdt, int nodeoff, const struct fdt_match *ma
 	}
 
 	/* Match channel service group id */
-	if (data->servicegrp_id != chan->chan_args[0]) {
+	if (data->servicegrp_id != chan->chan_मगा_कातविरान[0]) {
 		rc = SBI_EINVAL;
 		goto fail_free_chan;
 	}
@@ -300,7 +300,7 @@ int mpxy_rpmi_mbox_init(const void *fdt, int nodeoff, const struct fdt_match *ma
 	/* Channel ID*/
 	rmb->channel.channel_id = channel_id;
 	/* Set the owner domain */
-	rmb->channel.owner_domain = &root;
+	rmb->channel.owner_domain = &उगात;
 	/* Callback for read RPMI attributes */
 	rmb->channel.read_attributes = mpxy_mbox_read_attributes;
 	/* Callback for write RPMI attributes */
@@ -312,21 +312,21 @@ int mpxy_rpmi_mbox_init(const void *fdt, int nodeoff, const struct fdt_match *ma
 					mpxy_mbox_send_message_withoutresp;
 
 	/* RPMI Message Protocol ID */
-	rmb->channel.attrs.msg_proto_id = SBI_MPXY_MSGPROTO_RPMI_ID;
+	rmb->channel.attrs.मेनसाहे_proto_id = SBI_MPXY_MSGPROTO_RPMI_ID;
 	/* RPMI Message Protocol Version */
-	rmb->channel.attrs.msg_proto_version = pro_ver;
+	rmb->channel.attrs.मेनसाहे_proto_version = pro_ver;
 
 	/*
 	 * RPMI supported max message data length(bytes), same for
 	 * all service groups
 	 */
-	rmb->channel.attrs.msg_data_maxlen = max_data_len;
+	rmb->channel.attrs.मेनसाहे_data_maxlen = max_data_len;
 	/*
 	 * RPMI message send timeout(milliseconds)
 	 * same for all service groups
 	 */
-	rmb->channel.attrs.msg_send_timeout = tx_tout;
-	rmb->channel.attrs.msg_completion_timeout = tx_tout + rx_tout;
+	rmb->channel.attrs.मेनसाहे_send_timeout = tx_tout;
+	rmb->channel.attrs.मेनसाहे_completion_timeout = tx_tout + rx_tout;
 
 	/* RPMI service group attributes */
 	rmb->msgprot_attrs.servicegrp_id = data->servicegrp_id;

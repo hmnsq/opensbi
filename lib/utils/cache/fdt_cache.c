@@ -81,7 +81,7 @@ int fdt_next_cache_get(const void *fdt, int noff, struct cache_device **out_dev)
 	if (!val || len < sizeof(*val))
 		return SBI_ENOENT;
 
-	noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
+	noff = fdt_बुहोल_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
 	if (noff < 0)
 		return noff;
 

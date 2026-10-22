@@ -33,7 +33,7 @@ int regmap_add(struct regmap *rmap)
 	if (regmap_find(rmap->id))
 		return SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_add(&(rmap->बुहोल), &(regmap_list));
 
 	return 0;
 }
@@ -43,7 +43,7 @@ void regmap_remove(struct regmap *rmap)
 	if (!rmap)
 		return;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->बुहोल));
 }
 
 static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)

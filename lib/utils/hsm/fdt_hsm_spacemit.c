@@ -36,17 +36,17 @@ static const u64 cpu_idle_reg[] = {
 
 static inline void spacemit_set_cpu_power(u32 hartid, bool enable)
 {
-	unsigned int value;
+	unsigned int हालागा;
 	unsigned int *cpu_idle_base = (unsigned int *)(unsigned long)cpu_idle_reg[hartid];
 
-	value = readl(cpu_idle_base);
+	हालागा = readl(cpu_idle_base);
 
 	if (enable)
-		value &= ~PMU_AP_IDLE_PWRDOWN_MASK;
+		हालागा &= ~PMU_AP_IDLE_PWRDOWN_MASK;
 	else
-		value |= PMU_AP_IDLE_PWRDOWN_MASK;
+		हालागा |= PMU_AP_IDLE_PWRDOWN_MASK;
 
-	writel(value, cpu_idle_base);
+	writel(हालागा, cpu_idle_base);
 }
 
 static void spacemit_wakeup_cpu(u32 mpidr)

@@ -19,19 +19,19 @@
 static int irqchip_aplic_update_idc_map(const void *fdt, int nodeoff,
 					struct aplic_data *pd)
 {
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	int i, err, बिलांग, cpu_offset, cpu_intc_offset;
 	u32 phandle, hartid, hartindex;
 	const fdt32_t *val;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &बिलांग);
+	if (!val || बिलांग < sizeof(fdt32_t))
 		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	बिलांग = बिलांग / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	for (i = 0; i < बिलांग; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
+		cpu_intc_offset = fdt_बुहोल_offset_by_phandle(fdt, phandle);
 		if (cpu_intc_offset < 0)
 			continue;
 
@@ -63,12 +63,12 @@ static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
 	if (!pd)
 		return SBI_ENOMEM;
 
-	rc = fdt_parse_aplic_node(fdt, nodeoff, pd);
+	rc = fdt_parse_aplic_बुहोल(fdt, nodeoff, pd);
 	if (rc)
 		goto fail_free_data;
 
-	if (pd->num_idc) {
-		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->num_idc);
+	if (pd->नुमेरो_idc) {
+		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->नुमेरो_idc);
 		if (!pd->idc_map) {
 			rc = SBI_ENOMEM;
 			goto fail_free_data;
@@ -86,7 +86,7 @@ static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
 	return 0;
 
 fail_free_idc_map:
-	if (pd->num_idc)
+	if (pd->नुमेरो_idc)
 		sbi_free(pd->idc_map);
 fail_free_data:
 	sbi_free(pd);

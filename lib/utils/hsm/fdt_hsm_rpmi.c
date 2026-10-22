@@ -22,7 +22,7 @@
 #define MAX_HSM_SUPSEND_STATE_NAMELEN		16
 
 struct rpmi_hsm_suspend {
-	u32 num_states;
+	u32 नुमेरो_states;
 	struct sbi_cpu_idle_state *states;
 };
 
@@ -59,8 +59,8 @@ static int rpmi_hsm_start(u32 hartid, ulong resume_addr)
 
 	return rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_START,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 }
 
 static int rpmi_hsm_stop(void)
@@ -79,8 +79,8 @@ static int rpmi_hsm_stop(void)
 
 	rc = rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_STOP,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 
@@ -96,7 +96,7 @@ static bool is_rpmi_hsm_susp_supported(struct rpmi_hsm_suspend *susp, u32 type)
 {
 	int i;
 
-	for (i = 0; i < susp->num_states; i++)
+	for (i = 0; i < susp->नुमेरो_states; i++)
 		if (type == susp->states[i].suspend_param)
 			return true;
 
@@ -124,8 +124,8 @@ static int rpmi_hsm_suspend(u32 type, ulong resume_addr)
 
 	rc = rpmi_normal_request_with_status(
 			rpmi->chan, RPMI_HSM_SRV_HART_SUSPEND,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 
@@ -146,7 +146,7 @@ static void rpmi_hsm_do_fixup(struct fdt_general_fixup *f, void *fdt)
 {
 	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
 
-	if (!rpmi || !rpmi->susp || !rpmi->susp->num_states)
+	if (!rpmi || !rpmi->susp || !rpmi->susp->नुमेरो_states)
 		return;
 
 	fdt_add_cpu_idle_states(fdt, rpmi->susp->states);
@@ -157,7 +157,7 @@ static struct fdt_general_fixup rpmi_hsm_fixup = {
 	.do_fixup = rpmi_hsm_do_fixup,
 };
 
-static int rpmi_hsm_get_num_suspend_states(struct mbox_chan *chan,
+static int rpmi_hsm_get_नुमेरो_suspend_states(struct mbox_chan *chan,
 					   struct rpmi_hsm_suspend *susp)
 {
 	int rc;
@@ -167,12 +167,12 @@ static int rpmi_hsm_get_num_suspend_states(struct mbox_chan *chan,
 	req.start_index = 0;
 	rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 	if (rc)
 		return rc;
 
-	susp->num_states = resp.returned + resp.remaining;
+	susp->नुमेरो_states = resp.returned + resp.remaining;
 	return 0;
 }
 
@@ -186,31 +186,31 @@ static int rpmi_hsm_get_suspend_states(struct mbox_chan *chan,
 	struct rpmi_hsm_get_susp_info_resp dresp;
 	struct sbi_cpu_idle_state *state;
 
-	if (!susp->num_states)
+	if (!susp->नुमेरो_states)
 		return 0;
 
 	req.start_index = 0;
 	do {
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 		if (rc)
 			return rc;
 
-		for (i = 0; i < resp.returned && cnt < susp->num_states; i++)
+		for (i = 0; i < resp.returned && cnt < susp->नुमेरो_states; i++)
 			susp->states[cnt++].suspend_param = resp.types[i];
 		req.start_index = i;
 	} while (resp.remaining);
 
-	for (i = 0; i < susp->num_states; i++) {
+	for (i = 0; i < susp->नुमेरो_states; i++) {
 		state = &susp->states[i];
 
 		dreq.suspend_type = state->suspend_param;
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_INFO,
-			&dreq, rpmi_u32_count(dreq), rpmi_u32_count(dreq),
-			&dresp, rpmi_u32_count(dresp), rpmi_u32_count(dresp));
+			&dreq, rpmi_u32_बिलांग(dreq), rpmi_u32_बिलांग(dreq),
+			&dresp, rpmi_u32_बिलांग(dresp), rpmi_u32_बिलांग(dresp));
 		if (rc)
 			return rc;
 
@@ -237,8 +237,8 @@ static int rpmi_hsm_update_hart_scratch(struct mbox_chan *chan,
 	do {
 		rc = rpmi_normal_request_with_status(
 			chan, RPMI_HSM_SRV_GET_HART_LIST,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+			&req, rpmi_u32_बिलांग(req), rpmi_u32_बिलांग(req),
+			&resp, rpmi_u32_बिलांग(resp), rpmi_u32_बिलांग(resp));
 		if (rc)
 			return rc;
 
@@ -285,23 +285,23 @@ static int rpmi_hsm_cold_init(const void *fdt, int nodeoff,
 		return SBI_ENOMEM;
 
 	/* Get number of HART suspend states */
-	rc = rpmi_hsm_get_num_suspend_states(chan, susp);
+	rc = rpmi_hsm_get_नुमेरो_suspend_states(chan, susp);
 	if (rc)
 		goto fail_free_susp;
 
 	/* Skip HART suspend state discovery for zero HART suspend states */
-	if (!susp->num_states)
+	if (!susp->नुमेरो_states)
 		goto skip_suspend_states;
 
 	/* Allocate array of HART suspend states */
-	susp->states = sbi_calloc(susp->num_states + 1, sizeof(*susp->states));
+	susp->states = sbi_calloc(susp->नुमेरो_states + 1, sizeof(*susp->states));
 	if (!susp->states) {
 		rc = SBI_ENOMEM;
 		goto fail_free_susp;
 	}
 
 	/* Allocate name of each HART suspend state */
-	for (i = 0; i < susp->num_states; i++) {
+	for (i = 0; i < susp->नुमेरो_states; i++) {
 		susp->states[i].name =
 			sbi_zalloc(MAX_HSM_SUPSEND_STATE_NAMELEN);
 		if (!susp->states[i].name) {
@@ -334,17 +334,17 @@ skip_suspend_states:
 		goto fail_free_susp_state_names;
 
 	/* Register HSM device */
-	if (!susp->num_states)
+	if (!susp->नुमेरो_states)
 		sbi_hsm_rpmi.hart_suspend = NULL;
 	sbi_hsm_set_device(&sbi_hsm_rpmi);
 
 	return 0;
 
 fail_free_susp_state_names:
-	for (i = 0; i < susp->num_states; i++)
+	for (i = 0; i < susp->नुमेरो_states; i++)
 		sbi_free((void *)susp->states[i].name);
 fail_free_susp_states:
-	if (susp->num_states)
+	if (susp->नुमेरो_states)
 		sbi_free(susp->states);
 fail_free_susp:
 	sbi_free(susp);

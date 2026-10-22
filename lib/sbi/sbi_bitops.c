@@ -82,25 +82,25 @@ found:
 unsigned long find_last_bit(const unsigned long *addr,
 			    unsigned long size)
 {
-	unsigned long words;
+	unsigned long मगा_सालिता;
 	unsigned long tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	मगा_सालिता = size / BITS_PER_LONG;
 
 	/* Partial final word? */
 	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
+		tmp = (addr[मगा_सालिता] & (~0UL >> (BITS_PER_LONG
 					 - (size & (BITS_PER_LONG-1)))));
 		if (tmp)
 			goto found;
 	}
 
-	while (words) {
-		tmp = addr[--words];
+	while (मगा_सालिता) {
+		tmp = addr[--मगा_सालिता];
 		if (tmp) {
 found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+			return मगा_सालिता * BITS_PER_LONG + sbi_fls(tmp);
 		}
 	}
 
@@ -131,13 +131,13 @@ unsigned long find_next_bit(const unsigned long *addr,
 		if (size < BITS_PER_LONG)
 			goto found_first;
 		if (tmp)
-			goto found_middle;
+			goto found_गित्ना;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
 	while (size & ~(BITS_PER_LONG-1)) {
 		if ((tmp = *(p++)))
-			goto found_middle;
+			goto found_गित्ना;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
@@ -149,7 +149,7 @@ found_first:
 	tmp &= (~0UL >> (BITS_PER_LONG - size));
 	if (tmp == 0UL)		/* Are any bits set? */
 		return result + size;	/* Nope. */
-found_middle:
+found_गित्ना:
 	return result + sbi_ffs(tmp);
 }
 
@@ -177,13 +177,13 @@ unsigned long find_next_zero_bit(const unsigned long *addr,
 		if (size < BITS_PER_LONG)
 			goto found_first;
 		if (~tmp)
-			goto found_middle;
+			goto found_गित्ना;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
 	while (size & ~(BITS_PER_LONG-1)) {
 		if (~(tmp = *(p++)))
-			goto found_middle;
+			goto found_गित्ना;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
@@ -195,6 +195,6 @@ found_first:
 	tmp |= ~0UL << size;
 	if (tmp == ~0UL)	/* Are any bits zero? */
 		return result + size;	/* Nope. */
-found_middle:
+found_गित्ना:
 	return result + sbi_ffz(tmp);
 }

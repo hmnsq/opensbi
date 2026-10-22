@@ -103,7 +103,7 @@ struct sbi_sse_event {
 	uint32_t event_id;
 	u32 hartindex;
 	struct sse_event_info *info;
-	struct sbi_dlist node;
+	struct sbi_dlist बुहोल;
 };
 
 /** Per-hart state */
@@ -162,11 +162,11 @@ struct sse_global_event {
 struct sse_event_info {
 	uint32_t event_id;
 	const struct sbi_sse_cb_ops *cb_ops;
-	SBI_SLIST_NODE(sse_event_info);
+	SBI_SLIST_बुहोल(sse_event_info);
 };
 
-static unsigned int local_event_count;
-static unsigned int global_event_count;
+static unsigned int local_event_बिलांग;
+static unsigned int global_event_बिलांग;
 static struct sse_global_event *global_events;
 
 static unsigned long sse_inject_fifo_off;
@@ -180,12 +180,12 @@ static int sse_ipi_inject_send(unsigned long hartid, uint32_t event_id);
 
 struct sse_event_info global_software_event = {
 	.event_id = SBI_SSE_EVENT_GLOBAL_SOFTWARE,
-	SBI_SLIST_NODE_INIT(NULL),
+	SBI_SLIST_बुहोल_INIT(NULL),
 };
 
 struct sse_event_info local_software_event = {
 	.event_id = SBI_SSE_EVENT_LOCAL_SOFTWARE,
-	SBI_SLIST_NODE_INIT(&global_software_event),
+	SBI_SLIST_बुहोल_INIT(&global_software_event),
 };
 
 static SBI_SLIST_HEAD(supported_events, sse_event_info) =
@@ -196,12 +196,12 @@ static SBI_SLIST_HEAD(supported_events, sse_event_info) =
  * events in order to return SBI_ERR_NOT_SUPPORTED for them.
  */
 static const uint32_t standard_events[] = {
-	SBI_SSE_EVENT_LOCAL_HIGH_PRIO_RAS,
+	SBI_SSE_EVENT_LOCAL_माताअस_PRIO_RAS,
 	SBI_SSE_EVENT_LOCAL_DOUBLE_TRAP,
-	SBI_SSE_EVENT_GLOBAL_HIGH_PRIO_RAS,
+	SBI_SSE_EVENT_GLOBAL_माताअस_PRIO_RAS,
 	SBI_SSE_EVENT_LOCAL_PMU_OVERFLOW,
-	SBI_SSE_EVENT_LOCAL_LOW_PRIO_RAS,
-	SBI_SSE_EVENT_GLOBAL_LOW_PRIO_RAS,
+	SBI_SSE_EVENT_LOCAL_माबाबा_PRIO_RAS,
+	SBI_SSE_EVENT_GLOBAL_माबाबा_PRIO_RAS,
 	SBI_SSE_EVENT_LOCAL_SOFTWARE,
 	SBI_SSE_EVENT_GLOBAL_SOFTWARE,
 };
@@ -283,7 +283,7 @@ static int sse_event_get(uint32_t event_id,
 		return SBI_EINVAL;
 
 	if (EVENT_IS_GLOBAL(event_id)) {
-		for (i = 0; i < global_event_count; i++) {
+		for (i = 0; i < global_event_बिलांग; i++) {
 			e = &global_events[i].event;
 			if (e->event_id == event_id) {
 				spin_lock(&global_events[i].lock);
@@ -293,7 +293,7 @@ static int sse_event_get(uint32_t event_id,
 		}
 	} else {
 		shs = sse_thishart_state_ptr();
-		for (i = 0; i < local_event_count; i++) {
+		for (i = 0; i < local_event_बिलांग; i++) {
 			e = &shs->local_events[i];
 			if (e->event_id == event_id) {
 				*eret = e;
@@ -323,7 +323,7 @@ static void sse_event_put(struct sbi_sse_event *e) NO_THREAD_SAFETY_ANALYSIS
 
 static void sse_event_remove_from_list(struct sbi_sse_event *e)
 {
-	sbi_list_del(&e->node);
+	sbi_list_del(&e->बुहोल);
 }
 
 /**
@@ -335,14 +335,14 @@ static void sse_event_add_to_list(struct sse_hart_state *state,
 {
 	struct sbi_sse_event *tmp;
 
-	sbi_list_for_each_entry(tmp, &state->enabled_event_list, node) {
+	sbi_list_for_each_entry(tmp, &state->enabled_event_list, बुहोल) {
 		if (e->attrs.prio < tmp->attrs.prio)
 			break;
 		if (e->attrs.prio == tmp->attrs.prio &&
 		    e->event_id < tmp->event_id)
 			break;
 	}
-	sbi_list_add_tail(&e->node, &tmp->node);
+	sbi_list_add_tail(&e->बुहोल, &tmp->बुहोल);
 }
 
 /**
@@ -685,7 +685,7 @@ void sbi_sse_process_pending_events(struct sbi_trap_regs *regs)
 
 	spin_lock(&state->enabled_event_lock);
 
-	sbi_list_for_each_entry(e, &state->enabled_event_list, node) {
+	sbi_list_for_each_entry(e, &state->enabled_event_list, बुहोल) {
 		ret = sse_event_check_inject(e, regs);
 		if (ret)
 			goto out;
@@ -832,7 +832,7 @@ int sbi_sse_complete(struct sbi_trap_regs *regs, struct sbi_ecall_return *out)
 	struct sse_hart_state *state = sse_thishart_state_ptr();
 
 	spin_lock(&state->enabled_event_lock);
-	sbi_list_for_each_entry(tmp, &state->enabled_event_list, node) {
+	sbi_list_for_each_entry(tmp, &state->enabled_event_list, बुहोल) {
 		/*
 		 * List of event is ordered by priority, first one running is
 		 * the one that needs to be completed
@@ -955,14 +955,14 @@ int sbi_sse_add_event(uint32_t event_id, const struct sbi_sse_cb_ops *cb_ops)
 	return SBI_OK;
 }
 
-int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_count,
+int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_बिलांग,
 		       unsigned long phys_lo, unsigned long phys_hi,
 		       unsigned long access)
 {
 	const unsigned align = __riscv_xlen >> 3;
-	uint64_t end_id = (uint64_t)base_attr_id + (attr_count - 1);
+	uint64_t end_id = (uint64_t)base_attr_id + (attr_बिलांग - 1);
 
-	if (attr_count == 0)
+	if (attr_बिलांग == 0)
 		return SBI_ERR_INVALID_PARAM;
 
 	if (end_id >= SBI_SSE_ATTR_MAX)
@@ -984,7 +984,7 @@ int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_count,
 		return SBI_EINVALID_ADDR;
 
 	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(), phys_lo,
-					 sizeof(unsigned long) * attr_count,
+					 sizeof(unsigned long) * attr_बिलांग,
 					 PRV_S, access))
 		return SBI_EINVALID_ADDR;
 
@@ -992,7 +992,7 @@ int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_count,
 }
 
 static void copy_attrs(unsigned long *out, const unsigned long *in,
-		       unsigned int long_count)
+		       unsigned int long_बिलांग)
 {
 	int i = 0;
 
@@ -1000,12 +1000,12 @@ static void copy_attrs(unsigned long *out, const unsigned long *in,
 	 * sbi_memcpy() does byte-per-byte copy, using this yields long-per-long
 	 * copy
 	 */
-	for (i = 0; i < long_count; i++)
+	for (i = 0; i < long_बिलांग; i++)
 		out[i] = in[i];
 }
 
 int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
-		       uint32_t attr_count, unsigned long output_phys_lo,
+		       uint32_t attr_बिलांग, unsigned long output_phys_lo,
 		       unsigned long output_phys_hi)
 {
 	int ret;
@@ -1013,7 +1013,7 @@ int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
 	struct sbi_sse_event *e;
 	unsigned long *attrs;
 
-	ret = sbi_sse_attr_check(base_attr_id, attr_count, output_phys_lo,
+	ret = sbi_sse_attr_check(base_attr_id, attr_बिलांग, output_phys_lo,
 				 output_phys_hi, SBI_DOMAIN_WRITE);
 	if (ret)
 		return ret;
@@ -1022,7 +1022,7 @@ int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
 	if (ret)
 		return ret;
 
-	sbi_hart_protection_temp_map_range(output_phys_lo, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_temp_map_range(output_phys_lo, sizeof(unsigned long) * attr_बिलांग);
 
 	/*
 	 * Copy all attributes at once since struct sse_event_attrs is matching
@@ -1033,9 +1033,9 @@ int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
 	 */
 	e_attrs = (unsigned long *)&e->attrs;
 	attrs = (unsigned long *)output_phys_lo;
-	copy_attrs(attrs, &e_attrs[base_attr_id], attr_count);
+	copy_attrs(attrs, &e_attrs[base_attr_id], attr_बिलांग);
 
-	sbi_hart_protection_temp_unmap_range(output_phys_lo, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_temp_unmap_range(output_phys_lo, sizeof(unsigned long) * attr_बिलांग);
 
 	sse_event_put(e);
 
@@ -1043,14 +1043,14 @@ int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
 }
 
 static int sse_write_attrs(struct sbi_sse_event *e, uint32_t base_attr_id,
-			   uint32_t attr_count, unsigned long input_phys)
+			   uint32_t attr_बिलांग, unsigned long पासोक_phys)
 {
 	int ret = 0;
 	unsigned long attr = 0, val;
-	uint32_t id, end_id = base_attr_id + attr_count;
-	unsigned long *attrs = (unsigned long *)input_phys;
+	uint32_t id, end_id = base_attr_id + attr_बिलांग;
+	unsigned long *attrs = (unsigned long *)पासोक_phys;
 
-	sbi_hart_protection_temp_map_range(input_phys, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_temp_map_range(पासोक_phys, sizeof(unsigned long) * attr_बिलांग);
 
 	for (id = base_attr_id; id < end_id; id++) {
 		val = attrs[attr++];
@@ -1066,20 +1066,20 @@ static int sse_write_attrs(struct sbi_sse_event *e, uint32_t base_attr_id,
 	}
 
 out:
-	sbi_hart_protection_temp_unmap_range(input_phys, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_temp_unmap_range(पासोक_phys, sizeof(unsigned long) * attr_बिलांग);
 
 	return ret;
 }
 
 int sbi_sse_write_attrs(uint32_t event_id, uint32_t base_attr_id,
-			uint32_t attr_count, unsigned long input_phys_lo,
-			unsigned long input_phys_hi)
+			uint32_t attr_बिलांग, unsigned long पासोक_phys_lo,
+			unsigned long पासोक_phys_hi)
 {
 	int ret = 0;
 	struct sbi_sse_event *e;
 
-	ret = sbi_sse_attr_check(base_attr_id, attr_count, input_phys_lo,
-				 input_phys_hi, SBI_DOMAIN_READ);
+	ret = sbi_sse_attr_check(base_attr_id, attr_बिलांग, पासोक_phys_lo,
+				 पासोक_phys_hi, SBI_DOMAIN_READ);
 	if (ret)
 		return ret;
 
@@ -1087,7 +1087,7 @@ int sbi_sse_write_attrs(uint32_t event_id, uint32_t base_attr_id,
 	if (ret)
 		return ret;
 
-	ret = sse_write_attrs(e, base_attr_id, attr_count, input_phys_lo);
+	ret = sse_write_attrs(e, base_attr_id, attr_बिलांग, पासोक_phys_lo);
 	sse_event_put(e);
 
 	return ret;
@@ -1143,15 +1143,15 @@ static void sse_event_init(struct sbi_sse_event *e, struct sse_event_info *info)
 	e->attrs.status |= BIT(SBI_SSE_ATTR_STATUS_INJECT_OFFSET);
 }
 
-static void sse_event_count_init()
+static void sse_event_बिलांग_init()
 {
 	struct sse_event_info *info;
 
 	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
 		if (EVENT_IS_GLOBAL(info->event_id))
-			global_event_count++;
+			global_event_बिलांग++;
 		else
-			local_event_count++;
+			local_event_बिलांग++;
 	}
 }
 
@@ -1161,7 +1161,7 @@ static int sse_global_init()
 	unsigned int ev = 0;
 	struct sse_event_info *info;
 
-	global_events = sbi_zalloc(sizeof(*global_events) * global_event_count);
+	global_events = sbi_zalloc(sizeof(*global_events) * global_event_बिलांग);
 	if (!global_events)
 		return SBI_ENOMEM;
 
@@ -1203,7 +1203,7 @@ int sbi_sse_init(struct sbi_scratch *scratch, bool cold_boot)
 	struct sbi_fifo *sse_inject_q;
 
 	if (cold_boot) {
-		sse_event_count_init();
+		sse_event_बिलांग_init();
 
 		ret = sse_global_init();
 		if (ret)
@@ -1221,7 +1221,7 @@ int sbi_sse_init(struct sbi_scratch *scratch, bool cold_boot)
 		}
 
 		sse_inject_fifo_mem_off = sbi_scratch_alloc_offset(
-			(global_event_count + local_event_count) *
+			(global_event_बिलांग + local_event_बिलांग) *
 			sizeof(struct sse_ipi_inject_data));
 		if (!sse_inject_fifo_mem_off) {
 			sbi_scratch_free_offset(sse_inject_fifo_off);
@@ -1241,7 +1241,7 @@ int sbi_sse_init(struct sbi_scratch *scratch, bool cold_boot)
 	if (!shs) {
 		/* Allocate per hart state and local events at once */
 		shs = sbi_zalloc(sizeof(*shs) + sizeof(struct sbi_sse_event) *
-							local_event_count);
+							local_event_बिलांग);
 		if (!shs)
 			return SBI_ENOMEM;
 
@@ -1260,7 +1260,7 @@ int sbi_sse_init(struct sbi_scratch *scratch, bool cold_boot)
 		sbi_scratch_offset_ptr(scratch, sse_inject_fifo_mem_off);
 
 	sbi_fifo_init(sse_inject_q, sse_inject_mem,
-		      (global_event_count + local_event_count),
+		      (global_event_बिलांग + local_event_बिलांग),
 		      sizeof(struct sse_ipi_inject_data));
 
 	return 0;

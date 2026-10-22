@@ -16,7 +16,7 @@ void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
 		   u16 entry_size) NO_THREAD_SAFETY_ANALYSIS
 {
 	fifo->queue	  = queue_mem;
-	fifo->num_entries = entries;
+	fifo->नुमेरो_entries = entries;
 	fifo->entry_size  = entry_size;
 	SPIN_LOCK_INIT(fifo->qlock);
 	fifo->avail = fifo->tail = 0;
@@ -27,7 +27,7 @@ void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
 static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	return (fifo->avail == fifo->नुमेरो_entries) ? true : false;
 }
 
 u16 sbi_fifo_avail(struct sbi_fifo *fifo)
@@ -65,8 +65,8 @@ static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
 	u32 head;
 
 	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
-		head = head - fifo->num_entries;
+	if (head >= fifo->नुमेरो_entries)
+		head = head - fifo->नुमेरो_entries;
 
 	switch (fifo->entry_size) {
 	case 1:
@@ -123,7 +123,7 @@ static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
 skip_data_copy:
 	fifo->avail--;
 	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
+	if (fifo->tail >= fifo->नुमेरो_entries)
 		fifo->tail = 0;
 }
 
@@ -152,7 +152,7 @@ int sbi_fifo_is_empty(struct sbi_fifo *fifo)
 static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	size_t size = (size_t)fifo->num_entries * fifo->entry_size;
+	size_t size = (size_t)fifo->नुमेरो_entries * fifo->entry_size;
 
 	fifo->avail = 0;
 	fifo->tail  = 0;
@@ -197,8 +197,8 @@ int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
 
 	for (i = 0; i < fifo->avail; i++) {
 		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
-			index -= fifo->num_entries;
+		if (index >= fifo->नुमेरो_entries)
+			index -= fifo->नुमेरो_entries;
 		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
 		ret = fptr(in, entry);
 

@@ -27,14 +27,14 @@ int sbi_strcmp(const char *a, const char *b)
 	return *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+int sbi_strncmp(const char *a, const char *b, size_t बिलांग)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	for (; बिलांग > 0 && *a == *b && *a != '\0'; a++, b++, बिलांग--)
 		;
 
 	/* No difference till the end */
-	if (!count)
+	if (!बिलांग)
 		return 0;
 
 	return *a - *b;
@@ -52,11 +52,11 @@ size_t sbi_strlen(const char *str)
 	return ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(const char *str, size_t बिलांग)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	while (*str != '\0' && ret < बिलांग) {
 		ret++;
 		str++;
 	}
@@ -73,15 +73,15 @@ char *sbi_strcpy(char *dest, const char *src)
 	return ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+char *sbi_strncpy(char *dest, const char *src, size_t बिलांग)
 {
 	char *tmp = dest;
 
-	while (count) {
+	while (बिलांग) {
 		if ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		बिलांग--;
 	}
 	return dest;
 }
@@ -108,32 +108,32 @@ char *sbi_strrchr(const char *s, int c)
 	else
 		return (char *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+void *sbi_memset(void *s, int c, size_t बिलांग)
 {
 	char *temp = s;
 
-	while (count > 0) {
-		count--;
+	while (बिलांग > 0) {
+		बिलांग--;
 		*temp++ = c;
 	}
 
 	return s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+void *sbi_memcpy(void *dest, const void *src, size_t बिलांग)
 {
 	char *temp1	  = dest;
 	const char *temp2 = src;
 
-	while (count > 0) {
+	while (बिलांग > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		बिलांग--;
 	}
 
 	return dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+void *sbi_memmove(void *dest, const void *src, size_t बिलांग)
 {
 	char *temp1	  = (char *)dest;
 	const char *temp2 = (char *)src;
@@ -142,48 +142,48 @@ void *sbi_memmove(void *dest, const void *src, size_t count)
 		return dest;
 
 	if (dest < src) {
-		while (count > 0) {
+		while (बिलांग > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			बिलांग--;
 		}
 	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+		temp1 = (char *)dest + बिलांग - 1;
+		temp2 = (char *)src + बिलांग - 1;
 
-		while (count > 0) {
+		while (बिलांग > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			बिलांग--;
 		}
 	}
 
 	return dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+int sbi_memcmp(const void *s1, const void *s2, size_t बिलांग)
 {
 	const char *temp1 = s1;
 	const char *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	for (; बिलांग > 0 && (*temp1 == *temp2); बिलांग--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
+	if (बिलांग > 0)
 		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
 	else
 		return 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+void *sbi_memchr(const void *s, int c, size_t बिलांग)
 {
 	const unsigned char *temp = s;
 
-	while (count > 0) {
+	while (बिलांग > 0) {
 		if ((unsigned char)c == *temp++) {
 			return (void *)(temp - 1);
 		}
-		count--;
+		बिलांग--;
 	}
 
 	return NULL;

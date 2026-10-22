@@ -46,7 +46,7 @@ static int sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
 	}
 
 	if (ret >= 0) {
-		out->value = ret;
+		out->हालागा = ret;
 		ret = 0;
 	}
 

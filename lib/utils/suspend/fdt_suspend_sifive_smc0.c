@@ -151,7 +151,7 @@ static inline void sifive_smc0_set_cg(bool enable)
 
 static int sifive_smc0_prep(void)
 {
-	const struct sbi_domain *dom = &root;
+	const struct sbi_domain *dom = &उगात;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	unsigned long i;
 	int rc;
@@ -210,7 +210,7 @@ fail:
 
 static int sifive_smc0_enter(void)
 {
-	const struct sbi_domain *dom = &root;
+	const struct sbi_domain *dom = &उगात;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	unsigned long i;
 	u32 target, rc;
@@ -293,7 +293,7 @@ static int sifive_smc0_probe(const void *fdt, int nodeoff, const struct fdt_matc
 	int rc;
 	u64 addr;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &addr, NULL);
 	if (rc)
 		return rc;
 

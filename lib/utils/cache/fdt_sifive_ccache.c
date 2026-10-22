@@ -35,13 +35,13 @@
 #define ccache_mb_b()		RISCV_FENCE(rw, o)
 #define ccache_mb_a()		RISCV_FENCE(o, rw)
 
-#define CCACHE_ALL_OP_REQ_BATCH_NUM	0x10
-#define CCACHE_ALL_OP_REQ_BATCH_MASK (CCACHE_CMD_QLEN + 1 - CCACHE_ALL_OP_REQ_BATCH_NUM)
+#define CCACHE_ALL_OP_REQ_BATCH_नुमेरो	0x10
+#define CCACHE_ALL_OP_REQ_BATCH_MASK (CCACHE_CMD_QLEN + 1 - CCACHE_ALL_OP_REQ_BATCH_नुमेरो)
 
 struct sifive_ccache {
 	struct cache_device dev;
 	void *addr;
-	u64 total_lines;
+	u64 total_मगा_लिन्या;
 };
 
 #define to_ccache(_dev) container_of(_dev, struct sifive_ccache, dev)
@@ -70,7 +70,7 @@ static int sifive_ccache_flush_all(struct cache_device *dev)
 	struct sifive_ccache *ccache = to_ccache(dev);
 	void *status_addr = (char *)ccache->addr + CCACHE_STATUS_CSR;
 	void *cmd_csr_addr = (char *)ccache->addr + CCACHE_CMD_CSR;
-	u64 total_cnt = ccache->total_lines;
+	u64 total_cnt = ccache->total_मगा_लिन्या;
 	u64 cmd = CFLUSH_SETWAY_CLEANINV << CMD_CSR_CMD_OFFSET;
 	int loop_cnt = CCACHE_CMD_QLEN & CCACHE_ALL_OP_REQ_BATCH_MASK;
 
@@ -94,8 +94,8 @@ send_cmd:
 		sifive_ccache_write_cmd(cmd + (13 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (14 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
 		sifive_ccache_write_cmd(cmd + (15 << CMD_CSR_BANK_OFFSET), cmd_csr_addr);
-		cmd += CCACHE_ALL_OP_REQ_BATCH_NUM << CMD_CSR_BANK_OFFSET;
-		loop_cnt -= CCACHE_ALL_OP_REQ_BATCH_NUM;
+		cmd += CCACHE_ALL_OP_REQ_BATCH_नुमेरो << CMD_CSR_BANK_OFFSET;
+		loop_cnt -= CCACHE_ALL_OP_REQ_BATCH_नुमेरो;
 	}
 	if (!total_cnt)
 		goto done;
@@ -103,11 +103,11 @@ send_cmd:
 	/* Ensure the ccache is able receive more than 16 requests */
 	do {
 		loop_cnt = (CCACHE_CMD_QLEN - sifive_ccache_read_status(status_addr));
-	} while (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_NUM);
+	} while (loop_cnt < CCACHE_ALL_OP_REQ_BATCH_नुमेरो);
 	loop_cnt &= CCACHE_ALL_OP_REQ_BATCH_MASK;
 
 	if (total_cnt < loop_cnt) {
-		loop_cnt = (total_cnt + CCACHE_ALL_OP_REQ_BATCH_NUM) & CCACHE_ALL_OP_REQ_BATCH_MASK;
+		loop_cnt = (total_cnt + CCACHE_ALL_OP_REQ_BATCH_नुमेरो) & CCACHE_ALL_OP_REQ_BATCH_MASK;
 		cmd -= ((loop_cnt - total_cnt) << CMD_CSR_BANK_OFFSET);
 		total_cnt = loop_cnt;
 	}
@@ -132,7 +132,7 @@ static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fd
 	int rc;
 
 	/* find the ccache base control address */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
+	rc = fdt_get_बुहोल_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
 	if (rc < 0 && reg_addr)
 		return SBI_ENODEV;
 
@@ -159,7 +159,7 @@ static int sifive_ccache_cold_init(const void *fdt, int nodeoff, const struct fd
 
 	ways = (config_csr & CFG_CSR_WAY_MASK) >> CFG_CSR_WAY_OFFSET;
 
-	ccache->total_lines = sets * ways * banks;
+	ccache->total_मगा_लिन्या = sets * ways * banks;
 
 	return SBI_OK;
 }

@@ -11,7 +11,7 @@
 static void log2roundup_test(struct sbiunit_test_case *test)
 {
     struct {
-        unsigned long input;
+        unsigned long पासोक;
         unsigned long expected;
     } cases[] = {
         {1, 0},
@@ -33,7 +33,7 @@ static void log2roundup_test(struct sbiunit_test_case *test)
     };
 
     for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
+        unsigned long result = log2roundup(cases[i].पासोक);
         SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
     }
 }

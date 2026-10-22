@@ -37,12 +37,12 @@
   if ((dev) || (cmd)) __builtin_trap(); \
   (payload); })
 #endif
-#define FROMHOST_DEV(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
-#define FROMHOST_CMD(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
-#define FROMHOST_DATA(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
+#define FROMHOST_DEV(fromhost_हालागा) \
+	((uint64_t)((fromhost_हालागा) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
+#define FROMHOST_CMD(fromhost_हालागा) \
+	((uint64_t)((fromhost_हालागा) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
+#define FROMHOST_DATA(fromhost_हालागा) \
+	((uint64_t)((fromhost_हालागा) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
 
 #define PK_SYS_write 64
 

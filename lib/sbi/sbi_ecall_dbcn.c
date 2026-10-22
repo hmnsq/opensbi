@@ -48,9 +48,9 @@ static int sbi_ecall_dbcn_handler(unsigned long extid, unsigned long funcid,
 			return SBI_ERR_INVALID_PARAM;
 		sbi_hart_protection_temp_map_range(regs->a1, regs->a0);
 		if (funcid == SBI_EXT_DBCN_CONSOLE_WRITE)
-			out->value = sbi_nputs((const char *)regs->a1, regs->a0);
+			out->हालागा = sbi_nputs((const char *)regs->a1, regs->a0);
 		else
-			out->value = sbi_ngets((char *)regs->a1, regs->a0);
+			out->हालागा = sbi_ngets((char *)regs->a1, regs->a0);
 		sbi_hart_protection_temp_unmap_range(regs->a1, regs->a0);
 		return 0;
 	case SBI_EXT_DBCN_CONSOLE_WRITE_BYTE:

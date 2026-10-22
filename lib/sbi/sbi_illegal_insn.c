@@ -48,15 +48,15 @@ static int misc_mem_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
 static int system_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
 {
 	bool do_write	= false;
-	int rs1_num	= GET_RS1_NUM(insn);
+	int rs1_नुमेरो	= GET_RS1_नुमेरो(insn);
 	ulong rs1_val	= GET_RS1(insn, regs);
-	int csr_num	= GET_CSR_NUM((u32)insn);
+	int csr_नुमेरो	= GET_CSR_नुमेरो((u32)insn);
 	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
 	ulong csr_val, new_csr_val;
 
 	if (prev_mode == PRV_M) {
 		sbi_printf("%s: Failed to access CSR %#x from M-mode",
-			__func__, csr_num);
+			__func__, csr_नुमेरो);
 		return SBI_EFAIL;
 	}
 
@@ -68,7 +68,7 @@ static int system_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
 		return truly_illegal_insn(insn, regs);
 	}
 
-	if (sbi_emulate_csr_read(csr_num, regs, &csr_val))
+	if (sbi_emulate_csr_read(csr_नुमेरो, regs, &csr_val))
 		return truly_illegal_insn(insn, regs);
 
 	switch (funct3) {
@@ -78,29 +78,29 @@ static int system_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
 		break;
 	case CSRRS:
 		new_csr_val = csr_val | rs1_val;
-		do_write    = (rs1_num != 0);
+		do_write    = (rs1_नुमेरो != 0);
 		break;
 	case CSRRC:
 		new_csr_val = csr_val & ~rs1_val;
-		do_write    = (rs1_num != 0);
+		do_write    = (rs1_नुमेरो != 0);
 		break;
 	case CSRRWI:
-		new_csr_val = rs1_num;
+		new_csr_val = rs1_नुमेरो;
 		do_write    = true;
 		break;
 	case CSRRSI:
-		new_csr_val = csr_val | rs1_num;
-		do_write    = (rs1_num != 0);
+		new_csr_val = csr_val | rs1_नुमेरो;
+		do_write    = (rs1_नुमेरो != 0);
 		break;
 	case CSRRCI:
-		new_csr_val = csr_val & ~rs1_num;
-		do_write    = (rs1_num != 0);
+		new_csr_val = csr_val & ~rs1_नुमेरो;
+		do_write    = (rs1_नुमेरो != 0);
 		break;
 	default:
 		return truly_illegal_insn(insn, regs);
 	}
 
-	if (do_write && sbi_emulate_csr_write(csr_num, regs, new_csr_val))
+	if (do_write && sbi_emulate_csr_write(csr_नुमेरो, regs, new_csr_val))
 		return truly_illegal_insn(insn, regs);
 
 	SET_RD(insn, regs, csr_val);

@@ -392,7 +392,7 @@ int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
 }
 
 static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
-			       struct sbi_dbtr_data_msg *recv)
+			       struct sbi_dbtr_data_मेनसाहे *recv)
 {
 	unsigned long tdata1;
 
@@ -602,7 +602,7 @@ static int dbtr_trigger_valid(unsigned long type, unsigned long tdata)
 	return 0;
 }
 
-int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
+int sbi_dbtr_नुमेरो_trig(unsigned long data, unsigned long *out)
 {
 	unsigned long type = TDATA1_GET_TYPE(data);
 	u32 hartid = current_hartid();
@@ -636,9 +636,9 @@ int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
 }
 
 int sbi_dbtr_read_trig(unsigned long smode,
-		       unsigned long trig_idx_base, unsigned long trig_count)
+		       unsigned long trig_idx_base, unsigned long trig_बिलांग)
 {
-	struct sbi_dbtr_data_msg *xmit;
+	struct sbi_dbtr_data_मेनसाहे *xmit;
 	struct sbi_dbtr_trigger *trig;
 	union sbi_dbtr_shmem_entry *entry;
 	void *shmem_base = NULL;
@@ -649,7 +649,7 @@ int sbi_dbtr_read_trig(unsigned long smode,
 		return SBI_ERR_FAILED;
 
 	if (trig_idx_base >= hs->total_trigs ||
-	    trig_idx_base + trig_count >= hs->total_trigs)
+	    trig_idx_base + trig_बिलांग >= hs->total_trigs)
 		return SBI_ERR_BAD_RANGE;
 
 	if (sbi_dbtr_shmem_disabled(hs))
@@ -658,8 +658,8 @@ int sbi_dbtr_read_trig(unsigned long smode,
 	shmem_base = hart_shmem_base(hs);
 
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
+					   trig_बिलांग * sizeof(*entry));
+	for_each_trig_entry(shmem_base, trig_बिलांग, typeof(*entry), entry) {
 		xmit = &entry->data;
 		trig = INDEX_TO_TRIGGER((_idx + trig_idx_base));
 		csr_write(CSR_TSELECT, trig->index);
@@ -672,18 +672,18 @@ int sbi_dbtr_read_trig(unsigned long smode,
 		xmit->tdata3 = cpu_to_lle(trig->tdata3);
 	}
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+					     trig_बिलांग * sizeof(*entry));
 
 	return SBI_SUCCESS;
 }
 
 int sbi_dbtr_install_trig(unsigned long smode,
-			  unsigned long trig_count, unsigned long *out)
+			  unsigned long trig_बिलांग, unsigned long *out)
 {
 	void *shmem_base = NULL;
 	union sbi_dbtr_shmem_entry *entry;
-	struct sbi_dbtr_data_msg *recv;
-	struct sbi_dbtr_id_msg *xmit;
+	struct sbi_dbtr_data_मेनसाहे *recv;
+	struct sbi_dbtr_id_मेनसाहे *xmit;
 	unsigned long ctrl;
 	u32 claimed = 0;
 	int slot;
@@ -700,7 +700,7 @@ int sbi_dbtr_install_trig(unsigned long smode,
 
 	shmem_base = hart_shmem_base(hs);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
+					   trig_बिलांग * sizeof(*entry));
 
 	/*
 	 * SBI v3.0 sec 19.4 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -714,21 +714,21 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
 	/* Check requested triggers configuration */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
+	for_each_trig_entry(shmem_base, trig_बिलांग, typeof(*entry), entry) {
+		recv = (struct sbi_dbtr_data_मेनसाहे *)(&entry->data);
 		ctrl = recv->tdata1;
 
 		if (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
+							     trig_बिलांग * sizeof(*entry));
 			return SBI_ERR_FAILED;
 		}
 
 		if (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
+							     trig_बिलांग * sizeof(*entry));
 			return SBI_ERR_INVALID_PARAM;
 		}
 
@@ -736,7 +736,7 @@ int sbi_dbtr_install_trig(unsigned long smode,
 		    (recv->tdata3 && !tdata3_impl)) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
+							     trig_बिलांग * sizeof(*entry));
 			return SBI_ERR_NOT_SUPPORTED;
 		}
 
@@ -746,15 +746,15 @@ int sbi_dbtr_install_trig(unsigned long smode,
 						   lle_to_cpu(recv->tdata3))) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
+							     trig_बिलांग * sizeof(*entry));
 			return SBI_ERR_NOT_SUPPORTED;
 		}
 	}
 
-	if (hs->available_trigs < trig_count) {
+	if (hs->available_trigs < trig_बिलांग) {
 		*out = hs->available_trigs;
 		sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-						     trig_count * sizeof(*entry));
+						     trig_बिलांग * sizeof(*entry));
 		return SBI_ERR_FAILED;
 	}
 
@@ -763,8 +763,8 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	 * is installed if any of the requested configurations cannot be
 	 * matched to a free hardware trigger slot.
 	 */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
+	for_each_trig_entry(shmem_base, trig_बिलांग, typeof(*entry), entry) {
+		recv = (struct sbi_dbtr_data_मेनसाहे *)(&entry->data);
 		slot = dbtr_find_free_slot(hs, claimed,
 					   lle_to_cpu(recv->tdata1),
 					   lle_to_cpu(recv->tdata2),
@@ -772,16 +772,16 @@ int sbi_dbtr_install_trig(unsigned long smode,
 		if (slot < 0) {
 			*out = _idx;
 			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
+							     trig_बिलांग * sizeof(*entry));
 			return SBI_ERR_FAILED;
 		}
 		claimed |= BIT(slot);
 	}
 
 	/* Install triggers */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
-		xmit = (struct sbi_dbtr_id_msg *)(&entry->id);
+	for_each_trig_entry(shmem_base, trig_बिलांग, typeof(*entry), entry) {
+		recv = (struct sbi_dbtr_data_मेनसाहे *)(&entry->data);
+		xmit = (struct sbi_dbtr_id_मेनसाहे *)(&entry->id);
 
 		/*
 		 * The dry-run above matched every requested configuration
@@ -799,7 +799,7 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	}
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+					     trig_बिलांग * sizeof(*entry));
 
 	return SBI_SUCCESS;
 }
@@ -851,7 +851,7 @@ int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
 }
 
 int sbi_dbtr_update_trig(unsigned long smode,
-			 unsigned long trig_count)
+			 unsigned long trig_बिलांग)
 {
 	unsigned long trig_idx;
 	struct sbi_dbtr_trigger *trig;
@@ -869,7 +869,7 @@ int sbi_dbtr_update_trig(unsigned long smode,
 
 	shmem_base = hart_shmem_base(hs);
 
-	if (trig_count >= hs->total_trigs)
+	if (trig_बिलांग >= hs->total_trigs)
 		return SBI_ERR_BAD_RANGE;
 
 	/*
@@ -881,7 +881,7 @@ int sbi_dbtr_update_trig(unsigned long smode,
 	tdata2_impl = tdata_implemented(CSR_TDATA2);
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
+	for_each_trig_entry(shmem_base, trig_बिलांग, typeof(*entry), entry) {
 		sbi_hart_protection_temp_map_range((unsigned long)entry, sizeof(*entry));
 		trig_idx = entry->id.idx;
 

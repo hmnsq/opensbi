@@ -40,29 +40,29 @@ static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
 
 	switch (funcid) {
 	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
+		out->हालागा = (SBI_ECALL_VERSION_MAJOR <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
 			     (SBI_SPEC_VERSION_MAJOR_MASK <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
+		out->हालागा = out->हालागा | SBI_ECALL_VERSION_MINOR;
 		break;
 	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
+		out->हालागा = sbi_ecall_get_impid();
 		break;
 	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
+		out->हालागा = OPENSBI_VERSION;
 		break;
 	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
+		out->हालागा = csr_read(CSR_MVENDORID);
 		break;
 	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
+		out->हालागा = csr_read(CSR_MARCHID);
 		break;
 	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
+		out->हालागा = csr_read(CSR_MIMPID);
 		break;
 	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
+		ret = sbi_ecall_base_probe(regs->a0, &out->हालागा);
 		break;
 	default:
 		ret = SBI_ENOTSUPP;

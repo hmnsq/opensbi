@@ -46,7 +46,7 @@ static u32 uart_baudrate;
  * Find minimum divisor divides in_freq to max_target_hz;
  * Based on SiFive UART driver (sifive-uart.c)
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+static inline unsigned int uart_min_clk_पांगहाति(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
@@ -108,7 +108,7 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 	if (in_freq && baudrate) {
 		set_reg(UART_REG_BRGR, UART_BRGR_CD_CLKDIVISOR);
 		set_reg(UART_REG_BDIVR,
-			uart_min_clk_divisor(in_freq, baudrate));
+			uart_min_clk_पांगहाति(in_freq, baudrate));
 	}
 
 	/* Software reset TX RX data path and enable TX RX */
@@ -126,7 +126,7 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&cadence_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	return sbi_domain_उगात_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

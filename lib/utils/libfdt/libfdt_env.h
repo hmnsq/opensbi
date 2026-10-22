@@ -88,10 +88,10 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+static inline size_t fdt_strnlen(const char *string, size_t max_बिलांग)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    const char *p = memchr(string, 0, max_बिलांग);
+    return p ? p - string : max_बिलांग;
 }
 
 #endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
