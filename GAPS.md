@@ -1,0 +1,504 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+
+## Keywords with no word in a language's table
+
+- guru:size_t: 71
+- guru:asm: 71
+- guru:memmove: 71
+- guru:memchr: 71
+- guru:memcmp: 71
+- guru:va_arg: 71
+- guru:va_list: 71
+- guru:va_start: 71
+- guru:va_end: 71
+- guru:CHAR_BIT: 71
+- guru:strchr: 71
+- guru:offsetof: 71
+- guru:strncpy: 71
+- guru:strrchr: 71
+- guru:UINT_MAX: 71
+- guru:strtoul: 71
+- guru:ULONG_MAX: 71
+- guru:USHRT_MAX: 71
+- guru:strcmp: 70
+- guru:open: 70
+- guru:memset: 70
+- guru:strcpy: 70
+- guru:#define: 66
+- guru:#endif: 66
+- guru:#undef: 66
+- guru:#ifndef: 66
+- guru:#ifdef: 66
+- guru:#error: 66
+- guru:unsigned: 62
+- guru:long: 62
+- guru:strlen: 62
+- guru:memcpy: 62
+- guru:strncmp: 62
+- guru:INT_MAX: 62
+- guru:short: 62
+- yantra:global: 45
+- guru:void: 25
+- guru:static: 25
+- guru:const: 25
+- guru:NULL: 25
+- guru:goto: 25
+- guru:continue: 25
+- guru:switch: 25
+- guru:default: 25
+- guru:do: 25
+- guru:extern: 25
+- guru:typedef: 25
+- guru:#elif: 25
+- guru:write: 25
+- guru:read: 25
+- guru:for: 9
+- guru:struct: 9
+- guru:char: 9
+- guru:sizeof: 9
+- guru:break: 9
+- guru:case: 9
+- guru:volatile: 9
+- guru:inline: 9
+- guru:enum: 9
+- guru:register: 9
+- guru:union: 9
+- guru:if: 1
+- guru:return: 1
+- guru:int: 1
+- guru:else: 1
+- guru:while: 1
+- guru:#if: 1
+- guru:#else: 1
+
+## Names with no dictionary entry (the most common first)
+
+- `fdt`: 76
+- `rc`: 76
+- `i`: 76
+- `u32`: 76
+- `ret`: 76
+- `val`: 76
+- `scratch`: 76
+- `len`: 76
+- `regs`: 76
+- `addr`: 76
+- `chip`: 76
+- `name`: 76
+- `truly_illegal_insn`: 76
+- `reg`: 76
+- `dom`: 76
+- `test`: 76
+- `SBI_EINVAL`: 76
+- `sbi_printf`: 76
+- `nodeoff`: 76
+- `insn`: 76
+- `err`: 76
+- `hartid`: 76
+- `nodeoffset`: 76
+- `uint32_t`: 76
+- `aplic`: 76
+- `flags`: 76
+- `dev`: 76
+- `hwirq`: 76
+- `e`: 76
+- `sbi_scratch`: 76
+- `uint64_t`: 76
+- `trap`: 76
+- `SBIUNIT_EXPECT_EQ`: 76
+- `type`: 76
+- `tmp`: 76
+- `u64`: 76
+- `pos`: 76
+- `p`: 76
+- `id`: 76
+- `imsic`: 76
+- `state`: 76
+- `prop`: 76
+- `chan`: 76
+- `mt`: 76
+- `trig`: 76
+- `fdt32_t`: 76
+- `fifo`: 76
+- `adap`: 76
+- `n`: 76
+- `rmap`: 76
+- `channel`: 76
+- `fdt_getprop`: 76
+- `compatible`: 76
+- `rd_val`: 76
+- `reg_addr`: 76
+- `BPL`: 76
+- `resp`: 76
+- `csr_write`: 76
+- `cidx`: 76
+- `j`: 76
+- `mctl`: 76
+- `v`: 76
+- `req`: 76
+- `phs`: 76
+- `tcntx`: 76
+- `SBI_ENOMEM`: 76
+- `writel`: 76
+- `str`: 76
+- `hartindex`: 76
+- `h`: 76
+- `attrs`: 76
+- `sbi_domain`: 76
+- `SBI_ENODEV`: 76
+- `SBI_ENOTSUPP`: 76
+- `plic`: 76
+- `xfer`: 76
+- `sbi_scratch_thishart_ptr`: 76
+- `mLocation`: 76
+- `s`: 76
+- `SBI_OK`: 76
+- `DEFINE_ATOMIC_FUNCTION`: 76
+- `tdata1`: 76
+- `mstatus`: 76
+- `a0`: 76
+- `csr_read`: 76
+- `gp`: 76
+- `cppc`: 76
+- `res`: 76
+- `fdt_driver`: 76
+- `lenp`: 76
+- `ms`: 76
+- `uint8_t`: 76
+- `uart`: 76
+- `srm`: 76
+- `format`: 76
+- `fdto`: 76
+- `sbi_hart_hang`: 76
+- `tinfo`: 76
+- `readl`: 76
+- `sbiunit_test_case`: 76
+- `tstate`: 76
+- `event_id`: 76
+- `init`: 76
+- `adapter`: 76
+- `mbox`: 76
+- `cause`: 76
+- `buf`: 76
+- `hs`: 76
+- `uptrap`: 76
+- `sbi_hart_has_extension`: 76
+- `sbi_trap_regs`: 76
+- `ch`: 76
+- `b`: 76
+- `hpctrl`: 76
+- `t`: 76
+- `sbi_free`: 76
+- `sbi_irqchip_device`: 76
+- `phandle`: 76
+- `hdata`: 76
+- `ev`: 76
+- `SBIUNIT_TEST_CASE`: 76
+- `spin_unlock`: 76
+- `current_hartid`: 76
+- `plat`: 76
+- `idx`: 76
+- `a1`: 76
+- `reset`: 76
+- `ext`: 76
+- `sbi_ecall_extension`: 76
+- `hfeatures`: 76
+- `pmu_dev`: 76
+- `qctx`: 76
+- `sbi_zalloc`: 76
+- `namelen`: 76
+- `SBI_EFAIL`: 76
+- `PRILX`: 76
+- `sbi_sse_event`: 76
+- `can_assume`: 76
+- `max_rx_len`: 76
+- `src`: 76
+- `min_tx_len`: 76
+- `max_tx_len`: 76
+- `min_rx_len`: 76
+- `sbi_trap_info`: 76
+- `ctx`: 76
+- `susp`: 76
+- `a`: 76
+- `ulRHS`: 76
+- `ctr_idx`: 76
+- `list`: 76
+- `irqchip`: 76
+- `ptr`: 76
+- `u`: 76
+- `ulLHS`: 76
+- `noff`: 76
+- `hprot`: 76
+- `event`: 76
+- `dest`: 76
+- `delta`: 76
+- `cmd`: 76
+- `deleg`: 76
+- `nextoffset`: 76
+- `x`: 76
+- `k`: 76
+- `sbi_domain_thishart_ptr`: 76
+- `conf`: 76
+- `np`: 76
+- `shs`: 76
+- `mbox_chan`: 76
+- `defined`: 76
+- `rmb`: 76
+- `c`: 76
+- `pmp_flags`: 76
+- `dom_ctx`: 76
+- `funcid`: 76
+- `FDT_ERR_NOTFOUND`: 76
+- `bufsize`: 76
+- `s32`: 76
+- `tval`: 76
+- `orig_trap`: 76
+- `test_str1`: 76
+- `cache_device`: 76
+- `SBI_ENOENT`: 76
+- `pmp_idx`: 76
+- `s64`: 76
+- `info`: 76
+- `vstart`: 76
+- `hart_state`: 76
+- `priv`: 76
+- `misa_extension`: 76
+- `fwft_config`: 76
+- `pmp`: 76
+- `u8`: 76
+- `sleep_type`: 76
+- `fdt_totalsize`: 76
+- `tmc0`: 76
+- `get_reg`: 76
+- `dst`: 76
+- `sbi_domain_memregion`: 76
+- `d`: 76
+- `event_idx`: 76
+- `test_atomic`: 76
+- `fdt_property`: 76
+- `pd`: 76
+- `SBI_SUCCESS`: 76
+- `poffset`: 76
+- `ia`: 76
+- `regmap`: 76
+- `sbi_strlen`: 76
+- `TS`: 76
+- `sbi_trap_context`: 76
+- `fail`: 76
+- `attr_id`: 76
+- `llcache`: 76
+- `bp`: 76
+- `PRV_S`: 76
+- `extid`: 76
+- `a2`: 76
+- `sbi_tlb_info`: 76
+- `ops`: 76
+- `tinst`: 76
+- `hstatus`: 76
+- `imm`: 76
+- `SEPARATOR`: 76
+- `CSR_MSTATUS`: 76
+- `CSR_MIE`: 76
+- `CSourceLocation`: 76
+- `isFatal`: 76
+- `property`: 76
+- `baudrate`: 76
+- `pc`: 76
+- `SBI_DOMAIN_MEMREGION_MMIO`: 76
+- `sbi_trap_redirect`: 76
+- `cold_boot`: 76
+- `hd`: 76
+- `attr_val`: 76
+- `mType`: 76
+- `plmt`: 76
+- `feature`: 76
+- `vlenb`: 76
+- `oldlen`: 76
+- `rx`: 76
+- `reason`: 76
+- `define`: 76
+- `SBI_ERR_INVALID_PARAM`: 76
+- `sbi_memcpy`: 76
+- `handle`: 76
+- `hmask`: 76
+- `qlock`: 76
+- `enable`: 76
+- `SBI_ENOSYS`: 76
+- `msicfg`: 76
+- `tdata2`: 76
+- `tdata3`: 76
+- `recv`: 76
+- `regions`: 76
+- `u16`: 76
+- `hbase`: 76
+- `tlb_info`: 76
+- `MUST_HOLD`: 76
+- `hsm_dev`: 76
+- `opaque`: 76
+- `CTypeDescriptor`: 76
+- `slices`: 76
+- `targets_mmode`: 76
+- `i2c_adapter`: 76
+- `mswi`: 76
+- `nr`: 76
+- `sbi_list_del`: 76
+- `sbi_platform_ptr`: 76
+- `sbi_ecall_return`: 76
+- `suspend_type`: 76
+- `nh`: 76
+- `reset_type`: 76
+- `cmd_csr_addr`: 76
+- `FDT_ERR_NOSPACE`: 76
+- `re`: 76
+- `q`: 76
+- `fail_free_chan`: 76
+- `smode`: 76
+- `current_hartindex`: 76
+- `ctrl`: 76
+- `csr_val`: 76
+- `csr_clear`: 76
+- `STR`: 76
+- `fh`: 76
+- `sbi_mpxy_channel`: 76
+- `channel_id`: 76
+- `seg`: 76
+- `SBIUNIT_EXPECT_NE`: 76
+- `fresp`: 76
+- `pargs`: 76
+- `rpmi`: 76
+- `newlen`: 76
+- `smg`: 76
+- `atom`: 76
+- `uintptr_t`: 76
+- `shmem`: 76
+- `SBI_DOMAIN_MEMREGION_M_READABLE`: 76
+- `mepc`: 76
+
+## Comments with no translation
+
+- Sanity checks: 76
+- Not available in Python: 76
+- clang-format on: 76
+- Zca: 76
+- clang-format off: 76
+- Note: must be called with fifo->qlock held: 76
+- Wait for interrupt: 76
+- Zcb: 76
+- error from fdt_next_node(): 76
+- LIBC_SCCS and not lint: 76
+- Nope.: 76
+- check parameters: 76
+- Zcd: 76
+- Zcf: 76
+- premature end: 76
+- Atomically set new value and return old value.: 76
+- Disable all interrupts: 76
+- *
+ * Must be called under owner hart lock: 76
+- Find non-existing character: 76
+- set register address: 76
+- Allocate scratch space pointer: 76
+- sentinel: 76
+- Abort if the last string isn't properly NUL-terminated.: 76
+- Configure baudrate: 76
+- Are any bits set?: 76
+- Are any bits zero?: 76
+- Check whether register is implemented: 76
+- must call with hs != NULL: 76
+- * On RV32, the M-mode can only access the first 4GB of
+	* the physical address space because M-mode : 76
+- __riscv_d: 76
+- Restore original mstatus LAST: 76
+- No delegation possible as mideleg does not exist: 76
+- calculate PMP register and offset: 76
+- Skip reserved entry: 76
+- Disable remaining PMP entries: 76
+- * Configure hart protection at last because if SMEPMP is
+	 * detected, M-mode access to the S/U spac: 76
+- * If no handler registered for hwirq then hwirq
+	 * is not being used so return failure: 76
+- * Copy attributes word size: 76
+- base attribute id is not a defined std attribute or reserved: 76
+- Sanity check for base_attr_id and attr_count: 76
+- *
+		 * Function expected to return the SBI supported errors
+		 * At this point both base attribute i: 76
+- *
+ * Verify the channel standard attribute wrt to write permission
+ * and the value to be set if val: 76
+- * All RO access attributes falls under default: 76
+- Sanity check: 76
+- Make sure the counter index lies within the range and is not TM bit: 76
+- For raw events, event data is used as the select value: 76
+- * On RV32, the M-mode can only access the first 4GB of
+	 * the physical address space because M-mode: 76
+- * a6 register state: 76
+- search first diff or end of string: 76
+- Ensure that event is not on the per-HART event list: 76
+- *
+ * Handling of misaligned fault is done by a collection of smaller, but
+ * aligned load/store(s). : 76
+- Use uptrap as-is for guest-page faults: 76
+- trapped instruction value is zero or special value: 76
+- *
+	 * Must distinguish between rv64 and rv32, RVC instructions have
+	 * overlapping encoding:
+	 *   : 76
+- Unknown instruction: 76
+- *
+	 * For misaligned faults. Skip offset calculation unless DEBUG
+	 * builds. It helps validating Op: 76
+- Transformed insn: 76
+- *
+	 * Normalize offset, in case the XLEN of unpriv mode is smaller,
+	 * and/or pointer masking is in: 76
+- Unrecognized instruction. Can't emulate it.: 76
+- For misaligned fault, addr must be the same as orig_trap->tval: 76
+- If fault came from M mode, just fail: 76
+- If platform emulator failed, we redirect instead of fail: 76
+- Fetch a mask_len chunk of mask: 76
+- compute element address: 76
+- Don't forget to set dirty if vstart has changed: 76
+- restore clobbered vl/vtype: 76
+- VSTART resets to 0: 76
+- Return a >0 value for the caller to advance mepc: 76
+- Unable to emulate, send trap to previous mode.: 76
+- Step 1. Save original mstatus and Enable VS: 76
+- Step 4. Restore original mstatus LAST: 76
+- the bitpos points to the bit of one of the elements of the `data` array: 76
+- Other elements of the `data` array should stay untouched: 76
+- We don't want to accidentally get locked: 76
+- Should be null-terminated: 76
+- Find existing character: 76
+- Find last character: 76
+- Find in empty string: 76
+- Update per-HART scratch space: 76
+- Prevent the core leaving the WFI mode unexpectedly: 76
+- Light sleep resumes here: 76
+- Flush cache and check if there is wake detect or bus error: 76
+- set value: 76
+- reset controller to a known state: 76
+- send device address (in write mode): 76
+- * We don't need to fail if scratch pointer is not available
+		 * because we might be dealing with ha: 76
+- Register irqchip device: 76
+- Restore the input priorities: 76
+- The device tree must be at an 8-byte aligned address: 76
+- Symbol refers to something that won't end
+			 * up in the target tree: 76
+- Prior to version 16, properties may need realignment
+	 * and this API does not work. fdt_getprop_*(): 76
+- Handle realignment: 76
+- Must only be used to roll back in case of error: 76
+- This function is not useful in Python: 76
+- for D3 only: 76
+- drive it active, also inactive->active edge: 76
+- hang !!!: 76
+- If channel already available then do nothing.: 76
+- Avoid underflow: 76
+- Disable interrupts: 76
