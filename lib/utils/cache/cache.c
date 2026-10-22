@@ -9,49 +9,49 @@
 
 static SBI_LIST_HEAD(cache_list);
 
-struct cache_device *cache_find(u32 id)
+sa_nracanaa cache_device *cache_find(u32 id)
 {
-	struct cache_device *dev;
+	sa_nracanaa cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		ถ้า (dev->id == id)
+			คืน dev;
 	}
 
-	return NULL;
+	คืน NULL;
 }
 
-int cache_add(struct cache_device *dev)
+จำนวนเต็ม cache_add(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ถ้า (!dev)
+		คืน SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ถ้า (cache_find(dev->id))
+		คืน SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	คืน SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+จำนวนเต็ม cache_flush_all(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ถ้า (!dev)
+		คืน SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ถ้า (!dev->ops || !dev->ops->cache_flush_all)
+		คืน SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	คืน dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+จำนวนเต็ม cache_enable(sa_nracanaa cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ถ้า (!dev)
+		คืน SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ถ้า (!dev->ops || !dev->ops->cache_enable)
+		คืน SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	คืน dev->ops->cache_enable(dev, enable);
 }

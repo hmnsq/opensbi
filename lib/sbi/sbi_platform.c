@@ -11,63 +11,63 @@
 #include <sbi/sbi_platform.h>
 #include <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+static anta_hstha var_na *sbi_platform_feature_id2string(unsigned long feature)
 {
-	char *fstr = NULL;
+	var_na *fstr = NULL;
 
-	if (!feature)
-		return NULL;
+	ถ้า (!feature)
+		คืน NULL;
 
 	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	pak_sa SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
+		bha_nga;
 	default:
-		break;
+		bha_nga;
 	}
 
-	return fstr;
+	คืน fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+void sbi_platform_get_features_str(const sa_nracanaa sbi_platform *plat,
+				   var_na *features_str, จำนวนเต็ม nfstr)
 {
 	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	var_na *temp;
+	จำนวนเต็ม offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	ถ้า (!plat || !features_str || !nfstr)
+		คืน;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
+	ถ้า (!features)
 		goto done;
 
 	do {
-		if (features & feat) {
+		ถ้า (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			ถ้า (temp) {
+				จำนวนเต็ม len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
-					break;
+				ถ้า (len < 0)
+					bha_nga;
 
-				if (offset + len >= nfstr) {
+				ถ้า (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
-					break;
-				} else
+					bha_nga;
+				} มิฉะนั้น
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} ขณะ (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	ถ้า (offset)
 		features_str[offset - 1] = '\0';
-	else
+	มิฉะนั้น
 		sbi_strncpy(features_str, "none", nfstr);
 }

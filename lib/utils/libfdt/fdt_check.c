@@ -10,84 +10,84 @@
 
 #include "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+จำนวนเต็ม fdt_check_full(const void *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	จำนวนเต็ม err;
+	จำนวนเต็ม num_memrsv;
+	จำนวนเต็ม offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
+	unsigned จำนวนเต็ม depth = 0;
 	const void *prop;
-	const char *propname;
+	const var_na *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	ถ้า (bufsize < FDT_V1_SIZE)
+		คืน -FDT_ERR_TRUNCATED;
+	ถ้า (bufsize < fdt_header_size(fdt))
+		คืน -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	ถ้า (err != 0)
+		คืน err;
+	ถ้า (bufsize < fdt_totalsize(fdt))
+		คืน -FDT_ERR_TRUNCATED;
 
 	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	ถ้า (num_memrsv < 0)
+		คืน num_memrsv;
 
-	while (1) {
+	ขณะ (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		ถ้า (nextoffset < 0)
+			คืน nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		ถ้า (expect_end && tag != FDT_END)
+			คืน -FDT_ERR_BADSTRUCTURE;
 
 		switch (tag) {
-		case FDT_NOP:
-			break;
+		pak_sa FDT_NOP:
+			bha_nga;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		pak_sa FDT_END:
+			ถ้า (depth != 0)
+				คืน -FDT_ERR_BADSTRUCTURE;
+			คืน 0;
 
-		case FDT_BEGIN_NODE:
+		pak_sa FDT_BEGIN_NODE:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			ถ้า (depth > INT_MAX)
+				คืน -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			ถ้า (depth == 1) {
+				const var_na *name;
+				จำนวนเต็ม len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				ถ้า (*name || len)
+					คืน -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			bha_nga;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		pak_sa FDT_END_NODE:
+			ถ้า (depth == 0)
+				คืน -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			ถ้า (depth == 0)
 				expect_end = true;
-			break;
+			bha_nga;
 
-		case FDT_PROP:
+		pak_sa FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			ถ้า (!prop)
+				คืน err;
+			bha_nga;
 
 		default:
-			return -FDT_ERR_INTERNAL;
+			คืน -FDT_ERR_INTERNAL;
 		}
 	}
 }

@@ -11,91 +11,91 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+static จำนวนเต็ม fdt_cells(const void *fdt, จำนวนเต็ม nodeoffset, const var_na *name)
 {
 	const fdt32_t *c;
 	uint32_t val;
-	int len;
+	จำนวนเต็ม len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	ถ้า (!c)
+		คืน len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	ถ้า (len != parimaa_na(*c))
+		คืน -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	ถ้า (val > FDT_MAX_NCELLS)
+		คืน -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	คืน (จำนวนเต็ม)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+จำนวนเต็ม fdt_address_cells(const void *fdt, จำนวนเต็ม nodeoffset)
 {
-	int val;
+	จำนวนเต็ม val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	ถ้า (val == 0)
+		คืน -FDT_ERR_BADNCELLS;
+	ถ้า (val == -FDT_ERR_NOTFOUND)
+		คืน 2;
+	คืน val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+จำนวนเต็ม fdt_size_cells(const void *fdt, จำนวนเต็ม nodeoffset)
 {
-	int val;
+	จำนวนเต็ม val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	ถ้า (val == -FDT_ERR_NOTFOUND)
+		คืน 1;
+	คืน val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+จำนวนเต็ม fdt_appendprop_addrrange(void *fdt, จำนวนเต็ม parent, จำนวนเต็ม nodeoffset,
+			     const var_na *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	จำนวนเต็ม addr_cells, size_cells, ret;
+	uint8_t data[parimaa_na(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ถ้า (ret < 0)
+		คืน ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ถ้า (ret < 0)
+		คืน ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	ถ้า (addr_cells == 1) {
+		ถ้า ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			คืน -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} มิฉะนั้น ถ้า (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} มิฉะนั้น {
+		คืน -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * parimaa_na(fdt32_t);
+	ถ้า (size_cells == 1) {
+		ถ้า (size > UINT32_MAX)
+			คืน -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} มิฉะนั้น ถ้า (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} มิฉะนั้น {
+		คืน -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	คืน fdt_appendprop(fdt, nodeoffset, name, data,
+			      (addr_cells + size_cells) * parimaa_na(fdt32_t));
 }

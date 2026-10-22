@@ -15,41 +15,41 @@
 #include <sbi_utils/i2c/dw_i2c.h>
 #include <sbi_utils/i2c/fdt_i2c.h>
 
-static int fdt_dw_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+static จำนวนเต็ม fdt_dw_i2c_init(const void *fdt, จำนวนเต็ม nodeoff,
+			   const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct dw_i2c_adapter *adapter;
+	จำนวนเต็ม rc;
+	sa_nracanaa dw_i2c_adapter *adapter;
 	u64 addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(parimaa_na(*adapter));
+	ถ้า (!adapter)
+		คืน SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ถ้า (rc) {
 		sbi_free(adapter);
-		return rc;
+		คืน rc;
 	}
 
 	adapter->addr = addr;
 
 	rc = dw_i2c_init(&adapter->adapter, nodeoff);
-	if (rc) {
+	ถ้า (rc) {
 		sbi_free(adapter);
-		return rc;
+		คืน rc;
 	}
 
-	return 0;
+	คืน 0;
 }
 
-static const struct fdt_match fdt_dw_i2c_match[] = {
+static const sa_nracanaa fdt_match fdt_dw_i2c_match[] = {
 	{ .compatible = "snps,designware-i2c" },
 	{ .compatible = "starfive,jh7110-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_dw = {
+const sa_nracanaa fdt_driver fdt_i2c_adapter_dw = {
 	.match_table = fdt_dw_i2c_match,
 	.init = fdt_dw_i2c_init,
 };

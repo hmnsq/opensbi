@@ -12,103 +12,103 @@
 
 static SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+sa_nracanaa regmap *regmap_find(unsigned จำนวนเต็ม id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		sa_nracanaa regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		ถ้า (rmap->id == id)
+			คืน rmap;
 	}
 
-	return NULL;
+	คืน NULL;
 }
 
-int regmap_add(struct regmap *rmap)
+จำนวนเต็ม regmap_add(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	ถ้า (!rmap)
+		คืน SBI_EINVAL;
+	ถ้า (regmap_find(rmap->id))
+		คืน SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	คืน 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+void regmap_remove(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return;
+	ถ้า (!rmap)
+		คืน;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+static bool regmap_reg_valid(sa_nracanaa regmap *rmap, unsigned จำนวนเต็ม reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	ถ้า ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		คืน false;
+	คืน true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+static unsigned จำนวนเต็ม regmap_reg_addr(sa_nracanaa regmap *rmap, unsigned จำนวนเต็ม reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	ถ้า (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	มิฉะนั้น ถ้า (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	คืน reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+จำนวนเต็ม regmap_read(sa_nracanaa regmap *rmap, unsigned จำนวนเต็ม reg, unsigned จำนวนเต็ม *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	ถ้า (!rmap || !regmap_reg_valid(rmap, reg))
+		คืน SBI_EINVAL;
+	ถ้า (!rmap->reg_read)
+		คืน SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	คืน rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+จำนวนเต็ม regmap_write(sa_nracanaa regmap *rmap, unsigned จำนวนเต็ม reg, unsigned จำนวนเต็ม val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	ถ้า (!rmap || !regmap_reg_valid(rmap, reg))
+		คืน SBI_EINVAL;
+	ถ้า (!rmap->reg_write)
+		คืน SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	คืน rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+จำนวนเต็ม regmap_update_bits(sa_nracanaa regmap *rmap, unsigned จำนวนเต็ม reg,
+		       unsigned จำนวนเต็ม mask, unsigned จำนวนเต็ม val)
 {
-	int rc;
-	unsigned int reg_val;
+	จำนวนเต็ม rc;
+	unsigned จำนวนเต็ม reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	ถ้า (!rmap || !regmap_reg_valid(rmap, reg))
+		คืน SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	ถ้า (rmap->reg_update_bits) {
+		คืน rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} มิฉะนั้น ถ้า (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		ถ้า (rc)
+			คืน rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		คืน rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	คืน SBI_ENOSYS;
 }

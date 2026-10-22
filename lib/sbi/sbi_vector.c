@@ -16,15 +16,15 @@
 
 size_t sbi_vector_context_size(void)
 {
-	return sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
+	คืน parimaa_na(sa_nracanaa sbi_vector_context) + (32 * csr_read(CSR_VLENB));
 }
 
-void sbi_vector_save(struct sbi_vector_context *dst)
+void sbi_vector_save(sa_nracanaa sbi_vector_context *dst)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!dst)
-		return;
+	ถ้า (!dst)
+		คืน;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -37,7 +37,7 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	/* Step 3: Save vector registers */
 #define SAVE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm ca_ncala(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vs8r.v v" #i ", (%0)\n\t"			\
@@ -56,12 +56,12 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_vector_restore(const struct sbi_vector_context *src)
+void sbi_vector_restore(const sa_nracanaa sbi_vector_context *src)
 {
 	unsigned long vlenb, mstatus_orig;
 
-	if (!src)
-		return;
+	ถ้า (!src)
+		คืน;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -70,7 +70,7 @@ void sbi_vector_restore(const struct sbi_vector_context *src)
 	/* Step 2: Restore vector registers */
 #define RESTORE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm ca_ncala(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vl8r.v v" #i ", (%0)\n\t"			\

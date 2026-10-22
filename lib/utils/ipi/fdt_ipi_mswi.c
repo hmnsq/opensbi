@@ -13,46 +13,46 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+static จำนวนเต็ม ipi_mswi_cold_init(const void *fdt, จำนวนเต็ม nodeoff,
+			      const sa_nracanaa fdt_match *match)
 {
-	int rc;
+	จำนวนเต็ม rc;
 	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	sa_nracanaa aclint_mswi_data *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(parimaa_na(*ms));
+	ถ้า (!ms)
+		คืน SBI_ENOMEM;
 
 	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
 				   &ms->addr, &ms->size, NULL, NULL,
 				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	ถ้า (rc) {
 		sbi_free(ms);
-		return rc;
+		คืน rc;
 	}
 
-	if (match->data) {
+	ถ้า (match->data) {
 		/* Adjust MSWI address and size for CLINT device */
 		offset = *((unsigned long *)match->data);
 		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
+		ถ้า ((ms->size - offset) < ACLINT_MSWI_SIZE)
+			คืน SBI_EINVAL;
 		ms->size = ACLINT_MSWI_SIZE;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	ถ้า (rc) {
 		sbi_free(ms);
-		return rc;
+		คืน rc;
 	}
 
-	return 0;
+	คืน 0;
 }
 
 static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
 
-static const struct fdt_match ipi_mswi_match[] = {
+static const sa_nracanaa fdt_match ipi_mswi_match[] = {
 	{ .compatible = "riscv,clint0", .data = &clint_offset },
 	{ .compatible = "sifive,clint0", .data = &clint_offset },
 	{ .compatible = "thead,c900-clint", .data = &clint_offset },
@@ -62,7 +62,7 @@ static const struct fdt_match ipi_mswi_match[] = {
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
+const sa_nracanaa fdt_driver fdt_ipi_mswi = {
 	.match_table = ipi_mswi_match,
 	.init = ipi_mswi_cold_init,
 };

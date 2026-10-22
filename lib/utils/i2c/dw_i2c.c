@@ -60,40 +60,40 @@
 #define IC_DATA_CMD_RESTART	BIT(10)
 #define IC_INT_STATUS_STOPDET	BIT(9)
 
-static inline void dw_i2c_setreg(struct dw_i2c_adapter *adap,
+static anta_hstha void dw_i2c_setreg(sa_nracanaa dw_i2c_adapter *adap,
 				 u8 reg, u32 value)
 {
 	writel(value, (void *)adap->addr + reg);
 }
 
-static inline u32 dw_i2c_getreg(struct dw_i2c_adapter *adap,
+static anta_hstha u32 dw_i2c_getreg(sa_nracanaa dw_i2c_adapter *adap,
 				u32 reg)
 {
-	return readl((void *)adap->addr + reg);
+	คืน readl((void *)adap->addr + reg);
 }
 
-static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
+static จำนวนเต็ม dw_i2c_adapter_poll(sa_nracanaa dw_i2c_adapter *adap,
 			       u32 mask, u32 addr,
 			       bool inverted)
 {
-	unsigned int timeout = 10; /* msec */
-	int count = 0;
+	unsigned จำนวนเต็ม timeout = 10; /* msec */
+	จำนวนเต็ม count = 0;
 	u32 val;
 
 	do {
 		val = dw_i2c_getreg(adap, addr);
-		if (inverted) {
-			if (!(val & mask))
-				return 0;
-		} else {
-			if (val & mask)
-				return 0;
+		ถ้า (inverted) {
+			ถ้า (!(val & mask))
+				คืน 0;
+		} มิฉะนั้น {
+			ถ้า (val & mask)
+				คืน 0;
 		}
 		sbi_timer_udelay(2);
 		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		ถ้า (count == (timeout * 1000))
+			คืน SBI_ETIMEDOUT;
+	} ขณะ (1);
 }
 
 #define dw_i2c_adapter_poll_rxrdy(adap)	\
@@ -101,75 +101,75 @@ static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 #define dw_i2c_adapter_poll_txfifo_ready(adap)	\
 	dw_i2c_adapter_poll(adap, DW_I2C_STATUS_TXFIFO_EMPTY, DW_IC_STATUS, 0)
 
-static int dw_i2c_write_addr(struct dw_i2c_adapter *adap, u8 addr)
+static จำนวนเต็ม dw_i2c_write_addr(sa_nracanaa dw_i2c_adapter *adap, u8 addr)
 {
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 0);
 	dw_i2c_setreg(adap, DW_IC_TAR, addr);
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 1);
 
-	return 0;
+	คืน 0;
 }
 
-static int dw_i2c_adapter_read(struct i2c_adapter *ia, u8 addr,
-			       u8 reg, u8 *buffer, int len)
+static จำนวนเต็ม dw_i2c_adapter_read(sa_nracanaa i2c_adapter *ia, u8 addr,
+			       u8 reg, u8 *buffer, จำนวนเต็ม len)
 {
-	struct dw_i2c_adapter *adap =
-		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	sa_nracanaa dw_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa dw_i2c_adapter, adapter);
+	จำนวนเต็ม rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ถ้า (rc)
+		คืน rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
 	/* set value */
-	while (len) {
-		if (len == 1)
+	ขณะ (len) {
+		ถ้า (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD,
 				      IC_DATA_CMD_READ | IC_DATA_CMD_STOP);
-		else
+		มิฉะนั้น
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, IC_DATA_CMD_READ);
 
 		rc = dw_i2c_adapter_poll_rxrdy(adap);
-		if (rc)
-			return rc;
+		ถ้า (rc)
+			คืน rc;
 
 		*buffer = dw_i2c_getreg(adap, DW_IC_DATA_CMD) & 0xff;
 		buffer++;
 		len--;
 	}
 
-	return 0;
+	คืน 0;
 }
 
-static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
-				u8 reg, u8 *buffer, int len)
+static จำนวนเต็ม dw_i2c_adapter_write(sa_nracanaa i2c_adapter *ia, u8 addr,
+				u8 reg, u8 *buffer, จำนวนเต็ม len)
 {
-	struct dw_i2c_adapter *adap =
-		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	sa_nracanaa dw_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa dw_i2c_adapter, adapter);
+	จำนวนเต็ม rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ถ้า (rc)
+		คืน rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
-	while (len) {
+	ขณะ (len) {
 		rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-		if (rc)
-			return rc;
+		ถ้า (rc)
+			คืน rc;
 
-		if (len == 1)
+		ถ้า (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer | IC_DATA_CMD_STOP);
-		else
+		มิฉะนั้น
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer);
 
 		buffer++;
@@ -177,14 +177,14 @@ static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
 	}
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
 
-	return rc;
+	คืน rc;
 }
 
-int dw_i2c_init(struct i2c_adapter *adapter, int nodeoff)
+จำนวนเต็ม dw_i2c_init(sa_nracanaa i2c_adapter *adapter, จำนวนเต็ม nodeoff)
 {
 	adapter->id = nodeoff;
 	adapter->write = dw_i2c_adapter_write;
 	adapter->read = dw_i2c_adapter_read;
 
-	return i2c_adapter_add(adapter);
+	คืน i2c_adapter_add(adapter);
 }
