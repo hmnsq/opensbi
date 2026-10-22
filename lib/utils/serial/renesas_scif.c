@@ -52,17 +52,17 @@ static volatile char *scif_base;
 
 static u32 get_reg(u32 offset)
 {
-	if (SCIF_REG_8BIT(offset))
-		return readb(scif_base + offset);
+	もし (SCIF_REG_8BIT(offset))
+		戻る readb(scif_base + offset);
 
-	return readw(scif_base + offset);
+	戻る readw(scif_base + offset);
 }
 
 static void set_reg(u32 offset, u32 val)
 {
-	if (SCIF_REG_8BIT(offset))
+	もし (SCIF_REG_8BIT(offset))
 		writeb(val, scif_base + offset);
-	else
+	否则
 		writew(val, scif_base + offset);
 }
 
@@ -70,7 +70,7 @@ static void renesas_scif_putc(char ch)
 {
 	uint16_t reg;
 
-	while (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
+	ながら (!(SCIF_FSR_TXD_CHK & get_reg(SCIF_REG_FSR)))
 		;
 
 	set_reg(SCIF_REG_FTDR, ch);
@@ -84,7 +84,7 @@ static struct sbi_console_device renesas_scif_console = {
 	.console_putc	= renesas_scif_putc,
 };
 
-int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
+整数 renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	uint16_t data16;
 
@@ -112,5 +112,5 @@ int renesas_scif_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&renesas_scif_console);
 
-	return 0;
+	戻る 0;
 }

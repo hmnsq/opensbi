@@ -10,306 +10,306 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static 整数 fdt_nodename_eq_(const void *fdt, 整数 offset,
+			    const char *s, 整数 len)
 {
-	int olen;
+	整数 olen;
 	const char *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	もし (!p || olen < len)
 		/* short match */
-		return 0;
+		戻る 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	もし (memcmp(p, s, len) != 0)
+		戻る 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	もし (p[len] == '\0')
+		戻る 1;
+	否则 もし (!memchr(s, '@', len) && (p[len] == '@'))
+		戻る 1;
+	否则
+		戻る 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const char *fdt_get_string(const void *fdt, 整数 stroffset, 整数 *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
+	整数 err;
 	const char *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
+	もし (can_assume(VALID_INPUT)) {
 		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		もし (lenp)
 			*lenp = strlen(s);
-		return s;
+		戻る s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	もし (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	もし (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	もし (fdt_magic(fdt) == FDT_MAGIC) {
+		もし (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		もし (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			もし ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			もし ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} 否则 もし (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned 整数 sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		もし ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		もし (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} 否则 {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
 	s = (const char *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	もし (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	もし (lenp)
 		*lenp = n - s;
-	return s;
+	戻る s;
 
 fail:
-	if (lenp)
+	もし (lenp)
 		*lenp = err;
-	return NULL;
+	戻る NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const char *fdt_string(const void *fdt, 整数 stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	戻る fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static 整数 fdt_string_eq_(const void *fdt, 整数 stroffset,
+			  const char *s, 整数 len)
 {
-	int slen;
+	整数 slen;
 	const char *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	戻る p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+整数 fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	整数 offset = -1;
 
-	while (true) {
+	ながら (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
+		もし (offset < 0) {
+			もし (offset == -FDT_ERR_NOTFOUND)
 				break;
 
-			return offset;
+			戻る offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		もし (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	もし (phandle)
 		*phandle = max;
 
-	return 0;
+	戻る 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+整数 fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	整数 err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	もし (err < 0)
+		戻る err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	もし (max == FDT_MAX_PHANDLE)
+		戻る -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	もし (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	戻る 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, 整数 n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned 整数 offset = n * sizeof(struct fdt_reserve_entry);
+	unsigned 整数 absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
+	もし (!can_assume(VALID_INPUT)) {
+		もし (absoffset < fdt_off_mem_rsvmap(fdt))
+			戻る NULL;
+		もし (absoffset > fdt_totalsize(fdt) -
 		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+			戻る NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	戻る fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+整数 fdt_get_mem_rsv(const void *fdt, 整数 n, uint64_t *address, uint64_t *size)
 {
 	const struct fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	もし (!can_assume(VALID_INPUT) && !re)
+		戻る -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	戻る 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+整数 fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
+	整数 i;
 	const struct fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	ために (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		もし (fdt64_ld_(&re->size) == 0)
+			戻る i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	戻る -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static 整数 nextprop_(const void *fdt, 整数 offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	整数 nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
 		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+			もし (nextoffset >= 0)
+				戻る -FDT_ERR_BADSTRUCTURE;
+			否则
+				戻る nextoffset;
 
 		case FDT_PROP:
-			return offset;
+			戻る offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} ながら (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	戻る -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+整数 fdt_subnode_offset_namelen(const void *fdt, 整数 offset,
+			       const char *name, 整数 namelen)
 {
-	int depth;
+	整数 depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	ために (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		もし ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			戻る offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	もし (depth < 0)
+		戻る -FDT_ERR_NOTFOUND;
+	戻る offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
+整数 fdt_subnode_offset(const void *fdt, 整数 parentoffset,
 		       const char *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	戻る fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+整数 fdt_path_offset_namelen(const void *fdt, const char *path, 整数 namelen)
 {
 	const char *end = path + namelen;
 	const char *p = path;
-	int offset = 0;
+	整数 offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
+	もし (*path != '/') {
 		const char *q = memchr(path, '/', end - p);
 
-		if (!q)
+		もし (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		もし (!p)
+			戻る -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
+	ながら (p < end) {
 		const char *q;
 
-		while (*p == '/') {
+		ながら (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			もし (p == end)
+				戻る offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		もし (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		もし (offset < 0)
+			戻る offset;
 
 		p = q;
 	}
 
-	return offset;
+	戻る offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+整数 fdt_path_offset(const void *fdt, const char *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	戻る fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const char *fdt_get_name(const void *fdt, 整数 nodeoffset, 整数 *len)
 {
 	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	const char *nameptr;
-	int err;
+	整数 err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	もし (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	もし (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
@@ -317,254 +317,254 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 		 */
 		const char *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		もし (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	もし (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	戻る nameptr;
 
  fail:
-	if (len)
+	もし (len)
 		*len = err;
-	return NULL;
+	戻る NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+整数 fdt_first_property_offset(const void *fdt, 整数 nodeoffset)
 {
-	int offset;
+	整数 offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	もし ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		戻る offset;
 
-	return nextprop_(fdt, offset);
+	戻る nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+整数 fdt_next_property_offset(const void *fdt, 整数 offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	もし ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		戻る offset;
 
-	return nextprop_(fdt, offset);
+	戻る nextprop_(fdt, offset);
 }
 
 static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+						              整数 offset,
+						              整数 *lenp)
 {
-	int err;
+	整数 err;
 	const struct fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	もし (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		もし (lenp)
 			*lenp = err;
-		return NULL;
+		戻る NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	もし (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	戻る prop;
 }
 
 const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+						      整数 offset,
+						      整数 *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	もし (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		もし (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		戻る NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	戻る fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
 static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
+						            整数 offset,
 						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+						            整数 namelen,
+							    整数 *lenp,
+							    整数 *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	ために (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
 		const struct fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		もし (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		もし (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			もし (poffset)
 				*poffset = offset;
-			return prop;
+			戻る prop;
 		}
 	}
 
-	if (lenp)
+	もし (lenp)
 		*lenp = offset;
-	return NULL;
+	戻る NULL;
 }
 
 
 const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
+						    整数 offset,
 						    const char *name,
-						    int namelen, int *lenp)
+						    整数 namelen, 整数 *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	もし (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		もし (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		戻る NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	戻る fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
 const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+					    整数 nodeoffset,
+					    const char *name, 整数 *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	戻る fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, 整数 nodeoffset,
+				const char *name, 整数 namelen, 整数 *lenp)
 {
-	int poffset;
+	整数 poffset;
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	もし (!prop)
+		戻る NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	もし (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		戻る prop->data + 4;
+	戻る prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, 整数 offset,
+				  const char **namep, 整数 *lenp)
 {
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
+	もし (!prop)
+		戻る NULL;
+	もし (namep) {
 		const char *name;
-		int namelen;
+		整数 namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		もし (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			もし (!name) {
+				もし (lenp)
 					*lenp = namelen;
-				return NULL;
+				戻る NULL;
 			}
 			*namep = name;
-		} else {
+		} 否则 {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	もし (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		戻る prop->data + 4;
+	戻る prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, 整数 nodeoffset,
+			const char *name, 整数 *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	戻る fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, 整数 nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	整数 len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	もし (!php || (len != sizeof(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		もし (!php || (len != sizeof(*php)))
+			戻る 0;
 	}
 
-	return fdt32_ld_(php);
+	戻る fdt32_ld_(php);
 }
 
 const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+				  const char *name, 整数 namelen)
 {
-	int aliasoffset;
+	整数 aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	もし (aliasoffset < 0)
+		戻る NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	戻る fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
 const char *fdt_get_alias(const void *fdt, const char *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	戻る fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+整数 fdt_get_path(const void *fdt, 整数 nodeoffset, char *buf, 整数 buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
+	整数 pdepth = 0, p = 0;
+	整数 offset, depth, namelen;
 	const char *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	もし (buflen < 2)
+		戻る -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	ために (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		ながら (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} ながら (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		もし (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			もし (!name)
+				戻る namelen;
+			もし ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		もし (offset == nodeoffset) {
+			もし (pdepth < (depth + 1))
+				戻る -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			もし (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			戻る 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	もし ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		戻る -FDT_ERR_BADOFFSET;
+	否则 もし (offset == -FDT_ERR_BADOFFSET)
+		戻る -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	戻る offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+整数 fdt_supernode_atdepth_offset(const void *fdt, 整数 nodeoffset,
+				 整数 supernodedepth, 整数 *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	整数 offset, depth;
+	整数 supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	もし (supernodedepth < 0)
+		戻る -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	ために (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		もし (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		もし (offset == nodeoffset) {
+			もし (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			もし (supernodedepth > depth)
+				戻る -FDT_ERR_NOTFOUND;
+			否则
+				戻る supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	もし (!can_assume(VALID_INPUT)) {
+		もし ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			戻る -FDT_ERR_BADOFFSET;
+		否则 もし (offset == -FDT_ERR_BADOFFSET)
+			戻る -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	戻る offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+整数 fdt_node_depth(const void *fdt, 整数 nodeoffset)
 {
-	int nodedepth;
-	int err;
+	整数 nodedepth;
+	整数 err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	もし (err)
+		戻る (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	戻る nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+整数 fdt_parent_offset(const void *fdt, 整数 nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	整数 nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	もし (nodedepth < 0)
+		戻る nodedepth;
+	戻る fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+整数 fdt_node_offset_by_prop_value(const void *fdt, 整数 startoffset,
 				  const char *propname,
-				  const void *propval, int proplen)
+				  const void *propval, 整数 proplen)
 {
-	int offset;
+	整数 offset;
 	const void *val;
-	int len;
+	整数 len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	ために (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		もし (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			戻る offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	戻る offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+整数 fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	整数 offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	もし ((phandle == 0) || (phandle == ~0U))
+		戻る -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	ために (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		もし (fdt_get_phandle(fdt, offset) == phandle)
+			戻る offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	戻る offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+整数 fdt_stringlist_contains(const char *strlist, 整数 listlen, const char *str)
 {
-	int len = strlen(str);
+	整数 len = strlen(str);
 	const char *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	ながら (listlen >= len) {
+		もし (memcmp(str, strlist, len+1) == 0)
+			戻る 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		もし (!p)
+			戻る 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	戻る 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+整数 fdt_stringlist_count(const void *fdt, 整数 nodeoffset, const char *property)
 {
 	const char *list, *end;
-	int length, count = 0;
+	整数 length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	もし (!list)
+		戻る length;
 
 	end = list + length;
 
-	while (list < end) {
+	ながら (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		もし (list + length > end)
+			戻る -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	戻る count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+整数 fdt_stringlist_search(const void *fdt, 整数 nodeoffset, const char *property,
 			  const char *string)
 {
-	int length, len, idx = 0;
+	整数 length, len, idx = 0;
 	const char *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	もし (!list)
+		戻る length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	ながら (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		もし (list + length > end)
+			戻る -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		もし (length == len && memcmp(list, string, length) == 0)
+			戻る idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	戻る -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const char *fdt_stringlist_get(const void *fdt, 整数 nodeoffset,
+			       const char *property, 整数 idx,
+			       整数 *lenp)
 {
 	const char *list, *end;
-	int length;
+	整数 length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	もし (!list) {
+		もし (lenp)
 			*lenp = length;
 
-		return NULL;
+		戻る NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	ながら (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		もし (list + length > end) {
+			もし (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			戻る NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		もし (idx == 0) {
+			もし (lenp)
 				*lenp = length - 1;
 
-			return list;
+			戻る list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	もし (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	戻る NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+整数 fdt_node_check_compatible(const void *fdt, 整数 nodeoffset,
 			      const char *compatible)
 {
 	const void *prop;
-	int len;
+	整数 len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	もし (!prop)
+		戻る len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	戻る !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+整数 fdt_node_offset_by_compatible(const void *fdt, 整数 startoffset,
 				  const char *compatible)
 {
-	int offset, err;
+	整数 offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	ために (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		もし ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			戻る err;
+		否则 もし (err == 0)
+			戻る offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	戻る offset; /* error from fdt_next_node() */
 }

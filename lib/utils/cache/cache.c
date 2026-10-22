@@ -14,44 +14,44 @@ struct cache_device *cache_find(u32 id)
 	struct cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		もし (dev->id == id)
+			戻る dev;
 	}
 
-	return NULL;
+	戻る NULL;
 }
 
-int cache_add(struct cache_device *dev)
+整数 cache_add(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	もし (!dev)
+		戻る SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	もし (cache_find(dev->id))
+		戻る SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+整数 cache_flush_all(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	もし (!dev)
+		戻る SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	もし (!dev->ops || !dev->ops->cache_flush_all)
+		戻る SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	戻る dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+整数 cache_enable(struct cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	もし (!dev)
+		戻る SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	もし (!dev->ops || !dev->ops->cache_enable)
+		戻る SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	戻る dev->ops->cache_enable(dev, enable);
 }

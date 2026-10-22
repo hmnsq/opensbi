@@ -45,13 +45,13 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 	struct heap_node *n, *new = NULL;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	もし (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
+		戻る true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
+		もし (n->size >= size) {
 			n->size -= size;
-			if (!n->size) {
+			もし (!n->size) {
 				sbi_list_del(&n->head);
 				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
 			}
@@ -59,14 +59,14 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 			break;
 		}
 	}
-	if (!new)
-		return false;
+	もし (!new)
+		戻る false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
+	ために (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
 		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
 	hpctrl->resv += size;
 
-	return true;
+	戻る true;
 }
 
 static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
@@ -78,8 +78,8 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	もし (!size)
+		戻る NULL;
 
 	size += align - 1;
 	size &= ~((unsigned long)align - 1);
@@ -87,7 +87,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
+	もし (!alloc_nodes(hpctrl))
 		goto out;
 
 	np = NULL;
@@ -95,15 +95,15 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		もし (size + pad <= n->size) {
 			np = n;
 			break;
 		}
 	}
-	if (!np)
+	もし (!np)
 		goto out;
 
-	if (pad) {
+	もし (pad) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
 					 struct heap_node, head);
 		sbi_list_del(&n->head);
@@ -116,7 +116,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		np->size -= pad;
 	}
 
-	if (size < np->size) {
+	もし (size < np->size) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
 					 struct heap_node, head);
 		sbi_list_del(&n->head);
@@ -135,83 +135,83 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	戻る ret;
 }
 
 void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	戻る alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
 }
 
 void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
 			     size_t alignment, size_t size)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	もし (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	もし ((alignment & (alignment - 1)) != 0)
+		戻る NULL;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	もし (size % alignment != 0)
+		戻る NULL;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	戻る alloc_with_align(hpctrl, alignment, size);
 }
 
 void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
 {
 	void *ret = sbi_malloc_from(hpctrl, size);
 
-	if (ret)
+	もし (ret)
 		sbi_memset(ret, 0, size);
-	return ret;
+	戻る ret;
 }
 
 void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
 {
 	struct heap_node *n, *np;
 
-	if (!ptr)
-		return;
+	もし (!ptr)
+		戻る;
 
 	spin_lock(&hpctrl->lock);
 
 	np = NULL;
 	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
+		もし ((n->addr <= (unsigned long)ptr) &&
 		    ((unsigned long)ptr < (n->addr + n->size))) {
 			np = n;
 			break;
 		}
 	}
-	if (!np) {
+	もし (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		戻る;
 	}
 
 	sbi_list_del(&np->head);
 
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+		もし ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
 			break;
-		} else if (np->addr == (n->addr + n->size)) {
+		} 否则 もし (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
 			break;
-		} else if ((n->addr + n->size) < np->addr) {
+		} 否则 もし ((n->addr + n->size) < np->addr) {
 			sbi_list_add(&np->head, &n->head);
 			np = NULL;
 			break;
 		}
 	}
-	if (np)
+	もし (np)
 		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
@@ -227,22 +227,22 @@ unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 		ret += n->size;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	戻る ret;
 }
 
 unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	戻る hpctrl->size - hpctrl->resv - sbi_heap_free_space();
 }
 
 unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	戻る hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
+整数 sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
 	struct heap_node *n;
@@ -262,26 +262,26 @@ int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
 
-	return 0;
+	戻る 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+整数 sbi_heap_init(struct sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
+	もし (!scratch->fw_heap_size ||
 	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
 	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		戻る SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	戻る sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
 				  scratch->fw_heap_size);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+整数 sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
 {
 	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	戻る 0;
 }

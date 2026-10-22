@@ -32,7 +32,7 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
+    ために (整数 i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
         unsigned long result = log2roundup(cases[i].input);
         SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
     }

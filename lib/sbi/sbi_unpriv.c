@@ -19,7 +19,7 @@ union sbi_unpriv_data {
 	u8 b;
 	u16 h;
 	u32 w;
-#if __riscv_xlen == 64
+#もし __riscv_xlen == 64
 	u64 d;
 #endif
 	u8 bytes[__riscv_xlen / 8];
@@ -51,7 +51,7 @@ union sbi_unpriv_data {
 		      [tinfo] "+&r"(tinfo), [ret] "=&r"(ret)                  \
 		    : [addr] "m"(*addr), [mprv] "r"(MSTATUS_MPRV)             \
 		    : "a4", "memory");                                        \
-		return ret;                                                   \
+		戻る ret;                                                   \
 	}
 
 #define DEFINE_UNPRIVILEGED_STORE_FUNCTION(type, insn)                        \
@@ -86,7 +86,7 @@ DEFINE_UNPRIVILEGED_LOAD_FUNCTION(s32, lw)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u8, sb)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u16, sh)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u32, sw)
-#if __riscv_xlen == 64
+#もし __riscv_xlen == 64
 DEFINE_UNPRIVILEGED_LOAD_FUNCTION(u32, lwu)
 DEFINE_UNPRIVILEGED_LOAD_FUNCTION(u64, ld)
 DEFINE_UNPRIVILEGED_STORE_FUNCTION(u64, sd)
@@ -100,27 +100,27 @@ u64 sbi_load_u64(const u64 *addr,
 {
 	u64 ret = sbi_load_u32((u32 *)addr, trap);
 
-	if (trap->cause)
-		return 0;
+	もし (trap->cause)
+		戻る 0;
 	ret |= ((u64)sbi_load_u32((u32 *)addr + 1, trap) << 32);
-	if (trap->cause)
-		return 0;
+	もし (trap->cause)
+		戻る 0;
 
-	return ret;
+	戻る ret;
 }
 
 void sbi_store_u64(u64 *addr, u64 val,
 		   struct sbi_trap_info *trap)
 {
 	sbi_store_u32((u32 *)addr, val, trap);
-	if (trap->cause)
-		return;
+	もし (trap->cause)
+		戻る;
 
 	sbi_store_u32((u32 *)addr + 1, val >> 32, trap);
-	if (trap->cause)
-		return;
+	もし (trap->cause)
+		戻る;
 }
-#else
+#否则
 # error "Unexpected __riscv_xlen"
 #endif
 
@@ -130,11 +130,11 @@ void sbi_load_loop(u8 *buffer, ulong addr, ulong len,
 	union sbi_unpriv_data data;
 
 	trap->cause = 0;
-	while (len) {
-		unsigned int width = __riscv_xlen / 8;
+	ながら (len) {
+		unsigned 整数 width = __riscv_xlen / 8;
 		void *ptr = (void*)addr;
 
-		while (len < width || (addr & (width - 1)))
+		ながら (len < width || (addr & (width - 1)))
 			width /= 2;
 
 		switch (width) {
@@ -147,14 +147,14 @@ void sbi_load_loop(u8 *buffer, ulong addr, ulong len,
 		case 4:
 			data.w = sbi_load_u32(ptr, trap);
 			break;
-#if __riscv_xlen == 64
+#もし __riscv_xlen == 64
 		case 8:
 			data.d = sbi_load_u64(ptr, trap);
 			break;
 #endif
 		}
-		if (trap->cause)
-			return;
+		もし (trap->cause)
+			戻る;
 
 		sbi_memcpy(buffer, data.bytes, width);
 		len -= width;
@@ -169,11 +169,11 @@ void sbi_store_loop(u8 *buffer, ulong addr, ulong len,
 	union sbi_unpriv_data data;
 
 	trap->cause = 0;
-	while (len) {
-		unsigned int width = __riscv_xlen / 8;
+	ながら (len) {
+		unsigned 整数 width = __riscv_xlen / 8;
 		void *ptr = (void*)addr;
 
-		while (len < width || (addr & (width - 1)))
+		ながら (len < width || (addr & (width - 1)))
 			width /= 2;
 
 		sbi_memcpy(data.bytes, buffer, width);
@@ -187,14 +187,14 @@ void sbi_store_loop(u8 *buffer, ulong addr, ulong len,
 		case 4:
 			sbi_store_u32(ptr, data.w, trap);
 			break;
-#if __riscv_xlen == 64
+#もし __riscv_xlen == 64
 		case 8:
 			sbi_store_u64(ptr, data.d, trap);
 			break;
 #endif
 		}
-		if (trap->cause)
-			return;
+		もし (trap->cause)
+			戻る;
 
 		len -= width;
 		addr += width;
@@ -243,7 +243,7 @@ ulong sbi_get_insn(ulong mepc, struct sbi_trap_info *trap)
 		break;
 	case CAUSE_LOAD_GUEST_PAGE_FAULT:
 		trap->cause = CAUSE_FETCH_GUEST_PAGE_FAULT;
-		if (trap->tinst != INSN_PSEUDO_VS_LOAD &&
+		もし (trap->tinst != INSN_PSEUDO_VS_LOAD &&
 		    trap->tinst != INSN_PSEUDO_VS_STORE)
 			trap->tinst = 0UL;
 		break;
@@ -251,5 +251,5 @@ ulong sbi_get_insn(ulong mepc, struct sbi_trap_info *trap)
 		break;
 	}
 
-	return insn;
+	戻る insn;
 }

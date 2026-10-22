@@ -11,17 +11,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/sifive-uart.h>
 
-static int serial_sifive_init(const void *fdt, int nodeoff,
+static 整数 serial_sifive_init(const void *fdt, 整数 nodeoff,
 			      const struct fdt_match *match)
 {
-	int rc;
+	整数 rc;
 	struct platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_sifive_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	もし (rc)
+		戻る rc;
 
-	return sifive_uart_init(uart.addr, uart.freq, uart.baud);
+	戻る sifive_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
 static const struct fdt_match serial_sifive_match[] = {

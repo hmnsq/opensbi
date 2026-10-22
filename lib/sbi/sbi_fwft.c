@@ -40,9 +40,9 @@ struct fwft_config;
 
 struct fwft_feature {
 	enum sbi_fwft_feature_t id;
-	int (*supported)(struct fwft_config *conf);
-	int (*set)(struct fwft_config *conf, unsigned long value);
-	int (*get)(struct fwft_config *conf, unsigned long *value);
+	整数 (*supported)(struct fwft_config *conf);
+	整数 (*set)(struct fwft_config *conf, unsigned long value);
+	整数 (*get)(struct fwft_config *conf, unsigned long *value);
 };
 
 struct fwft_config {
@@ -51,7 +51,7 @@ struct fwft_config {
 };
 
 struct fwft_hart_state {
-	unsigned int config_count;
+	unsigned 整数 config_count;
 	struct fwft_config configs[];
 };
 
@@ -66,99 +66,99 @@ static const unsigned long fwft_defined_features[] = {
 
 static bool fwft_is_defined_feature(enum sbi_fwft_feature_t feature)
 {
-	int i;
+	整数 i;
 
-	for (i = 0; i < array_size(fwft_defined_features); i++) {
-		if (fwft_defined_features[i] == feature)
-			return true;
+	ために (i = 0; i < array_size(fwft_defined_features); i++) {
+		もし (fwft_defined_features[i] == feature)
+			戻る true;
 	}
 
-	return false;
+	戻る false;
 }
 
-static int fwft_menvcfg_set_bit(unsigned long value, unsigned long bit)
+static 整数 fwft_menvcfg_set_bit(unsigned long value, unsigned long bit)
 {
-	if (value == 1) {
-		if (bit >= 32 && __riscv_xlen == 32)
+	もし (value == 1) {
+		もし (bit >= 32 && __riscv_xlen == 32)
 			csr_set(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
+		否则
 			csr_set(CSR_MENVCFG, _ULL(1) << bit);
 
-	} else if (value == 0) {
-		if (bit >= 32 && __riscv_xlen == 32)
+	} 否则 もし (value == 0) {
+		もし (bit >= 32 && __riscv_xlen == 32)
 			csr_clear(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
+		否则
 			csr_clear(CSR_MENVCFG, _ULL(1) << bit);
-	} else {
-		return SBI_EINVAL;
+	} 否则 {
+		戻る SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_menvcfg_read_bit(unsigned long *value, unsigned long bit)
+static 整数 fwft_menvcfg_read_bit(unsigned long *value, unsigned long bit)
 {
 	unsigned long cfg;
 
-	if (bit >= 32 && __riscv_xlen == 32)
+	もし (bit >= 32 && __riscv_xlen == 32)
 		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (bit - 32));
-	else
+	否则
 		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << bit);
 
 	*value = cfg != 0;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_misaligned_delegation_supported(struct fwft_config *conf)
+static 整数 fwft_misaligned_delegation_supported(struct fwft_config *conf)
 {
-	if (!misa_extension('S'))
-		return SBI_ENOTSUPP;
+	もし (!misa_extension('S'))
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_set_misaligned_delegation(struct fwft_config *conf,
+static 整数 fwft_set_misaligned_delegation(struct fwft_config *conf,
 					 unsigned long value)
 {
-	if (value == 1)
+	もし (value == 1)
 		csr_set(CSR_MEDELEG, MIS_DELEG);
-	else if (value == 0)
+	否则 もし (value == 0)
 		csr_clear(CSR_MEDELEG, MIS_DELEG);
-	else
-		return SBI_EINVAL;
+	否则
+		戻る SBI_EINVAL;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_get_misaligned_delegation(struct fwft_config *conf,
+static 整数 fwft_get_misaligned_delegation(struct fwft_config *conf,
 					 unsigned long *value)
 {
 	*value = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_double_trap_supported(struct fwft_config *conf)
+static 整数 fwft_double_trap_supported(struct fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	もし (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SSDBLTRP))
-		return SBI_ENOTSUPP;
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_set_double_trap(struct fwft_config *conf, unsigned long value)
+static 整数 fwft_set_double_trap(struct fwft_config *conf, unsigned long value)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_DTE_SHIFT);
+	戻る fwft_menvcfg_set_bit(value, ENVCFG_DTE_SHIFT);
 }
 
-static int fwft_get_double_trap(struct fwft_config *conf, unsigned long *value)
+static 整数 fwft_get_double_trap(struct fwft_config *conf, unsigned long *value)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_DTE_SHIFT);
+	戻る fwft_menvcfg_read_bit(value, ENVCFG_DTE_SHIFT);
 }
 
-static int fwft_adue_supported(struct fwft_config *conf)
+static 整数 fwft_adue_supported(struct fwft_config *conf)
 {
 	/*
 	 * FWFT.PTE_AD_HW_UPDATING is only supported when both Svade and Svadu
@@ -166,83 +166,83 @@ static int fwft_adue_supported(struct fwft_config *conf)
 	 * ensure the reset value of zero is valid (it wouldn't be when only
 	 * Svadu is supported).
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	もし (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADU) ||
 	    !sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADE))
-		return SBI_ENOTSUPP;
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_set_adue(struct fwft_config *conf, unsigned long value)
+static 整数 fwft_set_adue(struct fwft_config *conf, unsigned long value)
 {
-	int res = fwft_menvcfg_set_bit(value, ENVCFG_ADUE_SHIFT);
+	整数 res = fwft_menvcfg_set_bit(value, ENVCFG_ADUE_SHIFT);
 
-	if (res == SBI_OK) {
+	もし (res == SBI_OK) {
 		__sbi_sfence_vma_all();
 
-		if (misa_extension('H'))
+		もし (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 
-	return res;
+	戻る res;
 }
 
-static int fwft_get_adue(struct fwft_config *conf, unsigned long *value)
+static 整数 fwft_get_adue(struct fwft_config *conf, unsigned long *value)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_ADUE_SHIFT);
+	戻る fwft_menvcfg_read_bit(value, ENVCFG_ADUE_SHIFT);
 }
 
-static int fwft_lpad_supported(struct fwft_config *conf)
+static 整数 fwft_lpad_supported(struct fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	もし (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFILP))
-		return SBI_ENOTSUPP;
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_enable_lpad(struct fwft_config *conf, unsigned long value)
+static 整数 fwft_enable_lpad(struct fwft_config *conf, unsigned long value)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_LPE_SHIFT);
+	戻る fwft_menvcfg_set_bit(value, ENVCFG_LPE_SHIFT);
 }
 
-static int fwft_get_lpad(struct fwft_config *conf, unsigned long *value)
+static 整数 fwft_get_lpad(struct fwft_config *conf, unsigned long *value)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_LPE_SHIFT);
+	戻る fwft_menvcfg_read_bit(value, ENVCFG_LPE_SHIFT);
 }
 
-static int fwft_sstack_supported(struct fwft_config *conf)
+static 整数 fwft_sstack_supported(struct fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	もし (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFISS))
-		return SBI_ENOTSUPP;
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_enable_sstack(struct fwft_config *conf, unsigned long value)
+static 整数 fwft_enable_sstack(struct fwft_config *conf, unsigned long value)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_SSE_SHIFT);
+	戻る fwft_menvcfg_set_bit(value, ENVCFG_SSE_SHIFT);
 }
 
-static int fwft_get_sstack(struct fwft_config *conf, unsigned long *value)
+static 整数 fwft_get_sstack(struct fwft_config *conf, unsigned long *value)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_SSE_SHIFT);
+	戻る fwft_menvcfg_read_bit(value, ENVCFG_SSE_SHIFT);
 }
 
-#if __riscv_xlen > 32
-static int fwft_pmlen_supported(struct fwft_config *conf)
+#もし __riscv_xlen > 32
+static 整数 fwft_pmlen_supported(struct fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	もし (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SMNPM))
-		return SBI_ENOTSUPP;
+		戻る SBI_ENOTSUPP;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
+static 整数 fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
 {
 	unsigned long pmm, prev;
 
@@ -257,20 +257,20 @@ static int fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
 		pmm = ENVCFG_PMM_PMLEN_16;
 		break;
 	default:
-		return SBI_EINVAL;
+		戻る SBI_EINVAL;
 	}
 
 	prev = csr_read_clear(CSR_MENVCFG, ENVCFG_PMM);
 	csr_set(CSR_MENVCFG, pmm);
-	if ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
+	もし ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
 		csr_write(CSR_MENVCFG, prev);
-		return SBI_EINVAL;
+		戻る SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-static int fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
+static 整数 fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
 {
 	switch (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
 	case ENVCFG_PMM_PMLEN_0:
@@ -283,100 +283,100 @@ static int fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
 		*value = 16;
 		break;
 	default:
-		return SBI_EFAIL;
+		戻る SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 #endif
 
 static struct fwft_config* get_feature_config(enum sbi_fwft_feature_t feature)
 {
-	int i;
+	整数 i;
 	struct fwft_hart_state *fhs = fwft_thishart_state_ptr();
 
-	if (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
-		return NULL;
+	もし (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
+		戻る NULL;
 
-	for (i = 0; i < fhs->config_count; i++){
-		if (feature == fhs->configs[i].feature->id)
-			return &fhs->configs[i];
+	ために (i = 0; i < fhs->config_count; i++){
+		もし (feature == fhs->configs[i].feature->id)
+			戻る &fhs->configs[i];
 	}
 
-	return NULL;
+	戻る NULL;
 }
 
-static int fwft_get_feature(enum sbi_fwft_feature_t feature,
+static 整数 fwft_get_feature(enum sbi_fwft_feature_t feature,
 			    struct fwft_config **conf)
 {
-	int ret;
+	整数 ret;
 	struct fwft_config *tconf;
 
 	tconf = get_feature_config(feature);
-	if (!tconf) {
-		if (fwft_is_defined_feature(feature))
-			return SBI_ENOTSUPP;
+	もし (!tconf) {
+		もし (fwft_is_defined_feature(feature))
+			戻る SBI_ENOTSUPP;
 
-		return SBI_EDENIED;
+		戻る SBI_EDENIED;
 	}
 
-	if (tconf->feature->supported) {
+	もし (tconf->feature->supported) {
 		ret = tconf->feature->supported(tconf);
-		if (ret)
-			return ret;
+		もし (ret)
+			戻る ret;
 	}
 	*conf = tconf;
 
-	return SBI_SUCCESS;
+	戻る SBI_SUCCESS;
 }
 
 static void fwft_clear_config_lock(enum sbi_fwft_feature_t feature)
 {
-	int ret;
+	整数 ret;
 	struct fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return;
+	もし (ret)
+		戻る;
 
 	conf->flags &= ~SBI_FWFT_SET_FLAG_LOCK;
 }
 
-int sbi_fwft_set(enum sbi_fwft_feature_t feature, unsigned long value,
+整数 sbi_fwft_set(enum sbi_fwft_feature_t feature, unsigned long value,
 		 unsigned long flags)
 {
-	int ret;
+	整数 ret;
 	struct fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	もし (ret)
+		戻る ret;
 
-	if ((flags & ~SBI_FWFT_SET_FLAG_LOCK) != 0)
-		return SBI_EINVAL;
+	もし ((flags & ~SBI_FWFT_SET_FLAG_LOCK) != 0)
+		戻る SBI_EINVAL;
 
-	if (conf->flags & SBI_FWFT_SET_FLAG_LOCK)
-		return SBI_EDENIED_LOCKED;
+	もし (conf->flags & SBI_FWFT_SET_FLAG_LOCK)
+		戻る SBI_EDENIED_LOCKED;
 
 	ret = conf->feature->set(conf, value);
-	if (ret)
-		return ret;
+	もし (ret)
+		戻る ret;
 
 	conf->flags = flags;
 
-	return SBI_OK;
+	戻る SBI_OK;
 }
 
-int sbi_fwft_get(enum sbi_fwft_feature_t feature, unsigned long *out_val)
+整数 sbi_fwft_get(enum sbi_fwft_feature_t feature, unsigned long *out_val)
 {
-	int ret;
+	整数 ret;
 	struct fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	もし (ret)
+		戻る ret;
 
-	return conf->feature->get(conf, out_val);
+	戻る conf->feature->get(conf, out_val);
 }
 
 static const struct fwft_feature features[] =
@@ -411,7 +411,7 @@ static const struct fwft_feature features[] =
 		.set = fwft_set_adue,
 		.get = fwft_get_adue,
 	},
-#if __riscv_xlen > 32
+#もし __riscv_xlen > 32
 	{
 		.id = SBI_FWFT_POINTER_MASKING_PMLEN,
 		.supported = fwft_pmlen_supported,
@@ -421,32 +421,32 @@ static const struct fwft_feature features[] =
 #endif
 };
 
-int sbi_fwft_init(struct sbi_scratch *scratch, bool cold_boot)
+整数 sbi_fwft_init(struct sbi_scratch *scratch, bool cold_boot)
 {
-	int i;
+	整数 i;
 	struct fwft_hart_state *fhs;
 
-	if (cold_boot) {
+	もし (cold_boot) {
 		fwft_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!fwft_ptr_offset)
-			return SBI_ENOMEM;
+		もし (!fwft_ptr_offset)
+			戻る SBI_ENOMEM;
 	}
 
 	fhs = fwft_get_hart_state_ptr(scratch);
-	if (!fhs) {
+	もし (!fhs) {
 		fhs = sbi_zalloc(sizeof(*fhs) + array_size(features) * sizeof(struct fwft_config));
-		if (!fhs)
-			return SBI_ENOMEM;
+		もし (!fhs)
+			戻る SBI_ENOMEM;
 
 		fhs->config_count = array_size(features);
-		for (i = 0; i < array_size(features); i++)
+		ために (i = 0; i < array_size(features); i++)
 			fhs->configs[i].feature = &features[i];
 
 		fwft_set_hart_state_ptr(scratch, fhs);
 	}
 
-	for (i = 0; i < array_size(features); i++)
+	ために (i = 0; i < array_size(features); i++)
 		fwft_clear_config_lock(features[i].id);
 
-	return 0;
+	戻る 0;
 }

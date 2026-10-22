@@ -28,24 +28,24 @@ static bool sbi_load_hart_mask_unpriv(ulong *pmask, ulong *hmask, ulong *hbase,
 {
 	ulong mask = 0;
 
-	if (pmask) {
+	もし (pmask) {
 		mask = sbi_load_ulong(pmask, uptrap);
-		if (uptrap->cause)
-			return false;
+		もし (uptrap->cause)
+			戻る false;
 		*hbase = 0;
-	} else {
+	} 否则 {
 		*hbase = -1UL;
 	}
 	*hmask = mask;
 
-	return true;
+	戻る true;
 }
 
-static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
+static 整数 sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
 				    struct sbi_trap_regs *regs,
 				    struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	整数 ret = 0;
 	struct sbi_tlb_info tlb_info;
 	u32 source_hart = current_hartid();
 	struct sbi_trap_info trap = {0};
@@ -53,9 +53,9 @@ static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
 
 	switch (extid) {
 	case SBI_EXT_0_1_SET_TIMER:
-#if __riscv_xlen == 32
+#もし __riscv_xlen == 32
 		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
+#否则
 		sbi_timer_smode_event_start((u64)regs->a0);
 #endif
 		break;
@@ -69,45 +69,45 @@ static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
 		sbi_ipi_clear_smode();
 		break;
 	case SBI_EXT_0_1_SEND_IPI:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		もし (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			ret = sbi_ipi_send_smode(hmask, hbase);
-		} else {
+		} 否则 {
 			sbi_trap_redirect(regs, &trap);
 			out->skip_regs_update = true;
 		}
 		break;
 	case SBI_EXT_0_1_REMOTE_FENCE_I:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		もし (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, 0, 0, 0, 0,
 					  SBI_TLB_FENCE_I, source_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} 否则 {
 			sbi_trap_redirect(regs, &trap);
 			out->skip_regs_update = true;
 		}
 		break;
 	case SBI_EXT_0_1_REMOTE_SFENCE_VMA:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		もし (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1, regs->a2, 0, 0,
 					  SBI_TLB_SFENCE_VMA, source_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} 否则 {
 			sbi_trap_redirect(regs, &trap);
 			out->skip_regs_update = true;
 		}
 		break;
 	case SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		もし (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1,
 					  regs->a2, regs->a3, 0,
 					  SBI_TLB_SFENCE_VMA_ASID,
 					  source_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} 否则 {
 			sbi_trap_redirect(regs, &trap);
 			out->skip_regs_update = true;
 		}
@@ -120,14 +120,14 @@ static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	戻る ret;
 }
 
 struct sbi_ecall_extension ecall_legacy;
 
-static int sbi_ecall_legacy_register_extensions(void)
+static 整数 sbi_ecall_legacy_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_legacy);
+	戻る sbi_ecall_register_extension(&ecall_legacy);
 }
 
 struct sbi_ecall_extension ecall_legacy = {

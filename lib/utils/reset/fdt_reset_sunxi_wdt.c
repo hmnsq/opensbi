@@ -21,15 +21,15 @@
 
 static volatile char *sunxi_wdt_base;
 
-static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
+static 整数 sunxi_wdt_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 1;
+		戻る 1;
 	}
 
-	return 0;
+	戻る 0;
 }
 
 static void sunxi_wdt_system_reset(u32 type, u32 reason)
@@ -49,21 +49,21 @@ static struct sbi_system_reset_device sunxi_wdt_reset = {
 	.system_reset = sunxi_wdt_system_reset,
 };
 
-static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
+static 整数 sunxi_wdt_reset_init(const void *fdt, 整数 nodeoff,
 				const struct fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	整数 rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	もし (rc < 0 || !reg_addr)
+		戻る SBI_ENODEV;
 
 	sunxi_wdt_base = (volatile char *)(unsigned long)reg_addr;
 
 	sbi_system_reset_add_device(&sunxi_wdt_reset);
 
-	return 0;
+	戻る 0;
 }
 
 static const struct fdt_match sunxi_wdt_reset_match[] = {

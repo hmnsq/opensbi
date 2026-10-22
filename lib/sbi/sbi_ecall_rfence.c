@@ -15,19 +15,19 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_tlb.h>
 
-static int sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
+static 整数 sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
 				    struct sbi_trap_regs *regs,
 				    struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	整数 ret = 0;
 	unsigned long vmid;
 	struct sbi_tlb_info tlb_info;
 	u32 source_hart = current_hartid();
 
-	if (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
+	もし (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
 	    funcid <= SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA)
-		if (!misa_extension('H'))
-			return SBI_ENOTSUPP;
+		もし (!misa_extension('H'))
+			戻る SBI_ENOTSUPP;
 
 	switch (funcid) {
 	case SBI_EXT_RFENCE_REMOTE_FENCE_I:
@@ -73,14 +73,14 @@ static int sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	戻る ret;
 }
 
 struct sbi_ecall_extension ecall_rfence;
 
-static int sbi_ecall_rfence_register_extensions(void)
+static 整数 sbi_ecall_rfence_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_rfence);
+	戻る sbi_ecall_register_extension(&ecall_rfence);
 }
 
 struct sbi_ecall_extension ecall_rfence = {

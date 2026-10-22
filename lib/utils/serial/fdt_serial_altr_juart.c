@@ -12,21 +12,21 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
+static 整数 serial_altr_juart_init(const void *fdt, 整数 nodeoff,
 				  const struct fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	整数 rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	もし (nodeoff < 0 || !fdt)
+		戻る SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	もし (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
+		戻る SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	戻る altr_juart_init(reg_addr);
 }
 
 static const struct fdt_match serial_altr_juart_match[] = {
