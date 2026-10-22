@@ -3,20 +3,20 @@
  *
  * Author: Ivan Orlov <ivan.orlov0322@gmail.com>
  */
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_unit_test.h>
+#अन्तर्भाव <sbi/sbi_bitmap.h>
+#अन्तर्भाव <sbi/sbi_unit_test.h>
 
-#define DATA_SIZE sizeof(data_zero)
+#define DATA_SIZE परिमाण(data_zero)
 #define DATA_BIT_SIZE (DATA_SIZE * 8)
 
-static unsigned long data_a[] = { 0xDEADBEEF, 0x00BAB10C, 0x1BADB002, 0xABADBABE };
-static unsigned long data_b[] = { 0xC00010FF, 0x00BAB10C, 0xBAAAAAAD, 0xBADDCAFE };
-static unsigned long data_zero[] = { 0, 0, 0, 0 };
+स्थिर अचिन्हित दीर्घ data_a[] = { 0xDEADBEEF, 0x00BAB10C, 0x1BADB002, 0xABADBABE };
+स्थिर अचिन्हित दीर्घ data_b[] = { 0xC00010FF, 0x00BAB10C, 0xBAAAAAAD, 0xBADDCAFE };
+स्थिर अचिन्हित दीर्घ data_zero[] = { 0, 0, 0, 0 };
 
-static void bitmap_and_test(struct sbiunit_test_case *test)
+स्थिर शून्य bitmap_and_test(संरचना sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_and_b[] = { data_a[0] & data_b[0], data_a[1] & data_b[1],
+	अचिन्हित दीर्घ res[DATA_SIZE];
+	अचिन्हित दीर्घ a_and_b[] = { data_a[0] & data_b[0], data_a[1] & data_b[1],
 				    data_a[2] & data_b[2], data_a[3] & data_b[3] };
 
 	__bitmap_and(res, data_a, data_b, DATA_BIT_SIZE);
@@ -40,10 +40,10 @@ static void bitmap_and_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_or_test(struct sbiunit_test_case *test)
+स्थिर शून्य bitmap_or_test(संरचना sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_or_b[] = { data_a[0] | data_b[0], data_a[1] | data_b[1],
+	अचिन्हित दीर्घ res[DATA_SIZE];
+	अचिन्हित दीर्घ a_or_b[] = { data_a[0] | data_b[0], data_a[1] | data_b[1],
 				   data_a[2] | data_b[2], data_a[3] | data_b[3] };
 
 	__bitmap_or(res, data_a, data_b, DATA_BIT_SIZE);
@@ -66,10 +66,10 @@ static void bitmap_or_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_xor_test(struct sbiunit_test_case *test)
+स्थिर शून्य bitmap_xor_test(संरचना sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
-	unsigned long a_xor_b[] = { data_a[0] ^ data_b[0], data_a[1] ^ data_b[1],
+	अचिन्हित दीर्घ res[DATA_SIZE];
+	अचिन्हित दीर्घ a_xor_b[] = { data_a[0] ^ data_b[0], data_a[1] ^ data_b[1],
 				    data_a[2] ^ data_b[2], data_a[3] ^ data_b[3] };
 
 	__bitmap_xor(res, data_a, data_b, DATA_BIT_SIZE);
@@ -92,9 +92,9 @@ static void bitmap_xor_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_empty_test(struct sbiunit_test_case *test)
+स्थिर शून्य bitmap_empty_test(संरचना sbiunit_test_case *test)
 {
-	unsigned long res[DATA_SIZE];
+	अचिन्हित दीर्घ res[DATA_SIZE];
 
 	/* All zeros = empty */
 	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_zero, DATA_BIT_SIZE), true);
@@ -120,7 +120,7 @@ static void bitmap_empty_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_a, 0), true);
 }
 
-static struct sbiunit_test_case bitmap_test_cases[] = {
+स्थिर संरचना sbiunit_test_case bitmap_test_cases[] = {
 	SBIUNIT_TEST_CASE(bitmap_and_test),
 	SBIUNIT_TEST_CASE(bitmap_or_test),
 	SBIUNIT_TEST_CASE(bitmap_xor_test),
