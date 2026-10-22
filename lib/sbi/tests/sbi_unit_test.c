@@ -3,33 +3,33 @@
  *
  * Author: Ivan Orlov <ivan.orlov0322@gmail.com>
  */
-#include <sbi/sbi_unit_test.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_unit_test.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_types.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
 
 #define ANSI_COLOR_GREEN "\x1b[32m"
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-extern struct sbiunit_test_suite *const sbi_unit_tests[];
+ಬಾಹ್ಯ ಸಂರಚನಾ sbiunit_test_suite *ಧ್ರುವ sbi_unit_tests[];
 
-static void run_test_suite(struct sbiunit_test_suite *suite)
+ಸ್ಥಿರ ಶೂನ್ಯ run_test_suite(ಸಂರಚನಾ sbiunit_test_suite *suite)
 {
-	struct sbiunit_test_case *s_case;
-	u32 count_pass = 0, count_fail = 0;
+	ಸಂರಚನಾ sbiunit_test_case *s_case;
+	u32 ಎಣಿಕೆ_pass = 0, ಎಣಿಕೆ_fail = 0;
 
 	sbi_printf("## Running test suite: %s\n", suite->name);
 
-	if (suite->init)
+	ಯದಿ (suite->init)
 		suite->init();
 
 	s_case = suite->cases;
-	while (s_case->test_func) {
+	ಯಾವತ್ (s_case->test_func) {
 		s_case->test_func(s_case);
-		if (s_case->failed)
-			count_fail++;
-		else
-			count_pass++;
+		ಯದಿ (s_case->failed)
+			ಎಣಿಕೆ_fail++;
+		ಅನ್ಯಥಾ
+			ಎಣಿಕೆ_pass++;
 		sbi_printf("%s[%s]%s %s\n",
 			   s_case->failed ? ANSI_COLOR_RED : ANSI_COLOR_GREEN,
 			   s_case->failed ? "FAILED" : "PASSED",
@@ -37,16 +37,16 @@ static void run_test_suite(struct sbiunit_test_suite *suite)
 		s_case++;
 	}
 
-	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", count_pass, count_fail,
-		   count_pass + count_fail);
+	sbi_printf("%u PASSED / %u FAILED / %u TOTAL\n", ಎಣಿಕೆ_pass, ಎಣಿಕೆ_fail,
+		   ಎಣಿಕೆ_pass + ಎಣಿಕೆ_fail);
 }
 
-void run_all_tests(void)
+ಶೂನ್ಯ run_all_tests(ಶೂನ್ಯ)
 {
 	u32 i;
 
 	sbi_printf("\n# Running SBIUNIT tests #\n");
 
-	for (i = 0; sbi_unit_tests[i]; i++)
+	ಪ್ರತಿ (i = 0; sbi_unit_tests[i]; i++)
 		run_test_suite(sbi_unit_tests[i]);
 }

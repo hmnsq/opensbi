@@ -7,84 +7,84 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_locks.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_fifo.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
 
 #define CONSOLE_TBUF_MAX 256
 
-static const struct sbi_console_device *console_dev = NULL;
-static char console_tbuf[CONSOLE_TBUF_MAX];
-static u32 console_tbuf_len;
-static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ sbi_console_device *console_dev = ರಿಕ್ತ;
+ಸ್ಥಿರ ವರ್ಣ console_tbuf[CONSOLE_TBUF_MAX];
+ಸ್ಥಿರ u32 console_tbuf_len;
+ಸ್ಥಿರ spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
 
 #ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
 #define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
+#ಅನ್ಯಥಾ
 #define CONSOLE_EARLY_BUFFER_SIZE	256
 #endif
-static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
-static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
-		       CONSOLE_EARLY_BUFFER_SIZE, sizeof(char));
+ಸ್ಥಿರ ವರ್ಣ console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
+ಸ್ಥಿರ SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
+		       CONSOLE_EARLY_BUFFER_SIZE, ಪರಿಮಾಣ(ವರ್ಣ));
 
-bool sbi_isprintable(char c)
+bool sbi_isprintable(ವರ್ಣ c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	ಯದಿ (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		ಪ್ರತ್ಯಾಗಮ true;
 	}
-	return false;
+	ಪ್ರತ್ಯಾಗಮ false;
 }
 
-int sbi_getc(void)
+ಪೂರ್ಣಾಙ್ಕ sbi_getc(ಶೂನ್ಯ)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	ಯದಿ (console_dev && console_dev->console_getc)
+		ಪ್ರತ್ಯಾಗಮ console_dev->console_getc();
+	ಪ್ರತ್ಯಾಗಮ -1;
 }
 
-static unsigned long nputs(const char *str, unsigned long len)
+ಸ್ಥಿರ unsigned long nputs(ಧ್ರುವ ವರ್ಣ *str, unsigned long len)
 {
-	char ch;
+	ವರ್ಣ ch;
 	unsigned long i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	ಯದಿ (console_dev) {
+		ಯದಿ (console_dev->console_puts)
+			ಪ್ರತ್ಯಾಗಮ console_dev->console_puts(str, len);
+		ಅನ್ಯಥಾ ಯದಿ (console_dev->console_putc) {
+			ಪ್ರತಿ (i = 0; i < len; i++) {
+				ಯದಿ (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} ಅನ್ಯಥಾ {
+		ಪ್ರತಿ (i = 0; i < len; i++) {
 			ch = str[i];
 			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	ಪ್ರತ್ಯಾಗಮ len;
 }
 
-static void nputs_all(const char *str, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ nputs_all(ಧ್ರುವ ವರ್ಣ *str, unsigned long len)
 {
 	unsigned long p = 0;
 
-	while (p < len)
+	ಯಾವತ್ (p < len)
 		p += nputs(&str[p], len - p);
 }
 
-void sbi_putc(char ch)
+ಶೂನ್ಯ sbi_putc(ವರ್ಣ ch)
 {
 	nputs_all(&ch, 1);
 }
 
-void sbi_puts(const char *str)
+ಶೂನ್ಯ sbi_puts(ಧ್ರುವ ವರ್ಣ *str)
 {
 	unsigned long len = sbi_strlen(str);
 
@@ -93,7 +93,7 @@ void sbi_puts(const char *str)
 	spin_unlock(&console_out_lock);
 }
 
-unsigned long sbi_nputs(const char *str, unsigned long len)
+unsigned long sbi_nputs(ಧ್ರುವ ವರ್ಣ *str, unsigned long len)
 {
 	unsigned long ret;
 
@@ -101,38 +101,38 @@ unsigned long sbi_nputs(const char *str, unsigned long len)
 	ret = nputs(str, len);
 	spin_unlock(&console_out_lock);
 
-	return ret;
+	ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+ಶೂನ್ಯ sbi_gets(ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ maxwidth, ವರ್ಣ endchar)
 {
-	int ch;
-	char *retval = s;
+	ಪೂರ್ಣಾಙ್ಕ ch;
+	ವರ್ಣ *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
-		*retval = (char)ch;
+	ಯಾವತ್ ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+		*retval = (ವರ್ಣ)ch;
 		retval++;
 		maxwidth--;
 	}
 	*retval = '\0';
 }
 
-unsigned long sbi_ngets(char *str, unsigned long len)
+unsigned long sbi_ngets(ವರ್ಣ *str, unsigned long len)
 {
-	int ch;
+	ಪೂರ್ಣಾಙ್ಕ ch;
 	unsigned long i;
 
-	for (i = 0; i < len; i++) {
+	ಪ್ರತಿ (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
-			break;
+		ಯದಿ (ch < 0)
+			ಭಙ್ಗ;
 		str[i] = ch;
 	}
 
-	return i;
+	ಪ್ರತ್ಯಾಗಮ i;
 }
 
-#define PAD_RIGHT 1
+#define PAD_ಬಲ 1
 #define PAD_ZERO 2
 #define PAD_ALTERNATE 4
 #define PAD_SIGN 8
@@ -142,25 +142,25 @@ unsigned long sbi_ngets(char *str, unsigned long len)
 #define va_start(v, l) __builtin_va_start((v), l)
 #define va_end __builtin_va_end
 #define va_arg __builtin_va_arg
-typedef __builtin_va_list va_list;
+ಪ್ರಕಾರನಿರ್ದೇಶ __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+ಸ್ಥಿರ ಶೂನ್ಯ printc(ವರ್ಣ **out, u32 *out_len, ವರ್ಣ ch, ಪೂರ್ಣಾಙ್ಕ flags)
 {
-	if (!out) {
+	ಯದಿ (!out) {
 		sbi_putc(ch);
-		return;
+		ಪ್ರತ್ಯಾಗಮ;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
+	ಯದಿ (!out_len || *out_len > 1) {
 		*(*out)++ = ch;
 		**out = '\0';
-		if (out_len) {
+		ಯದಿ (out_len) {
 			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
+			ಯದಿ ((flags & USE_TBUF) && *out_len == 1) {
 				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
 				*out = console_tbuf;
 				*out_len = CONSOLE_TBUF_MAX;
@@ -169,41 +169,41 @@ static void printc(char **out, u32 *out_len, char ch, int flags)
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ prints(ವರ್ಣ **out, u32 *out_len, ಧ್ರುವ ವರ್ಣ *string, ಪೂರ್ಣಾಙ್ಕ width,
+		  ಪೂರ್ಣಾಙ್ಕ flags)
 {
-	int pc = 0;
+	ಪೂರ್ಣಾಙ್ಕ pc = 0;
 	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
+	ಯದಿ (!(flags & PAD_ಬಲ)) {
+		ಪ್ರತಿ (; width > 0; --width) {
 			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
+	ಪ್ರತಿ (; *string; ++string) {
 		printc(out, out_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
+	ಪ್ರತಿ (; width > 0; --width) {
 		printc(out, out_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	ಪ್ರತ್ಯಾಗಮ pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ printi(ವರ್ಣ **out, u32 *out_len, long long i,
+		  ಪೂರ್ಣಾಙ್ಕ width, ಪೂರ್ಣಾಙ್ಕ flags, ಪೂರ್ಣಾಙ್ಕ type)
 {
-	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	ಪೂರ್ಣಾಙ್ಕ pc = 0;
+	ವರ್ಣ *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
 	unsigned long long u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	ಯದಿ (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	ಅನ್ಯಥಾ ಯದಿ (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	ಯದಿ (type == 'i' || type == 'd') {
+		ಯದಿ ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		ಯದಿ (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,55 +223,55 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	ಯದಿ (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} ಅನ್ಯಥಾ {
+		ಯಾವತ್ (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			ಯದಿ (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
+	ಯದಿ (flags & PAD_ZERO) {
+		ಯದಿ (sign) {
 			printc(out, out_len, sign, flags);
 			++pc;
 			--width;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
+		ಯದಿ (i && (flags & PAD_ALTERNATE)) {
+			ಯದಿ (b == 16 || b == 8) {
 				printc(out, out_len, '0', flags);
 				++pc;
 				--width;
 			}
-			if (b == 16) {
+			ಯದಿ (b == 16) {
 				printc(out, out_len, 'x' - 'a' + letbase, flags);
 				++pc;
 				--width;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} ಅನ್ಯಥಾ {
+		ಯದಿ (i && (flags & PAD_ALTERNATE)) {
+			ಯದಿ (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			ಯದಿ (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		ಯದಿ (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	ಪ್ರತ್ಯಾಗಮ pc + prints(out, out_len, s, width, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ print(ವರ್ಣ **out, u32 *out_len, ಧ್ರುವ ವರ್ಣ *format, va_list args)
 {
 	bool flags_done;
-	int width, flags, pc = 0;
-	char type, scr[2], *tout;
+	ಪೂರ್ಣಾಙ್ಕ width, flags, pc = 0;
+	ವರ್ಣ type, scr[2], *tout;
 	bool use_tbuf = (!out) ? true : false;
 
 	/*
@@ -279,7 +279,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	ಯದಿ (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
 		out = &tout;
@@ -287,82 +287,82 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
+	ಯದಿ (out) {
+		ಯದಿ(!out_len || *out_len)
 			**out = '\0';
 	}
 
-	for (; *format != 0; ++format) {
+	ಪ್ರತಿ (; *format != 0; ++format) {
 		width = flags = 0;
-		if (use_tbuf)
+		ಯದಿ (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		ಯದಿ (*format == '%') {
 			++format;
-			if (*format == '\0')
-				break;
-			if (*format == '%')
-				goto literal;
+			ಯದಿ (*format == '\0')
+				ಭಙ್ಗ;
+			ಯದಿ (*format == '%')
+				ಗಚ್ಛ literal;
 			/* Get flags */
 			flags_done = false;
-			while (!flags_done) {
-				switch (*format) {
-				case '-':
-					flags |= PAD_RIGHT;
-					break;
-				case '+':
+			ಯಾವತ್ (!flags_done) {
+				ವಿಕಲ್ಪ (*format) {
+				ಪಕ್ಷ '-':
+					flags |= PAD_ಬಲ;
+					ಭಙ್ಗ;
+				ಪಕ್ಷ '+':
 					flags |= PAD_SIGN;
-					break;
-				case '#':
+					ಭಙ್ಗ;
+				ಪಕ್ಷ '#':
 					flags |= PAD_ALTERNATE;
-					break;
-				case '0':
+					ಭಙ್ಗ;
+				ಪಕ್ಷ '0':
 					flags |= PAD_ZERO;
-					break;
-				case ' ':
-				case '\'':
+					ಭಙ್ಗ;
+				ಪಕ್ಷ ' ':
+				ಪಕ್ಷ '\'':
 					/* Ignored flags, do nothing */
-					break;
-				default:
+					ಭಙ್ಗ;
+				ಸ್ವಭಾವ:
 					flags_done = true;
-					break;
+					ಭಙ್ಗ;
 				}
-				if (!flags_done)
+				ಯದಿ (!flags_done)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			ಯದಿ (flags & PAD_ಬಲ)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
+			ಪ್ರತಿ (; *format >= '0' && *format <= '9'; ++format) {
 				width *= 10;
 				width += *format - '0';
 			}
-			if (*format == 's') {
-				char *s = va_arg(args, char *);
+			ಯದಿ (*format == 's') {
+				ವರ್ಣ *s = va_arg(args, ವರ್ಣ *);
 				pc += prints(out, out_len, s ? s : "(null)",
 					     width, flags);
-				continue;
+				ಅನುವರ್ತ;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
+			ಯದಿ ((*format == 'd') || (*format == 'i')) {
+				pc += printi(out, out_len, va_arg(args, ಪೂರ್ಣಾಙ್ಕ),
 					     width, flags, *format);
-				continue;
+				ಅನುವರ್ತ;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			ಯದಿ ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
+				pc += printi(out, out_len, va_arg(args, unsigned ಪೂರ್ಣಾಙ್ಕ),
 					     width, flags, *format);
-				continue;
+				ಅನುವರ್ತ;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
+			ಯದಿ ((*format == 'p') || (*format == 'P')) {
+				pc += printi(out, out_len, (uintptr_t)va_arg(args, ಶೂನ್ಯ*),
 					     width, flags, *format);
-				continue;
+				ಅನುವರ್ತ;
 			}
-			if (*format == 'l') {
+			ಯದಿ (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				ಯದಿ (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					ಯದಿ ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
@@ -370,63 +370,63 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 					}
 					pc += printi(out, out_len, va_arg(args, long long),
 						width, flags, type);
-					continue;
+					ಅನುವರ್ತ;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				ಯದಿ ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
+				ಯದಿ ((type == 'd') || (type == 'i'))
 					pc += printi(out, out_len, va_arg(args, long),
 					     width, flags, type);
-				else
+				ಅನ್ಯಥಾ
 					pc += printi(out, out_len, va_arg(args, unsigned long),
 					     width, flags, type);
-				continue;
+				ಅನುವರ್ತ;
 			}
-			if (*format == 'c') {
+			ಯದಿ (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(args, ಪೂರ್ಣಾಙ್ಕ);
 				scr[1] = '\0';
 				pc += prints(out, out_len, scr, width, flags);
-				continue;
+				ಅನುವರ್ತ;
 			}
-		} else {
+		} ಅನ್ಯಥಾ {
 literal:
 			printc(out, out_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	ಯದಿ (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	ಪ್ರತ್ಯಾಗಮ pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+ಪೂರ್ಣಾಙ್ಕ sbi_sprintf(ವರ್ಣ *out, ಧ್ರುವ ವರ್ಣ *format, ...)
 {
 	va_list args;
-	int retval;
+	ಪೂರ್ಣಾಙ್ಕ retval;
 
-	if (unlikely(!out))
+	ಯದಿ (unlikely(!out))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
 	va_start(args, format);
-	retval = print(&out, NULL, format, args);
+	retval = print(&out, ರಿಕ್ತ, format, args);
 	va_end(args);
 
-	return retval;
+	ಪ್ರತ್ಯಾಗಮ retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+ಪೂರ್ಣಾಙ್ಕ sbi_snprintf(ವರ್ಣ *out, u32 out_sz, ಧ್ರುವ ವರ್ಣ *format, ...)
 {
 	va_list args;
-	int retval;
+	ಪೂರ್ಣಾಙ್ಕ retval;
 
-	if (unlikely(!out && out_sz != 0))
+	ಯದಿ (unlikely(!out && out_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
@@ -434,73 +434,73 @@ int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 	retval = print(&out, &out_sz, format, args);
 	va_end(args);
 
-	return retval;
+	ಪ್ರತ್ಯಾಗಮ retval;
 }
 
-int sbi_printf(const char *format, ...)
+ಪೂರ್ಣಾಙ್ಕ sbi_printf(ಧ್ರುವ ವರ್ಣ *format, ...)
 {
 	va_list args;
-	int retval;
+	ಪೂರ್ಣಾಙ್ಕ retval;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
+	retval = print(ರಿಕ್ತ, ರಿಕ್ತ, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
-	return retval;
+	ಪ್ರತ್ಯಾಗಮ retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+ಪೂರ್ಣಾಙ್ಕ sbi_dprintf(ಧ್ರುವ ವರ್ಣ *format, ...)
 {
 	va_list args;
-	int retval = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಪೂರ್ಣಾಙ್ಕ retval = 0;
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+	ಯದಿ (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
 		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
+		retval = print(ರಿಕ್ತ, ರಿಕ್ತ, format, args);
 		spin_unlock(&console_out_lock);
 	}
 	va_end(args);
 
-	return retval;
+	ಪ್ರತ್ಯಾಗಮ retval;
 }
 
-void sbi_panic(const char *format, ...)
+ಶೂನ್ಯ sbi_panic(ಧ್ರುವ ವರ್ಣ *format, ...)
 {
 	va_list args;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
-	print(NULL, NULL, format, args);
+	print(ರಿಕ್ತ, ರಿಕ್ತ, format, args);
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
 	sbi_hart_hang();
 }
 
-const struct sbi_console_device *sbi_console_get_device(void)
+ಧ್ರುವ ಸಂರಚನಾ sbi_console_device *sbi_console_get_device(ಶೂನ್ಯ)
 {
-	return console_dev;
+	ಪ್ರತ್ಯಾಗಮ console_dev;
 }
 
-void sbi_console_set_device(const struct sbi_console_device *dev)
+ಶೂನ್ಯ sbi_console_set_device(ಧ್ರುವ ಸಂರಚನಾ sbi_console_device *dev)
 {
-	char ch;
+	ವರ್ಣ ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	ಯದಿ (!dev)
+		ಪ್ರತ್ಯಾಗಮ;
 
-	if (!console_dev)
+	ಯದಿ (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	ಯದಿ (flush_early_fifo) {
+		ಯಾವತ್ (!sbi_fifo_dequeue(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

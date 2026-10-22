@@ -3,36 +3,36 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2012 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ಅನ್ತರ್ಭಾವ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <fdt.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
 
-#include "libfdt_internal.h"
+#ಅನ್ತರ್ಭಾವ "libfdt_internal.h"
 
-int fdt_create_empty_tree(void *buf, int bufsize)
+ಪೂರ್ಣಾಙ್ಕ fdt_create_empty_ವೃಕ್ಷ(ಶೂನ್ಯ *buf, ಪೂರ್ಣಾಙ್ಕ bufsize)
 {
-	int err;
+	ಪೂರ್ಣಾಙ್ಕ err;
 
 	err = fdt_create(buf, bufsize);
-	if (err)
-		return err;
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
 	err = fdt_finish_reservemap(buf);
-	if (err)
-		return err;
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
-	err = fdt_begin_node(buf, "");
-	if (err)
-		return err;
+	err = fdt_begin_ಗಂಟು(buf, "");
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
-	err =  fdt_end_node(buf);
-	if (err)
-		return err;
+	err =  fdt_end_ಗಂಟು(buf);
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
 	err = fdt_finish(buf);
-	if (err)
-		return err;
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
-	return fdt_open_into(buf, buf, bufsize);
+	ಪ್ರತ್ಯಾಗಮ fdt_open_into(buf, buf, bufsize);
 }

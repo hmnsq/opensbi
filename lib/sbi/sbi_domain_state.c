@@ -4,112 +4,112 @@
  * Copyright (c) 2024 Ventana Micro Systems Inc.
  */
 
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitmap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
 
-static SBI_LIST_HEAD(state_list);
-static DECLARE_BITMAP(state_idx_bmap, SBI_DOMAIN_MAX_STATE_PTRS);
+ಸ್ಥಿರ SBI_LIST_HEAD(state_list);
+ಸ್ಥಿರ DECLARE_BITMAP(state_idx_bmap, SBI_DOMAIN_MAX_STATE_PTRS);
 
-void *sbi_domain_state_ptr(struct sbi_domain *dom, struct sbi_domain_state *state)
+ಶೂನ್ಯ *sbi_domain_state_ptr(ಸಂರಚನಾ sbi_domain *dom, ಸಂರಚನಾ sbi_domain_state *state)
 {
-	if (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
-		return dom->state_priv.idx_to_state_ptr[state->state_idx];
+	ಯದಿ (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
+		ಪ್ರತ್ಯಾಗಮ dom->state_priv.idx_to_state_ptr[state->state_idx];
 
-	return NULL;
+	ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-static int domain_setup_state_one(struct sbi_domain *dom,
-				 struct sbi_domain_state *state)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ domain_setup_state_one(ಸಂರಚನಾ sbi_domain *dom,
+				 ಸಂರಚನಾ sbi_domain_state *state)
 {
-	struct sbi_domain_state_priv *priv = &dom->state_priv;
-	void *state_ptr;
-	int rc;
+	ಸಂರಚನಾ sbi_domain_state_priv *priv = &dom->state_priv;
+	ಶೂನ್ಯ *state_ptr;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	if (priv->idx_to_state_ptr[state->state_idx])
-		return SBI_EALREADY;
+	ಯದಿ (priv->idx_to_state_ptr[state->state_idx])
+		ಪ್ರತ್ಯಾಗಮ SBI_EALREADY;
 
 	state_ptr = sbi_zalloc(state->state_size);
-	if (!state_ptr) {
+	ಯದಿ (!state_ptr) {
 		sbi_domain_cleanup_state(dom);
-		return SBI_ENOMEM;
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOMEM;
 	}
 
-	if (state->state_setup) {
+	ಯದಿ (state->state_setup) {
 		rc = state->state_setup(dom, state, state_ptr);
-		if (rc) {
+		ಯದಿ (rc) {
 			sbi_free(state_ptr);
-			return rc;
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 	}
 
 	priv->idx_to_state_ptr[state->state_idx] = state_ptr;
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static void domain_cleanup_state_one(struct sbi_domain *dom,
-				    struct sbi_domain_state *state)
+ಸ್ಥಿರ ಶೂನ್ಯ domain_cleanup_state_one(ಸಂರಚನಾ sbi_domain *dom,
+				    ಸಂರಚನಾ sbi_domain_state *state)
 {
-	struct sbi_domain_state_priv *priv = &dom->state_priv;
-	void *state_ptr;
+	ಸಂರಚನಾ sbi_domain_state_priv *priv = &dom->state_priv;
+	ಶೂನ್ಯ *state_ptr;
 
 	state_ptr = priv->idx_to_state_ptr[state->state_idx];
-	if (!state_ptr)
-		return;
+	ಯದಿ (!state_ptr)
+		ಪ್ರತ್ಯಾಗಮ;
 
-	if (state->state_cleanup)
+	ಯದಿ (state->state_cleanup)
 		state->state_cleanup(dom, state, state_ptr);
 
 	sbi_free(state_ptr);
-	priv->idx_to_state_ptr[state->state_idx] = NULL;
+	priv->idx_to_state_ptr[state->state_idx] = ರಿಕ್ತ;
 }
 
-int sbi_domain_setup_state(struct sbi_domain *dom)
+ಪೂರ್ಣಾಙ್ಕ sbi_domain_setup_state(ಸಂರಚನಾ sbi_domain *dom)
 {
-	struct sbi_domain_state *state;
-	int rc;
+	ಸಂರಚನಾ sbi_domain_state *state;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	if (!dom)
-		return SBI_EINVAL;
+	ಯದಿ (!dom)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
 	sbi_list_for_each_entry(state, &state_list, head) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		ಯದಿ (rc) {
 			sbi_domain_cleanup_state(dom);
-			return rc;
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 	}
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void sbi_domain_cleanup_state(struct sbi_domain *dom)
+ಶೂನ್ಯ sbi_domain_cleanup_state(ಸಂರಚನಾ sbi_domain *dom)
 {
-	struct sbi_domain_state *state;
+	ಸಂರಚನಾ sbi_domain_state *state;
 
-	if (!dom)
-		return;
+	ಯದಿ (!dom)
+		ಪ್ರತ್ಯಾಗಮ;
 
 	sbi_list_for_each_entry(state, &state_list, head)
 		domain_cleanup_state_one(dom, state);
 }
 
-int sbi_domain_register_state(struct sbi_domain_state *state)
+ಪೂರ್ಣಾಙ್ಕ sbi_domain_register_state(ಸಂರಚನಾ sbi_domain_state *state)
 {
-	struct sbi_domain *dom;
+	ಸಂರಚನಾ sbi_domain *dom;
 	u32 state_idx;
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	if (!state || !state->state_size)
-		return SBI_EINVAL;
+	ಯದಿ (!state || !state->state_size)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
-	for (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
-		if (!bitmap_test(state_idx_bmap, state_idx))
-			break;
+	ಪ್ರತಿ (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
+		ಯದಿ (!bitmap_test(state_idx_bmap, state_idx))
+			ಭಙ್ಗ;
 	}
-	if (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
-		return SBI_ENOSPC;
+	ಯದಿ (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSPC;
 	bitmap_set(state_idx_bmap, state_idx, 1);
 
 	state->state_idx = state_idx;
@@ -117,18 +117,18 @@ int sbi_domain_register_state(struct sbi_domain_state *state)
 
 	sbi_domain_for_each(dom) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		ಯದಿ (rc) {
 			sbi_domain_unregister_state(state);
-			return rc;
+			ಪ್ರತ್ಯಾಗಮ rc;
 		}
 	}
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void sbi_domain_unregister_state(struct sbi_domain_state *state)
+ಶೂನ್ಯ sbi_domain_unregister_state(ಸಂರಚನಾ sbi_domain_state *state)
 {
-	struct sbi_domain *dom;
+	ಸಂರಚನಾ sbi_domain *dom;
 
 	sbi_domain_for_each(dom)
 		domain_cleanup_state_one(dom, state);

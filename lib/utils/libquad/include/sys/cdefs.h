@@ -7,6 +7,6 @@
 #ifndef __SYS_CDEFS_H__
 #define __SYS_CDEFS_H__
 
-#define __FBSDID(s) struct __hack
+#define __FBSDID(s) ಸಂರಚನಾ __hack
 
 #endif

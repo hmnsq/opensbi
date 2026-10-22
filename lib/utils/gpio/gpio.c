@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+ಸ್ಥಿರ SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+ಸಂರಚನಾ gpio_chip *gpio_chip_find(unsigned ಪೂರ್ಣಾಙ್ಕ id)
 {
-	struct sbi_dlist *pos;
+	ಸಂರಚನಾ sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		ಸಂರಚನಾ gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		ಯದಿ (chip->id == id)
+			ಪ್ರತ್ಯಾಗಮ chip;
 	}
 
-	return NULL;
+	ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+ಪೂರ್ಣಾಙ್ಕ gpio_chip_add(ಸಂರಚನಾ gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	ಯದಿ (!gc)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (gpio_chip_find(gc->id))
+		ಪ್ರತ್ಯಾಗಮ SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->ಗಂಟು), &(gpio_chip_list));
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+ಶೂನ್ಯ gpio_chip_remove(ಸಂರಚನಾ gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	ಯದಿ (!gc)
+		ಪ್ರತ್ಯಾಗಮ;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->ಗಂಟು));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+ಪೂರ್ಣಾಙ್ಕ gpio_get_direction(ಸಂರಚನಾ gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	ಯದಿ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (!gp->chip->get_direction)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	ಪ್ರತ್ಯಾಗಮ gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+ಪೂರ್ಣಾಙ್ಕ gpio_direction_ಒಳಹರಿವು(ಸಂರಚನಾ gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	ಯದಿ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (!gp->chip->direction_ಒಳಹರಿವು)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	ಪ್ರತ್ಯಾಗಮ gp->chip->direction_ಒಳಹರಿವು(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+ಪೂರ್ಣಾಙ್ಕ gpio_direction_output(ಸಂರಚನಾ gpio_pin *gp, ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	ಯದಿ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (!gp->chip->direction_output)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	ಯದಿ (gp->flags & GPIO_FLAG_ACTIVE_ಕೆಳಗಿನ)
+		ಮೌಲ್ಯ = ಮೌಲ್ಯ == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	ಪ್ರತ್ಯಾಗಮ gp->chip->direction_output(gp, ಮೌಲ್ಯ);
 }
 
-int gpio_get(struct gpio_pin *gp)
+ಪೂರ್ಣಾಙ್ಕ gpio_get(ಸಂರಚನಾ gpio_pin *gp)
 {
-	int value;
+	ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	ಯದಿ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (!gp->chip->get)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	ಮೌಲ್ಯ = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	ಯದಿ (gp->flags & GPIO_FLAG_ACTIVE_ಕೆಳಗಿನ)
+		ಮೌಲ್ಯ = ಮೌಲ್ಯ == 0 ? 1 : 0;
+	ಪ್ರತ್ಯಾಗಮ ಮೌಲ್ಯ;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+ಪೂರ್ಣಾಙ್ಕ gpio_set(ಸಂರಚನಾ gpio_pin *gp, ಪೂರ್ಣಾಙ್ಕ ಮೌಲ್ಯ)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	ಯದಿ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
+	ಯದಿ (!gp->chip->set)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	ಯದಿ (gp->flags & GPIO_FLAG_ACTIVE_ಕೆಳಗಿನ)
+		ಮೌಲ್ಯ = ಮೌಲ್ಯ == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->set(gp, ಮೌಲ್ಯ);
+	ಪ್ರತ್ಯಾಗಮ 0;
 }

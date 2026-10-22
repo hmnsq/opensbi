@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/timer/fdt_timer.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+ಬಾಹ್ಯ ಸಂರಚನಾ plmt_data plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_plmt_cold_timer_init(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+				    ಧ್ರುವ ಸಂರಚನಾ fdt_match *match)
 {
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 	unsigned long plmt_base;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_ಗಂಟು(fdt, nodeoff, &plmt_base, &plmt.size,
+				 &plmt.hart_ಎಣಿಕೆ);
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	plmt.time_val = (u64 *)plmt_base;
 	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match timer_plmt_match[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_timer_plmt = {
 	.match_table = timer_plmt_match,
 	.init = fdt_plmt_cold_timer_init,
 };

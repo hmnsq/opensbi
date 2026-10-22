@@ -4,134 +4,134 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/cache/fdt_cache.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/cache/fdt_cmo_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
 
-static unsigned long flc_offset;
+ಸ್ಥಿರ unsigned long flc_offset;
 
 #define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
+	sbi_scratch_read_type(_s, ಸಂರಚನಾ cache_device *, flc_offset)
 #define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+	sbi_scratch_write_type(_s, ಸಂರಚನಾ cache_device *, flc_offset, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+ಪೂರ್ಣಾಙ್ಕ fdt_cmo_private_flc_flush_all(ಶೂನ್ಯ)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ಯದಿ (!flc || !flc->cpu_private)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	ಪ್ರತ್ಯಾಗಮ cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+ಪೂರ್ಣಾಙ್ಕ fdt_cmo_llc_flush_all(ಶೂನ್ಯ)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ಯದಿ (!llc)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
-	while (llc->next)
+	ಯಾವತ್ (llc->next)
 		llc = llc->next;
 
-	return cache_flush_all(llc);
+	ಪ್ರತ್ಯಾಗಮ cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+ಪೂರ್ಣಾಙ್ಕ fdt_cmo_private_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ಯದಿ (!flc || !flc->cpu_private)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	ಪ್ರತ್ಯಾಗಮ cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+ಪೂರ್ಣಾಙ್ಕ fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ಯದಿ (!llc)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
-	while (llc->next)
+	ಯಾವತ್ (llc->next)
 		llc = llc->next;
 
-	return cache_enable(llc, enable);
+	ಪ್ರತ್ಯಾಗಮ cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_cmo_cold_init(ಧ್ರುವ ಶೂನ್ಯ *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	ಸಂರಚನಾ sbi_scratch *scratch;
+	ಸಂರಚನಾ cache_device *dev;
+	ಪೂರ್ಣಾಙ್ಕ cpu_offset, cpus_offset, rc;
 	u32 hartid;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	ಯದಿ (cpus_offset < 0)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+		ಯದಿ (rc)
+			ಅನುವರ್ತ;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		ಯದಿ (!scratch)
+			ಅನುವರ್ತ;
 
 		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
-			dev = NULL;
+		ಯದಿ (rc && rc != SBI_ENOENT)
+			ಪ್ರತ್ಯಾಗಮ rc;
+		ಯದಿ (rc == SBI_ENOENT)
+			dev = ರಿಕ್ತ;
 
 		set_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_cmo_warm_init(ಶೂನ್ಯ)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	ಸಂರಚನಾ cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	ಯಾವತ್ (cur) {
+		ಯದಿ (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			ಯದಿ (rc)
+				ಪ್ರತ್ಯಾಗಮ rc;
 		}
 
 		cur = cur->next;
 	}
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+ಪೂರ್ಣಾಙ್ಕ fdt_cmo_init(bool cold_boot)
 {
-	const void *fdt = fdt_get_address();
-	int rc;
+	ಧ್ರುವ ಶೂನ್ಯ *fdt = fdt_get_address();
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	ಯದಿ (cold_boot) {
+		flc_offset = sbi_scratch_alloc_type_offset(ಸಂರಚನಾ cache_device *);
+		ಯದಿ (!flc_offset)
+			ಪ್ರತ್ಯಾಗಮ SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		ಯದಿ (rc)
+			ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }

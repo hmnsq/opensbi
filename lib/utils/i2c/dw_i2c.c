@@ -7,13 +7,13 @@
  *   Minda Chen <minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi_utils/i2c/dw_i2c.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_timer.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/i2c/dw_i2c.h>
 
 #define DW_IC_CON		0x00
 #define DW_IC_TAR		0x04
@@ -60,40 +60,40 @@
 #define IC_DATA_CMD_RESTART	BIT(10)
 #define IC_INT_STATUS_STOPDET	BIT(9)
 
-static inline void dw_i2c_setreg(struct dw_i2c_adapter *adap,
-				 u8 reg, u32 value)
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ ಶೂನ್ಯ dw_i2c_setreg(ಸಂರಚನಾ dw_i2c_adapter *adap,
+				 u8 reg, u32 ಮೌಲ್ಯ)
 {
-	writel(value, (void *)adap->addr + reg);
+	writel(ಮೌಲ್ಯ, (ಶೂನ್ಯ *)adap->addr + reg);
 }
 
-static inline u32 dw_i2c_getreg(struct dw_i2c_adapter *adap,
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ u32 dw_i2c_getreg(ಸಂರಚನಾ dw_i2c_adapter *adap,
 				u32 reg)
 {
-	return readl((void *)adap->addr + reg);
+	ಪ್ರತ್ಯಾಗಮ readl((ಶೂನ್ಯ *)adap->addr + reg);
 }
 
-static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ dw_i2c_adapter_poll(ಸಂರಚನಾ dw_i2c_adapter *adap,
 			       u32 mask, u32 addr,
 			       bool inverted)
 {
-	unsigned int timeout = 10; /* msec */
-	int count = 0;
+	unsigned ಪೂರ್ಣಾಙ್ಕ timeout = 10; /* msec */
+	ಪೂರ್ಣಾಙ್ಕ ಎಣಿಕೆ = 0;
 	u32 val;
 
-	do {
+	ಕುರು {
 		val = dw_i2c_getreg(adap, addr);
-		if (inverted) {
-			if (!(val & mask))
-				return 0;
-		} else {
-			if (val & mask)
-				return 0;
+		ಯದಿ (inverted) {
+			ಯದಿ (!(val & mask))
+				ಪ್ರತ್ಯಾಗಮ 0;
+		} ಅನ್ಯಥಾ {
+			ಯದಿ (val & mask)
+				ಪ್ರತ್ಯಾಗಮ 0;
 		}
 		sbi_timer_udelay(2);
-		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		ಎಣಿಕೆ += 1;
+		ಯದಿ (ಎಣಿಕೆ == (timeout * 1000))
+			ಪ್ರತ್ಯಾಗಮ SBI_ETIMEDOUT;
+	} ಯಾವತ್ (1);
 }
 
 #define dw_i2c_adapter_poll_rxrdy(adap)	\
@@ -101,75 +101,75 @@ static int dw_i2c_adapter_poll(struct dw_i2c_adapter *adap,
 #define dw_i2c_adapter_poll_txfifo_ready(adap)	\
 	dw_i2c_adapter_poll(adap, DW_I2C_STATUS_TXFIFO_EMPTY, DW_IC_STATUS, 0)
 
-static int dw_i2c_write_addr(struct dw_i2c_adapter *adap, u8 addr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ dw_i2c_write_addr(ಸಂರಚನಾ dw_i2c_adapter *adap, u8 addr)
 {
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 0);
 	dw_i2c_setreg(adap, DW_IC_TAR, addr);
 	dw_i2c_setreg(adap, DW_IC_ENABLE, 1);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int dw_i2c_adapter_read(struct i2c_adapter *ia, u8 addr,
-			       u8 reg, u8 *buffer, int len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ dw_i2c_adapter_read(ಸಂರಚನಾ i2c_adapter *ia, u8 addr,
+			       u8 reg, u8 *buffer, ಪೂರ್ಣಾಙ್ಕ len)
 {
-	struct dw_i2c_adapter *adap =
-		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	ಸಂರಚನಾ dw_i2c_adapter *adap =
+		container_of(ia, ಸಂರಚನಾ dw_i2c_adapter, adapter);
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
 	/* set value */
-	while (len) {
-		if (len == 1)
+	ಯಾವತ್ (len) {
+		ಯದಿ (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD,
 				      IC_DATA_CMD_READ | IC_DATA_CMD_STOP);
-		else
+		ಅನ್ಯಥಾ
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, IC_DATA_CMD_READ);
 
 		rc = dw_i2c_adapter_poll_rxrdy(adap);
-		if (rc)
-			return rc;
+		ಯದಿ (rc)
+			ಪ್ರತ್ಯಾಗಮ rc;
 
 		*buffer = dw_i2c_getreg(adap, DW_IC_DATA_CMD) & 0xff;
 		buffer++;
 		len--;
 	}
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
-				u8 reg, u8 *buffer, int len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ dw_i2c_adapter_write(ಸಂರಚನಾ i2c_adapter *ia, u8 addr,
+				u8 reg, u8 *buffer, ಪೂರ್ಣಾಙ್ಕ len)
 {
-	struct dw_i2c_adapter *adap =
-		container_of(ia, struct dw_i2c_adapter, adapter);
-	int rc;
+	ಸಂರಚನಾ dw_i2c_adapter *adap =
+		container_of(ia, ಸಂರಚನಾ dw_i2c_adapter, adapter);
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	dw_i2c_write_addr(adap, addr);
 
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	/* set register address */
 	dw_i2c_setreg(adap, DW_IC_DATA_CMD, reg);
 
-	while (len) {
+	ಯಾವತ್ (len) {
 		rc = dw_i2c_adapter_poll_txfifo_ready(adap);
-		if (rc)
-			return rc;
+		ಯದಿ (rc)
+			ಪ್ರತ್ಯಾಗಮ rc;
 
-		if (len == 1)
+		ಯದಿ (len == 1)
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer | IC_DATA_CMD_STOP);
-		else
+		ಅನ್ಯಥಾ
 			dw_i2c_setreg(adap, DW_IC_DATA_CMD, *buffer);
 
 		buffer++;
@@ -177,14 +177,14 @@ static int dw_i2c_adapter_write(struct i2c_adapter *ia, u8 addr,
 	}
 	rc = dw_i2c_adapter_poll_txfifo_ready(adap);
 
-	return rc;
+	ಪ್ರತ್ಯಾಗಮ rc;
 }
 
-int dw_i2c_init(struct i2c_adapter *adapter, int nodeoff)
+ಪೂರ್ಣಾಙ್ಕ dw_i2c_init(ಸಂರಚನಾ i2c_adapter *adapter, ಪೂರ್ಣಾಙ್ಕ nodeoff)
 {
 	adapter->id = nodeoff;
-	adapter->write = dw_i2c_adapter_write;
-	adapter->read = dw_i2c_adapter_read;
+	adapter->ಲಿಖ = dw_i2c_adapter_write;
+	adapter->ಪಠ = dw_i2c_adapter_read;
 
-	return i2c_adapter_add(adapter);
+	ಪ್ರತ್ಯಾಗಮ i2c_adapter_add(adapter);
 }

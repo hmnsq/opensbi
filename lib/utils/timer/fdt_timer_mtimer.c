@@ -7,76 +7,76 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/aclint_mtimer.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_list.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/timer/fdt_timer.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/timer/aclint_mtimer.h>
 
-struct timer_mtimer_quirks {
+ಸಂರಚನಾ timer_mtimer_quirks {
 	bool		is_clint;
-	unsigned int	clint_mtime_offset;
+	unsigned ಪೂರ್ಣಾಙ್ಕ	clint_mtime_offset;
 	bool		clint_without_mtime;
 	bool		has_64bit_mmio;
 };
 
-struct timer_mtimer_node {
-	struct sbi_dlist head;
-	struct aclint_mtimer_data data;
+ಸಂರಚನಾ timer_mtimer_ಗಂಟು {
+	ಸಂರಚನಾ sbi_dlist head;
+	ಸಂರಚನಾ aclint_mtimer_data data;
 };
-static SBI_LIST_HEAD(mtn_list);
+ಸ್ಥಿರ SBI_LIST_HEAD(mtn_list);
 
-static struct aclint_mtimer_data *mt_reference = NULL;
+ಸ್ಥಿರ ಸಂರಚನಾ aclint_mtimer_data *mt_reference = ರಿಕ್ತ;
 
-static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ timer_mtimer_cold_init(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+				  ಧ್ರುವ ಸಂರಚನಾ fdt_match *match)
 {
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 	unsigned long addr[2], size[2];
-	struct timer_mtimer_node *mtn, *n;
-	struct aclint_mtimer_data *mt;
-	const struct timer_mtimer_quirks *quirks = match->data;
+	ಸಂರಚನಾ timer_mtimer_ಗಂಟು *mtn, *n;
+	ಸಂರಚನಾ aclint_mtimer_data *mt;
+	ಧ್ರುವ ಸಂರಚನಾ timer_mtimer_quirks *quirks = match->data;
 	bool is_clint = quirks && quirks->is_clint;
 	bool is_ref = false;
 
-	mtn = sbi_zalloc(sizeof(*mtn));
-	if (!mtn)
-		return SBI_ENOMEM;
+	mtn = sbi_zalloc(ಪರಿಮಾಣ(*mtn));
+	ಯದಿ (!mtn)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOMEM;
 	mt = &mtn->data;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, true, !is_clint,
+	rc = fdt_parse_aclint_ಗಂಟು(fdt, nodeoff, true, !is_clint,
 				   &addr[0], &size[0], &addr[1], &size[1],
-				   &mt->first_hartid, &mt->hart_count);
-	if (rc) {
+				   &mt->first_hartid, &mt->hart_ಎಣಿಕೆ);
+	ಯದಿ (rc) {
 		sbi_free(mtn);
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 	mt->has_64bit_mmio = true;
 	mt->has_shared_mtime = false;
 
 	rc = fdt_parse_timebase_frequency(fdt, &mt->mtime_freq);
-	if (rc) {
+	ಯದಿ (rc) {
 		sbi_free(mtn);
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
-	if (is_clint) { /* SiFive CLINT */
+	ಯದಿ (is_clint) { /* SiFive CLINT */
 		/* Set CLINT addresses */
 		mt->mtimecmp_addr = addr[0] + ACLINT_DEFAULT_MTIMECMP_OFFSET;
 		mt->mtimecmp_size = ACLINT_DEFAULT_MTIMECMP_SIZE;
-		if (!quirks->clint_without_mtime) {
+		ಯದಿ (!quirks->clint_without_mtime) {
 			mt->mtime_addr = addr[0] + ACLINT_DEFAULT_MTIME_OFFSET;
 			mt->mtime_size = size[0] - mt->mtimecmp_size;
 			/* Adjust MTIMER address and size for CLINT device */
 			mt->mtime_addr += quirks->clint_mtime_offset;
 			mt->mtime_size -= quirks->clint_mtime_offset;
-		} else {
+		} ಅನ್ಯಥಾ {
 			mt->mtime_addr = mt->mtime_size = 0;
 		}
 		mt->mtimecmp_addr += quirks->clint_mtime_offset;
-	} else { /* RISC-V ACLINT MTIMER */
+	} ಅನ್ಯಥಾ { /* RISC-V ACLINT MTIMER */
 		/* Set ACLINT MTIMER addresses */
 		mt->mtime_addr = addr[0];
 		mt->mtime_size = size[0];
@@ -85,29 +85,29 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	}
 
 	/* Apply additional quirks */
-	if (quirks) {
+	ಯದಿ (quirks) {
 		mt->has_64bit_mmio = quirks->has_64bit_mmio;
 	}
 
 	/* Check if MTIMER device has shared MTIME address */
-	if (mt->mtime_size) {
+	ಯದಿ (mt->mtime_size) {
 		mt->has_shared_mtime = false;
 		sbi_list_for_each_entry(n, &mtn_list, head) {
-			if (n->data.mtime_addr == mt->mtime_addr) {
+			ಯದಿ (n->data.mtime_addr == mt->mtime_addr) {
 				mt->has_shared_mtime = true;
-				break;
+				ಭಙ್ಗ;
 			}
 		}
-	} else {
+	} ಅನ್ಯಥಾ {
 		/* Assume shared time CSR */
 		mt->has_shared_mtime = true;
 	}
 
 	/* Initialize the MTIMER device */
 	rc = aclint_mtimer_cold_init(mt, mt_reference);
-	if (rc) {
+	ಯದಿ (rc) {
 		sbi_free(mtn);
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
 	/*
@@ -115,48 +115,48 @@ static int timer_mtimer_cold_init(const void *fdt, int nodeoff,
 	 * select the first MTIMER device that has it. Otherwise, select the
 	 * first MTIMER device with no associated HARTs as our reference.
 	 */
-	if (fdt_getprop(fdt, nodeoff, "riscv,reference-mtimer", NULL))
+	ಯದಿ (fdt_getprop(fdt, nodeoff, "riscv,reference-mtimer", ರಿಕ್ತ))
 		is_ref = true;
-	else if (!mt->hart_count)
+	ಅನ್ಯಥಾ ಯದಿ (!mt->hart_ಎಣಿಕೆ)
 		is_ref = true;
 
-	if (is_ref && !mt_reference) {
+	ಯದಿ (is_ref && !mt_reference) {
 		mt_reference = mt;
 		/*
 		 * Set reference for already propbed MTIMER devices
 		 * with non-shared MTIME
 		 */
 		sbi_list_for_each_entry(n, &mtn_list, head) {
-			if (!n->data.has_shared_mtime)
+			ಯದಿ (!n->data.has_shared_mtime)
 				aclint_mtimer_set_reference(&n->data, mt);
 		}
 	}
 
 	/* Explicitly sync-up MTIMER devices not associated with any HARTs */
-	if (!mt->hart_count)
+	ಯದಿ (!mt->hart_ಎಣಿಕೆ)
 		aclint_mtimer_sync(mt);
 
 	sbi_list_add_tail(&mtn->head, &mtn_list);
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static const struct timer_mtimer_quirks sifive_clint_quirks = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ timer_mtimer_quirks sifive_clint_quirks = {
 	.is_clint		= true,
 	.clint_mtime_offset	= CLINT_MTIMER_OFFSET,
 	.has_64bit_mmio		= true,
 };
 
-static const struct timer_mtimer_quirks thead_clint_quirks = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ timer_mtimer_quirks thead_clint_quirks = {
 	.is_clint		= true,
 	.clint_mtime_offset	= CLINT_MTIMER_OFFSET,
 	.clint_without_mtime	= true,
 };
 
-static const struct timer_mtimer_quirks thead_aclint_quirks = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ timer_mtimer_quirks thead_aclint_quirks = {
 	.has_64bit_mmio		= false,
 };
 
-static const struct fdt_match timer_mtimer_match[] = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match timer_mtimer_match[] = {
 	{ .compatible = "mips,p8700-aclint-mtimer" },
 	{ .compatible = "riscv,clint0", .data = &sifive_clint_quirks },
 	{ .compatible = "sifive,clint0", .data = &sifive_clint_quirks },
@@ -168,7 +168,7 @@ static const struct fdt_match timer_mtimer_match[] = {
 	{ },
 };
 
-const struct fdt_driver fdt_timer_mtimer = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_timer_mtimer = {
 	.match_table = timer_mtimer_match,
 	.init = timer_mtimer_cold_init,
 };

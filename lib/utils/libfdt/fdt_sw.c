@@ -3,30 +3,30 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ಅನ್ತರ್ಭಾವ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <fdt.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
 
-#include "libfdt_internal.h"
+#ಅನ್ತರ್ಭಾವ "libfdt_internal.h"
 
-static int fdt_sw_probe_(void *fdt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_sw_probe_(ಶೂನ್ಯ *fdt)
 {
-	if (!can_assume(VALID_INPUT)) {
-		if (fdt_magic(fdt) == FDT_MAGIC)
-			return -FDT_ERR_BADSTATE;
-		else if (fdt_magic(fdt) != FDT_SW_MAGIC)
-			return -FDT_ERR_BADMAGIC;
+	ಯದಿ (!can_assume(VALID_ಒಳಹರಿವು)) {
+		ಯದಿ (fdt_magic(fdt) == FDT_MAGIC)
+			ಪ್ರತ್ಯಾಗಮ -FDT_ERR_BADSTATE;
+		ಅನ್ಯಥಾ ಯದಿ (fdt_magic(fdt) != FDT_SW_MAGIC)
+			ಪ್ರತ್ಯಾಗಮ -FDT_ERR_BADMAGIC;
 	}
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
 #define FDT_SW_PROBE(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_(fdt)) != 0) \
-			return err; \
+		ಪೂರ್ಣಾಙ್ಕ err; \
+		ಯದಿ ((err = fdt_sw_probe_(fdt)) != 0) \
+			ಪ್ರತ್ಯಾಗಮ err; \
 	}
 
 /* 'memrsv' state:	Initial state after fdt_create()
@@ -35,22 +35,22 @@ static int fdt_sw_probe_(void *fdt)
  *	fdt_add_reservemap_entry()
  *	fdt_finish_reservemap()		[moves to 'struct' state]
  */
-static int fdt_sw_probe_memrsv_(void *fdt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_sw_probe_memrsv_(ಶೂನ್ಯ *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	ಪೂರ್ಣಾಙ್ಕ err = fdt_sw_probe_(fdt);
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
-	if (!can_assume(VALID_INPUT) && fdt_off_dt_strings(fdt) != 0)
-		return -FDT_ERR_BADSTATE;
-	return 0;
+	ಯದಿ (!can_assume(VALID_ಒಳಹರಿವು) && fdt_off_dt_strings(fdt) != 0)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_BADSTATE;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
 #define FDT_SW_PROBE_MEMRSV(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
-			return err; \
+		ಪೂರ್ಣಾಙ್ಕ err; \
+		ಯದಿ ((err = fdt_sw_probe_memrsv_(fdt)) != 0) \
+			ಪ್ರತ್ಯಾಗಮ err; \
 	}
 
 /* 'struct' state:	Enter this state after fdt_finish_reservemap()
@@ -61,29 +61,29 @@ static int fdt_sw_probe_memrsv_(void *fdt)
  *	fdt_property*()
  *	fdt_finish()			[moves to 'complete' state]
  */
-static int fdt_sw_probe_struct_(void *fdt)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_sw_probe_struct_(ಶೂನ್ಯ *fdt)
 {
-	int err = fdt_sw_probe_(fdt);
-	if (err)
-		return err;
+	ಪೂರ್ಣಾಙ್ಕ err = fdt_sw_probe_(fdt);
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
-	if (!can_assume(VALID_INPUT) &&
+	ಯದಿ (!can_assume(VALID_ಒಳಹರಿವು) &&
 	    fdt_off_dt_strings(fdt) != fdt_totalsize(fdt))
-		return -FDT_ERR_BADSTATE;
-	return 0;
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_BADSTATE;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
 #define FDT_SW_PROBE_STRUCT(fdt) \
 	{ \
-		int err; \
-		if ((err = fdt_sw_probe_struct_(fdt)) != 0) \
-			return err; \
+		ಪೂರ್ಣಾಙ್ಕ err; \
+		ಯದಿ ((err = fdt_sw_probe_struct_(fdt)) != 0) \
+			ಪ್ರತ್ಯಾಗಮ err; \
 	}
 
-static inline uint32_t sw_flags(void *fdt)
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ uint32_t sw_flags(ಶೂನ್ಯ *fdt)
 {
 	/* assert: (fdt_magic(fdt) == FDT_SW_MAGIC) */
-	return fdt_last_comp_version(fdt);
+	ಪ್ರತ್ಯಾಗಮ fdt_last_comp_version(fdt);
 }
 
 /* 'complete' state:	Enter this state after fdt_finish()
@@ -91,32 +91,32 @@ static inline uint32_t sw_flags(void *fdt)
  * Allowed functions: none
  */
 
-static void *fdt_grab_space_(void *fdt, size_t len)
+ಸ್ಥಿರ ಶೂನ್ಯ *fdt_grab_space_(ಶೂನ್ಯ *fdt, size_t len)
 {
-	unsigned int offset = fdt_size_dt_struct(fdt);
-	unsigned int spaceleft;
+	unsigned ಪೂರ್ಣಾಙ್ಕ offset = fdt_size_dt_struct(fdt);
+	unsigned ಪೂರ್ಣಾಙ್ಕ spaceleft;
 
 	spaceleft = fdt_totalsize(fdt) - fdt_off_dt_struct(fdt)
 		- fdt_size_dt_strings(fdt);
 
-	if ((offset + len < offset) || (offset + len > spaceleft))
-		return NULL;
+	ಯದಿ ((offset + len < offset) || (offset + len > spaceleft))
+		ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 
 	fdt_set_size_dt_struct(fdt, offset + len);
-	return fdt_offset_ptr_w_(fdt, offset);
+	ಪ್ರತ್ಯಾಗಮ fdt_offset_ptr_w_(fdt, offset);
 }
 
-int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
+ಪೂರ್ಣಾಙ್ಕ fdt_create_with_flags(ಶೂನ್ಯ *buf, ಪೂರ್ಣಾಙ್ಕ bufsize, uint32_t flags)
 {
-	const int hdrsize = FDT_ALIGN(sizeof(struct fdt_header),
-				      sizeof(struct fdt_reserve_entry));
-	void *fdt = buf;
+	ಧ್ರುವ ಪೂರ್ಣಾಙ್ಕ hdrsize = FDT_ALIGN(ಪರಿಮಾಣ(ಸಂರಚನಾ fdt_header),
+				      ಪರಿಮಾಣ(ಸಂರಚನಾ fdt_reserve_entry));
+	ಶೂನ್ಯ *fdt = buf;
 
-	if (bufsize < hdrsize)
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ (bufsize < hdrsize)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	if (flags & ~FDT_CREATE_FLAGS_ALL)
-		return -FDT_ERR_BADFLAGS;
+	ಯದಿ (flags & ~FDT_CREATE_FLAGS_ALL)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_BADFLAGS;
 
 	memset(buf, 0, bufsize);
 
@@ -137,217 +137,217 @@ int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags)
 	fdt_set_off_dt_struct(fdt, fdt_off_mem_rsvmap(fdt));
 	fdt_set_off_dt_strings(fdt, 0);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_create(void *buf, int bufsize)
+ಪೂರ್ಣಾಙ್ಕ fdt_create(ಶೂನ್ಯ *buf, ಪೂರ್ಣಾಙ್ಕ bufsize)
 {
-	return fdt_create_with_flags(buf, bufsize, 0);
+	ಪ್ರತ್ಯಾಗಮ fdt_create_with_flags(buf, bufsize, 0);
 }
 
-int fdt_resize(void *fdt, void *buf, int bufsize)
+ಪೂರ್ಣಾಙ್ಕ fdt_resize(ಶೂನ್ಯ *fdt, ಶೂನ್ಯ *buf, ಪೂರ್ಣಾಙ್ಕ bufsize)
 {
 	size_t headsize, tailsize;
-	char *oldtail, *newtail;
+	ವರ್ಣ *oldtail, *newtail;
 
 	FDT_SW_PROBE(fdt);
 
-	if (bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ (bufsize < 0)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
 	headsize = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
 	tailsize = fdt_size_dt_strings(fdt);
 
-	if (!can_assume(VALID_DTB) &&
+	ಯದಿ (!can_assume(VALID_DTB) &&
 	    headsize + tailsize > fdt_totalsize(fdt))
-		return -FDT_ERR_INTERNAL;
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_INTERNAL;
 
-	if ((headsize + tailsize) > (unsigned)bufsize)
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ ((headsize + tailsize) > (unsigned)bufsize)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	oldtail = (char *)fdt + fdt_totalsize(fdt) - tailsize;
-	newtail = (char *)buf + bufsize - tailsize;
+	oldtail = (ವರ್ಣ *)fdt + fdt_totalsize(fdt) - tailsize;
+	newtail = (ವರ್ಣ *)buf + bufsize - tailsize;
 
 	/* Two cases to avoid clobbering data if the old and new
 	 * buffers partially overlap */
-	if (buf <= fdt) {
+	ಯದಿ (buf <= fdt) {
 		memmove(buf, fdt, headsize);
 		memmove(newtail, oldtail, tailsize);
-	} else {
+	} ಅನ್ಯಥಾ {
 		memmove(newtail, oldtail, tailsize);
 		memmove(buf, fdt, headsize);
 	}
 
 	fdt_set_totalsize(buf, bufsize);
-	if (fdt_off_dt_strings(buf))
+	ಯದಿ (fdt_off_dt_strings(buf))
 		fdt_set_off_dt_strings(buf, bufsize);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size)
+ಪೂರ್ಣಾಙ್ಕ fdt_add_reservemap_entry(ಶೂನ್ಯ *fdt, uint64_t addr, uint64_t size)
 {
-	struct fdt_reserve_entry *re;
-	int offset;
+	ಸಂರಚನಾ fdt_reserve_entry *re;
+	ಪೂರ್ಣಾಙ್ಕ offset;
 
 	FDT_SW_PROBE_MEMRSV(fdt);
 
 	offset = fdt_off_dt_struct(fdt);
-	if ((offset + sizeof(*re)) > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ ((offset + ಪರಿಮಾಣ(*re)) > fdt_totalsize(fdt))
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	re = (struct fdt_reserve_entry *)((char *)fdt + offset);
+	re = (ಸಂರಚನಾ fdt_reserve_entry *)((ವರ್ಣ *)fdt + offset);
 	re->address = cpu_to_fdt64(addr);
 	re->size = cpu_to_fdt64(size);
 
-	fdt_set_off_dt_struct(fdt, offset + sizeof(*re));
+	fdt_set_off_dt_struct(fdt, offset + ಪರಿಮಾಣ(*re));
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_finish_reservemap(void *fdt)
+ಪೂರ್ಣಾಙ್ಕ fdt_finish_reservemap(ಶೂನ್ಯ *fdt)
 {
-	int err = fdt_add_reservemap_entry(fdt, 0, 0);
+	ಪೂರ್ಣಾಙ್ಕ err = fdt_add_reservemap_entry(fdt, 0, 0);
 
-	if (err)
-		return err;
+	ಯದಿ (err)
+		ಪ್ರತ್ಯಾಗಮ err;
 
 	fdt_set_off_dt_strings(fdt, fdt_totalsize(fdt));
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_begin_node(void *fdt, const char *name)
+ಪೂರ್ಣಾಙ್ಕ fdt_begin_ಗಂಟು(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *name)
 {
-	struct fdt_node_header *nh;
-	int namelen;
+	ಸಂರಚನಾ fdt_ಗಂಟು_header *nh;
+	ಪೂರ್ಣಾಙ್ಕ namelen;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	namelen = strlen(name) + 1;
-	nh = fdt_grab_space_(fdt, sizeof(*nh) + FDT_TAGALIGN(namelen));
-	if (! nh)
-		return -FDT_ERR_NOSPACE;
+	nh = fdt_grab_space_(fdt, ಪರಿಮಾಣ(*nh) + FDT_TAGALIGN(namelen));
+	ಯದಿ (! nh)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->tag = cpu_to_fdt32(FDT_BEGIN_ಗಂಟು);
 	memcpy(nh->name, name, namelen);
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_end_node(void *fdt)
+ಪೂರ್ಣಾಙ್ಕ fdt_end_ಗಂಟು(ಶೂನ್ಯ *fdt)
 {
 	fdt32_t *en;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	en = fdt_grab_space_(fdt, FDT_TAGSIZE);
-	if (! en)
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ (! en)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	*en = cpu_to_fdt32(FDT_END_NODE);
-	return 0;
+	*en = cpu_to_fdt32(FDT_END_ಗಂಟು);
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static int fdt_add_string_(void *fdt, const char *s)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_add_string_(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *s)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	unsigned int strtabsize = fdt_size_dt_strings(fdt);
-	unsigned int len = strlen(s) + 1;
-	unsigned int struct_top, offset;
+	ವರ್ಣ *strtab = (ವರ್ಣ *)fdt + fdt_totalsize(fdt);
+	unsigned ಪೂರ್ಣಾಙ್ಕ strtabsize = fdt_size_dt_strings(fdt);
+	unsigned ಪೂರ್ಣಾಙ್ಕ len = strlen(s) + 1;
+	unsigned ಪೂರ್ಣಾಙ್ಕ struct_ತುದಿ, offset;
 
 	offset = strtabsize + len;
-	struct_top = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
-	if (fdt_totalsize(fdt) - offset < struct_top)
-		return 0; /* no more room :( */
+	struct_ತುದಿ = fdt_off_dt_struct(fdt) + fdt_size_dt_struct(fdt);
+	ಯದಿ (fdt_totalsize(fdt) - offset < struct_ತುದಿ)
+		ಪ್ರತ್ಯಾಗಮ 0; /* no more room :( */
 
 	memcpy(strtab - offset, s, len);
 	fdt_set_size_dt_strings(fdt, strtabsize + len);
-	return -offset;
+	ಪ್ರತ್ಯಾಗಮ -offset;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+ಸ್ಥಿರ ಶೂನ್ಯ fdt_del_last_string_(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *s)
 {
-	int strtabsize = fdt_size_dt_strings(fdt);
-	int len = strlen(s) + 1;
+	ಪೂರ್ಣಾಙ್ಕ strtabsize = fdt_size_dt_strings(fdt);
+	ಪೂರ್ಣಾಙ್ಕ len = strlen(s) + 1;
 
 	fdt_set_size_dt_strings(fdt, strtabsize - len);
 }
 
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_find_add_string_(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ *allocated)
 {
-	char *strtab = (char *)fdt + fdt_totalsize(fdt);
-	int strtabsize = fdt_size_dt_strings(fdt);
-	const char *p;
+	ವರ್ಣ *strtab = (ವರ್ಣ *)fdt + fdt_totalsize(fdt);
+	ಪೂರ್ಣಾಙ್ಕ strtabsize = fdt_size_dt_strings(fdt);
+	ಧ್ರುವ ವರ್ಣ *p;
 
 	*allocated = 0;
 
 	p = fdt_find_string_(strtab - strtabsize, strtabsize, s);
-	if (p)
-		return p - strtab;
+	ಯದಿ (p)
+		ಪ್ರತ್ಯಾಗಮ p - strtab;
 
 	*allocated = 1;
 
-	return fdt_add_string_(fdt, s);
+	ಪ್ರತ್ಯಾಗಮ fdt_add_string_(fdt, s);
 }
 
-int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp)
+ಪೂರ್ಣಾಙ್ಕ fdt_property_placeholder(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *name, ಪೂರ್ಣಾಙ್ಕ len, ಶೂನ್ಯ **valp)
 {
-	struct fdt_property *prop;
-	int nameoff;
-	int allocated;
+	ಸಂರಚನಾ fdt_property *prop;
+	ಪೂರ್ಣಾಙ್ಕ nameoff;
+	ಪೂರ್ಣಾಙ್ಕ allocated;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* String de-duplication can be slow, _NO_NAME_DEDUP skips it */
-	if (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
+	ಯದಿ (sw_flags(fdt) & FDT_CREATE_FLAG_NO_NAME_DEDUP) {
 		allocated = 1;
 		nameoff = fdt_add_string_(fdt, name);
-	} else {
+	} ಅನ್ಯಥಾ {
 		nameoff = fdt_find_add_string_(fdt, name, &allocated);
 	}
-	if (nameoff == 0)
-		return -FDT_ERR_NOSPACE;
+	ಯದಿ (nameoff == 0)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 
-	prop = fdt_grab_space_(fdt, sizeof(*prop) + FDT_TAGALIGN(len));
-	if (! prop) {
-		if (allocated)
+	prop = fdt_grab_space_(fdt, ಪರಿಮಾಣ(*prop) + FDT_TAGALIGN(len));
+	ಯದಿ (! prop) {
+		ಯದಿ (allocated)
 			fdt_del_last_string_(fdt, name);
-		return -FDT_ERR_NOSPACE;
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 	}
 
 	prop->tag = cpu_to_fdt32(FDT_PROP);
 	prop->nameoff = cpu_to_fdt32(nameoff);
 	prop->len = cpu_to_fdt32(len);
 	*valp = prop->data;
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_property(void *fdt, const char *name, const void *val, int len)
+ಪೂರ್ಣಾಙ್ಕ fdt_property(ಶೂನ್ಯ *fdt, ಧ್ರುವ ವರ್ಣ *name, ಧ್ರುವ ಶೂನ್ಯ *val, ಪೂರ್ಣಾಙ್ಕ len)
 {
-	void *ptr;
-	int ret;
+	ಶೂನ್ಯ *ptr;
+	ಪೂರ್ಣಾಙ್ಕ ret;
 
 	ret = fdt_property_placeholder(fdt, name, len, &ptr);
-	if (ret)
-		return ret;
+	ಯದಿ (ret)
+		ಪ್ರತ್ಯಾಗಮ ret;
 	memcpy(ptr, val, len);
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_finish(void *fdt)
+ಪೂರ್ಣಾಙ್ಕ fdt_finish(ಶೂನ್ಯ *fdt)
 {
-	char *p = (char *)fdt;
+	ವರ್ಣ *p = (ವರ್ಣ *)fdt;
 	fdt32_t *end;
-	int oldstroffset, newstroffset;
+	ಪೂರ್ಣಾಙ್ಕ oldstroffset, newstroffset;
 	uint32_t tag;
-	int offset, nextoffset;
+	ಪೂರ್ಣಾಙ್ಕ offset, nextoffset;
 
 	FDT_SW_PROBE_STRUCT(fdt);
 
 	/* Add terminator */
-	end = fdt_grab_space_(fdt, sizeof(*end));
-	if (! end)
-		return -FDT_ERR_NOSPACE;
+	end = fdt_grab_space_(fdt, ಪರಿಮಾಣ(*end));
+	ಯದಿ (! end)
+		ಪ್ರತ್ಯಾಗಮ -FDT_ERR_NOSPACE;
 	*end = cpu_to_fdt32(FDT_END);
 
 	/* Relocate the string table */
@@ -358,11 +358,11 @@ int fdt_finish(void *fdt)
 
 	/* Walk the structure, correcting string offsets */
 	offset = 0;
-	while ((tag = fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
-		if (tag == FDT_PROP) {
-			struct fdt_property *prop =
+	ಯಾವತ್ ((tag = fdt_next_tag(fdt, offset, &nextoffset)) != FDT_END) {
+		ಯದಿ (tag == FDT_PROP) {
+			ಸಂರಚನಾ fdt_property *prop =
 				fdt_offset_ptr_w_(fdt, offset);
-			int nameoff;
+			ಪೂರ್ಣಾಙ್ಕ nameoff;
 
 			nameoff = fdt32_to_cpu(prop->nameoff);
 			nameoff += fdt_size_dt_strings(fdt);
@@ -370,8 +370,8 @@ int fdt_finish(void *fdt)
 		}
 		offset = nextoffset;
 	}
-	if (nextoffset < 0)
-		return nextoffset;
+	ಯದಿ (nextoffset < 0)
+		ಪ್ರತ್ಯಾಗಮ nextoffset;
 
 	/* Finally, adjust the header */
 	fdt_set_totalsize(fdt, newstroffset + fdt_size_dt_strings(fdt));
@@ -380,5 +380,5 @@ int fdt_finish(void *fdt)
 	fdt_set_last_comp_version(fdt, FDT_LAST_COMPATIBLE_VERSION);
 	fdt_set_magic(fdt, FDT_MAGIC);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }

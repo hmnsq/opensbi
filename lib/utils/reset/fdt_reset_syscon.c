@@ -7,161 +7,161 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_system.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/regmap/fdt_regmap.h>
 
-struct syscon_reset {
-	struct regmap *rmap;
+ಸಂರಚನಾ syscon_reset {
+	ಸಂರಚನಾ regmap *rmap;
 	u32 priority;
 	u32 offset;
-	u32 value;
+	u32 ಮೌಲ್ಯ;
 	u32 mask;
 };
 
-static struct syscon_reset poweroff;
-static struct syscon_reset reboot;
+ಸ್ಥಿರ ಸಂರಚನಾ syscon_reset poweroff;
+ಸ್ಥಿರ ಸಂರಚನಾ syscon_reset reboot;
 
-static struct syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
+ಸ್ಥಿರ ಸಂರಚನಾ syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
 {
-	struct syscon_reset *reset = NULL;
+	ಸಂರಚನಾ syscon_reset *reset = ರಿಕ್ತ;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_reboot)
+	ವಿಕಲ್ಪ (type) {
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_SHUTDOWN:
+		ಯದಿ (!is_reboot)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_reboot)
+		ಭಙ್ಗ;
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ಯದಿ (is_reboot)
 			reset = &reboot;
-		break;
+		ಭಙ್ಗ;
 	}
 
-	if (reset && !reset->rmap)
-		reset = NULL;
+	ಯದಿ (reset && !reset->rmap)
+		reset = ರಿಕ್ತ;
 
-	return reset;
+	ಪ್ರತ್ಯಾಗಮ reset;
 }
 
-static void syscon_reset_exec(struct syscon_reset *reset)
+ಸ್ಥಿರ ಶೂನ್ಯ syscon_reset_exec(ಸಂರಚನಾ syscon_reset *reset)
 {
 	/* Issue the reset through regmap */
-	if (reset)
+	ಯದಿ (reset)
 		regmap_update_bits(reset->rmap, reset->offset,
-				   reset->mask, reset->value);
+				   reset->mask, reset->ಮೌಲ್ಯ);
 
 	/* hang !!! */
 	sbi_hart_hang();
 }
 
-static int syscon_poweroff_check(u32 type, u32 reason)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ syscon_poweroff_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(false, type);
+	ಸಂರಚನಾ syscon_reset *reset = syscon_reset_get(false, type);
 
-	return (reset) ? reset->priority : 0;
+	ಪ್ರತ್ಯಾಗಮ (reset) ? reset->priority : 0;
 }
 
-static void syscon_do_poweroff(u32 type, u32 reason)
+ಸ್ಥಿರ ಶೂನ್ಯ syscon_do_poweroff(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device syscon_poweroff = {
+ಸ್ಥಿರ ಸಂರಚನಾ sbi_system_reset_device syscon_poweroff = {
 	.name = "syscon-poweroff",
 	.system_reset_check = syscon_poweroff_check,
 	.system_reset = syscon_do_poweroff
 };
 
-static int syscon_reboot_check(u32 type, u32 reason)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ syscon_reboot_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(true, type);
+	ಸಂರಚನಾ syscon_reset *reset = syscon_reset_get(true, type);
 
-	return (reset) ? reset->priority : 0;
+	ಪ್ರತ್ಯಾಗಮ (reset) ? reset->priority : 0;
 }
 
-static void syscon_do_reboot(u32 type, u32 reason)
+ಸ್ಥಿರ ಶೂನ್ಯ syscon_do_reboot(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device syscon_reboot = {
+ಸ್ಥಿರ ಸಂರಚನಾ sbi_system_reset_device syscon_reboot = {
 	.name = "syscon-reboot",
 	.system_reset_check = syscon_reboot_check,
 	.system_reset = syscon_do_reboot
 };
 
-static int syscon_reset_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ syscon_reset_init(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+			     ಧ್ರುವ ಸಂರಚನಾ fdt_match *match)
 {
-	int rc, len;
-	const fdt32_t *val, *mask;
+	ಪೂರ್ಣಾಙ್ಕ rc, len;
+	ಧ್ರುವ fdt32_t *val, *mask;
 	bool is_reboot = (ulong)match->data;
-	struct syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
+	ಸಂರಚನಾ syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
 
-	if (reset->rmap)
-		return SBI_EALREADY;
+	ಯದಿ (reset->rmap)
+		ಪ್ರತ್ಯಾಗಮ SBI_EALREADY;
 
 	rc = fdt_regmap_get(fdt, nodeoff, &reset->rmap);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	val = fdt_getprop(fdt, nodeoff, "priority", &len);
 	reset->priority = (val && len > 0) ? fdt32_to_cpu(*val) : 192;
 
 	val = fdt_getprop(fdt, nodeoff, "offset", &len);
-	if (val && len > 0)
+	ಯದಿ (val && len > 0)
 		reset->offset = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	ಅನ್ಯಥಾ
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "value", &len);
 	mask = fdt_getprop(fdt, nodeoff, "mask", &len);
-	if (!val && !mask)
-		return SBI_EINVAL;
+	ಯದಿ (!val && !mask)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
-	if (!val) {
+	ಯದಿ (!val) {
 		/* support old binding */
-		reset->value = fdt32_to_cpu(*mask);
+		reset->ಮೌಲ್ಯ = fdt32_to_cpu(*mask);
 		reset->mask = 0xFFFFFFFF;
-	} else if (!mask) {
+	} ಅನ್ಯಥಾ ಯದಿ (!mask) {
 		/* support value without mask */
-		reset->value = fdt32_to_cpu(*val);
+		reset->ಮೌಲ್ಯ = fdt32_to_cpu(*val);
 		reset->mask = 0xFFFFFFFF;
-	} else {
-		reset->value = fdt32_to_cpu(*val);
+	} ಅನ್ಯಥಾ {
+		reset->ಮೌಲ್ಯ = fdt32_to_cpu(*val);
 		reset->mask = fdt32_to_cpu(*mask);
 	}
 
-	if (is_reboot)
+	ಯದಿ (is_reboot)
 		sbi_system_reset_add_device(&syscon_reboot);
-	else
+	ಅನ್ಯಥಾ
 		sbi_system_reset_add_device(&syscon_poweroff);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static const struct fdt_match syscon_poweroff_match[] = {
-	{ .compatible = "syscon-poweroff", .data = (const void *)false },
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match syscon_poweroff_match[] = {
+	{ .compatible = "syscon-poweroff", .data = (ಧ್ರುವ ಶೂನ್ಯ *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_poweroff = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_syscon_poweroff = {
 	.match_table = syscon_poweroff_match,
 	.init = syscon_reset_init,
 };
 
-static const struct fdt_match syscon_reboot_match[] = {
-	{ .compatible = "syscon-reboot", .data = (const void *)true },
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match syscon_reboot_match[] = {
+	{ .compatible = "syscon-reboot", .data = (ಧ್ರುವ ಶೂನ್ಯ *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_reboot = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_syscon_reboot = {
 	.match_table = syscon_reboot_match,
 	.init = syscon_reset_init,
 };

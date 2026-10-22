@@ -11,51 +11,51 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+ಬಾಹ್ಯ ಧ್ರುವ ಸಂರಚನಾ fdt_driver *ಧ್ರುವ fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ fdt_i2c_adapter_find(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+				ಸಂರಚನಾ i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	ಪೂರ್ಣಾಙ್ಕ rc;
+	ಸಂರಚನಾ i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	ಯದಿ (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ಯದಿ (rc)
+			ಪ್ರತ್ಯಾಗಮ rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		ಯದಿ (!adapter)
+			ಪ್ರತ್ಯಾಗಮ SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	ಯದಿ (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+ಪೂರ್ಣಾಙ್ಕ fdt_i2c_adapter_get(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+			ಸಂರಚನಾ i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	ಪೂರ್ಣಾಙ್ಕ rc;
+	ಸಂರಚನಾ i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ಯದಿ (!fdt || (nodeoff < 0) || !out_adapter)
+		ಪ್ರತ್ಯಾಗಮ SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }

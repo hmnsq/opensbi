@@ -4,36 +4,36 @@
  * Copyright (c) 2025 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_sifive_inst.h>
-#include <sbi_utils/hsm/fdt_hsm_sifive_tmc0.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hsm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ipi.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/cache/fdt_cmo_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/hsm/fdt_hsm_sifive_inst.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/hsm/fdt_hsm_sifive_tmc0.h>
 
-struct sifive_tmc0 {
+ಸಂರಚನಾ sifive_tmc0 {
 	unsigned long reg;
-	struct sbi_dlist node;
+	ಸಂರಚನಾ sbi_dlist ಗಂಟು;
 	u32 id;
 };
 
-static SBI_LIST_HEAD(tmc0_list);
-static unsigned long tmc0_offset;
+ಸ್ಥಿರ SBI_LIST_HEAD(tmc0_list);
+ಸ್ಥಿರ unsigned long tmc0_offset;
 
 #define tmc0_ptr_get(__scratch)				\
-	sbi_scratch_read_type((__scratch), struct sifive_tmc0 *, tmc0_offset)
+	sbi_scratch_read_type((__scratch), ಸಂರಚನಾ sifive_tmc0 *, tmc0_offset)
 
 #define tmc0_ptr_set(__scratch, __tmc0)			\
-	sbi_scratch_write_type((__scratch), struct sifive_tmc0 *, tmc0_offset, (__tmc0))
+	sbi_scratch_write_type((__scratch), ಸಂರಚನಾ sifive_tmc0 *, tmc0_offset, (__tmc0))
 
 /* TMC.PGPREP */
 #define SIFIVE_TMC_PGPREP_OFF			0x0
@@ -78,182 +78,182 @@ static unsigned long tmc0_offset;
 #define SIFIVE_TMC_WAKE_MASK_WREQ		BIT(31)
 #define SIFIVE_TMC_WAKE_MASK_ACK		BIT(30)
 
-int sifive_tmc0_set_wakemask_enareq(u32 hartid)
+ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_set_wakemask_enareq(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return SBI_ENODEV;
+	ಯದಿ (!tmc0)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
-	v = readl((void *)addr);
-	writel(v | SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
+	v = readl((ಶೂನ್ಯ *)addr);
+	writel(v | SIFIVE_TMC_WAKE_MASK_WREQ, (ಶೂನ್ಯ *)addr);
 
-	while (!(readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
+	ಯಾವತ್ (!(readl((ಶೂನ್ಯ *)addr) & SIFIVE_TMC_WAKE_MASK_ACK));
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }
 
-void sifive_tmc0_set_wakemask_disreq(u32 hartid)
+ಶೂನ್ಯ sifive_tmc0_set_wakemask_disreq(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return;
+	ಯದಿ (!tmc0)
+		ಪ್ರತ್ಯಾಗಮ;
 
 	addr = tmc0->reg + SIFIVE_TMC_WAKE_MASK_OFF;
-	v = readl((void *)addr);
-	writel(v & ~SIFIVE_TMC_WAKE_MASK_WREQ, (void *)addr);
+	v = readl((ಶೂನ್ಯ *)addr);
+	writel(v & ~SIFIVE_TMC_WAKE_MASK_WREQ, (ಶೂನ್ಯ *)addr);
 
-	while (readl((void *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
+	ಯಾವತ್ (readl((ಶೂನ್ಯ *)addr) & SIFIVE_TMC_WAKE_MASK_ACK);
 }
 
 bool sifive_tmc0_is_pg(u32 hartid)
 {
-	struct sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_hartid_to_scratch(hartid);
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(scratch);
 	unsigned long addr;
 	u32 v;
 
-	if (!tmc0)
-		return false;
+	ಯದಿ (!tmc0)
+		ಪ್ರತ್ಯಾಗಮ false;
 
 	addr = tmc0->reg + SIFIVE_TMC_PG_OFF;
-	v = readl((void *)addr);
-	if (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
+	v = readl((ಶೂನ್ಯ *)addr);
+	ಯದಿ (!(v & SIFIVE_TMC_PG_ENA_ACK) ||
 	    (v & SIFIVE_TMC_PG_ENARSP) ||
 	    (v & SIFIVE_TMC_PG_DIS_REQ))
-		return false;
+		ಪ್ರತ್ಯಾಗಮ false;
 
-	return true;
+	ಪ್ರತ್ಯಾಗಮ true;
 }
 
-static void sifive_tmc0_set_resumepc(physical_addr_t addr)
+ಸ್ಥಿರ ಶೂನ್ಯ sifive_tmc0_set_resumepc(physical_addr_t addr)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 
-	writel((u32)addr, (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_LO));
-#if __riscv_xlen > 32
-	writel((u32)(addr >> 32), (void *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_HI));
+	writel((u32)addr, (ಶೂನ್ಯ *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_LO));
+#ಯದಿ __riscv_xlen > 32
+	writel((u32)(addr >> 32), (ಶೂನ್ಯ *)(tmc0->reg + SIFIVE_TMC_RESUMEPC_HI));
 #endif
 }
 
-static u32 sifive_tmc0_set_pgprep_enareq(void)
+ಸ್ಥಿರ u32 sifive_tmc0_set_pgprep_enareq(ಶೂನ್ಯ)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((ಶೂನ್ಯ *)reg);
 
-	writel(v | SIFIVE_TMC_PGPREP_ENA_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
+	writel(v | SIFIVE_TMC_PGPREP_ENA_REQ, (ಶೂನ್ಯ *)reg);
+	ಯಾವತ್ (!(readl((ಶೂನ್ಯ *)reg) & SIFIVE_TMC_PGPREP_ENA_ACK));
 
-	v = readl((void *)reg);
-	return v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
+	v = readl((ಶೂನ್ಯ *)reg);
+	ಪ್ರತ್ಯಾಗಮ v & SIFIVE_TMC_PGPREP_INTERNAL_ABORT;
 }
 
-static void sifive_tmc0_set_pgprep_disreq(void)
+ಸ್ಥಿರ ಶೂನ್ಯ sifive_tmc0_set_pgprep_disreq(ಶೂನ್ಯ)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((ಶೂನ್ಯ *)reg);
 
-	writel(v | SIFIVE_TMC_PGPREP_DIS_REQ, (void *)reg);
-	while (!(readl((void *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
+	writel(v | SIFIVE_TMC_PGPREP_DIS_REQ, (ಶೂನ್ಯ *)reg);
+	ಯಾವತ್ (!(readl((ಶೂನ್ಯ *)reg) & SIFIVE_TMC_PGPREP_DIS_ACK));
 }
 
-static u32 sifive_tmc0_get_pgprep_enarsp(void)
+ಸ್ಥಿರ u32 sifive_tmc0_get_pgprep_enarsp(ಶೂನ್ಯ)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PGPREP_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((ಶೂನ್ಯ *)reg);
 
-	return v & SIFIVE_TMC_PGPREP_ENARSP;
+	ಪ್ರತ್ಯಾಗಮ v & SIFIVE_TMC_PGPREP_ENARSP;
 }
 
-static void sifive_tmc0_set_pg_enareq(void)
+ಸ್ಥಿರ ಶೂನ್ಯ sifive_tmc0_set_pg_enareq(ಶೂನ್ಯ)
 {
-	struct sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
+	ಸಂರಚನಾ sifive_tmc0 *tmc0 = tmc0_ptr_get(sbi_scratch_thishart_ptr());
 	unsigned long reg = tmc0->reg + SIFIVE_TMC_PG_OFF;
-	u32 v = readl((void *)reg);
+	u32 v = readl((ಶೂನ್ಯ *)reg);
 
-	writel(v | SIFIVE_TMC_PG_ENA_REQ, (void *)reg);
+	writel(v | SIFIVE_TMC_PG_ENA_REQ, (ಶೂನ್ಯ *)reg);
 }
 
-static int sifive_tmc0_prep(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_prep(ಶೂನ್ಯ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
-	if (!tmc0_ptr_get(scratch))
-		return SBI_ENODEV;
+	ಯದಿ (!tmc0_ptr_get(scratch))
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
 	rc = sifive_tmc0_set_pgprep_enareq();
-	if (rc) {
+	ಯದಿ (rc) {
 		sbi_printf("TMC0 error: Internal Abort (Wake detect)\n");
-		goto fail;
+		ಗಚ್ಛ fail;
 	}
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	ಯದಿ (rc) {
 		sifive_tmc0_set_pgprep_disreq();
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
-		goto fail;
+		ಗಚ್ಛ fail;
 	}
 
 	sifive_tmc0_set_resumepc(scratch->warmboot_addr);
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 
 fail:
-	return SBI_EFAIL;
+	ಪ್ರತ್ಯಾಗಮ SBI_EFAIL;
 }
 
-static int sifive_tmc0_enter(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_enter(ಶೂನ್ಯ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸಂರಚನಾ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	u32 rc;
 
 	/* Flush cache and check if there is wake detect or bus error */
-	if (fdt_cmo_private_flc_flush_all() &&
+	ಯದಿ (fdt_cmo_private_flc_flush_all() &&
 	    sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CFLUSH_D_L1))
 		sifive_cflush();
 
 	rc = sifive_tmc0_get_pgprep_enarsp();
-	if (rc) {
+	ಯದಿ (rc) {
 		sbi_printf("TMC0 error: error response code: 0x%x\n", rc);
-		goto fail;
+		ಗಚ್ಛ fail;
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
+	ಯದಿ (sbi_hart_has_extension(scratch, SBI_HART_EXT_XSIFIVE_CEASE)) {
 		sifive_tmc0_set_pg_enareq();
-		while (1)
+		ಯಾವತ್ (1)
 			sifive_cease();
 	}
 
 	rc = SBI_ENOTSUPP;
 fail:
 	sifive_tmc0_set_pgprep_disreq();
-	return rc;
+	ಪ್ರತ್ಯಾಗಮ rc;
 }
 
-static int sifive_tmc0_tile_pg(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_tile_pg(ಶೂನ್ಯ)
 {
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
 	rc = sifive_tmc0_prep();
-	if (rc)
-		return rc;
+	ಯದಿ (rc)
+		ಪ್ರತ್ಯಾಗಮ rc;
 
-	return sifive_tmc0_enter();
+	ಪ್ರತ್ಯಾಗಮ sifive_tmc0_enter();
 }
 
-static int sifive_tmc0_start(u32 hartid, ulong saddr)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_start(u32 hartid, ulong saddr)
 {
 	/*
 	 * In system suspend, the IMSIC will be reset in SiFive platform so
@@ -261,107 +261,107 @@ static int sifive_tmc0_start(u32 hartid, ulong saddr)
 	 */
 	sbi_ipi_raw_send(sbi_hartid_to_hartindex(hartid), true);
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }
 
-static int sifive_tmc0_stop(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_stop(ಶೂನ್ಯ)
 {
 	unsigned long mie = csr_read(CSR_MIE);
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 	/* Set IPI as wake up source */
 	csr_set(CSR_MIE, MIP_MEIP | MIP_MSIP);
 
 	rc = sifive_tmc0_tile_pg();
-	if (rc) {
+	ಯದಿ (rc) {
 		csr_write(CSR_MIE, mie);
-		return rc;
+		ಪ್ರತ್ಯಾಗಮ rc;
 	}
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 }
 
-static struct sbi_hsm_device tmc0_hsm_dev = {
+ಸ್ಥಿರ ಸಂರಚನಾ sbi_hsm_device tmc0_hsm_dev = {
 	.name = "SiFive TMC0",
 	.hart_start = sifive_tmc0_start,
 	.hart_stop = sifive_tmc0_stop,
 };
 
-static int sifive_tmc0_bind_cpu(struct sifive_tmc0 *tmc0)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_bind_cpu(ಸಂರಚನಾ sifive_tmc0 *tmc0)
 {
-	const void *fdt = fdt_get_address();
-	struct sbi_scratch *scratch;
-	int cpus_off, cpu_off, rc;
-	const fdt32_t *val;
+	ಧ್ರುವ ಶೂನ್ಯ *fdt = fdt_get_address();
+	ಸಂರಚನಾ sbi_scratch *scratch;
+	ಪೂರ್ಣಾಙ್ಕ cpus_off, cpu_off, rc;
+	ಧ್ರುವ fdt32_t *val;
 	u32 hartid;
 
 	cpus_off = fdt_path_offset(fdt, "/cpus");
-	if (cpus_off < 0)
-		return SBI_ENOENT;
+	ಯದಿ (cpus_off < 0)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOENT;
 
 	fdt_for_each_subnode(cpu_off, fdt, cpus_off) {
 		rc = fdt_parse_hart_id(fdt, cpu_off, &hartid);
-		if (rc)
-			continue;
+		ಯದಿ (rc)
+			ಅನುವರ್ತ;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		ಯದಿ (!scratch)
+			ಅನುವರ್ತ;
 
-		val = fdt_getprop(fdt, cpu_off, "power-domains", NULL);
-		if (!val)
-			return SBI_ENOENT;
+		val = fdt_getprop(fdt, cpu_off, "power-domains", ರಿಕ್ತ);
+		ಯದಿ (!val)
+			ಪ್ರತ್ಯಾಗಮ SBI_ENOENT;
 
-		if (tmc0->id == fdt32_to_cpu(val[0])) {
+		ಯದಿ (tmc0->id == fdt32_to_cpu(val[0])) {
 			tmc0_ptr_set(scratch, tmc0);
-			return SBI_OK;
+			ಪ್ರತ್ಯಾಗಮ SBI_OK;
 		}
 	}
 
-	return SBI_ENODEV;
+	ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 }
 
-static int sifive_tmc0_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sifive_tmc0_probe(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff, ಧ್ರುವ ಸಂರಚನಾ fdt_match *match)
 {
-	struct sifive_tmc0 *tmc0;
+	ಸಂರಚನಾ sifive_tmc0 *tmc0;
 	u64 addr;
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	if (!tmc0_offset) {
-		tmc0_offset = sbi_scratch_alloc_type_offset(struct sifive_tmc0 *);
-		if (!tmc0_offset)
-			return SBI_ENOMEM;
+	ಯದಿ (!tmc0_offset) {
+		tmc0_offset = sbi_scratch_alloc_type_offset(ಸಂರಚನಾ sifive_tmc0 *);
+		ಯದಿ (!tmc0_offset)
+			ಪ್ರತ್ಯಾಗಮ SBI_ENOMEM;
 
 		sbi_hsm_set_device(&tmc0_hsm_dev);
 	}
 
-	tmc0 = sbi_zalloc(sizeof(*tmc0));
-	if (!tmc0)
-		return SBI_ENOMEM;
+	tmc0 = sbi_zalloc(ಪರಿಮಾಣ(*tmc0));
+	ಯದಿ (!tmc0)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		goto free_tmc0;
+	rc = fdt_get_ಗಂಟು_addr_size(fdt, nodeoff, 0, &addr, ರಿಕ್ತ);
+	ಯದಿ (rc)
+		ಗಚ್ಛ free_tmc0;
 
 	tmc0->reg = (unsigned long)addr;
 	tmc0->id = fdt_get_phandle(fdt_get_address(), nodeoff);
 
 	rc = sifive_tmc0_bind_cpu(tmc0);
-	if (rc)
-		goto free_tmc0;
+	ಯದಿ (rc)
+		ಗಚ್ಛ free_tmc0;
 
-	return SBI_OK;
+	ಪ್ರತ್ಯಾಗಮ SBI_OK;
 
 free_tmc0:
 	sbi_free(tmc0);
-	return rc;
+	ಪ್ರತ್ಯಾಗಮ rc;
 }
 
-static const struct fdt_match sifive_tmc0_match[] = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match sifive_tmc0_match[] = {
 	{ .compatible = "sifive,tmc0" },
 	{ },
 };
 
-const struct fdt_driver fdt_hsm_sifive_tmc0 = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_hsm_sifive_tmc0 = {
 	.match_table = sifive_tmc0_match,
 	.init = sifive_tmc0_probe,
 };

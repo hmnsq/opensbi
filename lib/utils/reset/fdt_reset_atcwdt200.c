@@ -4,17 +4,17 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_system.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define ATCWDT200_WP_NUM 0x5aa5
+#define ATCWDT200_WP_ಅಂಕೆ 0x5aa5
 #define WREN_REG 0x18
 #define CTRL_REG 0x10
 #define RST_TIME_OFF 8
@@ -40,28 +40,28 @@
 
 #define AE350_FLASH_BASE 0x80000000
 
-static volatile char *wdt_addr = NULL;
+ಸ್ಥಿರ ಚಞ್ಚಲ ವರ್ಣ *wdt_addr = ರಿಕ್ತ;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ ae350_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	default:
-		return 0;
+	ವಿಕಲ್ಪ (type) {
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		ಪ್ರತ್ಯಾಗಮ 1;
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_SHUTDOWN:
+	ಪಕ್ಷ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	ಸ್ವಭಾವ:
+		ಪ್ರತ್ಯಾಗಮ 0;
 	}
 }
 
-static void ae350_system_reset(u32 type, u32 reason)
+ಸ್ಥಿರ ಶೂನ್ಯ ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
-			goto fail;
+		ಯದಿ (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
+			ಗಚ್ಛ fail;
 
 	/* Program WDT control register  */
-	writew(ATCWDT200_WP_NUM, wdt_addr + WREN_REG);
+	writew(ATCWDT200_WP_ಅಂಕೆ, wdt_addr + WREN_REG);
 	writel(INT_CLK_32768 | INT_EN | RST_CLK_128 | RST_EN | WDT_EN,
 	       wdt_addr + CTRL_REG);
 
@@ -69,34 +69,34 @@ fail:
 	sbi_hart_hang();
 }
 
-static struct sbi_system_reset_device atcwdt200_reset = {
+ಸ್ಥಿರ ಸಂರಚನಾ sbi_system_reset_device atcwdt200_reset = {
 	.name		    = "atcwdt200",
 	.system_reset_check = ae350_system_reset_check,
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ atcwdt200_reset_init(ಧ್ರುವ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಙ್ಕ nodeoff,
+				ಧ್ರುವ ಸಂರಚನಾ fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	ಪೂರ್ಣಾಙ್ಕ rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_size(fdt, nodeoff, 0, &reg_addr, ರಿಕ್ತ);
+	ಯದಿ (rc < 0 || !reg_addr)
+		ಪ್ರತ್ಯಾಗಮ SBI_ENODEV;
 
-	wdt_addr = (volatile char *)(unsigned long)reg_addr;
+	wdt_addr = (ಚಞ್ಚಲ ವರ್ಣ *)(unsigned long)reg_addr;
 	sbi_system_reset_add_device(&atcwdt200_reset);
 
-	return 0;
+	ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-static const struct fdt_match atcwdt200_reset_match[] = {
+ಸ್ಥಿರ ಧ್ರುವ ಸಂರಚನಾ fdt_match atcwdt200_reset_match[] = {
 	{ .compatible = "andestech,atcwdt200" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_atcwdt200 = {
+ಧ್ರುವ ಸಂರಚನಾ fdt_driver fdt_reset_atcwdt200 = {
 	.match_table = atcwdt200_reset_match,
 	.init	     = atcwdt200_reset_init,
 };

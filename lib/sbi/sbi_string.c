@@ -12,179 +12,179 @@
  * bugs as well. Use any optimized routines from newlib or glibc if required.
  */
 
-#include <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
 
 /*
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+ಪೂರ್ಣಾಙ್ಕ sbi_strcmp(ಧ್ರುವ ವರ್ಣ *a, ಧ್ರುವ ವರ್ಣ *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	ಪ್ರತಿ (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	ಪ್ರತ್ಯಾಗಮ *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+ಪೂರ್ಣಾಙ್ಕ sbi_strncmp(ಧ್ರುವ ವರ್ಣ *a, ಧ್ರುವ ವರ್ಣ *b, size_t ಎಣಿಕೆ)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	ಪ್ರತಿ (; ಎಣಿಕೆ > 0 && *a == *b && *a != '\0'; a++, b++, ಎಣಿಕೆ--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	ಯದಿ (!ಎಣಿಕೆ)
+		ಪ್ರತ್ಯಾಗಮ 0;
 
-	return *a - *b;
+	ಪ್ರತ್ಯಾಗಮ *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(ಧ್ರುವ ವರ್ಣ *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	ಯಾವತ್ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(ಧ್ರುವ ವರ್ಣ *str, size_t ಎಣಿಕೆ)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	ಯಾವತ್ (*str != '\0' && ret < ಎಣಿಕೆ) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+ವರ್ಣ *sbi_strcpy(ವರ್ಣ *dest, ಧ್ರುವ ವರ್ಣ *src)
 {
-	char *ret = dest;
+	ವರ್ಣ *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	ಯಾವತ್ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	ಪ್ರತ್ಯಾಗಮ ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+ವರ್ಣ *sbi_strncpy(ವರ್ಣ *dest, ಧ್ರುವ ವರ್ಣ *src, size_t ಎಣಿಕೆ)
 {
-	char *tmp = dest;
+	ವರ್ಣ *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	ಯಾವತ್ (ಎಣಿಕೆ) {
+		ಯದಿ ((*tmp = *src) != 0)
 			src++;
 		tmp++;
-		count--;
+		ಎಣಿಕೆ--;
 	}
-	return dest;
+	ಪ್ರತ್ಯಾಗಮ dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+ವರ್ಣ *sbi_strchr(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ c)
 {
-	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+	ಕುರು {
+		ಯದಿ (*s == (ವರ್ಣ)c)
+			ಪ್ರತ್ಯಾಗಮ (ವರ್ಣ *)s;
+	} ಯಾವತ್ (*s++ != '\0');
 
-	return NULL;
+	ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }
 
-char *sbi_strrchr(const char *s, int c)
+ವರ್ಣ *sbi_strrchr(ಧ್ರುವ ವರ್ಣ *s, ಪೂರ್ಣಾಙ್ಕ c)
 {
-	const char *last = s + sbi_strlen(s);
+	ಧ್ರುವ ವರ್ಣ *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	ಯಾವತ್ (last > s && *last != (ವರ್ಣ)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	ಯದಿ (*last != (ವರ್ಣ)c)
+		ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
+	ಅನ್ಯಥಾ
+		ಪ್ರತ್ಯಾಗಮ (ವರ್ಣ *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+ಶೂನ್ಯ *sbi_memset(ಶೂನ್ಯ *s, ಪೂರ್ಣಾಙ್ಕ c, size_t ಎಣಿಕೆ)
 {
-	char *temp = s;
+	ವರ್ಣ *temp = s;
 
-	while (count > 0) {
-		count--;
+	ಯಾವತ್ (ಎಣಿಕೆ > 0) {
+		ಎಣಿಕೆ--;
 		*temp++ = c;
 	}
 
-	return s;
+	ಪ್ರತ್ಯಾಗಮ s;
 }
 
-void *sbi_memcpy(void *dest, const void *src, size_t count)
+ಶೂನ್ಯ *sbi_memcpy(ಶೂನ್ಯ *dest, ಧ್ರುವ ಶೂನ್ಯ *src, size_t ಎಣಿಕೆ)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	ವರ್ಣ *temp1	  = dest;
+	ಧ್ರುವ ವರ್ಣ *temp2 = src;
 
-	while (count > 0) {
+	ಯಾವತ್ (ಎಣಿಕೆ > 0) {
 		*temp1++ = *temp2++;
-		count--;
+		ಎಣಿಕೆ--;
 	}
 
-	return dest;
+	ಪ್ರತ್ಯಾಗಮ dest;
 }
 
-void *sbi_memmove(void *dest, const void *src, size_t count)
+ಶೂನ್ಯ *sbi_memmove(ಶೂನ್ಯ *dest, ಧ್ರುವ ಶೂನ್ಯ *src, size_t ಎಣಿಕೆ)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	ವರ್ಣ *temp1	  = (ವರ್ಣ *)dest;
+	ಧ್ರುವ ವರ್ಣ *temp2 = (ವರ್ಣ *)src;
 
-	if (src == dest)
-		return dest;
+	ಯದಿ (src == dest)
+		ಪ್ರತ್ಯಾಗಮ dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	ಯದಿ (dest < src) {
+		ಯಾವತ್ (ಎಣಿಕೆ > 0) {
 			*temp1++ = *temp2++;
-			count--;
+			ಎಣಿಕೆ--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} ಅನ್ಯಥಾ {
+		temp1 = (ವರ್ಣ *)dest + ಎಣಿಕೆ - 1;
+		temp2 = (ವರ್ಣ *)src + ಎಣಿಕೆ - 1;
 
-		while (count > 0) {
+		ಯಾವತ್ (ಎಣಿಕೆ > 0) {
 			*temp1-- = *temp2--;
-			count--;
+			ಎಣಿಕೆ--;
 		}
 	}
 
-	return dest;
+	ಪ್ರತ್ಯಾಗಮ dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+ಪೂರ್ಣಾಙ್ಕ sbi_memcmp(ಧ್ರುವ ಶೂನ್ಯ *s1, ಧ್ರುವ ಶೂನ್ಯ *s2, size_t ಎಣಿಕೆ)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	ಧ್ರುವ ವರ್ಣ *temp1 = s1;
+	ಧ್ರುವ ವರ್ಣ *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	ಪ್ರತಿ (; ಎಣಿಕೆ > 0 && (*temp1 == *temp2); ಎಣಿಕೆ--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	ಯದಿ (ಎಣಿಕೆ > 0)
+		ಪ್ರತ್ಯಾಗಮ *(unsigned ವರ್ಣ *)temp1 - *(unsigned ವರ್ಣ *)temp2;
+	ಅನ್ಯಥಾ
+		ಪ್ರತ್ಯಾಗಮ 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+ಶೂನ್ಯ *sbi_memchr(ಧ್ರುವ ಶೂನ್ಯ *s, ಪೂರ್ಣಾಙ್ಕ c, size_t ಎಣಿಕೆ)
 {
-	const unsigned char *temp = s;
+	ಧ್ರುವ unsigned ವರ್ಣ *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	ಯಾವತ್ (ಎಣಿಕೆ > 0) {
+		ಯದಿ ((unsigned ವರ್ಣ)c == *temp++) {
+			ಪ್ರತ್ಯಾಗಮ (ಶೂನ್ಯ *)(temp - 1);
 		}
-		count--;
+		ಎಣಿಕೆ--;
 	}
 
-	return NULL;
+	ಪ್ರತ್ಯಾಗಮ ರಿಕ್ತ;
 }

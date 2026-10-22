@@ -8,44 +8,44 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
 
-static inline unsigned long sbi_ecall_vendor_id(void)
+ಸ್ಥಿರ ಅನ್ತಃಸ್ಥ unsigned long sbi_ecall_vendor_id(ಶೂನ್ಯ)
 {
-	return SBI_EXT_VENDOR_START +
+	ಪ್ರತ್ಯಾಗಮ SBI_EXT_VENDOR_START +
 		(csr_read(CSR_MVENDORID) &
 		 (SBI_EXT_VENDOR_END - SBI_EXT_VENDOR_START));
 }
 
-static int sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
+				    ಸಂರಚನಾ sbi_trap_regs *regs,
+				    ಸಂರಚನಾ sbi_ecall_return *out)
 {
-	return sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
+	ಪ್ರತ್ಯಾಗಮ sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
 						funcid, regs, out);
 }
 
-struct sbi_ecall_extension ecall_vendor;
+ಸಂರಚನಾ sbi_ecall_extension ecall_vendor;
 
-static int sbi_ecall_vendor_register_extensions(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಙ್ಕ sbi_ecall_vendor_register_extensions(ಶೂನ್ಯ)
 {
 	unsigned long extid = sbi_ecall_vendor_id();
 
-	if (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
-		return 0;
+	ಯದಿ (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
+		ಪ್ರತ್ಯಾಗಮ 0;
 
 	ecall_vendor.extid_start = extid;
 	ecall_vendor.extid_end = extid;
 
-	return sbi_ecall_register_extension(&ecall_vendor);
+	ಪ್ರತ್ಯಾಗಮ sbi_ecall_register_extension(&ecall_vendor);
 }
 
-struct sbi_ecall_extension ecall_vendor = {
+ಸಂರಚನಾ sbi_ecall_extension ecall_vendor = {
 	.name			= "vendor",
 	.extid_start		= SBI_EXT_VENDOR_START,
 	.extid_end		= SBI_EXT_VENDOR_END,
