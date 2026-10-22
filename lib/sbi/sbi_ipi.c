@@ -8,74 +8,74 @@
  *   Nick Kossifidis <mick@ics.forth.gr>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
+#অন্তর্ভাব <sbi/riscv_asm.h>
+#অন্তর্ভাব <sbi/riscv_atomic.h>
+#অন্তর্ভাব <sbi/riscv_barrier.h>
+#অন্তর্ভাব <sbi/sbi_bitops.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_hart.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_hsm.h>
+#অন্তর্ভাব <sbi/sbi_init.h>
+#অন্তর্ভাব <sbi/sbi_ipi.h>
+#অন্তর্ভাব <sbi/sbi_list.h>
+#অন্তর্ভাব <sbi/sbi_platform.h>
+#অন্তর্ভাব <sbi/sbi_pmu.h>
+#অন্তর্ভাব <sbi/sbi_string.h>
+#অন্তর্ভাব <sbi/sbi_tlb.h>
 
-struct sbi_ipi_data {
+সংরচনা sbi_ipi_data {
 	unsigned long ipi_type;
 };
 
 _Static_assert(
-	8 * sizeof(((struct sbi_ipi_data*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
+	8 * পরিমাণ(((সংরচনা sbi_ipi_data*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
 	"type of sbi_ipi_data.ipi_type has changed, please redefine SBI_IPI_EVENT_MAX"
 	);
 
-struct sbi_ipi_device_node {
-	struct sbi_dlist head;
-	const struct sbi_ipi_device *dev;
+সংরচনা sbi_ipi_device_গ্রন্থি {
+	সংরচনা sbi_dlist head;
+	ধ্রুব সংরচনা sbi_ipi_device *dev;
 };
 
-static unsigned long ipi_data_off;
-static const struct sbi_ipi_device *ipi_dev = NULL;
-static SBI_LIST_HEAD(ipi_dev_node_list);
-static const struct sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
+স্থির unsigned long ipi_data_off;
+স্থির ধ্রুব সংরচনা sbi_ipi_device *ipi_dev = রিক্ত;
+স্থির SBI_LIST_HEAD(ipi_dev_গ্রন্থি_list);
+স্থির ধ্রুব সংরচনা sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
 
-static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
-			u32 event, void *data)
+স্থির পূর্ণাঙ্ক sbi_ipi_send(সংরচনা sbi_scratch *scratch, u32 remote_hartindex,
+			u32 event, শূন্য *data)
 {
-	int ret = 0;
-	struct sbi_scratch *remote_scratch = NULL;
-	struct sbi_ipi_data *ipi_data;
-	const struct sbi_ipi_event_ops *ipi_ops;
+	পূর্ণাঙ্ক ret = 0;
+	সংরচনা sbi_scratch *remote_scratch = রিক্ত;
+	সংরচনা sbi_ipi_data *ipi_data;
+	ধ্রুব সংরচনা sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	যদি ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		প্রত্যাগম SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
 	remote_scratch = sbi_hartindex_to_scratch(remote_hartindex);
-	if (!remote_scratch)
-		return SBI_EINVAL;
+	যদি (!remote_scratch)
+		প্রত্যাগম SBI_EINVAL;
 
 	ipi_data = sbi_scratch_offset_ptr(remote_scratch, ipi_data_off);
 
-	if (ipi_ops->update) {
+	যদি (ipi_ops->update) {
 		ret = ipi_ops->update(scratch, remote_scratch,
 				      remote_hartindex, data);
-		if (ret != SBI_IPI_UPDATE_SUCCESS)
-			return ret;
-	} else if (scratch == remote_scratch) {
+		যদি (ret != SBI_IPI_UPDATE_SUCCESS)
+			প্রত্যাগম ret;
+	} অন্যথা যদি (scratch == remote_scratch) {
 		/*
 		 * IPI events with an update() callback are expected to return
 		 * SBI_IPI_UPDATE_BREAK for self-IPIs. For other events, check
 		 * for self-IPI and execute the callback directly here.
 		 */
 		ipi_ops->process(scratch);
-		return 0;
+		প্রত্যাগম 0;
 	}
 
 	/*
@@ -86,28 +86,28 @@ static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
 	 * remote hart so call sbi_ipi_raw_send() only when
 	 * the ipi_type was previously zero.
 	 */
-	if (!__atomic_fetch_or(&ipi_data->ipi_type,
+	যদি (!__atomic_fetch_or(&ipi_data->ipi_type,
 				BIT(event), __ATOMIC_RELAXED))
 		ret = sbi_ipi_raw_send(remote_hartindex, false);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_SENT);
 
-	return ret;
+	প্রত্যাগম ret;
 }
 
-static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
+স্থির পূর্ণাঙ্ক sbi_ipi_sync(সংরচনা sbi_scratch *scratch, u32 event)
 {
-	const struct sbi_ipi_event_ops *ipi_ops;
+	ধ্রুব সংরচনা sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	যদি ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		প্রত্যাগম SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
-	if (ipi_ops->sync)
+	যদি (ipi_ops->sync)
 		ipi_ops->sync(scratch);
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
 /**
@@ -115,151 +115,151 @@ static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
  * set to all online harts if the intention is to send IPIs to all the harts.
  * If hmask is zero, no IPIs will be sent.
  */
-int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
+পূর্ণাঙ্ক sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, শূন্য *data)
 {
-	int rc = 0;
+	পূর্ণাঙ্ক rc = 0;
 	bool retry_needed;
 	ulong i;
-	struct sbi_hartmask target_mask;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা sbi_hartmask target_mask;
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (hmask == 0 && hbase != -1UL) {
+	যদি (hmask == 0 && hbase != -1UL) {
 		/* Nothing to do, but it's not an error either. */
-		return 0;
+		প্রত্যাগম 0;
 	}
 
 	/* Find the target harts */
 	rc = sbi_hsm_hart_interruptible_mask(dom, &target_mask);
-	if (rc)
-		return rc;
+	যদি (rc)
+		প্রত্যাগম rc;
 
-	if (hbase != -1UL) {
-		struct sbi_hartmask tmp_mask = { 0 };
-		struct sbi_hartmask domain_mask;
-		int count = sbi_popcount(hmask);
+	যদি (hbase != -1UL) {
+		সংরচনা sbi_hartmask tmp_mask = { 0 };
+		সংরচনা sbi_hartmask domain_mask;
+		পূর্ণাঙ্ক গুনতি = sbi_popcount(hmask);
 
-		for (i = hbase; hmask; i++, hmask >>= 1) {
-			if (hmask & 1UL)
+		প্রতি (i = hbase; hmask; i++, hmask >>= 1) {
+			যদি (hmask & 1UL)
 				sbi_hartmask_set_hartid(i, &tmp_mask);
 		}
 
 		/* Validate hartids against domain assignment, not HSM state */
 		rc = sbi_domain_get_assigned_hartmask(dom, &domain_mask);
-		if (rc)
-			return rc;
+		যদি (rc)
+			প্রত্যাগম rc;
 
 		sbi_hartmask_and(&domain_mask, &domain_mask, &tmp_mask);
-		if (sbi_hartmask_weight(&domain_mask) != count)
-			return SBI_EINVAL;
+		যদি (sbi_hartmask_weight(&domain_mask) != গুনতি)
+			প্রত্যাগম SBI_EINVAL;
 
 		sbi_hartmask_and(&target_mask, &target_mask, &tmp_mask);
 	}
 
 	/* Send IPIs */
-	do {
+	কুরু {
 		retry_needed = false;
 		sbi_hartmask_for_each_hartindex(i, &target_mask) {
 			rc = sbi_ipi_send(scratch, i, event, data);
-			if (rc < 0)
-				goto done;
-			if (rc == SBI_IPI_UPDATE_RETRY)
+			যদি (rc < 0)
+				গচ্ছ done;
+			যদি (rc == SBI_IPI_UPDATE_RETRY)
 				retry_needed = true;
-			else
+			অন্যথা
 				sbi_hartmask_clear_hartindex(i, &target_mask);
 			rc = 0;
 		}
-	} while (retry_needed);
+	} যাবত্ (retry_needed);
 
 done:
 	/* Sync IPIs */
 	sbi_ipi_sync(scratch, event);
 
-	return rc;
+	প্রত্যাগম rc;
 }
 
-int sbi_ipi_event_create(const struct sbi_ipi_event_ops *ops)
+পূর্ণাঙ্ক sbi_ipi_event_create(ধ্রুব সংরচনা sbi_ipi_event_ops *ops)
 {
-	int i, ret = SBI_ENOSPC;
+	পূর্ণাঙ্ক i, ret = SBI_ENOSPC;
 
-	if (!ops || !ops->process)
-		return SBI_EINVAL;
+	যদি (!ops || !ops->process)
+		প্রত্যাগম SBI_EINVAL;
 
-	for (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
-		if (!ipi_ops_array[i]) {
+	প্রতি (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
+		যদি (!ipi_ops_array[i]) {
 			ret = i;
 			ipi_ops_array[i] = ops;
-			break;
+			ভঙ্গ;
 		}
 	}
 
-	return ret;
+	প্রত্যাগম ret;
 }
 
-void sbi_ipi_event_destroy(u32 event)
+শূন্য sbi_ipi_event_destroy(u32 event)
 {
-	if (SBI_IPI_EVENT_MAX <= event)
-		return;
+	যদি (SBI_IPI_EVENT_MAX <= event)
+		প্রত্যাগম;
 
-	ipi_ops_array[event] = NULL;
+	ipi_ops_array[event] = রিক্ত;
 }
 
-static void sbi_ipi_process_smode(struct sbi_scratch *scratch)
+স্থির শূন্য sbi_ipi_process_smode(সংরচনা sbi_scratch *scratch)
 {
 	csr_set(CSR_MIP, MIP_SSIP);
 }
 
-static struct sbi_ipi_event_ops ipi_smode_ops = {
+স্থির সংরচনা sbi_ipi_event_ops ipi_smode_ops = {
 	.name = "IPI_SMODE",
 	.process = sbi_ipi_process_smode,
 };
 
-static u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
+স্থির u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_smode(ulong hmask, ulong hbase)
+পূর্ণাঙ্ক sbi_ipi_send_smode(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_smode_event, NULL);
+	প্রত্যাগম sbi_ipi_send_many(hmask, hbase, ipi_smode_event, রিক্ত);
 }
 
-void sbi_ipi_clear_smode(void)
+শূন্য sbi_ipi_clear_smode(শূন্য)
 {
 	csr_clear(CSR_MIP, MIP_SSIP);
 }
 
-static int sbi_ipi_update_halt(struct sbi_scratch *scratch,
-			       struct sbi_scratch *remote_scratch,
-			       u32 remote_hartindex, void *data)
+স্থির পূর্ণাঙ্ক sbi_ipi_update_halt(সংরচনা sbi_scratch *scratch,
+			       সংরচনা sbi_scratch *remote_scratch,
+			       u32 remote_hartindex, শূন্য *data)
 {
 	/* Never send a halt IPI to the local hart. */
-	return scratch == remote_scratch ?
+	প্রত্যাগম scratch == remote_scratch ?
 		SBI_IPI_UPDATE_BREAK : SBI_IPI_UPDATE_SUCCESS;
 }
 
-static void sbi_ipi_process_halt(struct sbi_scratch *scratch)
+স্থির শূন্য sbi_ipi_process_halt(সংরচনা sbi_scratch *scratch)
 {
 	sbi_hsm_hart_stop(scratch, true);
 }
 
-static struct sbi_ipi_event_ops ipi_halt_ops = {
+স্থির সংরচনা sbi_ipi_event_ops ipi_halt_ops = {
 	.name = "IPI_HALT",
 	.update = sbi_ipi_update_halt,
 	.process = sbi_ipi_process_halt,
 };
 
-static u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
+স্থির u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_halt(ulong hmask, ulong hbase)
+পূর্ণাঙ্ক sbi_ipi_send_halt(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_halt_event, NULL);
+	প্রত্যাগম sbi_ipi_send_many(hmask, hbase, ipi_halt_event, রিক্ত);
 }
 
-void sbi_ipi_process(void)
+শূন্য sbi_ipi_process(শূন্য)
 {
 	unsigned long ipi_type;
-	unsigned int ipi_event;
-	const struct sbi_ipi_event_ops *ipi_ops;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct sbi_ipi_data *ipi_data =
+	unsigned পূর্ণাঙ্ক ipi_event;
+	ধ্রুব সংরচনা sbi_ipi_event_ops *ipi_ops;
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা sbi_ipi_data *ipi_data =
 			sbi_scratch_offset_ptr(scratch, ipi_data_off);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_RECVD);
@@ -267,10 +267,10 @@ void sbi_ipi_process(void)
 
 	ipi_type = atomic_raw_xchg_ulong(&ipi_data->ipi_type, 0);
 	ipi_event = 0;
-	while (ipi_type) {
-		if (ipi_type & 1UL) {
+	যাবত্ (ipi_type) {
+		যদি (ipi_type & 1UL) {
 			ipi_ops = ipi_ops_array[ipi_event];
-			if (ipi_ops)
+			যদি (ipi_ops)
 				ipi_ops->process(scratch);
 		}
 		ipi_type = ipi_type >> 1;
@@ -278,12 +278,12 @@ void sbi_ipi_process(void)
 	}
 }
 
-int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
+পূর্ণাঙ্ক sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	সংরচনা sbi_ipi_device_গ্রন্থি *entry;
 
-	if (!ipi_dev || !ipi_dev->ipi_send)
-		return SBI_EINVAL;
+	যদি (!ipi_dev || !ipi_dev->ipi_send)
+		প্রত্যাগম SBI_EINVAL;
 
 	/*
 	 * Ensure that memory or MMIO writes done before
@@ -296,29 +296,29 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 	 */
 	wmb();
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_send)
+	যদি (all_devices) {
+		sbi_list_for_each_entry(entry, &ipi_dev_গ্রন্থি_list, head) {
+			যদি (entry->dev->ipi_send)
 				entry->dev->ipi_send(hartindex);
 		}
-	} else {
+	} অন্যথা {
 		ipi_dev->ipi_send(hartindex);
 	}
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-void sbi_ipi_raw_clear(bool all_devices)
+শূন্য sbi_ipi_raw_clear(bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	সংরচনা sbi_ipi_device_গ্রন্থি *entry;
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_clear)
+	যদি (all_devices) {
+		sbi_list_for_each_entry(entry, &ipi_dev_গ্রন্থি_list, head) {
+			যদি (entry->dev->ipi_clear)
 				entry->dev->ipi_clear();
 		}
-	} else {
-		if (ipi_dev && ipi_dev->ipi_clear)
+	} অন্যথা {
+		যদি (ipi_dev && ipi_dev->ipi_clear)
 			ipi_dev->ipi_clear();
 	}
 
@@ -334,52 +334,52 @@ void sbi_ipi_raw_clear(bool all_devices)
 	wmb();
 }
 
-const struct sbi_ipi_device *sbi_ipi_get_device(void)
+ধ্রুব সংরচনা sbi_ipi_device *sbi_ipi_get_device(শূন্য)
 {
-	return ipi_dev;
+	প্রত্যাগম ipi_dev;
 }
 
-void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
+শূন্য sbi_ipi_add_device(ধ্রুব সংরচনা sbi_ipi_device *dev)
 {
-	struct sbi_ipi_device_node *entry;
+	সংরচনা sbi_ipi_device_গ্রন্থি *entry;
 
-	if (!dev)
-		return;
+	যদি (!dev)
+		প্রত্যাগম;
 
-	entry = sbi_zalloc(sizeof(*entry));
-	if (!entry)
-		return;
+	entry = sbi_zalloc(পরিমাণ(*entry));
+	যদি (!entry)
+		প্রত্যাগম;
 	SBI_INIT_LIST_HEAD(&entry->head);
 	entry->dev = dev;
-	sbi_list_add_tail(&entry->head, &ipi_dev_node_list);
+	sbi_list_add_tail(&entry->head, &ipi_dev_গ্রন্থি_list);
 
-	if (!ipi_dev || ipi_dev->rating < dev->rating)
+	যদি (!ipi_dev || ipi_dev->rating < dev->rating)
 		ipi_dev = dev;
 }
 
-int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
+পূর্ণাঙ্ক sbi_ipi_init(সংরচনা sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	struct sbi_ipi_data *ipi_data;
+	পূর্ণাঙ্ক ret;
+	সংরচনা sbi_ipi_data *ipi_data;
 
-	if (cold_boot) {
-		ipi_data_off = sbi_scratch_alloc_offset(sizeof(*ipi_data));
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
+	যদি (cold_boot) {
+		ipi_data_off = sbi_scratch_alloc_offset(পরিমাণ(*ipi_data));
+		যদি (!ipi_data_off)
+			প্রত্যাগম SBI_ENOMEM;
 		ret = sbi_ipi_event_create(&ipi_smode_ops);
-		if (ret < 0)
-			return ret;
+		যদি (ret < 0)
+			প্রত্যাগম ret;
 		ipi_smode_event = ret;
 		ret = sbi_ipi_event_create(&ipi_halt_ops);
-		if (ret < 0)
-			return ret;
+		যদি (ret < 0)
+			প্রত্যাগম ret;
 		ipi_halt_event = ret;
-	} else {
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
+	} অন্যথা {
+		যদি (!ipi_data_off)
+			প্রত্যাগম SBI_ENOMEM;
+		যদি (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
 		    SBI_IPI_EVENT_MAX <= ipi_halt_event)
-			return SBI_ENOSPC;
+			প্রত্যাগম SBI_ENOSPC;
 	}
 
 	ipi_data = sbi_scratch_offset_ptr(scratch, ipi_data_off);
@@ -391,10 +391,10 @@ int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
 	/* Enable software interrupts */
 	csr_set(CSR_MIE, MIP_MSIP);
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-void sbi_ipi_exit(struct sbi_scratch *scratch)
+শূন্য sbi_ipi_exit(সংরচনা sbi_scratch *scratch)
 {
 	/* Disable software interrupts */
 	csr_clear(CSR_MIE, MIP_MSIP);

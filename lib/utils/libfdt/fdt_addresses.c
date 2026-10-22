@@ -4,98 +4,98 @@
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
  * Copyright (C) 2018 embedded brains GmbH
  */
-#include "libfdt_env.h"
+#অন্তর্ভাব "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#অন্তর্ভাব <fdt.h>
+#অন্তর্ভাব <libfdt.h>
 
-#include "libfdt_internal.h"
+#অন্তর্ভাব "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+স্থির পূর্ণাঙ্ক fdt_cells(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoffset, ধ্রুব বর্ণ *name)
 {
-	const fdt32_t *c;
+	ধ্রুব fdt32_t *c;
 	uint32_t val;
-	int len;
+	পূর্ণাঙ্ক len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	যদি (!c)
+		প্রত্যাগম len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	যদি (len != পরিমাণ(*c))
+		প্রত্যাগম -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	যদি (val > FDT_MAX_NCELLS)
+		প্রত্যাগম -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	প্রত্যাগম (পূর্ণাঙ্ক)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+পূর্ণাঙ্ক fdt_address_cells(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoffset)
 {
-	int val;
+	পূর্ণাঙ্ক val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	যদি (val == 0)
+		প্রত্যাগম -FDT_ERR_BADNCELLS;
+	যদি (val == -FDT_ERR_NOTFOUND)
+		প্রত্যাগম 2;
+	প্রত্যাগম val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+পূর্ণাঙ্ক fdt_size_cells(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoffset)
 {
-	int val;
+	পূর্ণাঙ্ক val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	যদি (val == -FDT_ERR_NOTFOUND)
+		প্রত্যাগম 1;
+	প্রত্যাগম val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+পূর্ণাঙ্ক fdt_appendprop_addrrange(শূন্য *fdt, পূর্ণাঙ্ক parent, পূর্ণাঙ্ক nodeoffset,
+			     ধ্রুব বর্ণ *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	পূর্ণাঙ্ক addr_cells, size_cells, ret;
+	uint8_t data[পরিমাণ(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	যদি (ret < 0)
+		প্রত্যাগম ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	যদি (ret < 0)
+		প্রত্যাগম ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	যদি (addr_cells == 1) {
+		যদি ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			প্রত্যাগম -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} অন্যথা যদি (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} অন্যথা {
+		প্রত্যাগম -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * পরিমাণ(fdt32_t);
+	যদি (size_cells == 1) {
+		যদি (size > UINT32_MAX)
+			প্রত্যাগম -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} অন্যথা যদি (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} অন্যথা {
+		প্রত্যাগম -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	প্রত্যাগম fdt_appendprop(fdt, nodeoffset, name, data,
+			      (addr_cells + size_cells) * পরিমাণ(fdt32_t));
 }

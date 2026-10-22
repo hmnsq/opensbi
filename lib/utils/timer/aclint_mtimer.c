@@ -7,125 +7,125 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/aclint_mtimer.h>
+#অন্তর্ভাব <sbi/riscv_asm.h>
+#অন্তর্ভাব <sbi/riscv_atomic.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_bitops.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi/sbi_timer.h>
+#অন্তর্ভাব <sbi_utils/timer/aclint_mtimer.h>
 
-static unsigned long mtimer_ptr_offset;
+স্থির unsigned long mtimer_ptr_offset;
 
 #define mtimer_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, mtimer_ptr_offset)
+	sbi_scratch_read_type((__scratch), শূন্য *, mtimer_ptr_offset)
 
 #define mtimer_set_hart_data_ptr(__scratch, __mtimer)			\
-	sbi_scratch_write_type((__scratch), void *, mtimer_ptr_offset, (__mtimer))
+	sbi_scratch_write_type((__scratch), শূন্য *, mtimer_ptr_offset, (__mtimer))
 
-#if __riscv_xlen != 32
-static u64 mtimer_time_rd64(volatile u64 *addr)
+#যদি __riscv_xlen != 32
+স্থির u64 mtimer_time_rd64(চঞ্চল u64 *addr)
 {
-	return readq_relaxed(addr);
+	প্রত্যাগম readq_relaxed(addr);
 }
 
-static void mtimer_time_wr64(bool timecmp, u64 value, volatile u64 *addr)
+স্থির শূন্য mtimer_time_wr64(bool timecmp, u64 মান, চঞ্চল u64 *addr)
 {
-	writeq_relaxed(value, addr);
+	writeq_relaxed(মান, addr);
 }
 #endif
 
-static u64 mtimer_time_rd32(volatile u64 *addr)
+স্থির u64 mtimer_time_rd32(চঞ্চল u64 *addr)
 {
 	u32 lo, hi;
 
-	do {
+	কুরু {
 		hi = readl_relaxed((u32 *)addr + 1);
 		lo = readl_relaxed((u32 *)addr);
-	} while (hi != readl_relaxed((u32 *)addr + 1));
+	} যাবত্ (hi != readl_relaxed((u32 *)addr + 1));
 
-	return ((u64)hi << 32) | (u64)lo;
+	প্রত্যাগম ((u64)hi << 32) | (u64)lo;
 }
 
-static void mtimer_time_wr32(bool timecmp, u64 value, volatile u64 *addr)
+স্থির শূন্য mtimer_time_wr32(bool timecmp, u64 মান, চঞ্চল u64 *addr)
 {
-	writel_relaxed((timecmp) ? -1U : 0U, (void *)(addr));
-	writel_relaxed((u32)(value >> 32), (char *)(addr) + 0x04);
-	writel_relaxed((u32)value, (void *)(addr));
+	writel_relaxed((timecmp) ? -1U : 0U, (শূন্য *)(addr));
+	writel_relaxed((u32)(মান >> 32), (বর্ণ *)(addr) + 0x04);
+	writel_relaxed((u32)মান, (শূন্য *)(addr));
 }
 
-static u64 mtimer_value(void)
+স্থির u64 mtimer_মান(শূন্য)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা aclint_mtimer_data *mt;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return 0;
+	যদি (!mt)
+		প্রত্যাগম 0;
 
 	/* Read MTIMER Time Value */
-	return mt->time_rd((void *)mt->mtime_addr);
+	প্রত্যাগম mt->time_rd((শূন্য *)mt->mtime_addr);
 }
 
-static void mtimer_event_stop(void)
+স্থির শূন্য mtimer_event_stop(শূন্য)
 {
 	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা aclint_mtimer_data *mt;
 	u64 *time_cmp;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	যদি (!mt)
+		প্রত্যাগম;
 
 	/* Clear MTIMER Time Compare */
-	time_cmp = (void *)mt->mtimecmp_addr;
+	time_cmp = (শূন্য *)mt->mtimecmp_addr;
 	mt->time_wr(true, -1ULL, &time_cmp[target_hart - mt->first_hartid]);
 }
 
-static void mtimer_event_start(u64 next_event)
+স্থির শূন্য mtimer_event_start(u64 next_event)
 {
 	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা aclint_mtimer_data *mt;
 	u64 *time_cmp;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return;
+	যদি (!mt)
+		প্রত্যাগম;
 
 	/* Program MTIMER Time Compare */
-	time_cmp = (void *)mt->mtimecmp_addr;
+	time_cmp = (শূন্য *)mt->mtimecmp_addr;
 	mt->time_wr(true, next_event,
 		    &time_cmp[target_hart - mt->first_hartid]);
 }
 
-static struct sbi_timer_device mtimer = {
+স্থির সংরচনা sbi_timer_device mtimer = {
 	.name = "aclint-mtimer",
-	.timer_value = mtimer_value,
+	.timer_মান = mtimer_মান,
 	.timer_event_start = mtimer_event_start,
 	.timer_event_stop = mtimer_event_stop
 };
 
-struct aclint_mtimer_data *aclint_get_mtimer_data(void)
+সংরচনা aclint_mtimer_data *aclint_get_mtimer_data(শূন্য)
 {
-	return mtimer_get_hart_data_ptr(sbi_scratch_thishart_ptr());
+	প্রত্যাগম mtimer_get_hart_data_ptr(sbi_scratch_thishart_ptr());
 }
 
-void aclint_mtimer_update(struct aclint_mtimer_data *mt,
-			  struct aclint_mtimer_data *ref)
+শূন্য aclint_mtimer_update(সংরচনা aclint_mtimer_data *mt,
+			  সংরচনা aclint_mtimer_data *ref)
 {
 	u64 v1, v2, mv, delta;
 	u64 *mt_time_val, *ref_time_val;
 
-	if (!mt || !ref || !mt->time_rd || !mt->time_wr || !ref->time_rd)
-		return;
+	যদি (!mt || !ref || !mt->time_rd || !mt->time_wr || !ref->time_rd)
+		প্রত্যাগম;
 
-	mt_time_val = (void *)mt->mtime_addr;
-	ref_time_val = (void *)ref->mtime_addr;
-	if (!atomic_raw_xchg_ulong(&mt->time_delta_computed, 1)) {
+	mt_time_val = (শূন্য *)mt->mtime_addr;
+	ref_time_val = (শূন্য *)ref->mtime_addr;
+	যদি (!atomic_raw_xchg_ulong(&mt->time_delta_computed, 1)) {
 		v1 = mt->time_rd(mt_time_val);
 		mv = ref->time_rd(ref_time_val);
 		v2 = mt->time_rd(mt_time_val);
@@ -135,74 +135,74 @@ void aclint_mtimer_update(struct aclint_mtimer_data *mt,
 	}
 }
 
-void aclint_mtimer_sync(struct aclint_mtimer_data *mt)
+শূন্য aclint_mtimer_sync(সংরচনা aclint_mtimer_data *mt)
 {
-	struct aclint_mtimer_data *reference;
+	সংরচনা aclint_mtimer_data *reference;
 
 	/* Sync-up non-shared MTIME if reference is available */
-	if (mt->has_shared_mtime || !mt->time_delta_reference)
-		return;
+	যদি (mt->has_shared_mtime || !mt->time_delta_reference)
+		প্রত্যাগম;
 
 	reference = mt->time_delta_reference;
 	aclint_mtimer_update(mt, reference);
 }
 
-void aclint_mtimer_set_reference(struct aclint_mtimer_data *mt,
-				 struct aclint_mtimer_data *ref)
+শূন্য aclint_mtimer_set_reference(সংরচনা aclint_mtimer_data *mt,
+				 সংরচনা aclint_mtimer_data *ref)
 {
-	if (!mt || !ref || mt == ref)
-		return;
+	যদি (!mt || !ref || mt == ref)
+		প্রত্যাগম;
 
 	mt->time_delta_reference = ref;
 	mt->time_delta_computed = 0;
 }
 
-static int aclint_mtimer_warm_init(void)
+স্থির পূর্ণাঙ্ক aclint_mtimer_warm_init(শূন্য)
 {
 	u64 *mt_time_cmp;
 	u32 target_hart = current_hartid();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mtimer_data *mt;
+	সংরচনা sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	সংরচনা aclint_mtimer_data *mt;
 
 	mt = mtimer_get_hart_data_ptr(scratch);
-	if (!mt)
-		return SBI_ENODEV;
+	যদি (!mt)
+		প্রত্যাগম SBI_ENODEV;
 
 	/* Sync-up MTIME register */
 	aclint_mtimer_sync(mt);
 
 	/* Clear Time Compare */
-	mt_time_cmp = (void *)mt->mtimecmp_addr;
+	mt_time_cmp = (শূন্য *)mt->mtimecmp_addr;
 	mt->time_wr(true, -1ULL,
 		    &mt_time_cmp[target_hart - mt->first_hartid]);
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
-			    struct aclint_mtimer_data *reference)
+পূর্ণাঙ্ক aclint_mtimer_cold_init(সংরচনা aclint_mtimer_data *mt,
+			    সংরচনা aclint_mtimer_data *reference)
 {
 	u32 i;
-	int rc;
-	struct sbi_scratch *scratch;
+	পূর্ণাঙ্ক rc;
+	সংরচনা sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mt ||
-	    (mt->hart_count && !mt->mtimecmp_size) ||
+	যদি (!mt ||
+	    (mt->hart_গুনতি && !mt->mtimecmp_size) ||
 	    (mt->mtime_size && (mt->mtime_addr & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtime_size && (mt->mtime_size & (ACLINT_MTIMER_ALIGN - 1))) ||
 	    (mt->mtimecmp_addr & (ACLINT_MTIMER_ALIGN - 1)) ||
 	    (mt->mtimecmp_size & (ACLINT_MTIMER_ALIGN - 1)) ||
-	    (mt->hart_count > ACLINT_MTIMER_MAX_HARTS))
-		return SBI_EINVAL;
-	if (reference && mt->mtime_freq != reference->mtime_freq)
-		return SBI_EINVAL;
+	    (mt->hart_গুনতি > ACLINT_MTIMER_MAX_HARTS))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (reference && mt->mtime_freq != reference->mtime_freq)
+		প্রত্যাগম SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mtimer_ptr_offset) {
-		mtimer_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mtimer_ptr_offset)
-			return SBI_ENOMEM;
+	যদি (!mtimer_ptr_offset) {
+		mtimer_ptr_offset = sbi_scratch_alloc_type_offset(শূন্য *);
+		যদি (!mtimer_ptr_offset)
+			প্রত্যাগম SBI_ENOMEM;
 	}
 
 	/* Initialize private data */
@@ -211,71 +211,71 @@ int aclint_mtimer_cold_init(struct aclint_mtimer_data *mt,
 	mt->time_wr = mtimer_time_wr32;
 
 	/* Override read/write accessors for 64bit MMIO */
-#if __riscv_xlen != 32
-	if (mt->has_64bit_mmio) {
+#যদি __riscv_xlen != 32
+	যদি (mt->has_64bit_mmio) {
 		mt->time_rd = mtimer_time_rd64;
 		mt->time_wr = mtimer_time_wr64;
 	}
 #endif
 
 	/* Update MTIMER pointer in scratch space */
-	for (i = 0; i < mt->hart_count; i++) {
+	প্রতি (i = 0; i < mt->hart_গুনতি; i++) {
 		scratch = sbi_hartid_to_scratch(mt->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
-			continue;
+		যদি (!scratch)
+			অনুবর্ত;
 		mtimer_set_hart_data_ptr(scratch, mt);
 	}
 
-	if (!mt->mtime_size) {
+	যদি (!mt->mtime_size) {
 		/* Disable reading mtime when mtime is not available */
-		mtimer.timer_value = NULL;
+		mtimer.timer_মান = রিক্ত;
 	}
 
 	/* Add MTIMER regions to the root domain */
-	if (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
+	যদি (mt->mtime_addr == (mt->mtimecmp_addr + mt->mtimecmp_size)) {
+		rc = sbi_domain_মূল_add_memrange(mt->mtimecmp_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else if (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
+		যদি (rc)
+			প্রত্যাগম rc;
+	} অন্যথা যদি (mt->mtimecmp_addr == (mt->mtime_addr + mt->mtime_size)) {
+		rc = sbi_domain_মূল_add_memrange(mt->mtime_addr,
 					mt->mtime_size + mt->mtimecmp_size,
 					MTIMER_REGION_ALIGN,
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_M_READABLE |
 					 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
-	} else {
-		rc = sbi_domain_root_add_memrange(mt->mtime_addr,
+		যদি (rc)
+			প্রত্যাগম rc;
+	} অন্যথা {
+		rc = sbi_domain_মূল_add_memrange(mt->mtime_addr,
 						mt->mtime_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		যদি (rc)
+			প্রত্যাগম rc;
 
-		rc = sbi_domain_root_add_memrange(mt->mtimecmp_addr,
+		rc = sbi_domain_মূল_add_memrange(mt->mtimecmp_addr,
 						mt->mtimecmp_size, MTIMER_REGION_ALIGN,
 						(SBI_DOMAIN_MEMREGION_MMIO |
 						 SBI_DOMAIN_MEMREGION_M_READABLE |
 						 SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		যদি (rc)
+			প্রত্যাগম rc;
 	}
 
 	mtimer.timer_freq = mt->mtime_freq;
 	mtimer.warm_init = aclint_mtimer_warm_init;
 	sbi_timer_set_device(&mtimer);
 
-	return 0;
+	প্রত্যাগম 0;
 }

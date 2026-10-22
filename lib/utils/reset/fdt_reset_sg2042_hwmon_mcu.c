@@ -4,15 +4,15 @@
  * Copyright (c) 2023 Lin Chunzhi <chunzhi.lin@sophgo.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#অন্তর্ভাব <libfdt.h>
+#অন্তর্ভাব <sbi/sbi_hart.h>
+#অন্তর্ভাব <sbi/sbi_types.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_system.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_driver.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/i2c/fdt_i2c.h>
 
 #define MANGO_BOARD_TYPE_MASK		0x80
 
@@ -23,92 +23,92 @@
 #define CMD_RESET			0x03
 #define CMD_REBOOT			0x07
 
-static struct i2c_adapter *mcu_adapter = NULL;
-static uint32_t mcu_reg = 0;
+স্থির সংরচনা i2c_adapter *mcu_adapter = রিক্ত;
+স্থির uint32_t mcu_reg = 0;
 
-static int sg2042_mcu_reset_check(u32 type, u32 reason)
+স্থির পূর্ণাঙ্ক sg2042_mcu_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	বিকল্প (type) {
+	পক্ষ SBI_SRST_RESET_TYPE_SHUTDOWN:
+		প্রত্যাগম 1;
+	পক্ষ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	পক্ষ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		প্রত্যাগম 255;
 	}
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-static void sg2042_mcu_reset(u32 type, u32 reason)
+স্থির শূন্য sg2042_mcu_reset(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	বিকল্প (type) {
+	পক্ষ SBI_SRST_RESET_TYPE_SHUTDOWN:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_POWEROFF);
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ভঙ্গ;
+	পক্ষ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	পক্ষ SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_REBOOT);
-		break;
+		ভঙ্গ;
 	}
 }
 
-static struct sbi_system_reset_device sg2042_mcu_reset_device = {
+স্থির সংরচনা sbi_system_reset_device sg2042_mcu_reset_device = {
 	.name = "sg2042-mcu-reset",
 	.system_reset_check = sg2042_mcu_reset_check,
 	.system_reset = sg2042_mcu_reset
 };
 
-static int sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
+স্থির পূর্ণাঙ্ক sg2042_mcu_reset_check_board(সংরচনা i2c_adapter *adap, uint32_t reg)
 {
-	static uint8_t val;
-	int ret;
+	স্থির uint8_t val;
+	পূর্ণাঙ্ক ret;
 
 	/* check board type */
 	ret = i2c_adapter_reg_read(adap, reg, REG_BOARD_TYPE, &val);
-	if (ret)
-		return ret;
+	যদি (ret)
+		প্রত্যাগম ret;
 
-	if (!(val & MANGO_BOARD_TYPE_MASK))
-		return SBI_ENODEV;
+	যদি (!(val & MANGO_BOARD_TYPE_MASK))
+		প্রত্যাগম SBI_ENODEV;
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
-				 const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক sg2042_mcu_reset_init(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+				 ধ্রুব সংরচনা fdt_match *match)
 {
-	int ret, i2c_bus;
+	পূর্ণাঙ্ক ret, i2c_bus;
 	uint64_t addr;
 
-	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (ret)
-		return ret;
+	ret = fdt_get_গ্রন্থি_addr_size(fdt, nodeoff, 0, &addr, রিক্ত);
+	যদি (ret)
+		প্রত্যাগম ret;
 
 	mcu_reg = addr;
 
 	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	যদি (i2c_bus < 0)
+		প্রত্যাগম i2c_bus;
 
 	ret = fdt_i2c_adapter_get(fdt, i2c_bus, &mcu_adapter);
-	if (ret)
-		return ret;
+	যদি (ret)
+		প্রত্যাগম ret;
 
 	ret = sg2042_mcu_reset_check_board(mcu_adapter, mcu_reg);
 
 	sbi_system_reset_add_device(&sg2042_mcu_reset_device);
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-static const struct fdt_match sg2042_mcu_reset_match[] = {
+স্থির ধ্রুব সংরচনা fdt_match sg2042_mcu_reset_match[] = {
 	{ .compatible = "sophgo,sg2042-hwmon-mcu" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sg2042_mcu = {
+ধ্রুব সংরচনা fdt_driver fdt_reset_sg2042_mcu = {
 	.match_table = sg2042_mcu_reset_match,
 	.init = sg2042_mcu_reset_init,
 };

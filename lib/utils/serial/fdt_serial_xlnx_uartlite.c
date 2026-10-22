@@ -7,29 +7,29 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/serial/fdt_serial.h>
+#অন্তর্ভাব <sbi_utils/serial/xlnx_uartlite.h>
 
-static int serial_xlnx_uartlite_init(const void *fdt, int nodeoff,
-				     const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক serial_xlnx_uartlite_init(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+				     ধ্রুব সংরচনা fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	পূর্ণাঙ্ক rc;
+	সংরচনা platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_xlnx_uartlite_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_xlnx_uartlite_গ্রন্থি(fdt, nodeoff, &uart);
+	যদি (rc)
+		প্রত্যাগম rc;
 
-	return xlnx_uartlite_init(uart.addr);
+	প্রত্যাগম xlnx_uartlite_init(uart.addr);
 }
 
-static const struct fdt_match serial_xlnx_uartlite_match[] = {
+স্থির ধ্রুব সংরচনা fdt_match serial_xlnx_uartlite_match[] = {
 	{ .compatible = "xlnx,xps-uartlite-1.00.a" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_xlnx_uartlite = {
+ধ্রুব সংরচনা fdt_driver fdt_serial_xlnx_uartlite = {
 	.match_table = serial_xlnx_uartlite_match,
 	.init = serial_xlnx_uartlite_init,
 };

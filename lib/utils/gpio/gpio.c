@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+স্থির SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+সংরচনা gpio_chip *gpio_chip_find(unsigned পূর্ণাঙ্ক id)
 {
-	struct sbi_dlist *pos;
+	সংরচনা sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		সংরচনা gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		যদি (chip->id == id)
+			প্রত্যাগম chip;
 	}
 
-	return NULL;
+	প্রত্যাগম রিক্ত;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+পূর্ণাঙ্ক gpio_chip_add(সংরচনা gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	যদি (!gc)
+		প্রত্যাগম SBI_EINVAL;
+	যদি (gpio_chip_find(gc->id))
+		প্রত্যাগম SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->গ্রন্থি), &(gpio_chip_list));
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+শূন্য gpio_chip_remove(সংরচনা gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	যদি (!gc)
+		প্রত্যাগম;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->গ্রন্থি));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_get_direction(সংরচনা gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (!gp->chip->get_direction)
+		প্রত্যাগম SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	প্রত্যাগম gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_direction_প্রবেশ(সংরচনা gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (!gp->chip->direction_প্রবেশ)
+		প্রত্যাগম SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	প্রত্যাগম gp->chip->direction_প্রবেশ(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+পূর্ণাঙ্ক gpio_direction_output(সংরচনা gpio_pin *gp, পূর্ণাঙ্ক মান)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (!gp->chip->direction_output)
+		প্রত্যাগম SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচের)
+		মান = মান == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	প্রত্যাগম gp->chip->direction_output(gp, মান);
 }
 
-int gpio_get(struct gpio_pin *gp)
+পূর্ণাঙ্ক gpio_get(সংরচনা gpio_pin *gp)
 {
-	int value;
+	পূর্ণাঙ্ক মান;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (!gp->chip->get)
+		প্রত্যাগম SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	মান = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচের)
+		মান = মান == 0 ? 1 : 0;
+	প্রত্যাগম মান;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+পূর্ণাঙ্ক gpio_set(সংরচনা gpio_pin *gp, পূর্ণাঙ্ক মান)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	যদি (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		প্রত্যাগম SBI_EINVAL;
+	যদি (!gp->chip->set)
+		প্রত্যাগম SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	যদি (gp->flags & GPIO_FLAG_ACTIVE_নিচের)
+		মান = মান == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->set(gp, মান);
+	প্রত্যাগম 0;
 }

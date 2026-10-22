@@ -1,9 +1,9 @@
-#include <sbi/sbi_unit_test.h>
-#include <sbi/riscv_locks.h>
+#অন্তর্ভাব <sbi/sbi_unit_test.h>
+#অন্তর্ভাব <sbi/riscv_locks.h>
 
-static spinlock_t test_lock = SPIN_LOCK_INITIALIZER;
+স্থির spinlock_t test_lock = SPIN_LOCK_INITIALIZER;
 
-static void spin_lock_test(struct sbiunit_test_case *test)
+স্থির শূন্য spin_lock_test(সংরচনা sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
@@ -16,7 +16,7 @@ static void spin_lock_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
 }
 
-static void spin_trylock_fail(struct sbiunit_test_case *test)
+স্থির শূন্য spin_trylock_fail(সংরচনা sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
@@ -27,14 +27,14 @@ static void spin_trylock_fail(struct sbiunit_test_case *test)
 	spin_unlock(&test_lock);
 }
 
-static void spin_trylock_success(struct sbiunit_test_case *test)
+স্থির শূন্য spin_trylock_success(সংরচনা sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	SBIUNIT_EXPECT(test, spin_trylock(&test_lock));
 	spin_unlock(&test_lock);
 }
 
-static struct sbiunit_test_case locks_test_cases[] = {
+স্থির সংরচনা sbiunit_test_case locks_test_cases[] = {
 	SBIUNIT_TEST_CASE(spin_lock_test),
 	SBIUNIT_TEST_CASE(spin_trylock_fail),
 	SBIUNIT_TEST_CASE(spin_trylock_success),

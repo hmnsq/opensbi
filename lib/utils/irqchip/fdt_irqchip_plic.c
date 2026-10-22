@@ -7,107 +7,107 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/plic.h>
+#অন্তর্ভাব <libfdt.h>
+#অন্তর্ভাব <sbi/riscv_asm.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi_utils/fdt/fdt_helper.h>
+#অন্তর্ভাব <sbi_utils/irqchip/fdt_irqchip.h>
+#অন্তর্ভাব <sbi_utils/irqchip/plic.h>
 
-static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
-					   struct plic_data *pd)
+স্থির পূর্ণাঙ্ক irqchip_plic_update_context_map(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+					   সংরচনা plic_data *pd)
 {
-	const fdt32_t *val;
+	ধ্রুব fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	পূর্ণাঙ্ক i, err, গুনতি, cpu_offset, cpu_intc_offset;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	প্রতি (i = 0; i < sbi_hart_গুনতি(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &গুনতি);
+	যদি (!val || গুনতি < পরিমাণ(fdt32_t))
+		প্রত্যাগম SBI_EINVAL;
+	গুনতি = গুনতি / পরিমাণ(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	প্রতি (i = 0; i < গুনতি; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_offset = fdt_গ্রন্থি_offset_by_phandle(fdt, phandle);
+		যদি (cpu_intc_offset < 0)
+			অনুবর্ত;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		যদি (cpu_offset < 0)
+			অনুবর্ত;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		যদি (err)
+			অনুবর্ত;
 
 		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		যদি (hartindex == -1U)
+			অনুবর্ত;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
+		বিকল্প (hwirq) {
+		পক্ষ IRQ_M_EXT:
 			pd->context_map[hartindex][PLIC_M_CONTEXT] = i / 2;
-			break;
-		case IRQ_S_EXT:
+			ভঙ্গ;
+		পক্ষ IRQ_S_EXT:
 			pd->context_map[hartindex][PLIC_S_CONTEXT] = i / 2;
-			break;
+			ভঙ্গ;
 		}
 	}
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
-static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+স্থির পূর্ণাঙ্ক irqchip_plic_cold_init(ধ্রুব শূন্য *fdt, পূর্ণাঙ্ক nodeoff,
+				  ধ্রুব সংরচনা fdt_match *match)
 {
-	int rc;
-	struct plic_data *pd;
+	পূর্ণাঙ্ক rc;
+	সংরচনা plic_data *pd;
 
-	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_গুনতি()));
+	যদি (!pd)
+		প্রত্যাগম SBI_ENOMEM;
 
-	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_plic_গ্রন্থি(fdt, nodeoff, pd);
+	যদি (rc)
+		গচ্ছ fail_free_data;
 
 	pd->flags = (unsigned long)match->data;
 
 	rc = irqchip_plic_update_context_map(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	যদি (rc)
+		গচ্ছ fail_free_data;
 
 	rc = plic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_data;
+	যদি (rc)
+		গচ্ছ fail_free_data;
 
-	return 0;
+	প্রত্যাগম 0;
 
 fail_free_data:
 	sbi_free(pd);
-	return rc;
+	প্রত্যাগম rc;
 }
 
-static const struct fdt_match irqchip_plic_match[] = {
+স্থির ধ্রুব সংরচনা fdt_match irqchip_plic_match[] = {
 	{ .compatible = "andestech,nceplic100" },
 	{ .compatible = "riscv,plic0" },
 	{ .compatible = "sifive,plic-1.0.0" },
 	{ .compatible = "thead,c900-plic",
-	  .data = (void *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
+	  .data = (শূন্য *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_irqchip_plic = {
+ধ্রুব সংরচনা fdt_driver fdt_irqchip_plic = {
 	.match_table = irqchip_plic_match,
 	.init = irqchip_plic_cold_init,
 };

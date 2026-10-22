@@ -7,12 +7,12 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi_utils/mpxy/fdt_mpxy.h>
+#অন্তর্ভাব <sbi_utils/mpxy/fdt_mpxy.h>
 
 /* List of FDT MPXY drivers generated at compile time */
-extern const struct fdt_driver *const fdt_mpxy_drivers[];
+বাহ্য ধ্রুব সংরচনা fdt_driver *ধ্রুব fdt_mpxy_drivers[];
 
-int fdt_mpxy_init(const void *fdt)
+পূর্ণাঙ্ক fdt_mpxy_init(ধ্রুব শূন্য *fdt)
 {
-	return fdt_driver_init_all(fdt, fdt_mpxy_drivers);
+	প্রত্যাগম fdt_driver_init_all(fdt, fdt_mpxy_drivers);
 }

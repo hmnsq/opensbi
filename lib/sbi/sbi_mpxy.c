@@ -7,26 +7,26 @@
  *   Rahul Pathak <rpathak@ventanamicro.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_mpxy.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_byteorder.h>
+#অন্তর্ভাব <sbi/riscv_asm.h>
+#অন্তর্ভাব <sbi/sbi_domain.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_hart.h>
+#অন্তর্ভাব <sbi/sbi_hart_protection.h>
+#অন্তর্ভাব <sbi/sbi_heap.h>
+#অন্তর্ভাব <sbi/sbi_irqchip.h>
+#অন্তর্ভাব <sbi/sbi_platform.h>
+#অন্তর্ভাব <sbi/sbi_mpxy.h>
+#অন্তর্ভাব <sbi/sbi_scratch.h>
+#অন্তর্ভাব <sbi/sbi_string.h>
+#অন্তর্ভাব <sbi/sbi_bitops.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi/sbi_byteorder.h>
 
 /** Shared memory size across all harts */
-static unsigned long mpxy_shmem_size = PAGE_SIZE;
+স্থির unsigned long mpxy_shmem_size = PAGE_SIZE;
 
 /** List of MPXY proxy channels */
-static SBI_LIST_HEAD(mpxy_channel_list);
+স্থির SBI_LIST_HEAD(mpxy_channel_list);
 
 /** Invalid Physical Address(all bits 1) */
 #define INVALID_ADDR		(-1UL)
@@ -47,12 +47,12 @@ static SBI_LIST_HEAD(mpxy_channel_list);
 #define CAP_EVENTSSTATE_MASK	(1U << CAP_EVENTSSTATE_POS)
 
 /** Channel Capability - Send Message With Response function support */
-#define CAP_SEND_MSG_WITH_RESP_POS	3
-#define CAP_SEND_MSG_WITH_RESP_MASK	(1U << CAP_SEND_MSG_WITH_RESP_POS)
+#define CAP_SEND_বার্তা_WITH_RESP_POS	3
+#define CAP_SEND_বার্তা_WITH_RESP_MASK	(1U << CAP_SEND_বার্তা_WITH_RESP_POS)
 
 /** Channel Capability - Send Message Without Response function support */
-#define CAP_SEND_MSG_WITHOUT_RESP_POS	4
-#define CAP_SEND_MSG_WITHOUT_RESP_MASK	(1U << CAP_SEND_MSG_WITHOUT_RESP_POS)
+#define CAP_SEND_বার্তা_WITHOUT_RESP_POS	4
+#define CAP_SEND_বার্তা_WITHOUT_RESP_MASK	(1U << CAP_SEND_বার্তা_WITHOUT_RESP_POS)
 
 /** Channel Capability - Get Notification function support */
 #define CAP_GET_NOTIFICATIONS_POS	5
@@ -62,28 +62,28 @@ static SBI_LIST_HEAD(mpxy_channel_list);
  * _c: capability variable
  * _m: capability mask
  */
-#define CAP_ENABLE(_c, _m)	INSERT_FIELD(_c, _m, 1)
-#define CAP_DISABLE(_c, _m)	INSERT_FIELD(_c, _m, 0)
+#define CAP_ENABLE(_c, _m)	ঢোকাও_FIELD(_c, _m, 1)
+#define CAP_DISABLE(_c, _m)	ঢোকাও_FIELD(_c, _m, 0)
 #define CAP_GET(_c, _m)		EXTRACT_FIELD(_c, _m)
 
 #define SHMEM_PHYS_ADDR(_hi, _lo) (_lo)
 
 /** Per hart shared memory */
-struct mpxy_shmem {
+সংরচনা mpxy_shmem {
 	unsigned long shmem_addr_lo;
 	unsigned long shmem_addr_hi;
 };
 
-struct mpxy_state {
+সংরচনা mpxy_state {
 	/* MSI support in MPXY */
 	bool msi_avail;
 	/* SSE support in MPXY */
 	bool sse_avail;
 	/* MPXY Shared memory details */
-	struct mpxy_shmem shmem;
+	সংরচনা mpxy_shmem shmem;
 };
 
-static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
+স্থির সংরচনা mpxy_state *sbi_domain_get_mpxy_state(সংরচনা sbi_domain *dom,
 						    u32 hartindex);
 
 /** Macro to obtain the current hart's MPXY state pointer in current domain */
@@ -92,40 +92,40 @@ static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
 				  current_hartindex())
 
 /** Disable hart shared memory */
-static inline void sbi_mpxy_shmem_disable(struct mpxy_state *ms)
+স্থির অন্তঃস্থ শূন্য sbi_mpxy_shmem_disable(সংরচনা mpxy_state *ms)
 {
 	ms->shmem.shmem_addr_lo = INVALID_ADDR;
 	ms->shmem.shmem_addr_hi = INVALID_ADDR;
 }
 
 /** Check if shared memory is already setup on hart */
-static inline bool mpxy_shmem_enabled(struct mpxy_state *ms)
+স্থির অন্তঃস্থ bool mpxy_shmem_enabled(সংরচনা mpxy_state *ms)
 {
-	return (ms->shmem.shmem_addr_lo == INVALID_ADDR
+	প্রত্যাগম (ms->shmem.shmem_addr_lo == INVALID_ADDR
 		&& ms->shmem.shmem_addr_hi == INVALID_ADDR) ?
 		false : true;
 }
 
 /** Get hart shared memory base address */
-static inline void *hart_shmem_base(struct mpxy_state *ms)
+স্থির অন্তঃস্থ শূন্য *hart_shmem_base(সংরচনা mpxy_state *ms)
 {
-	return (void *)(unsigned long)SHMEM_PHYS_ADDR(ms->shmem.shmem_addr_hi,
+	প্রত্যাগম (শূন্য *)(unsigned long)SHMEM_PHYS_ADDR(ms->shmem.shmem_addr_hi,
 						ms->shmem.shmem_addr_lo);
 }
 
 /** Make sure all attributes are packed for direct memcpy in ATTR_READ */
 #define assert_field_offset(field, attr_offset)				\
 	_Static_assert(							\
-		((offsetof(struct sbi_mpxy_channel_attrs, field)) /	\
-		 sizeof(u32)) == attr_offset,				\
+		((offsetof(সংরচনা sbi_mpxy_channel_attrs, field)) /	\
+		 পরিমাণ(u32)) == attr_offset,				\
 		"field " #field						\
 		" from struct sbi_mpxy_channel_attrs invalid offset, expected " #attr_offset)
 
-assert_field_offset(msg_proto_id, SBI_MPXY_ATTR_MSG_PROT_ID);
-assert_field_offset(msg_proto_version, SBI_MPXY_ATTR_MSG_PROT_VER);
-assert_field_offset(msg_data_maxlen, SBI_MPXY_ATTR_MSG_MAX_LEN);
-assert_field_offset(msg_send_timeout, SBI_MPXY_ATTR_MSG_SEND_TIMEOUT);
-assert_field_offset(msg_completion_timeout, SBI_MPXY_ATTR_MSG_COMPLETION_TIMEOUT);
+assert_field_offset(বার্তা_proto_id, SBI_MPXY_ATTR_বার্তা_PROT_ID);
+assert_field_offset(বার্তা_proto_version, SBI_MPXY_ATTR_বার্তা_PROT_VER);
+assert_field_offset(বার্তা_data_maxlen, SBI_MPXY_ATTR_বার্তা_MAX_LEN);
+assert_field_offset(বার্তা_send_timeout, SBI_MPXY_ATTR_বার্তা_SEND_TIMEOUT);
+assert_field_offset(বার্তা_completion_timeout, SBI_MPXY_ATTR_বার্তা_COMPLETION_TIMEOUT);
 assert_field_offset(capability, SBI_MPXY_ATTR_CHANNEL_CAPABILITY);
 assert_field_offset(sse_event_id, SBI_MPXY_ATTR_SSE_EVENT_ID);
 assert_field_offset(msi_control, SBI_MPXY_ATTR_MSI_CONTROL);
@@ -140,62 +140,62 @@ assert_field_offset(eventsstate_ctrl, SBI_MPXY_ATTR_EVENTS_STATE_CONTROL);
  * attr_id[31] = 0 for standard
  * attr_id[31] = 1 for message protocol specific
  */
-static inline bool mpxy_is_std_attr(u32 attr_id)
+স্থির অন্তঃস্থ bool mpxy_is_std_attr(u32 attr_id)
 {
-	return (attr_id >> 31) ? false : true;
+	প্রত্যাগম (attr_id >> 31) ? false : true;
 }
 
-static inline bool mpxy_channel_visible(struct sbi_mpxy_channel *channel,
-					struct sbi_domain *dom)
+স্থির অন্তঃস্থ bool mpxy_channel_visible(সংরচনা sbi_mpxy_channel *channel,
+					সংরচনা sbi_domain *dom)
 {
-	return channel->owner_domain == dom;
+	প্রত্যাগম channel->owner_domain == dom;
 }
 
 /** Find channel_id in registered channels list for this domain */
-static struct sbi_mpxy_channel *mpxy_find_channel(u32 channel_id,
-					struct sbi_domain *dom)
+স্থির সংরচনা sbi_mpxy_channel *mpxy_find_channel(u32 channel_id,
+					সংরচনা sbi_domain *dom)
 {
-	struct sbi_mpxy_channel *channel;
+	সংরচনা sbi_mpxy_channel *channel;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (channel->channel_id == channel_id &&
+		যদি (channel->channel_id == channel_id &&
 		    mpxy_channel_visible(channel, dom))
-			return channel;
+			প্রত্যাগম channel;
 	}
 
-	return NULL;
+	প্রত্যাগম রিক্ত;
 }
 
 /** Find channel_id in registered channels list */
-struct sbi_mpxy_channel *sbi_mpxy_find_channel_any(u32 channel_id)
+সংরচনা sbi_mpxy_channel *sbi_mpxy_find_channel_any(u32 channel_id)
 {
-	struct sbi_mpxy_channel *channel;
+	সংরচনা sbi_mpxy_channel *channel;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (channel->channel_id == channel_id)
-			return channel;
+		যদি (channel->channel_id == channel_id)
+			প্রত্যাগম channel;
 	}
 
-	return NULL;
+	প্রত্যাগম রিক্ত;
 }
 
 /** Copy attributes word size */
-static void mpxy_copy_std_attrs(u32 *outmem, u32 *inmem, u32 count)
+স্থির শূন্য mpxy_copy_std_attrs(u32 *outmem, u32 *inmem, u32 গুনতি)
 {
-	int idx;
-	for (idx = 0; idx < count; idx++)
+	পূর্ণাঙ্ক idx;
+	প্রতি (idx = 0; idx < গুনতি; idx++)
 		outmem[idx] = cpu_to_le32(inmem[idx]);
 }
 
 /** Check if any channel is registered with mpxy framework */
-bool sbi_mpxy_channel_available(void)
+bool sbi_mpxy_channel_available(শূন্য)
 {
-	return sbi_list_empty(&mpxy_channel_list) ? false : true;
+	প্রত্যাগম sbi_list_empty(&mpxy_channel_list) ? false : true;
 }
 
-static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
+স্থির শূন্য mpxy_std_attrs_init(সংরচনা sbi_mpxy_channel *channel)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 capability = 0;
 
 	/* Reset values */
@@ -206,21 +206,21 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
 	channel->attrs.capability = 0;
 	channel->attrs.eventsstate_ctrl = 0;
 
-	if (channel->send_message_with_response)
-		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITH_RESP_MASK);
+	যদি (channel->send_message_with_response)
+		capability = CAP_ENABLE(capability, CAP_SEND_বার্তা_WITH_RESP_MASK);
 
-	if (channel->send_message_without_response)
-		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITHOUT_RESP_MASK);
+	যদি (channel->send_message_without_response)
+		capability = CAP_ENABLE(capability, CAP_SEND_বার্তা_WITHOUT_RESP_MASK);
 
-	if (channel->get_notification_events) {
+	যদি (channel->get_notification_events) {
 		capability = CAP_ENABLE(capability, CAP_GET_NOTIFICATIONS_MASK);
 		/**
 		 * Check if MSI or SSE available for notification interrrupt.
 		 * Priority given to MSI if both MSI and SSE are avaialble.
 		 */
-		if (ms->msi_avail)
+		যদি (ms->msi_avail)
 			capability = CAP_ENABLE(capability, CAP_MSI_MASK);
-		else if (ms->sse_avail) {
+		অন্যথা যদি (ms->sse_avail) {
 			capability = CAP_ENABLE(capability, CAP_SSE_MASK);
 			/* TODO: Assign SSE EVENT_ID for the channel */
 		}
@@ -230,7 +230,7 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
 		 * state reporting supoprt. Enable events state reporting in
 		 * channel capability.
 		 */
-		if (channel->switch_eventsstate)
+		যদি (channel->switch_eventsstate)
 			capability = CAP_ENABLE(capability, CAP_EVENTSSTATE_MASK);
 	}
 
@@ -241,50 +241,50 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
  * Register a channel with MPXY framework.
  * Called by message protocol drivers
  */
-int sbi_mpxy_register_channel(struct sbi_mpxy_channel *channel)
+পূর্ণাঙ্ক sbi_mpxy_register_channel(সংরচনা sbi_mpxy_channel *channel)
 {
-	if (!channel)
-		return SBI_EINVAL;
+	যদি (!channel)
+		প্রত্যাগম SBI_EINVAL;
 
-	if (!channel->owner_domain)
-		return SBI_EINVAL;
+	যদি (!channel->owner_domain)
+		প্রত্যাগম SBI_EINVAL;
 
-	if (sbi_mpxy_find_channel_any(channel->channel_id))
-		return SBI_EALREADY;
+	যদি (sbi_mpxy_find_channel_any(channel->channel_id))
+		প্রত্যাগম SBI_EALREADY;
 
 	/* Initialize channel specific attributes */
 	mpxy_std_attrs_init(channel);
 
 	/* Update shared memory size if required */
-	if (mpxy_shmem_size < channel->attrs.msg_data_maxlen) {
-		mpxy_shmem_size = ROUNDUP(channel->attrs.msg_data_maxlen,
+	যদি (mpxy_shmem_size < channel->attrs.বার্তা_data_maxlen) {
+		mpxy_shmem_size = ROUNDUP(channel->attrs.বার্তা_data_maxlen,
 					  PAGE_SIZE);
 	}
 
 	sbi_list_add_tail(&channel->head, &mpxy_channel_list);
 
-	return SBI_OK;
+	প্রত্যাগম SBI_OK;
 }
 
 /** Setup per domain MPXY state data */
-static int domain_mpxy_state_setup(struct sbi_domain *dom,
-					struct sbi_domain_state *state,
-					void *state_ptr)
+স্থির পূর্ণাঙ্ক domain_mpxy_state_setup(সংরচনা sbi_domain *dom,
+					সংরচনা sbi_domain_state *state,
+					শূন্য *state_ptr)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
-	struct mpxy_state *ms;
+	সংরচনা mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
+	সংরচনা mpxy_state *ms;
 	u32 i;
 
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
-		ms = sbi_zalloc(sizeof(*ms));
-		if (!ms)
-			return SBI_ENOMEM;
+		ms = sbi_zalloc(পরিমাণ(*ms));
+		যদি (!ms)
+			প্রত্যাগম SBI_ENOMEM;
 
 		/*
 		 * TODO: Proper support for checking sse support from
 		 * platform. Currently disable sse and use polling
 		 */
-		ms->msi_avail = !!sbi_irqchip_find_device_by_caps(SBI_IRQCHIP_CAPS_MSI, NULL);
+		ms->msi_avail = !!sbi_irqchip_find_device_by_caps(SBI_IRQCHIP_CAPS_MSI, রিক্ত);
 		ms->sse_avail = false;
 
 		sbi_mpxy_shmem_disable(ms);
@@ -292,22 +292,22 @@ static int domain_mpxy_state_setup(struct sbi_domain *dom,
 		dom_hartindex_to_mpxy_state_table[i] = ms;
 	}
 
-	return 0;
+	প্রত্যাগম 0;
 }
 
 /** Cleanup per domain MPXY state data */
-static void domain_mpxy_state_cleanup(struct sbi_domain *dom,
-					   struct sbi_domain_state *state,
-					   void *state_ptr)
+স্থির শূন্য domain_mpxy_state_cleanup(সংরচনা sbi_domain *dom,
+					   সংরচনা sbi_domain_state *state,
+					   শূন্য *state_ptr)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
+	সংরচনা mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
 	u32 i;
 
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts)
 		sbi_free(dom_hartindex_to_mpxy_state_table[i]);
 }
 
-static struct sbi_domain_state dmstate = {
+স্থির সংরচনা sbi_domain_state dmstate = {
 	.state_setup = domain_mpxy_state_setup,
 	.state_cleanup = domain_mpxy_state_cleanup,
 };
@@ -319,22 +319,22 @@ static struct sbi_domain_state dmstate = {
  *
  * @return per-domain MPXY state pointer for given HART index
  */
-static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
+স্থির সংরচনা mpxy_state *sbi_domain_get_mpxy_state(সংরচনা sbi_domain *dom,
 						    u32 hartindex)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table;
+	সংরচনা mpxy_state **dom_hartindex_to_mpxy_state_table;
 
 	dom_hartindex_to_mpxy_state_table = sbi_domain_state_ptr(dom, &dmstate);
-	if (!dom_hartindex_to_mpxy_state_table ||
+	যদি (!dom_hartindex_to_mpxy_state_table ||
 	    !sbi_hartindex_valid(hartindex))
-		return NULL;
+		প্রত্যাগম রিক্ত;
 
-	return dom_hartindex_to_mpxy_state_table[hartindex];
+	প্রত্যাগম dom_hartindex_to_mpxy_state_table[hartindex];
 }
 
-int sbi_mpxy_init(struct sbi_scratch *scratch)
+পূর্ণাঙ্ক sbi_mpxy_init(সংরচনা sbi_scratch *scratch)
 {
-	int ret;
+	পূর্ণাঙ্ক ret;
 
 	/**
 	 * Allocate per-domain and per-hart MPXY state data.
@@ -343,39 +343,39 @@ int sbi_mpxy_init(struct sbi_scratch *scratch)
 	 * domain_mpxy_state_setup(). Calculate needed size of memory space
 	 * here.
 	 */
-	dmstate.state_size = sizeof(struct mpxy_state *) * sbi_hart_count();
+	dmstate.state_size = পরিমাণ(সংরচনা mpxy_state *) * sbi_hart_গুনতি();
 	ret = sbi_domain_register_state(&dmstate);
-	if (ret)
-		return ret;
+	যদি (ret)
+		প্রত্যাগম ret;
 
-	return sbi_platform_mpxy_init(sbi_platform_ptr(scratch));
+	প্রত্যাগম sbi_platform_mpxy_init(sbi_platform_ptr(scratch));
 }
 
-unsigned long sbi_mpxy_get_shmem_size(void)
+unsigned long sbi_mpxy_get_shmem_size(শূন্য)
 {
-	return mpxy_shmem_size;
+	প্রত্যাগম mpxy_shmem_size;
 }
 
-int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
+পূর্ণাঙ্ক sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 		       unsigned long shmem_phys_hi,
 		       unsigned long flags)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	unsigned long *ret_buf;
 
 	/** Disable shared memory if both hi and lo have all bit 1s */
-	if (shmem_phys_lo == INVALID_ADDR &&
+	যদি (shmem_phys_lo == INVALID_ADDR &&
 	    shmem_phys_hi == INVALID_ADDR) {
 		sbi_mpxy_shmem_disable(ms);
-		return SBI_SUCCESS;
+		প্রত্যাগম SBI_SUCCESS;
 	}
 
-	if (flags >= SBI_EXT_MPXY_SHMEM_FLAG_MAX_IDX)
-		return SBI_ERR_INVALID_PARAM;
+	যদি (flags >= SBI_EXT_MPXY_SHMEM_FLAG_MAX_IDX)
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	/** Check shared memory size and address aligned to 4K Page */
-	if (shmem_phys_lo & ~PAGE_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	যদি (shmem_phys_lo & ~PAGE_MASK)
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	/*
 	* On RV32, the M-mode can only access the first 4GB of
@@ -388,17 +388,17 @@ int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 	* So fail if the upper 64bit of the physical address
 	* is non-zero on RV64.
 	*/
-	if (shmem_phys_hi)
-		return SBI_ERR_INVALID_ADDRESS;
+	যদি (shmem_phys_hi)
+		প্রত্যাগম SBI_ERR_INVALID_ADDRESS;
 
-	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+	যদি (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
 				SHMEM_PHYS_ADDR(shmem_phys_hi, shmem_phys_lo),
 				mpxy_shmem_size, PRV_S,
 				SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		প্রত্যাগম SBI_ERR_INVALID_ADDRESS;
 
 	/** Save the current shmem details in new shmem region */
-	if (flags == SBI_EXT_MPXY_SHMEM_FLAG_OVERWRITE_RETURN) {
+	যদি (flags == SBI_EXT_MPXY_SHMEM_FLAG_OVERWRITE_RETURN) {
 		ret_buf = (unsigned long *)(ulong)SHMEM_PHYS_ADDR(shmem_phys_hi,
 								  shmem_phys_lo);
 		sbi_hart_protection_temp_map_range((unsigned long)ret_buf, mpxy_shmem_size);
@@ -411,106 +411,106 @@ int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 	ms->shmem.shmem_addr_lo = shmem_phys_lo;
 	ms->shmem.shmem_addr_hi = shmem_phys_hi;
 
-	return SBI_SUCCESS;
+	প্রত্যাগম SBI_SUCCESS;
 }
 
-int sbi_mpxy_get_channel_ids(u32 start_index)
+পূর্ণাঙ্ক sbi_mpxy_get_channel_ids(u32 start_index)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 remaining, returned, max_channelids;
-	u32 node_index = 0, node_ret = 0;
-	struct sbi_mpxy_channel *channel;
-	u32 channels_count = 0;
+	u32 গ্রন্থি_index = 0, গ্রন্থি_ret = 0;
+	সংরচনা sbi_mpxy_channel *channel;
+	u32 channels_গুনতি = 0;
 	u32 *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	যদি (!mpxy_shmem_enabled(ms))
+		প্রত্যাগম SBI_ERR_NO_SHMEM;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (mpxy_channel_visible(channel, dom))
-			channels_count += 1;
+		যদি (mpxy_channel_visible(channel, dom))
+			channels_গুনতি += 1;
 	}
 
-	if (start_index > channels_count)
-		return SBI_ERR_INVALID_PARAM;
+	যদি (start_index > channels_গুনতি)
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
 	/** number of channel ids which can be stored in shmem adjusting
 	 * for remaining and returned fields */
-	max_channelids = (mpxy_shmem_size / sizeof(u32)) - 2;
+	max_channelids = (mpxy_shmem_size / পরিমাণ(u32)) - 2;
 	/* total remaining from the start index */
-	remaining = channels_count - start_index;
+	remaining = channels_গুনতি - start_index;
 	/* how many can be returned */
 	returned = (remaining > max_channelids)? max_channelids : remaining;
 
 	// Iterate over the list of channels to get the channel ids.
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (!mpxy_channel_visible(channel, sbi_domain_thishart_ptr()))
-			continue;
+		যদি (!mpxy_channel_visible(channel, sbi_domain_thishart_ptr()))
+			অনুবর্ত;
 
-		if (node_index >= start_index &&
-			node_index < (start_index + returned)) {
-			shmem_base[2 + node_ret] = cpu_to_le32(channel->channel_id);
-			node_ret += 1;
+		যদি (গ্রন্থি_index >= start_index &&
+			গ্রন্থি_index < (start_index + returned)) {
+			shmem_base[2 + গ্রন্থি_ret] = cpu_to_le32(channel->channel_id);
+			গ্রন্থি_ret += 1;
 		}
 
-		node_index += 1;
+		গ্রন্থি_index += 1;
 	}
 
 	/* final remaininig channel ids */
-	remaining = channels_count - (start_index + returned);
+	remaining = channels_গুনতি - (start_index + returned);
 
 	shmem_base[0] = cpu_to_le32(remaining);
 	shmem_base[1] = cpu_to_le32(returned);
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
-	return SBI_SUCCESS;
+	প্রত্যাগম SBI_SUCCESS;
 }
 
-int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+পূর্ণাঙ্ক sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_গুনতি)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	int ret = SBI_SUCCESS;
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	পূর্ণাঙ্ক ret = SBI_SUCCESS;
 	u32 *attr_ptr, end_id;
-	void *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	শূন্য *shmem_base;
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	যদি (!mpxy_shmem_enabled(ms))
+		প্রত্যাগম SBI_ERR_NO_SHMEM;
 
-	struct sbi_mpxy_channel *channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	সংরচনা sbi_mpxy_channel *channel = mpxy_find_channel(channel_id, dom);
+	যদি (!channel)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
 	/* base attribute id is not a defined std attribute or reserved */
-	if (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
+	যদি (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
 		base_attr_id < SBI_MPXY_ATTR_MSGPROTO_ATTR_START)
-		return SBI_ERR_INVALID_PARAM;
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
-		return SBI_ERR_INVALID_PARAM;
+	যদি (!attr_গুনতি || (attr_গুনতি > (mpxy_shmem_size / ATTR_SIZE)))
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
-	end_id = base_attr_id + attr_count - 1;
+	end_id = base_attr_id + attr_গুনতি - 1;
 
 	sbi_hart_protection_temp_map_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
 	/* Standard attributes range check */
-	if (mpxy_is_std_attr(base_attr_id)) {
-		if (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
+	যদি (mpxy_is_std_attr(base_attr_id)) {
+		যদি (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
 			ret = SBI_EBAD_RANGE;
-			goto out;
+			গচ্ছ out;
 		}
 
 		attr_ptr = (u32 *)&channel->attrs;
 		mpxy_copy_std_attrs((u32 *)shmem_base, &attr_ptr[base_attr_id],
-				    attr_count);
-	} else {
+				    attr_গুনতি);
+	} অন্যথা {
 		/**
 		 * Even if the message protocol driver does not provide
 		 * read attribute callback, return bad range error instead
@@ -520,10 +520,10 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * attributes. Actual supported attributes will be checked
 		 * by the message protocol driver.
 		 */
-		if (!channel->read_attributes ||
+		যদি (!channel->read_attributes ||
 				end_id > SBI_MPXY_ATTR_MSGPROTO_ATTR_END) {
 			ret = SBI_ERR_BAD_RANGE;
-			goto out;
+			গচ্ছ out;
 		}
 
 		/**
@@ -534,11 +534,11 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * protocol driver */
 		ret = channel->read_attributes(channel,
 					       (u32 *)shmem_base,
-					       base_attr_id, attr_count);
+					       base_attr_id, attr_গুনতি);
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
-	return ret;
+	প্রত্যাগম ret;
 }
 
 /**
@@ -552,131 +552,131 @@ out:
  * either complete range of attributes is written successfully or not
  * at all.
  */
-static int mpxy_check_write_std_attr(struct sbi_mpxy_channel *channel,
+স্থির পূর্ণাঙ্ক mpxy_check_write_std_attr(সংরচনা sbi_mpxy_channel *channel,
 				     u32 attr_id, u32 attr_val)
 {
-	struct sbi_mpxy_channel_attrs *attrs = &channel->attrs;
-	int ret = SBI_SUCCESS;
+	সংরচনা sbi_mpxy_channel_attrs *attrs = &channel->attrs;
+	পূর্ণাঙ্ক ret = SBI_SUCCESS;
 
-	switch(attr_id) {
-	case SBI_MPXY_ATTR_MSI_CONTROL:
-		if (attr_val > 1)
+	বিকল্প(attr_id) {
+	পক্ষ SBI_MPXY_ATTR_MSI_CONTROL:
+		যদি (attr_val > 1)
 			ret = SBI_ERR_INVALID_PARAM;
-		if (attr_val == 1 &&
+		যদি (attr_val == 1 &&
 		    (attrs->msi_info.msi_addr_lo == (u32)INVALID_ADDR) &&
 		    (attrs->msi_info.msi_addr_hi == (u32)INVALID_ADDR))
 			ret = SBI_ERR_DENIED;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_LO:
-	case SBI_MPXY_ATTR_MSI_ADDR_HI:
-	case SBI_MPXY_ATTR_MSI_DATA:
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_MSI_ADDR_LO:
+	পক্ষ SBI_MPXY_ATTR_MSI_ADDR_HI:
+	পক্ষ SBI_MPXY_ATTR_MSI_DATA:
 		ret = SBI_SUCCESS;
-		break;
-	case SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
-		if (attr_val > 1)
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
+		যদি (attr_val > 1)
 			ret = SBI_ERR_INVALID_PARAM;
-		break;
-	default:
+		ভঙ্গ;
+	স্বভাব:
 		/** All RO access attributes falls under default */
 		ret = SBI_ERR_BAD_RANGE;
 	};
 
-	return ret;
+	প্রত্যাগম ret;
 }
 
 /**
  * Write the attribute value
  */
-static void mpxy_write_std_attr(struct sbi_mpxy_channel *channel, u32 attr_id,
+স্থির শূন্য mpxy_write_std_attr(সংরচনা sbi_mpxy_channel *channel, u32 attr_id,
 				u32 attr_val)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel_attrs *attrs = &channel->attrs;
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা sbi_mpxy_channel_attrs *attrs = &channel->attrs;
 
-	switch(attr_id) {
-	case SBI_MPXY_ATTR_MSI_CONTROL:
-		if (ms->msi_avail && attr_val <= 1)
+	বিকল্প(attr_id) {
+	পক্ষ SBI_MPXY_ATTR_MSI_CONTROL:
+		যদি (ms->msi_avail && attr_val <= 1)
 			attrs->msi_control = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_LO:
-		if (ms->msi_avail)
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_MSI_ADDR_LO:
+		যদি (ms->msi_avail)
 			attrs->msi_info.msi_addr_lo = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_HI:
-		if (ms->msi_avail)
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_MSI_ADDR_HI:
+		যদি (ms->msi_avail)
 			attrs->msi_info.msi_addr_hi = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_DATA:
-		if (ms->msi_avail)
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_MSI_DATA:
+		যদি (ms->msi_avail)
 			attrs->msi_info.msi_data = attr_val;
-		break;
-	case SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
-		if (channel->switch_eventsstate && attr_val <= 1) {
+		ভঙ্গ;
+	পক্ষ SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
+		যদি (channel->switch_eventsstate && attr_val <= 1) {
 			attrs->eventsstate_ctrl = attr_val;
 			 /* message protocol callback to enable/disable
 			 * events state reporting. */
 			channel->switch_eventsstate(attr_val);
 		}
 
-		break;
+		ভঙ্গ;
 	};
 }
 
-int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+পূর্ণাঙ্ক sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_গুনতি)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 *mem_ptr, attr_id, end_id, attr_val;
-	struct sbi_mpxy_channel *channel;
-	int ret, mem_idx;
-	void *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	সংরচনা sbi_mpxy_channel *channel;
+	পূর্ণাঙ্ক ret, mem_idx;
+	শূন্য *shmem_base;
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	যদি (!mpxy_shmem_enabled(ms))
+		প্রত্যাগম SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	যদি (!channel)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
 	/* base attribute id is not a defined std attribute or reserved */
-	if (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
+	যদি (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
 		base_attr_id < SBI_MPXY_ATTR_MSGPROTO_ATTR_START)
-		return SBI_ERR_INVALID_PARAM;
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
-		return SBI_ERR_INVALID_PARAM;
+	যদি (!attr_গুনতি || (attr_গুনতি > (mpxy_shmem_size / ATTR_SIZE)))
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
-	end_id = base_attr_id + attr_count - 1;
+	end_id = base_attr_id + attr_গুনতি - 1;
 
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
 
 	mem_ptr = (u32 *)shmem_base;
 
-	if (mpxy_is_std_attr(base_attr_id)) {
-		if (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
+	যদি (mpxy_is_std_attr(base_attr_id)) {
+		যদি (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
 			ret = SBI_ERR_BAD_RANGE;
-			goto out;
+			গচ্ছ out;
 		}
 
 		/** Verify the attribute ids range and values */
 		mem_idx = 0;
-		for (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
+		প্রতি (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
 			attr_val = le32_to_cpu(mem_ptr[mem_idx++]);
 			ret = mpxy_check_write_std_attr(channel,
 							attr_id, attr_val);
-			if (ret)
-				goto out;
+			যদি (ret)
+				গচ্ছ out;
 		}
 
 		/* Write the attribute ids values */
 		mem_idx = 0;
-		for (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
+		প্রতি (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
 			attr_val = le32_to_cpu(mem_ptr[mem_idx++]);
 			mpxy_write_std_attr(channel, attr_id, attr_val);
 		}
-	} else {/**
+	} অন্যথা {/**
 		 * Message protocol specific attributes:
 		 * If attributes belong to message protocol, they
 		 * are simply passed to the message protocol driver
@@ -690,10 +690,10 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * of not supported to let client distinguish it from channel
 		 * id not supported.
 		 */
-		if (!channel->write_attributes ||
+		যদি (!channel->write_attributes ||
 				end_id > SBI_MPXY_ATTR_MSGPROTO_ATTR_END) {
 			ret = SBI_ERR_BAD_RANGE;
-			goto out;
+			গচ্ছ out;
 		}
 
 		/**
@@ -704,88 +704,88 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * protocol driver */
 		ret = channel->write_attributes(channel,
 					       (u32 *)shmem_base,
-					       base_attr_id, attr_count);
+					       base_attr_id, attr_গুনতি);
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
-	return ret;
+	প্রত্যাগম ret;
 }
 
-int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
-			  unsigned long msg_data_len,
+পূর্ণাঙ্ক sbi_mpxy_send_message(u32 channel_id, u8 বার্তা_id,
+			  unsigned long বার্তা_data_len,
 			  unsigned long *resp_data_len)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel *channel;
-	void *shmem_base, *resp_buf;
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা sbi_mpxy_channel *channel;
+	শূন্য *shmem_base, *resp_buf;
 	u32 resp_bufsize;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int ret;
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
+	পূর্ণাঙ্ক ret;
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	যদি (!mpxy_shmem_enabled(ms))
+		প্রত্যাগম SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	যদি (!channel)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
-	if (resp_data_len && !channel->send_message_with_response)
-		return SBI_ERR_NOT_SUPPORTED;
+	যদি (resp_data_len && !channel->send_message_with_response)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
-	if (!resp_data_len && !channel->send_message_without_response)
-		return SBI_ERR_NOT_SUPPORTED;
+	যদি (!resp_data_len && !channel->send_message_without_response)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
-	if (msg_data_len > mpxy_shmem_size ||
-		msg_data_len > channel->attrs.msg_data_maxlen)
-		return SBI_ERR_INVALID_PARAM;
+	যদি (বার্তা_data_len > mpxy_shmem_size ||
+		বার্তা_data_len > channel->attrs.বার্তা_data_maxlen)
+		প্রত্যাগম SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (resp_data_len) {
+	যদি (resp_data_len) {
 		resp_buf = shmem_base;
 		resp_bufsize = mpxy_shmem_size;
-		ret = channel->send_message_with_response(channel, msg_id,
+		ret = channel->send_message_with_response(channel, বার্তা_id,
 							  shmem_base,
-							  msg_data_len,
+							  বার্তা_data_len,
 							  resp_buf,
 							  resp_bufsize,
 							  resp_data_len);
-	} else {
-		ret = channel->send_message_without_response(channel, msg_id,
+	} অন্যথা {
+		ret = channel->send_message_without_response(channel, বার্তা_id,
 							     shmem_base,
-							     msg_data_len);
+							     বার্তা_data_len);
 	}
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (ret == SBI_ERR_TIMEOUT || ret == SBI_ERR_IO)
-		return ret;
-	else if (ret)
-		return SBI_ERR_FAILED;
+	যদি (ret == SBI_ERR_TIMEOUT || ret == SBI_ERR_IO)
+		প্রত্যাগম ret;
+	অন্যথা যদি (ret)
+		প্রত্যাগম SBI_ERR_FAILED;
 
-	if (resp_data_len &&
+	যদি (resp_data_len &&
 	    (*resp_data_len > mpxy_shmem_size ||
-	     *resp_data_len > channel->attrs.msg_data_maxlen))
-		return SBI_ERR_FAILED;
+	     *resp_data_len > channel->attrs.বার্তা_data_maxlen))
+		প্রত্যাগম SBI_ERR_FAILED;
 
-	return SBI_SUCCESS;
+	প্রত্যাগম SBI_SUCCESS;
 }
 
-int sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
+পূর্ণাঙ্ক sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel *channel;
-	void *eventsbuf, *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int ret;
+	সংরচনা mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	সংরচনা sbi_mpxy_channel *channel;
+	শূন্য *eventsbuf, *shmem_base;
+	সংরচনা sbi_domain *dom = sbi_domain_thishart_ptr();
+	পূর্ণাঙ্ক ret;
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	যদি (!mpxy_shmem_enabled(ms))
+		প্রত্যাগম SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel || !channel->get_notification_events)
-		return SBI_ERR_NOT_SUPPORTED;
+	যদি (!channel || !channel->get_notification_events)
+		প্রত্যাগম SBI_ERR_NOT_SUPPORTED;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
@@ -795,11 +795,11 @@ int sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
 					       events_len);
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (ret)
-		return ret;
+	যদি (ret)
+		প্রত্যাগম ret;
 
-	if (*events_len > (mpxy_shmem_size - 16))
-		return SBI_ERR_FAILED;
+	যদি (*events_len > (mpxy_shmem_size - 16))
+		প্রত্যাগম SBI_ERR_FAILED;
 
-	return SBI_SUCCESS;
+	প্রত্যাগম SBI_SUCCESS;
 }

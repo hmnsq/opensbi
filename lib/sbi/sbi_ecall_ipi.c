@@ -8,34 +8,34 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_ipi.h>
+#অন্তর্ভাব <sbi/sbi_error.h>
+#অন্তর্ভাব <sbi/sbi_ecall.h>
+#অন্তর্ভাব <sbi/sbi_ecall_interface.h>
+#অন্তর্ভাব <sbi/sbi_trap.h>
+#অন্তর্ভাব <sbi/sbi_ipi.h>
 
-static int sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+স্থির পূর্ণাঙ্ক sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
+				 সংরচনা sbi_trap_regs *regs,
+				 সংরচনা sbi_ecall_return *out)
 {
-	int ret = 0;
+	পূর্ণাঙ্ক ret = 0;
 
-	if (funcid == SBI_EXT_IPI_SEND_IPI)
+	যদি (funcid == SBI_EXT_IPI_SEND_IPI)
 		ret = sbi_ipi_send_smode(regs->a0, regs->a1);
-	else
+	অন্যথা
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	প্রত্যাগম ret;
 }
 
-struct sbi_ecall_extension ecall_ipi;
+সংরচনা sbi_ecall_extension ecall_ipi;
 
-static int sbi_ecall_ipi_register_extensions(void)
+স্থির পূর্ণাঙ্ক sbi_ecall_ipi_register_extensions(শূন্য)
 {
-	return sbi_ecall_register_extension(&ecall_ipi);
+	প্রত্যাগম sbi_ecall_register_extension(&ecall_ipi);
 }
 
-struct sbi_ecall_extension ecall_ipi = {
+সংরচনা sbi_ecall_extension ecall_ipi = {
 	.name			= "ipi",
 	.extid_start		= SBI_EXT_IPI,
 	.extid_end		= SBI_EXT_IPI,

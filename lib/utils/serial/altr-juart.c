@@ -7,9 +7,9 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#অন্তর্ভাব <sbi/riscv_io.h>
+#অন্তর্ভাব <sbi/sbi_console.h>
+#অন্তর্ভাব <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
@@ -29,46 +29,46 @@
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+স্থির চঞ্চল বর্ণ *altr_juart_base;
 
-static u32 get_reg(u32 offset)
+স্থির u32 get_reg(u32 offset)
 {
-	return readl(altr_juart_base + offset);
+	প্রত্যাগম readl(altr_juart_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+স্থির শূন্য set_reg(u32 offset, u32 val)
 {
 	writel(val, altr_juart_base + offset);
 }
 
-static void altr_juart_putc(char ch)
+স্থির শূন্য altr_juart_putc(বর্ণ ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	যাবত্(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	set_reg(JUART_DATA_OFFSET, (unsigned বর্ণ)ch);
 }
 
-static int altr_juart_getc(void)
+স্থির পূর্ণাঙ্ক altr_juart_getc(শূন্য)
 {
 	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	যদি (reg & JUART_DATA_RVALID)
+		প্রত্যাগম reg & JUART_DATA_DATA_MASK;
 
-	return -1;
+	প্রত্যাগম -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+স্থির সংরচনা sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+পূর্ণাঙ্ক altr_juart_init(unsigned long base)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_base = (চঞ্চল বর্ণ *)base;
 
 	sbi_console_set_device(&altr_juart_console);
 
-	return 0;
+	প্রত্যাগম 0;
 }
