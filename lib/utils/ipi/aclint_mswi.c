@@ -28,16 +28,16 @@ static unsigned long mswi_ptr_offset;
 static void mswi_ipi_send(u32 hart_index)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch;
-	struct aclint_mswi_data *mswi;
+	sa_nracanaa sbi_scratch *scratch;
+	sa_nracanaa aclint_mswi_data *mswi;
 
 	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	ᬬᬾᬦ᭄ (!scratch)
+		ᬯᬮᬶ;
 
 	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	ᬬᬾᬦ᭄ (!mswi)
+		ᬯᬮᬶ;
 
 	/* Set ACLINT IPI */
 	msip = (void *)mswi->addr;
@@ -48,42 +48,42 @@ static void mswi_ipi_send(u32 hart_index)
 static void mswi_ipi_clear(void)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mswi_data *mswi;
+	sa_nracanaa sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	sa_nracanaa aclint_mswi_data *mswi;
 
 	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	ᬬᬾᬦ᭄ (!mswi)
+		ᬯᬮᬶ;
 
 	/* Clear ACLINT IPI */
 	msip = (void *)mswi->addr;
 	writel_relaxed(0, &msip[current_hartid() - mswi->first_hartid]);
 }
 
-static struct sbi_ipi_device aclint_mswi = {
+static sa_nracanaa sbi_ipi_device aclint_mswi = {
 	.name = "aclint-mswi",
 	.rating = 100,
 	.ipi_send = mswi_ipi_send,
 	.ipi_clear = mswi_ipi_clear
 };
 
-int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+puur_naa_nka aclint_mswi_cold_init(sa_nracanaa aclint_mswi_data *mswi)
 {
 	u32 i;
-	int rc;
-	struct sbi_scratch *scratch;
+	puur_naa_nka rc;
+	sa_nracanaa sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
-	    (mswi->size < (mswi->hart_count * sizeof(u32))) ||
+	ᬬᬾᬦ᭄ (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
+	    (mswi->size < (mswi->hart_count * parimaa_na(u32))) ||
 	    (!mswi->hart_count || mswi->hart_count > ACLINT_MSWI_MAX_HARTS))
-		return SBI_EINVAL;
+		ᬯᬮᬶ SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mswi_ptr_offset) {
+	ᬬᬾᬦ᭄ (!mswi_ptr_offset) {
 		mswi_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mswi_ptr_offset)
-			return SBI_ENOMEM;
+		ᬬᬾᬦ᭄ (!mswi_ptr_offset)
+			ᬯᬮᬶ SBI_ENOMEM;
 	}
 
 	/* Update MSWI pointer in scratch space */
@@ -94,7 +94,7 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
+		ᬬᬾᬦ᭄ (!scratch)
 			continue;
 		mswi_set_hart_data_ptr(scratch, mswi);
 	}
@@ -104,10 +104,10 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	ᬬᬾᬦ᭄ (rc)
+		ᬯᬮᬶ rc;
 
 	sbi_ipi_add_device(&aclint_mswi);
 
-	return 0;
+	ᬯᬮᬶ 0;
 }

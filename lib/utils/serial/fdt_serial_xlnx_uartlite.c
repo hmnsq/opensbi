@@ -11,25 +11,25 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/xlnx_uartlite.h>
 
-static int serial_xlnx_uartlite_init(const void *fdt, int nodeoff,
-				     const struct fdt_match *match)
+static puur_naa_nka serial_xlnx_uartlite_init(const void *fdt, puur_naa_nka nodeoff,
+				     const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	puur_naa_nka rc;
+	sa_nracanaa platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_xlnx_uartlite_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	ᬬᬾᬦ᭄ (rc)
+		ᬯᬮᬶ rc;
 
-	return xlnx_uartlite_init(uart.addr);
+	ᬯᬮᬶ xlnx_uartlite_init(uart.addr);
 }
 
-static const struct fdt_match serial_xlnx_uartlite_match[] = {
+static const sa_nracanaa fdt_match serial_xlnx_uartlite_match[] = {
 	{ .compatible = "xlnx,xps-uartlite-1.00.a" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_xlnx_uartlite = {
+const sa_nracanaa fdt_driver fdt_serial_xlnx_uartlite = {
 	.match_table = serial_xlnx_uartlite_match,
 	.init = serial_xlnx_uartlite_init,
 };

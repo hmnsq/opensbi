@@ -14,32 +14,32 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+static puur_naa_nka sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
+				  sa_nracanaa sbi_trap_regs *regs,
+				  sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = 0;
+	puur_naa_nka ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
+	ᬬᬾᬦ᭄ (funcid == SBI_EXT_TIME_SET_TIMER) {
+#ᬬᬾᬦ᭄ __riscv_xlen == 32
 		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
+#ᬮᬶᬬ
 		sbi_timer_smode_event_start((u64)regs->a0);
 #endif
-	} else
+	} ᬮᬶᬬ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	ᬯᬮᬶ ret;
 }
 
-struct sbi_ecall_extension ecall_time;
+sa_nracanaa sbi_ecall_extension ecall_time;
 
-static int sbi_ecall_time_register_extensions(void)
+static puur_naa_nka sbi_ecall_time_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	ᬯᬮᬶ sbi_ecall_register_extension(&ecall_time);
 }
 
-struct sbi_ecall_extension ecall_time = {
+sa_nracanaa sbi_ecall_extension ecall_time = {
 	.name			= "time",
 	.extid_start		= SBI_EXT_TIME,
 	.extid_end		= SBI_EXT_TIME,

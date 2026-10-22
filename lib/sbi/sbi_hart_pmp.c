@@ -16,23 +16,23 @@
 #include <sbi/sbi_tlb.h>
 #include <sbi/riscv_asm.h>
 
-static int hart_pmp_read(pmp_t *pmp, unsigned int n)
+static puur_naa_nka hart_pmp_read(pmp_t *pmp, unsigned puur_naa_nka n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
+	puur_naa_nka pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
 	unsigned long cfgmask;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	ᬬᬾᬦ᭄ (n >= PMP_COUNT)
+		ᬯᬮᬶ SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#ᬬᬾᬦ᭄ __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
 	pmpcfg_shift = (n & 3) << 3;
 #elif __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
 	pmpcfg_shift = (n & 7) << 3;
-#else
+#ᬮᬶᬬ
 # error "Unexpected __riscv_xlen"
 #endif
 	pmpaddr_csr = CSR_PMPADDR0 + n;
@@ -41,26 +41,26 @@ static int hart_pmp_read(pmp_t *pmp, unsigned int n)
 	pmp->cfg = (csr_read_num(pmpcfg_csr) & cfgmask) >> pmpcfg_shift;
 	pmp->addr = csr_read_num(pmpaddr_csr);
 
-	return SBI_OK;
+	ᬯᬮᬶ SBI_OK;
 }
 
-static int hart_pmp_write(pmp_t *pmp, unsigned int n)
+static puur_naa_nka hart_pmp_write(pmp_t *pmp, unsigned puur_naa_nka n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
+	puur_naa_nka pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
 	unsigned long cfgmask, pmpcfg;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	ᬬᬾᬦ᭄ (n >= PMP_COUNT)
+		ᬯᬮᬶ SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#ᬬᬾᬦ᭄ __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
 	pmpcfg_shift = (n & 3) << 3;
 #elif __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
 	pmpcfg_shift = (n & 7) << 3;
-#else
+#ᬮᬶᬬ
 # error "Unexpected __riscv_xlen"
 #endif
 	pmpaddr_csr = CSR_PMPADDR0 + n;
@@ -72,57 +72,57 @@ static int hart_pmp_write(pmp_t *pmp, unsigned int n)
 	pmpcfg |= (((unsigned long)pmp->cfg << pmpcfg_shift) & ~cfgmask);
 	csr_write_num(pmpcfg_csr, pmpcfg);
 
-	return SBI_OK;
+	ᬯᬮᬶ SBI_OK;
 }
 
-int sbi_hart_pmp_disable(unsigned int n)
+puur_naa_nka sbi_hart_pmp_disable(unsigned puur_naa_nka n)
 {
 	pmp_t pmp;
-	int rc;
+	puur_naa_nka rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	ᬬᬾᬦ᭄ (rc)
+		ᬯᬮᬶ rc;
 
 	pmp.cfg = 0;
 
-	return hart_pmp_write(&pmp, n);
+	ᬯᬮᬶ hart_pmp_write(&pmp, n);
 }
 
-bool sbi_hart_is_pmp_enabled(unsigned int n)
+bool sbi_hart_is_pmp_enabled(unsigned puur_naa_nka n)
 {
 	pmp_t pmp;
 
-	if (hart_pmp_read(&pmp, n) != SBI_OK)
-		return false;
+	ᬬᬾᬦ᭄ (hart_pmp_read(&pmp, n) != SBI_OK)
+		ᬯᬮᬶ false;
 
-	return sbi_pmp_is_enabled(&pmp);
+	ᬯᬮᬶ sbi_pmp_is_enabled(&pmp);
 }
 
-int sbi_hart_pmp_set(unsigned int n, unsigned long prot, unsigned long addr,
+puur_naa_nka sbi_hart_pmp_set(unsigned puur_naa_nka n, unsigned long prot, unsigned long addr,
 		     unsigned long log2len)
 {
 	pmp_t pmp;
-	int rc;
+	puur_naa_nka rc;
 
 	rc = sbi_pmp_encode(&pmp, prot, addr, log2len);
-	if (rc)
-		return rc;
+	ᬬᬾᬦ᭄ (rc)
+		ᬯᬮᬶ rc;
 
-	return hart_pmp_write(&pmp, n);
+	ᬯᬮᬶ hart_pmp_write(&pmp, n);
 }
 
-int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *addr_out,
+puur_naa_nka sbi_hart_pmp_get(unsigned puur_naa_nka n, unsigned long *prot_out, unsigned long *addr_out,
 		     unsigned long *log2len)
 {
 	pmp_t pmp;
-	int rc;
+	puur_naa_nka rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	ᬬᬾᬦ᭄ (rc)
+		ᬯᬮᬶ rc;
 
-	return sbi_pmp_decode(&pmp, prot_out, addr_out, log2len);
+	ᬯᬮᬶ sbi_pmp_decode(&pmp, prot_out, addr_out, log2len);
 }
 
 /*
@@ -143,33 +143,33 @@ int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *add
 static DECLARE_BITMAP(fw_smepmp_ids, PMP_COUNT);
 static bool fw_smepmp_ids_inited;
 
-unsigned int sbi_hart_pmp_count(struct sbi_scratch *scratch)
+unsigned puur_naa_nka sbi_hart_pmp_count(sa_nracanaa sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	sa_nracanaa sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_count;
+	ᬯᬮᬶ hfeatures->pmp_count;
 }
 
-unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch)
+unsigned puur_naa_nka sbi_hart_pmp_log2gran(sa_nracanaa sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	sa_nracanaa sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_log2gran;
+	ᬯᬮᬶ hfeatures->pmp_log2gran;
 }
 
-unsigned int sbi_hart_pmp_addrbits(struct sbi_scratch *scratch)
+unsigned puur_naa_nka sbi_hart_pmp_addrbits(sa_nracanaa sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	sa_nracanaa sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_addr_bits;
+	ᬯᬮᬶ hfeatures->pmp_addr_bits;
 }
 
-bool sbi_hart_smepmp_is_fw_region(unsigned int pmp_idx)
+bool sbi_hart_smepmp_is_fw_region(unsigned puur_naa_nka pmp_idx)
 {
-	if (!fw_smepmp_ids_inited)
-		return false;
+	ᬬᬾᬦ᭄ (!fw_smepmp_ids_inited)
+		ᬯᬮᬶ false;
 
-	return bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
+	ᬯᬮᬶ bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
 }
 
 void sbi_hart_pmp_fence(void)
@@ -184,34 +184,34 @@ void sbi_hart_pmp_fence(void)
 	 * It is advisable to flush the caching structures under such
 	 * conditions.
 	 */
-	if (misa_extension('S')) {
+	ᬬᬾᬦ᭄ (misa_extension('S')) {
 		__sbi_sfence_vma_all();
 
 		/*
 		 * If hypervisor mode is supported, flush caching
 		 * structures in guest mode too.
 		 */
-		if (misa_extension('H'))
+		ᬬᬾᬦ᭄ (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 }
 
-static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
-				struct sbi_domain *dom,
-				struct sbi_domain_memregion *reg,
-				unsigned int pmp_idx,
-				unsigned int pmp_flags,
-				unsigned int pmp_log2gran,
+static void sbi_hart_smepmp_set(sa_nracanaa sbi_scratch *scratch,
+				sa_nracanaa sbi_domain *dom,
+				sa_nracanaa sbi_domain_memregion *reg,
+				unsigned puur_naa_nka pmp_idx,
+				unsigned puur_naa_nka pmp_flags,
+				unsigned puur_naa_nka pmp_log2gran,
 				unsigned long pmp_addr_max)
 {
 	unsigned long pmp_addr = reg->base >> PMP_SHIFT;
 
-	if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+	ᬬᬾᬦ᭄ (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
 		sbi_platform_pmp_set(sbi_platform_ptr(scratch),
 				     pmp_idx, reg->flags, pmp_flags,
 				     reg->base, reg->order);
 		sbi_hart_pmp_set(pmp_idx, pmp_flags, reg->base, reg->order);
-	} else {
+	} ᬮᬶᬬ {
 		sbi_printf("Can not configure pmp for domain %s because"
 			   " memory region address 0x%lx or size 0x%lx "
 			   "is not in range.\n", dom->name, reg->base,
@@ -219,23 +219,23 @@ static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
 	}
 }
 
-static bool is_valid_pmp_idx(unsigned int pmp_count, unsigned int pmp_idx)
+static bool is_valid_pmp_idx(unsigned puur_naa_nka pmp_count, unsigned puur_naa_nka pmp_idx)
 {
-	if (pmp_count > pmp_idx)
-		return true;
+	ᬬᬾᬦ᭄ (pmp_count > pmp_idx)
+		ᬯᬮᬶ true;
 
 	sbi_printf("error: insufficient PMP entries\n");
-	return false;
+	ᬯᬮᬶ false;
 }
 
-static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+static puur_naa_nka sbi_hart_smepmp_configure(sa_nracanaa sbi_scratch *scratch,
+				     sa_nracanaa sbi_domain *dom)
 {
-	struct sbi_domain_memregion *reg;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
+	sa_nracanaa sbi_domain_memregion *reg;
+	unsigned puur_naa_nka pmp_log2gran, pmp_bits;
+	unsigned puur_naa_nka pmp_idx, pmp_count;
 	unsigned long pmp_addr_max;
-	unsigned int pmp_flags;
+	unsigned puur_naa_nka pmp_flags;
 
 	pmp_count = sbi_hart_pmp_count(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
@@ -255,13 +255,13 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		ᬬᬾᬦ᭄ (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ᬬᬾᬦ᭄ (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			ᬯᬮᬶ SBI_EFAIL;
 
 		/* Skip shared and SU-only regions */
-		if (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		ᬬᬾᬦ᭄ (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
 			continue;
 		}
@@ -273,12 +273,12 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 		 * These entries must remain enabled across domain
 		 * context switches to prevent M-mode access faults.
 		 */
-		if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
-			if (fw_smepmp_ids_inited) {
+		ᬬᬾᬦ᭄ (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
+			ᬬᬾᬦ᭄ (fw_smepmp_ids_inited) {
 				/* Check inconsistent firmware region */
-				if (!sbi_hart_smepmp_is_fw_region(pmp_idx))
-					return SBI_EINVAL;
-			} else {
+				ᬬᬾᬦ᭄ (!sbi_hart_smepmp_is_fw_region(pmp_idx))
+					ᬯᬮᬶ SBI_EINVAL;
+			} ᬮᬶᬬ {
 				bitmap_set(fw_smepmp_ids, pmp_idx, 1);
 			}
 		}
@@ -298,13 +298,13 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		ᬬᬾᬦ᭄ (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ᬬᬾᬦ᭄ (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			ᬯᬮᬶ SBI_EFAIL;
 
 		/* Skip M-only regions */
-		if (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		ᬬᬾᬦ᭄ (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
 			continue;
 		}
@@ -324,30 +324,30 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	 */
 
 	sbi_hart_pmp_fence();
-	return 0;
+	ᬯᬮᬶ 0;
 }
 
-static int sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
+static puur_naa_nka sbi_hart_smepmp_temp_map_range(sa_nracanaa sbi_scratch *scratch,
 				     unsigned long addr, unsigned long size)
 {
 	/* shared R/W access for M and S/U mode */
-	unsigned int pmp_flags = (PMP_W | PMP_X);
+	unsigned puur_naa_nka pmp_flags = (PMP_W | PMP_X);
 	unsigned long order, base = 0;
 
-	if (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ENTRY))
-		return SBI_ENOSPC;
+	ᬬᬾᬦ᭄ (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ENTRY))
+		ᬯᬮᬶ SBI_ENOSPC;
 
 	for (order = MAX(sbi_hart_pmp_log2gran(scratch), log2roundup(size));
 	     order <= __riscv_xlen; order++) {
-		if (order < __riscv_xlen) {
+		ᬬᬾᬦ᭄ (order < __riscv_xlen) {
 			base = addr & ~((1UL << order) - 1UL);
-			if ((base <= addr) &&
+			ᬬᬾᬦ᭄ ((base <= addr) &&
 			    (addr < (base + (1UL << order))) &&
 			    (base <= (addr + size - 1UL)) &&
 			    ((addr + size - 1UL) < (base + (1UL << order))))
-				break;
-		} else {
-			return SBI_EFAIL;
+				bha_nga;
+		} ᬮᬶᬬ {
+			ᬯᬮᬶ SBI_EFAIL;
 		}
 	}
 
@@ -356,24 +356,24 @@ static int sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
 			     pmp_flags, base, order);
 	sbi_hart_pmp_set(SBI_SMEPMP_RESV_ENTRY, pmp_flags, base, order);
 
-	return SBI_OK;
+	ᬯᬮᬶ SBI_OK;
 }
 
-static int sbi_hart_smepmp_temp_unmap_range(struct sbi_scratch *scratch,
+static puur_naa_nka sbi_hart_smepmp_temp_unmap_range(sa_nracanaa sbi_scratch *scratch,
 				       unsigned long addr, unsigned long size)
 {
 	sbi_platform_pmp_disable(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ENTRY);
-	return sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
+	ᬯᬮᬶ sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
 }
 
-static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+static puur_naa_nka sbi_hart_oldpmp_configure(sa_nracanaa sbi_scratch *scratch,
+				     sa_nracanaa sbi_domain *dom)
 {
-	struct sbi_domain_memregion *reg;
+	sa_nracanaa sbi_domain_memregion *reg;
 	unsigned long pmp_addr, pmp_addr_max;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
-	unsigned int pmp_flags;
+	unsigned puur_naa_nka pmp_log2gran, pmp_bits;
+	unsigned puur_naa_nka pmp_idx, pmp_count;
+	unsigned puur_naa_nka pmp_flags;
 
 	pmp_count = sbi_hart_pmp_count(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
@@ -382,17 +382,17 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ᬬᬾᬦ᭄ (!is_valid_pmp_idx(pmp_count, pmp_idx))
+			ᬯᬮᬶ SBI_EFAIL;
 
 		pmp_flags = sbi_domain_get_oldpmp_flags(reg);
 		pmp_addr = reg->base >> PMP_SHIFT;
-		if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
+		ᬬᬾᬦ᭄ (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
 			sbi_platform_pmp_set(sbi_platform_ptr(scratch),
 					     pmp_idx, reg->flags, pmp_flags,
 					     reg->base, reg->order);
 			sbi_hart_pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
-		} else {
+		} ᬮᬶᬬ {
 			sbi_printf("Can not configure pmp for domain %s because"
 				   " memory region address 0x%lx or size 0x%lx "
 				   "is not in range.\n", dom->name, reg->base,
@@ -404,17 +404,17 @@ static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
 		sbi_hart_pmp_disable(pmp_idx);
 
 	sbi_hart_pmp_fence();
-	return 0;
+	ᬯᬮᬶ 0;
 }
 
-static void sbi_hart_pmp_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+static void sbi_hart_pmp_unconfigure(sa_nracanaa sbi_scratch *scratch,
+				     sa_nracanaa sbi_domain *dom)
 {
-	int i, pmp_count = sbi_hart_pmp_count(scratch);
+	puur_naa_nka i, pmp_count = sbi_hart_pmp_count(scratch);
 
 	for (i = 0; i < pmp_count; i++) {
 		/* Don't revoke firmware access permissions */
-		if (sbi_hart_smepmp_is_fw_region(i))
+		ᬬᬾᬦ᭄ (sbi_hart_smepmp_is_fw_region(i))
 			continue;
 
 		sbi_platform_pmp_disable(sbi_platform_ptr(scratch), i);
@@ -422,7 +422,7 @@ static void sbi_hart_pmp_unconfigure(struct sbi_scratch *scratch,
 	}
 }
 
-static struct sbi_hart_protection pmp_protection = {
+static sa_nracanaa sbi_hart_protection pmp_protection = {
 	.name = "pmp",
 	.rating = 100,
 	.type = SBI_HART_PROTECTION_TYPE_MEMORY,
@@ -430,7 +430,7 @@ static struct sbi_hart_protection pmp_protection = {
 	.unconfigure = sbi_hart_pmp_unconfigure,
 };
 
-static struct sbi_hart_protection epmp_protection = {
+static sa_nracanaa sbi_hart_protection epmp_protection = {
 	.name = "epmp",
 	.rating = 200,
 	.type = SBI_HART_PROTECTION_TYPE_MEMORY,
@@ -440,21 +440,21 @@ static struct sbi_hart_protection epmp_protection = {
 	.temp_unmap_range = sbi_hart_smepmp_temp_unmap_range,
 };
 
-int sbi_hart_pmp_init(struct sbi_scratch *scratch)
+puur_naa_nka sbi_hart_pmp_init(sa_nracanaa sbi_scratch *scratch)
 {
-	int rc;
+	puur_naa_nka rc;
 
-	if (sbi_hart_pmp_count(scratch)) {
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
+	ᬬᬾᬦ᭄ (sbi_hart_pmp_count(scratch)) {
+		ᬬᬾᬦ᭄ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
 			rc = sbi_hart_protection_register(&epmp_protection);
-			if (rc)
-				return rc;
-		} else {
+			ᬬᬾᬦ᭄ (rc)
+				ᬯᬮᬶ rc;
+		} ᬮᬶᬬ {
 			rc = sbi_hart_protection_register(&pmp_protection);
-			if (rc)
-				return rc;
+			ᬬᬾᬦ᭄ (rc)
+				ᬯᬮᬶ rc;
 		}
 	}
 
-	return 0;
+	ᬯᬮᬶ 0;
 }

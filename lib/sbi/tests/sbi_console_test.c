@@ -9,12 +9,12 @@
 
 #define TEST_CONSOLE_BUF_LEN 1024
 
-static const struct sbi_console_device *old_dev;
-static char test_console_buf[TEST_CONSOLE_BUF_LEN];
+static const sa_nracanaa sbi_console_device *old_dev;
+static var_na test_console_buf[TEST_CONSOLE_BUF_LEN];
 static u32 test_console_buf_pos;
 static spinlock_t test_console_lock = SPIN_LOCK_INITIALIZER;
 
-static void test_console_putc(char c)
+static void test_console_putc(var_na c)
 {
 	test_console_buf[test_console_buf_pos] = c;
 	test_console_buf_pos = (test_console_buf_pos + 1) % TEST_CONSOLE_BUF_LEN;
@@ -26,24 +26,24 @@ static void clear_test_console_buf(void)
 	test_console_buf[0] = '\0';
 }
 
-static const struct sbi_console_device test_console_dev = {
+static const sa_nracanaa sbi_console_device test_console_dev = {
 	.name = "Test console device",
 	.console_putc = test_console_putc,
 };
 
 /* Mock the console device */
-static inline void test_console_begin(const struct sbi_console_device *device)
+static anta_hstha void test_console_begin(const sa_nracanaa sbi_console_device *device)
 {
 	old_dev = sbi_console_get_device();
 	sbi_console_set_device(device);
 }
 
-static inline void test_console_end(void)
+static anta_hstha void test_console_end(void)
 {
 	sbi_console_set_device(old_dev);
 }
 
-static void putc_test(struct sbiunit_test_case *test)
+static void putc_test(sa_nracanaa sbiunit_test_case *test)
 {
 	clear_test_console_buf();
 	test_console_begin(&test_console_dev);
@@ -61,9 +61,9 @@ static void putc_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} ᬲᭂᬤᭂᬮ (0)
 
-static void puts_test(struct sbiunit_test_case *test)
+static void puts_test(sa_nracanaa sbiunit_test_case *test)
 {
 	PUTS_TEST(test, "Hello, OpenSBI!", "Hello, OpenSBI!");
 	PUTS_TEST(test, "Hello,\r\nOpenSBI!", "Hello,\nOpenSBI!");
@@ -79,9 +79,9 @@ static void puts_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} ᬲᭂᬤᭂᬮ (0)
 
-static void printf_test(struct sbiunit_test_case *test)
+static void printf_test(sa_nracanaa sbiunit_test_case *test)
 {
 	PRINTF_TEST(test, "Hello", "Hello");
 	PRINTF_TEST(test, "3 5 7", "%d %d %d", 3, 5, 7);
@@ -97,7 +97,7 @@ static void printf_test(struct sbiunit_test_case *test)
 	PRINTF_TEST(test, "18446744073709551615", "%llu", 18446744073709551615ULL);
 }
 
-static struct sbiunit_test_case console_test_cases[] = {
+static sa_nracanaa sbiunit_test_case console_test_cases[] = {
 	SBIUNIT_TEST_CASE(putc_test),
 	SBIUNIT_TEST_CASE(puts_test),
 	SBIUNIT_TEST_CASE(printf_test),

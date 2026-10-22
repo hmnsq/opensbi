@@ -12,29 +12,29 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+static puur_naa_nka serial_altr_juart_init(const void *fdt, puur_naa_nka nodeoff,
+				  const sa_nracanaa fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	puur_naa_nka rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	ᬬᬾᬦ᭄ (nodeoff < 0 || !fdt)
+		ᬯᬮᬶ SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	ᬬᬾᬦ᭄ (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
+		ᬯᬮᬶ SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	ᬯᬮᬶ altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+static const sa_nracanaa fdt_match serial_altr_juart_match[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
+const sa_nracanaa fdt_driver fdt_serial_altr_juart = {
 	.match_table = serial_altr_juart_match,
 	.init = serial_altr_juart_init,
 };
