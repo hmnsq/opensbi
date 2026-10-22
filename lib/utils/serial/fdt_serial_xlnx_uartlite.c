@@ -7,29 +7,29 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/serial/fdt_serial.h>
+#అన్తర్భావ <sbi_utils/serial/xlnx_uartlite.h>
 
-static int serial_xlnx_uartlite_init(const void *fdt, int nodeoff,
-				     const struct fdt_match *match)
+స్థిర పూర్ణాంకం serial_xlnx_uartlite_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				     స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	పూర్ణాంకం rc;
+	నిర్మాణం platform_uart_దత్తాంశం uart = { 0 };
 
-	rc = fdt_parse_xlnx_uartlite_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_xlnx_uartlite_కణుపు(fdt, nodeoff, &uart);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return xlnx_uartlite_init(uart.addr);
+	తిరిగి xlnx_uartlite_init(uart.addr);
 }
 
-static const struct fdt_match serial_xlnx_uartlite_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక serial_xlnx_uartlite_సరిపోలిక[] = {
 	{ .compatible = "xlnx,xps-uartlite-1.00.a" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_xlnx_uartlite = {
-	.match_table = serial_xlnx_uartlite_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_serial_xlnx_uartlite = {
+	.సరిపోలిక_పట్టిక = serial_xlnx_uartlite_సరిపోలిక,
 	.init = serial_xlnx_uartlite_init,
 };

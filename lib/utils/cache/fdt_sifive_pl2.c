@@ -4,45 +4,45 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi_utils/cache/fdt_cache.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
 
-#define FLUSH64_CMD_TARGET_ALL		(0x2 << 3)
-#define FLUSH64_CMD_TYPE_FLUSH		0x3ULL
+#నిర్వచించు FLUSH64_CMD_లక్ష్యం_ALL		(0x2 << 3)
+#నిర్వచించు FLUSH64_CMD_TYPE_FLUSH		0x3ULL
 
-#define SIFIVE_PL2CACHE_CMD_QLEN	0xff
+#నిర్వచించు SIFIVE_PL2CACHE_CMD_QLEN	0xff
 
-#define SIFIVE_PL2CACHE_FLUSH64_OFF	0x200ULL
-#define SIFIVE_PL2CACHE_STATUS_OFF	0x208ULL
-#define SIFIVE_PL2CACHE_CONFIG1_OFF	0x1000ULL
-#define SIFIVE_PL2CACHE_CONFIG0_OFF	0x1008ULL
+#నిర్వచించు SIFIVE_PL2CACHE_FLUSH64_OFF	0x200ULL
+#నిర్వచించు SIFIVE_PL2_CACHE_స్థితి_OFF	0x208ULL
+#నిర్వచించు SIFIVE_PL2CACHE_CONFIG1_OFF	0x1000ULL
+#నిర్వచించు SIFIVE_PL2CACHE_CONFIG0_OFF	0x1008ULL
 
-#define FLUSH64_CMD_POS			56
-#define REGIONCLOCKDISABLE_MASK		BIT(3)
+#నిర్వచించు FLUSH64_CMD_POS			56
+#నిర్వచించు REGIONCLOCKDISABLE_ముసుగు		బిట్టు(3)
 
-#define CONFIG0_ACCEPT_DIRTY_DATA_ENABLE	BIT(24)
+#నిర్వచించు CONFIG0_ACCEPT_DIRTY_దత్తాంశం_ENABLE	బిట్టు(24)
 
-struct sifive_pl2_quirks {
+నిర్మాణం sifive_pl2_quirks {
 	bool no_dirty_fill;
 };
 
-struct sifive_pl2 {
-	struct cache_device dev;
-	void *addr;
+నిర్మాణం sifive_pl2 {
+	నిర్మాణం cache_device dev;
+	శూన్య *addr;
 	bool no_dirty_fill;
 };
 
-#define to_pl2(_dev) container_of(_dev, struct sifive_pl2, dev)
+#నిర్వచించు గమ్యం_pl2(_dev) container_యొక్క(_dev, నిర్మాణం sifive_pl2, dev)
 
-static int sifive_pl2_flush_all(struct cache_device *dev)
+స్థిర పూర్ణాంకం sifive_pl2_flush_all(నిర్మాణం cache_device *dev)
 {
-	struct sifive_pl2 *pl2_dev = to_pl2(dev);
-	char *addr = pl2_dev->addr;
-	u64 cmd = (FLUSH64_CMD_TARGET_ALL | FLUSH64_CMD_TYPE_FLUSH) << FLUSH64_CMD_POS;
+	నిర్మాణం sifive_pl2 *pl2_dev = గమ్యం_pl2(dev);
+	అక్షరం *addr = pl2_dev->addr;
+	u64 cmd = (FLUSH64_CMD_లక్ష్యం_ALL | FLUSH64_CMD_TYPE_FLUSH) << FLUSH64_CMD_POS;
 	u32 config0;
 
 	/*
@@ -50,90 +50,90 @@ static int sifive_pl2_flush_all(struct cache_device *dev)
 	 * into PL2. It will cause the SiFive SMC0 refuse to enter the power gating.
 	 * Disable the ACCEPT_DIRTY_DATA_ENABLE to avoid the issue.
 	 */
-	if (pl2_dev->no_dirty_fill) {
-		config0 = readl((void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
-		config0 &= ~CONFIG0_ACCEPT_DIRTY_DATA_ENABLE;
-		writel(config0, (void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
+	ఒకవేళ (pl2_dev->no_dirty_fill) {
+		config0 = readl((శూన్య *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
+		config0 &= ~CONFIG0_ACCEPT_DIRTY_దత్తాంశం_ENABLE;
+		writel(config0, (శూన్య *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
 	}
 
-#if __riscv_xlen != 32
+#ఒకవేళ __riscv_xlen != 32
 	writeq(cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
-#else
+#లేకపోతే
 	writel((u32)cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
-	writel((u32)(cmd >> 32), addr + SIFIVE_PL2CACHE_FLUSH64_OFF + sizeof(u32));
-#endif
-	do {} while (readl(addr + SIFIVE_PL2CACHE_STATUS_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
+	writel((u32)(cmd >> 32), addr + SIFIVE_PL2CACHE_FLUSH64_OFF + పరిమాణం(u32));
+#అయితే_ముగింపు
+	చేయి {} అయితే (readl(addr + SIFIVE_PL2_CACHE_స్థితి_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sifive_pl2_warm_init(struct cache_device *dev)
+స్థిర పూర్ణాంకం sifive_pl2_warm_init(నిర్మాణం cache_device *dev)
 {
-	struct sifive_pl2 *pl2_dev = to_pl2(dev);
-	char *addr = pl2_dev->addr;
+	నిర్మాణం sifive_pl2 *pl2_dev = గమ్యం_pl2(dev);
+	అక్షరం *addr = pl2_dev->addr;
 	u32 val;
 
 	/* Enabling the clock gating */
 	val = readl(addr + SIFIVE_PL2CACHE_CONFIG1_OFF);
-	val &= (~REGIONCLOCKDISABLE_MASK);
+	val &= (~REGIONCLOCKDISABLE_ముసుగు);
 	writel(val, addr + SIFIVE_PL2CACHE_CONFIG1_OFF);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static struct cache_ops sifive_pl2_ops = {
+స్థిర నిర్మాణం cache_ops sifive_pl2_ops = {
 	.warm_init = sifive_pl2_warm_init,
 	.cache_flush_all = sifive_pl2_flush_all,
 };
 
-static int sifive_pl2_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+స్థిర పూర్ణాంకం sifive_pl2_cold_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	const struct sifive_pl2_quirks *quirk = match->data;
-	struct sifive_pl2 *pl2_dev;
-	struct cache_device *dev;
+	స్థిరరాశి నిర్మాణం sifive_pl2_quirks *quirk = సరిపోలిక->దత్తాంశం;
+	నిర్మాణం sifive_pl2 *pl2_dev;
+	నిర్మాణం cache_device *dev;
 	u64 reg_addr;
-	int rc;
+	పూర్ణాంకం rc;
 
 	/* find the pl2 control base address */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 && reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, ఖాళీ);
+	ఒకవేళ (rc < 0 && reg_addr)
+		తిరిగి SBI_ENODEV;
 
-	pl2_dev = sbi_zalloc(sizeof(*pl2_dev));
-	if (!pl2_dev)
-		return SBI_ENOMEM;
+	pl2_dev = sbi_zalloc(పరిమాణం(*pl2_dev));
+	ఒకవేళ (!pl2_dev)
+		తిరిగి SBI_ENOMEM;
 
 	dev = &pl2_dev->dev;
 	dev->ops = &sifive_pl2_ops;
-	dev->cpu_private = true;
+	dev->cpu_వ్యక్తిగత = true;
 
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc)
-		return rc;
+	rc = fdt_cache_కూడు(fdt, nodeoff, dev);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	pl2_dev->addr = (void *)(uintptr_t)reg_addr;
-	if (quirk)
+	pl2_dev->addr = (శూన్య *)(uintptr_t)reg_addr;
+	ఒకవేళ (quirk)
 		pl2_dev->no_dirty_fill = quirk->no_dirty_fill;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct sifive_pl2_quirks pl2cache2_quirks = {
+స్థిర స్థిరరాశి నిర్మాణం sifive_pl2_quirks pl2cache2_quirks = {
 	.no_dirty_fill = true,
 };
 
-static const struct sifive_pl2_quirks pl2cache0_quirks = {
+స్థిర స్థిరరాశి నిర్మాణం sifive_pl2_quirks pl2cache0_quirks = {
 	.no_dirty_fill = false,
 };
 
-static const struct fdt_match sifive_pl2_match[] = {
-	{ .compatible = "sifive,pl2cache2", .data = &pl2cache2_quirks },
-	{ .compatible = "sifive,pl2cache1", .data = &pl2cache0_quirks },
-	{ .compatible = "sifive,pl2cache0", .data = &pl2cache0_quirks },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక sifive_pl2_సరిపోలిక[] = {
+	{ .compatible = "sifive,pl2cache2", .దత్తాంశం = &pl2cache2_quirks },
+	{ .compatible = "sifive,pl2cache1", .దత్తాంశం = &pl2cache0_quirks },
+	{ .compatible = "sifive,pl2cache0", .దత్తాంశం = &pl2cache0_quirks },
 	{},
 };
 
-struct fdt_driver fdt_sifive_pl2 = {
-	.match_table = sifive_pl2_match,
+నిర్మాణం fdt_driver fdt_sifive_pl2 = {
+	.సరిపోలిక_పట్టిక = sifive_pl2_సరిపోలిక,
 	.init = sifive_pl2_cold_init,
 };

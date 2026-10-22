@@ -7,281 +7,281 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_list.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
-#define HEAP_ALLOC_ALIGN		64
+#నిర్వచించు కుప్ప_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#నిర్వచించు కుప్ప_కణుపు_BATCH_కొలత		8
 
-struct heap_node {
-	struct sbi_dlist head;
-	unsigned long addr;
-	unsigned long size;
+నిర్మాణం కుప్ప_కణుపు {
+	నిర్మాణం sbi_dlist తల;
+	గుర్తులేని దీర్ఘ addr;
+	గుర్తులేని దీర్ఘ కొలత;
 };
 
-struct sbi_heap_control {
-	spinlock_t lock;
-	unsigned long base GUARDED_BY(&lock);
-	unsigned long size GUARDED_BY(&lock);
-	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+నిర్మాణం sbi_కుప్ప_control {
+	spinlock_t తాళం_2;
+	గుర్తులేని దీర్ఘ పునాది_2 GUARDED_BY(&తాళం_2);
+	గుర్తులేని దీర్ఘ కొలత GUARDED_BY(&తాళం_2);
+	గుర్తులేని దీర్ఘ resv GUARDED_BY(&తాళం_2);
+	నిర్మాణం sbi_dlist free_కణుపు_list GUARDED_BY(&తాళం_2);
+	నిర్మాణం sbi_dlist free_space_list GUARDED_BY(&తాళం_2);
+	నిర్మాణం sbi_dlist వాడిన_space_list GUARDED_BY(&తాళం_2);
+	నిర్మాణం కుప్ప_కణుపు init_free_space_కణుపు GUARDED_BY(&తాళం_2);
 };
 
-struct sbi_heap_control global_hpctrl;
+నిర్మాణం sbi_కుప్ప_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+స్థిర bool alloc_nodes(నిర్మాణం sbi_కుప్ప_control *hpctrl) MUST_HOLD(&hpctrl->తాళం_2)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t కొలత = కుప్ప_కణుపు_BATCH_కొలత * పరిమాణం(నిర్మాణం కుప్ప_కణుపు);
+	నిర్మాణం కుప్ప_కణుపు *n, *new = ఖాళీ;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	ఒకవేళ (hpctrl->free_కణుపు_list.తదుపరి != hpctrl->free_కణుపు_list.prev)
+		తిరిగి true;
 
-	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
-			n->size -= size;
-			if (!n->size) {
-				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+	sbi_list_for_each_నమోదు_తిరగేయి(n, &hpctrl->free_space_list, తల) {
+		ఒకవేళ (n->కొలత >= కొలత) {
+			n->కొలత -= కొలత;
+			ఒకవేళ (!n->కొలత) {
+				sbi_list_del(&n->తల);
+				sbi_list_కూడు_తోక(&n->తల, &hpctrl->free_కణుపు_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (శూన్య *)(n->addr + n->కొలత);
+			ఆపు;
 		}
 	}
-	if (!new)
-		return false;
+	ఒకవేళ (!new)
+		తిరిగి false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
-	hpctrl->resv += size;
+	కొరకు (size_t i = 0; i < కుప్ప_కణుపు_BATCH_కొలత; i++)
+		sbi_list_కూడు_తోక(&new[i].తల, &hpctrl->free_కణుపు_list);
+	hpctrl->resv += కొలత;
 
-	return true;
+	తిరిగి true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
-			      size_t size)
-	MUST_NOT_HOLD(&hpctrl->lock)
+స్థిర శూన్య *alloc_with_align(నిర్మాణం sbi_కుప్ప_control *hpctrl, size_t align,
+			      size_t కొలత)
+	MUST_NOT_HOLD(&hpctrl->తాళం_2)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
-	unsigned long lowest_aligned;
+	శూన్య *ret = ఖాళీ;
+	నిర్మాణం కుప్ప_కణుపు *n, *np;
+	గుర్తులేని దీర్ఘ అత్యల్ప_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	ఒకవేళ (!కొలత)
+		తిరిగి ఖాళీ;
 
-	size += align - 1;
-	size &= ~((unsigned long)align - 1);
+	కొలత += align - 1;
+	కొలత &= ~((గుర్తులేని దీర్ఘ)align - 1);
 
-	spin_lock(&hpctrl->lock);
+	spin_తాళం(&hpctrl->తాళం_2);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	ఒకవేళ (!alloc_nodes(hpctrl))
+		వెళ్ళు బహిర్గతం;
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		lowest_aligned = ROUNDUP(n->addr, align);
-		pad = lowest_aligned - n->addr;
+	np = ఖాళీ;
+	sbi_list_for_each_నమోదు(n, &hpctrl->free_space_list, తల) {
+		అత్యల్ప_aligned = ROUNDUP(n->addr, align);
+		pad = అత్యల్ప_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		ఒకవేళ (కొలత + pad <= n->కొలత) {
 			np = n;
-			break;
+			ఆపు;
 		}
 	}
-	if (!np)
-		goto out;
+	ఒకవేళ (!np)
+		వెళ్ళు బహిర్గతం;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	ఒకవేళ (pad) {
+		n = sbi_list_మొదటి_నమోదు(&hpctrl->free_కణుపు_list,
+					 నిర్మాణం కుప్ప_కణుపు, తల);
+		sbi_list_del(&n->తల);
 
 		n->addr = np->addr;
-		n->size = pad;
-		sbi_list_add_tail(&n->head, &np->head);
+		n->కొలత = pad;
+		sbi_list_కూడు_తోక(&n->తల, &np->తల);
 
 		np->addr += pad;
-		np->size -= pad;
+		np->కొలత -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	ఒకవేళ (కొలత < np->కొలత) {
+		n = sbi_list_మొదటి_నమోదు(&hpctrl->free_కణుపు_list,
+					 నిర్మాణం కుప్ప_కణుపు, తల);
+		sbi_list_del(&n->తల);
 
-		n->addr = np->addr + size;
-		n->size = np->size - size;
-		sbi_list_add(&n->head, &np->head);
+		n->addr = np->addr + కొలత;
+		n->కొలత = np->కొలత - కొలత;
+		sbi_list_కూడు(&n->తల, &np->తల);
 
-		np->size = size;
+		np->కొలత = కొలత;
 	}
 
-	sbi_list_del(&np->head);
-	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	sbi_list_del(&np->తల);
+	sbi_list_కూడు_తోక(&np->తల, &hpctrl->వాడిన_space_list);
+	ret = (శూన్య *)np->addr;
 
-out:
-	spin_unlock(&hpctrl->lock);
+బహిర్గతం:
+	spin_unlock(&hpctrl->తాళం_2);
 
-	return ret;
+	తిరిగి ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+శూన్య *sbi_malloc_from(నిర్మాణం sbi_కుప్ప_control *hpctrl, size_t కొలత)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	తిరిగి alloc_with_align(hpctrl, కుప్ప_ALLOC_ALIGN, కొలత);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
-			     size_t alignment, size_t size)
+శూన్య *sbi_aligned_alloc_from(నిర్మాణం sbi_కుప్ప_control *hpctrl,
+			     size_t alignment, size_t కొలత)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
-		alignment = HEAP_ALLOC_ALIGN;
+	ఒకవేళ (alignment < కుప్ప_ALLOC_ALIGN)
+		alignment = కుప్ప_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	ఒకవేళ ((alignment & (alignment - 1)) != 0)
+		తిరిగి ఖాళీ;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	ఒకవేళ (కొలత % alignment != 0)
+		తిరిగి ఖాళీ;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	తిరిగి alloc_with_align(hpctrl, alignment, కొలత);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+శూన్య *sbi_zalloc_from(నిర్మాణం sbi_కుప్ప_control *hpctrl, size_t కొలత)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	శూన్య *ret = sbi_malloc_from(hpctrl, కొలత);
 
-	if (ret)
-		sbi_memset(ret, 0, size);
-	return ret;
+	ఒకవేళ (ret)
+		sbi_memset(ret, 0, కొలత);
+	తిరిగి ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+శూన్య sbi_free_from(నిర్మాణం sbi_కుప్ప_control *hpctrl, శూన్య *ptr)
 {
-	struct heap_node *n, *np;
+	నిర్మాణం కుప్ప_కణుపు *n, *np;
 
-	if (!ptr)
-		return;
+	ఒకవేళ (!ptr)
+		తిరిగి;
 
-	spin_lock(&hpctrl->lock);
+	spin_తాళం(&hpctrl->తాళం_2);
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
-		    ((unsigned long)ptr < (n->addr + n->size))) {
+	np = ఖాళీ;
+	sbi_list_for_each_నమోదు(n, &hpctrl->వాడిన_space_list, తల) {
+		ఒకవేళ ((n->addr <= (గుర్తులేని దీర్ఘ)ptr) &&
+		    ((గుర్తులేని దీర్ఘ)ptr < (n->addr + n->కొలత))) {
 			np = n;
-			break;
+			ఆపు;
 		}
 	}
-	if (!np) {
-		spin_unlock(&hpctrl->lock);
-		return;
+	ఒకవేళ (!np) {
+		spin_unlock(&hpctrl->తాళం_2);
+		తిరిగి;
 	}
 
-	sbi_list_del(&np->head);
+	sbi_list_del(&np->తల);
 
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+	sbi_list_for_each_నమోదు(n, &hpctrl->free_space_list, తల) {
+		ఒకవేళ ((np->addr + np->కొలత) == n->addr) {
 			n->addr = np->addr;
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
-			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			n->కొలత += np->కొలత;
+			sbi_list_కూడు_తోక(&np->తల, &hpctrl->free_కణుపు_list);
+			np = ఖాళీ;
+			ఆపు;
+		} లేకపోతే ఒకవేళ (np->addr == (n->addr + n->కొలత)) {
+			n->కొలత += np->కొలత;
+			sbi_list_కూడు_తోక(&np->తల, &hpctrl->free_కణుపు_list);
+			np = ఖాళీ;
+			ఆపు;
+		} లేకపోతే ఒకవేళ ((n->addr + n->కొలత) < np->addr) {
+			sbi_list_కూడు(&np->తల, &n->తల);
+			np = ఖాళీ;
+			ఆపు;
 		}
 	}
-	if (np)
-		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
+	ఒకవేళ (np)
+		sbi_list_కూడు_తోక(&np->తల, &hpctrl->free_space_list);
 
-	spin_unlock(&hpctrl->lock);
+	spin_unlock(&hpctrl->తాళం_2);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+గుర్తులేని దీర్ఘ sbi_కుప్ప_free_space_from(నిర్మాణం sbi_కుప్ప_control *hpctrl)
 {
-	struct heap_node *n;
-	unsigned long ret = 0;
+	నిర్మాణం కుప్ప_కణుపు *n;
+	గుర్తులేని దీర్ఘ ret = 0;
 
-	spin_lock(&hpctrl->lock);
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head)
-		ret += n->size;
-	spin_unlock(&hpctrl->lock);
+	spin_తాళం(&hpctrl->తాళం_2);
+	sbi_list_for_each_నమోదు(n, &hpctrl->free_space_list, తల)
+		ret += n->కొలత;
+	spin_unlock(&hpctrl->తాళం_2);
 
-	return ret;
+	తిరిగి ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+గుర్తులేని దీర్ఘ sbi_కుప్ప_వాడిన_space_from(నిర్మాణం sbi_కుప్ప_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	తిరిగి hpctrl->కొలత - hpctrl->resv - sbi_కుప్ప_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+గుర్తులేని దీర్ఘ sbi_కుప్ప_reserved_space_from(నిర్మాణం sbi_కుప్ప_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	తిరిగి hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
-		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
+పూర్ణాంకం sbi_కుప్ప_init_new(నిర్మాణం sbi_కుప్ప_control *hpctrl, గుర్తులేని దీర్ఘ పునాది_2,
+		      గుర్తులేని దీర్ఘ కొలత) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	నిర్మాణం కుప్ప_కణుపు *n;
 
 	/* Initialize heap control */
-	SPIN_LOCK_INIT(hpctrl->lock);
-	hpctrl->base = base;
-	hpctrl->size = size;
+	SPIN_తాళం_INIT(hpctrl->తాళం_2);
+	hpctrl->పునాది_2 = పునాది_2;
+	hpctrl->కొలత = కొలత;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
+	SBI_INIT_LIST_తల(&hpctrl->free_కణుపు_list);
+	SBI_INIT_LIST_తల(&hpctrl->free_space_list);
+	SBI_INIT_LIST_తల(&hpctrl->వాడిన_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
-	n->addr = base;
-	n->size = size;
-	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
+	n = &hpctrl->init_free_space_కణుపు;
+	n->addr = పునాది_2;
+	n->కొలత = కొలత;
+	sbi_list_కూడు_తోక(&n->తల, &hpctrl->free_space_list);
 
-	return 0;
+	తిరిగి 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+పూర్ణాంకం sbi_కుప్ప_init(నిర్మాణం sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
-	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
-	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
-	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
-	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+	ఒకవేళ (!scratch->fw_కుప్ప_కొలత ||
+	    (scratch->fw_కుప్ప_కొలత & (కుప్ప_పునాది_ALIGN - 1)) ||
+	    (scratch->fw_కుప్ప_స్థానభ్రంశం < scratch->fw_rw_స్థానభ్రంశం) ||
+	    (scratch->fw_కొలత < (scratch->fw_కుప్ప_స్థానభ్రంశం + scratch->fw_కుప్ప_కొలత)) ||
+	    (scratch->fw_కుప్ప_స్థానభ్రంశం & (కుప్ప_పునాది_ALIGN - 1)))
+		తిరిగి SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
-				  scratch->fw_start + scratch->fw_heap_offset,
-				  scratch->fw_heap_size);
+	తిరిగి sbi_కుప్ప_init_new(&global_hpctrl,
+				  scratch->fw_ప్రారంభం + scratch->fw_కుప్ప_స్థానభ్రంశం,
+				  scratch->fw_కుప్ప_కొలత);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+పూర్ణాంకం sbi_కుప్ప_alloc_new(నిర్మాణం sbi_కుప్ప_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, పరిమాణం(నిర్మాణం sbi_కుప్ప_control));
+	తిరిగి 0;
 }

@@ -8,177 +8,177 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/irqchip/aplic.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi_utils/irqchip/aplic.h>
 
-#define APLIC_MAX_IDC			(1UL << 14)
-#define APLIC_MAX_SOURCE		1024
+#నిర్వచించు APLIC_MAX_IDC			(1UL << 14)
+#నిర్వచించు APLIC_MAX_ఆధారం		1024
 
-#define APLIC_DOMAINCFG		0x0000
-#define APLIC_DOMAINCFG_IE		(1 << 8)
-#define APLIC_DOMAINCFG_DM		(1 << 2)
-#define APLIC_DOMAINCFG_BE		(1 << 0)
+#నిర్వచించు APLIC_DOMAINCFG		0x0000
+#నిర్వచించు APLIC_DOMAINCFG_IE		(1 << 8)
+#నిర్వచించు APLIC_DOMAINCFG_DM		(1 << 2)
+#నిర్వచించు APLIC_DOMAINCFG_BE		(1 << 0)
 
-#define APLIC_SOURCECFG_BASE		0x0004
-#define APLIC_SOURCECFG_D		(1 << 10)
-#define APLIC_SOURCECFG_CHILDIDX_MASK	0x000003ff
-#define APLIC_SOURCECFG_SM_MASK	0x00000007
-#define APLIC_SOURCECFG_SM_INACTIVE	0x0
-#define APLIC_SOURCECFG_SM_DETACH	0x1
-#define APLIC_SOURCECFG_SM_EDGE_RISE	0x4
-#define APLIC_SOURCECFG_SM_EDGE_FALL	0x5
-#define APLIC_SOURCECFG_SM_LEVEL_HIGH	0x6
-#define APLIC_SOURCECFG_SM_LEVEL_LOW	0x7
+#నిర్వచించు APLIC_SOURCECFG_పునాది		0x0004
+#నిర్వచించు APLIC_SOURCECFG_D		(1 << 10)
+#నిర్వచించు APLIC_SOURCECFG_CHILDIDX_ముసుగు	0x000003ff
+#నిర్వచించు APLIC_SOURCECFG_SM_ముసుగు	0x00000007
+#నిర్వచించు APLIC_SOURCECFG_SM_INACTIVE	0x0
+#నిర్వచించు APLIC_SOURCECFG_SM_DETACH	0x1
+#నిర్వచించు APLIC_SOURCECFG_SM_అంచు_RISE	0x4
+#నిర్వచించు APLIC_SOURCECFG_SM_అంచు_FALL	0x5
+#నిర్వచించు APLIC_SOURCECFG_SM_LEVEL_ఎగువ	0x6
+#నిర్వచించు APLIC_SOURCECFG_SM_LEVEL_దిగువ	0x7
 
-#define APLIC_MMSICFGADDR		0x1bc0
-#define APLIC_MMSICFGADDRH		0x1bc4
-#define APLIC_SMSICFGADDR		0x1bc8
-#define APLIC_SMSICFGADDRH		0x1bcc
+#నిర్వచించు APLIC_MMSICFGADDR		0x1bc0
+#నిర్వచించు APLIC_MMSICFGADDRH		0x1bc4
+#నిర్వచించు APLIC_SMSICFGADDR		0x1bc8
+#నిర్వచించు APLIC_SMSICFGADDRH		0x1bcc
 
-#define APLIC_xMSICFGADDRH_L		(1UL << 31)
-#define APLIC_xMSICFGADDRH_HHXS_MASK	0x1f
-#define APLIC_xMSICFGADDRH_HHXS_SHIFT	24
-#define APLIC_xMSICFGADDRH_LHXS_MASK	0x7
-#define APLIC_xMSICFGADDRH_LHXS_SHIFT	20
-#define APLIC_xMSICFGADDRH_HHXW_MASK	0x7
-#define APLIC_xMSICFGADDRH_HHXW_SHIFT	16
-#define APLIC_xMSICFGADDRH_LHXW_MASK	0xf
-#define APLIC_xMSICFGADDRH_LHXW_SHIFT	12
-#define APLIC_xMSICFGADDRH_BAPPN_MASK	0xfff
+#నిర్వచించు APLIC_xMSICFGADDRH_L		(1UL << 31)
+#నిర్వచించు APLIC_x_MSICFGADDRH_HHXS_ముసుగు	0x1f
+#నిర్వచించు APLIC_x_MSICFGADDRH_HHXS_జరుపు	24
+#నిర్వచించు APLIC_x_MSICFGADDRH_LHXS_ముసుగు	0x7
+#నిర్వచించు APLIC_x_MSICFGADDRH_LHXS_జరుపు	20
+#నిర్వచించు APLIC_x_MSICFGADDRH_HHXW_ముసుగు	0x7
+#నిర్వచించు APLIC_x_MSICFGADDRH_HHXW_జరుపు	16
+#నిర్వచించు APLIC_x_MSICFGADDRH_LHXW_ముసుగు	0xf
+#నిర్వచించు APLIC_x_MSICFGADDRH_LHXW_జరుపు	12
+#నిర్వచించు APLIC_x_MSICFGADDRH_BAPPN_ముసుగు	0xfff
 
-#define APLIC_xMSICFGADDR_PPN_SHIFT	12
+#నిర్వచించు APLIC_x_MSICFGADDR_PPN_జరుపు	12
 
-#define APLIC_xMSICFGADDR_PPN_HART(__lhxs) \
+#నిర్వచించు APLIC_xMSICFGADDR_PPN_HART(__lhxs) \
 	((1UL << (__lhxs)) - 1)
 
-#define APLIC_xMSICFGADDR_PPN_LHX_MASK(__lhxw) \
+#నిర్వచించు APLIC_x_MSICFGADDR_PPN_LHX_ముసుగు(__lhxw) \
 	((1UL << (__lhxw)) - 1)
-#define APLIC_xMSICFGADDR_PPN_LHX_SHIFT(__lhxs) \
+#నిర్వచించు APLIC_x_MSICFGADDR_PPN_LHX_జరుపు(__lhxs) \
 	((__lhxs))
-#define APLIC_xMSICFGADDR_PPN_LHX(__lhxw, __lhxs) \
-	(APLIC_xMSICFGADDR_PPN_LHX_MASK(__lhxw) << \
-	 APLIC_xMSICFGADDR_PPN_LHX_SHIFT(__lhxs))
+#నిర్వచించు APLIC_xMSICFGADDR_PPN_LHX(__lhxw, __lhxs) \
+	(APLIC_x_MSICFGADDR_PPN_LHX_ముసుగు(__lhxw) << \
+	 APLIC_x_MSICFGADDR_PPN_LHX_జరుపు(__lhxs))
 
-#define APLIC_xMSICFGADDR_PPN_HHX_MASK(__hhxw) \
+#నిర్వచించు APLIC_x_MSICFGADDR_PPN_HHX_ముసుగు(__hhxw) \
 	((1UL << (__hhxw)) - 1)
-#define APLIC_xMSICFGADDR_PPN_HHX_SHIFT(__hhxs) \
-	((__hhxs) + APLIC_xMSICFGADDR_PPN_SHIFT)
-#define APLIC_xMSICFGADDR_PPN_HHX(__hhxw, __hhxs) \
-	(APLIC_xMSICFGADDR_PPN_HHX_MASK(__hhxw) << \
-	 APLIC_xMSICFGADDR_PPN_HHX_SHIFT(__hhxs))
+#నిర్వచించు APLIC_x_MSICFGADDR_PPN_HHX_జరుపు(__hhxs) \
+	((__hhxs) + APLIC_x_MSICFGADDR_PPN_జరుపు)
+#నిర్వచించు APLIC_xMSICFGADDR_PPN_HHX(__hhxw, __hhxs) \
+	(APLIC_x_MSICFGADDR_PPN_HHX_ముసుగు(__hhxw) << \
+	 APLIC_x_MSICFGADDR_PPN_HHX_జరుపు(__hhxs))
 
-#define APLIC_TARGET_GUEST_IDX(__gidx) \
-	((((u32)(__gidx)) & APLIC_TARGET_GUEST_IDX_MASK) << \
-	 APLIC_TARGET_GUEST_IDX_SHIFT)
-#define APLIC_TARGET_EIID(__eiid) \
-	(((u32)(__eiid)) & APLIC_TARGET_EIID_MASK)
+#నిర్వచించు APLIC_లక్ష్యం_GUEST_IDX(__gidx) \
+	((((u32)(__gidx)) & APLIC_లక్ష్యం_GUEST_IDX_ముసుగు) << \
+	 APLIC_లక్ష్యం_GUEST_IDX_జరుపు)
+#నిర్వచించు APLIC_లక్ష్యం_EIID(__eiid) \
+	(((u32)(__eiid)) & APLIC_లక్ష్యం_EIID_ముసుగు)
 
-#define APLIC_SETIP_BASE		0x1c00
-#define APLIC_SETIPNUM			0x1cdc
+#నిర్వచించు APLIC_SETIP_పునాది		0x1c00
+#నిర్వచించు APLIC_SETIPNUM			0x1cdc
 
-#define APLIC_CLRIP_BASE		0x1d00
-#define APLIC_CLRIPNUM			0x1ddc
+#నిర్వచించు APLIC_CLRIP_పునాది		0x1d00
+#నిర్వచించు APLIC_CLRIPNUM			0x1ddc
 
-#define APLIC_SETIE_BASE		0x1e00
-#define APLIC_SETIENUM			0x1edc
+#నిర్వచించు APLIC_SETIE_పునాది		0x1e00
+#నిర్వచించు APLIC_SETIENUM			0x1edc
 
-#define APLIC_CLRIE_BASE		0x1f00
-#define APLIC_CLRIENUM			0x1fdc
+#నిర్వచించు APLIC_CLRIE_పునాది		0x1f00
+#నిర్వచించు APLIC_CLRIENUM			0x1fdc
 
-#define APLIC_SETIPNUM_LE		0x2000
-#define APLIC_SETIPNUM_BE		0x2004
+#నిర్వచించు APLIC_SETIPNUM_LE		0x2000
+#నిర్వచించు APLIC_SETIPNUM_BE		0x2004
 
-#define APLIC_TARGET_BASE		0x3004
-#define APLIC_TARGET_HART_IDX_SHIFT	18
-#define APLIC_TARGET_HART_IDX_MASK	0x3fff
-#define APLIC_TARGET_GUEST_IDX_SHIFT	12
-#define APLIC_TARGET_GUEST_IDX_MASK	0x3f
-#define APLIC_TARGET_IPRIO_MASK	0xff
-#define APLIC_TARGET_EIID_MASK	0x7ff
+#నిర్వచించు APLIC_లక్ష్యం_పునాది		0x3004
+#నిర్వచించు APLIC_లక్ష్యం_HART_IDX_జరుపు	18
+#నిర్వచించు APLIC_లక్ష్యం_HART_IDX_ముసుగు	0x3fff
+#నిర్వచించు APLIC_లక్ష్యం_GUEST_IDX_జరుపు	12
+#నిర్వచించు APLIC_లక్ష్యం_GUEST_IDX_ముసుగు	0x3f
+#నిర్వచించు APLIC_లక్ష్యం_IPRIO_ముసుగు	0xff
+#నిర్వచించు APLIC_లక్ష్యం_EIID_ముసుగు	0x7ff
 
-#define APLIC_TARGET_HART_IDX(__hidx) \
-	((((u32)(__hidx)) & APLIC_TARGET_HART_IDX_MASK) << \
-	 APLIC_TARGET_HART_IDX_SHIFT)
-#define APLIC_TARGET_IPRIO(__prio) \
-	(((u32)(__prio)) & APLIC_TARGET_IPRIO_MASK)
+#నిర్వచించు APLIC_లక్ష్యం_HART_IDX(__hidx) \
+	((((u32)(__hidx)) & APLIC_లక్ష్యం_HART_IDX_ముసుగు) << \
+	 APLIC_లక్ష్యం_HART_IDX_జరుపు)
+#నిర్వచించు APLIC_లక్ష్యం_IPRIO(__prio) \
+	(((u32)(__prio)) & APLIC_లక్ష్యం_IPRIO_ముసుగు)
 
-#define APLIC_IDC_BASE			0x4000
-#define APLIC_IDC_SIZE			32
+#నిర్వచించు APLIC_IDC_పునాది			0x4000
+#నిర్వచించు APLIC_IDC_కొలత			32
 
-#define APLIC_IDC_IDELIVERY		0x00
+#నిర్వచించు APLIC_IDC_IDELIVERY		0x00
 
-#define APLIC_IDC_IFORCE		0x04
+#నిర్వచించు APLIC_IDC_IFORCE		0x04
 
-#define APLIC_IDC_ITHRESHOLD		0x08
+#నిర్వచించు APLIC_IDC_ITHRESHOLD		0x08
 
-#define APLIC_IDC_TOPI			0x18
-#define APLIC_IDC_TOPI_ID_SHIFT	16
-#define APLIC_IDC_TOPI_ID_MASK	0x3ff
-#define APLIC_IDC_TOPI_PRIO_MASK	0xff
+#నిర్వచించు APLIC_IDC_TOPI			0x18
+#నిర్వచించు APLIC_IDC_TOPI_ID_జరుపు	16
+#నిర్వచించు APLIC_IDC_TOPI_ID_ముసుగు	0x3ff
+#నిర్వచించు APLIC_IDC_TOPI_PRIO_ముసుగు	0xff
 
-#define APLIC_IDC_CLAIMI		0x1c
+#నిర్వచించు APLIC_IDC_CLAIMI		0x1c
 
-#define APLIC_DEFAULT_PRIORITY		1
-#define APLIC_DISABLE_IDELIVERY		0
-#define APLIC_ENABLE_IDELIVERY		1
-#define APLIC_DISABLE_ITHRESHOLD	1
-#define APLIC_ENABLE_ITHRESHOLD		0
+#నిర్వచించు APLIC_DEFAULT_ప్రాధాన్యత		1
+#నిర్వచించు APLIC_DISABLE_IDELIVERY		0
+#నిర్వచించు APLIC_ENABLE_IDELIVERY		1
+#నిర్వచించు APLIC_DISABLE_ITHRESHOLD	1
+#నిర్వచించు APLIC_ENABLE_ITHRESHOLD		0
 
-struct aplic_msi_data {
-	struct aplic_data *aplic;
+నిర్మాణం aplic_msi_దత్తాంశం {
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 	u32 hwirq;
-	u32 parent_hwirq;
+	u32 మాతృ_hwirq;
 };
 
-static SBI_LIST_HEAD(aplic_list);
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
-				void *msicfgaddr, void *msicfgaddrH);
+స్థిర SBI_LIST_తల(aplic_list);
+స్థిర శూన్య aplic_writel_msicfg(నిర్మాణం aplic_msicfg_దత్తాంశం *msicfg,
+				శూన్య *msicfgaddr, శూన్య *msicfgaddrH);
 
-static inline bool aplic_is_direct_mode(struct aplic_data *aplic)
+స్థిర అంతఃవరుస bool aplic_is_ప్రత్యక్ష_బహుళకం(నిర్మాణం aplic_దత్తాంశం *aplic)
 {
-	return aplic && aplic->num_idc;
+	తిరిగి aplic && aplic->అంకె_idc;
 }
 
-static inline void aplic_sourcecfg_write(struct aplic_data *aplic,
+స్థిర అంతఃవరుస శూన్య aplic_sourcecfg_write(నిర్మాణం aplic_దత్తాంశం *aplic,
 					 u32 hwirq, u32 val)
 {
-	writel(val, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+	writel(val, (శూన్య *)(aplic->addr + APLIC_SOURCECFG_పునాది +
+			     (hwirq - 1) * పరిమాణం(u32)));
 }
 
-static inline u32 aplic_sourcecfg_read(struct aplic_data *aplic, u32 hwirq)
+స్థిర అంతఃవరుస u32 aplic_sourcecfg_read(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
-	return readl((void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			      (hwirq - 1) * sizeof(u32)));
+	తిరిగి readl((శూన్య *)(aplic->addr + APLIC_SOURCECFG_పునాది +
+			      (hwirq - 1) * పరిమాణం(u32)));
 }
 
-static inline void aplic_target_write(struct aplic_data *aplic,
+స్థిర అంతఃవరుస శూన్య aplic_లక్ష్యం_write(నిర్మాణం aplic_దత్తాంశం *aplic,
 				      u32 hwirq, u32 val)
 {
-	writel(val, (void *)(aplic->addr + APLIC_TARGET_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+	writel(val, (శూన్య *)(aplic->addr + APLIC_లక్ష్యం_పునాది +
+			     (hwirq - 1) * పరిమాణం(u32)));
 }
 
-static inline void aplic_irq_setie(struct aplic_data *aplic, u32 hwirq)
+స్థిర అంతఃవరుస శూన్య aplic_irq_setie(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_SETIENUM));
+	writel(hwirq, (శూన్య *)(aplic->addr + APLIC_SETIENUM));
 }
 
-static inline void aplic_irq_clrie(struct aplic_data *aplic, u32 hwirq)
+స్థిర అంతఃవరుస శూన్య aplic_irq_clrie(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIENUM));
+	writel(hwirq, (శూన్య *)(aplic->addr + APLIC_CLRIENUM));
 }
 
-static inline void aplic_irq_clrip(struct aplic_data *aplic, u32 hwirq)
+స్థిర అంతఃవరుస శూన్య aplic_irq_clrip(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
-	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIPNUM));
+	writel(hwirq, (శూన్య *)(aplic->addr + APLIC_CLRIPNUM));
 }
 
-static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 hwirq)
+స్థిర అంతఃవరుస శూన్య aplic_msi_irq_retrigger_level(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
 	/*
 	 * The section "4.9.2 Special consideration for level-sensitive interrupt
@@ -190,536 +190,536 @@ static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 h
 	 * pending bit to be set to one again if the source is still asserting
 	 * an interrupt, but not if the source is not asserting an interrupt.
 	 */
-	writel(hwirq, (void *)(aplic->addr + APLIC_SETIPNUM_LE));
+	writel(hwirq, (శూన్య *)(aplic->addr + APLIC_SETIPNUM_LE));
 }
 
-static inline void *aplic_idc_base(struct aplic_data *aplic, u32 idc_index)
+స్థిర అంతఃవరుస శూన్య *aplic_idc_పునాది(నిర్మాణం aplic_దత్తాంశం *aplic, u32 idc_సూచీ)
 {
-	return (void *)(aplic->addr + APLIC_IDC_BASE +
-			idc_index * APLIC_IDC_SIZE);
+	తిరిగి (శూన్య *)(aplic->addr + APLIC_IDC_పునాది +
+			idc_సూచీ * APLIC_IDC_కొలత);
 }
 
-static inline u32 aplic_idc_read(struct aplic_data *aplic, u32 idc_index,
+స్థిర అంతఃవరుస u32 aplic_idc_read(నిర్మాణం aplic_దత్తాంశం *aplic, u32 idc_సూచీ,
 				 u32 reg)
 {
-	return readl(aplic_idc_base(aplic, idc_index) + reg);
+	తిరిగి readl(aplic_idc_పునాది(aplic, idc_సూచీ) + reg);
 }
 
-static inline void aplic_idc_write(struct aplic_data *aplic, u32 idc_index,
+స్థిర అంతఃవరుస శూన్య aplic_idc_write(నిర్మాణం aplic_దత్తాంశం *aplic, u32 idc_సూచీ,
 				   u32 reg, u32 val)
 {
-	writel(val, aplic_idc_base(aplic, idc_index) + reg);
+	writel(val, aplic_idc_పునాది(aplic, idc_సూచీ) + reg);
 }
 
-static u32 aplic_hwirq_flags_to_sourcecfg(u32 hwirq_flags)
+స్థిర u32 aplic_hwirq_flags_గమ్యం_sourcecfg(u32 hwirq_flags)
 {
-	switch (hwirq_flags & SBI_HWIRQ_FLAGS_LEVEL_SENSE_MASK) {
-	case SBI_HWIRQ_FLAGS_EDGE_RISING:
-		return APLIC_SOURCECFG_SM_EDGE_RISE;
-	case SBI_HWIRQ_FLAGS_EDGE_FALLING:
-		return APLIC_SOURCECFG_SM_EDGE_FALL;
-	case SBI_HWIRQ_FLAGS_LEVEL_HIGH:
-		return APLIC_SOURCECFG_SM_LEVEL_HIGH;
-	case SBI_HWIRQ_FLAGS_LEVEL_LOW:
-		return APLIC_SOURCECFG_SM_LEVEL_LOW;
-	default:
-		return APLIC_SOURCECFG_SM_INACTIVE;
+	ఎంపిక (hwirq_flags & SBI_HWIRQ_FLAGS_LEVEL_SENSE_ముసుగు) {
+	స్థితి SBI_HWIRQ_FLAGS_అంచు_RISING:
+		తిరిగి APLIC_SOURCECFG_SM_అంచు_RISE;
+	స్థితి SBI_HWIRQ_FLAGS_అంచు_FALLING:
+		తిరిగి APLIC_SOURCECFG_SM_అంచు_FALL;
+	స్థితి SBI_HWIRQ_FLAGS_LEVEL_ఎగువ:
+		తిరిగి APLIC_SOURCECFG_SM_LEVEL_ఎగువ;
+	స్థితి SBI_HWIRQ_FLAGS_LEVEL_దిగువ:
+		తిరిగి APLIC_SOURCECFG_SM_LEVEL_దిగువ;
+	అప్రమేయ:
+		తిరిగి APLIC_SOURCECFG_SM_INACTIVE;
 	}
 }
 
-static bool aplic_hwirq_is_delegated(struct aplic_data *aplic, u32 hwirq)
+స్థిర bool aplic_hwirq_is_delegated(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
 	u32 sourcecfg;
 
 	sourcecfg = aplic_sourcecfg_read(aplic, hwirq);
-	return !!(sourcecfg & APLIC_SOURCECFG_D);
+	తిరిగి !!(sourcecfg & APLIC_SOURCECFG_D);
 }
 
-static int aplic_find_idc_index(struct aplic_data *aplic, u32 hart_index)
+స్థిర పూర్ణాంకం aplic_కనుగొను_idc_సూచీ(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hart_సూచీ)
 {
 	u32 i;
 
-	for (i = 0; i < aplic->num_idc; i++) {
-		if (aplic->idc_map[i] == hart_index)
-			return i;
+	కొరకు (i = 0; i < aplic->అంకె_idc; i++) {
+		ఒకవేళ (aplic->idc_map[i] == hart_సూచీ)
+			తిరిగి i;
 	}
 
-	return SBI_ENOENT;
+	తిరిగి SBI_ENOENT;
 }
 
-static void aplic_init(struct aplic_data *aplic)
+స్థిర శూన్య aplic_init(నిర్మాణం aplic_దత్తాంశం *aplic)
 {
-	struct aplic_delegate_data *deleg;
+	నిర్మాణం aplic_delegate_దత్తాంశం *deleg;
 	u32 i, j, tmp, domaincfg;
-	int locked;
+	పూర్ణాంకం locked;
 
 	/* Set domain configuration to 0 */
-	writel(0, (void *)(aplic->addr + APLIC_DOMAINCFG));
+	writel(0, (శూన్య *)(aplic->addr + APLIC_DOMAINCFG));
 
 	/* Disable all interrupts */
-	for (i = 0; i <= aplic->num_source; i += 32)
-		writel(-1U, (void *)(aplic->addr + APLIC_CLRIE_BASE +
-				     (i / 32) * sizeof(u32)));
+	కొరకు (i = 0; i <= aplic->అంకె_ఆధారం; i += 32)
+		writel(-1U, (శూన్య *)(aplic->addr + APLIC_CLRIE_పునాది +
+				     (i / 32) * పరిమాణం(u32)));
 
 	/* Set interrupt type and priority for all interrupts */
-	for (i = 1; i <= aplic->num_source; i++) {
+	కొరకు (i = 1; i <= aplic->అంకె_ఆధారం; i++) {
 		/* Set IRQ source configuration to 0 */
-		writel(0, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			  (i - 1) * sizeof(u32)));
+		writel(0, (శూన్య *)(aplic->addr + APLIC_SOURCECFG_పునాది +
+			  (i - 1) * పరిమాణం(u32)));
 		/* Set IRQ target hart index and priority to 1 */
-		writel(APLIC_DEFAULT_PRIORITY, (void *)(aplic->addr +
-						APLIC_TARGET_BASE +
-						(i - 1) * sizeof(u32)));
+		writel(APLIC_DEFAULT_ప్రాధాన్యత, (శూన్య *)(aplic->addr +
+						APLIC_లక్ష్యం_పునాది +
+						(i - 1) * పరిమాణం(u32)));
 	}
 
 	/* Configure IRQ delegation */
-	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
+	కొరకు (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (!deleg->first_irq || !deleg->last_irq)
-			continue;
-		if (aplic->num_source < deleg->first_irq ||
-		    aplic->num_source < deleg->last_irq)
-			continue;
-		if (deleg->child_index > APLIC_SOURCECFG_CHILDIDX_MASK)
-			continue;
-		if (deleg->first_irq > deleg->last_irq) {
-			tmp = deleg->first_irq;
-			deleg->first_irq = deleg->last_irq;
-			deleg->last_irq = tmp;
+		ఒకవేళ (!deleg->మొదటి_irq || !deleg->చివరి_irq)
+			కొనసాగు;
+		ఒకవేళ (aplic->అంకె_ఆధారం < deleg->మొదటి_irq ||
+		    aplic->అంకె_ఆధారం < deleg->చివరి_irq)
+			కొనసాగు;
+		ఒకవేళ (deleg->బిడ్డ_సూచీ > APLIC_SOURCECFG_CHILDIDX_ముసుగు)
+			కొనసాగు;
+		ఒకవేళ (deleg->మొదటి_irq > deleg->చివరి_irq) {
+			tmp = deleg->మొదటి_irq;
+			deleg->మొదటి_irq = deleg->చివరి_irq;
+			deleg->చివరి_irq = tmp;
 		}
-		for (j = deleg->first_irq; j <= deleg->last_irq; j++)
-			aplic_sourcecfg_write(aplic, j, APLIC_SOURCECFG_D | deleg->child_index);
+		కొరకు (j = deleg->మొదటి_irq; j <= deleg->చివరి_irq; j++)
+			aplic_sourcecfg_write(aplic, j, APLIC_SOURCECFG_D | deleg->బిడ్డ_సూచీ);
 	}
 
 	/* Default initialization of IDC structures */
-	if (aplic_is_direct_mode(aplic)) {
-		for (i = 0; i < aplic->num_idc; i++) {
+	ఒకవేళ (aplic_is_ప్రత్యక్ష_బహుళకం(aplic)) {
+		కొరకు (i = 0; i < aplic->అంకె_idc; i++) {
 			aplic_idc_write(aplic, i, APLIC_IDC_IDELIVERY,
 					APLIC_DISABLE_IDELIVERY);
 			aplic_idc_write(aplic, i, APLIC_IDC_IFORCE, 0);
 			aplic_idc_write(aplic, i, APLIC_IDC_ITHRESHOLD,
 					APLIC_DISABLE_ITHRESHOLD);
 		}
-	} else {
+	} లేకపోతే {
 		/* MSI configuration */
-		locked = readl((void *)(aplic->addr + APLIC_MMSICFGADDRH)) & APLIC_xMSICFGADDRH_L;
-		if (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
+		locked = readl((శూన్య *)(aplic->addr + APLIC_MMSICFGADDRH)) & APLIC_xMSICFGADDRH_L;
+		ఒకవేళ (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_mmode,
-						(void *)(aplic->addr + APLIC_MMSICFGADDR),
-						(void *)(aplic->addr + APLIC_MMSICFGADDRH));
+						(శూన్య *)(aplic->addr + APLIC_MMSICFGADDR),
+						(శూన్య *)(aplic->addr + APLIC_MMSICFGADDRH));
 		}
-		if (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
+		ఒకవేళ (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_smode,
-						(void *)(aplic->addr + APLIC_SMSICFGADDR),
-						(void *)(aplic->addr + APLIC_SMSICFGADDRH));
+						(శూన్య *)(aplic->addr + APLIC_SMSICFGADDR),
+						(శూన్య *)(aplic->addr + APLIC_SMSICFGADDRH));
 		}
 	}
 
 	domaincfg = APLIC_DOMAINCFG_IE;
-	if (!aplic_is_direct_mode(aplic))
+	ఒకవేళ (!aplic_is_ప్రత్యక్ష_బహుళకం(aplic))
 		domaincfg |= APLIC_DOMAINCFG_DM;
 
-	writel(domaincfg, (void *)(aplic->addr + APLIC_DOMAINCFG));
+	writel(domaincfg, (శూన్య *)(aplic->addr + APLIC_DOMAINCFG));
 }
 
-void aplic_reinit_all(void)
+శూన్య aplic_reinit_all(శూన్య)
 {
-	struct aplic_data *aplic;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 
-	sbi_list_for_each_entry(aplic, &aplic_list, node)
+	sbi_list_for_each_నమోదు(aplic, &aplic_list, కణుపు)
 		aplic_init(aplic);
 }
 
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
-				void *msicfgaddr, void *msicfgaddrH)
+స్థిర శూన్య aplic_writel_msicfg(నిర్మాణం aplic_msicfg_దత్తాంశం *msicfg,
+				శూన్య *msicfgaddr, శూన్య *msicfgaddrH)
 {
 	u32 val;
-	unsigned long base_ppn;
+	గుర్తులేని దీర్ఘ పునాది_ppn;
 
 	/* Compute the MSI base PPN */
-	base_ppn = msicfg->base_addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_HART(msicfg->lhxs);
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_LHX(msicfg->lhxw, msicfg->lhxs);
-	base_ppn &= ~APLIC_xMSICFGADDR_PPN_HHX(msicfg->hhxw, msicfg->hhxs);
+	పునాది_ppn = msicfg->పునాది_addr >> APLIC_x_MSICFGADDR_PPN_జరుపు;
+	పునాది_ppn &= ~APLIC_xMSICFGADDR_PPN_HART(msicfg->lhxs);
+	పునాది_ppn &= ~APLIC_xMSICFGADDR_PPN_LHX(msicfg->lhxw, msicfg->lhxs);
+	పునాది_ppn &= ~APLIC_xMSICFGADDR_PPN_HHX(msicfg->hhxw, msicfg->hhxs);
 
 	/* Write the lower MSI config register */
-	writel((u32)base_ppn, msicfgaddr);
+	writel((u32)పునాది_ppn, msicfgaddr);
 
 	/* Write the upper MSI config register */
-	val = (((u64)base_ppn) >> 32) &
-		APLIC_xMSICFGADDRH_BAPPN_MASK;
-	val |= (msicfg->lhxw & APLIC_xMSICFGADDRH_LHXW_MASK)
-		<< APLIC_xMSICFGADDRH_LHXW_SHIFT;
-	val |= (msicfg->hhxw & APLIC_xMSICFGADDRH_HHXW_MASK)
-		<< APLIC_xMSICFGADDRH_HHXW_SHIFT;
-	val |= (msicfg->lhxs & APLIC_xMSICFGADDRH_LHXS_MASK)
-		<< APLIC_xMSICFGADDRH_LHXS_SHIFT;
-	val |= (msicfg->hhxs & APLIC_xMSICFGADDRH_HHXS_MASK)
-		<< APLIC_xMSICFGADDRH_HHXS_SHIFT;
+	val = (((u64)పునాది_ppn) >> 32) &
+		APLIC_x_MSICFGADDRH_BAPPN_ముసుగు;
+	val |= (msicfg->lhxw & APLIC_x_MSICFGADDRH_LHXW_ముసుగు)
+		<< APLIC_x_MSICFGADDRH_LHXW_జరుపు;
+	val |= (msicfg->hhxw & APLIC_x_MSICFGADDRH_HHXW_ముసుగు)
+		<< APLIC_x_MSICFGADDRH_HHXW_జరుపు;
+	val |= (msicfg->lhxs & APLIC_x_MSICFGADDRH_LHXS_ముసుగు)
+		<< APLIC_x_MSICFGADDRH_LHXS_జరుపు;
+	val |= (msicfg->hhxs & APLIC_x_MSICFGADDRH_HHXS_ముసుగు)
+		<< APLIC_x_MSICFGADDRH_HHXS_జరుపు;
 	writel(val, msicfgaddrH);
 }
 
-static int aplic_check_msicfg(struct aplic_msicfg_data *msicfg)
+స్థిర పూర్ణాంకం aplic_check_msicfg(నిర్మాణం aplic_msicfg_దత్తాంశం *msicfg)
 {
-	if (APLIC_xMSICFGADDRH_LHXS_MASK < msicfg->lhxs)
-		return SBI_EINVAL;
+	ఒకవేళ (APLIC_x_MSICFGADDRH_LHXS_ముసుగు < msicfg->lhxs)
+		తిరిగి SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_LHXW_MASK < msicfg->lhxw)
-		return SBI_EINVAL;
+	ఒకవేళ (APLIC_x_MSICFGADDRH_LHXW_ముసుగు < msicfg->lhxw)
+		తిరిగి SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXS_MASK < msicfg->hhxs)
-		return SBI_EINVAL;
+	ఒకవేళ (APLIC_x_MSICFGADDRH_HHXS_ముసుగు < msicfg->hhxs)
+		తిరిగి SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXW_MASK < msicfg->hhxw)
-		return SBI_EINVAL;
+	ఒకవేళ (APLIC_x_MSICFGADDRH_HHXW_ముసుగు < msicfg->hhxw)
+		తిరిగి SBI_EINVAL;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int aplic_warm_init(struct sbi_irqchip_device *chip)
+స్థిర పూర్ణాంకం aplic_warm_init(నిర్మాణం sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
-	u32 hart_index;
-	int idc_index;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
+	u32 hart_సూచీ;
+	పూర్ణాంకం idc_సూచీ;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (!aplic_is_direct_mode(aplic))
-		return 0;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (!aplic_is_ప్రత్యక్ష_బహుళకం(aplic))
+		తిరిగి 0;
 
-	hart_index = current_hartindex();
-	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	hart_సూచీ = current_hartindex();
+	idc_సూచీ  = aplic_కనుగొను_idc_సూచీ(aplic, hart_సూచీ);
+	ఒకవేళ (idc_సూచీ < 0)
+		తిరిగి 0;
 
-	aplic_idc_write(aplic, idc_index, APLIC_IDC_ITHRESHOLD,
+	aplic_idc_write(aplic, idc_సూచీ, APLIC_IDC_ITHRESHOLD,
 			APLIC_ENABLE_ITHRESHOLD);
-	aplic_idc_write(aplic, idc_index, APLIC_IDC_IDELIVERY,
+	aplic_idc_write(aplic, idc_సూచీ, APLIC_IDC_IDELIVERY,
 			APLIC_ENABLE_IDELIVERY);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int aplic_process_hwirqs(struct sbi_irqchip_device *chip)
+స్థిర పూర్ణాంకం aplic_process_hwirqs(నిర్మాణం sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
-	u32 hart_index, claimi, hwirq;
-	int idc_index, rc = 0, tmp;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
+	u32 hart_సూచీ, claimi, hwirq;
+	పూర్ణాంకం idc_సూచీ, rc = 0, tmp;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
 
-	if (!aplic_is_direct_mode(aplic))
+	ఒకవేళ (!aplic_is_ప్రత్యక్ష_బహుళకం(aplic))
 		sbi_panic("aplic_process_hwirqs called in MSI mode.\n");
 
-	hart_index = current_hartindex();
-	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	hart_సూచీ = current_hartindex();
+	idc_సూచీ  = aplic_కనుగొను_idc_సూచీ(aplic, hart_సూచీ);
+	ఒకవేళ (idc_సూచీ < 0)
+		తిరిగి 0;
 
-	while ((claimi = aplic_idc_read(aplic, idc_index, APLIC_IDC_CLAIMI))) {
-		hwirq = (claimi >> APLIC_IDC_TOPI_ID_SHIFT) &
-			APLIC_IDC_TOPI_ID_MASK;
+	అయితే ((claimi = aplic_idc_read(aplic, idc_సూచీ, APLIC_IDC_CLAIMI))) {
+		hwirq = (claimi >> APLIC_IDC_TOPI_ID_జరుపు) &
+			APLIC_IDC_TOPI_ID_ముసుగు;
 
-		if (!hwirq)
-			break;
+		ఒకవేళ (!hwirq)
+			ఆపు;
 
-		if (aplic_hwirq_is_delegated(aplic, hwirq))
-			continue;
+		ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq))
+			కొనసాగు;
 
 		tmp = sbi_irqchip_process_hwirq(chip, hwirq);
-		if (tmp)
+		ఒకవేళ (tmp)
 			rc = tmp;
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
-static void aplic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
+స్థిర శూన్య aplic_hwirq_eoi(నిర్మాణం sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 	u32 sm;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_is_direct_mode(aplic))
-		return;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (aplic_is_ప్రత్యక్ష_బహుళకం(aplic))
+		తిరిగి;
 
-	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_MASK;
-	if (sm == APLIC_SOURCECFG_SM_LEVEL_HIGH ||
-	    sm == APLIC_SOURCECFG_SM_LEVEL_LOW)
+	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_ముసుగు;
+	ఒకవేళ (sm == APLIC_SOURCECFG_SM_LEVEL_ఎగువ ||
+	    sm == APLIC_SOURCECFG_SM_LEVEL_దిగువ)
 		aplic_msi_irq_retrigger_level(aplic, hwirq);
 }
 
-static void aplic_program_msi_target(struct aplic_data *aplic,
-				     u32 hwirq, u32 hart_index,
-				     u32 guest_index, u32 eiid)
+స్థిర శూన్య aplic_కార్యక్రమం_msi_లక్ష్యం(నిర్మాణం aplic_దత్తాంశం *aplic,
+				     u32 hwirq, u32 hart_సూచీ,
+				     u32 guest_సూచీ, u32 eiid)
 {
-	u32 target;
+	u32 లక్ష్యం;
 
-	target = APLIC_TARGET_HART_IDX(hart_index) |
-		 APLIC_TARGET_GUEST_IDX(guest_index) |
-		 APLIC_TARGET_EIID(eiid);
+	లక్ష్యం = APLIC_లక్ష్యం_HART_IDX(hart_సూచీ) |
+		 APLIC_లక్ష్యం_GUEST_IDX(guest_సూచీ) |
+		 APLIC_లక్ష్యం_EIID(eiid);
 
-	aplic_target_write(aplic, hwirq, target);
+	aplic_లక్ష్యం_write(aplic, hwirq, లక్ష్యం);
 }
 
-static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
-			      const struct sbi_irqchip_msi_msg *msg)
+స్థిర u32 derive_hart_సూచీ(నిర్మాణం aplic_msicfg_దత్తాంశం *msicfg,
+			      స్థిరరాశి నిర్మాణం sbi_irqchip_msi_సందేశం *సందేశం)
 {
-	u64 addr = ((u64)msg->address_hi << 32) | msg->address_lo;
-	u64 tppn = addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
-	u32 group_index, hart_index;
+	u64 addr = ((u64)సందేశం->చిరునామా_hi << 32) | సందేశం->చిరునామా_lo;
+	u64 tppn = addr >> APLIC_x_MSICFGADDR_PPN_జరుపు;
+	u32 సమూహం_సూచీ, hart_సూచీ;
 
-	group_index = (tppn >> APLIC_xMSICFGADDR_PPN_HHX_SHIFT(msicfg->hhxs)) &
-		      APLIC_xMSICFGADDR_PPN_HHX_MASK(msicfg->hhxw);
+	సమూహం_సూచీ = (tppn >> APLIC_x_MSICFGADDR_PPN_HHX_జరుపు(msicfg->hhxs)) &
+		      APLIC_x_MSICFGADDR_PPN_HHX_ముసుగు(msicfg->hhxw);
 
-	hart_index = (tppn >> msicfg->lhxs) &
+	hart_సూచీ = (tppn >> msicfg->lhxs) &
 		     ((1UL << msicfg->lhxw) - 1);
 
-	hart_index |= (group_index << msicfg->lhxw);
+	hart_సూచీ |= (సమూహం_సూచీ << msicfg->lhxw);
 
-	return hart_index;
+	తిరిగి hart_సూచీ;
 }
 
-static void aplic_write_msi(u32 parent_hwirq,
-			    const struct sbi_irqchip_msi_msg *msg,
-			    void *priv)
+స్థిర శూన్య aplic_write_msi(u32 మాతృ_hwirq,
+			    స్థిరరాశి నిర్మాణం sbi_irqchip_msi_సందేశం *సందేశం,
+			    శూన్య *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
-	u32 guest_index = 0;
+	నిర్మాణం aplic_msi_దత్తాంశం *msi_దత్తాంశం = priv;
+	u32 guest_సూచీ = 0;
 	u32 eiid;
 
-	eiid = msg->data;
-	if (!eiid || eiid > APLIC_TARGET_EIID_MASK)
-		return;
+	eiid = సందేశం->దత్తాంశం;
+	ఒకవేళ (!eiid || eiid > APLIC_లక్ష్యం_EIID_ముసుగు)
+		తిరిగి;
 
-	aplic_program_msi_target(msi_data->aplic, msi_data->hwirq,
-				derive_hart_index(&msi_data->aplic->msicfg_mmode, msg),
-				guest_index, eiid);
+	aplic_కార్యక్రమం_msi_లక్ష్యం(msi_దత్తాంశం->aplic, msi_దత్తాంశం->hwirq,
+				derive_hart_సూచీ(&msi_దత్తాంశం->aplic->msicfg_mmode, సందేశం),
+				guest_సూచీ, eiid);
 }
 
-static int aplic_msi_callback(u32 parent_hwirq, void *priv)
+స్థిర పూర్ణాంకం aplic_msi_callback(u32 మాతృ_hwirq, శూన్య *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
-	int rc;
+	నిర్మాణం aplic_msi_దత్తాంశం *msi_దత్తాంశం = priv;
+	పూర్ణాంకం rc;
 
-	rc = sbi_irqchip_process_hwirq(&msi_data->aplic->irqchip, msi_data->hwirq);
-	if (rc && rc != SBI_ENOENT)
+	rc = sbi_irqchip_process_hwirq(&msi_దత్తాంశం->aplic->irqchip, msi_దత్తాంశం->hwirq);
+	ఒకవేళ (rc && rc != SBI_ENOENT)
 		sbi_printf("%s: hwirq=%lu failed rc=%d\n",
 			__func__,
-			(unsigned long)parent_hwirq, rc);
+			(గుర్తులేని దీర్ఘ)మాతృ_hwirq, rc);
 
-	return rc;
+	తిరిగి rc;
 }
 
-static int aplic_setup_msi(struct aplic_data *aplic, u32 hwirq)
+స్థిర పూర్ణాంకం aplic_అమరిక_msi(నిర్మాణం aplic_దత్తాంశం *aplic, u32 hwirq)
 {
-	struct sbi_irqchip_device *parent;
-	u32 first_hwirq;
-	struct aplic_msi_data *msi_data;
-	int rc;
+	నిర్మాణం sbi_irqchip_device *మాతృ;
+	u32 మొదటి_hwirq;
+	నిర్మాణం aplic_msi_దత్తాంశం *msi_దత్తాంశం;
+	పూర్ణాంకం rc;
 
-	parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-	if (!parent) {
+	మాతృ = sbi_irqchip_కనుగొను_device(aplic->మాతృ_unique_id);
+	ఒకవేళ (!మాతృ) {
 		sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
-			__func__, (unsigned long)hwirq);
-		return SBI_EINVAL;
+			__func__, (గుర్తులేని దీర్ఘ)hwirq);
+		తిరిగి SBI_EINVAL;
 	}
 
-	msi_data = sbi_zalloc(sizeof(struct aplic_msi_data));
-	if (!msi_data)
-		return SBI_ENOMEM;
+	msi_దత్తాంశం = sbi_zalloc(పరిమాణం(నిర్మాణం aplic_msi_దత్తాంశం));
+	ఒకవేళ (!msi_దత్తాంశం)
+		తిరిగి SBI_ENOMEM;
 
-	msi_data->aplic = aplic;
-	msi_data->hwirq = hwirq;
+	msi_దత్తాంశం->aplic = aplic;
+	msi_దత్తాంశం->hwirq = hwirq;
 
-	rc = sbi_irqchip_register_msi(parent, 1,
+	rc = sbi_irqchip_రిజిస్టరు_msi(మాతృ, 1,
 					aplic_write_msi,
 					aplic_msi_callback,
-					msi_data,
-					&first_hwirq);
-	if (rc) {
+					msi_దత్తాంశం,
+					&మొదటి_hwirq);
+	ఒకవేళ (rc) {
 		sbi_printf("%s: register_msi failed hwirq=%lu rc=%d\n",
-			__func__, (unsigned long)hwirq, rc);
-		sbi_free(msi_data);
-		return rc;
+			__func__, (గుర్తులేని దీర్ఘ)hwirq, rc);
+		sbi_free(msi_దత్తాంశం);
+		తిరిగి rc;
 	}
 
-	msi_data->parent_hwirq = first_hwirq;
-	sbi_irqchip_set_hwirq_priv(&aplic->irqchip, hwirq, msi_data);
+	msi_దత్తాంశం->మాతృ_hwirq = మొదటి_hwirq;
+	sbi_irqchip_సమితి_hwirq_priv(&aplic->irqchip, hwirq, msi_దత్తాంశం);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int aplic_hwirq_setup(struct sbi_irqchip_device *chip,
+స్థిర పూర్ణాంకం aplic_hwirq_అమరిక(నిర్మాణం sbi_irqchip_device *chip,
 			     u32 hwirq, u32 hwirq_flags)
 {
-	struct aplic_data *aplic;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 	u32 sourcecfg;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
 
-	sourcecfg = aplic_hwirq_flags_to_sourcecfg(hwirq_flags);
-	if (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
+	sourcecfg = aplic_hwirq_flags_గమ్యం_sourcecfg(hwirq_flags);
+	ఒకవేళ (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
 		sbi_printf("%s: unsupported flags=0x%lx hwirq=%lu\n",
 			__func__,
-			(unsigned long)hwirq_flags,
-			(unsigned long)hwirq);
-		return SBI_EINVAL;
+			(గుర్తులేని దీర్ఘ)hwirq_flags,
+			(గుర్తులేని దీర్ఘ)hwirq);
+		తిరిగి SBI_EINVAL;
 	}
 
 	aplic_sourcecfg_write(aplic, hwirq, sourcecfg);
 
-	if (aplic_hwirq_is_delegated(aplic, hwirq)) {
+	ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq)) {
 		sbi_printf("%s: hwirq=%lu is delegated\n",
-			__func__, (unsigned long)hwirq);
-		return SBI_ENOTSUPP;
+			__func__, (గుర్తులేని దీర్ఘ)hwirq);
+		తిరిగి SBI_ENOTSUPP;
 	}
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 
-	if (!aplic_is_direct_mode(aplic))
-		return aplic_setup_msi(aplic, hwirq);
+	ఒకవేళ (!aplic_is_ప్రత్యక్ష_బహుళకం(aplic))
+		తిరిగి aplic_అమరిక_msi(aplic, hwirq);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void aplic_hwirq_cleanup(struct sbi_irqchip_device *chip, u32 hwirq)
+స్థిర శూన్య aplic_hwirq_cleanup(నిర్మాణం sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
+	నిర్మాణం aplic_msi_దత్తాంశం *msi_దత్తాంశం;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq))
+		తిరిగి;
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 	aplic_sourcecfg_write(aplic, hwirq, APLIC_SOURCECFG_SM_INACTIVE);
-	aplic_target_write(aplic, hwirq, APLIC_DEFAULT_PRIORITY);
-	msi_data = (struct aplic_msi_data *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
-	if (msi_data)
-		sbi_free(msi_data);
+	aplic_లక్ష్యం_write(aplic, hwirq, APLIC_DEFAULT_ప్రాధాన్యత);
+	msi_దత్తాంశం = (నిర్మాణం aplic_msi_దత్తాంశం *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
+	ఒకవేళ (msi_దత్తాంశం)
+		sbi_free(msi_దత్తాంశం);
 }
 
-static int aplic_hwirq_set_affinity(struct sbi_irqchip_device *chip,
-				    u32 hwirq, u32 hart_index)
+స్థిర పూర్ణాంకం aplic_hwirq_సమితి_affinity(నిర్మాణం sbi_irqchip_device *chip,
+				    u32 hwirq, u32 hart_సూచీ)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
-	struct sbi_irqchip_device *parent;
-	int idc_index;
-	int rc;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
+	నిర్మాణం aplic_msi_దత్తాంశం *msi_దత్తాంశం;
+	నిర్మాణం sbi_irqchip_device *మాతృ;
+	పూర్ణాంకం idc_సూచీ;
+	పూర్ణాంకం rc;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return SBI_ENOTSUPP;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq))
+		తిరిగి SBI_ENOTSUPP;
 
-	if (!aplic_is_direct_mode(aplic)) {
-		parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-		if (!parent) {
+	ఒకవేళ (!aplic_is_ప్రత్యక్ష_బహుళకం(aplic)) {
+		మాతృ = sbi_irqchip_కనుగొను_device(aplic->మాతృ_unique_id);
+		ఒకవేళ (!మాతృ) {
 			sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
-				__func__, (unsigned long)hwirq);
-			return SBI_EINVAL;
+				__func__, (గుర్తులేని దీర్ఘ)hwirq);
+			తిరిగి SBI_EINVAL;
 		}
 
-		msi_data = sbi_irqchip_get_hwirq_priv(chip, hwirq);
-		rc = sbi_irqchip_set_affinity(parent, msi_data->parent_hwirq, hart_index);
-		if (rc) {
+		msi_దత్తాంశం = sbi_irqchip_get_hwirq_priv(chip, hwirq);
+		rc = sbi_irqchip_సమితి_affinity(మాతృ, msi_దత్తాంశం->మాతృ_hwirq, hart_సూచీ);
+		ఒకవేళ (rc) {
 			sbi_printf("%s: sbi_irqchip_set_affinity failed hwirq=%lu rc=%d\n",
-				__func__, (unsigned long)hwirq, rc);
-			return rc;
+				__func__, (గుర్తులేని దీర్ఘ)hwirq, rc);
+			తిరిగి rc;
 		}
-		return 0;
+		తిరిగి 0;
 	}
 
-	idc_index = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return SBI_EINVAL;
+	idc_సూచీ = aplic_కనుగొను_idc_సూచీ(aplic, hart_సూచీ);
+	ఒకవేళ (idc_సూచీ < 0)
+		తిరిగి SBI_EINVAL;
 
-	aplic_target_write(aplic, hwirq,
-			   APLIC_TARGET_HART_IDX(hart_index) |
-			   APLIC_TARGET_IPRIO(APLIC_DEFAULT_PRIORITY));
+	aplic_లక్ష్యం_write(aplic, hwirq,
+			   APLIC_లక్ష్యం_HART_IDX(hart_సూచీ) |
+			   APLIC_లక్ష్యం_IPRIO(APLIC_DEFAULT_ప్రాధాన్యత));
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void aplic_hwirq_mask(struct sbi_irqchip_device *chip, u32 hwirq)
+స్థిర శూన్య aplic_hwirq_ముసుగు(నిర్మాణం sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq))
+		తిరిగి;
 
 	aplic_irq_clrie(aplic, hwirq);
 }
 
-static void aplic_hwirq_unmask(struct sbi_irqchip_device *chip, u32 hwirq)
+స్థిర శూన్య aplic_hwirq_unmask(నిర్మాణం sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	నిర్మాణం aplic_దత్తాంశం *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_యొక్క(chip, నిర్మాణం aplic_దత్తాంశం, irqchip);
+	ఒకవేళ (aplic_hwirq_is_delegated(aplic, hwirq))
+		తిరిగి;
 
 	aplic_irq_setie(aplic, hwirq);
 }
 
-static struct sbi_irqchip_device aplic_irqchip_template = {
+స్థిర నిర్మాణం sbi_irqchip_device aplic_irqchip_template = {
 	.warm_init			= aplic_warm_init,
 	.process_hwirqs		= aplic_process_hwirqs,
 	.hwirq_eoi			= aplic_hwirq_eoi,
-	.hwirq_setup		= aplic_hwirq_setup,
+	.hwirq_అమరిక		= aplic_hwirq_అమరిక,
 	.hwirq_cleanup		= aplic_hwirq_cleanup,
-	.hwirq_set_affinity	= aplic_hwirq_set_affinity,
-	.hwirq_mask			= aplic_hwirq_mask,
+	.hwirq_సమితి_affinity	= aplic_hwirq_సమితి_affinity,
+	.hwirq_ముసుగు			= aplic_hwirq_ముసుగు,
 	.hwirq_unmask		= aplic_hwirq_unmask,
 };
 
-int aplic_cold_irqchip_init(struct aplic_data *aplic)
+పూర్ణాంకం aplic_cold_irqchip_init(నిర్మాణం aplic_దత్తాంశం *aplic)
 {
-	int rc;
-	struct aplic_delegate_data *deleg;
-	u32 first_deleg_irq, last_deleg_irq, i;
-	bool msi_mode;
+	పూర్ణాంకం rc;
+	నిర్మాణం aplic_delegate_దత్తాంశం *deleg;
+	u32 మొదటి_deleg_irq, చివరి_deleg_irq, i;
+	bool msi_బహుళకం;
 
-	msi_mode = !aplic_is_direct_mode(aplic);
-	if (!aplic->num_source) {
+	msi_బహుళకం = !aplic_is_ప్రత్యక్ష_బహుళకం(aplic);
+	ఒకవేళ (!aplic->అంకె_ఆధారం) {
 		sbi_printf("%s: num_source is zero\n", __func__);
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	}
 
-	if (APLIC_MAX_SOURCE <= aplic->num_source) {
+	ఒకవేళ (APLIC_MAX_ఆధారం <= aplic->అంకె_ఆధారం) {
 		sbi_printf("%s: num_source=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_source,
-			(unsigned long)APLIC_MAX_SOURCE);
-		return SBI_EINVAL;
+			(గుర్తులేని దీర్ఘ)aplic->అంకె_ఆధారం,
+			(గుర్తులేని దీర్ఘ)APLIC_MAX_ఆధారం);
+		తిరిగి SBI_EINVAL;
 	}
 
-	if (!msi_mode && APLIC_MAX_IDC <= aplic->num_idc) {
+	ఒకవేళ (!msi_బహుళకం && APLIC_MAX_IDC <= aplic->అంకె_idc) {
 		sbi_printf("%s: num_idc=%lu exceeds max=%lu\n",
 			__func__,
-			(unsigned long)aplic->num_idc,
-			(unsigned long)APLIC_MAX_IDC);
-		return SBI_EINVAL;
+			(గుర్తులేని దీర్ఘ)aplic->అంకె_idc,
+			(గుర్తులేని దీర్ఘ)APLIC_MAX_IDC);
+		తిరిగి SBI_EINVAL;
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_mmode) {
+	ఒకవేళ (aplic->targets_mmode && aplic->has_msicfg_mmode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_mmode);
-		if (rc) {
+		ఒకవేళ (rc) {
 			sbi_printf("%s: invalid M-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			తిరిగి rc;
 		}
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_smode) {
+	ఒకవేళ (aplic->targets_mmode && aplic->has_msicfg_smode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_smode);
-		if (rc) {
+		ఒకవేళ (rc) {
 			sbi_printf("%s: invalid S-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			తిరిగి rc;
 		}
 	}
 
@@ -731,60 +731,60 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 	 * 1) It targets M-mode of any HART directly or via MSIs
 	 * 2) All interrupts are delegated to some child APLIC
 	 */
-	first_deleg_irq = -1U;
-	last_deleg_irq = 0;
-	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
+	మొదటి_deleg_irq = -1U;
+	చివరి_deleg_irq = 0;
+	కొరకు (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (deleg->first_irq < first_deleg_irq)
-			first_deleg_irq = deleg->first_irq;
-		if (last_deleg_irq < deleg->last_irq)
-			last_deleg_irq = deleg->last_irq;
+		ఒకవేళ (deleg->మొదటి_irq < మొదటి_deleg_irq)
+			మొదటి_deleg_irq = deleg->మొదటి_irq;
+		ఒకవేళ (చివరి_deleg_irq < deleg->చివరి_irq)
+			చివరి_deleg_irq = deleg->చివరి_irq;
 	}
 
-	if (aplic->targets_mmode ||
-	    ((first_deleg_irq < last_deleg_irq) &&
-	    (last_deleg_irq == aplic->num_source) &&
-	    (first_deleg_irq == 1))) {
-		rc = sbi_domain_root_add_memrange(aplic->addr, aplic->size, PAGE_SIZE,
+	ఒకవేళ (aplic->targets_mmode ||
+	    ((మొదటి_deleg_irq < చివరి_deleg_irq) &&
+	    (చివరి_deleg_irq == aplic->అంకె_ఆధారం) &&
+	    (మొదటి_deleg_irq == 1))) {
+		rc = sbi_domain_మూలం_కూడు_memrange(aplic->addr, aplic->కొలత, పుట_కొలత,
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
-	if ((aplic->targets_mmode)) {
+	ఒకవేళ ((aplic->targets_mmode)) {
 		aplic->irqchip		 = aplic_irqchip_template;
 		aplic->irqchip.id	 = aplic->unique_id;
 		aplic->irqchip.caps = SBI_IRQCHIP_CAPS_WIRED;
-		aplic->irqchip.num_hwirq = aplic->num_source + 1;
+		aplic->irqchip.అంకె_hwirq = aplic->అంకె_ఆధారం + 1;
 
-		if (msi_mode) {
-			aplic->irqchip.warm_init      = NULL;
-			aplic->irqchip.process_hwirqs = NULL;
-			aplic->irqchip.hwirq_eoi      = NULL;
+		ఒకవేళ (msi_బహుళకం) {
+			aplic->irqchip.warm_init      = ఖాళీ;
+			aplic->irqchip.process_hwirqs = ఖాళీ;
+			aplic->irqchip.hwirq_eoi      = ఖాళీ;
 		}
 
-		if (msi_mode)
-			sbi_hartmask_set_all(&aplic->irqchip.target_harts);
-		else
-			for (i = 0; i < aplic->num_idc; i++)
-				sbi_hartmask_set_hartindex(aplic->idc_map[i],
-							   &aplic->irqchip.target_harts);
+		ఒకవేళ (msi_బహుళకం)
+			sbi_hartmask_సమితి_all(&aplic->irqchip.లక్ష్యం_harts);
+		లేకపోతే
+			కొరకు (i = 0; i < aplic->అంకె_idc; i++)
+				sbi_hartmask_సమితి_hartindex(aplic->idc_map[i],
+							   &aplic->irqchip.లక్ష్యం_harts);
 
-		rc = sbi_irqchip_add_device(&aplic->irqchip);
-		if (rc) {
+		rc = sbi_irqchip_కూడు_device(&aplic->irqchip);
+		ఒకవేళ (rc) {
 			sbi_printf("%s: sbi_irqchip_add_device failed rc=%d id=%lu mode=%s target_weight=%lu\n",
 				__func__, rc,
-				(unsigned long)aplic->irqchip.id,
-				msi_mode ? "msi" : "direct",
-				(unsigned long)sbi_hartmask_weight(
-					&aplic->irqchip.target_harts));
-			return rc;
+				(గుర్తులేని దీర్ఘ)aplic->irqchip.id,
+				msi_బహుళకం ? "msi" : "direct",
+				(గుర్తులేని దీర్ఘ)sbi_hartmask_బరువు(
+					&aplic->irqchip.లక్ష్యం_harts));
+			తిరిగి rc;
 		}
 	}
 	/* Attach to the aplic list */
-	sbi_list_add_tail(&aplic->node, &aplic_list);
+	sbi_list_కూడు_తోక(&aplic->కణుపు, &aplic_list);
 
-	return 0;
+	తిరిగి 0;
 }

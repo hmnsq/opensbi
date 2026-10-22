@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/serial/fdt_serial.h>
+#అన్తర్భావ <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+స్థిర పూర్ణాంకం serial_altr_juart_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				  స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_కొలత;
+	పూర్ణాంకం rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (nodeoff < 0 || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, &reg_కొలత);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	ఒకవేళ (rc < 0 || !reg_addr || !reg_కొలత || reg_కొలత < 0x8)
+		తిరిగి SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	తిరిగి altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక serial_altr_juart_సరిపోలిక[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
-	.match_table = serial_altr_juart_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_serial_altr_juart = {
+	.సరిపోలిక_పట్టిక = serial_altr_juart_సరిపోలిక,
 	.init = serial_altr_juart_init,
 };

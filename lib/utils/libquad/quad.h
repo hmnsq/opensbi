@@ -52,34 +52,34 @@
  * with 48-bit longs.
  */
 
-#include <sys/types.h>
-#include <limits.h>
+#అన్తర్భావ <sys/types.h>
+#అన్తర్భావ <limits.h>
 
 /*
  * Depending on the desired operation, we view a `long long' (aka quad_t) in
  * one or more of the following formats.
  */
-union uu {
+సంఘం uu {
 	quad_t	q;		/* as a (signed) quad */
 	quad_t	uq;		/* as an unsigned quad */
-	long	sl[2];		/* as two signed longs */
+	దీర్ఘ	sl[2];		/* as two signed longs */
 	u_long	ul[2];		/* as two unsigned longs */
 };
 
 /*
  * Define high and low longwords.
  */
-#define	H		_QUAD_HIGHWORD
-#define	L		_QUAD_LOWWORD
+#నిర్వచించు	H		_QUAD_HIGHWORD
+#నిర్వచించు	L		_QUAD_LOWWORD
 
 /*
  * Total number of bits in a quad_t and in the pieces that make it up.
  * These are used for shifting, and also below for halfword extraction
  * and assembly.
  */
-#define	QUAD_BITS	(sizeof(quad_t) * CHAR_BIT)
-#define	LONG_BITS	(sizeof(long) * CHAR_BIT)
-#define	HALF_BITS	(sizeof(long) * CHAR_BIT / 2)
+#నిర్వచించు	QUAD_బిట్లు	(పరిమాణం(quad_t) * CHAR_BIT)
+#నిర్వచించు	LONG_బిట్లు	(పరిమాణం(దీర్ఘ) * CHAR_BIT)
+#నిర్వచించు	HALF_బిట్లు	(పరిమాణం(దీర్ఘ) * CHAR_BIT / 2)
 
 /*
  * Extract high and low shortwords from longword, and move low shortword of
@@ -90,16 +90,16 @@ union uu {
  * and lower halves, and to reassemble a product as a quad_t, shifted left
  * (sizeof(long)*CHAR_BIT/2).
  */
-#define	HHALF(x)	((x) >> HALF_BITS)
-#define	LHALF(x)	((x) & ((1L << HALF_BITS) - 1))
-#define	LHUP(x)		((x) << HALF_BITS)
+#నిర్వచించు	HHALF(x)	((x) >> HALF_బిట్లు)
+#నిర్వచించు	LHALF(x)	((x) & ((1L << HALF_బిట్లు) - 1))
+#నిర్వచించు	LHUP(x)		((x) << HALF_బిట్లు)
 
-int		__cmpdi2(quad_t a, quad_t b);
+పూర్ణాంకం		__cmpdi2(quad_t a, quad_t b);
 quad_t		__divdi3(quad_t a, quad_t b);
 quad_t		__moddi3(quad_t a, quad_t b);
 u_quad_t	__qdivrem(u_quad_t u, u_quad_t v, u_quad_t *rem);
-int		__ucmpdi2(u_quad_t a, u_quad_t b);
+పూర్ణాంకం		__ucmpdi2(u_quad_t a, u_quad_t b);
 u_quad_t	__udivdi3(u_quad_t a, u_quad_t b);
 u_quad_t	__umoddi3(u_quad_t a, u_quad_t b);
 
-typedef unsigned int	qshift_t;
+రకనిర్వచనం గుర్తులేని పూర్ణాంకం	qshift_t;

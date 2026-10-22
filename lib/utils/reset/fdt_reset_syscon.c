@@ -7,161 +7,161 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/regmap/fdt_regmap.h>
 
-struct syscon_reset {
-	struct regmap *rmap;
-	u32 priority;
-	u32 offset;
-	u32 value;
-	u32 mask;
+నిర్మాణం syscon_reset {
+	నిర్మాణం regmap *rmap;
+	u32 ప్రాధాన్యత;
+	u32 స్థానభ్రంశం;
+	u32 విలువ;
+	u32 ముసుగు;
 };
 
-static struct syscon_reset poweroff;
-static struct syscon_reset reboot;
+స్థిర నిర్మాణం syscon_reset poweroff;
+స్థిర నిర్మాణం syscon_reset reboot;
 
-static struct syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
+స్థిర నిర్మాణం syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
 {
-	struct syscon_reset *reset = NULL;
+	నిర్మాణం syscon_reset *reset = ఖాళీ;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_reboot)
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+		ఒకవేళ (!is_reboot)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_reboot)
+		ఆపు;
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ఒకవేళ (is_reboot)
 			reset = &reboot;
-		break;
+		ఆపు;
 	}
 
-	if (reset && !reset->rmap)
-		reset = NULL;
+	ఒకవేళ (reset && !reset->rmap)
+		reset = ఖాళీ;
 
-	return reset;
+	తిరిగి reset;
 }
 
-static void syscon_reset_exec(struct syscon_reset *reset)
+స్థిర శూన్య syscon_reset_exec(నిర్మాణం syscon_reset *reset)
 {
 	/* Issue the reset through regmap */
-	if (reset)
-		regmap_update_bits(reset->rmap, reset->offset,
-				   reset->mask, reset->value);
+	ఒకవేళ (reset)
+		regmap_update_బిట్లు(reset->rmap, reset->స్థానభ్రంశం,
+				   reset->ముసుగు, reset->విలువ);
 
 	/* hang !!! */
 	sbi_hart_hang();
 }
 
-static int syscon_poweroff_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం syscon_poweroff_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(false, type);
+	నిర్మాణం syscon_reset *reset = syscon_reset_get(false, type);
 
-	return (reset) ? reset->priority : 0;
+	తిరిగి (reset) ? reset->ప్రాధాన్యత : 0;
 }
 
-static void syscon_do_poweroff(u32 type, u32 reason)
+స్థిర శూన్య syscon_do_poweroff(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device syscon_poweroff = {
+స్థిర నిర్మాణం sbi_system_reset_device syscon_poweroff = {
 	.name = "syscon-poweroff",
 	.system_reset_check = syscon_poweroff_check,
 	.system_reset = syscon_do_poweroff
 };
 
-static int syscon_reboot_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం syscon_reboot_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(true, type);
+	నిర్మాణం syscon_reset *reset = syscon_reset_get(true, type);
 
-	return (reset) ? reset->priority : 0;
+	తిరిగి (reset) ? reset->ప్రాధాన్యత : 0;
 }
 
-static void syscon_do_reboot(u32 type, u32 reason)
+స్థిర శూన్య syscon_do_reboot(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device syscon_reboot = {
+స్థిర నిర్మాణం sbi_system_reset_device syscon_reboot = {
 	.name = "syscon-reboot",
 	.system_reset_check = syscon_reboot_check,
 	.system_reset = syscon_do_reboot
 };
 
-static int syscon_reset_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+స్థిర పూర్ణాంకం syscon_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			     స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc, len;
-	const fdt32_t *val, *mask;
-	bool is_reboot = (ulong)match->data;
-	struct syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
+	పూర్ణాంకం rc, len;
+	స్థిరరాశి fdt32_t *val, *ముసుగు;
+	bool is_reboot = (ulong)సరిపోలిక->దత్తాంశం;
+	నిర్మాణం syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
 
-	if (reset->rmap)
-		return SBI_EALREADY;
+	ఒకవేళ (reset->rmap)
+		తిరిగి SBI_EALREADY;
 
 	rc = fdt_regmap_get(fdt, nodeoff, &reset->rmap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	val = fdt_getprop(fdt, nodeoff, "priority", &len);
-	reset->priority = (val && len > 0) ? fdt32_to_cpu(*val) : 192;
+	reset->ప్రాధాన్యత = (val && len > 0) ? fdt32_గమ్యం_cpu(*val) : 192;
 
 	val = fdt_getprop(fdt, nodeoff, "offset", &len);
-	if (val && len > 0)
-		reset->offset = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	ఒకవేళ (val && len > 0)
+		reset->స్థానభ్రంశం = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "value", &len);
-	mask = fdt_getprop(fdt, nodeoff, "mask", &len);
-	if (!val && !mask)
-		return SBI_EINVAL;
+	ముసుగు = fdt_getprop(fdt, nodeoff, "mask", &len);
+	ఒకవేళ (!val && !ముసుగు)
+		తిరిగి SBI_EINVAL;
 
-	if (!val) {
+	ఒకవేళ (!val) {
 		/* support old binding */
-		reset->value = fdt32_to_cpu(*mask);
-		reset->mask = 0xFFFFFFFF;
-	} else if (!mask) {
+		reset->విలువ = fdt32_గమ్యం_cpu(*ముసుగు);
+		reset->ముసుగు = 0xFFFFFFFF;
+	} లేకపోతే ఒకవేళ (!ముసుగు) {
 		/* support value without mask */
-		reset->value = fdt32_to_cpu(*val);
-		reset->mask = 0xFFFFFFFF;
-	} else {
-		reset->value = fdt32_to_cpu(*val);
-		reset->mask = fdt32_to_cpu(*mask);
+		reset->విలువ = fdt32_గమ్యం_cpu(*val);
+		reset->ముసుగు = 0xFFFFFFFF;
+	} లేకపోతే {
+		reset->విలువ = fdt32_గమ్యం_cpu(*val);
+		reset->ముసుగు = fdt32_గమ్యం_cpu(*ముసుగు);
 	}
 
-	if (is_reboot)
-		sbi_system_reset_add_device(&syscon_reboot);
-	else
-		sbi_system_reset_add_device(&syscon_poweroff);
+	ఒకవేళ (is_reboot)
+		sbi_system_reset_కూడు_device(&syscon_reboot);
+	లేకపోతే
+		sbi_system_reset_కూడు_device(&syscon_poweroff);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match syscon_poweroff_match[] = {
-	{ .compatible = "syscon-poweroff", .data = (const void *)false },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక syscon_poweroff_సరిపోలిక[] = {
+	{ .compatible = "syscon-poweroff", .దత్తాంశం = (స్థిరరాశి శూన్య *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_poweroff = {
-	.match_table = syscon_poweroff_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_syscon_poweroff = {
+	.సరిపోలిక_పట్టిక = syscon_poweroff_సరిపోలిక,
 	.init = syscon_reset_init,
 };
 
-static const struct fdt_match syscon_reboot_match[] = {
-	{ .compatible = "syscon-reboot", .data = (const void *)true },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక syscon_reboot_సరిపోలిక[] = {
+	{ .compatible = "syscon-reboot", .దత్తాంశం = (స్థిరరాశి శూన్య *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_reboot = {
-	.match_table = syscon_reboot_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_syscon_reboot = {
+	.సరిపోలిక_పట్టిక = syscon_reboot_సరిపోలిక,
 	.init = syscon_reset_init,
 };

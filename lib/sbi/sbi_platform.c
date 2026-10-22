@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+స్థిర అంతఃవరుస అక్షరం *sbi_platform_feature_id2string(గుర్తులేని దీర్ఘ feature)
 {
-	char *fstr = NULL;
+	అక్షరం *fstr = ఖాళీ;
 
-	if (!feature)
-		return NULL;
+	ఒకవేళ (!feature)
+		తిరిగి ఖాళీ;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	ఎంపిక (feature) {
+	స్థితి SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		ఆపు;
+	అప్రమేయ:
+		ఆపు;
 	}
 
-	return fstr;
+	తిరిగి fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+శూన్య sbi_platform_get_features_str(స్థిరరాశి నిర్మాణం sbi_platform *plat,
+				   అక్షరం *features_str, పూర్ణాంకం nfstr)
 {
-	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	గుర్తులేని దీర్ఘ features, feat = 1UL;
+	అక్షరం *తాత్కాలిక;
+	పూర్ణాంకం స్థానభ్రంశం = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	ఒకవేళ (!plat || !features_str || !nfstr)
+		తిరిగి;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	ఒకవేళ (!features)
+		వెళ్ళు పూర్తి;
 
-	do {
-		if (features & feat) {
-			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
-						       nfstr - offset,
-						       "%s,", temp);
-				if (len < 0)
-					break;
+	చేయి {
+		ఒకవేళ (features & feat) {
+			తాత్కాలిక = sbi_platform_feature_id2string(feat);
+			ఒకవేళ (తాత్కాలిక) {
+				పూర్ణాంకం len = sbi_snprintf(features_str + స్థానభ్రంశం,
+						       nfstr - స్థానభ్రంశం,
+						       "%s,", తాత్కాలిక);
+				ఒకవేళ (len < 0)
+					ఆపు;
 
-				if (offset + len >= nfstr) {
+				ఒకవేళ (స్థానభ్రంశం + len >= nfstr) {
 					/* No more space for features */
-					offset = nfstr;
-					break;
-				} else
-					offset = offset + len;
+					స్థానభ్రంశం = nfstr;
+					ఆపు;
+				} లేకపోతే
+					స్థానభ్రంశం = స్థానభ్రంశం + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} అయితే (feat <= SBI_PLATFORM_HAS_చివరి_FEATURE);
 
-done:
-	if (offset)
-		features_str[offset - 1] = '\0';
-	else
+పూర్తి:
+	ఒకవేళ (స్థానభ్రంశం)
+		features_str[స్థానభ్రంశం - 1] = '\0';
+	లేకపోతే
 		sbi_strncpy(features_str, "none", nfstr);
 }

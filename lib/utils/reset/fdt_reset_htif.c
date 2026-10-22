@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/sys/htif.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/sys/htif.h>
 
-static int htif_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+స్థిర పూర్ణాంకం htif_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			   స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	ఒకవేళ (!fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &fromhost_addr, ఖాళీ)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + పరిమాణం(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 1, &tohost_addr, ఖాళీ);
 
-	return htif_system_reset_init(custom, fromhost_addr, tohost_addr);
+	తిరిగి htif_system_reset_init(custom, fromhost_addr, tohost_addr);
 }
 
-static const struct fdt_match htif_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక htif_reset_సరిపోలిక[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_htif = {
-	.match_table = htif_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_htif = {
+	.సరిపోలిక_పట్టిక = htif_reset_సరిపోలిక,
 	.init = htif_reset_init
 };

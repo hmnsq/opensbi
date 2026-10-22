@@ -4,85 +4,85 @@
  * Copyright (c) 2024 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+పూర్ణాంకం fdt_driver_init_by_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			      స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	స్థిరరాశి నిర్మాణం fdt_driver *driver;
+	స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక;
+	పూర్ణాంకం compat_len, prop_len, rc;
+	స్థిరరాశి అక్షరం *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	ఒకవేళ (!fdt_కణుపు_is_enabled(fdt, nodeoff))
+		తిరిగి SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	ఒకవేళ (!compat_str)
+		తిరిగి SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
-					goto found;
+	అయితే ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		కొరకు (పూర్ణాంకం i = 0; (driver = drivers[i]); i++)
+			కొరకు (సరిపోలిక = driver->సరిపోలిక_పట్టిక; సరిపోలిక->compatible; సరిపోలిక++)
+				ఒకవేళ (!memcmp(సరిపోలిక->compatible, compat_str, compat_len))
+					వెళ్ళు దొరికింది;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	తిరిగి SBI_ENODEV;
 
-found:
-	if (driver->experimental)
+దొరికింది:
+	ఒకవేళ (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
-			   match->compatible);
+			   సరిపోలిక->compatible);
 
-	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	rc = driver->init(fdt, nodeoff, సరిపోలిక);
+	ఒకవేళ (rc < 0) {
+		స్థిరరాశి అక్షరం *name;
 
-		name = fdt_get_name(fdt, nodeoff, NULL);
+		name = fdt_get_name(fdt, nodeoff, ఖాళీ);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
-			   __func__, name, match->compatible, rc);
+			   __func__, name, సరిపోలిక->compatible, rc);
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+స్థిర పూర్ణాంకం fdt_driver_init_పరిశీలన(స్థిరరాశి శూన్య *fdt,
+				స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	పూర్ణాంకం nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	కొరకు (nodeoff = fdt_తదుపరి_కణుపు(fdt, -1, ఖాళీ);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
-		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
-			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+	     nodeoff = fdt_తదుపరి_కణుపు(fdt, nodeoff, ఖాళీ)) {
+		rc = fdt_driver_init_by_స్థానభ్రంశం(fdt, nodeoff, drivers);
+		ఒకవేళ (rc == SBI_ENODEV)
+			కొనసాగు;
+		ఒకవేళ (rc < 0)
+			తిరిగి rc;
+		ఒకవేళ (one)
+			తిరిగి 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	తిరిగి one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+పూర్ణాంకం fdt_driver_init_all(స్థిరరాశి శూన్య *fdt,
+			స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	తిరిగి fdt_driver_init_పరిశీలన(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+పూర్ణాంకం fdt_driver_init_one(స్థిరరాశి శూన్య *fdt,
+			స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	తిరిగి fdt_driver_init_పరిశీలన(fdt, drivers, true);
 }

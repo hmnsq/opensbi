@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define ATCWDT200_WP_NUM 0x5aa5
-#define WREN_REG 0x18
-#define CTRL_REG 0x10
-#define RST_TIME_OFF 8
-#define RST_TIME_MSK (0x3 << RST_TIME_OFF)
-#define RST_CLK_128 (0 << RST_TIME_OFF)
-#define RST_CLK_256 (1 << RST_TIME_OFF)
-#define RST_CLK_512 (2 << RST_TIME_OFF)
-#define RST_CLK_1024 (3 << RST_TIME_OFF)
-#define INT_TIME_OFF 4
-#define INT_TIME_MSK (0xf << INT_TIME_OFF)
-#define INT_CLK_64 (0 << INT_TIME_OFF)
-#define INT_CLK_256 (1 << INT_TIME_OFF)
-#define INT_CLK_1024 (2 << INT_TIME_OFF)
-#define INT_CLK_2048 (3 << INT_TIME_OFF)
-#define INT_CLK_4096 (4 << INT_TIME_OFF)
-#define INT_CLK_8192 (5 << INT_TIME_OFF)
-#define INT_CLK_16384 (6 << INT_TIME_OFF)
-#define INT_CLK_32768 (7 << INT_TIME_OFF)
-#define RST_EN (1 << 3)
-#define INT_EN (1 << 2)
-#define CLK_PCLK (1 << 1)
-#define WDT_EN (1 << 0)
+#నిర్వచించు ATCWDT200_WP_అంకె 0x5aa5
+#నిర్వచించు WREN_REG 0x18
+#నిర్వచించు CTRL_REG 0x10
+#నిర్వచించు RST_సమయం_OFF 8
+#నిర్వచించు RST_సమయం_MSK (0x3 << RST_సమయం_OFF)
+#నిర్వచించు RST_CLK_128 (0 << RST_సమయం_OFF)
+#నిర్వచించు RST_CLK_256 (1 << RST_సమయం_OFF)
+#నిర్వచించు RST_CLK_512 (2 << RST_సమయం_OFF)
+#నిర్వచించు RST_CLK_1024 (3 << RST_సమయం_OFF)
+#నిర్వచించు INT_సమయం_OFF 4
+#నిర్వచించు INT_సమయం_MSK (0xf << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_64 (0 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_256 (1 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_1024 (2 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_2048 (3 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_4096 (4 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_8192 (5 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_16384 (6 << INT_సమయం_OFF)
+#నిర్వచించు INT_CLK_32768 (7 << INT_సమయం_OFF)
+#నిర్వచించు RST_EN (1 << 3)
+#నిర్వచించు INT_EN (1 << 2)
+#నిర్వచించు CLK_PCLK (1 << 1)
+#నిర్వచించు WDT_EN (1 << 0)
 
-#define AE350_FLASH_BASE 0x80000000
+#నిర్వచించు AE350_FLASH_పునాది 0x80000000
 
-static volatile char *wdt_addr = NULL;
+స్థిర అస్థిర అక్షరం *wdt_addr = ఖాళీ;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం ae350_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	default:
-		return 0;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		తిరిగి 1;
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	అప్రమేయ:
+		తిరిగి 0;
 	}
 }
 
-static void ae350_system_reset(u32 type, u32 reason)
+స్థిర శూన్య ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
-			goto fail;
+		ఒకవేళ (atcsmu_సమితి_reset_సదిశ(AE350_FLASH_పునాది, i))
+			వెళ్ళు fail;
 
 	/* Program WDT control register  */
-	writew(ATCWDT200_WP_NUM, wdt_addr + WREN_REG);
+	writew(ATCWDT200_WP_అంకె, wdt_addr + WREN_REG);
 	writel(INT_CLK_32768 | INT_EN | RST_CLK_128 | RST_EN | WDT_EN,
 	       wdt_addr + CTRL_REG);
 
@@ -69,34 +69,34 @@ fail:
 	sbi_hart_hang();
 }
 
-static struct sbi_system_reset_device atcwdt200_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device atcwdt200_reset = {
 	.name		    = "atcwdt200",
 	.system_reset_check = ae350_system_reset_check,
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+స్థిర పూర్ణాంకం atcwdt200_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
 	uint64_t reg_addr;
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, ఖాళీ);
+	ఒకవేళ (rc < 0 || !reg_addr)
+		తిరిగి SBI_ENODEV;
 
-	wdt_addr = (volatile char *)(unsigned long)reg_addr;
-	sbi_system_reset_add_device(&atcwdt200_reset);
+	wdt_addr = (అస్థిర అక్షరం *)(గుర్తులేని దీర్ఘ)reg_addr;
+	sbi_system_reset_కూడు_device(&atcwdt200_reset);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match atcwdt200_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక atcwdt200_reset_సరిపోలిక[] = {
 	{ .compatible = "andestech,atcwdt200" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_atcwdt200 = {
-	.match_table = atcwdt200_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_atcwdt200 = {
+	.సరిపోలిక_పట్టిక = atcwdt200_reset_సరిపోలిక,
 	.init	     = atcwdt200_reset_init,
 };

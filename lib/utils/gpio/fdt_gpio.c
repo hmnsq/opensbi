@@ -7,85 +7,85 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/gpio/fdt_gpio.h>
 
 /* List of FDT gpio drivers generated at compile time */
-extern const struct fdt_driver *const fdt_gpio_drivers[];
+బాహ్య స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి fdt_gpio_drivers[];
 
-static int fdt_gpio_init(const void *fdt, int nodeoff)
+స్థిర పూర్ణాంకం fdt_gpio_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff)
 {
 	/* Check "gpio-controller" property */
-	if (!fdt_getprop(fdt, nodeoff, "gpio-controller", NULL))
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt_getprop(fdt, nodeoff, "gpio-controller", ఖాళీ))
+		తిరిగి SBI_EINVAL;
 
-	return fdt_driver_init_by_offset(fdt, nodeoff, fdt_gpio_drivers);
+	తిరిగి fdt_driver_init_by_స్థానభ్రంశం(fdt, nodeoff, fdt_gpio_drivers);
 }
 
-static int fdt_gpio_chip_find(const void *fdt, int nodeoff,
-			      struct gpio_chip **out_chip)
+స్థిర పూర్ణాంకం fdt_gpio_chip_కనుగొను(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			      నిర్మాణం gpio_chip **బహిర్గతం_chip)
 {
-	int rc;
-	struct gpio_chip *chip = gpio_chip_find(nodeoff);
+	పూర్ణాంకం rc;
+	నిర్మాణం gpio_chip *chip = gpio_chip_కనుగొను(nodeoff);
 
-	if (!chip) {
+	ఒకవేళ (!chip) {
 		/* GPIO chip not found so initialize matching driver */
 		rc = fdt_gpio_init(fdt, nodeoff);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
 		/* Try to find GPIO chip again */
-		chip = gpio_chip_find(nodeoff);
-		if (!chip)
-			return SBI_ENOSYS;
+		chip = gpio_chip_కనుగొను(nodeoff);
+		ఒకవేళ (!chip)
+			తిరిగి SBI_ENOSYS;
 	}
 
-	if (out_chip)
-		*out_chip = chip;
+	ఒకవేళ (బహిర్గతం_chip)
+		*బహిర్గతం_chip = chip;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_gpio_pin_get(const void *fdt, int nodeoff, int index,
-		     struct gpio_pin *out_pin)
+పూర్ణాంకం fdt_gpio_pin_get(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, పూర్ణాంకం సూచీ_2,
+		     నిర్మాణం gpio_pin *బహిర్గతం_pin)
 {
-	int rc;
-	const struct fdt_gpio *drv;
-	struct gpio_chip *chip = NULL;
-	struct fdt_phandle_args pargs;
+	పూర్ణాంకం rc;
+	స్థిరరాశి నిర్మాణం fdt_gpio *drv;
+	నిర్మాణం gpio_chip *chip = ఖాళీ;
+	నిర్మాణం fdt_phandle_వాదనలు pargs;
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_pin)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || (nodeoff < 0) || (సూచీ_2 < 0) || !బహిర్గతం_pin)
+		తిరిగి SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
-	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
+	pargs.కణుపు_స్థానభ్రంశం = pargs.వాదనలు_లెక్క = 0;
+	rc = fdt_parse_phandle_with_వాదనలు(fdt, nodeoff,
 					 "gpios", "#gpio-cells",
-					 index, &pargs);
-	if (rc)
-		return rc;
+					 సూచీ_2, &pargs);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	rc = fdt_gpio_chip_find(fdt, pargs.node_offset, &chip);
-	if (rc)
-		return rc;
+	rc = fdt_gpio_chip_కనుగొను(fdt, pargs.కణుపు_స్థానభ్రంశం, &chip);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	drv = chip->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	ఒకవేళ (!drv || !drv->xlate)
+		తిరిగి SBI_ENOSYS;
 
-	return drv->xlate(chip, &pargs, out_pin);
+	తిరిగి drv->xlate(chip, &pargs, బహిర్గతం_pin);
 }
 
-int fdt_gpio_simple_xlate(struct gpio_chip *chip,
-			  const struct fdt_phandle_args *pargs,
-			  struct gpio_pin *out_pin)
+పూర్ణాంకం fdt_gpio_simple_xlate(నిర్మాణం gpio_chip *chip,
+			  స్థిరరాశి నిర్మాణం fdt_phandle_వాదనలు *pargs,
+			  నిర్మాణం gpio_pin *బహిర్గతం_pin)
 {
-	if ((pargs->args_count < 2) || (chip->ngpio <= pargs->args[0]))
-		return SBI_EINVAL;
+	ఒకవేళ ((pargs->వాదనలు_లెక్క < 2) || (chip->ngpio <= pargs->వాదనలు[0]))
+		తిరిగి SBI_EINVAL;
 
-	out_pin->chip = chip;
-	out_pin->offset = pargs->args[0];
-	out_pin->flags = pargs->args[1];
-	return 0;
+	బహిర్గతం_pin->chip = chip;
+	బహిర్గతం_pin->స్థానభ్రంశం = pargs->వాదనలు[0];
+	బహిర్గతం_pin->flags = pargs->వాదనలు[1];
+	తిరిగి 0;
 }

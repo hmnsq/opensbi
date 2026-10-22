@@ -4,63 +4,63 @@
  * Copyright (c) 2026 Inochi Amaoto <inochiama@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-#define RESET_CTRL			0x0
+#నిర్వచించు RESET_CTRL			0x0
 
-static volatile u32 *litex_soc_base;
+స్థిర అస్థిర u32 *litex_soc_పునాది;
 
-static int litex_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం litex_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		తిరిగి 255;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void litex_do_reset(u32 type, u32 reason)
+స్థిర శూన్య litex_do_reset(u32 type, u32 reason)
 {
-	writel_relaxed(0x1, litex_soc_base + RESET_CTRL);
+	writel_relaxed(0x1, litex_soc_పునాది + RESET_CTRL);
 }
 
-static struct sbi_system_reset_device litex_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device litex_reset = {
 	.name = "litex-reset",
 	.system_reset_check = litex_reset_check,
 	.system_reset = litex_do_reset
 };
 
-static int litex_reset_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+స్థిర పూర్ణాంకం litex_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			    స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
 	uint64_t reg_addr;
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, ఖాళీ);
+	ఒకవేళ (rc < 0 || !reg_addr)
+		తిరిగి SBI_ENODEV;
 
 
-	litex_soc_base = (volatile u32 *)(unsigned long)reg_addr;
+	litex_soc_పునాది = (అస్థిర u32 *)(గుర్తులేని దీర్ఘ)reg_addr;
 
-	sbi_system_reset_add_device(&litex_reset);
+	sbi_system_reset_కూడు_device(&litex_reset);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match litex_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక litex_reset_సరిపోలిక[] = {
 	{ .compatible = "litex,soc-controller" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_litex = {
-	.match_table = litex_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_litex = {
+	.సరిపోలిక_పట్టిక = litex_reset_సరిపోలిక,
 	.init = litex_reset_init,
 };

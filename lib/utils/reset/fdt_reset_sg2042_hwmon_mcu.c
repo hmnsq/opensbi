@@ -4,111 +4,111 @@
  * Copyright (c) 2023 Lin Chunzhi <chunzhi.lin@sophgo.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_types.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/i2c/fdt_i2c.h>
 
-#define MANGO_BOARD_TYPE_MASK		0x80
+#నిర్వచించు MANGO_BOARD_TYPE_ముసుగు		0x80
 
-#define REG_BOARD_TYPE			0x00
-#define REG_CMD				0x03
+#నిర్వచించు REG_BOARD_TYPE			0x00
+#నిర్వచించు REG_CMD				0x03
 
-#define CMD_POWEROFF			0x02
-#define CMD_RESET			0x03
-#define CMD_REBOOT			0x07
+#నిర్వచించు CMD_POWEROFF			0x02
+#నిర్వచించు CMD_RESET			0x03
+#నిర్వచించు CMD_REBOOT			0x07
 
-static struct i2c_adapter *mcu_adapter = NULL;
-static uint32_t mcu_reg = 0;
+స్థిర నిర్మాణం i2c_adapter *mcu_adapter = ఖాళీ;
+స్థిర uint32_t mcu_reg = 0;
 
-static int sg2042_mcu_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం sg2042_mcu_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+		తిరిగి 1;
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		తిరిగి 255;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void sg2042_mcu_reset(u32 type, u32 reason)
+స్థిర శూన్య sg2042_mcu_reset(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_POWEROFF);
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ఆపు;
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_REBOOT);
-		break;
+		ఆపు;
 	}
 }
 
-static struct sbi_system_reset_device sg2042_mcu_reset_device = {
+స్థిర నిర్మాణం sbi_system_reset_device sg2042_mcu_reset_device = {
 	.name = "sg2042-mcu-reset",
 	.system_reset_check = sg2042_mcu_reset_check,
 	.system_reset = sg2042_mcu_reset
 };
 
-static int sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
+స్థిర పూర్ణాంకం sg2042_mcu_reset_check_board(నిర్మాణం i2c_adapter *adap, uint32_t reg)
 {
-	static uint8_t val;
-	int ret;
+	స్థిర uint8_t val;
+	పూర్ణాంకం ret;
 
 	/* check board type */
 	ret = i2c_adapter_reg_read(adap, reg, REG_BOARD_TYPE, &val);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	if (!(val & MANGO_BOARD_TYPE_MASK))
-		return SBI_ENODEV;
+	ఒకవేళ (!(val & MANGO_BOARD_TYPE_ముసుగు))
+		తిరిగి SBI_ENODEV;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
-				 const struct fdt_match *match)
+స్థిర పూర్ణాంకం sg2042_mcu_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				 స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int ret, i2c_bus;
+	పూర్ణాంకం ret, i2c_bus;
 	uint64_t addr;
 
-	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (ret)
-		return ret;
+	ret = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &addr, ఖాళీ);
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	mcu_reg = addr;
 
-	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	i2c_bus = fdt_మాతృ_స్థానభ్రంశం(fdt, nodeoff);
+	ఒకవేళ (i2c_bus < 0)
+		తిరిగి i2c_bus;
 
 	ret = fdt_i2c_adapter_get(fdt, i2c_bus, &mcu_adapter);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	ret = sg2042_mcu_reset_check_board(mcu_adapter, mcu_reg);
 
-	sbi_system_reset_add_device(&sg2042_mcu_reset_device);
+	sbi_system_reset_కూడు_device(&sg2042_mcu_reset_device);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match sg2042_mcu_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక sg2042_mcu_reset_సరిపోలిక[] = {
 	{ .compatible = "sophgo,sg2042-hwmon-mcu" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sg2042_mcu = {
-	.match_table = sg2042_mcu_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_sg2042_mcu = {
+	.సరిపోలిక_పట్టిక = sg2042_mcu_reset_సరిపోలిక,
 	.init = sg2042_mcu_reset_init,
 };

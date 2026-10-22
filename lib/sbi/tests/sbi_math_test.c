@@ -5,14 +5,14 @@
  *
  * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
  */
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_unit_test.h>
+#అన్తర్భావ <sbi/sbi_math.h>
+#అన్తర్భావ <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+స్థిర శూన్య log2roundup_test(నిర్మాణం sbiunit_test_case *test)
 {
-    struct {
-        unsigned long input;
-        unsigned long expected;
+    నిర్మాణం {
+        గుర్తులేని దీర్ఘ ఆదానం;
+        గుర్తులేని దీర్ఘ expected;
     } cases[] = {
         {1, 0},
         {2, 1},
@@ -32,15 +32,15 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
-        SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
+    కొరకు (పూర్ణాంకం i = 0; i < పరిమాణం(cases)/పరిమాణం(cases[0]); i++) {
+        గుర్తులేని దీర్ఘ ఫలితం = log2roundup(cases[i].ఆదానం);
+        SBIUNIT_EXPECT_EQ(test, ఫలితం, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+స్థిర నిర్మాణం sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
-    SBIUNIT_END_CASE,
+    SBIUNIT_చివర_CASE,
 };
 
 SBIUNIT_TEST_SUITE(math_test_suite, math_test_cases);

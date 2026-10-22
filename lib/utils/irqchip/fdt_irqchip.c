@@ -7,12 +7,12 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/irqchip/fdt_irqchip.h>
+#అన్తర్భావ <sbi_utils/irqchip/fdt_irqchip.h>
 
 /* List of FDT irqchip drivers generated at compile time */
-extern const struct fdt_driver *const fdt_irqchip_drivers[];
+బాహ్య స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి fdt_irqchip_drivers[];
 
-int fdt_irqchip_init(void)
+పూర్ణాంకం fdt_irqchip_init(శూన్య)
 {
-	return fdt_driver_init_all(fdt_get_address(), fdt_irqchip_drivers);
+	తిరిగి fdt_driver_init_all(fdt_get_చిరునామా(), fdt_irqchip_drivers);
 }

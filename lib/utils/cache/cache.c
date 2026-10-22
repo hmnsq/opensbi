@@ -4,54 +4,54 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/cache/cache.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/cache/cache.h>
 
-static SBI_LIST_HEAD(cache_list);
+స్థిర SBI_LIST_తల(cache_list);
 
-struct cache_device *cache_find(u32 id)
+నిర్మాణం cache_device *cache_కనుగొను(u32 id)
 {
-	struct cache_device *dev;
+	నిర్మాణం cache_device *dev;
 
-	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+	sbi_list_for_each_నమోదు(dev, &cache_list, కణుపు) {
+		ఒకవేళ (dev->id == id)
+			తిరిగి dev;
 	}
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-int cache_add(struct cache_device *dev)
+పూర్ణాంకం cache_కూడు(నిర్మాణం cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ఒకవేళ (!dev)
+		తిరిగి SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ఒకవేళ (cache_కనుగొను(dev->id))
+		తిరిగి SBI_EALREADY;
 
-	sbi_list_add(&dev->node, &cache_list);
+	sbi_list_కూడు(&dev->కణుపు, &cache_list);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+పూర్ణాంకం cache_flush_all(నిర్మాణం cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ఒకవేళ (!dev)
+		తిరిగి SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ఒకవేళ (!dev->ops || !dev->ops->cache_flush_all)
+		తిరిగి SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	తిరిగి dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+పూర్ణాంకం cache_enable(నిర్మాణం cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ఒకవేళ (!dev)
+		తిరిగి SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ఒకవేళ (!dev->ops || !dev->ops->cache_enable)
+		తిరిగి SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	తిరిగి dev->ops->cache_enable(dev, enable);
 }

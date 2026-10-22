@@ -8,80 +8,80 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/sbi_version.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+స్థిర పూర్ణాంకం sbi_ecall_పునాది_probe(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ *బహిర్గతం_val)
 {
-	struct sbi_ecall_extension *ext;
+	నిర్మాణం sbi_ecall_extension *ext;
 
-	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
-		*out_val = 0;
-		return 0;
+	ext = sbi_ecall_కనుగొను_extension(extid);
+	ఒకవేళ (!ext) {
+		*బహిర్గతం_val = 0;
+		తిరిగి 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	ఒకవేళ (ext->probe)
+		తిరిగి ext->probe(extid, బహిర్గతం_val);
 
-	*out_val = 1;
-	return 0;
+	*బహిర్గతం_val = 1;
+	తిరిగి 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+స్థిర పూర్ణాంకం sbi_ecall_పునాది_handler(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ funcid,
+				  నిర్మాణం sbi_trap_regs *regs,
+				  నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = 0;
+	పూర్ణాంకం ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
-			     (SBI_SPEC_VERSION_MAJOR_MASK <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
-	default:
+	ఎంపిక (funcid) {
+	స్థితి SBI_EXT_పునాది_GET_SPEC_సంస్కరణ:
+		బహిర్గతం->విలువ = (SBI_ECALL_సంస్కరణ_MAJOR <<
+			      SBI_SPEC_సంస్కరణ_MAJOR_స్థానభ్రంశం) &
+			     (SBI_SPEC_సంస్కరణ_MAJOR_ముసుగు <<
+			      SBI_SPEC_సంస్కరణ_MAJOR_స్థానభ్రంశం);
+		బహిర్గతం->విలువ = బహిర్గతం->విలువ | SBI_ECALL_సంస్కరణ_MINOR;
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_GET_IMP_ID:
+		బహిర్గతం->విలువ = sbi_ecall_get_impid();
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_GET_IMP_సంస్కరణ:
+		బహిర్గతం->విలువ = OPENSBI_సంస్కరణ;
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_GET_MVENDORID:
+		బహిర్గతం->విలువ = csr_read(CSR_MVENDORID);
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_GET_MARCHID:
+		బహిర్గతం->విలువ = csr_read(CSR_MARCHID);
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_GET_MIMPID:
+		బహిర్గతం->విలువ = csr_read(CSR_MIMPID);
+		ఆపు;
+	స్థితి SBI_EXT_పునాది_PROBE_EXT:
+		ret = sbi_ecall_పునాది_probe(regs->a0, &బహిర్గతం->విలువ);
+		ఆపు;
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+నిర్మాణం sbi_ecall_extension ecall_పునాది;
 
-static int sbi_ecall_base_register_extensions(void)
+స్థిర పూర్ణాంకం sbi_ecall_పునాది_రిజిస్టరు_extensions(శూన్య)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	తిరిగి sbi_ecall_రిజిస్టరు_extension(&ecall_పునాది);
 }
 
-struct sbi_ecall_extension ecall_base = {
+నిర్మాణం sbi_ecall_extension ecall_పునాది = {
 	.name			= "base",
-	.extid_start		= SBI_EXT_BASE,
-	.extid_end		= SBI_EXT_BASE,
-	.register_extensions	= sbi_ecall_base_register_extensions,
-	.handle			= sbi_ecall_base_handler,
+	.extid_ప్రారంభం		= SBI_EXT_పునాది,
+	.extid_చివర		= SBI_EXT_పునాది,
+	.రిజిస్టరు_extensions	= sbi_ecall_పునాది_రిజిస్టరు_extensions,
+	.handle			= sbi_ecall_పునాది_handler,
 };

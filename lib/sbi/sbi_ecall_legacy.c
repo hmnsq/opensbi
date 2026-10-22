@@ -8,132 +8,132 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_ipi.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/sbi_tlb.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/sbi_unpriv.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
 
-static bool sbi_load_hart_mask_unpriv(ulong *pmask, ulong *hmask, ulong *hbase,
-				      struct sbi_trap_info *uptrap)
+స్థిర bool sbi_ఎక్కించు_hart_ముసుగు_unpriv(ulong *pmask, ulong *hmask, ulong *hbase,
+				      నిర్మాణం sbi_trap_info *uptrap)
 {
-	ulong mask = 0;
+	ulong ముసుగు = 0;
 
-	if (pmask) {
-		mask = sbi_load_ulong(pmask, uptrap);
-		if (uptrap->cause)
-			return false;
+	ఒకవేళ (pmask) {
+		ముసుగు = sbi_ఎక్కించు_ulong(pmask, uptrap);
+		ఒకవేళ (uptrap->cause)
+			తిరిగి false;
 		*hbase = 0;
-	} else {
+	} లేకపోతే {
 		*hbase = -1UL;
 	}
-	*hmask = mask;
+	*hmask = ముసుగు;
 
-	return true;
+	తిరిగి true;
 }
 
-static int sbi_ecall_legacy_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+స్థిర పూర్ణాంకం sbi_ecall_legacy_handler(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ funcid,
+				    నిర్మాణం sbi_trap_regs *regs,
+				    నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = 0;
-	struct sbi_tlb_info tlb_info;
-	u32 source_hart = current_hartid();
-	struct sbi_trap_info trap = {0};
+	పూర్ణాంకం ret = 0;
+	నిర్మాణం sbi_tlb_info tlb_info;
+	u32 ఆధారం_hart = current_hartid();
+	నిర్మాణం sbi_trap_info trap = {0};
 	ulong hmask, hbase;
 
-	switch (extid) {
-	case SBI_EXT_0_1_SET_TIMER:
-#if __riscv_xlen == 32
-		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
-		sbi_timer_smode_event_start((u64)regs->a0);
-#endif
-		break;
-	case SBI_EXT_0_1_CONSOLE_PUTCHAR:
+	ఎంపిక (extid) {
+	స్థితి SBI_EXT_0_1_సమితి_TIMER:
+#ఒకవేళ __riscv_xlen == 32
+		sbi_timer_smode_event_ప్రారంభం((((u64)regs->a1 << 32) | (u64)regs->a0));
+#లేకపోతే
+		sbi_timer_smode_event_ప్రారంభం((u64)regs->a0);
+#అయితే_ముగింపు
+		ఆపు;
+	స్థితి SBI_EXT_0_1_CONSOLE_PUTCHAR:
 		sbi_putc(regs->a0);
-		break;
-	case SBI_EXT_0_1_CONSOLE_GETCHAR:
+		ఆపు;
+	స్థితి SBI_EXT_0_1_CONSOLE_GETCHAR:
 		ret = sbi_getc();
-		break;
-	case SBI_EXT_0_1_CLEAR_IPI:
+		ఆపు;
+	స్థితి SBI_EXT_0_1_CLEAR_IPI:
 		sbi_ipi_clear_smode();
-		break;
-	case SBI_EXT_0_1_SEND_IPI:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		ఆపు;
+	స్థితి SBI_EXT_0_1_SEND_IPI:
+		ఒకవేళ (sbi_ఎక్కించు_hart_ముసుగు_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			ret = sbi_ipi_send_smode(hmask, hbase);
-		} else {
+		} లేకపోతే {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			బహిర్గతం->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_FENCE_I:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		ఆపు;
+	స్థితి SBI_EXT_0_1_REMOTE_FENCE_I:
+		ఒకవేళ (sbi_ఎక్కించు_hart_ముసుగు_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, 0, 0, 0, 0,
-					  SBI_TLB_FENCE_I, source_hart);
+					  SBI_TLB_FENCE_I, ఆధారం_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} లేకపోతే {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			బహిర్గతం->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_SFENCE_VMA:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		ఆపు;
+	స్థితి SBI_EXT_0_1_REMOTE_SFENCE_VMA:
+		ఒకవేళ (sbi_ఎక్కించు_hart_ముసుగు_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1, regs->a2, 0, 0,
-					  SBI_TLB_SFENCE_VMA, source_hart);
+					  SBI_TLB_SFENCE_VMA, ఆధారం_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} లేకపోతే {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			బహిర్గతం->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID:
-		if (sbi_load_hart_mask_unpriv((ulong *)regs->a0,
+		ఆపు;
+	స్థితి SBI_EXT_0_1_REMOTE_SFENCE_VMA_ASID:
+		ఒకవేళ (sbi_ఎక్కించు_hart_ముసుగు_unpriv((ulong *)regs->a0,
 					      &hmask, &hbase, &trap)) {
 			SBI_TLB_INFO_INIT(&tlb_info, regs->a1,
 					  regs->a2, regs->a3, 0,
 					  SBI_TLB_SFENCE_VMA_ASID,
-					  source_hart);
+					  ఆధారం_hart);
 			ret = sbi_tlb_request(hmask, hbase, &tlb_info);
-		} else {
+		} లేకపోతే {
 			sbi_trap_redirect(regs, &trap);
-			out->skip_regs_update = true;
+			బహిర్గతం->skip_regs_update = true;
 		}
-		break;
-	case SBI_EXT_0_1_SHUTDOWN:
+		ఆపు;
+	స్థితి SBI_EXT_0_1_SHUTDOWN:
 		sbi_system_reset(SBI_SRST_RESET_TYPE_SHUTDOWN,
 				 SBI_SRST_RESET_REASON_NONE);
-		break;
-	default:
+		ఆపు;
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-struct sbi_ecall_extension ecall_legacy;
+నిర్మాణం sbi_ecall_extension ecall_legacy;
 
-static int sbi_ecall_legacy_register_extensions(void)
+స్థిర పూర్ణాంకం sbi_ecall_legacy_రిజిస్టరు_extensions(శూన్య)
 {
-	return sbi_ecall_register_extension(&ecall_legacy);
+	తిరిగి sbi_ecall_రిజిస్టరు_extension(&ecall_legacy);
 }
 
-struct sbi_ecall_extension ecall_legacy = {
+నిర్మాణం sbi_ecall_extension ecall_legacy = {
 	.name			= "legacy",
-	.extid_start		= SBI_EXT_0_1_SET_TIMER,
-	.extid_end		= SBI_EXT_0_1_SHUTDOWN,
-	.register_extensions	= sbi_ecall_legacy_register_extensions,
+	.extid_ప్రారంభం		= SBI_EXT_0_1_సమితి_TIMER,
+	.extid_చివర		= SBI_EXT_0_1_SHUTDOWN,
+	.రిజిస్టరు_extensions	= sbi_ecall_legacy_రిజిస్టరు_extensions,
 	.handle			= sbi_ecall_legacy_handler,
 };

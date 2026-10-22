@@ -6,107 +6,107 @@
  *   Aurelien Jarno <aurelien@aurel32.net>
  */
 
-#include <libfdt.h>
-#include <platform_override.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <platform_override.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/i2c/fdt_i2c.h>
 
 /* SpacemiT P1 Power Control Register 2 */
-#define PWR_CTRL2		0x7e
-#define PWR_CTRL2_SHUTDOWN	BIT(2)	/* Shutdown request */
-#define PWR_CTRL2_RST		BIT(1)	/* Reset request */
+#నిర్వచించు PWR_CTRL2		0x7e
+#నిర్వచించు PWR_CTRL2_SHUTDOWN	బిట్టు(2)	/* Shutdown request */
+#నిర్వచించు PWR_CTRL2_RST		బిట్టు(1)	/* Reset request */
 
-static struct i2c_adapter *p1_adapter = NULL;
-static uint32_t p1_reg = 0;
+స్థిర నిర్మాణం i2c_adapter *p1_adapter = ఖాళీ;
+స్థిర uint32_t p1_reg = 0;
 
-static int p1_system_reset_check(uint32_t type, uint32_t reason)
+స్థిర పూర్ణాంకం p1_system_reset_check(uint32_t type, uint32_t reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+		తిరిగి 1;
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		తిరిగి 255;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void p1_ops(uint32_t type)
+స్థిర శూన్య p1_ops(uint32_t type)
 {
 	uint8_t byte;
-	int rc;
+	పూర్ణాంకం rc;
 
 	rc = i2c_adapter_reg_read(p1_adapter, p1_reg, PWR_CTRL2, &byte);
-	if (rc) {
+	ఒకవేళ (rc) {
 		sbi_printf("%s: cannot read P1 Power Control Register 2\n", __func__);
-		return;
+		తిరిగి;
 	}
 
-	if (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
+	ఒకవేళ (type == SBI_SRST_RESET_TYPE_SHUTDOWN)
 		byte |= PWR_CTRL2_SHUTDOWN;
-	else
+	లేకపోతే
 		byte |= PWR_CTRL2_RST;
 
 	rc = i2c_adapter_reg_write(p1_adapter, p1_reg, PWR_CTRL2, byte);
-	if (rc)
+	ఒకవేళ (rc)
 		sbi_printf("%s: cannot write P1 Power Control Register 2\n", __func__);
 }
 
-static void p1_system_reset(uint32_t type, uint32_t reason)
+స్థిర శూన్య p1_system_reset(uint32_t type, uint32_t reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		p1_ops(type);
-		break;
+		ఆపు;
 	}
 }
 
-static struct sbi_system_reset_device p1_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device p1_reset = {
 	.name = "spacemit-p1-reset",
 	.system_reset_check = p1_system_reset_check,
 	.system_reset = p1_system_reset
 };
 
-static int p1_reset_init(const void *fdt, int nodeoff,
-			 const struct fdt_match *match)
+స్థిర పూర్ణాంకం p1_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			 స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc, i2c_bus;
+	పూర్ణాంకం rc, i2c_bus;
 	uint64_t addr;
 
 	/* we are spacemit,p1 node */
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &addr, ఖాళీ);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	p1_reg = addr;
 
 	/* find i2c bus parent node */
-	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	i2c_bus = fdt_మాతృ_స్థానభ్రంశం(fdt, nodeoff);
+	ఒకవేళ (i2c_bus < 0)
+		తిరిగి i2c_bus;
 
 	/* i2c adapter get */
 	rc = fdt_i2c_adapter_get(fdt, i2c_bus, &p1_adapter);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	sbi_system_reset_add_device(&p1_reset);
+	sbi_system_reset_కూడు_device(&p1_reset);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match p1_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక p1_reset_సరిపోలిక[] = {
 	{ .compatible = "spacemit,p1" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_spacemit_p1 = {
-	.match_table = p1_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_spacemit_p1 = {
+	.సరిపోలిక_పట్టిక = p1_reset_సరిపోలిక,
 	.init = p1_reset_init,
 };

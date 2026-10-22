@@ -7,27 +7,27 @@
  *	 Dave Patel <dave.patel@riscstar.com>
  */
 
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_vector.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_vector.h>
+#అన్తర్భావ <sbi/sbi_types.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_error.h>
 
-size_t sbi_vector_context_size(void)
+size_t sbi_సదిశ_context_కొలత(శూన్య)
 {
-	return sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
+	తిరిగి పరిమాణం(నిర్మాణం sbi_సదిశ_context) + (32 * csr_read(CSR_VLENB));
 }
 
-void sbi_vector_save(struct sbi_vector_context *dst)
+శూన్య sbi_సదిశ_save(నిర్మాణం sbi_సదిశ_context *dst)
 {
-	unsigned long vlenb, mstatus_orig;
+	గుర్తులేని దీర్ఘ vlenb, mstatus_orig;
 
-	if (!dst)
-		return;
+	ఒకవేళ (!dst)
+		తిరిగి;
 
 	/* Step 1. Save original mstatus and Enable VS */
-	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
+	mstatus_orig = csr_read_సమితి(CSR_MSTATUS, MSTATUS_VS);
 	vlenb = csr_read(CSR_VLENB);
 
 	/* Step 2: Save CSRs */
@@ -35,9 +35,9 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	dst->vstart = csr_read(vstart);
 
 	/* Step 3: Save vector registers */
-#define SAVE_VREG(i)							\
+#నిర్వచించు SAVE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm అస్థిర(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vs8r.v v" #i ", (%0)\n\t"			\
@@ -50,27 +50,27 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	SAVE_VREG(16);
 	SAVE_VREG(24);
 
-#undef SAVE_VREG
+#నిర్వచనం_రద్దు SAVE_VREG
 
 	/* Step 4. Restore original mstatus LAST */
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_vector_restore(const struct sbi_vector_context *src)
+శూన్య sbi_సదిశ_restore(స్థిరరాశి నిర్మాణం sbi_సదిశ_context *src)
 {
-	unsigned long vlenb, mstatus_orig;
+	గుర్తులేని దీర్ఘ vlenb, mstatus_orig;
 
-	if (!src)
-		return;
+	ఒకవేళ (!src)
+		తిరిగి;
 
 	/* Step 1. Save original mstatus and Enable VS */
-	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
+	mstatus_orig = csr_read_సమితి(CSR_MSTATUS, MSTATUS_VS);
 	vlenb = csr_read(CSR_VLENB);
 
 	/* Step 2: Restore vector registers */
-#define RESTORE_VREG(i)							\
+#నిర్వచించు RESTORE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	asm అస్థిర(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vl8r.v v" #i ", (%0)\n\t"			\
@@ -82,7 +82,7 @@ void sbi_vector_restore(const struct sbi_vector_context *src)
 	RESTORE_VREG(8);
 	RESTORE_VREG(16);
 	RESTORE_VREG(24);
-#undef RESTORE_VREG
+#నిర్వచనం_రద్దు RESTORE_VREG
 
 	/* Step 3: Restore CSR's last */
 	/* Restore CSRs first */

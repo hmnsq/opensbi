@@ -7,102 +7,102 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi_utils/timer/andes_plmt.h>
 
-struct plmt_data plmt;
+నిర్మాణం plmt_దత్తాంశం plmt;
 
-static u64 plmt_timer_value(void)
+స్థిర u64 plmt_timer_విలువ(శూన్య)
 {
-#if __riscv_xlen == 64
-	return readq_relaxed(plmt.time_val);
-#else
+#ఒకవేళ __riscv_xlen == 64
+	తిరిగి readq_relaxed(plmt.సమయం_val);
+#లేకపోతే
 	u32 lo, hi;
 
-	do {
-		hi = readl_relaxed((void *)plmt.time_val + 0x04);
-		lo = readl_relaxed(plmt.time_val);
-	} while (hi != readl_relaxed((void *)plmt.time_val + 0x04));
+	చేయి {
+		hi = readl_relaxed((శూన్య *)plmt.సమయం_val + 0x04);
+		lo = readl_relaxed(plmt.సమయం_val);
+	} అయితే (hi != readl_relaxed((శూన్య *)plmt.సమయం_val + 0x04));
 
-	return ((u64)hi << 32) | (u64)lo;
-#endif
+	తిరిగి ((u64)hi << 32) | (u64)lo;
+#అయితే_ముగింపు
 }
 
-static void plmt_timer_event_stop(void)
+స్థిర శూన్య plmt_timer_event_stop(శూన్య)
 {
-	u32 target_hart = current_hartid();
+	u32 లక్ష్యం_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	ఒకవేళ (plmt.hart_లెక్క <= లక్ష్యం_hart)
 		ebreak();
 
 	/* Clear PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(-1ULL, &plmt.time_cmp[target_hart]);
-#else
-	writel_relaxed(-1UL, &plmt.time_cmp[target_hart]);
-	writel_relaxed(-1UL, (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+#ఒకవేళ __riscv_xlen == 64
+	writeq_relaxed(-1ULL, &plmt.సమయం_cmp[లక్ష్యం_hart]);
+#లేకపోతే
+	writel_relaxed(-1UL, &plmt.సమయం_cmp[లక్ష్యం_hart]);
+	writel_relaxed(-1UL, (శూన్య *)(&plmt.సమయం_cmp[లక్ష్యం_hart]) + 0x04);
+#అయితే_ముగింపు
 }
 
-static void plmt_timer_event_start(u64 next_event)
+స్థిర శూన్య plmt_timer_event_ప్రారంభం(u64 తదుపరి_event)
 {
-	u32 target_hart = current_hartid();
+	u32 లక్ష్యం_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	ఒకవేళ (plmt.hart_లెక్క <= లక్ష్యం_hart)
 		ebreak();
 
 	/* Program PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(next_event, &plmt.time_cmp[target_hart]);
-#else
-	u32 mask = -1UL;
+#ఒకవేళ __riscv_xlen == 64
+	writeq_relaxed(తదుపరి_event, &plmt.సమయం_cmp[లక్ష్యం_hart]);
+#లేకపోతే
+	u32 ముసుగు = -1UL;
 
-	writel_relaxed(next_event & mask, &plmt.time_cmp[target_hart]);
-	writel_relaxed(next_event >> 32,
-		       (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+	writel_relaxed(తదుపరి_event & ముసుగు, &plmt.సమయం_cmp[లక్ష్యం_hart]);
+	writel_relaxed(తదుపరి_event >> 32,
+		       (శూన్య *)(&plmt.సమయం_cmp[లక్ష్యం_hart]) + 0x04);
+#అయితే_ముగింపు
 }
 
-static int plmt_warm_timer_init(void)
+స్థిర పూర్ణాంకం plmt_warm_timer_init(శూన్య)
 {
-	if (!plmt.time_val)
-		return SBI_ENODEV;
+	ఒకవేళ (!plmt.సమయం_val)
+		తిరిగి SBI_ENODEV;
 
 	plmt_timer_event_stop();
 
-	return 0;
+	తిరిగి 0;
 }
 
-static struct sbi_timer_device plmt_timer = {
+స్థిర నిర్మాణం sbi_timer_device plmt_timer = {
 	.name		   = "andes_plmt",
 	.timer_freq	   = DEFAULT_AE350_PLMT_FREQ,
-	.timer_value	   = plmt_timer_value,
-	.timer_event_start = plmt_timer_event_start,
+	.timer_విలువ	   = plmt_timer_విలువ,
+	.timer_event_ప్రారంభం = plmt_timer_event_ప్రారంభం,
 	.timer_event_stop  = plmt_timer_event_stop,
 	.warm_init	   = plmt_warm_timer_init,
 };
 
-int plmt_cold_timer_init(struct plmt_data *plmt)
+పూర్ణాంకం plmt_cold_timer_init(నిర్మాణం plmt_దత్తాంశం *plmt)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
 	/* Add PLMT region to the root domain */
-	rc = sbi_domain_root_add_memrange(
-		(unsigned long)plmt->time_val, plmt->size,
+	rc = sbi_domain_మూలం_కూడు_memrange(
+		(గుర్తులేని దీర్ఘ)plmt->సమయం_val, plmt->కొలత,
 		PLMT_REGION_ALIGN,
 		SBI_DOMAIN_MEMREGION_MMIO |
 		SBI_DOMAIN_MEMREGION_M_READABLE |
 		SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	plmt_timer.timer_freq = plmt->timer_freq;
 
-	sbi_timer_set_device(&plmt_timer);
+	sbi_timer_సమితి_device(&plmt_timer);
 
-	return 0;
+	తిరిగి 0;
 }

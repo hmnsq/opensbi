@@ -4,21 +4,21 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
+నిర్మాణం fdt_errtabent {
+	స్థిరరాశి అక్షరం *str;
 };
 
-#define FDT_ERRTABENT(val) \
+#నిర్వచించు FDT_ERRTABENT(val) \
 	[(val)] = { .str = #val, }
 
-static struct fdt_errtabent fdt_errtable[] = {
+స్థిర నిర్మాణం fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
 	FDT_ERRTABENT(FDT_ERR_EXISTS),
 	FDT_ERRTABENT(FDT_ERR_NOSPACE),
@@ -33,27 +33,27 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_BADVERSION),
 	FDT_ERRTABENT(FDT_ERR_BADSTRUCTURE),
 	FDT_ERRTABENT(FDT_ERR_BADLAYOUT),
-	FDT_ERRTABENT(FDT_ERR_INTERNAL),
+	FDT_ERRTABENT(FDT_ERR_అంతర్గత),
 	FDT_ERRTABENT(FDT_ERR_BADNCELLS),
 	FDT_ERRTABENT(FDT_ERR_BADVALUE),
 	FDT_ERRTABENT(FDT_ERR_BADOVERLAY),
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#నిర్వచించు FDT_ERRTABSIZE	((పూర్ణాంకం)(పరిమాణం(fdt_errtable) / పరిమాణం(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+స్థిరరాశి అక్షరం *fdt_strerror(పూర్ణాంకం errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
+	ఒకవేళ (errval > 0)
+		తిరిగి "<valid offset/length>";
+	లేకపోతే ఒకవేళ (errval == 0)
+		తిరిగి "<no error>";
+	లేకపోతే ఒకవేళ (-errval < FDT_ERRTABSIZE) {
+		స్థిరరాశి అక్షరం *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		ఒకవేళ (s)
+			తిరిగి s;
 	}
 
-	return "<unknown error>";
+	తిరిగి "<unknown error>";
 }

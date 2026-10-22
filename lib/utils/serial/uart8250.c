@@ -7,155 +7,155 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/uart8250.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi_utils/serial/uart8250.h>
 
 /* clang-format off */
 
-#define UART_RBR_OFFSET		0	/* In:  Receive Buffer Register */
-#define UART_THR_OFFSET		0	/* Out: Transmitter Holding Register */
-#define UART_DLL_OFFSET		0	/* Out: Divisor Latch Low */
-#define UART_IER_OFFSET		1	/* I/O: Interrupt Enable Register */
-#define UART_DLM_OFFSET		1	/* Out: Divisor Latch High */
-#define UART_FCR_OFFSET		2	/* Out: FIFO Control Register */
-#define UART_IIR_OFFSET		2	/* I/O: Interrupt Identification Register */
-#define UART_LCR_OFFSET		3	/* Out: Line Control Register */
-#define UART_MCR_OFFSET		4	/* Out: Modem Control Register */
-#define UART_LSR_OFFSET		5	/* In:  Line Status Register */
-#define UART_MSR_OFFSET		6	/* In:  Modem Status Register */
-#define UART_SCR_OFFSET		7	/* I/O: Scratch Register */
-#define UART_MDR1_OFFSET	8	/* I/O:  Mode Register */
+#నిర్వచించు UART_RBR_స్థానభ్రంశం		0	/* In:  Receive Buffer Register */
+#నిర్వచించు UART_THR_స్థానభ్రంశం		0	/* Out: Transmitter Holding Register */
+#నిర్వచించు UART_DLL_స్థానభ్రంశం		0	/* Out: Divisor Latch Low */
+#నిర్వచించు UART_IER_స్థానభ్రంశం		1	/* I/O: Interrupt Enable Register */
+#నిర్వచించు UART_DLM_స్థానభ్రంశం		1	/* Out: Divisor Latch High */
+#నిర్వచించు UART_FCR_స్థానభ్రంశం		2	/* Out: FIFO Control Register */
+#నిర్వచించు UART_IIR_స్థానభ్రంశం		2	/* I/O: Interrupt Identification Register */
+#నిర్వచించు UART_LCR_స్థానభ్రంశం		3	/* Out: Line Control Register */
+#నిర్వచించు UART_MCR_స్థానభ్రంశం		4	/* Out: Modem Control Register */
+#నిర్వచించు UART_LSR_స్థానభ్రంశం		5	/* In:  Line Status Register */
+#నిర్వచించు UART_MSR_స్థానభ్రంశం		6	/* In:  Modem Status Register */
+#నిర్వచించు UART_SCR_స్థానభ్రంశం		7	/* I/O: Scratch Register */
+#నిర్వచించు UART_MDR1_స్థానభ్రంశం	8	/* I/O:  Mode Register */
 
-#define UART_LSR_FIFOE		0x80	/* Fifo error */
-#define UART_LSR_TEMT		0x40	/* Transmitter empty */
-#define UART_LSR_THRE		0x20	/* Transmit-hold-register empty */
-#define UART_LSR_BI		0x10	/* Break interrupt indicator */
-#define UART_LSR_FE		0x08	/* Frame error indicator */
-#define UART_LSR_PE		0x04	/* Parity error indicator */
-#define UART_LSR_OE		0x02	/* Overrun error indicator */
-#define UART_LSR_DR		0x01	/* Receiver data ready */
-#define UART_LSR_BRK_ERROR_BITS	0x1E	/* BI, FE, PE, OE bits */
+#నిర్వచించు UART_LSR_FIFOE		0x80	/* Fifo error */
+#నిర్వచించు UART_LSR_TEMT		0x40	/* Transmitter empty */
+#నిర్వచించు UART_LSR_THRE		0x20	/* Transmit-hold-register empty */
+#నిర్వచించు UART_LSR_BI		0x10	/* Break interrupt indicator */
+#నిర్వచించు UART_LSR_FE		0x08	/* Frame error indicator */
+#నిర్వచించు UART_LSR_PE		0x04	/* Parity error indicator */
+#నిర్వచించు UART_LSR_OE		0x02	/* Overrun error indicator */
+#నిర్వచించు UART_LSR_DR		0x01	/* Receiver data ready */
+#నిర్వచించు UART_LSR_BRK_ERROR_బిట్లు	0x1E	/* BI, FE, PE, OE bits */
 
 /* The XScale PXA UARTs define these bits */
-#define UART_IER_DMAE		0x80	/* DMA Requests Enable */
-#define UART_IER_UUE		0x40	/* UART Unit Enable */
-#define UART_IER_NRZE		0x20	/* NRZ coding Enable */
-#define UART_IER_RTOIE		0x10	/* Receiver Time Out Interrupt Enable */
+#నిర్వచించు UART_IER_DMAE		0x80	/* DMA Requests Enable */
+#నిర్వచించు UART_IER_UUE		0x40	/* UART Unit Enable */
+#నిర్వచించు UART_IER_NRZE		0x20	/* NRZ coding Enable */
+#నిర్వచించు UART_IER_RTOIE		0x10	/* Receiver Time Out Interrupt Enable */
 
 /* clang-format on */
 
-static struct uart8250_device uart8250_dev;
+స్థిర నిర్మాణం uart8250_device uart8250_dev;
 
-static u32 get_reg(struct uart8250_device *dev, u32 num)
+స్థిర u32 get_reg(నిర్మాణం uart8250_device *dev, u32 అంకె)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 స్థానభ్రంశం = అంకె << dev->reg_జరుపు;
 
-	if (dev->reg_width == 1)
-		return readb(dev->base + offset);
-	else if (dev->reg_width == 2)
-		return readw(dev->base + offset);
-	else
-		return readl(dev->base + offset);
+	ఒకవేళ (dev->reg_వెడల్పు == 1)
+		తిరిగి readb(dev->పునాది_2 + స్థానభ్రంశం);
+	లేకపోతే ఒకవేళ (dev->reg_వెడల్పు == 2)
+		తిరిగి readw(dev->పునాది_2 + స్థానభ్రంశం);
+	లేకపోతే
+		తిరిగి readl(dev->పునాది_2 + స్థానభ్రంశం);
 }
 
-static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
+స్థిర శూన్య సమితి_reg(నిర్మాణం uart8250_device *dev, u32 అంకె, u32 val)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 స్థానభ్రంశం = అంకె << dev->reg_జరుపు;
 
-	if (dev->reg_width == 1)
-		writeb(val, dev->base + offset);
-	else if (dev->reg_width == 2)
-		writew(val, dev->base + offset);
-	else
-		writel(val, dev->base + offset);
+	ఒకవేళ (dev->reg_వెడల్పు == 1)
+		writeb(val, dev->పునాది_2 + స్థానభ్రంశం);
+	లేకపోతే ఒకవేళ (dev->reg_వెడల్పు == 2)
+		writew(val, dev->పునాది_2 + స్థానభ్రంశం);
+	లేకపోతే
+		writel(val, dev->పునాది_2 + స్థానభ్రంశం);
 }
 
-void uart8250_device_putc(struct uart8250_device *dev, char ch)
+శూన్య uart8250_device_putc(నిర్మాణం uart8250_device *dev, అక్షరం ch)
 {
-	while ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	అయితే ((get_reg(dev, UART_LSR_స్థానభ్రంశం) & UART_LSR_THRE) == 0)
 		;
 
-	set_reg(dev, UART_THR_OFFSET, ch);
+	సమితి_reg(dev, UART_THR_స్థానభ్రంశం, ch);
 }
 
-static void uart8250_putc(char ch)
+స్థిర శూన్య uart8250_putc(అక్షరం ch)
 {
-	return uart8250_device_putc(&uart8250_dev, ch);
+	తిరిగి uart8250_device_putc(&uart8250_dev, ch);
 }
 
-int uart8250_device_getc(struct uart8250_device *dev)
+పూర్ణాంకం uart8250_device_getc(నిర్మాణం uart8250_device *dev)
 {
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(dev, UART_RBR_OFFSET);
-	return -1;
+	ఒకవేళ (get_reg(dev, UART_LSR_స్థానభ్రంశం) & UART_LSR_DR)
+		తిరిగి get_reg(dev, UART_RBR_స్థానభ్రంశం);
+	తిరిగి -1;
 }
 
-static int uart8250_getc(void)
+స్థిర పూర్ణాంకం uart8250_getc(శూన్య)
 {
-	return uart8250_device_getc(&uart8250_dev);
+	తిరిగి uart8250_device_getc(&uart8250_dev);
 }
 
-static struct sbi_console_device uart8250_console = {
+స్థిర నిర్మాణం sbi_console_device uart8250_console = {
 	.name = "uart8250",
 	.console_putc = uart8250_putc,
 	.console_getc = uart8250_getc
 };
 
-void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
-			  u32 in_freq, u32 baudrate, u32 reg_shift,
-			  u32 reg_width, u32 reg_offset, u32 caps)
+శూన్య uart8250_device_init(నిర్మాణం uart8250_device *dev, గుర్తులేని దీర్ఘ పునాది_2,
+			  u32 లోపల_freq, u32 baudrate, u32 reg_జరుపు,
+			  u32 reg_వెడల్పు, u32 reg_స్థానభ్రంశం, u32 caps)
 {
 	u16 bdiv = 0;
 
-	dev->base      = (volatile char *)base + reg_offset;
-	dev->reg_shift = reg_shift;
-	dev->reg_width = reg_width;
-	dev->in_freq   = in_freq;
+	dev->పునాది_2      = (అస్థిర అక్షరం *)పునాది_2 + reg_స్థానభ్రంశం;
+	dev->reg_జరుపు = reg_జరుపు;
+	dev->reg_వెడల్పు = reg_వెడల్పు;
+	dev->లోపల_freq   = లోపల_freq;
 	dev->baudrate  = baudrate;
 
-	if (dev->baudrate) {
-		bdiv = (dev->in_freq + 8 * dev->baudrate) /
+	ఒకవేళ (dev->baudrate) {
+		bdiv = (dev->లోపల_freq + 8 * dev->baudrate) /
 		       (16 * dev->baudrate);
 	}
 
 	/* Disable all interrupts */
-	set_reg(dev, UART_IER_OFFSET, (caps & UART_CAP_UUE) ?
+	సమితి_reg(dev, UART_IER_స్థానభ్రంశం, (caps & UART_CAP_UUE) ?
 				 UART_IER_UUE : 0x00);
 	/* Enable DLAB */
-	set_reg(dev, UART_LCR_OFFSET, 0x80);
+	సమితి_reg(dev, UART_LCR_స్థానభ్రంశం, 0x80);
 
-	if (bdiv) {
+	ఒకవేళ (bdiv) {
 		/* Set divisor low byte */
-		set_reg(dev, UART_DLL_OFFSET, bdiv & 0xff);
+		సమితి_reg(dev, UART_DLL_స్థానభ్రంశం, bdiv & 0xff);
 		/* Set divisor high byte */
-		set_reg(dev, UART_DLM_OFFSET, (bdiv >> 8) & 0xff);
+		సమితి_reg(dev, UART_DLM_స్థానభ్రంశం, (bdiv >> 8) & 0xff);
 	}
 
 	/* 8 bits, no parity, one stop bit */
-	set_reg(dev, UART_LCR_OFFSET, 0x03);
+	సమితి_reg(dev, UART_LCR_స్థానభ్రంశం, 0x03);
 	/* Enable FIFO */
-	set_reg(dev, UART_FCR_OFFSET, 0x01);
+	సమితి_reg(dev, UART_FCR_స్థానభ్రంశం, 0x01);
 	/* No modem control DTR RTS */
-	set_reg(dev, UART_MCR_OFFSET, 0x00);
+	సమితి_reg(dev, UART_MCR_స్థానభ్రంశం, 0x00);
 	/* Clear line status and read receive buffer */
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		get_reg(dev, UART_RBR_OFFSET);
+	ఒకవేళ (get_reg(dev, UART_LSR_స్థానభ్రంశం) & UART_LSR_DR)
+		get_reg(dev, UART_RBR_స్థానభ్రంశం);
 	/* Set scratchpad */
-	set_reg(dev, UART_SCR_OFFSET, 0x00);
+	సమితి_reg(dev, UART_SCR_స్థానభ్రంశం, 0x00);
 }
 
-int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
-		  u32 reg_width, u32 reg_offset, u32 caps)
+పూర్ణాంకం uart8250_init(గుర్తులేని దీర్ఘ పునాది_2, u32 లోపల_freq, u32 baudrate, u32 reg_జరుపు,
+		  u32 reg_వెడల్పు, u32 reg_స్థానభ్రంశం, u32 caps)
 {
-	uart8250_device_init(&uart8250_dev, base, in_freq, baudrate,
-			     reg_shift, reg_width, reg_offset, caps);
+	uart8250_device_init(&uart8250_dev, పునాది_2, లోపల_freq, baudrate,
+			     reg_జరుపు, reg_వెడల్పు, reg_స్థానభ్రంశం, caps);
 
-	sbi_console_set_device(&uart8250_console);
+	sbi_console_సమితి_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	తిరిగి sbi_domain_మూలం_కూడు_memrange(పునాది_2, పుట_కొలత, పుట_కొలత,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

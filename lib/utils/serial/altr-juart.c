@@ -7,68 +7,68 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
-#define JUART_DATA_OFFSET		0x00
-# define JUART_DATA_DATA_MASK		0x000000ff
-# define JUART_DATA_RVALID		(1 << 15)
-# define JUART_DATA_RAVAIL_MASK		0xffff0000
-# define JUART_DATA_RAVAIL_SHIFT	16
-#define JUART_CTRL_OFFSET		0x04
+#నిర్వచించు JUART_దత్తాంశం_స్థానభ్రంశం		0x00
+# define JUART_దత్తాంశం_దత్తాంశం_ముసుగు		0x000000ff
+# define JUART_దత్తాంశం_RVALID		(1 << 15)
+# define JUART_దత్తాంశం_RAVAIL_ముసుగు		0xffff0000
+# define JUART_దత్తాంశం_RAVAIL_జరుపు	16
+#నిర్వచించు JUART_CTRL_స్థానభ్రంశం		0x04
 # define JUART_CTRL_RE			(1 << 0)
 # define JUART_CTRL_WE			(1 << 1)
 # define JUART_CTRL_RI			(1 << 8)
 # define JUART_CTRL_WI			(1 << 9)
 # define JUART_CTRL_AC			(1 << 10)
-# define JUART_CTRL_WSPACE_MASK		0xffff0000
-# define JUART_CTRL_WSPACE_SHIFT	16
+# define JUART_CTRL_WSPACE_ముసుగు		0xffff0000
+# define JUART_CTRL_WSPACE_జరుపు	16
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+స్థిర అస్థిర అక్షరం *altr_juart_పునాది;
 
-static u32 get_reg(u32 offset)
+స్థిర u32 get_reg(u32 స్థానభ్రంశం)
 {
-	return readl(altr_juart_base + offset);
+	తిరిగి readl(altr_juart_పునాది + స్థానభ్రంశం);
 }
 
-static void set_reg(u32 offset, u32 val)
+స్థిర శూన్య సమితి_reg(u32 స్థానభ్రంశం, u32 val)
 {
-	writel(val, altr_juart_base + offset);
+	writel(val, altr_juart_పునాది + స్థానభ్రంశం);
 }
 
-static void altr_juart_putc(char ch)
+స్థిర శూన్య altr_juart_putc(అక్షరం ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	అయితే(!(get_reg(JUART_CTRL_స్థానభ్రంశం) & JUART_CTRL_WSPACE_ముసుగు))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	సమితి_reg(JUART_దత్తాంశం_స్థానభ్రంశం, (గుర్తులేని అక్షరం)ch);
 }
 
-static int altr_juart_getc(void)
+స్థిర పూర్ణాంకం altr_juart_getc(శూన్య)
 {
-	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	u32 reg = get_reg(JUART_దత్తాంశం_స్థానభ్రంశం);
+	ఒకవేళ (reg & JUART_దత్తాంశం_RVALID)
+		తిరిగి reg & JUART_దత్తాంశం_దత్తాంశం_ముసుగు;
 
-	return -1;
+	తిరిగి -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+స్థిర నిర్మాణం sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+పూర్ణాంకం altr_juart_init(గుర్తులేని దీర్ఘ పునాది_2)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_పునాది = (అస్థిర అక్షరం *)పునాది_2;
 
-	sbi_console_set_device(&altr_juart_console);
+	sbi_console_సమితి_device(&altr_juart_console);
 
-	return 0;
+	తిరిగి 0;
 }

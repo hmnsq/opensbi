@@ -7,41 +7,41 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/sys/htif.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/serial/fdt_serial.h>
+#అన్తర్భావ <sbi_utils/sys/htif.h>
 
-static const struct fdt_match serial_htif_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక serial_htif_సరిపోలిక[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-static int serial_htif_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+స్థిర పూర్ణాంకం serial_htif_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			    స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
+	పూర్ణాంకం rc;
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	ఒకవేళ (!fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &fromhost_addr, ఖాళీ)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + పరిమాణం(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 1, &tohost_addr, ఖాళీ);
 
-	rc = sbi_domain_root_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
+	rc = sbi_domain_మూలం_కూడు_memrange(fromhost_addr, పుట_కొలత, పుట_కొలత,
 					  (SBI_DOMAIN_MEMREGION_MMIO |
 					   SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return htif_serial_init(custom, fromhost_addr, tohost_addr);
+	తిరిగి htif_serial_init(custom, fromhost_addr, tohost_addr);
 }
 
-const struct fdt_driver fdt_serial_htif = {
-	.match_table = serial_htif_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_serial_htif = {
+	.సరిపోలిక_పట్టిక = serial_htif_సరిపోలిక,
 	.init = serial_htif_init
 };

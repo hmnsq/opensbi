@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#అన్తర్భావ <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+శూన్య __bitmap_and(గుర్తులేని దీర్ఘ *dst, స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap1,
+		  స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap2, పూర్ణాంకం బిట్లు)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	పూర్ణాంకం k;
+	పూర్ణాంకం nr = బిట్లు_గమ్యం_LONGS(బిట్లు);
 
-	for (k = 0; k < nr; k++)
+	కొరకు (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+శూన్య __bitmap_or(గుర్తులేని దీర్ఘ *dst, స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap1,
+		 స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap2, పూర్ణాంకం బిట్లు)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	పూర్ణాంకం k;
+	పూర్ణాంకం nr = బిట్లు_గమ్యం_LONGS(బిట్లు);
 
-	for (k = 0; k < nr; k++)
+	కొరకు (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+శూన్య __bitmap_xor(గుర్తులేని దీర్ఘ *dst, స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap1,
+		  స్థిరరాశి గుర్తులేని దీర్ఘ *bitmap2, పూర్ణాంకం బిట్లు)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	పూర్ణాంకం k;
+	పూర్ణాంకం nr = బిట్లు_గమ్యం_LONGS(బిట్లు);
 
-	for (k = 0; k < nr; k++)
+	కొరకు (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

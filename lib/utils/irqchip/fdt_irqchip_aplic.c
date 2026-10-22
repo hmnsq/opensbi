@@ -8,97 +8,97 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/aplic.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/irqchip/fdt_irqchip.h>
+#అన్తర్భావ <sbi_utils/irqchip/aplic.h>
 
-static int irqchip_aplic_update_idc_map(const void *fdt, int nodeoff,
-					struct aplic_data *pd)
+స్థిర పూర్ణాంకం irqchip_aplic_update_idc_map(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+					నిర్మాణం aplic_దత్తాంశం *pd)
 {
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	పూర్ణాంకం i, err, లెక్క, cpu_స్థానభ్రంశం, cpu_intc_స్థానభ్రంశం;
 	u32 phandle, hartid, hartindex;
-	const fdt32_t *val;
+	స్థిరరాశి fdt32_t *val;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &లెక్క);
+	ఒకవేళ (!val || లెక్క < పరిమాణం(fdt32_t))
+		తిరిగి SBI_EINVAL;
+	లెక్క = లెక్క / పరిమాణం(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
-		phandle = fdt32_to_cpu(val[i]);
+	కొరకు (i = 0; i < లెక్క; i += 2) {
+		phandle = fdt32_గమ్యం_cpu(val[i]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, phandle);
+		ఒకవేళ (cpu_intc_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_స్థానభ్రంశం = fdt_మాతృ_స్థానభ్రంశం(fdt, cpu_intc_స్థానభ్రంశం);
+		ఒకవేళ (cpu_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		err = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
+		ఒకవేళ (err)
+			కొనసాగు;
 
-		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		hartindex = sbi_hartid_గమ్యం_hartindex(hartid);
+		ఒకవేళ (hartindex == -1U)
+			కొనసాగు;
 
 		pd->idc_map[i / 2] = hartindex;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+స్థిర పూర్ణాంకం irqchip_aplic_cold_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				   స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	struct aplic_data *pd;
+	పూర్ణాంకం rc;
+	నిర్మాణం aplic_దత్తాంశం *pd;
 
-	pd = sbi_zalloc(sizeof(*pd));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(పరిమాణం(*pd));
+	ఒకవేళ (!pd)
+		తిరిగి SBI_ENOMEM;
 
-	rc = fdt_parse_aplic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_aplic_కణుపు(fdt, nodeoff, pd);
+	ఒకవేళ (rc)
+		వెళ్ళు fail_free_దత్తాంశం;
 
-	if (pd->num_idc) {
-		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->num_idc);
-		if (!pd->idc_map) {
+	ఒకవేళ (pd->అంకె_idc) {
+		pd->idc_map = sbi_zalloc(పరిమాణం(*pd->idc_map) * pd->అంకె_idc);
+		ఒకవేళ (!pd->idc_map) {
 			rc = SBI_ENOMEM;
-			goto fail_free_data;
+			వెళ్ళు fail_free_దత్తాంశం;
 		}
 
 		rc = irqchip_aplic_update_idc_map(fdt, nodeoff, pd);
-		if (rc)
-			goto fail_free_idc_map;
+		ఒకవేళ (rc)
+			వెళ్ళు fail_free_idc_map;
 	}
 
 	rc = aplic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_idc_map;
+	ఒకవేళ (rc)
+		వెళ్ళు fail_free_idc_map;
 
-	return 0;
+	తిరిగి 0;
 
 fail_free_idc_map:
-	if (pd->num_idc)
+	ఒకవేళ (pd->అంకె_idc)
 		sbi_free(pd->idc_map);
-fail_free_data:
+fail_free_దత్తాంశం:
 	sbi_free(pd);
-	return rc;
+	తిరిగి rc;
 }
 
-static const struct fdt_match irqchip_aplic_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక irqchip_aplic_సరిపోలిక[] = {
 	{ .compatible = "riscv,aplic" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_aplic = {
-	.match_table = irqchip_aplic_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_irqchip_aplic = {
+	.సరిపోలిక_పట్టిక = irqchip_aplic_సరిపోలిక,
 	.init = irqchip_aplic_cold_init,
 };

@@ -4,134 +4,134 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi_utils/cache/fdt_cache.h>
+#అన్తర్భావ <sbi_utils/cache/fdt_cmo_helper.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-static unsigned long flc_offset;
+స్థిర గుర్తులేని దీర్ఘ flc_స్థానభ్రంశం;
 
-#define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
-#define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+#నిర్వచించు get_hart_flc(_s) \
+	sbi_scratch_read_type(_s, నిర్మాణం cache_device *, flc_స్థానభ్రంశం)
+#నిర్వచించు సమితి_hart_flc(_s, _p) \
+	sbi_scratch_write_type(_s, నిర్మాణం cache_device *, flc_స్థానభ్రంశం, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+పూర్ణాంకం fdt_cmo_వ్యక్తిగత_flc_flush_all(శూన్య)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	నిర్మాణం cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ఒకవేళ (!flc || !flc->cpu_వ్యక్తిగత)
+		తిరిగి SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	తిరిగి cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+పూర్ణాంకం fdt_cmo_llc_flush_all(శూన్య)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	నిర్మాణం cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ఒకవేళ (!llc)
+		తిరిగి SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	అయితే (llc->తదుపరి)
+		llc = llc->తదుపరి;
 
-	return cache_flush_all(llc);
+	తిరిగి cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+పూర్ణాంకం fdt_cmo_వ్యక్తిగత_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	నిర్మాణం cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ఒకవేళ (!flc || !flc->cpu_వ్యక్తిగత)
+		తిరిగి SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	తిరిగి cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+పూర్ణాంకం fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	నిర్మాణం cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ఒకవేళ (!llc)
+		తిరిగి SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	అయితే (llc->తదుపరి)
+		llc = llc->తదుపరి;
 
-	return cache_enable(llc, enable);
+	తిరిగి cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+స్థిర పూర్ణాంకం fdt_cmo_cold_init(స్థిరరాశి శూన్య *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	నిర్మాణం sbi_scratch *scratch;
+	నిర్మాణం cache_device *dev;
+	పూర్ణాంకం cpu_స్థానభ్రంశం, cpus_స్థానభ్రంశం, rc;
 	u32 hartid;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి SBI_EINVAL;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+	fdt_for_each_subnode(cpu_స్థానభ్రంశం, fdt, cpus_స్థానభ్రంశం) {
+		rc = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
+		ఒకవేళ (rc)
+			కొనసాగు;
 
-		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		scratch = sbi_hartid_గమ్యం_scratch(hartid);
+		ఒకవేళ (!scratch)
+			కొనసాగు;
 
-		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
-			dev = NULL;
+		rc = fdt_తదుపరి_cache_get(fdt, cpu_స్థానభ్రంశం, &dev);
+		ఒకవేళ (rc && rc != SBI_ENOENT)
+			తిరిగి rc;
+		ఒకవేళ (rc == SBI_ENOENT)
+			dev = ఖాళీ;
 
-		set_hart_flc(scratch, dev);
+		సమితి_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+స్థిర పూర్ణాంకం fdt_cmo_warm_init(శూన్య)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	నిర్మాణం cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	పూర్ణాంకం rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	అయితే (cur) {
+		ఒకవేళ (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			ఒకవేళ (rc)
+				తిరిగి rc;
 		}
 
-		cur = cur->next;
+		cur = cur->తదుపరి;
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+పూర్ణాంకం fdt_cmo_init(bool cold_boot)
 {
-	const void *fdt = fdt_get_address();
-	int rc;
+	స్థిరరాశి శూన్య *fdt = fdt_get_చిరునామా();
+	పూర్ణాంకం rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	ఒకవేళ (cold_boot) {
+		flc_స్థానభ్రంశం = sbi_scratch_alloc_type_స్థానభ్రంశం(నిర్మాణం cache_device *);
+		ఒకవేళ (!flc_స్థానభ్రంశం)
+			తిరిగి SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }

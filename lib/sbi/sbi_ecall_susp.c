@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: BSD-2-Clause
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/sbi_system.h>
 
-static int sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+స్థిర పూర్ణాంకం sbi_ecall_susp_handler(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ funcid,
+				  నిర్మాణం sbi_trap_regs *regs,
+				  నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = SBI_ENOTSUPP;
+	పూర్ణాంకం ret = SBI_ENOTSUPP;
 
-	if (funcid == SBI_EXT_SUSP_SUSPEND)
+	ఒకవేళ (funcid == SBI_EXT_SUSP_SUSPEND)
 		ret = sbi_system_suspend(regs->a0, regs->a1, regs->a2);
 
-	if (ret >= 0) {
-		out->value = ret;
+	ఒకవేళ (ret >= 0) {
+		బహిర్గతం->విలువ = ret;
 		ret = 0;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-static bool susp_available(void)
+స్థిర bool susp_అందుబాటు(శూన్య)
 {
 	u32 type;
 
@@ -30,28 +30,28 @@ static bool susp_available(void)
 	 * At least one suspend type should be supported by the
 	 * platform for the SBI SUSP extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
-		if (sbi_system_suspend_supported(type))
-			return true;
+	కొరకు (type = 0; type <= SBI_SUSP_SLEEP_TYPE_చివరి; type++) {
+		ఒకవేళ (sbi_system_suspend_supported(type))
+			తిరిగి true;
 	}
 
-	return false;
+	తిరిగి false;
 }
 
-struct sbi_ecall_extension ecall_susp;
+నిర్మాణం sbi_ecall_extension ecall_susp;
 
-static int sbi_ecall_susp_register_extensions(void)
+స్థిర పూర్ణాంకం sbi_ecall_susp_రిజిస్టరు_extensions(శూన్య)
 {
-	if (!susp_available())
-		return 0;
+	ఒకవేళ (!susp_అందుబాటు())
+		తిరిగి 0;
 
-	return sbi_ecall_register_extension(&ecall_susp);
+	తిరిగి sbi_ecall_రిజిస్టరు_extension(&ecall_susp);
 }
 
-struct sbi_ecall_extension ecall_susp = {
+నిర్మాణం sbi_ecall_extension ecall_susp = {
 	.name			= "susp",
-	.extid_start		= SBI_EXT_SUSP,
-	.extid_end		= SBI_EXT_SUSP,
-	.register_extensions	= sbi_ecall_susp_register_extensions,
+	.extid_ప్రారంభం		= SBI_EXT_SUSP,
+	.extid_చివర		= SBI_EXT_SUSP,
+	.రిజిస్టరు_extensions	= sbi_ecall_susp_రిజిస్టరు_extensions,
 	.handle			= sbi_ecall_susp_handler,
 };

@@ -8,116 +8,116 @@
  *   Sunil V L <sunilvl@oss.qualcomm.com>
  */
 
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#అన్తర్భావ <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#అన్తర్భావ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-static struct rpmi_mm_get_attributes_rsp rsp;
+స్థిర నిర్మాణం rpmi_mm_get_లక్షణాలు_rsp rsp;
 
-static struct mpxy_rpmi_service_data mm_srvcdata[] = {
+స్థిర నిర్మాణం mpxy_rpmi_service_దత్తాంశం mm_srvcdata[] = {
 	[0] = {
 		.id = RPMI_MM_SRV_ENABLE_NOTIFICATION,
-		.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-		.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-		.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+		.min_tx_len = పరిమాణం(నిర్మాణం rpmi_enable_notification_req),
+		.max_tx_len = పరిమాణం(నిర్మాణం rpmi_enable_notification_req),
+		.min_rx_len = పరిమాణం(నిర్మాణం rpmi_enable_notification_resp),
+		.max_rx_len = పరిమాణం(నిర్మాణం rpmi_enable_notification_resp),
 	},
 	[1] = {
-		.id = RPMI_MM_SRV_GET_ATTRIBUTES,
+		.id = RPMI_MM_SRV_GET_లక్షణాలు,
 		.min_tx_len = 0,
 		.max_tx_len = 0,
-		.min_rx_len = sizeof(struct rpmi_mm_get_attributes_rsp),
-		.max_rx_len = sizeof(struct rpmi_mm_get_attributes_rsp),
+		.min_rx_len = పరిమాణం(నిర్మాణం rpmi_mm_get_లక్షణాలు_rsp),
+		.max_rx_len = పరిమాణం(నిర్మాణం rpmi_mm_get_లక్షణాలు_rsp),
 	},
 	[2] = {
 		.id = RPMI_MM_SRV_COMMUNICATE,
-		.min_tx_len = sizeof(struct rpmi_mm_communicate_req),
-		.max_tx_len = sizeof(struct rpmi_mm_communicate_req),
-		.min_rx_len = sizeof(struct rpmi_mm_communicate_rsp),
-		.max_rx_len = sizeof(struct rpmi_mm_communicate_rsp),
+		.min_tx_len = పరిమాణం(నిర్మాణం rpmi_mm_communicate_req),
+		.max_tx_len = పరిమాణం(నిర్మాణం rpmi_mm_communicate_req),
+		.min_rx_len = పరిమాణం(నిర్మాణం rpmi_mm_communicate_rsp),
+		.max_rx_len = పరిమాణం(నిర్మాణం rpmi_mm_communicate_rsp),
 	},
 };
 
-static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
-			      const struct mpxy_rpmi_mbox_data *data)
+స్థిర పూర్ణాంకం mpxy_rpmi_mm_అమరిక(శూన్య **context, నిర్మాణం mbox_chan *chan,
+			      స్థిరరాశి నిర్మాణం mpxy_rpmi_mbox_దత్తాంశం *దత్తాంశం)
 {
-	unsigned long mm_region_addr = 0;
-	unsigned long mm_region_size = 0;
-	unsigned long mm_region_flags;
-	int rc = 0;
+	గుర్తులేని దీర్ఘ mm_region_addr = 0;
+	గుర్తులేని దీర్ఘ mm_region_కొలత = 0;
+	గుర్తులేని దీర్ఘ mm_region_flags;
+	పూర్ణాంకం rc = 0;
 
-	rc = rpmi_normal_request_with_status(chan, RPMI_MM_SRV_GET_ATTRIBUTES,
-					     NULL, 0, 0, &rsp,
-					     rpmi_u32_count(rsp),
-					     rpmi_u32_count(rsp));
-	if (rc)
-		return rc;
+	rc = rpmi_సాధారణ_request_with_స్థితి(chan, RPMI_MM_SRV_GET_లక్షణాలు,
+					     ఖాళీ, 0, 0, &rsp,
+					     rpmi_u32_లెక్క(rsp),
+					     rpmi_u32_లెక్క(rsp));
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-#if __riscv_xlen == 32
+#ఒకవేళ __riscv_xlen == 32
 	mm_region_addr = rsp.mma.shmem_addr_lo;
-#else
-	mm_region_addr = ((unsigned long)(rsp.mma.shmem_addr_hi) << 32) |
+#లేకపోతే
+	mm_region_addr = ((గుర్తులేని దీర్ఘ)(rsp.mma.shmem_addr_hi) << 32) |
 	    rsp.mma.shmem_addr_lo;
-#endif
+#అయితే_ముగింపు
 
-	mm_region_size = rsp.mma.shmem_size;
+	mm_region_కొలత = rsp.mma.shmem_కొలత;
 	mm_region_flags = SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW;
 
-	rc = sbi_domain_root_add_memrange(mm_region_addr, mm_region_size,
-					  PAGE_SIZE, mm_region_flags);
-	return rc;
+	rc = sbi_domain_మూలం_కూడు_memrange(mm_region_addr, mm_region_కొలత,
+					  పుట_కొలత, mm_region_flags);
+	తిరిగి rc;
 }
 
-static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
-			     struct mbox_xfer *xfer)
+స్థిర పూర్ణాంకం mpxy_rpmi_mm_xfer(శూన్య *context, నిర్మాణం mbox_chan *chan,
+			     నిర్మాణం mbox_xfer *xfer)
 {
-	struct rpmi_message_args *args = xfer->args;
-	int rc = 0;
+	నిర్మాణం rpmi_సందేశం_వాదనలు *వాదనలు = xfer->వాదనలు;
+	పూర్ణాంకం rc = 0;
 
-	if (!xfer->rx || (args->type != RPMI_MSG_NORMAL_REQUEST))
-		return 0;
+	ఒకవేళ (!xfer->rx || (వాదనలు->type != RPMI_సందేశం_సాధారణ_REQUEST))
+		తిరిగి 0;
 
-	switch (args->service_id) {
-	case RPMI_MM_SRV_GET_ATTRIBUTES:
-		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_SUCCESS);
-		((u32 *)xfer->rx)[1] = cpu_to_le32(rsp.mma.mm_version);
-		((u32 *)xfer->rx)[2] = cpu_to_le32(rsp.mma.shmem_addr_lo);
-		((u32 *)xfer->rx)[3] = cpu_to_le32(rsp.mma.shmem_addr_hi);
-		((u32 *)xfer->rx)[4] = cpu_to_le32(rsp.mma.shmem_size);
-		args->rx_data_len = 5 * sizeof(u32);
-		break;
+	ఎంపిక (వాదనలు->service_id) {
+	స్థితి RPMI_MM_SRV_GET_లక్షణాలు:
+		((u32 *)xfer->rx)[0] = cpu_గమ్యం_le32(RPMI_SUCCESS);
+		((u32 *)xfer->rx)[1] = cpu_గమ్యం_le32(rsp.mma.mm_సంస్కరణ);
+		((u32 *)xfer->rx)[2] = cpu_గమ్యం_le32(rsp.mma.shmem_addr_lo);
+		((u32 *)xfer->rx)[3] = cpu_గమ్యం_le32(rsp.mma.shmem_addr_hi);
+		((u32 *)xfer->rx)[4] = cpu_గమ్యం_le32(rsp.mma.shmem_కొలత);
+		వాదనలు->rx_దత్తాంశం_len = 5 * పరిమాణం(u32);
+		ఆపు;
 
-	case RPMI_MM_SRV_COMMUNICATE:
+	స్థితి RPMI_MM_SRV_COMMUNICATE:
 		rc = mbox_chan_xfer(chan, xfer);
-		break;
+		ఆపు;
 
-	default:
-		((u32 *)xfer->rx)[0] = cpu_to_le32(RPMI_ERR_NOTSUPP);
-		args->rx_data_len = sizeof(u32);
-		break;
+	అప్రమేయ:
+		((u32 *)xfer->rx)[0] = cpu_గమ్యం_le32(RPMI_ERR_NOTSUPP);
+		వాదనలు->rx_దత్తాంశం_len = పరిమాణం(u32);
+		ఆపు;
 	};
 
-	return rc;
+	తిరిగి rc;
 }
 
-static const struct mpxy_rpmi_mbox_data mm_data = {
-	.servicegrp_id = RPMI_SRVGRP_MANAGEMENT_MODE,
-	.num_services = RPMI_MM_SRV_MAX_COUNT,
-	.service_data = mm_srvcdata,
-	.setup_group = mpxy_rpmi_mm_setup,
-	.xfer_group = mpxy_rpmi_mm_xfer,
+స్థిర స్థిరరాశి నిర్మాణం mpxy_rpmi_mbox_దత్తాంశం mm_దత్తాంశం = {
+	.servicegrp_id = RPMI_SRVGRP_MANAGEMENT_బహుళకం,
+	.అంకె_services = RPMI_MM_SRV_MAX_లెక్క,
+	.service_దత్తాంశం = mm_srvcdata,
+	.అమరిక_సమూహం = mpxy_rpmi_mm_అమరిక,
+	.xfer_సమూహం = mpxy_rpmi_mm_xfer,
 };
 
 /* one extra blank entry for loop termination while matching */
-static const struct fdt_match mm_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక mm_సరిపోలిక[] = {
 	{
 		.compatible = "riscv,rpmi-mpxy-mm",
-		.data = &mm_data,
+		.దత్తాంశం = &mm_దత్తాంశం,
 	},
 	{},
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_mm = {
+స్థిరరాశి నిర్మాణం fdt_driver fdt_mpxy_rpmi_mm = {
 	.experimental = true,
-	.match_table = mm_match,
+	.సరిపోలిక_పట్టిక = mm_సరిపోలిక,
 	.init = mpxy_rpmi_mbox_init,
 };

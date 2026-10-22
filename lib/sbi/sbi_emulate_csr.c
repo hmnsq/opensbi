@@ -7,174 +7,174 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_emulate_csr.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_emulate_csr.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
 
-static bool hpm_allowed(int hpm_num, ulong prev_mode, bool virt)
+స్థిర bool hpm_allowed(పూర్ణాంకం hpm_అంకె, ulong prev_బహుళకం, bool virt)
 {
 	ulong cen = -1UL;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (prev_mode <= PRV_S) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10) {
+	ఒకవేళ (prev_బహుళకం <= PRV_S) {
+		ఒకవేళ (sbi_hart_priv_సంస్కరణ(scratch) >= SBI_HART_PRIV_VER_1_10) {
 			cen &= csr_read(CSR_MCOUNTEREN);
-			if (virt)
+			ఒకవేళ (virt)
 				cen &= csr_read(CSR_HCOUNTEREN);
-		} else {
+		} లేకపోతే {
 			cen = 0;
 		}
 	}
-	if (prev_mode == PRV_U) {
-		if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	ఒకవేళ (prev_బహుళకం == PRV_U) {
+		ఒకవేళ (sbi_hart_priv_సంస్కరణ(scratch) >= SBI_HART_PRIV_VER_1_10)
 			cen &= csr_read(CSR_SCOUNTEREN);
-		else
+		లేకపోతే
 			cen = 0;
 	}
 
-	return ((cen >> hpm_num) & 1) ? true : false;
+	తిరిగి ((cen >> hpm_అంకె) & 1) ? true : false;
 }
 
-int sbi_emulate_csr_read(int csr_num, struct sbi_trap_regs *regs,
+పూర్ణాంకం sbi_emulate_csr_read(పూర్ణాంకం csr_అంకె, నిర్మాణం sbi_trap_regs *regs,
 			 ulong *csr_val)
 {
-	int ret = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
+	పూర్ణాంకం ret = 0;
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ulong prev_బహుళకం = sbi_mstatus_prev_బహుళకం(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
+	ఎంపిక (csr_అంకె) {
+	స్థితి CSR_HTIMEDELTA:
+		ఒకవేళ (prev_బహుళకం == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta();
-		else
+		లేకపోతే
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLE:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		ఆపు;
+	స్థితి CSR_చక్రం:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_చక్రం, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLE);
-		break;
-	case CSR_TIME:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		ఆపు;
+	స్థితి CSR_సమయం:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_చక్రం, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
 		/*
 		 * We emulate TIME CSR for both Host (HS/U-mode) and
 		 * Guest (VS/VU-mode).
 		 */
-		*csr_val = (virt) ? sbi_timer_virt_value():
-				    sbi_timer_value();
-		break;
-	case CSR_INSTRET:
-		if (!hpm_allowed(csr_num - CSR_CYCLE, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_విలువ():
+				    sbi_timer_విలువ();
+		ఆపు;
+	స్థితి CSR_INSTRET:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_చక్రం, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRET);
-		break;
+		ఆపు;
 
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
+#ఒకవేళ __riscv_xlen == 32
+	స్థితి CSR_HTIMEDELTAH:
+		ఒకవేళ (prev_బహుళకం == PRV_S && !virt)
 			*csr_val = sbi_timer_get_delta() >> 32;
-		else
+		లేకపోతే
 			ret = SBI_ENOTSUPP;
-		break;
-	case CSR_CYCLEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		ఆపు;
+	స్థితి CSR_CYCLEH:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_CYCLEH, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MCYCLEH);
-		break;
-	case CSR_TIMEH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
-		*csr_val = (virt) ? sbi_timer_virt_value() >> 32:
-				    sbi_timer_value() >> 32;
-		break;
-	case CSR_INSTRETH:
-		if (!hpm_allowed(csr_num - CSR_CYCLEH, prev_mode, virt))
-			return SBI_ENOTSUPP;
+		ఆపు;
+	స్థితి CSR_TIMEH:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_CYCLEH, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
+		*csr_val = (virt) ? sbi_timer_virt_విలువ() >> 32:
+				    sbi_timer_విలువ() >> 32;
+		ఆపు;
+	స్థితి CSR_INSTRETH:
+		ఒకవేళ (!hpm_allowed(csr_అంకె - CSR_CYCLEH, prev_బహుళకం, virt))
+			తిరిగి SBI_ENOTSUPP;
 		*csr_val = csr_read(CSR_MINSTRETH);
-		break;
-#endif
+		ఆపు;
+#అయితే_ముగింపు
 
-#define switchcase_hpm(__uref, __mref, __csr)				\
-	case __csr:							\
-		if (sbi_hart_mhpm_mask(scratch) & (1 << (__csr - __uref)))\
-			return SBI_ENOTSUPP;				\
-		if (!hpm_allowed(__csr - __uref, prev_mode, virt))	\
-			return SBI_ENOTSUPP;				\
+#నిర్వచించు switchcase_hpm(__uref, __mref, __csr)				\
+	స్థితి __csr:							\
+		ఒకవేళ (sbi_hart_mhpm_ముసుగు(scratch) & (1 << (__csr - __uref)))\
+			తిరిగి SBI_ENOTSUPP;				\
+		ఒకవేళ (!hpm_allowed(__csr - __uref, prev_బహుళకం, virt))	\
+			తిరిగి SBI_ENOTSUPP;				\
 		*csr_val = csr_read(__mref + __csr - __uref);		\
-		break;
-#define switchcase_hpm_2(__uref, __mref, __csr)			\
+		ఆపు;
+#నిర్వచించు switchcase_hpm_2(__uref, __mref, __csr)			\
 	switchcase_hpm(__uref, __mref, __csr + 0)			\
 	switchcase_hpm(__uref, __mref, __csr + 1)
-#define switchcase_hpm_4(__uref, __mref, __csr)			\
+#నిర్వచించు switchcase_hpm_4(__uref, __mref, __csr)			\
 	switchcase_hpm_2(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_2(__uref, __mref, __csr + 2)
-#define switchcase_hpm_8(__uref, __mref, __csr)			\
+#నిర్వచించు switchcase_hpm_8(__uref, __mref, __csr)			\
 	switchcase_hpm_4(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_4(__uref, __mref, __csr + 4)
-#define switchcase_hpm_16(__uref, __mref, __csr)			\
+#నిర్వచించు switchcase_hpm_16(__uref, __mref, __csr)			\
 	switchcase_hpm_8(__uref, __mref, __csr + 0)			\
 	switchcase_hpm_8(__uref, __mref, __csr + 8)
 
-	switchcase_hpm(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER3)
-	switchcase_hpm_4(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER4)
-	switchcase_hpm_8(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER8)
-	switchcase_hpm_16(CSR_CYCLE, CSR_MCYCLE, CSR_HPMCOUNTER16)
+	switchcase_hpm(CSR_చక్రం, CSR_MCYCLE, CSR_HPMCOUNTER3)
+	switchcase_hpm_4(CSR_చక్రం, CSR_MCYCLE, CSR_HPMCOUNTER4)
+	switchcase_hpm_8(CSR_చక్రం, CSR_MCYCLE, CSR_HPMCOUNTER8)
+	switchcase_hpm_16(CSR_చక్రం, CSR_MCYCLE, CSR_HPMCOUNTER16)
 
-#if __riscv_xlen == 32
+#ఒకవేళ __riscv_xlen == 32
 	switchcase_hpm(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER3H)
 	switchcase_hpm_4(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER4H)
 	switchcase_hpm_8(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER8H)
 	switchcase_hpm_16(CSR_CYCLEH, CSR_MCYCLEH, CSR_HPMCOUNTER16H)
-#endif
+#అయితే_ముగింపు
 
-#undef switchcase_hpm_16
-#undef switchcase_hpm_8
-#undef switchcase_hpm_4
-#undef switchcase_hpm_2
-#undef switchcase_hpm
+#నిర్వచనం_రద్దు switchcase_hpm_16
+#నిర్వచనం_రద్దు switchcase_hpm_8
+#నిర్వచనం_రద్దు switchcase_hpm_4
+#నిర్వచనం_రద్దు switchcase_hpm_2
+#నిర్వచనం_రద్దు switchcase_hpm
 
-	default:
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
-		break;
+		ఆపు;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_emulate_csr_write(int csr_num, struct sbi_trap_regs *regs,
+పూర్ణాంకం sbi_emulate_csr_write(పూర్ణాంకం csr_అంకె, నిర్మాణం sbi_trap_regs *regs,
 			  ulong csr_val)
 {
-	int ret = 0;
-	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
+	పూర్ణాంకం ret = 0;
+	ulong prev_బహుళకం = sbi_mstatus_prev_బహుళకం(regs->mstatus);
 	bool virt = sbi_regs_from_virt(regs);
 
-	switch (csr_num) {
-	case CSR_HTIMEDELTA:
-		if (prev_mode == PRV_S && !virt)
-			sbi_timer_set_delta(csr_val);
-		else
+	ఎంపిక (csr_అంకె) {
+	స్థితి CSR_HTIMEDELTA:
+		ఒకవేళ (prev_బహుళకం == PRV_S && !virt)
+			sbi_timer_సమితి_delta(csr_val);
+		లేకపోతే
 			ret = SBI_ENOTSUPP;
-		break;
-#if __riscv_xlen == 32
-	case CSR_HTIMEDELTAH:
-		if (prev_mode == PRV_S && !virt)
-			sbi_timer_set_delta_upper(csr_val);
-		else
+		ఆపు;
+#ఒకవేళ __riscv_xlen == 32
+	స్థితి CSR_HTIMEDELTAH:
+		ఒకవేళ (prev_బహుళకం == PRV_S && !virt)
+			sbi_timer_సమితి_delta_పై(csr_val);
+		లేకపోతే
 			ret = SBI_ENOTSUPP;
-		break;
-#endif
-	default:
+		ఆపు;
+#అయితే_ముగింపు
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
-		break;
+		ఆపు;
 	}
 
-	return ret;
+	తిరిగి ret;
 }

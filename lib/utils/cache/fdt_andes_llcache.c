@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi_utils/cache/fdt_cache.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define LLCACHE_REG_CFG_OFFSET		0x0
-#define LLCACHE_REG_CTRL_OFFSET		0x8
-#define LLCACHE_REG_CCTL_CMD_OFFSET	0x40
-#define LLCACHE_REG_CCTL_STATUS_OFFSET	0x80
+#నిర్వచించు LLCACHE_REG_CFG_స్థానభ్రంశం		0x0
+#నిర్వచించు LLCACHE_REG_CTRL_స్థానభ్రంశం		0x8
+#నిర్వచించు LLCACHE_REG_CCTL_CMD_స్థానభ్రంశం	0x40
+#నిర్వచించు LLCACHE_REG_CCTL_స్థితి_స్థానభ్రంశం	0x80
 
-#define LLCACHE_REG_CFG_MAP_MASK	BIT(20)
-#define LLCACHE_REG_CTRL_EN_MASK	BIT(0)
-#define LLCACHE_REG_CTRL_INIT_MASK	BIT(14)
-#define LLCACHE_REG_CCTL_STATUS_MASK	GENMASK(3, 0)
+#నిర్వచించు LLCACHE_REG_CFG_MAP_ముసుగు	బిట్టు(20)
+#నిర్వచించు LLCACHE_REG_CTRL_EN_ముసుగు	బిట్టు(0)
+#నిర్వచించు LLCACHE_REG_CTRL_INIT_ముసుగు	బిట్టు(14)
+#నిర్వచించు LLCACHE_REG_CCTL_స్థితి_ముసుగు	GENMASK(3, 0)
 
-#define LLCACHE_WBINVAL_ALL		0x12
+#నిర్వచించు LLCACHE_WBINVAL_ALL		0x12
 
-struct andes_llcache {
-	struct cache_device dev;
-	void *base;
+నిర్మాణం andes_llcache {
+	నిర్మాణం cache_device dev;
+	శూన్య *పునాది_2;
 	uint32_t cmd_stride;
-	uint32_t status_stride;
-	uint32_t status_core_stride;
+	uint32_t స్థితి_stride;
+	uint32_t స్థితి_core_stride;
 };
 
-#define to_llcache(_dev) container_of(_dev, struct andes_llcache, dev)
+#నిర్వచించు గమ్యం_llcache(_dev) container_యొక్క(_dev, నిర్మాణం andes_llcache, dev)
 
-static bool andes_llcache_init_done(struct andes_llcache *llcache)
+స్థిర bool andes_llcache_init_పూర్తి(నిర్మాణం andes_llcache *llcache)
 {
 	uint32_t llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	శూన్య *ctrl_addr = (అక్షరం *)llcache->పునాది_2 + LLCACHE_REG_CTRL_స్థానభ్రంశం;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	తిరిగి !వెలికితీయి_క్షేత్రం(llcache_ctrl, LLCACHE_REG_CTRL_INIT_ముసుగు);
 }
 
-static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
+స్థిర bool andes_llcache_cctl_పూర్తి(నిర్మాణం andes_llcache *llcache, uint32_t hartid)
 {
-	uint32_t llcache_cctl_status;
-	void *cctl_status_addr = (char *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
-				 hartid * llcache->status_stride;
+	uint32_t llcache_cctl_స్థితి;
+	శూన్య *cctl_స్థితి_addr = (అక్షరం *)llcache->పునాది_2 + LLCACHE_REG_CCTL_స్థితి_స్థానభ్రంశం +
+				 hartid * llcache->స్థితి_stride;
 
-	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
-			      LLCACHE_REG_CCTL_STATUS_MASK <<
-			      hartid * llcache->status_core_stride);
+	llcache_cctl_స్థితి = readl_relaxed(cctl_స్థితి_addr);
+	తిరిగి !వెలికితీయి_క్షేత్రం(llcache_cctl_స్థితి,
+			      LLCACHE_REG_CCTL_స్థితి_ముసుగు <<
+			      hartid * llcache->స్థితి_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+స్థిర పూర్ణాంకం andes_llcache_flush_all(నిర్మాణం cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
-	struct andes_llcache *llcache = to_llcache(dev);
-	void *cctl_cmd_addr = (char *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
+	నిర్మాణం andes_llcache *llcache = గమ్యం_llcache(dev);
+	శూన్య *cctl_cmd_addr = (అక్షరం *)llcache->పునాది_2 + LLCACHE_REG_CCTL_CMD_స్థానభ్రంశం +
 			      hartid * llcache->cmd_stride;
 
 	/*
@@ -71,17 +71,17 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	అయితే (!andes_llcache_cctl_పూర్తి(llcache, hartid))
 		;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+స్థిర పూర్ణాంకం andes_llcache_enable(నిర్మాణం cache_device *dev, bool enable)
 {
-	struct andes_llcache *llcache = to_llcache(dev);
+	నిర్మాణం andes_llcache *llcache = గమ్యం_llcache(dev);
 	u32 llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	శూన్య *ctrl_addr = (అక్షరం *)llcache->పునాది_2 + LLCACHE_REG_CTRL_స్థానభ్రంశం;
 
 	/*
 	 * To properly enable the last level cache to cache both instructions
@@ -94,88 +94,88 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	ఒకవేళ (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
-		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_ముసుగు, ctrl_addr);
+	} లేకపోతే {
 		llcache_ctrl = readl(ctrl_addr);
-		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
-		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
+		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_ముసుగు);
+		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_ముసుగు, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	ఒకవేళ (enable != వెలికితీయి_క్షేత్రం(llcache_ctrl, LLCACHE_REG_CTRL_EN_ముసుగు))
+		తిరిగి SBI_EFAIL;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static struct cache_ops andes_llcache_ops = {
+స్థిర నిర్మాణం cache_ops andes_llcache_ops = {
 	.cache_flush_all = andes_llcache_flush_all,
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+స్థిర పూర్ణాంకం andes_llcache_probe(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	u64 llcache_base = 0, size;
-	struct andes_llcache *llcache;
-	struct cache_device *dev;
+	పూర్ణాంకం rc;
+	u64 llcache_పునాది = 0, కొలత;
+	నిర్మాణం andes_llcache *llcache;
+	నిర్మాణం cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &llcache_పునాది, &కొలత);
+	ఒకవేళ (rc < 0 || !llcache_పునాది || !కొలత)
+		తిరిగి SBI_ENODEV;
 
-	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	llcache = sbi_zalloc(పరిమాణం(*llcache));
+	ఒకవేళ (!llcache)
+		తిరిగి SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	rc = fdt_cache_కూడు(fdt, nodeoff, dev);
+	ఒకవేళ (rc) {
 		sbi_free(llcache);
-		return rc;
+		తిరిగి rc;
 	}
 
-	llcache->base = (void *)(ulong)llcache_base;
-	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
+	llcache->పునాది_2 = (శూన్య *)(ulong)llcache_పునాది;
+	llcache_cfg = readl_relaxed((అక్షరం *)llcache->పునాది_2 + LLCACHE_REG_CFG_స్థానభ్రంశం);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	ఒకవేళ (వెలికితీయి_క్షేత్రం(llcache_cfg, LLCACHE_REG_CFG_MAP_ముసుగు)) {
 		llcache->cmd_stride = 0x1000;
-		llcache->status_stride = 0x1000;
-		llcache->status_core_stride = 0;
-	} else {
+		llcache->స్థితి_stride = 0x1000;
+		llcache->స్థితి_core_stride = 0;
+	} లేకపోతే {
 		llcache->cmd_stride = 0x10;
-		llcache->status_stride = 0x0;
-		llcache->status_core_stride = 4;
+		llcache->స్థితి_stride = 0x0;
+		llcache->స్థితి_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
+	ఒకవేళ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_మూలం_కూడు_memrange(
+			(గుర్తులేని దీర్ఘ)llcache->పునాది_2, (గుర్తులేని దీర్ఘ)కొలత, పుట_కొలత,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	అయితే (!andes_llcache_init_పూర్తి(llcache))
 		;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static const struct fdt_match andes_llcache_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక andes_llcache_సరిపోలిక[] = {
 	{ .compatible = "andestech,llcache" },
 	{},
 };
 
-const struct fdt_driver fdt_andes_llcache = {
-	.match_table = andes_llcache_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_andes_llcache = {
+	.సరిపోలిక_పట్టిక = andes_llcache_సరిపోలిక,
 	.init = andes_llcache_probe,
 };

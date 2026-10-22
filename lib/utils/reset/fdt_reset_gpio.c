@@ -9,161 +9,161 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/gpio/fdt_gpio.h>
 
-struct gpio_reset {
-	struct gpio_pin pin;
-	u32 active_delay;
+నిర్మాణం gpio_reset {
+	నిర్మాణం gpio_pin pin;
+	u32 చురుకైన_delay;
 	u32 inactive_delay;
 };
 
-static struct gpio_reset poweroff = {
-	.active_delay = 100,
+స్థిర నిర్మాణం gpio_reset poweroff = {
+	.చురుకైన_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset restart = {
-	.active_delay = 100,
+స్థిర నిర్మాణం gpio_reset restart = {
+	.చురుకైన_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset *gpio_reset_get(bool is_restart, u32 type)
+స్థిర నిర్మాణం gpio_reset *gpio_reset_get(bool is_restart, u32 type)
 {
-	struct gpio_reset *reset = NULL;
+	నిర్మాణం gpio_reset *reset = ఖాళీ;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_restart)
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+		ఒకవేళ (!is_restart)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_restart)
+		ఆపు;
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ఒకవేళ (is_restart)
 			reset = &restart;
-		break;
+		ఆపు;
 	}
 
-	if (reset && !reset->pin.chip)
-		reset = NULL;
+	ఒకవేళ (reset && !reset->pin.chip)
+		reset = ఖాళీ;
 
-	return reset;
+	తిరిగి reset;
 }
 
-static void gpio_reset_exec(struct gpio_reset *reset)
+స్థిర శూన్య gpio_reset_exec(నిర్మాణం gpio_reset *reset)
 {
-	if (reset) {
+	ఒకవేళ (reset) {
 		/* drive it active, also inactive->active edge */
 		gpio_direction_output(&reset->pin, 1);
-		sbi_timer_mdelay(reset->active_delay);
+		sbi_timer_mdelay(reset->చురుకైన_delay);
 
 		/* drive inactive, also active->inactive edge */
-		gpio_set(&reset->pin, 0);
+		gpio_సమితి(&reset->pin, 0);
 		sbi_timer_mdelay(reset->inactive_delay);
 
 		/* drive it active, also inactive->active edge */
-		gpio_set(&reset->pin, 1);
+		gpio_సమితి(&reset->pin, 1);
 	}
 	/* hang !!! */
 	sbi_hart_hang();
 }
 
-static int gpio_system_poweroff_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం gpio_system_poweroff_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(false, type))
-		return 128;
+	ఒకవేళ (gpio_reset_get(false, type))
+		తిరిగి 128;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void gpio_system_poweroff(u32 type, u32 reason)
+స్థిర శూన్య gpio_system_poweroff(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device gpio_poweroff = {
+స్థిర నిర్మాణం sbi_system_reset_device gpio_poweroff = {
 	.name = "gpio-poweroff",
 	.system_reset_check = gpio_system_poweroff_check,
 	.system_reset = gpio_system_poweroff
 };
 
-static int gpio_system_restart_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం gpio_system_restart_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(true, type))
-		return 128;
+	ఒకవేళ (gpio_reset_get(true, type))
+		తిరిగి 128;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void gpio_system_restart(u32 type, u32 reason)
+స్థిర శూన్య gpio_system_restart(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device gpio_restart = {
+స్థిర నిర్మాణం sbi_system_reset_device gpio_restart = {
 	.name = "gpio-restart",
 	.system_reset_check = gpio_system_restart_check,
 	.system_reset = gpio_system_restart
 };
 
-static int gpio_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+స్థిర పూర్ణాంకం gpio_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			   స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc, len;
-	const fdt32_t *val;
-	bool is_restart = (ulong)match->data;
-	const char *dir_prop = (is_restart) ? "open-source" : "input";
-	struct gpio_reset *reset = (is_restart) ? &restart : &poweroff;
+	పూర్ణాంకం rc, len;
+	స్థిరరాశి fdt32_t *val;
+	bool is_restart = (ulong)సరిపోలిక->దత్తాంశం;
+	స్థిరరాశి అక్షరం *dir_prop = (is_restart) ? "open-source" : "input";
+	నిర్మాణం gpio_reset *reset = (is_restart) ? &restart : &poweroff;
 
 	rc = fdt_gpio_pin_get(fdt, nodeoff, 0, &reset->pin);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
-		rc = gpio_direction_input(&reset->pin);
-		if (rc)
-			return rc;
+	ఒకవేళ (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
+		rc = gpio_direction_ఆదానం(&reset->pin);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "active-delay-ms", &len);
-	if (len > 0)
-		reset->active_delay = fdt32_to_cpu(*val);
+	ఒకవేళ (len > 0)
+		reset->చురుకైన_delay = fdt32_గమ్యం_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "inactive-delay-ms", &len);
-	if (len > 0)
-		reset->inactive_delay = fdt32_to_cpu(*val);
+	ఒకవేళ (len > 0)
+		reset->inactive_delay = fdt32_గమ్యం_cpu(*val);
 
-	if (is_restart)
-		sbi_system_reset_add_device(&gpio_restart);
-	else
-		sbi_system_reset_add_device(&gpio_poweroff);
+	ఒకవేళ (is_restart)
+		sbi_system_reset_కూడు_device(&gpio_restart);
+	లేకపోతే
+		sbi_system_reset_కూడు_device(&gpio_poweroff);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match gpio_poweroff_match[] = {
-	{ .compatible = "gpio-poweroff", .data = (const void *)false },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక gpio_poweroff_సరిపోలిక[] = {
+	{ .compatible = "gpio-poweroff", .దత్తాంశం = (స్థిరరాశి శూన్య *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_poweroff_gpio = {
-	.match_table = gpio_poweroff_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_poweroff_gpio = {
+	.సరిపోలిక_పట్టిక = gpio_poweroff_సరిపోలిక,
 	.init = gpio_reset_init,
 };
 
-static const struct fdt_match gpio_reset_match[] = {
-	{ .compatible = "gpio-restart", .data = (const void *)true },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక gpio_reset_సరిపోలిక[] = {
+	{ .compatible = "gpio-restart", .దత్తాంశం = (స్థిరరాశి శూన్య *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_gpio = {
-	.match_table = gpio_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_gpio = {
+	.సరిపోలిక_పట్టిక = gpio_reset_సరిపోలిక,
 	.init = gpio_reset_init,
 };

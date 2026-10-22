@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/timer/fdt_timer.h>
+#అన్తర్భావ <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+బాహ్య నిర్మాణం plmt_దత్తాంశం plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+స్థిర పూర్ణాంకం fdt_plmt_cold_timer_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				    స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	unsigned long plmt_base;
+	పూర్ణాంకం rc;
+	గుర్తులేని దీర్ఘ plmt_పునాది;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_కణుపు(fdt, nodeoff, &plmt_పునాది, &plmt.కొలత,
+				 &plmt.hart_లెక్క);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	plmt.time_val = (u64 *)plmt_base;
-	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
+	plmt.సమయం_val = (u64 *)plmt_పునాది;
+	plmt.సమయం_cmp = (u64 *)(plmt_పునాది + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక timer_plmt_సరిపోలిక[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
-	.match_table = timer_plmt_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_timer_plmt = {
+	.సరిపోలిక_పట్టిక = timer_plmt_సరిపోలిక,
 	.init = fdt_plmt_cold_timer_init,
 };

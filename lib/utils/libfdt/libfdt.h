@@ -1,72 +1,72 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause */
-#ifndef LIBFDT_H
-#define LIBFDT_H
+#నిర్వచితం_కాకపోతే LIBFDT_H
+#నిర్వచించు LIBFDT_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
 
-#include <libfdt_env.h>
-#include <fdt.h>
+#అన్తర్భావ <libfdt_env.h>
+#అన్తర్భావ <fdt.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#నిర్వచితమైతే __cplusplus
+బాహ్య "C" {
+#అయితే_ముగింపు
 
-#define FDT_FIRST_SUPPORTED_VERSION	0x02
-#define FDT_LAST_COMPATIBLE_VERSION 0x10
-#define FDT_LAST_SUPPORTED_VERSION	0x11
+#నిర్వచించు FDT_మొదటి_SUPPORTED_సంస్కరణ	0x02
+#నిర్వచించు FDT_చివరి_COMPATIBLE_సంస్కరణ 0x10
+#నిర్వచించు FDT_చివరి_SUPPORTED_సంస్కరణ	0x11
 
 /* Error codes: informative error codes */
-#define FDT_ERR_NOTFOUND	1
+#నిర్వచించు FDT_ERR_NOTFOUND	1
 	/* FDT_ERR_NOTFOUND: The requested node or property does not exist */
-#define FDT_ERR_EXISTS		2
+#నిర్వచించు FDT_ERR_EXISTS		2
 	/* FDT_ERR_EXISTS: Attempted to create a node or property which
 	 * already exists */
-#define FDT_ERR_NOSPACE		3
+#నిర్వచించు FDT_ERR_NOSPACE		3
 	/* FDT_ERR_NOSPACE: Operation needed to expand the device
 	 * tree, but its buffer did not have sufficient space to
 	 * contain the expanded tree. Use fdt_open_into() to move the
 	 * device tree to a buffer with more space. */
 
 /* Error codes: codes for bad parameters */
-#define FDT_ERR_BADOFFSET	4
+#నిర్వచించు FDT_ERR_BADOFFSET	4
 	/* FDT_ERR_BADOFFSET: Function was passed a structure block
 	 * offset which is out-of-bounds, or which points to an
 	 * unsuitable part of the structure for the operation. */
-#define FDT_ERR_BADPATH		5
+#నిర్వచించు FDT_ERR_BADPATH		5
 	/* FDT_ERR_BADPATH: Function was passed a badly formatted path
 	 * (e.g. missing a leading / for a function which requires an
 	 * absolute path) */
-#define FDT_ERR_BADPHANDLE	6
+#నిర్వచించు FDT_ERR_BADPHANDLE	6
 	/* FDT_ERR_BADPHANDLE: Function was passed an invalid phandle.
 	 * This can be caused either by an invalid phandle property
 	 * length, or the phandle value was either 0 or -1, which are
 	 * not permitted. */
-#define FDT_ERR_BADSTATE	7
+#నిర్వచించు FDT_ERR_BADSTATE	7
 	/* FDT_ERR_BADSTATE: Function was passed an incomplete device
 	 * tree created by the sequential-write functions, which is
 	 * not sufficiently complete for the requested operation. */
 
 /* Error codes: codes for bad device tree blobs */
-#define FDT_ERR_TRUNCATED	8
+#నిర్వచించు FDT_ERR_TRUNCATED	8
 	/* FDT_ERR_TRUNCATED: FDT or a sub-block is improperly
 	 * terminated (overflows, goes outside allowed bounds, or
 	 * isn't properly terminated).  */
-#define FDT_ERR_BADMAGIC	9
+#నిర్వచించు FDT_ERR_BADMAGIC	9
 	/* FDT_ERR_BADMAGIC: Given "device tree" appears not to be a
 	 * device tree at all - it is missing the flattened device
 	 * tree magic number. */
-#define FDT_ERR_BADVERSION	10
+#నిర్వచించు FDT_ERR_BADVERSION	10
 	/* FDT_ERR_BADVERSION: Given device tree has a version which
 	 * can't be handled by the requested operation.  For
 	 * read-write functions, this may mean that fdt_open_into() is
 	 * required to convert the tree to the expected version. */
-#define FDT_ERR_BADSTRUCTURE	11
+#నిర్వచించు FDT_ERR_BADSTRUCTURE	11
 	/* FDT_ERR_BADSTRUCTURE: Given device tree has a corrupt
 	 * structure block or other serious error (e.g. misnested
 	 * nodes, or subnodes preceding properties). */
-#define FDT_ERR_BADLAYOUT	12
+#నిర్వచించు FDT_ERR_BADLAYOUT	12
 	/* FDT_ERR_BADLAYOUT: For read-write functions, the given
 	 * device tree has it's sub-blocks in an order that the
 	 * function can't handle (memory reserve map, then structure,
@@ -74,88 +74,88 @@ extern "C" {
 	 * into a form suitable for the read-write operations. */
 
 /* "Can't happen" error indicating a bug in libfdt */
-#define FDT_ERR_INTERNAL	13
+#నిర్వచించు FDT_ERR_అంతర్గత	13
 	/* FDT_ERR_INTERNAL: libfdt has failed an internal assertion.
 	 * Should never be returned, if it is, it indicates a bug in
 	 * libfdt itself. */
 
 /* Errors in device tree content */
-#define FDT_ERR_BADNCELLS	14
+#నిర్వచించు FDT_ERR_BADNCELLS	14
 	/* FDT_ERR_BADNCELLS: Device tree has a #address-cells, #size-cells
 	 * or similar property with a bad format or value */
 
-#define FDT_ERR_BADVALUE	15
+#నిర్వచించు FDT_ERR_BADVALUE	15
 	/* FDT_ERR_BADVALUE: Device tree has a property with an unexpected
 	 * value. For example: a property expected to contain a string list
 	 * is not NUL-terminated within the length of its value. */
 
-#define FDT_ERR_BADOVERLAY	16
+#నిర్వచించు FDT_ERR_BADOVERLAY	16
 	/* FDT_ERR_BADOVERLAY: The device tree overlay, while
 	 * correctly structured, cannot be applied due to some
 	 * unexpected or missing value, property or node. */
 
-#define FDT_ERR_NOPHANDLES	17
+#నిర్వచించు FDT_ERR_NOPHANDLES	17
 	/* FDT_ERR_NOPHANDLES: The device tree doesn't have any
 	 * phandle available anymore without causing an overflow */
 
-#define FDT_ERR_BADFLAGS	18
+#నిర్వచించు FDT_ERR_BADFLAGS	18
 	/* FDT_ERR_BADFLAGS: The function was passed a flags field that
 	 * contains invalid flags or an invalid combination of flags. */
 
-#define FDT_ERR_ALIGNMENT	19
+#నిర్వచించు FDT_ERR_ALIGNMENT	19
 	/* FDT_ERR_ALIGNMENT: The device tree base address is not 8-byte
 	 * aligned. */
 
-#define FDT_ERR_MAX		19
+#నిర్వచించు FDT_ERR_MAX		19
 
 /* constants */
-#define FDT_MAX_PHANDLE 0xfffffffe
+#నిర్వచించు FDT_MAX_PHANDLE 0xfffffffe
 	/* Valid values for phandles range from 1 to 2^32-2. */
 
 /**********************************************************************/
 /* Low-level functions (you probably don't need these)                */
 /**********************************************************************/
 
-#ifndef SWIG /* This function is not useful in Python */
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int checklen);
-#endif
-static inline void *fdt_offset_ptr_w(void *fdt, int offset, int checklen)
+#నిర్వచితం_కాకపోతే SWIG /* This function is not useful in Python */
+స్థిరరాశి శూన్య *fdt_స్థానభ్రంశం_ptr(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం, గుర్తులేని పూర్ణాంకం checklen);
+#అయితే_ముగింపు
+స్థిర అంతఃవరుస శూన్య *fdt_స్థానభ్రంశం_ptr_w_2(శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం checklen)
 {
-	return (void *)(uintptr_t)fdt_offset_ptr(fdt, offset, checklen);
+	తిరిగి (శూన్య *)(uintptr_t)fdt_స్థానభ్రంశం_ptr(fdt, స్థానభ్రంశం, checklen);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int offset, int *nextoffset);
+uint32_t fdt_తదుపరి_ట్యాగ్(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం *nextoffset);
 
 /*
  * External helpers to access words from a device tree blob. They're built
  * to work even with unaligned pointers on platforms (such as ARMv5) that don't
  * like unaligned loads and stores.
  */
-static inline uint32_t fdt32_ld(const fdt32_t *p)
+స్థిర అంతఃవరుస uint32_t fdt32_ld(స్థిరరాశి fdt32_t *p)
 {
-	const uint8_t *bp = (const uint8_t *)p;
+	స్థిరరాశి uint8_t *bp = (స్థిరరాశి uint8_t *)p;
 
-	return ((uint32_t)bp[0] << 24)
+	తిరిగి ((uint32_t)bp[0] << 24)
 		| ((uint32_t)bp[1] << 16)
 		| ((uint32_t)bp[2] << 8)
 		| bp[3];
 }
 
-static inline void fdt32_st(void *property, uint32_t value)
+స్థిర అంతఃవరుస శూన్య fdt32_st(శూన్య *property, uint32_t విలువ)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 24;
-	bp[1] = (value >> 16) & 0xff;
-	bp[2] = (value >> 8) & 0xff;
-	bp[3] = value & 0xff;
+	bp[0] = విలువ >> 24;
+	bp[1] = (విలువ >> 16) & 0xff;
+	bp[2] = (విలువ >> 8) & 0xff;
+	bp[3] = విలువ & 0xff;
 }
 
-static inline uint64_t fdt64_ld(const fdt64_t *p)
+స్థిర అంతఃవరుస uint64_t fdt64_ld(స్థిరరాశి fdt64_t *p)
 {
-	const uint8_t *bp = (const uint8_t *)p;
+	స్థిరరాశి uint8_t *bp = (స్థిరరాశి uint8_t *)p;
 
-	return ((uint64_t)bp[0] << 56)
+	తిరిగి ((uint64_t)bp[0] << 56)
 		| ((uint64_t)bp[1] << 48)
 		| ((uint64_t)bp[2] << 40)
 		| ((uint64_t)bp[3] << 32)
@@ -165,25 +165,25 @@ static inline uint64_t fdt64_ld(const fdt64_t *p)
 		| bp[7];
 }
 
-static inline void fdt64_st(void *property, uint64_t value)
+స్థిర అంతఃవరుస శూన్య fdt64_st(శూన్య *property, uint64_t విలువ)
 {
 	uint8_t *bp = (uint8_t *)property;
 
-	bp[0] = value >> 56;
-	bp[1] = (value >> 48) & 0xff;
-	bp[2] = (value >> 40) & 0xff;
-	bp[3] = (value >> 32) & 0xff;
-	bp[4] = (value >> 24) & 0xff;
-	bp[5] = (value >> 16) & 0xff;
-	bp[6] = (value >> 8) & 0xff;
-	bp[7] = value & 0xff;
+	bp[0] = విలువ >> 56;
+	bp[1] = (విలువ >> 48) & 0xff;
+	bp[2] = (విలువ >> 40) & 0xff;
+	bp[3] = (విలువ >> 32) & 0xff;
+	bp[4] = (విలువ >> 24) & 0xff;
+	bp[5] = (విలువ >> 16) & 0xff;
+	bp[6] = (విలువ >> 8) & 0xff;
+	bp[7] = విలువ & 0xff;
 }
 
 /**********************************************************************/
 /* Traversal functions                                                */
 /**********************************************************************/
 
-int fdt_next_node(const void *fdt, int offset, int *depth);
+పూర్ణాంకం fdt_తదుపరి_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం, పూర్ణాంకం *లోతు);
 
 /**
  * fdt_first_subnode() - get offset of first direct subnode
@@ -192,7 +192,7 @@ int fdt_next_node(const void *fdt, int offset, int *depth);
  *
  * Return: offset of first subnode, or -FDT_ERR_NOTFOUND if there is none
  */
-int fdt_first_subnode(const void *fdt, int offset);
+పూర్ణాంకం fdt_మొదటి_subnode(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం);
 
 /**
  * fdt_next_subnode() - get offset of next direct subnode
@@ -205,7 +205,7 @@ int fdt_first_subnode(const void *fdt, int offset);
  * Return: offset of next subnode, or -FDT_ERR_NOTFOUND if there are no more
  *         subnodes
  */
-int fdt_next_subnode(const void *fdt, int offset);
+పూర్ణాంకం fdt_తదుపరి_subnode(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం);
 
 /**
  * fdt_for_each_subnode - iterate over all subnodes of a parent
@@ -229,44 +229,44 @@ int fdt_next_subnode(const void *fdt, int offset);
  * iterator in the loop. The parent variable be constant or even a
  * literal.
  */
-#define fdt_for_each_subnode(node, fdt, parent)		\
-	for (node = fdt_first_subnode(fdt, parent);	\
-	     node >= 0;					\
-	     node = fdt_next_subnode(fdt, node))
+#నిర్వచించు fdt_for_each_subnode(కణుపు, fdt, మాతృ)		\
+	కొరకు (కణుపు = fdt_మొదటి_subnode(fdt, మాతృ);	\
+	     కణుపు >= 0;					\
+	     కణుపు = fdt_తదుపరి_subnode(fdt, కణుపు))
 
 /**********************************************************************/
 /* General functions                                                  */
 /**********************************************************************/
-#define fdt_get_header(fdt, field) \
-	(fdt32_ld(&((const struct fdt_header *)(fdt))->field))
-#define fdt_magic(fdt)			(fdt_get_header(fdt, magic))
-#define fdt_totalsize(fdt)		(fdt_get_header(fdt, totalsize))
-#define fdt_off_dt_struct(fdt)		(fdt_get_header(fdt, off_dt_struct))
-#define fdt_off_dt_strings(fdt)		(fdt_get_header(fdt, off_dt_strings))
-#define fdt_off_mem_rsvmap(fdt)		(fdt_get_header(fdt, off_mem_rsvmap))
-#define fdt_version(fdt)		(fdt_get_header(fdt, version))
-#define fdt_last_comp_version(fdt)	(fdt_get_header(fdt, last_comp_version))
-#define fdt_boot_cpuid_phys(fdt)	(fdt_get_header(fdt, boot_cpuid_phys))
-#define fdt_size_dt_strings(fdt)	(fdt_get_header(fdt, size_dt_strings))
-#define fdt_size_dt_struct(fdt)		(fdt_get_header(fdt, size_dt_struct))
+#నిర్వచించు fdt_get_శీర్షిక(fdt, క్షేత్రం) \
+	(fdt32_ld(&((స్థిరరాశి నిర్మాణం fdt_శీర్షిక *)(fdt))->క్షేత్రం))
+#నిర్వచించు fdt_magic(fdt)			(fdt_get_శీర్షిక(fdt, magic))
+#నిర్వచించు fdt_totalsize(fdt)		(fdt_get_శీర్షిక(fdt, totalsize))
+#నిర్వచించు fdt_off_dt_struct(fdt)		(fdt_get_శీర్షిక(fdt, off_dt_struct))
+#నిర్వచించు fdt_off_dt_అక్షరశ్రేణులు(fdt)		(fdt_get_శీర్షిక(fdt, off_dt_అక్షరశ్రేణులు))
+#నిర్వచించు fdt_off_mem_rsvmap(fdt)		(fdt_get_శీర్షిక(fdt, off_mem_rsvmap))
+#నిర్వచించు fdt_సంస్కరణ(fdt)		(fdt_get_శీర్షిక(fdt, సంస్కరణ))
+#నిర్వచించు fdt_చివరి_comp_సంస్కరణ(fdt)	(fdt_get_శీర్షిక(fdt, చివరి_comp_సంస్కరణ))
+#నిర్వచించు fdt_boot_cpuid_phys(fdt)	(fdt_get_శీర్షిక(fdt, boot_cpuid_phys))
+#నిర్వచించు fdt_కొలత_dt_అక్షరశ్రేణులు(fdt)	(fdt_get_శీర్షిక(fdt, కొలత_dt_అక్షరశ్రేణులు))
+#నిర్వచించు fdt_కొలత_dt_struct(fdt)		(fdt_get_శీర్షిక(fdt, కొలత_dt_struct))
 
-#define fdt_set_hdr_(name) \
-	static inline void fdt_set_##name(void *fdt, uint32_t val) \
+#నిర్వచించు fdt_సమితి_hdr(name) \
+	స్థిర అంతఃవరుస శూన్య fdt_సమితి##name(శూన్య *fdt, uint32_t val) \
 	{ \
-		struct fdt_header *fdth = (struct fdt_header *)fdt; \
-		fdth->name = cpu_to_fdt32(val); \
+		నిర్మాణం fdt_శీర్షిక *fdth = (నిర్మాణం fdt_శీర్షిక *)fdt; \
+		fdth->name = cpu_గమ్యం_fdt32(val); \
 	}
-fdt_set_hdr_(magic);
-fdt_set_hdr_(totalsize);
-fdt_set_hdr_(off_dt_struct);
-fdt_set_hdr_(off_dt_strings);
-fdt_set_hdr_(off_mem_rsvmap);
-fdt_set_hdr_(version);
-fdt_set_hdr_(last_comp_version);
-fdt_set_hdr_(boot_cpuid_phys);
-fdt_set_hdr_(size_dt_strings);
-fdt_set_hdr_(size_dt_struct);
-#undef fdt_set_hdr_
+fdt_సమితి_hdr(magic);
+fdt_సమితి_hdr(totalsize);
+fdt_సమితి_hdr(off_dt_struct);
+fdt_సమితి_hdr(off_dt_అక్షరశ్రేణులు);
+fdt_సమితి_hdr(off_mem_rsvmap);
+fdt_సమితి_hdr(సంస్కరణ);
+fdt_సమితి_hdr(చివరి_comp_సంస్కరణ);
+fdt_సమితి_hdr(boot_cpuid_phys);
+fdt_సమితి_hdr(కొలత_dt_అక్షరశ్రేణులు);
+fdt_సమితి_hdr(కొలత_dt_struct);
+#నిర్వచనం_రద్దు fdt_సమితి_hdr
 
 /**
  * fdt_header_size - return the size of the tree's header
@@ -274,7 +274,7 @@ fdt_set_hdr_(size_dt_struct);
  *
  * Return: size of DTB header in bytes
  */
-size_t fdt_header_size(const void *fdt);
+size_t fdt_శీర్షిక_కొలత_2(స్థిరరాశి శూన్య *fdt);
 
 /**
  * fdt_header_size_ - internal function to get header size from a version number
@@ -282,7 +282,7 @@ size_t fdt_header_size(const void *fdt);
  *
  * Return: size of DTB header in bytes
  */
-size_t fdt_header_size_(uint32_t version);
+size_t fdt_శీర్షిక_కొలత(uint32_t సంస్కరణ);
 
 /**
  * fdt_check_header - sanity check a device tree header
@@ -300,7 +300,7 @@ size_t fdt_header_size_(uint32_t version);
  *     -FDT_ERR_BADSTATE,
  *     -FDT_ERR_TRUNCATED, standard meanings, as above
  */
-int fdt_check_header(const void *fdt);
+పూర్ణాంకం fdt_check_శీర్షిక(స్థిరరాశి శూన్య *fdt);
 
 /**
  * fdt_move - move a device tree around in memory
@@ -321,13 +321,13 @@ int fdt_check_header(const void *fdt);
  *     -FDT_ERR_BADVERSION,
  *     -FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_move(const void *fdt, void *buf, int bufsize);
+పూర్ణాంకం fdt_move(స్థిరరాశి శూన్య *fdt, శూన్య *buf, పూర్ణాంకం bufsize);
 
 /**********************************************************************/
 /* Read-only functions                                                */
 /**********************************************************************/
 
-int fdt_check_full(const void *fdt, size_t bufsize);
+పూర్ణాంకం fdt_check_నిండిన(స్థిరరాశి శూన్య *fdt, size_t bufsize);
 
 /**
  * fdt_get_string - retrieve a string from the strings block of a device tree
@@ -343,7 +343,7 @@ int fdt_check_full(const void *fdt, size_t bufsize);
  *     a pointer to the string, on success
  *     NULL, if stroffset is out of bounds, or doesn't point to a valid string
  */
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp);
+స్థిరరాశి అక్షరం *fdt_get_string(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం stroffset, పూర్ణాంకం *lenp);
 
 /**
  * fdt_string - retrieve a string from the strings block of a device tree
@@ -357,7 +357,7 @@ const char *fdt_get_string(const void *fdt, int stroffset, int *lenp);
  *     a pointer to the string, on success
  *     NULL, if stroffset is out of bounds, or doesn't point to a valid string
  */
-const char *fdt_string(const void *fdt, int stroffset);
+స్థిరరాశి అక్షరం *fdt_string(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం stroffset);
 
 /**
  * fdt_find_max_phandle - find and return the highest phandle in a tree
@@ -371,7 +371,7 @@ const char *fdt_string(const void *fdt, int stroffset);
  * returns:
  *     0 on success or a negative error code on failure
  */
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle);
+పూర్ణాంకం fdt_కనుగొను_max_phandle(స్థిరరాశి శూన్య *fdt, uint32_t *phandle);
 
 /**
  * fdt_get_max_phandle - retrieves the highest phandle in a tree
@@ -388,16 +388,16 @@ int fdt_find_max_phandle(const void *fdt, uint32_t *phandle);
  *      0, if no phandle was found in the device tree
  *      -1, if an error occurred
  */
-static inline uint32_t fdt_get_max_phandle(const void *fdt)
+స్థిర అంతఃవరుస uint32_t fdt_get_max_phandle(స్థిరరాశి శూన్య *fdt)
 {
 	uint32_t phandle;
-	int err;
+	పూర్ణాంకం err;
 
-	err = fdt_find_max_phandle(fdt, &phandle);
-	if (err < 0)
-		return (uint32_t)-1;
+	err = fdt_కనుగొను_max_phandle(fdt, &phandle);
+	ఒకవేళ (err < 0)
+		తిరిగి (uint32_t)-1;
 
-	return phandle;
+	తిరిగి phandle;
 }
 
 /**
@@ -412,7 +412,7 @@ static inline uint32_t fdt_get_max_phandle(const void *fdt)
  *
  * Return: 0 on success or a negative error-code on failure
  */
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle);
+పూర్ణాంకం fdt_generate_phandle(స్థిరరాశి శూన్య *fdt, uint32_t *phandle);
 
 /**
  * fdt_num_mem_rsv - retrieve the number of memory reserve map entries
@@ -425,7 +425,7 @@ int fdt_generate_phandle(const void *fdt, uint32_t *phandle);
  * returns:
  *     the number of entries
  */
-int fdt_num_mem_rsv(const void *fdt);
+పూర్ణాంకం fdt_అంకె_mem_rsv(స్థిరరాశి శూన్య *fdt);
 
 /**
  * fdt_get_mem_rsv - retrieve one memory reserve map entry
@@ -444,7 +444,7 @@ int fdt_num_mem_rsv(const void *fdt);
  *     -FDT_ERR_BADVERSION,
  *     -FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size);
+పూర్ణాంకం fdt_get_mem_rsv(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం n, uint64_t *చిరునామా, uint64_t *కొలత);
 
 /**
  * fdt_subnode_offset_namelen - find a subnode based on substring
@@ -460,10 +460,10 @@ int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size);
  *
  * Return: offset of the subnode or -FDT_ERR_NOTFOUND if name not found.
  */
-#ifndef SWIG /* Not available in Python */
-int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
-			       const char *name, int namelen);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+పూర్ణాంకం fdt_subnode_స్థానభ్రంశం_namelen(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం parentoffset,
+			       స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen);
+#అయితే_ముగింపు
 /**
  * fdt_subnode_offset - find a subnode of a given node
  * @fdt: pointer to the device tree blob
@@ -488,7 +488,7 @@ int fdt_subnode_offset_namelen(const void *fdt, int parentoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
+పూర్ణాంకం fdt_subnode_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం parentoffset, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_path_offset_namelen - find a tree node by its full path
@@ -501,9 +501,9 @@ int fdt_subnode_offset(const void *fdt, int parentoffset, const char *name);
  *
  * Return: offset of the node or negative libfdt error value otherwise
  */
-#ifndef SWIG /* Not available in Python */
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+పూర్ణాంకం fdt_మార్గం_స్థానభ్రంశం_namelen(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం namelen);
+#అయితే_ముగింపు
 
 /**
  * fdt_path_offset - find a tree node by its full path
@@ -528,7 +528,7 @@ int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_path_offset(const void *fdt, const char *path);
+పూర్ణాంకం fdt_మార్గం_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *మార్గం);
 
 /**
  * fdt_get_name - retrieve the name of a given node
@@ -553,7 +553,7 @@ int fdt_path_offset(const void *fdt, const char *path);
  *		-FDT_ERR_BADVERSION,
  *		-FDT_ERR_BADSTATE, standard meanings
  */
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
+స్థిరరాశి అక్షరం *fdt_get_name(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, పూర్ణాంకం *lenp);
 
 /**
  * fdt_first_property_offset - find the offset of a node's first property
@@ -573,7 +573,7 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *lenp);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_first_property_offset(const void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_మొదటి_property_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_next_property_offset - step through a node's properties
@@ -594,7 +594,7 @@ int fdt_first_property_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_next_property_offset(const void *fdt, int offset);
+పూర్ణాంకం fdt_తదుపరి_property_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం);
 
 /**
  * fdt_for_each_property_offset - iterate over all properties of a node
@@ -618,10 +618,10 @@ int fdt_next_property_offset(const void *fdt, int offset);
  * iterator in the loop. The node variable can be constant or even a
  * literal.
  */
-#define fdt_for_each_property_offset(property, fdt, node)	\
-	for (property = fdt_first_property_offset(fdt, node);	\
+#నిర్వచించు fdt_for_each_property_స్థానభ్రంశం(property, fdt, కణుపు)	\
+	కొరకు (property = fdt_మొదటి_property_స్థానభ్రంశం(fdt, కణుపు);	\
 	     property >= 0;					\
-	     property = fdt_next_property_offset(fdt, property))
+	     property = fdt_తదుపరి_property_స్థానభ్రంశం(fdt, property))
 
 /**
  * fdt_get_property_by_offset - retrieve the property at a given offset
@@ -650,9 +650,9 @@ int fdt_next_property_offset(const void *fdt, int offset);
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp);
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_by_స్థానభ్రంశం_2(స్థిరరాశి శూన్య *fdt,
+						      పూర్ణాంకం స్థానభ్రంశం,
+						      పూర్ణాంకం *lenp);
 
 /**
  * fdt_get_property_namelen - find a property based on substring
@@ -668,12 +668,12 @@ const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
  * Return: pointer to the structure representing the property, or NULL
  *         if not found
  */
-#ifndef SWIG /* Not available in Python */
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int nodeoffset,
-						    const char *name,
-						    int namelen, int *lenp);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_namelen(స్థిరరాశి శూన్య *fdt,
+						    పూర్ణాంకం nodeoffset,
+						    స్థిరరాశి అక్షరం *name,
+						    పూర్ణాంకం namelen, పూర్ణాంకం *lenp);
+#అయితే_ముగింపు
 
 /**
  * fdt_get_property - find a given property in a given node
@@ -703,13 +703,13 @@ const struct fdt_property *fdt_get_property_namelen(const void *fdt,
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const struct fdt_property *fdt_get_property(const void *fdt, int nodeoffset,
-					    const char *name, int *lenp);
-static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
-						      const char *name,
-						      int *lenp)
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					    స్థిరరాశి అక్షరం *name, పూర్ణాంకం *lenp);
+స్థిర అంతఃవరుస నిర్మాణం fdt_property *fdt_get_property_w(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+						      స్థిరరాశి అక్షరం *name,
+						      పూర్ణాంకం *lenp)
 {
-	return (struct fdt_property *)(uintptr_t)
+	తిరిగి (నిర్మాణం fdt_property *)(uintptr_t)
 		fdt_get_property(fdt, nodeoffset, name, lenp);
 }
 
@@ -744,10 +744,10 @@ static inline struct fdt_property *fdt_get_property_w(void *fdt, int nodeoffset,
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-#ifndef SWIG /* This function is not useful in Python */
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* This function is not useful in Python */
+స్థిరరాశి శూన్య *fdt_getprop_by_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం,
+				  స్థిరరాశి అక్షరం **namep, పూర్ణాంకం *lenp);
+#అయితే_ముగింపు
 
 /**
  * fdt_getprop_namelen - get property value based on substring
@@ -762,17 +762,17 @@ const void *fdt_getprop_by_offset(const void *fdt, int offset,
  *
  * Return: pointer to the property's value or NULL on error
  */
-#ifndef SWIG /* Not available in Python */
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp);
-static inline void *fdt_getprop_namelen_w(void *fdt, int nodeoffset,
-					  const char *name, int namelen,
-					  int *lenp)
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+స్థిరరాశి శూన్య *fdt_getprop_namelen(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen, పూర్ణాంకం *lenp);
+స్థిర అంతఃవరుస శూన్య *fdt_getprop_namelen_w(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					  స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen,
+					  పూర్ణాంకం *lenp)
 {
-	return (void *)(uintptr_t)fdt_getprop_namelen(fdt, nodeoffset, name,
+	తిరిగి (శూన్య *)(uintptr_t)fdt_getprop_namelen(fdt, nodeoffset, name,
 						      namelen, lenp);
 }
-#endif
+#అయితే_ముగింపు
 
 /**
  * fdt_getprop - retrieve the value of a given property
@@ -802,12 +802,12 @@ static inline void *fdt_getprop_namelen_w(void *fdt, int nodeoffset,
  *		-FDT_ERR_BADSTRUCTURE,
  *		-FDT_ERR_TRUNCATED, standard meanings
  */
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp);
-static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
-				  const char *name, int *lenp)
+స్థిరరాశి శూన్య *fdt_getprop(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			స్థిరరాశి అక్షరం *name, పూర్ణాంకం *lenp);
+స్థిర అంతఃవరుస శూన్య *fdt_getprop_w(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				  స్థిరరాశి అక్షరం *name, పూర్ణాంకం *lenp)
 {
-	return (void *)(uintptr_t)fdt_getprop(fdt, nodeoffset, name, lenp);
+	తిరిగి (శూన్య *)(uintptr_t)fdt_getprop(fdt, nodeoffset, name, lenp);
 }
 
 /**
@@ -822,7 +822,7 @@ static inline void *fdt_getprop_w(void *fdt, int nodeoffset,
  *	the phandle of the node at nodeoffset, on success (!= 0, != -1)
  *	0, if the node has no phandle, or another error occurs
  */
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
+uint32_t fdt_get_phandle(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_get_alias_namelen - get alias based on substring
@@ -836,10 +836,10 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset);
  * Return: a pointer to the expansion of the alias named @name, if it exists,
  *	   NULL otherwise
  */
-#ifndef SWIG /* Not available in Python */
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+స్థిరరాశి అక్షరం *fdt_get_alias_namelen(స్థిరరాశి శూన్య *fdt,
+				  స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen);
+#అయితే_ముగింపు
 
 /**
  * fdt_get_alias - retrieve the path referenced by a given alias
@@ -853,7 +853,7 @@ const char *fdt_get_alias_namelen(const void *fdt,
  *	a pointer to the expansion of the alias named 'name', if it exists
  *	NULL, if the given alias or the /aliases node does not exist
  */
-const char *fdt_get_alias(const void *fdt, const char *name);
+స్థిరరాశి అక్షరం *fdt_get_alias(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_get_path - determine the full path of a node
@@ -880,7 +880,7 @@ const char *fdt_get_alias(const void *fdt, const char *name);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
+పూర్ణాంకం fdt_get_మార్గం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, అక్షరం *buf, పూర్ణాంకం buflen);
 
 /**
  * fdt_supernode_atdepth_offset - find a specific ancestor of a node
@@ -912,8 +912,8 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth);
+పూర్ణాంకం fdt_supernode_atdepth_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				 పూర్ణాంకం supernodedepth, పూర్ణాంకం *nodedepth);
 
 /**
  * fdt_node_depth - find the depth of a given node
@@ -934,7 +934,7 @@ int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_depth(const void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_కణుపు_లోతు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_parent_offset - find the parent of a given node
@@ -957,7 +957,7 @@ int fdt_node_depth(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_parent_offset(const void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_మాతృ_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_node_offset_by_prop_value - find nodes with a given property value
@@ -997,9 +997,9 @@ int fdt_parent_offset(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen);
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_prop_విలువ(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం startoffset,
+				  స్థిరరాశి అక్షరం *propname,
+				  స్థిరరాశి శూన్య *propval, పూర్ణాంకం proplen);
 
 /**
  * fdt_node_offset_by_phandle - find the node with a given phandle
@@ -1020,7 +1020,7 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_phandle(స్థిరరాశి శూన్య *fdt, uint32_t phandle);
 
 /**
  * fdt_node_check_compatible - check a node's compatible property
@@ -1043,8 +1043,8 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible);
+పూర్ణాంకం fdt_కణుపు_check_compatible(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			      స్థిరరాశి అక్షరం *compatible);
 
 /**
  * fdt_node_offset_by_compatible - find nodes with a given 'compatible' value
@@ -1080,8 +1080,8 @@ int fdt_node_check_compatible(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_BADSTRUCTURE, standard meanings
  */
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible);
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_compatible(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం startoffset,
+				  స్థిరరాశి అక్షరం *compatible);
 
 /**
  * fdt_stringlist_contains - check a string list property for a string
@@ -1095,7 +1095,7 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
  *
  * Return: 1 if the string is found in the list, 0 not found, or invalid list
  */
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
+పూర్ణాంకం fdt_stringlist_కలిగియుంది(స్థిరరాశి అక్షరం *strlist, పూర్ణాంకం listlen, స్థిరరాశి అక్షరం *str);
 
 /**
  * fdt_stringlist_count - count the number of strings in a string list
@@ -1108,7 +1108,7 @@ int fdt_stringlist_contains(const char *strlist, int listlen, const char *str);
  *   -FDT_ERR_BADVALUE if the property value is not NUL-terminated
  *   -FDT_ERR_NOTFOUND if the property does not exist
  */
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
+పూర్ణాంకం fdt_stringlist_లెక్క(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *property);
 
 /**
  * fdt_stringlist_search - find a string in a string list and return its index
@@ -1129,8 +1129,8 @@ int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property);
  *   -FDT_ERR_NOTFOUND if the property does not exist or does not contain
  *                     the given string
  */
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string);
+పూర్ణాంకం fdt_stringlist_శోధన(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *property,
+			  స్థిరరాశి అక్షరం *string);
 
 /**
  * fdt_stringlist_get() - obtain the string at a given index in a string list
@@ -1156,9 +1156,9 @@ int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
  *     -FDT_ERR_BADVALUE if the property value is not NUL-terminated
  *     -FDT_ERR_NOTFOUND if the property does not exist
  */
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int index,
-			       int *lenp);
+స్థిరరాశి అక్షరం *fdt_stringlist_get(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			       స్థిరరాశి అక్షరం *property, పూర్ణాంకం సూచీ_2,
+			       పూర్ణాంకం *lenp);
 
 /**********************************************************************/
 /* Read-only functions (addressing related)                           */
@@ -1173,7 +1173,7 @@ const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
  * Implementations may support larger values, but in practice higher
  * values aren't used.
  */
-#define FDT_MAX_NCELLS		4
+#నిర్వచించు FDT_MAX_NCELLS		4
 
 /**
  * fdt_address_cells - retrieve address size for a bus represented in the tree
@@ -1193,7 +1193,7 @@ const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_address_cells(const void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_చిరునామా_cells(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_size_cells - retrieve address range size for a bus represented in the
@@ -1214,7 +1214,7 @@ int fdt_address_cells(const void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_size_cells(const void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_కొలత_cells(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 
 /**********************************************************************/
@@ -1239,12 +1239,12 @@ int fdt_size_cells(const void *fdt, int nodeoffset);
  *
  * Return: 0 on success, negative libfdt error value otherwise
  */
-#ifndef SWIG /* Not available in Python */
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+పూర్ణాంకం fdt_setprop_inplace_namelen_partial(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen,
+					uint32_t idx, స్థిరరాశి శూన్య *val,
+					పూర్ణాంకం len);
+#అయితే_ముగింపు
 
 /**
  * fdt_setprop_inplace - change a property's value, but not its size
@@ -1274,10 +1274,10 @@ int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-#ifndef SWIG /* Not available in Python */
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+పూర్ణాంకం fdt_setprop_inplace(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+			స్థిరరాశి శూన్య *val, పూర్ణాంకం len);
+#అయితే_ముగింపు
 
 /**
  * fdt_setprop_inplace_u32 - change the value of a 32-bit integer property
@@ -1307,11 +1307,11 @@ int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_inplace_u32(void *fdt, int nodeoffset,
-					  const char *name, uint32_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_inplace_u32(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					  స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt32_t tmp = cpu_గమ్యం_fdt32(val);
+	తిరిగి fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1342,11 +1342,11 @@ static inline int fdt_setprop_inplace_u32(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_inplace_u64(void *fdt, int nodeoffset,
-					  const char *name, uint64_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_inplace_u64(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					  స్థిరరాశి అక్షరం *name, uint64_t val)
 {
-	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt64_t tmp = cpu_గమ్యం_fdt64(val);
+	తిరిగి fdt_setprop_inplace(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1359,10 +1359,10 @@ static inline int fdt_setprop_inplace_u64(void *fdt, int nodeoffset,
  * This is an alternative name for fdt_setprop_inplace_u32()
  * Return: 0 on success, negative libfdt error number otherwise.
  */
-static inline int fdt_setprop_inplace_cell(void *fdt, int nodeoffset,
-					   const char *name, uint32_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_inplace_cell(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					   స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	return fdt_setprop_inplace_u32(fdt, nodeoffset, name, val);
+	తిరిగి fdt_setprop_inplace_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1389,7 +1389,7 @@ static inline int fdt_setprop_inplace_cell(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
+పూర్ణాంకం fdt_nop_property(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_nop_node - replace a node (subtree) with nop tags
@@ -1413,19 +1413,19 @@ int fdt_nop_property(void *fdt, int nodeoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_nop_node(void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_nop_కణుపు(శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**********************************************************************/
 /* Sequential write functions                                         */
 /**********************************************************************/
 
 /* fdt_create_with_flags flags */
-#define FDT_CREATE_FLAG_NO_NAME_DEDUP 0x1
+#నిర్వచించు FDT_CREATE_FLAG_NO_NAME_DEDUP 0x1
 	/* FDT_CREATE_FLAG_NO_NAME_DEDUP: Do not try to de-duplicate property
 	 * names in the fdt. This can result in faster creation times, but
 	 * a larger fdt. */
 
-#define FDT_CREATE_FLAGS_ALL	(FDT_CREATE_FLAG_NO_NAME_DEDUP)
+#నిర్వచించు FDT_CREATE_FLAGS_ALL	(FDT_CREATE_FLAG_NO_NAME_DEDUP)
 
 /**
  * fdt_create_with_flags - begin creation of a new fdt
@@ -1443,7 +1443,7 @@ int fdt_nop_node(void *fdt, int nodeoffset);
  *	-FDT_ERR_NOSPACE, bufsize is insufficient for a minimal fdt
  *	-FDT_ERR_BADFLAGS, flags is not valid
  */
-int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags);
+పూర్ణాంకం fdt_create_with_flags(శూన్య *buf, పూర్ణాంకం bufsize, uint32_t flags);
 
 /**
  * fdt_create - begin creation of a new fdt
@@ -1456,30 +1456,30 @@ int fdt_create_with_flags(void *buf, int bufsize, uint32_t flags);
  *	0, on success
  *	-FDT_ERR_NOSPACE, bufsize is insufficient for a minimal fdt
  */
-int fdt_create(void *buf, int bufsize);
+పూర్ణాంకం fdt_create(శూన్య *buf, పూర్ణాంకం bufsize);
 
-int fdt_resize(void *fdt, void *buf, int bufsize);
-int fdt_add_reservemap_entry(void *fdt, uint64_t addr, uint64_t size);
-int fdt_finish_reservemap(void *fdt);
-int fdt_begin_node(void *fdt, const char *name);
-int fdt_property(void *fdt, const char *name, const void *val, int len);
-static inline int fdt_property_u32(void *fdt, const char *name, uint32_t val)
+పూర్ణాంకం fdt_resize(శూన్య *fdt, శూన్య *buf, పూర్ణాంకం bufsize);
+పూర్ణాంకం fdt_కూడు_reservemap_నమోదు(శూన్య *fdt, uint64_t addr, uint64_t కొలత);
+పూర్ణాంకం fdt_ముగింపు_reservemap(శూన్య *fdt);
+పూర్ణాంకం fdt_begin_కణుపు(శూన్య *fdt, స్థిరరాశి అక్షరం *name);
+పూర్ణాంకం fdt_property(శూన్య *fdt, స్థిరరాశి అక్షరం *name, స్థిరరాశి శూన్య *val, పూర్ణాంకం len);
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_property_u32(శూన్య *fdt, స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_property(fdt, name, &tmp, sizeof(tmp));
+	fdt32_t tmp = cpu_గమ్యం_fdt32(val);
+	తిరిగి fdt_property(fdt, name, &tmp, పరిమాణం(tmp));
 }
-static inline int fdt_property_u64(void *fdt, const char *name, uint64_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_property_u64(శూన్య *fdt, స్థిరరాశి అక్షరం *name, uint64_t val)
 {
-	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_property(fdt, name, &tmp, sizeof(tmp));
+	fdt64_t tmp = cpu_గమ్యం_fdt64(val);
+	తిరిగి fdt_property(fdt, name, &tmp, పరిమాణం(tmp));
 }
 
-#ifndef SWIG /* Not available in Python */
-static inline int fdt_property_cell(void *fdt, const char *name, uint32_t val)
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_property_cell(శూన్య *fdt, స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	return fdt_property_u32(fdt, name, val);
+	తిరిగి fdt_property_u32(fdt, name, val);
 }
-#endif
+#అయితే_ముగింపు
 
 /**
  * fdt_property_placeholder - add a new property and return a ptr to its value
@@ -1494,20 +1494,20 @@ static inline int fdt_property_cell(void *fdt, const char *name, uint32_t val)
  *	-FDT_ERR_BADMAGIC,
  *	-FDT_ERR_NOSPACE, standard meanings
  */
-int fdt_property_placeholder(void *fdt, const char *name, int len, void **valp);
+పూర్ణాంకం fdt_property_placeholder(శూన్య *fdt, స్థిరరాశి అక్షరం *name, పూర్ణాంకం len, శూన్య **valp);
 
-#define fdt_property_string(fdt, name, str) \
-	fdt_property(fdt, name, str, strlen(str)+1)
-int fdt_end_node(void *fdt);
-int fdt_finish(void *fdt);
+#నిర్వచించు fdt_property_string(fdt, name, str) \
+	fdt_property(fdt, name, str, అక్షరశ్రేణి_పొడవు(str)+1)
+పూర్ణాంకం fdt_చివర_కణుపు(శూన్య *fdt);
+పూర్ణాంకం fdt_ముగింపు(శూన్య *fdt);
 
 /**********************************************************************/
 /* Read-write functions                                               */
 /**********************************************************************/
 
-int fdt_create_empty_tree(void *buf, int bufsize);
-int fdt_open_into(const void *fdt, void *buf, int bufsize);
-int fdt_pack(void *fdt);
+పూర్ణాంకం fdt_create_ఖాళీలు_వృక్షం(శూన్య *buf, పూర్ణాంకం bufsize);
+పూర్ణాంకం fdt_open_into(స్థిరరాశి శూన్య *fdt, శూన్య *buf, పూర్ణాంకం bufsize);
+పూర్ణాంకం fdt_pack(శూన్య *fdt);
 
 /**
  * fdt_add_mem_rsv - add one memory reserve map entry
@@ -1532,7 +1532,7 @@ int fdt_pack(void *fdt);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size);
+పూర్ణాంకం fdt_కూడు_mem_rsv(శూన్య *fdt, uint64_t చిరునామా, uint64_t కొలత);
 
 /**
  * fdt_del_mem_rsv - remove a memory reserve map entry
@@ -1556,7 +1556,7 @@ int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_del_mem_rsv(void *fdt, int n);
+పూర్ణాంకం fdt_del_mem_rsv(శూన్య *fdt, పూర్ణాంకం n);
 
 /**
  * fdt_set_name - change the name of a given node
@@ -1582,7 +1582,7 @@ int fdt_del_mem_rsv(void *fdt, int n);
  *	-FDT_ERR_BADVERSION,
  *	-FDT_ERR_BADSTATE, standard meanings
  */
-int fdt_set_name(void *fdt, int nodeoffset, const char *name);
+పూర్ణాంకం fdt_సమితి_name(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_setprop - create or change a property
@@ -1612,8 +1612,8 @@ int fdt_set_name(void *fdt, int nodeoffset, const char *name);
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len);
+పూర్ణాంకం fdt_setprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+		స్థిరరాశి శూన్య *val, పూర్ణాంకం len);
 
 /**
  * fdt_setprop_placeholder - allocate space for a property
@@ -1643,8 +1643,8 @@ int fdt_setprop(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data);
+పూర్ణాంకం fdt_setprop_placeholder(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+			    పూర్ణాంకం len, శూన్య **prop_దత్తాంశం);
 
 /**
  * fdt_setprop_u32 - set a property to a 32-bit integer
@@ -1674,11 +1674,11 @@ int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_u32(void *fdt, int nodeoffset, const char *name,
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_u32(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
 				  uint32_t val)
 {
-	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt32_t tmp = cpu_గమ్యం_fdt32(val);
+	తిరిగి fdt_setprop(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1709,11 +1709,11 @@ static inline int fdt_setprop_u32(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_setprop_u64(void *fdt, int nodeoffset, const char *name,
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_u64(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
 				  uint64_t val)
 {
-	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_setprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt64_t tmp = cpu_గమ్యం_fdt64(val);
+	తిరిగి fdt_setprop(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1727,10 +1727,10 @@ static inline int fdt_setprop_u64(void *fdt, int nodeoffset, const char *name,
  *
  * Return: 0 on success, negative libfdt error value otherwise.
  */
-static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_setprop_cell(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
 				   uint32_t val)
 {
-	return fdt_setprop_u32(fdt, nodeoffset, name, val);
+	తిరిగి fdt_setprop_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1761,8 +1761,8 @@ static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-#define fdt_setprop_string(fdt, nodeoffset, name, str) \
-	fdt_setprop((fdt), (nodeoffset), (name), (str), strlen(str)+1)
+#నిర్వచించు fdt_setprop_string(fdt, nodeoffset, name, str) \
+	fdt_setprop((fdt), (nodeoffset), (name), (str), అక్షరశ్రేణి_పొడవు(str)+1)
 
 
 /**
@@ -1791,8 +1791,8 @@ static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-#define fdt_setprop_empty(fdt, nodeoffset, name) \
-	fdt_setprop((fdt), (nodeoffset), (name), NULL, 0)
+#నిర్వచించు fdt_setprop_ఖాళీలు(fdt, nodeoffset, name) \
+	fdt_setprop((fdt), (nodeoffset), (name), ఖాళీ, 0)
 
 /**
  * fdt_appendprop - append to or create a property
@@ -1821,8 +1821,8 @@ static inline int fdt_setprop_cell(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len);
+పూర్ణాంకం fdt_appendprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+		   స్థిరరాశి శూన్య *val, పూర్ణాంకం len);
 
 /**
  * fdt_appendprop_u32 - append a 32-bit integer value to a property
@@ -1852,11 +1852,11 @@ int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_appendprop_u32(void *fdt, int nodeoffset,
-				     const char *name, uint32_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_appendprop_u32(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				     స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	fdt32_t tmp = cpu_to_fdt32(val);
-	return fdt_appendprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt32_t tmp = cpu_గమ్యం_fdt32(val);
+	తిరిగి fdt_appendprop(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1887,11 +1887,11 @@ static inline int fdt_appendprop_u32(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-static inline int fdt_appendprop_u64(void *fdt, int nodeoffset,
-				     const char *name, uint64_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_appendprop_u64(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				     స్థిరరాశి అక్షరం *name, uint64_t val)
 {
-	fdt64_t tmp = cpu_to_fdt64(val);
-	return fdt_appendprop(fdt, nodeoffset, name, &tmp, sizeof(tmp));
+	fdt64_t tmp = cpu_గమ్యం_fdt64(val);
+	తిరిగి fdt_appendprop(fdt, nodeoffset, name, &tmp, పరిమాణం(tmp));
 }
 
 /**
@@ -1905,10 +1905,10 @@ static inline int fdt_appendprop_u64(void *fdt, int nodeoffset,
  *
  * Return: 0 on success, negative libfdt error value otherwise.
  */
-static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
-				      const char *name, uint32_t val)
+స్థిర అంతఃవరుస పూర్ణాంకం fdt_appendprop_cell(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				      స్థిరరాశి అక్షరం *name, uint32_t val)
 {
-	return fdt_appendprop_u32(fdt, nodeoffset, name, val);
+	తిరిగి fdt_appendprop_u32(fdt, nodeoffset, name, val);
 }
 
 /**
@@ -1938,8 +1938,8 @@ static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
  *	-FDT_ERR_BADLAYOUT,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-#define fdt_appendprop_string(fdt, nodeoffset, name, str) \
-	fdt_appendprop((fdt), (nodeoffset), (name), (str), strlen(str)+1)
+#నిర్వచించు fdt_appendprop_string(fdt, nodeoffset, name, str) \
+	fdt_appendprop((fdt), (nodeoffset), (name), (str), అక్షరశ్రేణి_పొడవు(str)+1)
 
 /**
  * fdt_appendprop_addrrange - append a address range property
@@ -1975,8 +1975,8 @@ static inline int fdt_appendprop_cell(void *fdt, int nodeoffset,
  *		contain a new property
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size);
+పూర్ణాంకం fdt_appendprop_addrrange(శూన్య *fdt, పూర్ణాంకం మాతృ, పూర్ణాంకం nodeoffset,
+			     స్థిరరాశి అక్షరం *name, uint64_t addr, uint64_t కొలత);
 
 /**
  * fdt_delprop - delete a property
@@ -2000,7 +2000,7 @@ int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_delprop(void *fdt, int nodeoffset, const char *name);
+పూర్ణాంకం fdt_delprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_add_subnode_namelen - creates a new node based on substring
@@ -2017,10 +2017,10 @@ int fdt_delprop(void *fdt, int nodeoffset, const char *name);
  * Return: structure block offset of the created subnode (>=0),
  *	   negative libfdt error value otherwise
  */
-#ifndef SWIG /* Not available in Python */
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen);
-#endif
+#నిర్వచితం_కాకపోతే SWIG /* Not available in Python */
+పూర్ణాంకం fdt_కూడు_subnode_namelen(శూన్య *fdt, పూర్ణాంకం parentoffset,
+			    స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen);
+#అయితే_ముగింపు
 
 /**
  * fdt_add_subnode - creates a new node
@@ -2053,7 +2053,7 @@ int fdt_add_subnode_namelen(void *fdt, int parentoffset,
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings.
  */
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
+పూర్ణాంకం fdt_కూడు_subnode(శూన్య *fdt, పూర్ణాంకం parentoffset, స్థిరరాశి అక్షరం *name);
 
 /**
  * fdt_del_node - delete a node (subtree)
@@ -2076,7 +2076,7 @@ int fdt_add_subnode(void *fdt, int parentoffset, const char *name);
  *	-FDT_ERR_BADSTRUCTURE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_del_node(void *fdt, int nodeoffset);
+పూర్ణాంకం fdt_del_కణుపు(శూన్య *fdt, పూర్ణాంకం nodeoffset);
 
 /**
  * fdt_overlay_apply - Applies a DT overlay on a base DT
@@ -2107,16 +2107,16 @@ int fdt_del_node(void *fdt, int nodeoffset);
  *	-FDT_ERR_BADSTATE,
  *	-FDT_ERR_TRUNCATED, standard meanings
  */
-int fdt_overlay_apply(void *fdt, void *fdto);
+పూర్ణాంకం fdt_overlay_apply(శూన్య *fdt, శూన్య *fdto);
 
 /**********************************************************************/
 /* Debugging / informational functions                                */
 /**********************************************************************/
 
-const char *fdt_strerror(int errval);
+స్థిరరాశి అక్షరం *fdt_strerror(పూర్ణాంకం errval);
 
-#ifdef __cplusplus
+#నిర్వచితమైతే __cplusplus
 }
-#endif
+#అయితే_ముగింపు
 
-#endif /* LIBFDT_H */
+#అయితే_ముగింపు /* LIBFDT_H */

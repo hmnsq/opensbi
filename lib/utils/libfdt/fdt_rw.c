@@ -3,116 +3,116 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
-static int fdt_blocks_misordered_(const void *fdt,
-				  int mem_rsv_size, int struct_size)
+స్థిర పూర్ణాంకం fdt_ఖండాలు_misordered(స్థిరరాశి శూన్య *fdt,
+				  పూర్ణాంకం mem_rsv_కొలత, పూర్ణాంకం struct_కొలత)
 {
-	return (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(sizeof(struct fdt_header), 8))
+	తిరిగి (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(పరిమాణం(నిర్మాణం fdt_శీర్షిక), 8))
 		|| (fdt_off_dt_struct(fdt) <
-		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))
-		|| (fdt_off_dt_strings(fdt) <
-		    (fdt_off_dt_struct(fdt) + struct_size))
+		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_కొలత))
+		|| (fdt_off_dt_అక్షరశ్రేణులు(fdt) <
+		    (fdt_off_dt_struct(fdt) + struct_కొలత))
 		|| (fdt_totalsize(fdt) <
-		    (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));
+		    (fdt_off_dt_అక్షరశ్రేణులు(fdt) + fdt_కొలత_dt_అక్షరశ్రేణులు(fdt)));
 }
 
-static int fdt_rw_probe_(void *fdt)
+స్థిర పూర్ణాంకం fdt_rw_probe_(శూన్య *fdt)
 {
-	if (can_assume(VALID_DTB))
-		return 0;
+	ఒకవేళ (can_assume(VALID_DTB))
+		తిరిగి 0;
 	FDT_RO_PROBE(fdt);
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 17)
-		return -FDT_ERR_BADVERSION;
-	if (fdt_blocks_misordered_(fdt, sizeof(struct fdt_reserve_entry),
-				   fdt_size_dt_struct(fdt)))
-		return -FDT_ERR_BADLAYOUT;
-	if (!can_assume(LATEST) && fdt_version(fdt) > 17)
-		fdt_set_version(fdt, 17);
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 17)
+		తిరిగి -FDT_ERR_BADVERSION;
+	ఒకవేళ (fdt_ఖండాలు_misordered(fdt, పరిమాణం(నిర్మాణం fdt_reserve_నమోదు),
+				   fdt_కొలత_dt_struct(fdt)))
+		తిరిగి -FDT_ERR_BADLAYOUT;
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) > 17)
+		fdt_సమితి_సంస్కరణ(fdt, 17);
 
-	return 0;
+	తిరిగి 0;
 }
 
-#define FDT_RW_PROBE(fdt) \
+#నిర్వచించు FDT_RW_PROBE(fdt) \
 	{ \
-		int err_; \
-		if ((err_ = fdt_rw_probe_(fdt)) != 0) \
-			return err_; \
+		పూర్ణాంకం err_; \
+		ఒకవేళ ((err_ = fdt_rw_probe_(fdt)) != 0) \
+			తిరిగి err_; \
 	}
 
-static inline unsigned int fdt_data_size_(void *fdt)
+స్థిర అంతఃవరుస గుర్తులేని పూర్ణాంకం fdt_దత్తాంశం_కొలత(శూన్య *fdt)
 {
-	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
+	తిరిగి fdt_off_dt_అక్షరశ్రేణులు(fdt) + fdt_కొలత_dt_అక్షరశ్రేణులు(fdt);
 }
 
-static int fdt_splice_(void *fdt, void *splicepoint, int oldlen, int newlen)
+స్థిర పూర్ణాంకం fdt_splice_(శూన్య *fdt, శూన్య *splicepoint, పూర్ణాంకం oldlen, పూర్ణాంకం newlen)
 {
-	char *p = splicepoint;
-	unsigned int dsize = fdt_data_size_(fdt);
-	size_t soff = p - (char *)fdt;
+	అక్షరం *p = splicepoint;
+	గుర్తులేని పూర్ణాంకం dsize = fdt_దత్తాంశం_కొలత(fdt);
+	size_t soff = p - (అక్షరం *)fdt;
 
-	if ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
-		return -FDT_ERR_BADOFFSET;
-	if ((p < (char *)fdt) || (dsize + newlen < (unsigned)oldlen))
-		return -FDT_ERR_BADOFFSET;
-	if (dsize - oldlen + newlen > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
-	memmove(p + newlen, p + oldlen, ((char *)fdt + dsize) - (p + oldlen));
-	return 0;
+	ఒకవేళ ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
+		తిరిగి -FDT_ERR_BADOFFSET;
+	ఒకవేళ ((p < (అక్షరం *)fdt) || (dsize + newlen < (గుర్తులేని)oldlen))
+		తిరిగి -FDT_ERR_BADOFFSET;
+	ఒకవేళ (dsize - oldlen + newlen > fdt_totalsize(fdt))
+		తిరిగి -FDT_ERR_NOSPACE;
+	memmove(p + newlen, p + oldlen, ((అక్షరం *)fdt + dsize) - (p + oldlen));
+	తిరిగి 0;
 }
 
-static int fdt_splice_mem_rsv_(void *fdt, struct fdt_reserve_entry *p,
-			       int oldn, int newn)
+స్థిర పూర్ణాంకం fdt_splice_mem_rsv_(శూన్య *fdt, నిర్మాణం fdt_reserve_నమోదు *p,
+			       పూర్ణాంకం oldn, పూర్ణాంకం newn)
 {
-	int delta = (newn - oldn) * sizeof(*p);
-	int err;
-	err = fdt_splice_(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
-	if (err)
-		return err;
-	fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
-	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	పూర్ణాంకం delta = (newn - oldn) * పరిమాణం(*p);
+	పూర్ణాంకం err;
+	err = fdt_splice_(fdt, p, oldn * పరిమాణం(*p), newn * పరిమాణం(*p));
+	ఒకవేళ (err)
+		తిరిగి err;
+	fdt_సమితి_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
+	fdt_సమితి_off_dt_అక్షరశ్రేణులు(fdt, fdt_off_dt_అక్షరశ్రేణులు(fdt) + delta);
+	తిరిగి 0;
 }
 
-static int fdt_splice_struct_(void *fdt, void *p,
-			      int oldlen, int newlen)
+స్థిర పూర్ణాంకం fdt_splice_struct_(శూన్య *fdt, శూన్య *p,
+			      పూర్ణాంకం oldlen, పూర్ణాంకం newlen)
 {
-	int delta = newlen - oldlen;
-	int err;
+	పూర్ణాంకం delta = newlen - oldlen;
+	పూర్ణాంకం err;
 
-	if ((err = fdt_splice_(fdt, p, oldlen, newlen)))
-		return err;
+	ఒకవేళ ((err = fdt_splice_(fdt, p, oldlen, newlen)))
+		తిరిగి err;
 
-	fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);
-	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	fdt_సమితి_కొలత_dt_struct(fdt, fdt_కొలత_dt_struct(fdt) + delta);
+	fdt_సమితి_off_dt_అక్షరశ్రేణులు(fdt, fdt_off_dt_అక్షరశ్రేణులు(fdt) + delta);
+	తిరిగి 0;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+స్థిర శూన్య fdt_del_చివరి_string(శూన్య *fdt, స్థిరరాశి అక్షరం *s)
 {
-	int newlen = strlen(s) + 1;
+	పూర్ణాంకం newlen = అక్షరశ్రేణి_పొడవు(s) + 1;
 
-	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) - newlen);
+	fdt_సమితి_కొలత_dt_అక్షరశ్రేణులు(fdt, fdt_కొలత_dt_అక్షరశ్రేణులు(fdt) - newlen);
 }
 
-static int fdt_splice_string_(void *fdt, int newlen)
+స్థిర పూర్ణాంకం fdt_splice_string_(శూన్య *fdt, పూర్ణాంకం newlen)
 {
-	void *p = (char *)fdt
-		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
-	int err;
+	శూన్య *p = (అక్షరం *)fdt
+		+ fdt_off_dt_అక్షరశ్రేణులు(fdt) + fdt_కొలత_dt_అక్షరశ్రేణులు(fdt);
+	పూర్ణాంకం err;
 
-	if ((err = fdt_splice_(fdt, p, 0, newlen)))
-		return err;
+	ఒకవేళ ((err = fdt_splice_(fdt, p, 0, newlen)))
+		తిరిగి err;
 
-	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);
-	return 0;
+	fdt_సమితి_కొలత_dt_అక్షరశ్రేణులు(fdt, fdt_కొలత_dt_అక్షరశ్రేణులు(fdt) + newlen);
+	తిరిగి 0;
 }
 
 /**
@@ -124,377 +124,377 @@ static int fdt_splice_string_(void *fdt, int newlen)
  *	allocated. Ignored if can_assume(NO_ROLLBACK)
  * @return offset of string in the string table (whether found or added)
  */
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+స్థిర పూర్ణాంకం fdt_కనుగొను_కూడు_string(శూన్య *fdt, స్థిరరాశి అక్షరం *s, పూర్ణాంకం *allocated)
 {
-	char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);
-	const char *p;
-	char *new;
-	int len = strlen(s) + 1;
-	int err;
+	అక్షరం *strtab = (అక్షరం *)fdt + fdt_off_dt_అక్షరశ్రేణులు(fdt);
+	స్థిరరాశి అక్షరం *p;
+	అక్షరం *new;
+	పూర్ణాంకం len = అక్షరశ్రేణి_పొడవు(s) + 1;
+	పూర్ణాంకం err;
 
-	if (!can_assume(NO_ROLLBACK))
+	ఒకవేళ (!can_assume(NO_ROLLBACK))
 		*allocated = 0;
 
-	p = fdt_find_string_(strtab, fdt_size_dt_strings(fdt), s);
-	if (p)
+	p = fdt_కనుగొను_string(strtab, fdt_కొలత_dt_అక్షరశ్రేణులు(fdt), s);
+	ఒకవేళ (p)
 		/* found it */
-		return (p - strtab);
+		తిరిగి (p - strtab);
 
-	new = strtab + fdt_size_dt_strings(fdt);
+	new = strtab + fdt_కొలత_dt_అక్షరశ్రేణులు(fdt);
 	err = fdt_splice_string_(fdt, len);
-	if (err)
-		return err;
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	if (!can_assume(NO_ROLLBACK))
+	ఒకవేళ (!can_assume(NO_ROLLBACK))
 		*allocated = 1;
 
-	memcpy(new, s, len);
-	return (new - strtab);
+	జ్ఞాపకం_నకలు(new, s, len);
+	తిరిగి (new - strtab);
 }
 
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
+పూర్ణాంకం fdt_కూడు_mem_rsv(శూన్య *fdt, uint64_t చిరునామా, uint64_t కొలత)
 {
-	struct fdt_reserve_entry *re;
-	int err;
+	నిర్మాణం fdt_reserve_నమోదు *re;
+	పూర్ణాంకం err;
 
 	FDT_RW_PROBE(fdt);
 
-	re = fdt_mem_rsv_w_(fdt, fdt_num_mem_rsv(fdt));
+	re = fdt_mem_rsv_w_(fdt, fdt_అంకె_mem_rsv(fdt));
 	err = fdt_splice_mem_rsv_(fdt, re, 0, 1);
-	if (err)
-		return err;
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	re->address = cpu_to_fdt64(address);
-	re->size = cpu_to_fdt64(size);
-	return 0;
+	re->చిరునామా = cpu_గమ్యం_fdt64(చిరునామా);
+	re->కొలత = cpu_గమ్యం_fdt64(కొలత);
+	తిరిగి 0;
 }
 
-int fdt_del_mem_rsv(void *fdt, int n)
+పూర్ణాంకం fdt_del_mem_rsv(శూన్య *fdt, పూర్ణాంకం n)
 {
-	struct fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
+	నిర్మాణం fdt_reserve_నమోదు *re = fdt_mem_rsv_w_(fdt, n);
 
 	FDT_RW_PROBE(fdt);
 
-	if (n >= fdt_num_mem_rsv(fdt))
-		return -FDT_ERR_NOTFOUND;
+	ఒకవేళ (n >= fdt_అంకె_mem_rsv(fdt))
+		తిరిగి -FDT_ERR_NOTFOUND;
 
-	return fdt_splice_mem_rsv_(fdt, re, 1, 0);
+	తిరిగి fdt_splice_mem_rsv_(fdt, re, 1, 0);
 }
 
-static int fdt_resize_property_(void *fdt, int nodeoffset, const char *name,
-				int len, struct fdt_property **prop)
+స్థిర పూర్ణాంకం fdt_resize_property_(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+				పూర్ణాంకం len, నిర్మాణం fdt_property **prop)
 {
-	int oldlen;
-	int err;
+	పూర్ణాంకం oldlen;
+	పూర్ణాంకం err;
 
 	*prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (!*prop)
-		return oldlen;
+	ఒకవేళ (!*prop)
+		తిరిగి oldlen;
 
-	if ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
+	ఒకవేళ ((err = fdt_splice_struct_(fdt, (*prop)->దత్తాంశం, FDT_TAGALIGN(oldlen),
 				      FDT_TAGALIGN(len))))
-		return err;
+		తిరిగి err;
 
-	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	(*prop)->len = cpu_గమ్యం_fdt32(len);
+	తిరిగి 0;
 }
 
-static int fdt_add_property_(void *fdt, int nodeoffset, const char *name,
-			     int len, struct fdt_property **prop)
+స్థిర పూర్ణాంకం fdt_కూడు_property(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+			     పూర్ణాంకం len, నిర్మాణం fdt_property **prop)
 {
-	int proplen;
-	int nextoffset;
-	int namestroff;
-	int err;
-	int allocated;
+	పూర్ణాంకం proplen;
+	పూర్ణాంకం nextoffset;
+	పూర్ణాంకం namestroff;
+	పూర్ణాంకం err;
+	పూర్ణాంకం allocated;
 
-	if ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return nextoffset;
+	ఒకవేళ ((nextoffset = fdt_check_కణుపు_స్థానభ్రంశం(fdt, nodeoffset)) < 0)
+		తిరిగి nextoffset;
 
-	namestroff = fdt_find_add_string_(fdt, name, &allocated);
-	if (namestroff < 0)
-		return namestroff;
+	namestroff = fdt_కనుగొను_కూడు_string(fdt, name, &allocated);
+	ఒకవేళ (namestroff < 0)
+		తిరిగి namestroff;
 
-	*prop = fdt_offset_ptr_w_(fdt, nextoffset);
-	proplen = sizeof(**prop) + FDT_TAGALIGN(len);
+	*prop = fdt_స్థానభ్రంశం_ptr_w(fdt, nextoffset);
+	proplen = పరిమాణం(**prop) + FDT_TAGALIGN(len);
 
 	err = fdt_splice_struct_(fdt, *prop, 0, proplen);
-	if (err) {
+	ఒకవేళ (err) {
 		/* Delete the string if we failed to add it */
-		if (!can_assume(NO_ROLLBACK) && allocated)
-			fdt_del_last_string_(fdt, name);
-		return err;
+		ఒకవేళ (!can_assume(NO_ROLLBACK) && allocated)
+			fdt_del_చివరి_string(fdt, name);
+		తిరిగి err;
 	}
 
-	(*prop)->tag = cpu_to_fdt32(FDT_PROP);
-	(*prop)->nameoff = cpu_to_fdt32(namestroff);
-	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	(*prop)->ట్యాగ్ = cpu_గమ్యం_fdt32(FDT_PROP);
+	(*prop)->nameoff = cpu_గమ్యం_fdt32(namestroff);
+	(*prop)->len = cpu_గమ్యం_fdt32(len);
+	తిరిగి 0;
 }
 
-int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+పూర్ణాంకం fdt_సమితి_name(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name)
 {
-	char *namep;
-	int oldlen, newlen;
-	int err;
+	అక్షరం *namep;
+	పూర్ణాంకం oldlen, newlen;
+	పూర్ణాంకం err;
 
 	FDT_RW_PROBE(fdt);
 
-	namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
-	if (!namep)
-		return oldlen;
+	namep = (అక్షరం *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
+	ఒకవేళ (!namep)
+		తిరిగి oldlen;
 
-	newlen = strlen(name);
+	newlen = అక్షరశ్రేణి_పొడవు(name);
 
 	err = fdt_splice_struct_(fdt, namep, FDT_TAGALIGN(oldlen+1),
 				 FDT_TAGALIGN(newlen+1));
-	if (err)
-		return err;
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	memcpy(namep, name, newlen+1);
-	return 0;
+	జ్ఞాపకం_నకలు(namep, name, newlen+1);
+	తిరిగి 0;
 }
 
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data)
+పూర్ణాంకం fdt_setprop_placeholder(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+			    పూర్ణాంకం len, శూన్య **prop_దత్తాంశం)
 {
-	struct fdt_property *prop;
-	int err;
+	నిర్మాణం fdt_property *prop;
+	పూర్ణాంకం err;
 
 	FDT_RW_PROBE(fdt);
 
 	err = fdt_resize_property_(fdt, nodeoffset, name, len, &prop);
-	if (err == -FDT_ERR_NOTFOUND)
-		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-	if (err)
-		return err;
+	ఒకవేళ (err == -FDT_ERR_NOTFOUND)
+		err = fdt_కూడు_property(fdt, nodeoffset, name, len, &prop);
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	*prop_data = prop->data;
-	return 0;
+	*prop_దత్తాంశం = prop->దత్తాంశం;
+	తిరిగి 0;
 }
 
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len)
+పూర్ణాంకం fdt_setprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+		స్థిరరాశి శూన్య *val, పూర్ణాంకం len)
 {
-	void *prop_data;
-	int err;
+	శూన్య *prop_దత్తాంశం;
+	పూర్ణాంకం err;
 
-	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_data);
-	if (err)
-		return err;
+	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_దత్తాంశం);
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	if (len)
-		memcpy(prop_data, val, len);
-	return 0;
+	ఒకవేళ (len)
+		జ్ఞాపకం_నకలు(prop_దత్తాంశం, val, len);
+	తిరిగి 0;
 }
 
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len)
+పూర్ణాంకం fdt_appendprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+		   స్థిరరాశి శూన్య *val, పూర్ణాంకం len)
 {
-	struct fdt_property *prop;
-	int err, oldlen, newlen;
+	నిర్మాణం fdt_property *prop;
+	పూర్ణాంకం err, oldlen, newlen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (prop) {
+	ఒకవేళ (prop) {
 		newlen = len + oldlen;
-		err = fdt_splice_struct_(fdt, prop->data,
+		err = fdt_splice_struct_(fdt, prop->దత్తాంశం,
 					 FDT_TAGALIGN(oldlen),
 					 FDT_TAGALIGN(newlen));
-		if (err)
-			return err;
-		prop->len = cpu_to_fdt32(newlen);
-		memcpy(prop->data + oldlen, val, len);
-	} else {
-		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-		if (err)
-			return err;
-		memcpy(prop->data, val, len);
+		ఒకవేళ (err)
+			తిరిగి err;
+		prop->len = cpu_గమ్యం_fdt32(newlen);
+		జ్ఞాపకం_నకలు(prop->దత్తాంశం + oldlen, val, len);
+	} లేకపోతే {
+		err = fdt_కూడు_property(fdt, nodeoffset, name, len, &prop);
+		ఒకవేళ (err)
+			తిరిగి err;
+		జ్ఞాపకం_నకలు(prop->దత్తాంశం, val, len);
 	}
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_delprop(void *fdt, int nodeoffset, const char *name)
+పూర్ణాంకం fdt_delprop(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name)
 {
-	struct fdt_property *prop;
-	int len, proplen;
+	నిర్మాణం fdt_property *prop;
+	పూర్ణాంకం len, proplen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	ఒకవేళ (!prop)
+		తిరిగి len;
 
-	proplen = sizeof(*prop) + FDT_TAGALIGN(len);
-	return fdt_splice_struct_(fdt, prop, proplen, 0);
+	proplen = పరిమాణం(*prop) + FDT_TAGALIGN(len);
+	తిరిగి fdt_splice_struct_(fdt, prop, proplen, 0);
 }
 
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen)
+పూర్ణాంకం fdt_కూడు_subnode_namelen(శూన్య *fdt, పూర్ణాంకం parentoffset,
+			    స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen)
 {
-	struct fdt_node_header *nh;
-	int offset, nextoffset;
-	int nodelen;
-	int err;
-	uint32_t tag;
+	నిర్మాణం fdt_కణుపు_శీర్షిక *nh;
+	పూర్ణాంకం స్థానభ్రంశం, nextoffset;
+	పూర్ణాంకం nodelen;
+	పూర్ణాంకం err;
+	uint32_t ట్యాగ్;
 	fdt32_t *endtag;
 
 	FDT_RW_PROBE(fdt);
 
-	offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);
-	if (offset >= 0)
-		return -FDT_ERR_EXISTS;
-	else if (offset != -FDT_ERR_NOTFOUND)
-		return offset;
+	స్థానభ్రంశం = fdt_subnode_స్థానభ్రంశం_namelen(fdt, parentoffset, name, namelen);
+	ఒకవేళ (స్థానభ్రంశం >= 0)
+		తిరిగి -FDT_ERR_EXISTS;
+	లేకపోతే ఒకవేళ (స్థానభ్రంశం != -FDT_ERR_NOTFOUND)
+		తిరిగి స్థానభ్రంశం;
 
 	/* Try to place the new node after the parent's properties */
-	tag = fdt_next_tag(fdt, parentoffset, &nextoffset);
+	ట్యాగ్ = fdt_తదుపరి_ట్యాగ్(fdt, parentoffset, &nextoffset);
 	/* the fdt_subnode_offset_namelen() should ensure this never hits */
-	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
-		return -FDT_ERR_INTERNAL;
-	do {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
-	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
+	ఒకవేళ (!can_assume(LIBFDT_FLAWLESS) && (ట్యాగ్ != FDT_BEGIN_కణుపు))
+		తిరిగి -FDT_ERR_అంతర్గత;
+	చేయి {
+		స్థానభ్రంశం = nextoffset;
+		ట్యాగ్ = fdt_తదుపరి_ట్యాగ్(fdt, స్థానభ్రంశం, &nextoffset);
+	} అయితే ((ట్యాగ్ == FDT_PROP) || (ట్యాగ్ == FDT_NOP));
 
-	nh = fdt_offset_ptr_w_(fdt, offset);
-	nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
+	nh = fdt_స్థానభ్రంశం_ptr_w(fdt, స్థానభ్రంశం);
+	nodelen = పరిమాణం(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
 
 	err = fdt_splice_struct_(fdt, nh, 0, nodelen);
-	if (err)
-		return err;
+	ఒకవేళ (err)
+		తిరిగి err;
 
-	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
+	nh->ట్యాగ్ = cpu_గమ్యం_fdt32(FDT_BEGIN_కణుపు);
 	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
-	memcpy(nh->name, name, namelen);
-	endtag = (fdt32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
-	*endtag = cpu_to_fdt32(FDT_END_NODE);
+	జ్ఞాపకం_నకలు(nh->name, name, namelen);
+	endtag = (fdt32_t *)((అక్షరం *)nh + nodelen - FDT_TAGSIZE);
+	*endtag = cpu_గమ్యం_fdt32(FDT_చివర_కణుపు);
 
-	return offset;
+	తిరిగి స్థానభ్రంశం;
 }
 
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name)
+పూర్ణాంకం fdt_కూడు_subnode(శూన్య *fdt, పూర్ణాంకం parentoffset, స్థిరరాశి అక్షరం *name)
 {
-	return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
+	తిరిగి fdt_కూడు_subnode_namelen(fdt, parentoffset, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
-int fdt_del_node(void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_del_కణుపు(శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int endoffset;
+	పూర్ణాంకం endoffset;
 
 	FDT_RW_PROBE(fdt);
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_కణుపు_చివర_స్థానభ్రంశం(fdt, nodeoffset);
+	ఒకవేళ (endoffset < 0)
+		తిరిగి endoffset;
 
-	return fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
+	తిరిగి fdt_splice_struct_(fdt, fdt_స్థానభ్రంశం_ptr_w(fdt, nodeoffset),
 				  endoffset - nodeoffset, 0);
 }
 
-static void fdt_packblocks_(const char *old, char *new,
-			    int mem_rsv_size,
-			    int struct_size,
-			    int strings_size)
+స్థిర శూన్య fdt_packblocks_(స్థిరరాశి అక్షరం *old, అక్షరం *new,
+			    పూర్ణాంకం mem_rsv_కొలత,
+			    పూర్ణాంకం struct_కొలత,
+			    పూర్ణాంకం అక్షరశ్రేణులు_కొలత)
 {
-	int mem_rsv_off, struct_off, strings_off;
+	పూర్ణాంకం mem_rsv_off, struct_off, అక్షరశ్రేణులు_off;
 
-	mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);
-	struct_off = mem_rsv_off + mem_rsv_size;
-	strings_off = struct_off + struct_size;
+	mem_rsv_off = FDT_ALIGN(పరిమాణం(నిర్మాణం fdt_శీర్షిక), 8);
+	struct_off = mem_rsv_off + mem_rsv_కొలత;
+	అక్షరశ్రేణులు_off = struct_off + struct_కొలత;
 
-	memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_size);
-	fdt_set_off_mem_rsvmap(new, mem_rsv_off);
+	memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_కొలత);
+	fdt_సమితి_off_mem_rsvmap(new, mem_rsv_off);
 
-	memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_size);
-	fdt_set_off_dt_struct(new, struct_off);
-	fdt_set_size_dt_struct(new, struct_size);
+	memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_కొలత);
+	fdt_సమితి_off_dt_struct(new, struct_off);
+	fdt_సమితి_కొలత_dt_struct(new, struct_కొలత);
 
-	memmove(new + strings_off, old + fdt_off_dt_strings(old), strings_size);
-	fdt_set_off_dt_strings(new, strings_off);
-	fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));
+	memmove(new + అక్షరశ్రేణులు_off, old + fdt_off_dt_అక్షరశ్రేణులు(old), అక్షరశ్రేణులు_కొలత);
+	fdt_సమితి_off_dt_అక్షరశ్రేణులు(new, అక్షరశ్రేణులు_off);
+	fdt_సమితి_కొలత_dt_అక్షరశ్రేణులు(new, fdt_కొలత_dt_అక్షరశ్రేణులు(old));
 }
 
-int fdt_open_into(const void *fdt, void *buf, int bufsize)
+పూర్ణాంకం fdt_open_into(స్థిరరాశి శూన్య *fdt, శూన్య *buf, పూర్ణాంకం bufsize)
 {
-	int err;
-	int mem_rsv_size, struct_size;
-	int newsize;
-	const char *fdtstart = fdt;
-	const char *fdtend = fdtstart + fdt_totalsize(fdt);
-	char *tmp;
+	పూర్ణాంకం err;
+	పూర్ణాంకం mem_rsv_కొలత, struct_కొలత;
+	పూర్ణాంకం newsize;
+	స్థిరరాశి అక్షరం *fdtstart = fdt;
+	స్థిరరాశి అక్షరం *fdtend = fdtstart + fdt_totalsize(fdt);
+	అక్షరం *tmp;
 
 	FDT_RO_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+	mem_rsv_కొలత = (fdt_అంకె_mem_rsv(fdt)+1)
+		* పరిమాణం(నిర్మాణం fdt_reserve_నమోదు);
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-		struct_size = fdt_size_dt_struct(fdt);
-	} else if (fdt_version(fdt) == 16) {
-		struct_size = 0;
-		while (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
+	ఒకవేళ (can_assume(LATEST) || fdt_సంస్కరణ(fdt) >= 17) {
+		struct_కొలత = fdt_కొలత_dt_struct(fdt);
+	} లేకపోతే ఒకవేళ (fdt_సంస్కరణ(fdt) == 16) {
+		struct_కొలత = 0;
+		అయితే (fdt_తదుపరి_ట్యాగ్(fdt, struct_కొలత, &struct_కొలత) != FDT_చివర)
 			;
-		if (struct_size < 0)
-			return struct_size;
-	} else {
-		return -FDT_ERR_BADVERSION;
+		ఒకవేళ (struct_కొలత < 0)
+			తిరిగి struct_కొలత;
+	} లేకపోతే {
+		తిరిగి -FDT_ERR_BADVERSION;
 	}
 
-	if (can_assume(LIBFDT_ORDER) ||
-	    !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
+	ఒకవేళ (can_assume(LIBFDT_క్రమం) ||
+	    !fdt_ఖండాలు_misordered(fdt, mem_rsv_కొలత, struct_కొలత)) {
 		/* no further work necessary */
 		err = fdt_move(fdt, buf, bufsize);
-		if (err)
-			return err;
-		fdt_set_version(buf, 17);
-		fdt_set_size_dt_struct(buf, struct_size);
-		fdt_set_totalsize(buf, bufsize);
-		return 0;
+		ఒకవేళ (err)
+			తిరిగి err;
+		fdt_సమితి_సంస్కరణ(buf, 17);
+		fdt_సమితి_కొలత_dt_struct(buf, struct_కొలత);
+		fdt_సమితి_totalsize(buf, bufsize);
+		తిరిగి 0;
 	}
 
 	/* Need to reorder */
-	newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
-		+ struct_size + fdt_size_dt_strings(fdt);
+	newsize = FDT_ALIGN(పరిమాణం(నిర్మాణం fdt_శీర్షిక), 8) + mem_rsv_కొలత
+		+ struct_కొలత + fdt_కొలత_dt_అక్షరశ్రేణులు(fdt);
 
-	if (bufsize < newsize)
-		return -FDT_ERR_NOSPACE;
+	ఒకవేళ (bufsize < newsize)
+		తిరిగి -FDT_ERR_NOSPACE;
 
 	/* First attempt to build converted tree at beginning of buffer */
 	tmp = buf;
 	/* But if that overlaps with the old tree... */
-	if (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
+	ఒకవేళ (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
 		/* Try right after the old tree instead */
-		tmp = (char *)(uintptr_t)fdtend;
-		if ((tmp + newsize) > ((char *)buf + bufsize))
-			return -FDT_ERR_NOSPACE;
+		tmp = (అక్షరం *)(uintptr_t)fdtend;
+		ఒకవేళ ((tmp + newsize) > ((అక్షరం *)buf + bufsize))
+			తిరిగి -FDT_ERR_NOSPACE;
 	}
 
-	fdt_packblocks_(fdt, tmp, mem_rsv_size, struct_size,
-			fdt_size_dt_strings(fdt));
+	fdt_packblocks_(fdt, tmp, mem_rsv_కొలత, struct_కొలత,
+			fdt_కొలత_dt_అక్షరశ్రేణులు(fdt));
 	memmove(buf, tmp, newsize);
 
-	fdt_set_magic(buf, FDT_MAGIC);
-	fdt_set_totalsize(buf, bufsize);
-	fdt_set_version(buf, 17);
-	fdt_set_last_comp_version(buf, 16);
-	fdt_set_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
+	fdt_సమితి_magic(buf, FDT_MAGIC);
+	fdt_సమితి_totalsize(buf, bufsize);
+	fdt_సమితి_సంస్కరణ(buf, 17);
+	fdt_సమితి_చివరి_comp_సంస్కరణ(buf, 16);
+	fdt_సమితి_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_pack(void *fdt)
+పూర్ణాంకం fdt_pack(శూన్య *fdt)
 {
-	int mem_rsv_size;
+	పూర్ణాంకం mem_rsv_కొలత;
 
 	FDT_RW_PROBE(fdt);
 
-	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
-	fdt_packblocks_(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt),
-			fdt_size_dt_strings(fdt));
-	fdt_set_totalsize(fdt, fdt_data_size_(fdt));
+	mem_rsv_కొలత = (fdt_అంకె_mem_rsv(fdt)+1)
+		* పరిమాణం(నిర్మాణం fdt_reserve_నమోదు);
+	fdt_packblocks_(fdt, fdt, mem_rsv_కొలత, fdt_కొలత_dt_struct(fdt),
+			fdt_కొలత_dt_అక్షరశ్రేణులు(fdt));
+	fdt_సమితి_totalsize(fdt, fdt_దత్తాంశం_కొలత(fdt));
 
-	return 0;
+	తిరిగి 0;
 }

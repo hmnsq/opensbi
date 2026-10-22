@@ -4,57 +4,57 @@
  * Copyright (c) 2020 Vijai Kumar K <vijai@behindbytes.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/shakti-uart.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi_utils/serial/shakti-uart.h>
 
-#define REG_BAUD	0x00
-#define REG_TX		0x04
-#define REG_RX		0x08
-#define REG_STATUS	0x0C
-#define REG_DELAY	0x10
-#define REG_CONTROL	0x14
-#define REG_INT_EN	0x18
-#define REG_IQ_CYCLES	0x1C
-#define REG_RX_THRES	0x20
+#నిర్వచించు REG_BAUD	0x00
+#నిర్వచించు REG_TX		0x04
+#నిర్వచించు REG_RX		0x08
+#నిర్వచించు REG_స్థితి	0x0C
+#నిర్వచించు REG_DELAY	0x10
+#నిర్వచించు REG_CONTROL	0x14
+#నిర్వచించు REG_INT_EN	0x18
+#నిర్వచించు REG_IQ_చక్రాలు	0x1C
+#నిర్వచించు REG_RX_THRES	0x20
 
-#define UART_TX_FULL  0x2
-#define UART_RX_NOT_EMPTY 0x4
-#define UART_RX_FULL  0x8
+#నిర్వచించు UART_TX_నిండిన  0x2
+#నిర్వచించు UART_RX_NOT_ఖాళీలు 0x4
+#నిర్వచించు UART_RX_నిండిన  0x8
 
-static volatile char *uart_base;
+స్థిర అస్థిర అక్షరం *uart_పునాది;
 
-static void shakti_uart_putc(char ch)
+స్థిర శూన్య shakti_uart_putc(అక్షరం ch)
 {
-	while ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
+	అయితే ((readb(uart_పునాది + REG_స్థితి) & UART_TX_నిండిన))
 		;
-	writeb(ch, uart_base + REG_TX);
+	writeb(ch, uart_పునాది + REG_TX);
 }
 
-static int shakti_uart_getc(void)
+స్థిర పూర్ణాంకం shakti_uart_getc(శూన్య)
 {
-	if (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
-		return readb(uart_base + REG_RX);
-	return -1;
+	ఒకవేళ (readb(uart_పునాది + REG_స్థితి) & UART_RX_NOT_ఖాళీలు)
+		తిరిగి readb(uart_పునాది + REG_RX);
+	తిరిగి -1;
 }
 
-static struct sbi_console_device shakti_console = {
+స్థిర నిర్మాణం sbi_console_device shakti_console = {
 	.name = "shakti_uart",
 	.console_putc = shakti_uart_putc,
 	.console_getc = shakti_uart_getc
 };
 
-int shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+పూర్ణాంకం shakti_uart_init(గుర్తులేని దీర్ఘ పునాది_2, u32 లోపల_freq, u32 baudrate)
 {
-	uart_base = (volatile char *)base;
+	uart_పునాది = (అస్థిర అక్షరం *)పునాది_2;
 	u16 baud;
 
-	if (baudrate) {
-		baud = (u16)(in_freq / (16 * baudrate));
-		writew(baud, uart_base + REG_BAUD);
+	ఒకవేళ (baudrate) {
+		baud = (u16)(లోపల_freq / (16 * baudrate));
+		writew(baud, uart_పునాది + REG_BAUD);
 	}
 
-	sbi_console_set_device(&shakti_console);
+	sbi_console_సమితి_device(&shakti_console);
 
-	return 0;
+	తిరిగి 0;
 }

@@ -3,661 +3,661 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+స్థిర పూర్ణాంకం fdt_nodename_eq_(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం,
+			    స్థిరరాశి అక్షరం *s, పూర్ణాంకం len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	పూర్ణాంకం olen;
+	స్థిరరాశి అక్షరం *p = fdt_get_name(fdt, స్థానభ్రంశం, &olen);
 
-	if (!p || olen < len)
+	ఒకవేళ (!p || olen < len)
 		/* short match */
-		return 0;
+		తిరిగి 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	ఒకవేళ (memcmp(p, s, len) != 0)
+		తిరిగి 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	ఒకవేళ (p[len] == '\0')
+		తిరిగి 1;
+	లేకపోతే ఒకవేళ (!memchr(s, '@', len) && (p[len] == '@'))
+		తిరిగి 1;
+	లేకపోతే
+		తిరిగి 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+స్థిరరాశి అక్షరం *fdt_get_string(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం stroffset, పూర్ణాంకం *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
-	const char *s, *n;
+	పూర్ణాంకం err;
+	స్థిరరాశి అక్షరం *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	ఒకవేళ (can_assume(VALID_ఆదానం)) {
+		s = (స్థిరరాశి అక్షరం *)fdt + fdt_off_dt_అక్షరశ్రేణులు(fdt) + stroffset;
 
-		if (lenp)
-			*lenp = strlen(s);
-		return s;
+		ఒకవేళ (lenp)
+			*lenp = అక్షరశ్రేణి_పొడవు(s);
+		తిరిగి s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
-		goto fail;
+	ఒకవేళ (totalsize < 0)
+		వెళ్ళు fail;
 
 	err = -FDT_ERR_BADOFFSET;
-	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
-		goto fail;
+	absoffset = stroffset + fdt_off_dt_అక్షరశ్రేణులు(fdt);
+	ఒకవేళ (absoffset >= (గుర్తులేని)totalsize)
+		వెళ్ళు fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
-			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
-				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
-				len = fdt_size_dt_strings(fdt) - stroffset;
+	ఒకవేళ (fdt_magic(fdt) == FDT_MAGIC) {
+		ఒకవేళ (stroffset < 0)
+			వెళ్ళు fail;
+		ఒకవేళ (can_assume(LATEST) || fdt_సంస్కరణ(fdt) >= 17) {
+			ఒకవేళ ((గుర్తులేని)stroffset >= fdt_కొలత_dt_అక్షరశ్రేణులు(fdt))
+				వెళ్ళు fail;
+			ఒకవేళ ((fdt_కొలత_dt_అక్షరశ్రేణులు(fdt) - stroffset) < len)
+				len = fdt_కొలత_dt_అక్షరశ్రేణులు(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} లేకపోతే ఒకవేళ (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		గుర్తులేని పూర్ణాంకం sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
-		    (sw_stroffset > fdt_size_dt_strings(fdt)))
-			goto fail;
-		if (sw_stroffset < len)
+		ఒకవేళ ((stroffset >= 0) ||
+		    (sw_stroffset > fdt_కొలత_dt_అక్షరశ్రేణులు(fdt)))
+			వెళ్ళు fail;
+		ఒకవేళ (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
-		err = -FDT_ERR_INTERNAL;
-		goto fail;
+	} లేకపోతే {
+		err = -FDT_ERR_అంతర్గత;
+		వెళ్ళు fail;
 	}
 
-	s = (const char *)fdt + absoffset;
+	s = (స్థిరరాశి అక్షరం *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	ఒకవేళ (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
-		goto fail;
+		వెళ్ళు fail;
 	}
 
-	if (lenp)
+	ఒకవేళ (lenp)
 		*lenp = n - s;
-	return s;
+	తిరిగి s;
 
 fail:
-	if (lenp)
+	ఒకవేళ (lenp)
 		*lenp = err;
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+స్థిరరాశి అక్షరం *fdt_string(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	తిరిగి fdt_get_string(fdt, stroffset, ఖాళీ);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+స్థిర పూర్ణాంకం fdt_string_eq_(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం stroffset,
+			  స్థిరరాశి అక్షరం *s, పూర్ణాంకం len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	పూర్ణాంకం slen;
+	స్థిరరాశి అక్షరం *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	తిరిగి p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+పూర్ణాంకం fdt_కనుగొను_max_phandle(స్థిరరాశి శూన్య *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	పూర్ణాంకం స్థానభ్రంశం = -1;
 
-	while (true) {
-		uint32_t value;
+	అయితే (true) {
+		uint32_t విలువ;
 
-		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, ఖాళీ);
+		ఒకవేళ (స్థానభ్రంశం < 0) {
+			ఒకవేళ (స్థానభ్రంశం == -FDT_ERR_NOTFOUND)
+				ఆపు;
 
-			return offset;
+			తిరిగి స్థానభ్రంశం;
 		}
 
-		value = fdt_get_phandle(fdt, offset);
+		విలువ = fdt_get_phandle(fdt, స్థానభ్రంశం);
 
-		if (value > max)
-			max = value;
+		ఒకవేళ (విలువ > max)
+			max = విలువ;
 	}
 
-	if (phandle)
+	ఒకవేళ (phandle)
 		*phandle = max;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+పూర్ణాంకం fdt_generate_phandle(స్థిరరాశి శూన్య *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	పూర్ణాంకం err;
 
-	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	err = fdt_కనుగొను_max_phandle(fdt, &max);
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	ఒకవేళ (max == FDT_MAX_PHANDLE)
+		తిరిగి -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	ఒకవేళ (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+స్థిర స్థిరరాశి నిర్మాణం fdt_reserve_నమోదు *fdt_mem_rsv(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	గుర్తులేని పూర్ణాంకం స్థానభ్రంశం = n * పరిమాణం(నిర్మాణం fdt_reserve_నమోదు);
+	గుర్తులేని పూర్ణాంకం absoffset = fdt_off_mem_rsvmap(fdt) + స్థానభ్రంశం;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	ఒకవేళ (!can_assume(VALID_ఆదానం)) {
+		ఒకవేళ (absoffset < fdt_off_mem_rsvmap(fdt))
+			తిరిగి ఖాళీ;
+		ఒకవేళ (absoffset > fdt_totalsize(fdt) -
+		    పరిమాణం(నిర్మాణం fdt_reserve_నమోదు))
+			తిరిగి ఖాళీ;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	తిరిగి fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+పూర్ణాంకం fdt_get_mem_rsv(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం n, uint64_t *చిరునామా, uint64_t *కొలత)
 {
-	const struct fdt_reserve_entry *re;
+	స్థిరరాశి నిర్మాణం fdt_reserve_నమోదు *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	ఒకవేళ (!can_assume(VALID_ఆదానం) && !re)
+		తిరిగి -FDT_ERR_BADOFFSET;
 
-	*address = fdt64_ld_(&re->address);
-	*size = fdt64_ld_(&re->size);
-	return 0;
+	*చిరునామా = fdt64_ld_(&re->చిరునామా);
+	*కొలత = fdt64_ld_(&re->కొలత);
+	తిరిగి 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+పూర్ణాంకం fdt_అంకె_mem_rsv(స్థిరరాశి శూన్య *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	పూర్ణాంకం i;
+	స్థిరరాశి నిర్మాణం fdt_reserve_నమోదు *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	కొరకు (i = 0; (re = fdt_mem_rsv(fdt, i)) != ఖాళీ; i++) {
+		ఒకవేళ (fdt64_ld_(&re->కొలత) == 0)
+			తిరిగి i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	తిరిగి -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+స్థిర పూర్ణాంకం nextprop_(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం)
 {
-	uint32_t tag;
-	int nextoffset;
+	uint32_t ట్యాగ్;
+	పూర్ణాంకం nextoffset;
 
-	do {
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+	చేయి {
+		ట్యాగ్ = fdt_తదుపరి_ట్యాగ్(fdt, స్థానభ్రంశం, &nextoffset);
 
-		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		ఎంపిక (ట్యాగ్) {
+		స్థితి FDT_చివర:
+			ఒకవేళ (nextoffset >= 0)
+				తిరిగి -FDT_ERR_BADSTRUCTURE;
+			లేకపోతే
+				తిరిగి nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		స్థితి FDT_PROP:
+			తిరిగి స్థానభ్రంశం;
 		}
-		offset = nextoffset;
-	} while (tag == FDT_NOP);
+		స్థానభ్రంశం = nextoffset;
+	} అయితే (ట్యాగ్ == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	తిరిగి -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+పూర్ణాంకం fdt_subnode_స్థానభ్రంశం_namelen(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం,
+			       స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen)
 {
-	int depth;
+	పూర్ణాంకం లోతు;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
-	     (offset >= 0) && (depth >= 0);
-	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
-		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+	కొరకు (లోతు = 0;
+	     (స్థానభ్రంశం >= 0) && (లోతు >= 0);
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, &లోతు))
+		ఒకవేళ ((లోతు == 1)
+		    && fdt_nodename_eq_(fdt, స్థానభ్రంశం, name, namelen))
+			తిరిగి స్థానభ్రంశం;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	ఒకవేళ (లోతు < 0)
+		తిరిగి -FDT_ERR_NOTFOUND;
+	తిరిగి స్థానభ్రంశం; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+పూర్ణాంకం fdt_subnode_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం parentoffset,
+		       స్థిరరాశి అక్షరం *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	తిరిగి fdt_subnode_స్థానభ్రంశం_namelen(fdt, parentoffset, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+పూర్ణాంకం fdt_మార్గం_స్థానభ్రంశం_namelen(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *మార్గం, పూర్ణాంకం namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	స్థిరరాశి అక్షరం *చివర = మార్గం + namelen;
+	స్థిరరాశి అక్షరం *p = మార్గం;
+	పూర్ణాంకం స్థానభ్రంశం = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	ఒకవేళ (*మార్గం != '/') {
+		స్థిరరాశి అక్షరం *q = memchr(మార్గం, '/', చివర - p);
 
-		if (!q)
-			q = end;
+		ఒకవేళ (!q)
+			q = చివర;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
-		offset = fdt_path_offset(fdt, p);
+		ఒకవేళ (!p)
+			తిరిగి -FDT_ERR_BADPATH;
+		స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	అయితే (p < చివర) {
+		స్థిరరాశి అక్షరం *q;
 
-		while (*p == '/') {
+		అయితే (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			ఒకవేళ (p == చివర)
+				తిరిగి స్థానభ్రంశం;
 		}
-		q = memchr(p, '/', end - p);
-		if (! q)
-			q = end;
+		q = memchr(p, '/', చివర - p);
+		ఒకవేళ (! q)
+			q = చివర;
 
-		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		స్థానభ్రంశం = fdt_subnode_స్థానభ్రంశం_namelen(fdt, స్థానభ్రంశం, p, q-p);
+		ఒకవేళ (స్థానభ్రంశం < 0)
+			తిరిగి స్థానభ్రంశం;
 
 		p = q;
 	}
 
-	return offset;
+	తిరిగి స్థానభ్రంశం;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+పూర్ణాంకం fdt_మార్గం_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *మార్గం)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	తిరిగి fdt_మార్గం_స్థానభ్రంశం_namelen(fdt, మార్గం, అక్షరశ్రేణి_పొడవు(మార్గం));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+స్థిరరాశి అక్షరం *fdt_get_name(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, పూర్ణాంకం *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	స్థిరరాశి నిర్మాణం fdt_కణుపు_శీర్షిక *nh = fdt_స్థానభ్రంశం_ptr_2(fdt, nodeoffset);
+	స్థిరరాశి అక్షరం *nameptr;
+	పూర్ణాంకం err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
-	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
-			goto fail;
+	ఒకవేళ (((err = fdt_ro_probe_(fdt)) < 0)
+	    || ((err = fdt_check_కణుపు_స్థానభ్రంశం(fdt, nodeoffset)) < 0))
+			వెళ్ళు fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
-		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		స్థిరరాశి అక్షరం *ఆకు;
+		ఆకు = strrchr(nameptr, '/');
+		ఒకవేళ (ఆకు == ఖాళీ) {
 			err = -FDT_ERR_BADSTRUCTURE;
-			goto fail;
+			వెళ్ళు fail;
 		}
-		nameptr = leaf+1;
+		nameptr = ఆకు+1;
 	}
 
-	if (len)
-		*len = strlen(nameptr);
+	ఒకవేళ (len)
+		*len = అక్షరశ్రేణి_పొడవు(nameptr);
 
-	return nameptr;
+	తిరిగి nameptr;
 
  fail:
-	if (len)
+	ఒకవేళ (len)
 		*len = err;
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_మొదటి_property_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int offset;
+	పూర్ణాంకం స్థానభ్రంశం;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	ఒకవేళ ((స్థానభ్రంశం = fdt_check_కణుపు_స్థానభ్రంశం(fdt, nodeoffset)) < 0)
+		తిరిగి స్థానభ్రంశం;
 
-	return nextprop_(fdt, offset);
+	తిరిగి nextprop_(fdt, స్థానభ్రంశం);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+పూర్ణాంకం fdt_తదుపరి_property_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	ఒకవేళ ((స్థానభ్రంశం = fdt_check_prop_స్థానభ్రంశం(fdt, స్థానభ్రంశం)) < 0)
+		తిరిగి స్థానభ్రంశం;
 
-	return nextprop_(fdt, offset);
+	తిరిగి nextprop_(fdt, స్థానభ్రంశం);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+స్థిర స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_by_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt,
+						              పూర్ణాంకం స్థానభ్రంశం,
+						              పూర్ణాంకం *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	పూర్ణాంకం err;
+	స్థిరరాశి నిర్మాణం fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
-	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+	ఒకవేళ (!can_assume(VALID_ఆదానం) &&
+	    (err = fdt_check_prop_స్థానభ్రంశం(fdt, స్థానభ్రంశం)) < 0) {
+		ఒకవేళ (lenp)
 			*lenp = err;
-		return NULL;
+		తిరిగి ఖాళీ;
 	}
 
-	prop = fdt_offset_ptr_(fdt, offset);
+	prop = fdt_స్థానభ్రంశం_ptr_2(fdt, స్థానభ్రంశం);
 
-	if (lenp)
+	ఒకవేళ (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	తిరిగి prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_by_స్థానభ్రంశం_2(స్థిరరాశి శూన్య *fdt,
+						      పూర్ణాంకం స్థానభ్రంశం,
+						      పూర్ణాంకం *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 0x10) {
+		ఒకవేళ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		తిరిగి ఖాళీ;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	తిరిగి fdt_get_property_by_స్థానభ్రంశం(fdt, స్థానభ్రంశం, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+స్థిర స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_namelen_(స్థిరరాశి శూన్య *fdt,
+						            పూర్ణాంకం స్థానభ్రంశం,
+						            స్థిరరాశి అక్షరం *name,
+						            పూర్ణాంకం namelen,
+							    పూర్ణాంకం *lenp,
+							    పూర్ణాంకం *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
-	     (offset >= 0);
-	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+	కొరకు (స్థానభ్రంశం = fdt_మొదటి_property_స్థానభ్రంశం(fdt, స్థానభ్రంశం);
+	     (స్థానభ్రంశం >= 0);
+	     (స్థానభ్రంశం = fdt_తదుపరి_property_స్థానభ్రంశం(fdt, స్థానభ్రంశం))) {
+		స్థిరరాశి నిర్మాణం fdt_property *prop;
 
-		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
-			offset = -FDT_ERR_INTERNAL;
-			break;
+		prop = fdt_get_property_by_స్థానభ్రంశం(fdt, స్థానభ్రంశం, lenp);
+		ఒకవేళ (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+			స్థానభ్రంశం = -FDT_ERR_అంతర్గత;
+			ఆపు;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		ఒకవేళ (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
-				*poffset = offset;
-			return prop;
+			ఒకవేళ (poffset)
+				*poffset = స్థానభ్రంశం;
+			తిరిగి prop;
 		}
 	}
 
-	if (lenp)
-		*lenp = offset;
-	return NULL;
+	ఒకవేళ (lenp)
+		*lenp = స్థానభ్రంశం;
+	తిరిగి ఖాళీ;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property_namelen(స్థిరరాశి శూన్య *fdt,
+						    పూర్ణాంకం స్థానభ్రంశం,
+						    స్థిరరాశి అక్షరం *name,
+						    పూర్ణాంకం namelen, పూర్ణాంకం *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 0x10) {
+		ఒకవేళ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		తిరిగి ఖాళీ;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
-					 NULL);
+	తిరిగి fdt_get_property_namelen_(fdt, స్థానభ్రంశం, name, namelen, lenp,
+					 ఖాళీ);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+స్థిరరాశి నిర్మాణం fdt_property *fdt_get_property(స్థిరరాశి శూన్య *fdt,
+					    పూర్ణాంకం nodeoffset,
+					    స్థిరరాశి అక్షరం *name, పూర్ణాంకం *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
-					strlen(name), lenp);
+	తిరిగి fdt_get_property_namelen(fdt, nodeoffset, name,
+					అక్షరశ్రేణి_పొడవు(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+స్థిరరాశి శూన్య *fdt_getprop_namelen(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen, పూర్ణాంకం *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	పూర్ణాంకం poffset;
+	స్థిరరాశి నిర్మాణం fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	ఒకవేళ (!prop)
+		తిరిగి ఖాళీ;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 0x10 &&
+	    (poffset + పరిమాణం(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		తిరిగి prop->దత్తాంశం + 4;
+	తిరిగి prop->దత్తాంశం;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+స్థిరరాశి శూన్య *fdt_getprop_by_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం,
+				  స్థిరరాశి అక్షరం **namep, పూర్ణాంకం *lenp)
 {
-	const struct fdt_property *prop;
+	స్థిరరాశి నిర్మాణం fdt_property *prop;
 
-	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	prop = fdt_get_property_by_స్థానభ్రంశం(fdt, స్థానభ్రంశం, lenp);
+	ఒకవేళ (!prop)
+		తిరిగి ఖాళీ;
+	ఒకవేళ (namep) {
+		స్థిరరాశి అక్షరం *name;
+		పూర్ణాంకం namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		ఒకవేళ (!can_assume(VALID_ఆదానం)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			ఒకవేళ (!name) {
+				ఒకవేళ (lenp)
 					*lenp = namelen;
-				return NULL;
+				తిరిగి ఖాళీ;
 			}
 			*namep = name;
-		} else {
+		} లేకపోతే {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ఒకవేళ (!can_assume(LATEST) && fdt_సంస్కరణ(fdt) < 0x10 &&
+	    (స్థానభ్రంశం + పరిమాణం(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		తిరిగి prop->దత్తాంశం + 4;
+	తిరిగి prop->దత్తాంశం;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+స్థిరరాశి శూన్య *fdt_getprop(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			స్థిరరాశి అక్షరం *name, పూర్ణాంకం *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	తిరిగి fdt_getprop_namelen(fdt, nodeoffset, name, అక్షరశ్రేణి_పొడవు(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	const fdt32_t *php;
-	int len;
+	స్థిరరాశి fdt32_t *php;
+	పూర్ణాంకం len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	ఒకవేళ (!php || (len != పరిమాణం(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		ఒకవేళ (!php || (len != పరిమాణం(*php)))
+			తిరిగి 0;
 	}
 
-	return fdt32_ld_(php);
+	తిరిగి fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+స్థిరరాశి అక్షరం *fdt_get_alias_namelen(స్థిరరాశి శూన్య *fdt,
+				  స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen)
 {
-	int aliasoffset;
+	పూర్ణాంకం aliasoffset;
 
-	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	aliasoffset = fdt_మార్గం_స్థానభ్రంశం(fdt, "/aliases");
+	ఒకవేళ (aliasoffset < 0)
+		తిరిగి ఖాళీ;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	తిరిగి fdt_getprop_namelen(fdt, aliasoffset, name, namelen, ఖాళీ);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+స్థిరరాశి అక్షరం *fdt_get_alias(స్థిరరాశి శూన్య *fdt, స్థిరరాశి అక్షరం *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	తిరిగి fdt_get_alias_namelen(fdt, name, అక్షరశ్రేణి_పొడవు(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+పూర్ణాంకం fdt_get_మార్గం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, అక్షరం *buf, పూర్ణాంకం buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	పూర్ణాంకం pdepth = 0, p = 0;
+	పూర్ణాంకం స్థానభ్రంశం, లోతు, namelen;
+	స్థిరరాశి అక్షరం *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	ఒకవేళ (buflen < 2)
+		తిరిగి -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
-	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
-			do {
+	కొరకు (స్థానభ్రంశం = 0, లోతు = 0;
+	     (స్థానభ్రంశం >= 0) && (స్థానభ్రంశం <= nodeoffset);
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, &లోతు)) {
+		అయితే (pdepth > లోతు) {
+			చేయి {
 				p--;
-			} while (buf[p-1] != '/');
+			} అయితే (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
-			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
-				memcpy(buf + p, name, namelen);
+		ఒకవేళ (pdepth >= లోతు) {
+			name = fdt_get_name(fdt, స్థానభ్రంశం, &namelen);
+			ఒకవేళ (!name)
+				తిరిగి namelen;
+			ఒకవేళ ((p + namelen + 1) <= buflen) {
+				జ్ఞాపకం_నకలు(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
 				pdepth++;
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		ఒకవేళ (స్థానభ్రంశం == nodeoffset) {
+			ఒకవేళ (pdepth < (లోతు + 1))
+				తిరిగి -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			ఒకవేళ (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			తిరిగి 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	ఒకవేళ ((స్థానభ్రంశం == -FDT_ERR_NOTFOUND) || (స్థానభ్రంశం >= 0))
+		తిరిగి -FDT_ERR_BADOFFSET;
+	లేకపోతే ఒకవేళ (స్థానభ్రంశం == -FDT_ERR_BADOFFSET)
+		తిరిగి -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	తిరిగి స్థానభ్రంశం; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+పూర్ణాంకం fdt_supernode_atdepth_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				 పూర్ణాంకం supernodedepth, పూర్ణాంకం *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	పూర్ణాంకం స్థానభ్రంశం, లోతు;
+	పూర్ణాంకం supernodeoffset = -FDT_ERR_అంతర్గత;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	ఒకవేళ (supernodedepth < 0)
+		తిరిగి -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
-	     (offset >= 0) && (offset <= nodeoffset);
-	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
-			supernodeoffset = offset;
+	కొరకు (స్థానభ్రంశం = 0, లోతు = 0;
+	     (స్థానభ్రంశం >= 0) && (స్థానభ్రంశం <= nodeoffset);
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, &లోతు)) {
+		ఒకవేళ (లోతు == supernodedepth)
+			supernodeoffset = స్థానభ్రంశం;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
-				*nodedepth = depth;
+		ఒకవేళ (స్థానభ్రంశం == nodeoffset) {
+			ఒకవేళ (nodedepth)
+				*nodedepth = లోతు;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			ఒకవేళ (supernodedepth > లోతు)
+				తిరిగి -FDT_ERR_NOTFOUND;
+			లేకపోతే
+				తిరిగి supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	ఒకవేళ (!can_assume(VALID_ఆదానం)) {
+		ఒకవేళ ((స్థానభ్రంశం == -FDT_ERR_NOTFOUND) || (స్థానభ్రంశం >= 0))
+			తిరిగి -FDT_ERR_BADOFFSET;
+		లేకపోతే ఒకవేళ (స్థానభ్రంశం == -FDT_ERR_BADOFFSET)
+			తిరిగి -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	తిరిగి స్థానభ్రంశం; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_కణుపు_లోతు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int nodedepth;
-	int err;
+	పూర్ణాంకం nodedepth;
+	పూర్ణాంకం err;
 
-	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
-			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	err = fdt_supernode_atdepth_స్థానభ్రంశం(fdt, nodeoffset, 0, &nodedepth);
+	ఒకవేళ (err)
+		తిరిగి (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+			-FDT_ERR_అంతర్గత;
+	తిరిగి nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_మాతృ_స్థానభ్రంశం(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	పూర్ణాంకం nodedepth = fdt_కణుపు_లోతు(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
-					    nodedepth - 1, NULL);
+	ఒకవేళ (nodedepth < 0)
+		తిరిగి nodedepth;
+	తిరిగి fdt_supernode_atdepth_స్థానభ్రంశం(fdt, nodeoffset,
+					    nodedepth - 1, ఖాళీ);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_prop_విలువ(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం startoffset,
+				  స్థిరరాశి అక్షరం *propname,
+				  స్థిరరాశి శూన్య *propval, పూర్ణాంకం proplen)
 {
-	int offset;
-	const void *val;
-	int len;
+	పూర్ణాంకం స్థానభ్రంశం;
+	స్థిరరాశి శూన్య *val;
+	పూర్ణాంకం len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
-	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+	కొరకు (స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, startoffset, ఖాళీ);
+	     స్థానభ్రంశం >= 0;
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, ఖాళీ)) {
+		val = fdt_getprop(fdt, స్థానభ్రంశం, propname, &len);
+		ఒకవేళ (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			తిరిగి స్థానభ్రంశం;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	తిరిగి స్థానభ్రంశం; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_phandle(స్థిరరాశి శూన్య *fdt, uint32_t phandle)
 {
-	int offset;
+	పూర్ణాంకం స్థానభ్రంశం;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	ఒకవేళ ((phandle == 0) || (phandle == ~0U))
+		తిరిగి -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
-	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+	కొరకు (స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, -1, ఖాళీ);
+	     స్థానభ్రంశం >= 0;
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, ఖాళీ)) {
+		ఒకవేళ (fdt_get_phandle(fdt, స్థానభ్రంశం) == phandle)
+			తిరిగి స్థానభ్రంశం;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	తిరిగి స్థానభ్రంశం; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+పూర్ణాంకం fdt_stringlist_కలిగియుంది(స్థిరరాశి అక్షరం *strlist, పూర్ణాంకం listlen, స్థిరరాశి అక్షరం *str)
 {
-	int len = strlen(str);
-	const char *p;
+	పూర్ణాంకం len = అక్షరశ్రేణి_పొడవు(str);
+	స్థిరరాశి అక్షరం *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	అయితే (listlen >= len) {
+		ఒకవేళ (memcmp(str, strlist, len+1) == 0)
+			తిరిగి 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		ఒకవేళ (!p)
+			తిరిగి 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+పూర్ణాంకం fdt_stringlist_లెక్క(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	స్థిరరాశి అక్షరం *list, *చివర;
+	పూర్ణాంకం నిడివి, లెక్క = 0;
 
-	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	list = fdt_getprop(fdt, nodeoffset, property, &నిడివి);
+	ఒకవేళ (!list)
+		తిరిగి నిడివి;
 
-	end = list + length;
+	చివర = list + నిడివి;
 
-	while (list < end) {
-		length = strnlen(list, end - list) + 1;
+	అయితే (list < చివర) {
+		నిడివి = strnlen(list, చివర - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ఒకవేళ (list + నిడివి > చివర)
+			తిరిగి -FDT_ERR_BADVALUE;
 
-		list += length;
-		count++;
+		list += నిడివి;
+		లెక్క++;
 	}
 
-	return count;
+	తిరిగి లెక్క;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+పూర్ణాంకం fdt_stringlist_శోధన(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *property,
+			  స్థిరరాశి అక్షరం *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	పూర్ణాంకం నిడివి, len, idx = 0;
+	స్థిరరాశి అక్షరం *list, *చివర;
 
-	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	list = fdt_getprop(fdt, nodeoffset, property, &నిడివి);
+	ఒకవేళ (!list)
+		తిరిగి నిడివి;
 
-	len = strlen(string) + 1;
-	end = list + length;
+	len = అక్షరశ్రేణి_పొడవు(string) + 1;
+	చివర = list + నిడివి;
 
-	while (list < end) {
-		length = strnlen(list, end - list) + 1;
+	అయితే (list < చివర) {
+		నిడివి = strnlen(list, చివర - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ఒకవేళ (list + నిడివి > చివర)
+			తిరిగి -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		ఒకవేళ (నిడివి == len && memcmp(list, string, నిడివి) == 0)
+			తిరిగి idx;
 
-		list += length;
+		list += నిడివి;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	తిరిగి -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+స్థిరరాశి అక్షరం *fdt_stringlist_get(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			       స్థిరరాశి అక్షరం *property, పూర్ణాంకం idx,
+			       పూర్ణాంకం *lenp)
 {
-	const char *list, *end;
-	int length;
+	స్థిరరాశి అక్షరం *list, *చివర;
+	పూర్ణాంకం నిడివి;
 
-	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
-			*lenp = length;
+	list = fdt_getprop(fdt, nodeoffset, property, &నిడివి);
+	ఒకవేళ (!list) {
+		ఒకవేళ (lenp)
+			*lenp = నిడివి;
 
-		return NULL;
+		తిరిగి ఖాళీ;
 	}
 
-	end = list + length;
+	చివర = list + నిడివి;
 
-	while (list < end) {
-		length = strnlen(list, end - list) + 1;
+	అయితే (list < చివర) {
+		నిడివి = strnlen(list, చివర - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		ఒకవేళ (list + నిడివి > చివర) {
+			ఒకవేళ (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			తిరిగి ఖాళీ;
 		}
 
-		if (idx == 0) {
-			if (lenp)
-				*lenp = length - 1;
+		ఒకవేళ (idx == 0) {
+			ఒకవేళ (lenp)
+				*lenp = నిడివి - 1;
 
-			return list;
+			తిరిగి list;
 		}
 
-		list += length;
+		list += నిడివి;
 		idx--;
 	}
 
-	if (lenp)
+	ఒకవేళ (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+పూర్ణాంకం fdt_కణుపు_check_compatible(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			      స్థిరరాశి అక్షరం *compatible)
 {
-	const void *prop;
-	int len;
+	స్థిరరాశి శూన్య *prop;
+	పూర్ణాంకం len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	ఒకవేళ (!prop)
+		తిరిగి len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	తిరిగి !fdt_stringlist_కలిగియుంది(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+పూర్ణాంకం fdt_కణుపు_స్థానభ్రంశం_by_compatible(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం startoffset,
+				  స్థిరరాశి అక్షరం *compatible)
 {
-	int offset, err;
+	పూర్ణాంకం స్థానభ్రంశం, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
-	     offset >= 0;
-	     offset = fdt_next_node(fdt, offset, NULL)) {
-		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+	కొరకు (స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, startoffset, ఖాళీ);
+	     స్థానభ్రంశం >= 0;
+	     స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, ఖాళీ)) {
+		err = fdt_కణుపు_check_compatible(fdt, స్థానభ్రంశం, compatible);
+		ఒకవేళ ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			తిరిగి err;
+		లేకపోతే ఒకవేళ (err == 0)
+			తిరిగి స్థానభ్రంశం;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	తిరిగి స్థానభ్రంశం; /* error from fdt_next_node() */
 }

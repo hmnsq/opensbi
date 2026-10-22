@@ -7,62 +7,62 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+స్థిర పూర్ణాంకం ipi_mswi_cold_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			      స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	పూర్ణాంకం rc;
+	గుర్తులేని దీర్ఘ స్థానభ్రంశం;
+	నిర్మాణం aclint_mswi_దత్తాంశం *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(పరిమాణం(*ms));
+	ఒకవేళ (!ms)
+		తిరిగి SBI_ENOMEM;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
-				   &ms->addr, &ms->size, NULL, NULL,
-				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	rc = fdt_parse_aclint_కణుపు(fdt, nodeoff, false, false,
+				   &ms->addr, &ms->కొలత, ఖాళీ, ఖాళీ,
+				   &ms->మొదటి_hartid, &ms->hart_లెక్క);
+	ఒకవేళ (rc) {
 		sbi_free(ms);
-		return rc;
+		తిరిగి rc;
 	}
 
-	if (match->data) {
+	ఒకవేళ (సరిపోలిక->దత్తాంశం) {
 		/* Adjust MSWI address and size for CLINT device */
-		offset = *((unsigned long *)match->data);
-		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
-		ms->size = ACLINT_MSWI_SIZE;
+		స్థానభ్రంశం = *((గుర్తులేని దీర్ఘ *)సరిపోలిక->దత్తాంశం);
+		ms->addr += స్థానభ్రంశం;
+		ఒకవేళ ((ms->కొలత - స్థానభ్రంశం) < ACLINT_MSWI_కొలత)
+			తిరిగి SBI_EINVAL;
+		ms->కొలత = ACLINT_MSWI_కొలత;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	ఒకవేళ (rc) {
 		sbi_free(ms);
-		return rc;
+		తిరిగి rc;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
+స్థిర స్థిరరాశి గుర్తులేని దీర్ఘ clint_స్థానభ్రంశం = CLINT_MSWI_స్థానభ్రంశం;
 
-static const struct fdt_match ipi_mswi_match[] = {
-	{ .compatible = "riscv,clint0", .data = &clint_offset },
-	{ .compatible = "sifive,clint0", .data = &clint_offset },
-	{ .compatible = "thead,c900-clint", .data = &clint_offset },
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక ipi_mswi_సరిపోలిక[] = {
+	{ .compatible = "riscv,clint0", .దత్తాంశం = &clint_స్థానభ్రంశం },
+	{ .compatible = "sifive,clint0", .దత్తాంశం = &clint_స్థానభ్రంశం },
+	{ .compatible = "thead,c900-clint", .దత్తాంశం = &clint_స్థానభ్రంశం },
 	{ .compatible = "thead,c900-aclint-mswi" },
 	{ .compatible = "mips,p8700-aclint-mswi" },
 	{ .compatible = "riscv,aclint-mswi" },
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
-	.match_table = ipi_mswi_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_ipi_mswi = {
+	.సరిపోలిక_పట్టిక = ipi_mswi_సరిపోలిక,
 	.init = ipi_mswi_cold_init,
 };

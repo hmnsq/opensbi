@@ -5,69 +5,69 @@
  *
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_cppc.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/sbi_cppc.h>
 
-static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+స్థిర పూర్ణాంకం sbi_ecall_cppc_handler(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ funcid,
+				  నిర్మాణం sbi_trap_regs *regs,
+				  నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = 0;
-	uint64_t temp;
+	పూర్ణాంకం ret = 0;
+	uint64_t తాత్కాలిక;
 
-	switch (funcid) {
-	case SBI_EXT_CPPC_READ:
-		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp;
-		break;
-	case SBI_EXT_CPPC_READ_HI:
-#if __riscv_xlen == 32
-		ret = sbi_cppc_read(regs->a0, &temp);
-		out->value = temp >> 32;
-#else
-		out->value = 0;
-#endif
-		break;
-	case SBI_EXT_CPPC_WRITE:
-#if __riscv_xlen == 32
-		temp = regs->a2;
-		temp = (temp << 32) | regs->a1;
-#else
-		temp = regs->a1;
-#endif
-		ret = sbi_cppc_write(regs->a0, temp);
-		break;
-	case SBI_EXT_CPPC_PROBE:
+	ఎంపిక (funcid) {
+	స్థితి SBI_EXT_CPPC_READ:
+		ret = sbi_cppc_read(regs->a0, &తాత్కాలిక);
+		బహిర్గతం->విలువ = తాత్కాలిక;
+		ఆపు;
+	స్థితి SBI_EXT_CPPC_READ_HI:
+#ఒకవేళ __riscv_xlen == 32
+		ret = sbi_cppc_read(regs->a0, &తాత్కాలిక);
+		బహిర్గతం->విలువ = తాత్కాలిక >> 32;
+#లేకపోతే
+		బహిర్గతం->విలువ = 0;
+#అయితే_ముగింపు
+		ఆపు;
+	స్థితి SBI_EXT_CPPC_WRITE:
+#ఒకవేళ __riscv_xlen == 32
+		తాత్కాలిక = regs->a2;
+		తాత్కాలిక = (తాత్కాలిక << 32) | regs->a1;
+#లేకపోతే
+		తాత్కాలిక = regs->a1;
+#అయితే_ముగింపు
+		ret = sbi_cppc_write(regs->a0, తాత్కాలిక);
+		ఆపు;
+	స్థితి SBI_EXT_CPPC_PROBE:
 		ret = sbi_cppc_probe(regs->a0);
-		if (ret >= 0) {
-			out->value = ret;
+		ఒకవేళ (ret >= 0) {
+			బహిర్గతం->విలువ = ret;
 			ret = 0;
 		}
-		break;
-	default:
+		ఆపు;
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-struct sbi_ecall_extension ecall_cppc;
+నిర్మాణం sbi_ecall_extension ecall_cppc;
 
-static int sbi_ecall_cppc_register_extensions(void)
+స్థిర పూర్ణాంకం sbi_ecall_cppc_రిజిస్టరు_extensions(శూన్య)
 {
-	if (!sbi_cppc_get_device())
-		return 0;
+	ఒకవేళ (!sbi_cppc_get_device())
+		తిరిగి 0;
 
-	return sbi_ecall_register_extension(&ecall_cppc);
+	తిరిగి sbi_ecall_రిజిస్టరు_extension(&ecall_cppc);
 }
 
-struct sbi_ecall_extension ecall_cppc = {
+నిర్మాణం sbi_ecall_extension ecall_cppc = {
 	.name			= "cppc",
-	.extid_start		= SBI_EXT_CPPC,
-	.extid_end		= SBI_EXT_CPPC,
-	.register_extensions	= sbi_ecall_cppc_register_extensions,
+	.extid_ప్రారంభం		= SBI_EXT_CPPC,
+	.extid_చివర		= SBI_EXT_CPPC,
+	.రిజిస్టరు_extensions	= sbi_ecall_cppc_రిజిస్టరు_extensions,
 	.handle			= sbi_ecall_cppc_handler,
 };

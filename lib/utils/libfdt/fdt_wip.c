@@ -3,92 +3,92 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len)
+పూర్ణాంకం fdt_setprop_inplace_namelen_partial(శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					స్థిరరాశి అక్షరం *name, పూర్ణాంకం namelen,
+					uint32_t idx, స్థిరరాశి శూన్య *val,
+					పూర్ణాంకం len)
 {
-	void *propval;
-	int proplen;
+	శూన్య *propval;
+	పూర్ణాంకం proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	ఒకవేళ (!propval)
+		తిరిగి proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	ఒకవేళ ((గుర్తులేని)proplen < (len + idx))
+		తిరిగి -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	జ్ఞాపకం_నకలు((అక్షరం *)propval + idx, val, len);
+	తిరిగి 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+పూర్ణాంకం fdt_setprop_inplace(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name,
+			స్థిరరాశి శూన్య *val, పూర్ణాంకం len)
 {
-	const void *propval;
-	int proplen;
+	స్థిరరాశి శూన్య *propval;
+	పూర్ణాంకం proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	ఒకవేళ (!propval)
+		తిరిగి proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	ఒకవేళ (proplen != len)
+		తిరిగి -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
-						   strlen(name), 0,
+	తిరిగి fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+						   అక్షరశ్రేణి_పొడవు(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+స్థిర శూన్య fdt_nop_region_(శూన్య *ప్రారంభం, పూర్ణాంకం len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
-		*p = cpu_to_fdt32(FDT_NOP);
+	కొరకు (p = ప్రారంభం; (అక్షరం *)p < ((అక్షరం *)ప్రారంభం + len); p++)
+		*p = cpu_గమ్యం_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+పూర్ణాంకం fdt_nop_property(శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name)
 {
-	struct fdt_property *prop;
-	int len;
+	నిర్మాణం fdt_property *prop;
+	పూర్ణాంకం len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	ఒకవేళ (!prop)
+		తిరిగి len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + పరిమాణం(*prop));
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+పూర్ణాంకం fdt_కణుపు_చివర_స్థానభ్రంశం(శూన్య *fdt, పూర్ణాంకం స్థానభ్రంశం)
 {
-	int depth = 0;
+	పూర్ణాంకం లోతు = 0;
 
-	while ((offset >= 0) && (depth >= 0))
-		offset = fdt_next_node(fdt, offset, &depth);
+	అయితే ((స్థానభ్రంశం >= 0) && (లోతు >= 0))
+		స్థానభ్రంశం = fdt_తదుపరి_కణుపు(fdt, స్థానభ్రంశం, &లోతు);
 
-	return offset;
+	తిరిగి స్థానభ్రంశం;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_nop_కణుపు(శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int endoffset;
+	పూర్ణాంకం endoffset;
 
-	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	endoffset = fdt_కణుపు_చివర_స్థానభ్రంశం(fdt, nodeoffset);
+	ఒకవేళ (endoffset < 0)
+		తిరిగి endoffset;
 
-	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
+	fdt_nop_region_(fdt_స్థానభ్రంశం_ptr_w_2(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	తిరిగి 0;
 }

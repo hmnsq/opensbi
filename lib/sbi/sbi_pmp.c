@@ -7,99 +7,99 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_pmp.h>
 
-static unsigned long ctz(unsigned long x)
+స్థిర గుర్తులేని దీర్ఘ ctz(గుర్తులేని దీర్ఘ x)
 {
-	unsigned long ret = 0;
+	గుర్తులేని దీర్ఘ ret = 0;
 
-	if (x == 0)
-		return 8 * sizeof(x);
+	ఒకవేళ (x == 0)
+		తిరిగి 8 * పరిమాణం(x);
 
-	while (!(x & 1UL)) {
+	అయితే (!(x & 1UL)) {
 		ret++;
 		x = x >> 1;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
 bool sbi_pmp_is_enabled(pmp_t *pmp)
 {
 	/* If address matching bits are non-zero, the entry is enable */
-	if (pmp->cfg & PMP_A)
-		return true;
+	ఒకవేళ (pmp->cfg & PMP_A)
+		తిరిగి true;
 
-	return false;
+	తిరిగి false;
 }
 
-int sbi_pmp_encode(pmp_t *pmp, unsigned long prot, unsigned long addr,
-		    unsigned long log2len)
+పూర్ణాంకం sbi_pmp_encode(pmp_t *pmp, గుర్తులేని దీర్ఘ prot, గుర్తులేని దీర్ఘ addr,
+		    గుర్తులేని దీర్ఘ log2len)
 {
 	/* check parameters */
-	if (log2len > __riscv_xlen || log2len < PMP_SHIFT)
-		return SBI_EINVAL;
+	ఒకవేళ (log2len > __riscv_xlen || log2len < PMP_జరుపు)
+		తిరిగి SBI_EINVAL;
 
 	/* encode PMP config */
 	prot &= ~PMP_A;
-	prot |= (log2len == PMP_SHIFT) ? PMP_A_NA4 : PMP_A_NAPOT;
+	prot |= (log2len == PMP_జరుపు) ? PMP_A_NA4 : PMP_A_NAPOT;
 	pmp->cfg = prot;
 
 	/* encode PMP address */
-	if (log2len == PMP_SHIFT) {
-		pmp->addr = (addr >> PMP_SHIFT);
-	} else {
-		if (log2len == __riscv_xlen) {
+	ఒకవేళ (log2len == PMP_జరుపు) {
+		pmp->addr = (addr >> PMP_జరుపు);
+	} లేకపోతే {
+		ఒకవేళ (log2len == __riscv_xlen) {
 			pmp->addr = -1UL;
-		} else {
-			unsigned long addrmask;
-			addrmask = (1UL << (log2len - PMP_SHIFT)) - 1;
-			pmp->addr = ((addr >> PMP_SHIFT) & ~addrmask);
+		} లేకపోతే {
+			గుర్తులేని దీర్ఘ addrmask;
+			addrmask = (1UL << (log2len - PMP_జరుపు)) - 1;
+			pmp->addr = ((addr >> PMP_జరుపు) & ~addrmask);
 			pmp->addr |= (addrmask >> 1);
 		}
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int sbi_pmp_decode(pmp_t *pmp, unsigned long *prot_out, unsigned long *addr_out,
-		    unsigned long *log2len)
+పూర్ణాంకం sbi_pmp_decode(pmp_t *pmp, గుర్తులేని దీర్ఘ *prot_బహిర్గతం, గుర్తులేని దీర్ఘ *addr_బహిర్గతం,
+		    గుర్తులేని దీర్ఘ *log2len)
 {
-	unsigned long prot;
-	unsigned long t1, addr, len;
+	గుర్తులేని దీర్ఘ prot;
+	గుర్తులేని దీర్ఘ t1, addr, len;
 
 	/* check parameters */
-	if (!prot_out || !addr_out || !log2len)
-		return SBI_EINVAL;
-	*prot_out = *addr_out = *log2len = 0;
+	ఒకవేళ (!prot_బహిర్గతం || !addr_బహిర్గతం || !log2len)
+		తిరిగి SBI_EINVAL;
+	*prot_బహిర్గతం = *addr_బహిర్గతం = *log2len = 0;
 
 	/* decode PMP config */
 	prot = pmp->cfg;
 
 	/* decode PMP address */
-	if ((prot & PMP_A) == PMP_A_NAPOT) {
+	ఒకవేళ ((prot & PMP_A) == PMP_A_NAPOT) {
 		addr = pmp->addr;
-		if (addr == -1UL) {
+		ఒకవేళ (addr == -1UL) {
 			addr	= 0;
 			len	= __riscv_xlen;
-		} else {
+		} లేకపోతే {
 			t1	= ctz(~addr);
-			addr	= (addr & ~((1UL << t1) - 1)) << PMP_SHIFT;
-			len	= (t1 + PMP_SHIFT + 1);
+			addr	= (addr & ~((1UL << t1) - 1)) << PMP_జరుపు;
+			len	= (t1 + PMP_జరుపు + 1);
 		}
-	} else {
-		addr	= pmp->addr << PMP_SHIFT;
-		len	= PMP_SHIFT;
+	} లేకపోతే {
+		addr	= pmp->addr << PMP_జరుపు;
+		len	= PMP_జరుపు;
 	}
 
 	/* return details */
-	*prot_out    = prot;
-	*addr_out    = addr;
+	*prot_బహిర్గతం    = prot;
+	*addr_బహిర్గతం    = addr;
 	*log2len     = len;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }

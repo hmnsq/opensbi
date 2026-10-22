@@ -7,80 +7,80 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/riscv_atomic.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_hartmask.h>
+#అన్తర్భావ <sbi/sbi_hsm.h>
+#అన్తర్భావ <sbi/sbi_init.h>
+#అన్తర్భావ <sbi/sbi_ipi.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/sbi_console.h>
 
-#define __sbi_hsm_hart_change_state(hdata, oldstate, newstate)		\
+#నిర్వచించు __sbi_hsm_hart_change_state(hdata, oldstate, newstate)		\
 ({									\
-	long state = atomic_cmpxchg(&(hdata)->state, oldstate, newstate); \
-	if (state != (oldstate))					\
+	దీర్ఘ state = atomic_cmpxchg(&(hdata)->state, oldstate, newstate); \
+	ఒకవేళ (state != (oldstate))					\
 		sbi_printf("%s: ERR: The hart is in invalid state [%lu]\n", \
 			   __func__, state);				\
 	state == (oldstate);						\
 })
 
-static const struct sbi_hsm_device *hsm_dev = NULL;
-static unsigned long hart_data_offset;
-static bool hsm_device_has_hart_hotplug(void);
-static int hsm_device_hart_stop(void);
+స్థిర స్థిరరాశి నిర్మాణం sbi_hsm_device *hsm_dev = ఖాళీ;
+స్థిర గుర్తులేని దీర్ఘ hart_దత్తాంశం_స్థానభ్రంశం;
+స్థిర bool hsm_device_has_hart_hotplug(శూన్య);
+స్థిర పూర్ణాంకం hsm_device_hart_stop(శూన్య);
 
 /** Per hart specific data to manage state transition **/
-struct sbi_hsm_data {
+నిర్మాణం sbi_hsm_దత్తాంశం {
 	atomic_t state;
-	unsigned long suspend_type;
-	unsigned long saved_mie;
-	unsigned long saved_mip;
-	unsigned long saved_medeleg;
-	unsigned long saved_mideleg;
+	గుర్తులేని దీర్ఘ suspend_type;
+	గుర్తులేని దీర్ఘ saved_mie;
+	గుర్తులేని దీర్ఘ saved_mip;
+	గుర్తులేని దీర్ఘ saved_medeleg;
+	గుర్తులేని దీర్ఘ saved_mideleg;
 	u64 saved_menvcfg;
-	atomic_t start_ticket;
+	atomic_t ప్రారంభం_ticket;
 };
 
-bool sbi_hsm_hart_change_state(struct sbi_scratch *scratch, long oldstate,
-			       long newstate)
+bool sbi_hsm_hart_change_state(నిర్మాణం sbi_scratch *scratch, దీర్ఘ oldstate,
+			       దీర్ఘ newstate)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
-	return __sbi_hsm_hart_change_state(hdata, oldstate, newstate);
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
+	తిరిగి __sbi_hsm_hart_change_state(hdata, oldstate, newstate);
 }
 
-int __sbi_hsm_hart_get_state(u32 hartindex)
+పూర్ణాంకం __sbi_hsm_hart_get_state(u32 hartindex)
 {
-	struct sbi_hsm_data *hdata;
-	struct sbi_scratch *scratch;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata;
+	నిర్మాణం sbi_scratch *scratch;
 
-	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return SBI_EINVAL;
+	scratch = sbi_hartindex_గమ్యం_scratch(hartindex);
+	ఒకవేళ (!scratch)
+		తిరిగి SBI_EINVAL;
 
-	hdata = sbi_scratch_offset_ptr(scratch, hart_data_offset);
-	return atomic_read(&hdata->state);
+	hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch, hart_దత్తాంశం_స్థానభ్రంశం);
+	తిరిగి atomic_read(&hdata->state);
 }
 
-int sbi_hsm_hart_get_state(const struct sbi_domain *dom, u32 hartid)
+పూర్ణాంకం sbi_hsm_hart_get_state(స్థిరరాశి నిర్మాణం sbi_domain *dom, u32 hartid)
 {
-	u32 hartindex = sbi_hartid_to_hartindex(hartid);
+	u32 hartindex = sbi_hartid_గమ్యం_hartindex(hartid);
 
-	if (!sbi_domain_is_assigned_hart(dom, hartindex))
-		return SBI_EINVAL;
+	ఒకవేళ (!sbi_domain_is_assigned_hart(dom, hartindex))
+		తిరిగి SBI_EINVAL;
 
-	return __sbi_hsm_hart_get_state(hartindex);
+	తిరిగి __sbi_hsm_hart_get_state(hartindex);
 }
 
 /*
@@ -92,9 +92,9 @@ int sbi_hsm_hart_get_state(const struct sbi_domain *dom, u32 hartid)
  * in the current hart can be seen before it by other harts.
  * atomic_cmpxchg() provides the memory barriers needed for that.
  */
-static bool hsm_start_ticket_acquire(struct sbi_hsm_data *hdata)
+స్థిర bool hsm_ప్రారంభం_ticket_acquire(నిర్మాణం sbi_hsm_దత్తాంశం *hdata)
 {
-	return (atomic_cmpxchg(&hdata->start_ticket, 0, 1) == 0);
+	తిరిగి (atomic_cmpxchg(&hdata->ప్రారంభం_ticket, 0, 1) == 0);
 }
 
 /*
@@ -103,10 +103,10 @@ static bool hsm_start_ticket_acquire(struct sbi_hsm_data *hdata)
  * The function has "release" semantics: no memory operations preceding it
  * in the current hart can be seen after it by other harts.
  */
-static void hsm_start_ticket_release(struct sbi_hsm_data *hdata)
+స్థిర శూన్య hsm_ప్రారంభం_ticket_release(నిర్మాణం sbi_hsm_దత్తాంశం *hdata)
 {
 	RISCV_FENCE(rw, w);
-	atomic_write(&hdata->start_ticket, 0);
+	atomic_write(&hdata->ప్రారంభం_ticket, 0);
 }
 
 /**
@@ -115,67 +115,67 @@ static void hsm_start_ticket_release(struct sbi_hsm_data *hdata)
  * @param mask the output hartmask to fill
  * @return 0 on success and SBI_Exxx (< 0) on failure
  */
-int sbi_hsm_hart_interruptible_mask(const struct sbi_domain *dom,
-				    struct sbi_hartmask *mask)
+పూర్ణాంకం sbi_hsm_hart_interruptible_ముసుగు(స్థిరరాశి నిర్మాణం sbi_domain *dom,
+				    నిర్మాణం sbi_hartmask *ముసుగు)
 {
-	int hstate, ret;
+	పూర్ణాంకం hstate, ret;
 	u32 i;
 
-	ret = sbi_domain_get_assigned_hartmask(dom, mask);
-	if (ret)
-		return ret;
+	ret = sbi_domain_get_assigned_hartmask(dom, ముసుగు);
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	sbi_hartmask_for_each_hartindex(i, mask) {
+	sbi_hartmask_for_each_hartindex(i, ముసుగు) {
 		hstate = __sbi_hsm_hart_get_state(i);
-		if (hstate != SBI_HSM_STATE_STARTED &&
+		ఒకవేళ (hstate != SBI_HSM_STATE_STARTED &&
 		    hstate != SBI_HSM_STATE_SUSPENDED &&
 		    hstate != SBI_HSM_STATE_RESUME_PENDING)
-			sbi_hartmask_clear_hartindex(i, mask);
+			sbi_hartmask_clear_hartindex(i, ముసుగు);
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void __noreturn sbi_hsm_hart_start_finish(struct sbi_scratch *scratch,
+శూన్య __noreturn sbi_hsm_hart_ప్రారంభం_ముగింపు(నిర్మాణం sbi_scratch *scratch,
 					  u32 hartid)
 {
-	unsigned long next_arg1;
-	unsigned long next_addr;
-	unsigned long next_mode;
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	గుర్తులేని దీర్ఘ తదుపరి_arg1;
+	గుర్తులేని దీర్ఘ తదుపరి_addr;
+	గుర్తులేని దీర్ఘ తదుపరి_బహుళకం;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_START_PENDING,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_ప్రారంభం_PENDING,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
-	next_arg1 = scratch->next_arg1;
-	next_addr = scratch->next_addr;
-	next_mode = scratch->next_mode;
-	hsm_start_ticket_release(hdata);
+	తదుపరి_arg1 = scratch->తదుపరి_arg1;
+	తదుపరి_addr = scratch->తదుపరి_addr;
+	తదుపరి_బహుళకం = scratch->తదుపరి_బహుళకం;
+	hsm_ప్రారంభం_ticket_release(hdata);
 
-	sbi_hart_switch_mode(hartid, next_arg1, next_addr, next_mode, false);
+	sbi_hart_switch_బహుళకం(hartid, తదుపరి_arg1, తదుపరి_addr, తదుపరి_బహుళకం, false);
 }
 
-static void sbi_hsm_hart_wait(struct sbi_scratch *scratch)
+స్థిర శూన్య sbi_hsm_hart_wait(నిర్మాణం sbi_scratch *scratch)
 {
-	unsigned long saved_mie;
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	గుర్తులేని దీర్ఘ saved_mie;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 	/* Save MIE CSR */
 	saved_mie = csr_read(CSR_MIE);
 
 	/* Set MSIE and MEIE bits to receive IPI */
-	csr_set(CSR_MIE, MIP_MSIP | MIP_MEIP);
+	csr_సమితి(CSR_MIE, MIP_MSIP | MIP_MEIP);
 
 	/* Wait for state transition requested by sbi_hsm_hart_start() */
-	while (atomic_read(&hdata->state) != SBI_HSM_STATE_START_PENDING) {
+	అయితే (atomic_read(&hdata->state) != SBI_HSM_STATE_ప్రారంభం_PENDING) {
 		/*
 		 * If the hsm_dev is ready and it support the hotplug, we can
 		 * use the hsm stop for more power saving
 		 */
-		if (hsm_device_has_hart_hotplug()) {
-			sbi_revert_entry_count(scratch);
+		ఒకవేళ (hsm_device_has_hart_hotplug()) {
+			sbi_revert_నమోదు_లెక్క(scratch);
 			hsm_device_hart_stop();
 		}
 
@@ -191,104 +191,104 @@ static void sbi_hsm_hart_wait(struct sbi_scratch *scratch)
 	 */
 }
 
-const struct sbi_hsm_device *sbi_hsm_get_device(void)
+స్థిరరాశి నిర్మాణం sbi_hsm_device *sbi_hsm_get_device(శూన్య)
 {
-	return hsm_dev;
+	తిరిగి hsm_dev;
 }
 
-void sbi_hsm_set_device(const struct sbi_hsm_device *dev)
+శూన్య sbi_hsm_సమితి_device(స్థిరరాశి నిర్మాణం sbi_hsm_device *dev)
 {
-	if (!dev || hsm_dev)
-		return;
+	ఒకవేళ (!dev || hsm_dev)
+		తిరిగి;
 
 	hsm_dev = dev;
 }
 
-static bool hsm_device_has_hart_hotplug(void)
+స్థిర bool hsm_device_has_hart_hotplug(శూన్య)
 {
-	if (hsm_dev && hsm_dev->hart_start && hsm_dev->hart_stop)
-		return true;
-	return false;
+	ఒకవేళ (hsm_dev && hsm_dev->hart_ప్రారంభం && hsm_dev->hart_stop)
+		తిరిగి true;
+	తిరిగి false;
 }
 
-static bool hsm_device_has_hart_secondary_boot(void)
+స్థిర bool hsm_device_has_hart_secondary_boot(శూన్య)
 {
-	if (hsm_dev && hsm_dev->hart_start && !hsm_dev->hart_stop)
-		return true;
-	return false;
+	ఒకవేళ (hsm_dev && hsm_dev->hart_ప్రారంభం && !hsm_dev->hart_stop)
+		తిరిగి true;
+	తిరిగి false;
 }
 
-static int hsm_device_hart_start(u32 hartid, ulong saddr)
+స్థిర పూర్ణాంకం hsm_device_hart_ప్రారంభం(u32 hartid, ulong saddr)
 {
-	if (hsm_dev && hsm_dev->hart_start)
-		return hsm_dev->hart_start(hartid, saddr);
-	return SBI_ENOTSUPP;
+	ఒకవేళ (hsm_dev && hsm_dev->hart_ప్రారంభం)
+		తిరిగి hsm_dev->hart_ప్రారంభం(hartid, saddr);
+	తిరిగి SBI_ENOTSUPP;
 }
 
-static int hsm_device_hart_stop(void)
+స్థిర పూర్ణాంకం hsm_device_hart_stop(శూన్య)
 {
-	if (hsm_dev && hsm_dev->hart_stop)
-		return hsm_dev->hart_stop();
-	return SBI_ENOTSUPP;
+	ఒకవేళ (hsm_dev && hsm_dev->hart_stop)
+		తిరిగి hsm_dev->hart_stop();
+	తిరిగి SBI_ENOTSUPP;
 }
 
-static int hsm_device_hart_suspend(u32 suspend_type, ulong mmode_resume_addr)
+స్థిర పూర్ణాంకం hsm_device_hart_suspend(u32 suspend_type, ulong mmode_resume_addr)
 {
-	if (hsm_dev && hsm_dev->hart_suspend)
-		return hsm_dev->hart_suspend(suspend_type, mmode_resume_addr);
-	return SBI_ENOTSUPP;
+	ఒకవేళ (hsm_dev && hsm_dev->hart_suspend)
+		తిరిగి hsm_dev->hart_suspend(suspend_type, mmode_resume_addr);
+	తిరిగి SBI_ENOTSUPP;
 }
 
-static void hsm_device_hart_resume(void)
+స్థిర శూన్య hsm_device_hart_resume(శూన్య)
 {
-	if (hsm_dev && hsm_dev->hart_resume)
+	ఒకవేళ (hsm_dev && hsm_dev->hart_resume)
 		hsm_dev->hart_resume();
 }
 
-int sbi_hsm_init(struct sbi_scratch *scratch, bool cold_boot)
+పూర్ణాంకం sbi_hsm_init(నిర్మాణం sbi_scratch *scratch, bool cold_boot)
 {
-	struct sbi_scratch *rscratch;
-	struct sbi_hsm_data *hdata;
+	నిర్మాణం sbi_scratch *rscratch;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata;
 
-	if (cold_boot) {
-		hart_data_offset = sbi_scratch_alloc_offset(sizeof(*hdata));
-		if (!hart_data_offset)
-			return SBI_ENOMEM;
+	ఒకవేళ (cold_boot) {
+		hart_దత్తాంశం_స్థానభ్రంశం = sbi_scratch_alloc_స్థానభ్రంశం(పరిమాణం(*hdata));
+		ఒకవేళ (!hart_దత్తాంశం_స్థానభ్రంశం)
+			తిరిగి SBI_ENOMEM;
 
 		/* Initialize hart state data for every hart */
 		sbi_for_each_hartindex(i) {
-			rscratch = sbi_hartindex_to_scratch(i);
-			if (!rscratch)
-				continue;
+			rscratch = sbi_hartindex_గమ్యం_scratch(i);
+			ఒకవేళ (!rscratch)
+				కొనసాగు;
 
-			hdata = sbi_scratch_offset_ptr(rscratch,
-						       hart_data_offset);
+			hdata = sbi_scratch_స్థానభ్రంశం_ptr(rscratch,
+						       hart_దత్తాంశం_స్థానభ్రంశం);
 			ATOMIC_INIT(&hdata->state,
 				    (i == current_hartindex()) ?
-				    SBI_HSM_STATE_START_PENDING :
+				    SBI_HSM_STATE_ప్రారంభం_PENDING :
 				    SBI_HSM_STATE_STOPPED);
-			ATOMIC_INIT(&hdata->start_ticket, 0);
+			ATOMIC_INIT(&hdata->ప్రారంభం_ticket, 0);
 		}
-	} else {
+	} లేకపోతే {
 		sbi_hsm_hart_wait(scratch);
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void __noreturn sbi_hsm_exit(struct sbi_scratch *scratch)
+శూన్య __noreturn sbi_hsm_exit(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
-	void (*jump_warmboot)(void) = (void (*)(void))scratch->warmboot_addr;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
+	శూన్య (*jump_warmboot)(శూన్య) = (శూన్య (*)(శూన్య))scratch->warmboot_addr;
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STOP_PENDING,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STOP_PENDING,
 					 SBI_HSM_STATE_STOPPED))
-		goto fail_exit;
+		వెళ్ళు fail_exit;
 
-	if (hsm_device_has_hart_hotplug()) {
-		if (hsm_device_hart_stop() != SBI_ENOTSUPP)
-			goto fail_exit;
+	ఒకవేళ (hsm_device_has_hart_hotplug()) {
+		ఒకవేళ (hsm_device_hart_stop() != SBI_ENOTSUPP)
+			వెళ్ళు fail_exit;
 	}
 
 	/**
@@ -304,40 +304,40 @@ fail_exit:
 	sbi_hart_hang();
 }
 
-int sbi_hsm_hart_start(struct sbi_scratch *scratch,
-		       const struct sbi_domain *dom,
+పూర్ణాంకం sbi_hsm_hart_ప్రారంభం(నిర్మాణం sbi_scratch *scratch,
+		       స్థిరరాశి నిర్మాణం sbi_domain *dom,
 		       u32 hartid, ulong saddr, ulong smode, ulong arg1)
 {
-	u32 hartindex = sbi_hartid_to_hartindex(hartid);
-	unsigned long init_count, entry_count;
-	unsigned int hstate;
-	struct sbi_scratch *rscratch;
-	struct sbi_hsm_data *hdata;
-	int rc;
+	u32 hartindex = sbi_hartid_గమ్యం_hartindex(hartid);
+	గుర్తులేని దీర్ఘ init_లెక్క, నమోదు_లెక్క;
+	గుర్తులేని పూర్ణాంకం hstate;
+	నిర్మాణం sbi_scratch *rscratch;
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata;
+	పూర్ణాంకం rc;
 
 	/* For now, we only allow start mode to be S-mode or U-mode. */
-	if (smode != PRV_S && smode != PRV_U)
-		return SBI_EINVAL;
-	if (dom && !sbi_domain_is_assigned_hart(dom, hartindex))
-		return SBI_EINVAL;
-	if (dom && !sbi_domain_check_addr(dom, saddr, smode,
+	ఒకవేళ (smode != PRV_S && smode != PRV_U)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (dom && !sbi_domain_is_assigned_hart(dom, hartindex))
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (dom && !sbi_domain_check_addr(dom, saddr, smode,
 					  SBI_DOMAIN_EXECUTE))
-		return SBI_EINVALID_ADDR;
+		తిరిగి SBI_EINVALID_ADDR;
 
-	rscratch = sbi_hartindex_to_scratch(hartindex);
-	if (!rscratch)
-		return SBI_EINVAL;
+	rscratch = sbi_hartindex_గమ్యం_scratch(hartindex);
+	ఒకవేళ (!rscratch)
+		తిరిగి SBI_EINVAL;
 
-	hdata = sbi_scratch_offset_ptr(rscratch, hart_data_offset);
-	if (!hsm_start_ticket_acquire(hdata))
-		return SBI_EINVAL;
+	hdata = sbi_scratch_స్థానభ్రంశం_ptr(rscratch, hart_దత్తాంశం_స్థానభ్రంశం);
+	ఒకవేళ (!hsm_ప్రారంభం_ticket_acquire(hdata))
+		తిరిగి SBI_EINVAL;
 
-	init_count = sbi_init_count(hartindex);
-	entry_count = sbi_entry_count(hartindex);
+	init_లెక్క = sbi_init_లెక్క(hartindex);
+	నమోదు_లెక్క = sbi_నమోదు_లెక్క(hartindex);
 
-	rscratch->next_arg1 = arg1;
-	rscratch->next_addr = saddr;
-	rscratch->next_mode = smode;
+	rscratch->తదుపరి_arg1 = arg1;
+	rscratch->తదుపరి_addr = saddr;
+	rscratch->తదుపరి_బహుళకం = smode;
 
 	/*
 	 * atomic_cmpxchg() is an implicit barrier. It makes sure that
@@ -345,70 +345,70 @@ int sbi_hsm_hart_start(struct sbi_scratch *scratch,
 	 * before hdata->state is set to SBI_HSM_STATE_START_PENDING.
 	 */
 	hstate = atomic_cmpxchg(&hdata->state, SBI_HSM_STATE_STOPPED,
-				SBI_HSM_STATE_START_PENDING);
-	if (hstate == SBI_HSM_STATE_STARTED) {
+				SBI_HSM_STATE_ప్రారంభం_PENDING);
+	ఒకవేళ (hstate == SBI_HSM_STATE_STARTED) {
 		rc = SBI_EALREADY;
-		goto err;
+		వెళ్ళు err;
 	}
 
 	/**
 	 * if a hart is already transition to start or stop, another start call
 	 * is considered as invalid request.
 	 */
-	if (hstate != SBI_HSM_STATE_STOPPED) {
+	ఒకవేళ (hstate != SBI_HSM_STATE_STOPPED) {
 		rc = SBI_EINVAL;
-		goto err;
+		వెళ్ళు err;
 	}
 
-	if ((hsm_device_has_hart_hotplug() && (entry_count == init_count)) ||
-	   (hsm_device_has_hart_secondary_boot() && !init_count)) {
-		rc = hsm_device_hart_start(hartid, scratch->warmboot_addr);
-	} else {
+	ఒకవేళ ((hsm_device_has_hart_hotplug() && (నమోదు_లెక్క == init_లెక్క)) ||
+	   (hsm_device_has_hart_secondary_boot() && !init_లెక్క)) {
+		rc = hsm_device_hart_ప్రారంభం(hartid, scratch->warmboot_addr);
+	} లేకపోతే {
 		rc = sbi_ipi_raw_send(hartindex, true);
 	}
 
-	if (!rc)
-		return 0;
+	ఒకవేళ (!rc)
+		తిరిగి 0;
 
 	/* If it fails to start, change hart state back to stop */
-	__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_START_PENDING,
+	__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_ప్రారంభం_PENDING,
 				    SBI_HSM_STATE_STOPPED);
 err:
-	hsm_start_ticket_release(hdata);
-	return rc;
+	hsm_ప్రారంభం_ticket_release(hdata);
+	తిరిగి rc;
 }
 
-int sbi_hsm_hart_stop(struct sbi_scratch *scratch, bool exitnow)
+పూర్ణాంకం sbi_hsm_hart_stop(నిర్మాణం sbi_scratch *scratch, bool exitnow)
 {
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	స్థిరరాశి నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
-	if (!dom)
-		return SBI_EFAIL;
+	ఒకవేళ (!dom)
+		తిరిగి SBI_EFAIL;
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
 					 SBI_HSM_STATE_STOP_PENDING))
-		return SBI_EFAIL;
+		తిరిగి SBI_EFAIL;
 
-	if (exitnow)
+	ఒకవేళ (exitnow)
 		sbi_exit(scratch);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int __sbi_hsm_suspend_default(struct sbi_scratch *scratch)
+స్థిర పూర్ణాంకం __sbi_hsm_suspend_default(నిర్మాణం sbi_scratch *scratch)
 {
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	తిరిగి 0;
 }
 
-void __sbi_hsm_suspend_non_ret_save(struct sbi_scratch *scratch)
+శూన్య __sbi_hsm_suspend_non_ret_save(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
 	/*
 	 * We will be resuming in warm-boot path so the MIE and MIP CSRs
@@ -428,47 +428,47 @@ void __sbi_hsm_suspend_non_ret_save(struct sbi_scratch *scratch)
 	hdata->saved_mip = csr_read(CSR_MIP) & (MIP_SSIP | MIP_STIP);
 	hdata->saved_medeleg = csr_read(CSR_MEDELEG);
 	hdata->saved_mideleg = csr_read(CSR_MIDELEG);
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12)
+	ఒకవేళ (sbi_hart_priv_సంస్కరణ(scratch) >= SBI_HART_PRIV_VER_1_12)
 		hdata->saved_menvcfg = csr_read64(CSR_MENVCFG);
 }
 
-static void __sbi_hsm_suspend_non_ret_restore(struct sbi_scratch *scratch)
+స్థిర శూన్య __sbi_hsm_suspend_non_ret_restore(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12)
+	ఒకవేళ (sbi_hart_priv_సంస్కరణ(scratch) >= SBI_HART_PRIV_VER_1_12)
 		csr_write64(CSR_MENVCFG, hdata->saved_menvcfg);
 	csr_write(CSR_MIDELEG, hdata->saved_mideleg);
 	csr_write(CSR_MEDELEG, hdata->saved_medeleg);
 	csr_write(CSR_MIE, hdata->saved_mie);
-	csr_set(CSR_MIP, (hdata->saved_mip & (MIP_SSIP | MIP_STIP)));
+	csr_సమితి(CSR_MIP, (hdata->saved_mip & (MIP_SSIP | MIP_STIP)));
 }
 
-void sbi_hsm_hart_resume_start(struct sbi_scratch *scratch)
+శూన్య sbi_hsm_hart_resume_ప్రారంభం(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
 	/* If current HART was SUSPENDED then set RESUME_PENDING state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
 					 SBI_HSM_STATE_RESUME_PENDING))
 		sbi_hart_hang();
 
-	if (sbi_system_is_suspended())
+	ఒకవేళ (sbi_system_is_suspended())
 		sbi_system_resume();
-	else
+	లేకపోతే
 		hsm_device_hart_resume();
 }
 
-void __noreturn sbi_hsm_hart_resume_finish(struct sbi_scratch *scratch,
+శూన్య __noreturn sbi_hsm_hart_resume_ముగింపు(నిర్మాణం sbi_scratch *scratch,
 					   u32 hartid)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
 	/* If current HART was RESUME_PENDING then set STARTED state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_RESUME_PENDING,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_RESUME_PENDING,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
@@ -478,53 +478,53 @@ void __noreturn sbi_hsm_hart_resume_finish(struct sbi_scratch *scratch,
 	 */
 	__sbi_hsm_suspend_non_ret_restore(scratch);
 
-	sbi_hart_switch_mode(hartid, scratch->next_arg1,
-			     scratch->next_addr,
-			     scratch->next_mode, false);
+	sbi_hart_switch_బహుళకం(hartid, scratch->తదుపరి_arg1,
+			     scratch->తదుపరి_addr,
+			     scratch->తదుపరి_బహుళకం, false);
 }
 
-int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
+పూర్ణాంకం sbi_hsm_hart_suspend(నిర్మాణం sbi_scratch *scratch, u32 suspend_type,
 			 ulong raddr, ulong rmode, ulong arg1)
 {
-	int ret;
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	పూర్ణాంకం ret;
+	స్థిరరాశి నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం sbi_hsm_దత్తాంశం *hdata = sbi_scratch_స్థానభ్రంశం_ptr(scratch,
+							    hart_దత్తాంశం_స్థానభ్రంశం);
 
 	/* Sanity check on domain assigned to current HART */
-	if (!dom)
-		return SBI_EFAIL;
+	ఒకవేళ (!dom)
+		తిరిగి SBI_EFAIL;
 
 	/* Sanity check on suspend type */
-	if (SBI_HSM_SUSPEND_RET_DEFAULT < suspend_type &&
+	ఒకవేళ (SBI_HSM_SUSPEND_RET_DEFAULT < suspend_type &&
 	    suspend_type < SBI_HSM_SUSPEND_RET_PLATFORM)
-		return SBI_EINVAL;
-	if (SBI_HSM_SUSPEND_NON_RET_DEFAULT < suspend_type &&
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (SBI_HSM_SUSPEND_NON_RET_DEFAULT < suspend_type &&
 	    suspend_type < SBI_HSM_SUSPEND_NON_RET_PLATFORM)
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 
 	/* Additional sanity check for non-retentive suspend */
-	if (suspend_type & SBI_HSM_SUSP_NON_RET_BIT) {
+	ఒకవేళ (suspend_type & SBI_HSM_SUSP_NON_RET_బిట్టు) {
 		/*
 		 * For now, we only allow non-retentive suspend from
 		 * S-mode or U-mode.
 		 */
-		if (rmode != PRV_S && rmode != PRV_U)
-			return SBI_EFAIL;
-		if (dom && !sbi_domain_check_addr(dom, raddr, rmode,
+		ఒకవేళ (rmode != PRV_S && rmode != PRV_U)
+			తిరిగి SBI_EFAIL;
+		ఒకవేళ (dom && !sbi_domain_check_addr(dom, raddr, rmode,
 						  SBI_DOMAIN_EXECUTE))
-			return SBI_EINVALID_ADDR;
+			తిరిగి SBI_EINVALID_ADDR;
 	}
 
 	/* Save the resume address and resume mode */
-	scratch->next_arg1 = arg1;
-	scratch->next_addr = raddr;
-	scratch->next_mode = rmode;
+	scratch->తదుపరి_arg1 = arg1;
+	scratch->తదుపరి_addr = raddr;
+	scratch->తదుపరి_బహుళకం = rmode;
 
 	/* Directly move from STARTED to SUSPENDED state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
 					 SBI_HSM_STATE_SUSPENDED))
-		return SBI_EFAIL;
+		తిరిగి SBI_EFAIL;
 
 	/* Save the suspend type */
 	hdata->suspend_type = suspend_type;
@@ -533,14 +533,14 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * Save context which will be restored after resuming from
 	 * non-retentive suspend.
 	 */
-	if (suspend_type & SBI_HSM_SUSP_NON_RET_BIT)
+	ఒకవేళ (suspend_type & SBI_HSM_SUSP_NON_RET_బిట్టు)
 		__sbi_hsm_suspend_non_ret_save(scratch);
 
 	/* Try platform specific suspend */
 	ret = hsm_device_hart_suspend(suspend_type, scratch->warmboot_addr);
-	if (ret == SBI_ENOTSUPP) {
+	ఒకవేళ (ret == SBI_ENOTSUPP) {
 		/* Try generic implementation of default suspend types */
-		if (suspend_type == SBI_HSM_SUSPEND_RET_DEFAULT ||
+		ఒకవేళ (suspend_type == SBI_HSM_SUSPEND_RET_DEFAULT ||
 		    suspend_type == SBI_HSM_SUSPEND_NON_RET_DEFAULT) {
 			ret = __sbi_hsm_suspend_default(scratch);
 		}
@@ -552,9 +552,9 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * caller is not expecting a successful return, so jump to the warm
 	 * boot entry point to simulate resume from a non-retentive suspend.
 	 */
-	if (ret == 0 && (suspend_type & SBI_HSM_SUSP_NON_RET_BIT)) {
-		void (*jump_warmboot)(void) =
-			(void (*)(void))scratch->warmboot_addr;
+	ఒకవేళ (ret == 0 && (suspend_type & SBI_HSM_SUSP_NON_RET_బిట్టు)) {
+		శూన్య (*jump_warmboot)(శూన్య) =
+			(శూన్య (*)(శూన్య))scratch->warmboot_addr;
 
 		jump_warmboot();
 	}
@@ -563,9 +563,9 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * We might have successfully resumed from retentive suspend
 	 * or suspend failed. In both cases, we restore state of hart.
 	 */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
+	ఒకవేళ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
-	return ret;
+	తిరిగి ret;
 }

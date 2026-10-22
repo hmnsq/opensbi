@@ -6,130 +6,130 @@
 * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
 */
 
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_unit_test.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_unit_test.h>
 
-#define BPL BITS_PER_LONG
+#నిర్వచించు BPL బిట్లు_చొప్పున_LONG
 
-unsigned long bits_to_search = 64;
+గుర్తులేని దీర్ఘ బిట్లు_గమ్యం_శోధన = 64;
 
-static unsigned long ffb1[] = {};
-static unsigned long ffb2[] = { 0 };
-static unsigned long ffb3[] = { 1 };
-static unsigned long ffb4[] = { 1UL << (BPL - 1) };
-static unsigned long ffb5[] = { 0, 0x10 };
-static unsigned long ffb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long ffb7[] = { 0, 0, 0, 0x01 };
+స్థిర గుర్తులేని దీర్ఘ ffb1[] = {};
+స్థిర గుర్తులేని దీర్ఘ ffb2[] = { 0 };
+స్థిర గుర్తులేని దీర్ఘ ffb3[] = { 1 };
+స్థిర గుర్తులేని దీర్ఘ ffb4[] = { 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ ffb5[] = { 0, 0x10 };
+స్థిర గుర్తులేని దీర్ఘ ffb6[] = { 0, 0, 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ ffb7[] = { 0, 0, 0, 0x01 };
 
-static void find_first_bit_test(struct sbiunit_test_case *test)
+స్థిర శూన్య కనుగొను_మొదటి_బిట్టు_test(నిర్మాణం sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb1, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb2, BPL), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb3, BPL), 0);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb4, BPL), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb5, 2 * BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb6, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb1, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb2, BPL), BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb3, BPL), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb4, BPL), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb5, 2 * BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_మొదటి_బిట్టు(ffb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long ffzb1[] = {};
-static unsigned long ffzb2[] = { ~0UL };
-static unsigned long ffzb3[] = { ~1UL };
-static unsigned long ffzb4[] = { ~(1UL << (BPL - 1)) };
-static unsigned long ffzb5[] = { ~0UL, ~0x10UL };
-static unsigned long ffzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
-static unsigned long ffzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
+స్థిర గుర్తులేని దీర్ఘ ffzb1[] = {};
+స్థిర గుర్తులేని దీర్ఘ ffzb2[] = { ~0UL };
+స్థిర గుర్తులేని దీర్ఘ ffzb3[] = { ~1UL };
+స్థిర గుర్తులేని దీర్ఘ ffzb4[] = { ~(1UL << (BPL - 1)) };
+స్థిర గుర్తులేని దీర్ఘ ffzb5[] = { ~0UL, ~0x10UL };
+స్థిర గుర్తులేని దీర్ఘ ffzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
+స్థిర గుర్తులేని దీర్ఘ ffzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
 
-static void find_first_zero_bit_test(struct sbiunit_test_case *test)
+స్థిర శూన్య కనుగొను_మొదటి_zero_బిట్టు_test(నిర్మాణం sbiunit_test_case *test)
 {
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb1, 0), 0);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb2, BPL), BPL);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb3, BPL), 0);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb4, BPL), BPL - 1);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb5, 2 * BPL), BPL + 4);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb6, 3 * BPL),
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb1, 0), 0);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb2, BPL), BPL);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb3, BPL), 0);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb4, BPL), BPL - 1);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb5, 2 * BPL), BPL + 4);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_ASSERT_EQ(test, కనుగొను_మొదటి_zero_బిట్టు(ffzb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long flb1[] = {};
-static unsigned long flb2[] = { 0 };
-static unsigned long flb3[] = { 1 };
-static unsigned long flb4[] = { 1UL << (BPL - 1) };
-static unsigned long flb5[] = { 0, 0x10 };
-static unsigned long flb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long flb7[] = { 0, 0, 0, 0x01 };
+స్థిర గుర్తులేని దీర్ఘ flb1[] = {};
+స్థిర గుర్తులేని దీర్ఘ flb2[] = { 0 };
+స్థిర గుర్తులేని దీర్ఘ flb3[] = { 1 };
+స్థిర గుర్తులేని దీర్ఘ flb4[] = { 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ flb5[] = { 0, 0x10 };
+స్థిర గుర్తులేని దీర్ఘ flb6[] = { 0, 0, 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ flb7[] = { 0, 0, 0, 0x01 };
 
-static void find_last_bit_test(struct sbiunit_test_case *test)
+స్థిర శూన్య కనుగొను_చివరి_బిట్టు_test(నిర్మాణం sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb1, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb2, BPL), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb3, BPL), 0);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb4, BPL), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb5, 2 * BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb6, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb1, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb2, BPL), BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb3, BPL), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb4, BPL), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb5, 2 * BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_చివరి_బిట్టు(flb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long fnb1[] = {};
-static unsigned long fnb2[] = { 0 };
-static unsigned long fnb3[] = { 1 };
-static unsigned long fnb4[] = { 1UL << (BPL - 1) };
-static unsigned long fnb5[] = { 0, 0x10 };
-static unsigned long fnb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long fnb7[] = { 0, 0, 0, 0x01 };
+స్థిర గుర్తులేని దీర్ఘ fnb1[] = {};
+స్థిర గుర్తులేని దీర్ఘ fnb2[] = { 0 };
+స్థిర గుర్తులేని దీర్ఘ fnb3[] = { 1 };
+స్థిర గుర్తులేని దీర్ఘ fnb4[] = { 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ fnb5[] = { 0, 0x10 };
+స్థిర గుర్తులేని దీర్ఘ fnb6[] = { 0, 0, 1UL << (BPL - 1) };
+స్థిర గుర్తులేని దీర్ఘ fnb7[] = { 0, 0, 0, 0x01 };
 
-static void find_next_bit_test(struct sbiunit_test_case *test)
+స్థిర శూన్య కనుగొను_తదుపరి_బిట్టు_test(నిర్మాణం sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb1, 0, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb2, BPL, 0), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb3, BPL, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb4, BPL, 0), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb5, 2 * BPL, 0), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb6, 3 * BPL, 0),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb1, 0, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb2, BPL, 0), BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb3, BPL, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb4, BPL, 0), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb5, 2 * BPL, 0), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb6, 3 * BPL, 0),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb7, 4 * BPL, 0), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb5, 2 * BPL, BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb7, 4 * BPL, 3 * BPL), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb6, 3 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb7, 4 * BPL, 0), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb5, 2 * BPL, BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb7, 4 * BPL, 3 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_బిట్టు(fnb6, 3 * BPL, BPL),
 			  2 * BPL + BPL - 1);
 }
 
-static unsigned long fnzb1[] = {};
-static unsigned long fnzb2[] = { ~0UL };
-static unsigned long fnzb3[] = { ~1UL };
-static unsigned long fnzb4[] = { ~(1UL << (BPL - 1)) };
-static unsigned long fnzb5[] = { ~0UL, ~0x10UL };
-static unsigned long fnzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
-static unsigned long fnzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
+స్థిర గుర్తులేని దీర్ఘ fnzb1[] = {};
+స్థిర గుర్తులేని దీర్ఘ fnzb2[] = { ~0UL };
+స్థిర గుర్తులేని దీర్ఘ fnzb3[] = { ~1UL };
+స్థిర గుర్తులేని దీర్ఘ fnzb4[] = { ~(1UL << (BPL - 1)) };
+స్థిర గుర్తులేని దీర్ఘ fnzb5[] = { ~0UL, ~0x10UL };
+స్థిర గుర్తులేని దీర్ఘ fnzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
+స్థిర గుర్తులేని దీర్ఘ fnzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
 
-static void find_next_zero_bit_test(struct sbiunit_test_case *test)
+స్థిర శూన్య కనుగొను_తదుపరి_zero_బిట్టు_test(నిర్మాణం sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb1, 0, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb2, BPL, 0), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb3, BPL, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb4, BPL, 0), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb5, 2 * BPL, 0), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb6, 3 * BPL, 0),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb1, 0, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb2, BPL, 0), BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb3, BPL, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb4, BPL, 0), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb5, 2 * BPL, 0), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb6, 3 * BPL, 0),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb7, 4 * BPL, 0), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb5, 2 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb7, 4 * BPL, 0), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb5, 2 * BPL, BPL),
 			  BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb7, 4 * BPL, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb7, 4 * BPL, 3 * BPL),
 			  3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb6, 3 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, కనుగొను_తదుపరి_zero_బిట్టు(fnzb6, 3 * BPL, BPL),
 			  2 * BPL + BPL - 1);
 }
 
-static struct sbiunit_test_case bitops_test_cases[] = {
-	SBIUNIT_TEST_CASE(find_first_bit_test),
-	SBIUNIT_TEST_CASE(find_first_zero_bit_test),
-	SBIUNIT_TEST_CASE(find_last_bit_test),
-	SBIUNIT_TEST_CASE(find_next_bit_test),
-	SBIUNIT_TEST_CASE(find_next_zero_bit_test),
-	SBIUNIT_END_CASE,
+స్థిర నిర్మాణం sbiunit_test_case bitops_test_cases[] = {
+	SBIUNIT_TEST_CASE(కనుగొను_మొదటి_బిట్టు_test),
+	SBIUNIT_TEST_CASE(కనుగొను_మొదటి_zero_బిట్టు_test),
+	SBIUNIT_TEST_CASE(కనుగొను_చివరి_బిట్టు_test),
+	SBIUNIT_TEST_CASE(కనుగొను_తదుపరి_బిట్టు_test),
+	SBIUNIT_TEST_CASE(కనుగొను_తదుపరి_zero_బిట్టు_test),
+	SBIUNIT_చివర_CASE,
 };
 
 SBIUNIT_TEST_SUITE(bitops_test_suite, bitops_test_cases);

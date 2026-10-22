@@ -7,66 +7,66 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_mpxy.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/sbi_mpxy.h>
 
-static int sbi_ecall_mpxy_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+స్థిర పూర్ణాంకం sbi_ecall_mpxy_handler(గుర్తులేని దీర్ఘ extid, గుర్తులేని దీర్ఘ funcid,
+				  నిర్మాణం sbi_trap_regs *regs,
+				  నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = 0;
+	పూర్ణాంకం ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_MPXY_GET_SHMEM_SIZE:
-		out->value = sbi_mpxy_get_shmem_size();
-		break;
-	case SBI_EXT_MPXY_SET_SHMEM:
-		ret = sbi_mpxy_set_shmem(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_GET_CHANNEL_IDS:
+	ఎంపిక (funcid) {
+	స్థితి SBI_EXT_MPXY_GET_SHMEM_కొలత:
+		బహిర్గతం->విలువ = sbi_mpxy_get_shmem_కొలత();
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_సమితి_SHMEM:
+		ret = sbi_mpxy_సమితి_shmem(regs->a0, regs->a1, regs->a2);
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_GET_CHANNEL_IDS:
 		ret = sbi_mpxy_get_channel_ids(regs->a0);
-		break;
-	case SBI_EXT_MPXY_READ_ATTRS:
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_READ_ATTRS:
 		ret = sbi_mpxy_read_attrs(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_WRITE_ATTRS:
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_WRITE_ATTRS:
 		ret = sbi_mpxy_write_attrs(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITH_RESP:
-		ret = sbi_mpxy_send_message(regs->a0, regs->a1,
-					    regs->a2, &out->value);
-		break;
-	case SBI_EXT_MPXY_SEND_MSG_WITHOUT_RESP:
-		ret = sbi_mpxy_send_message(regs->a0, regs->a1, regs->a2,
-					    NULL);
-		break;
-	case SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS:
-		ret = sbi_mpxy_get_notification_events(regs->a0, &out->value);
-		break;
-	default:
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_SEND_సందేశం_WITH_RESP:
+		ret = sbi_mpxy_send_సందేశం(regs->a0, regs->a1,
+					    regs->a2, &బహిర్గతం->విలువ);
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_SEND_సందేశం_WITHOUT_RESP:
+		ret = sbi_mpxy_send_సందేశం(regs->a0, regs->a1, regs->a2,
+					    ఖాళీ);
+		ఆపు;
+	స్థితి SBI_EXT_MPXY_GET_NOTIFICATION_EVENTS:
+		ret = sbi_mpxy_get_notification_events(regs->a0, &బహిర్గతం->విలువ);
+		ఆపు;
+	అప్రమేయ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-struct sbi_ecall_extension ecall_mpxy;
+నిర్మాణం sbi_ecall_extension ecall_mpxy;
 
-static int sbi_ecall_mpxy_register_extensions(void)
+స్థిర పూర్ణాంకం sbi_ecall_mpxy_రిజిస్టరు_extensions(శూన్య)
 {
-	if (!sbi_mpxy_channel_available())
-		return 0;
+	ఒకవేళ (!sbi_mpxy_channel_అందుబాటు())
+		తిరిగి 0;
 
-	return sbi_ecall_register_extension(&ecall_mpxy);
+	తిరిగి sbi_ecall_రిజిస్టరు_extension(&ecall_mpxy);
 }
 
-struct sbi_ecall_extension ecall_mpxy = {
+నిర్మాణం sbi_ecall_extension ecall_mpxy = {
 	.name			= "mpxy",
-	.extid_start		= SBI_EXT_MPXY,
-	.extid_end		= SBI_EXT_MPXY,
-	.register_extensions	= sbi_ecall_mpxy_register_extensions,
+	.extid_ప్రారంభం		= SBI_EXT_MPXY,
+	.extid_చివర		= SBI_EXT_MPXY,
+	.రిజిస్టరు_extensions	= sbi_ecall_mpxy_రిజిస్టరు_extensions,
 	.handle			= sbi_ecall_mpxy_handler,
 };

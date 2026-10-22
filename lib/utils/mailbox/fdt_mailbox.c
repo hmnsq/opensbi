@@ -7,90 +7,90 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/mailbox/fdt_mailbox.h>
 
 /* List of FDT mailbox drivers generated at compile time */
-extern const struct fdt_driver *const fdt_mailbox_drivers[];
+బాహ్య స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి fdt_mailbox_drivers[];
 
-static int fdt_mbox_controller_find(const void *fdt, int nodeoff,
-				    struct mbox_controller **out_mbox)
+స్థిర పూర్ణాంకం fdt_mbox_controller_కనుగొను(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				    నిర్మాణం mbox_controller **బహిర్గతం_mbox)
 {
-	int rc;
-	struct mbox_controller *mbox = mbox_controller_find(nodeoff);
+	పూర్ణాంకం rc;
+	నిర్మాణం mbox_controller *mbox = mbox_controller_కనుగొను(nodeoff);
 
-	if (!mbox) {
+	ఒకవేళ (!mbox) {
 		/* mailbox not found so initialize matching driver */
-		rc = fdt_driver_init_by_offset(fdt, nodeoff, fdt_mailbox_drivers);
-		if (rc)
-			return rc;
+		rc = fdt_driver_init_by_స్థానభ్రంశం(fdt, nodeoff, fdt_mailbox_drivers);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
 		/* Try to find mailbox controller again */
-		mbox = mbox_controller_find(nodeoff);
-		if (!mbox)
-			return SBI_ENOSYS;
+		mbox = mbox_controller_కనుగొను(nodeoff);
+		ఒకవేళ (!mbox)
+			తిరిగి SBI_ENOSYS;
 	}
 
-	if (out_mbox)
-		*out_mbox = mbox;
+	ఒకవేళ (బహిర్గతం_mbox)
+		*బహిర్గతం_mbox = mbox;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
-			     struct mbox_chan **out_chan)
+పూర్ణాంకం fdt_mailbox_request_chan(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, పూర్ణాంకం సూచీ_2,
+			     నిర్మాణం mbox_chan **బహిర్గతం_chan)
 {
-	int rc;
-	struct mbox_chan *chan;
-	struct fdt_mailbox *drv;
-	struct fdt_phandle_args pargs;
-	struct mbox_controller *mbox = NULL;
-	u32 chan_args[MBOX_CHAN_MAX_ARGS];
+	పూర్ణాంకం rc;
+	నిర్మాణం mbox_chan *chan;
+	నిర్మాణం fdt_mailbox *drv;
+	నిర్మాణం fdt_phandle_వాదనలు pargs;
+	నిర్మాణం mbox_controller *mbox = ఖాళీ;
+	u32 chan_వాదనలు[MBOX_CHAN_MAX_వాదనలు];
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || (nodeoff < 0) || (సూచీ_2 < 0) || !బహిర్గతం_chan)
+		తిరిగి SBI_EINVAL;
 
-	pargs.node_offset = pargs.args_count = 0;
-	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
+	pargs.కణుపు_స్థానభ్రంశం = pargs.వాదనలు_లెక్క = 0;
+	rc = fdt_parse_phandle_with_వాదనలు(fdt, nodeoff,
 					 "mboxes", "#mbox-cells",
-					 index, &pargs);
-	if (rc)
-		return rc;
+					 సూచీ_2, &pargs);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	rc = fdt_mbox_controller_find(fdt, pargs.node_offset, &mbox);
-	if (rc)
-		return rc;
+	rc = fdt_mbox_controller_కనుగొను(fdt, pargs.కణుపు_స్థానభ్రంశం, &mbox);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	drv = mbox->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	ఒకవేళ (!drv || !drv->xlate)
+		తిరిగి SBI_ENOSYS;
 
-	rc = drv->xlate(mbox, &pargs, chan_args);
-	if (rc)
-		return rc;
+	rc = drv->xlate(mbox, &pargs, chan_వాదనలు);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	chan = mbox_controller_request_chan(mbox, chan_args);
-	if (!chan)
-		return SBI_ENOENT;
+	chan = mbox_controller_request_chan(mbox, chan_వాదనలు);
+	ఒకవేళ (!chan)
+		తిరిగి SBI_ENOENT;
 
-	*out_chan = chan;
-	return 0;
+	*బహిర్గతం_chan = chan;
+	తిరిగి 0;
 }
 
-int fdt_mailbox_simple_xlate(struct mbox_controller *mbox,
-			     const struct fdt_phandle_args *pargs,
-			     u32 *out_chan_args)
+పూర్ణాంకం fdt_mailbox_simple_xlate(నిర్మాణం mbox_controller *mbox,
+			     స్థిరరాశి నిర్మాణం fdt_phandle_వాదనలు *pargs,
+			     u32 *బహిర్గతం_chan_వాదనలు)
 {
-	int i;
+	పూర్ణాంకం i;
 
-	if (pargs->args_count < 1)
-		return SBI_EINVAL;
+	ఒకవేళ (pargs->వాదనలు_లెక్క < 1)
+		తిరిగి SBI_EINVAL;
 
-	out_chan_args[0] = pargs->args[0];
-	for (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
-		out_chan_args[i] = 0;
+	బహిర్గతం_chan_వాదనలు[0] = pargs->వాదనలు[0];
+	కొరకు (i = 1; i < MBOX_CHAN_MAX_వాదనలు; i++)
+		బహిర్గతం_chan_వాదనలు[i] = 0;
 
-	return 0;
+	తిరిగి 0;
 }

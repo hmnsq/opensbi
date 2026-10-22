@@ -8,74 +8,74 @@
  *   Nick Kossifidis <mick@ics.forth.gr>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_atomic.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_hsm.h>
+#అన్తర్భావ <sbi/sbi_init.h>
+#అన్తర్భావ <sbi/sbi_ipi.h>
+#అన్తర్భావ <sbi/sbi_list.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_pmu.h>
+#అన్తర్భావ <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/sbi_tlb.h>
 
-struct sbi_ipi_data {
-	unsigned long ipi_type;
+నిర్మాణం sbi_ipi_దత్తాంశం {
+	గుర్తులేని దీర్ఘ ipi_type;
 };
 
 _Static_assert(
-	8 * sizeof(((struct sbi_ipi_data*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
+	8 * పరిమాణం(((నిర్మాణం sbi_ipi_దత్తాంశం*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
 	"type of sbi_ipi_data.ipi_type has changed, please redefine SBI_IPI_EVENT_MAX"
 	);
 
-struct sbi_ipi_device_node {
-	struct sbi_dlist head;
-	const struct sbi_ipi_device *dev;
+నిర్మాణం sbi_ipi_device_కణుపు {
+	నిర్మాణం sbi_dlist తల;
+	స్థిరరాశి నిర్మాణం sbi_ipi_device *dev;
 };
 
-static unsigned long ipi_data_off;
-static const struct sbi_ipi_device *ipi_dev = NULL;
-static SBI_LIST_HEAD(ipi_dev_node_list);
-static const struct sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
+స్థిర గుర్తులేని దీర్ఘ ipi_దత్తాంశం_off;
+స్థిర స్థిరరాశి నిర్మాణం sbi_ipi_device *ipi_dev = ఖాళీ;
+స్థిర SBI_LIST_తల(ipi_dev_కణుపు_list);
+స్థిర స్థిరరాశి నిర్మాణం sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
 
-static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
-			u32 event, void *data)
+స్థిర పూర్ణాంకం sbi_ipi_send(నిర్మాణం sbi_scratch *scratch, u32 remote_hartindex,
+			u32 event, శూన్య *దత్తాంశం)
 {
-	int ret = 0;
-	struct sbi_scratch *remote_scratch = NULL;
-	struct sbi_ipi_data *ipi_data;
-	const struct sbi_ipi_event_ops *ipi_ops;
+	పూర్ణాంకం ret = 0;
+	నిర్మాణం sbi_scratch *remote_scratch = ఖాళీ;
+	నిర్మాణం sbi_ipi_దత్తాంశం *ipi_దత్తాంశం;
+	స్థిరరాశి నిర్మాణం sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	ఒకవేళ ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
-	remote_scratch = sbi_hartindex_to_scratch(remote_hartindex);
-	if (!remote_scratch)
-		return SBI_EINVAL;
+	remote_scratch = sbi_hartindex_గమ్యం_scratch(remote_hartindex);
+	ఒకవేళ (!remote_scratch)
+		తిరిగి SBI_EINVAL;
 
-	ipi_data = sbi_scratch_offset_ptr(remote_scratch, ipi_data_off);
+	ipi_దత్తాంశం = sbi_scratch_స్థానభ్రంశం_ptr(remote_scratch, ipi_దత్తాంశం_off);
 
-	if (ipi_ops->update) {
+	ఒకవేళ (ipi_ops->update) {
 		ret = ipi_ops->update(scratch, remote_scratch,
-				      remote_hartindex, data);
-		if (ret != SBI_IPI_UPDATE_SUCCESS)
-			return ret;
-	} else if (scratch == remote_scratch) {
+				      remote_hartindex, దత్తాంశం);
+		ఒకవేళ (ret != SBI_IPI_UPDATE_SUCCESS)
+			తిరిగి ret;
+	} లేకపోతే ఒకవేళ (scratch == remote_scratch) {
 		/*
 		 * IPI events with an update() callback are expected to return
 		 * SBI_IPI_UPDATE_BREAK for self-IPIs. For other events, check
 		 * for self-IPI and execute the callback directly here.
 		 */
 		ipi_ops->process(scratch);
-		return 0;
+		తిరిగి 0;
 	}
 
 	/*
@@ -86,28 +86,28 @@ static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
 	 * remote hart so call sbi_ipi_raw_send() only when
 	 * the ipi_type was previously zero.
 	 */
-	if (!__atomic_fetch_or(&ipi_data->ipi_type,
-				BIT(event), __ATOMIC_RELAXED))
+	ఒకవేళ (!__atomic_fetch_or(&ipi_దత్తాంశం->ipi_type,
+				బిట్టు(event), __ATOMIC_RELAXED))
 		ret = sbi_ipi_raw_send(remote_hartindex, false);
 
-	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_SENT);
+	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_పంపిన);
 
-	return ret;
+	తిరిగి ret;
 }
 
-static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
+స్థిర పూర్ణాంకం sbi_ipi_sync(నిర్మాణం sbi_scratch *scratch, u32 event)
 {
-	const struct sbi_ipi_event_ops *ipi_ops;
+	స్థిరరాశి నిర్మాణం sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	ఒకవేళ ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
-	if (ipi_ops->sync)
+	ఒకవేళ (ipi_ops->sync)
 		ipi_ops->sync(scratch);
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -115,162 +115,162 @@ static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
  * set to all online harts if the intention is to send IPIs to all the harts.
  * If hmask is zero, no IPIs will be sent.
  */
-int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
+పూర్ణాంకం sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, శూన్య *దత్తాంశం)
 {
-	int rc = 0;
+	పూర్ణాంకం rc = 0;
 	bool retry_needed;
 	ulong i;
-	struct sbi_hartmask target_mask;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	నిర్మాణం sbi_hartmask లక్ష్యం_ముసుగు;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (hmask == 0 && hbase != -1UL) {
+	ఒకవేళ (hmask == 0 && hbase != -1UL) {
 		/* Nothing to do, but it's not an error either. */
-		return 0;
+		తిరిగి 0;
 	}
 
 	/* Find the target harts */
-	rc = sbi_hsm_hart_interruptible_mask(dom, &target_mask);
-	if (rc)
-		return rc;
+	rc = sbi_hsm_hart_interruptible_ముసుగు(dom, &లక్ష్యం_ముసుగు);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	if (hbase != -1UL) {
-		struct sbi_hartmask tmp_mask = { 0 };
-		struct sbi_hartmask domain_mask;
-		int count = sbi_popcount(hmask);
+	ఒకవేళ (hbase != -1UL) {
+		నిర్మాణం sbi_hartmask tmp_ముసుగు = { 0 };
+		నిర్మాణం sbi_hartmask domain_ముసుగు;
+		పూర్ణాంకం లెక్క = sbi_popcount(hmask);
 
-		for (i = hbase; hmask; i++, hmask >>= 1) {
-			if (hmask & 1UL)
-				sbi_hartmask_set_hartid(i, &tmp_mask);
+		కొరకు (i = hbase; hmask; i++, hmask >>= 1) {
+			ఒకవేళ (hmask & 1UL)
+				sbi_hartmask_సమితి_hartid(i, &tmp_ముసుగు);
 		}
 
 		/* Validate hartids against domain assignment, not HSM state */
-		rc = sbi_domain_get_assigned_hartmask(dom, &domain_mask);
-		if (rc)
-			return rc;
+		rc = sbi_domain_get_assigned_hartmask(dom, &domain_ముసుగు);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		sbi_hartmask_and(&domain_mask, &domain_mask, &tmp_mask);
-		if (sbi_hartmask_weight(&domain_mask) != count)
-			return SBI_EINVAL;
+		sbi_hartmask_and(&domain_ముసుగు, &domain_ముసుగు, &tmp_ముసుగు);
+		ఒకవేళ (sbi_hartmask_బరువు(&domain_ముసుగు) != లెక్క)
+			తిరిగి SBI_EINVAL;
 
-		sbi_hartmask_and(&target_mask, &target_mask, &tmp_mask);
+		sbi_hartmask_and(&లక్ష్యం_ముసుగు, &లక్ష్యం_ముసుగు, &tmp_ముసుగు);
 	}
 
 	/* Send IPIs */
-	do {
+	చేయి {
 		retry_needed = false;
-		sbi_hartmask_for_each_hartindex(i, &target_mask) {
-			rc = sbi_ipi_send(scratch, i, event, data);
-			if (rc < 0)
-				goto done;
-			if (rc == SBI_IPI_UPDATE_RETRY)
+		sbi_hartmask_for_each_hartindex(i, &లక్ష్యం_ముసుగు) {
+			rc = sbi_ipi_send(scratch, i, event, దత్తాంశం);
+			ఒకవేళ (rc < 0)
+				వెళ్ళు పూర్తి;
+			ఒకవేళ (rc == SBI_IPI_UPDATE_RETRY)
 				retry_needed = true;
-			else
-				sbi_hartmask_clear_hartindex(i, &target_mask);
+			లేకపోతే
+				sbi_hartmask_clear_hartindex(i, &లక్ష్యం_ముసుగు);
 			rc = 0;
 		}
-	} while (retry_needed);
+	} అయితే (retry_needed);
 
-done:
+పూర్తి:
 	/* Sync IPIs */
 	sbi_ipi_sync(scratch, event);
 
-	return rc;
+	తిరిగి rc;
 }
 
-int sbi_ipi_event_create(const struct sbi_ipi_event_ops *ops)
+పూర్ణాంకం sbi_ipi_event_create(స్థిరరాశి నిర్మాణం sbi_ipi_event_ops *ops)
 {
-	int i, ret = SBI_ENOSPC;
+	పూర్ణాంకం i, ret = SBI_ENOSPC;
 
-	if (!ops || !ops->process)
-		return SBI_EINVAL;
+	ఒకవేళ (!ops || !ops->process)
+		తిరిగి SBI_EINVAL;
 
-	for (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
-		if (!ipi_ops_array[i]) {
+	కొరకు (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
+		ఒకవేళ (!ipi_ops_array[i]) {
 			ret = i;
 			ipi_ops_array[i] = ops;
-			break;
+			ఆపు;
 		}
 	}
 
-	return ret;
+	తిరిగి ret;
 }
 
-void sbi_ipi_event_destroy(u32 event)
+శూన్య sbi_ipi_event_destroy(u32 event)
 {
-	if (SBI_IPI_EVENT_MAX <= event)
-		return;
+	ఒకవేళ (SBI_IPI_EVENT_MAX <= event)
+		తిరిగి;
 
-	ipi_ops_array[event] = NULL;
+	ipi_ops_array[event] = ఖాళీ;
 }
 
-static void sbi_ipi_process_smode(struct sbi_scratch *scratch)
+స్థిర శూన్య sbi_ipi_process_smode(నిర్మాణం sbi_scratch *scratch)
 {
-	csr_set(CSR_MIP, MIP_SSIP);
+	csr_సమితి(CSR_MIP, MIP_SSIP);
 }
 
-static struct sbi_ipi_event_ops ipi_smode_ops = {
+స్థిర నిర్మాణం sbi_ipi_event_ops ipi_smode_ops = {
 	.name = "IPI_SMODE",
 	.process = sbi_ipi_process_smode,
 };
 
-static u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
+స్థిర u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_smode(ulong hmask, ulong hbase)
+పూర్ణాంకం sbi_ipi_send_smode(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_smode_event, NULL);
+	తిరిగి sbi_ipi_send_many(hmask, hbase, ipi_smode_event, ఖాళీ);
 }
 
-void sbi_ipi_clear_smode(void)
+శూన్య sbi_ipi_clear_smode(శూన్య)
 {
 	csr_clear(CSR_MIP, MIP_SSIP);
 }
 
-static int sbi_ipi_update_halt(struct sbi_scratch *scratch,
-			       struct sbi_scratch *remote_scratch,
-			       u32 remote_hartindex, void *data)
+స్థిర పూర్ణాంకం sbi_ipi_update_halt(నిర్మాణం sbi_scratch *scratch,
+			       నిర్మాణం sbi_scratch *remote_scratch,
+			       u32 remote_hartindex, శూన్య *దత్తాంశం)
 {
 	/* Never send a halt IPI to the local hart. */
-	return scratch == remote_scratch ?
+	తిరిగి scratch == remote_scratch ?
 		SBI_IPI_UPDATE_BREAK : SBI_IPI_UPDATE_SUCCESS;
 }
 
-static void sbi_ipi_process_halt(struct sbi_scratch *scratch)
+స్థిర శూన్య sbi_ipi_process_halt(నిర్మాణం sbi_scratch *scratch)
 {
 	sbi_hsm_hart_stop(scratch, true);
 }
 
-static struct sbi_ipi_event_ops ipi_halt_ops = {
+స్థిర నిర్మాణం sbi_ipi_event_ops ipi_halt_ops = {
 	.name = "IPI_HALT",
 	.update = sbi_ipi_update_halt,
 	.process = sbi_ipi_process_halt,
 };
 
-static u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
+స్థిర u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_halt(ulong hmask, ulong hbase)
+పూర్ణాంకం sbi_ipi_send_halt(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_halt_event, NULL);
+	తిరిగి sbi_ipi_send_many(hmask, hbase, ipi_halt_event, ఖాళీ);
 }
 
-void sbi_ipi_process(void)
+శూన్య sbi_ipi_process(శూన్య)
 {
-	unsigned long ipi_type;
-	unsigned int ipi_event;
-	const struct sbi_ipi_event_ops *ipi_ops;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct sbi_ipi_data *ipi_data =
-			sbi_scratch_offset_ptr(scratch, ipi_data_off);
+	గుర్తులేని దీర్ఘ ipi_type;
+	గుర్తులేని పూర్ణాంకం ipi_event;
+	స్థిరరాశి నిర్మాణం sbi_ipi_event_ops *ipi_ops;
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	నిర్మాణం sbi_ipi_దత్తాంశం *ipi_దత్తాంశం =
+			sbi_scratch_స్థానభ్రంశం_ptr(scratch, ipi_దత్తాంశం_off);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_RECVD);
 	sbi_ipi_raw_clear(false);
 
-	ipi_type = atomic_raw_xchg_ulong(&ipi_data->ipi_type, 0);
+	ipi_type = atomic_raw_xchg_ulong(&ipi_దత్తాంశం->ipi_type, 0);
 	ipi_event = 0;
-	while (ipi_type) {
-		if (ipi_type & 1UL) {
+	అయితే (ipi_type) {
+		ఒకవేళ (ipi_type & 1UL) {
 			ipi_ops = ipi_ops_array[ipi_event];
-			if (ipi_ops)
+			ఒకవేళ (ipi_ops)
 				ipi_ops->process(scratch);
 		}
 		ipi_type = ipi_type >> 1;
@@ -278,12 +278,12 @@ void sbi_ipi_process(void)
 	}
 }
 
-int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
+పూర్ణాంకం sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	నిర్మాణం sbi_ipi_device_కణుపు *నమోదు_3;
 
-	if (!ipi_dev || !ipi_dev->ipi_send)
-		return SBI_EINVAL;
+	ఒకవేళ (!ipi_dev || !ipi_dev->ipi_send)
+		తిరిగి SBI_EINVAL;
 
 	/*
 	 * Ensure that memory or MMIO writes done before
@@ -296,29 +296,29 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 	 */
 	wmb();
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_send)
-				entry->dev->ipi_send(hartindex);
+	ఒకవేళ (all_devices) {
+		sbi_list_for_each_నమోదు(నమోదు_3, &ipi_dev_కణుపు_list, తల) {
+			ఒకవేళ (నమోదు_3->dev->ipi_send)
+				నమోదు_3->dev->ipi_send(hartindex);
 		}
-	} else {
+	} లేకపోతే {
 		ipi_dev->ipi_send(hartindex);
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void sbi_ipi_raw_clear(bool all_devices)
+శూన్య sbi_ipi_raw_clear(bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	నిర్మాణం sbi_ipi_device_కణుపు *నమోదు_3;
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_clear)
-				entry->dev->ipi_clear();
+	ఒకవేళ (all_devices) {
+		sbi_list_for_each_నమోదు(నమోదు_3, &ipi_dev_కణుపు_list, తల) {
+			ఒకవేళ (నమోదు_3->dev->ipi_clear)
+				నమోదు_3->dev->ipi_clear();
 		}
-	} else {
-		if (ipi_dev && ipi_dev->ipi_clear)
+	} లేకపోతే {
+		ఒకవేళ (ipi_dev && ipi_dev->ipi_clear)
 			ipi_dev->ipi_clear();
 	}
 
@@ -334,67 +334,67 @@ void sbi_ipi_raw_clear(bool all_devices)
 	wmb();
 }
 
-const struct sbi_ipi_device *sbi_ipi_get_device(void)
+స్థిరరాశి నిర్మాణం sbi_ipi_device *sbi_ipi_get_device(శూన్య)
 {
-	return ipi_dev;
+	తిరిగి ipi_dev;
 }
 
-void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
+శూన్య sbi_ipi_కూడు_device(స్థిరరాశి నిర్మాణం sbi_ipi_device *dev)
 {
-	struct sbi_ipi_device_node *entry;
+	నిర్మాణం sbi_ipi_device_కణుపు *నమోదు_3;
 
-	if (!dev)
-		return;
+	ఒకవేళ (!dev)
+		తిరిగి;
 
-	entry = sbi_zalloc(sizeof(*entry));
-	if (!entry)
-		return;
-	SBI_INIT_LIST_HEAD(&entry->head);
-	entry->dev = dev;
-	sbi_list_add_tail(&entry->head, &ipi_dev_node_list);
+	నమోదు_3 = sbi_zalloc(పరిమాణం(*నమోదు_3));
+	ఒకవేళ (!నమోదు_3)
+		తిరిగి;
+	SBI_INIT_LIST_తల(&నమోదు_3->తల);
+	నమోదు_3->dev = dev;
+	sbi_list_కూడు_తోక(&నమోదు_3->తల, &ipi_dev_కణుపు_list);
 
-	if (!ipi_dev || ipi_dev->rating < dev->rating)
+	ఒకవేళ (!ipi_dev || ipi_dev->rating < dev->rating)
 		ipi_dev = dev;
 }
 
-int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
+పూర్ణాంకం sbi_ipi_init(నిర్మాణం sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	struct sbi_ipi_data *ipi_data;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_ipi_దత్తాంశం *ipi_దత్తాంశం;
 
-	if (cold_boot) {
-		ipi_data_off = sbi_scratch_alloc_offset(sizeof(*ipi_data));
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
+	ఒకవేళ (cold_boot) {
+		ipi_దత్తాంశం_off = sbi_scratch_alloc_స్థానభ్రంశం(పరిమాణం(*ipi_దత్తాంశం));
+		ఒకవేళ (!ipi_దత్తాంశం_off)
+			తిరిగి SBI_ENOMEM;
 		ret = sbi_ipi_event_create(&ipi_smode_ops);
-		if (ret < 0)
-			return ret;
+		ఒకవేళ (ret < 0)
+			తిరిగి ret;
 		ipi_smode_event = ret;
 		ret = sbi_ipi_event_create(&ipi_halt_ops);
-		if (ret < 0)
-			return ret;
+		ఒకవేళ (ret < 0)
+			తిరిగి ret;
 		ipi_halt_event = ret;
-	} else {
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
+	} లేకపోతే {
+		ఒకవేళ (!ipi_దత్తాంశం_off)
+			తిరిగి SBI_ENOMEM;
+		ఒకవేళ (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
 		    SBI_IPI_EVENT_MAX <= ipi_halt_event)
-			return SBI_ENOSPC;
+			తిరిగి SBI_ENOSPC;
 	}
 
-	ipi_data = sbi_scratch_offset_ptr(scratch, ipi_data_off);
-	ipi_data->ipi_type = 0x00;
+	ipi_దత్తాంశం = sbi_scratch_స్థానభ్రంశం_ptr(scratch, ipi_దత్తాంశం_off);
+	ipi_దత్తాంశం->ipi_type = 0x00;
 
 	/* Clear any pending IPIs for the current hart */
 	sbi_ipi_raw_clear(true);
 
 	/* Enable software interrupts */
-	csr_set(CSR_MIE, MIP_MSIP);
+	csr_సమితి(CSR_MIE, MIP_MSIP);
 
-	return 0;
+	తిరిగి 0;
 }
 
-void sbi_ipi_exit(struct sbi_scratch *scratch)
+శూన్య sbi_ipi_exit(నిర్మాణం sbi_scratch *scratch)
 {
 	/* Disable software interrupts */
 	csr_clear(CSR_MIE, MIP_MSIP);

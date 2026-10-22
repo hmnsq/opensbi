@@ -8,125 +8,125 @@
  * Copyright (C) 2020 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_fixup.h>
-#include <sbi_utils/fdt/fdt_pmu.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_math.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_fixup.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_pmu.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_add_cpu_idle_states(void *fdt, const struct sbi_cpu_idle_state *state)
+పూర్ణాంకం fdt_కూడు_cpu_idle_స్థితులు(శూన్య *fdt, స్థిరరాశి నిర్మాణం sbi_cpu_idle_state *state)
 {
-	int cpu_node, cpus_node, err, idle_states_node;
-	uint32_t count, phandle;
+	పూర్ణాంకం cpu_కణుపు, cpus_కణుపు, err, idle_స్థితులు_కణుపు;
+	uint32_t లెక్క, phandle;
 
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 1024);
-	if (err < 0)
-		return err;
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
-	err = fdt_find_max_phandle(fdt, &phandle);
+	err = fdt_కనుగొను_max_phandle(fdt, &phandle);
 	phandle++;
-	if (err < 0)
-		return err;
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
-	cpus_node = fdt_path_offset(fdt, "/cpus");
-	if (cpus_node < 0)
-		return cpus_node;
+	cpus_కణుపు = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_కణుపు < 0)
+		తిరిగి cpus_కణుపు;
 
 	/* Do nothing if the idle-states node already exists. */
-	idle_states_node = fdt_subnode_offset(fdt, cpus_node, "idle-states");
-	if (idle_states_node >= 0)
-		return 0;
+	idle_స్థితులు_కణుపు = fdt_subnode_స్థానభ్రంశం(fdt, cpus_కణుపు, "idle-states");
+	ఒకవేళ (idle_స్థితులు_కణుపు >= 0)
+		తిరిగి 0;
 
 	/* Create the idle-states node and its child nodes. */
-	idle_states_node = fdt_add_subnode(fdt, cpus_node, "idle-states");
-	if (idle_states_node < 0)
-		return idle_states_node;
+	idle_స్థితులు_కణుపు = fdt_కూడు_subnode(fdt, cpus_కణుపు, "idle-states");
+	ఒకవేళ (idle_స్థితులు_కణుపు < 0)
+		తిరిగి idle_స్థితులు_కణుపు;
 
-	for (count = 0; state->name; count++, phandle++, state++) {
-		int idle_state_node;
+	కొరకు (లెక్క = 0; state->name; లెక్క++, phandle++, state++) {
+		పూర్ణాంకం idle_state_కణుపు;
 
-		idle_state_node = fdt_add_subnode(fdt, idle_states_node,
+		idle_state_కణుపు = fdt_కూడు_subnode(fdt, idle_స్థితులు_కణుపు,
 						  state->name);
-		if (idle_state_node < 0)
-			return idle_state_node;
+		ఒకవేళ (idle_state_కణుపు < 0)
+			తిరిగి idle_state_కణుపు;
 
-		fdt_setprop_string(fdt, idle_state_node, "compatible",
+		fdt_setprop_string(fdt, idle_state_కణుపు, "compatible",
 				   "riscv,idle-state");
-		fdt_setprop_u32(fdt, idle_state_node,
+		fdt_setprop_u32(fdt, idle_state_కణుపు,
 				"riscv,sbi-suspend-param",
 				state->suspend_param);
-		if (state->local_timer_stop)
-			fdt_setprop_empty(fdt, idle_state_node,
+		ఒకవేళ (state->local_timer_stop)
+			fdt_setprop_ఖాళీలు(fdt, idle_state_కణుపు,
 					  "local-timer-stop");
-		fdt_setprop_u32(fdt, idle_state_node, "entry-latency-us",
-				state->entry_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "exit-latency-us",
+		fdt_setprop_u32(fdt, idle_state_కణుపు, "entry-latency-us",
+				state->నమోదు_latency_us);
+		fdt_setprop_u32(fdt, idle_state_కణుపు, "exit-latency-us",
 				state->exit_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "min-residency-us",
+		fdt_setprop_u32(fdt, idle_state_కణుపు, "min-residency-us",
 				state->min_residency_us);
-		if (state->wakeup_latency_us)
-			fdt_setprop_u32(fdt, idle_state_node,
+		ఒకవేళ (state->wakeup_latency_us)
+			fdt_setprop_u32(fdt, idle_state_కణుపు,
 					"wakeup-latency-us",
 					state->wakeup_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "phandle", phandle);
+		fdt_setprop_u32(fdt, idle_state_కణుపు, "phandle", phandle);
 	}
 
-	if (count == 0)
-		return 0;
+	ఒకవేళ (లెక్క == 0)
+		తిరిగి 0;
 
 	/* Link each cpu node to the idle state nodes. */
-	fdt_for_each_subnode(cpu_node, fdt, cpus_node) {
-		const char *device_type;
-		fdt32_t *value;
+	fdt_for_each_subnode(cpu_కణుపు, fdt, cpus_కణుపు) {
+		స్థిరరాశి అక్షరం *device_type;
+		fdt32_t *విలువ;
 
 		/* Only process child nodes with device_type = "cpu". */
-		device_type = fdt_getprop(fdt, cpu_node, "device_type", NULL);
-		if (!device_type || strcmp(device_type, "cpu"))
-			continue;
+		device_type = fdt_getprop(fdt, cpu_కణుపు, "device_type", ఖాళీ);
+		ఒకవేళ (!device_type || strcmp(device_type, "cpu"))
+			కొనసాగు;
 
 		/* Allocate space for the list of phandles. */
-		err = fdt_setprop_placeholder(fdt, cpu_node, "cpu-idle-states",
-					      count * sizeof(phandle),
-					      (void **)&value);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_placeholder(fdt, cpu_కణుపు, "cpu-idle-states",
+					      లెక్క * పరిమాణం(phandle),
+					      (శూన్య **)&విలువ);
+		ఒకవేళ (err < 0)
+			తిరిగి err;
 
 		/* Fill in the phandles of the idle state nodes. */
-		for (uint32_t i = 0; i < count; ++i)
-			value[i] = cpu_to_fdt32(phandle - count + i);
+		కొరకు (uint32_t i = 0; i < లెక్క; ++i)
+			విలువ[i] = cpu_గమ్యం_fdt32(phandle - లెక్క + i);
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
  * Report which fixups a HART DT node needs. Read-only, so the sizing pass
  * and the fixup pass below stay in sync by construction.
  */
-static void fdt_cpu_fixup_needed(const void *fdt, int cpu_offset,
+స్థిర శూన్య fdt_cpu_fixup_needed(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం cpu_స్థానభ్రంశం,
 				 bool emulated_zicntr, bool *disable,
-				 bool *add_zicntr)
+				 bool *కూడు_zicntr)
 {
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	const char *mmu_type, *extensions;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	స్థిరరాశి అక్షరం *mmu_type, *extensions;
 	u32 hartid, hartindex;
-	int len;
+	పూర్ణాంకం len;
 
 	*disable = false;
-	*add_zicntr = false;
+	*కూడు_zicntr = false;
 
-	if (fdt_parse_hart_id(fdt, cpu_offset, &hartid))
-		return;
+	ఒకవేళ (fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid))
+		తిరిగి;
 
-	if (!fdt_node_is_enabled(fdt, cpu_offset))
-		return;
+	ఒకవేళ (!fdt_కణుపు_is_enabled(fdt, cpu_స్థానభ్రంశం))
+		తిరిగి;
 
 	/*
 	 * Disable a HART DT node if one of the following is true:
@@ -134,224 +134,224 @@ static void fdt_cpu_fixup_needed(const void *fdt, int cpu_offset,
 	 * 2. MMU is not available for the HART
 	 */
 
-	hartindex = sbi_hartid_to_hartindex(hartid);
-	mmu_type = fdt_getprop(fdt, cpu_offset, "mmu-type", &len);
-	if (!sbi_domain_is_assigned_hart(dom, hartindex) || !mmu_type || !len)
+	hartindex = sbi_hartid_గమ్యం_hartindex(hartid);
+	mmu_type = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "mmu-type", &len);
+	ఒకవేళ (!sbi_domain_is_assigned_hart(dom, hartindex) || !mmu_type || !len)
 		*disable = true;
 
-	if (!emulated_zicntr)
-		return;
+	ఒకవేళ (!emulated_zicntr)
+		తిరిగి;
 
-	extensions = fdt_getprop(fdt, cpu_offset, "riscv,isa-extensions", &len);
+	extensions = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "riscv,isa-extensions", &len);
 	/*
 	 * For legacy devicetrees, don't create riscv,isa-extensions
 	 * property if there hasn't been already one.
 	 */
-	if (extensions && !fdt_stringlist_contains(extensions, len, "zicntr"))
-		*add_zicntr = true;
+	ఒకవేళ (extensions && !fdt_stringlist_కలిగియుంది(extensions, len, "zicntr"))
+		*కూడు_zicntr = true;
 }
 
-void fdt_cpu_fixup(void *fdt)
+శూన్య fdt_cpu_fixup(శూన్య *fdt)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	bool emulated_zicntr, disable, add_zicntr;
-	int err, cpu_offset, cpus_offset;
-	int reserve = 0;
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	bool emulated_zicntr, disable, కూడు_zicntr;
+	పూర్ణాంకం err, cpu_స్థానభ్రంశం, cpus_స్థానభ్రంశం;
+	పూర్ణాంకం reserve = 0;
 	/*
 	 * A new "status" property costs a header, its tag-aligned value and its
 	 * name; appending "zicntr" only grows an existing tag-aligned value.
 	 */
-	const int status_size = sizeof(struct fdt_property) +
-				ROUNDUP(sizeof("disabled"), FDT_TAGSIZE) +
-				sizeof("status");
-	const int zicntr_size = ROUNDUP(sizeof("zicntr"), FDT_TAGSIZE);
+	స్థిరరాశి పూర్ణాంకం స్థితి_కొలత = పరిమాణం(నిర్మాణం fdt_property) +
+				ROUNDUP(పరిమాణం("disabled"), FDT_TAGSIZE) +
+				పరిమాణం("status");
+	స్థిరరాశి పూర్ణాంకం zicntr_కొలత = ROUNDUP(పరిమాణం("zicntr"), FDT_TAGSIZE);
 
 	/*
 	 * Claim Zicntr extension in riscv,isa-extensions if
 	 *  1. OpenSBI can emulate time CSR with a timer
 	 *  2. The other two CSRs specified by Zicntr are available
 	 */
-	emulated_zicntr = sbi_timer_get_device() != NULL &&
-			  sbi_hart_has_csr(scratch, SBI_HART_CSR_CYCLE) &&
+	emulated_zicntr = sbi_timer_get_device() != ఖాళీ &&
+			  sbi_hart_has_csr(scratch, SBI_HART_CSR_చక్రం) &&
 			  sbi_hart_has_csr(scratch, SBI_HART_CSR_INSTRET);
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి;
 
 	/*
 	 * fdt_open_into() trusts the size it is given, so reserve only what is
 	 * really needed instead of a fixed worst case for every possible HART.
 	 */
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		fdt_cpu_fixup_needed(fdt, cpu_offset, emulated_zicntr,
-				     &disable, &add_zicntr);
-		if (disable)
-			reserve += status_size;
-		if (add_zicntr)
-			reserve += zicntr_size;
+	fdt_for_each_subnode(cpu_స్థానభ్రంశం, fdt, cpus_స్థానభ్రంశం) {
+		fdt_cpu_fixup_needed(fdt, cpu_స్థానభ్రంశం, emulated_zicntr,
+				     &disable, &కూడు_zicntr);
+		ఒకవేళ (disable)
+			reserve += స్థితి_కొలత;
+		ఒకవేళ (కూడు_zicntr)
+			reserve += zicntr_కొలత;
 	}
 
-	if (!reserve)
-		return;
+	ఒకవేళ (!reserve)
+		తిరిగి;
 
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + reserve);
-	if (err < 0)
-		return;
+	ఒకవేళ (err < 0)
+		తిరిగి;
 
 	/* fdt_open_into() may have reordered the blocks, so look up again. */
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		fdt_cpu_fixup_needed(fdt, cpu_offset, emulated_zicntr,
-				     &disable, &add_zicntr);
+	fdt_for_each_subnode(cpu_స్థానభ్రంశం, fdt, cpus_స్థానభ్రంశం) {
+		fdt_cpu_fixup_needed(fdt, cpu_స్థానభ్రంశం, emulated_zicntr,
+				     &disable, &కూడు_zicntr);
 
-		if (disable) {
-			err = fdt_setprop_string(fdt, cpu_offset, "status",
+		ఒకవేళ (disable) {
+			err = fdt_setprop_string(fdt, cpu_స్థానభ్రంశం, "status",
 						 "disabled");
-			if (err)
+			ఒకవేళ (err)
 				sbi_printf("%s: failed to disable %s (%d)\n",
 					   __func__,
-					   fdt_get_name(fdt, cpu_offset, NULL),
+					   fdt_get_name(fdt, cpu_స్థానభ్రంశం, ఖాళీ),
 					   err);
 		}
 
-		if (add_zicntr) {
-			err = fdt_appendprop_string(fdt, cpu_offset,
+		ఒకవేళ (కూడు_zicntr) {
+			err = fdt_appendprop_string(fdt, cpu_స్థానభ్రంశం,
 						    "riscv,isa-extensions",
 						    "zicntr");
-			if (err)
+			ఒకవేళ (err)
 				sbi_printf("%s: failed to add zicntr to %s (%d)\n",
 					   __func__,
-					   fdt_get_name(fdt, cpu_offset, NULL),
+					   fdt_get_name(fdt, cpu_స్థానభ్రంశం, ఖాళీ),
 					   err);
 		}
 	}
 }
 
-static void fdt_domain_based_fixup_one(void *fdt, int nodeoff)
+స్థిర శూన్య fdt_domain_based_fixup_one(శూన్య *fdt, పూర్ణాంకం nodeoff)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	పూర్ణాంకం rc;
+	uint64_t reg_addr, reg_కొలత;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_addr || !reg_కొలత)
+		తిరిగి;
 
-	if (!sbi_domain_check_addr(dom, reg_addr, dom->next_mode,
+	ఒకవేళ (!sbi_domain_check_addr(dom, reg_addr, dom->తదుపరి_బహుళకం,
 				    SBI_DOMAIN_READ | SBI_DOMAIN_WRITE | SBI_DOMAIN_MMIO)) {
 		rc = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 32);
-		if (rc < 0)
-			return;
+		ఒకవేళ (rc < 0)
+			తిరిగి;
 		fdt_setprop_string(fdt, nodeoff, "status", "disabled");
 	}
 }
 
-static void fdt_fixup_node(void *fdt, const char *compatible)
+స్థిర శూన్య fdt_fixup_కణుపు(శూన్య *fdt, స్థిరరాశి అక్షరం *compatible)
 {
-	int noff = 0;
+	పూర్ణాంకం noff = 0;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	అయితే ((noff = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, noff,
 						     compatible)) >= 0)
 		fdt_domain_based_fixup_one(fdt, noff);
 }
 
-void fdt_aplic_fixup(void *fdt)
+శూన్య fdt_aplic_fixup(శూన్య *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,aplic");
+	fdt_fixup_కణుపు(fdt, "riscv,aplic");
 }
 
-void fdt_imsic_fixup(void *fdt)
+శూన్య fdt_imsic_fixup(శూన్య *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,imsics");
+	fdt_fixup_కణుపు(fdt, "riscv,imsics");
 }
 
-void fdt_plic_fixup(void *fdt)
+శూన్య fdt_plic_fixup(శూన్య *fdt)
 {
 	u32 *cells;
-	int i, cells_count;
-	int plic_off;
+	పూర్ణాంకం i, cells_లెక్క;
+	పూర్ణాంకం plic_off;
 
-	plic_off = fdt_node_offset_by_compatible(fdt, 0, "sifive,plic-1.0.0");
-	if (plic_off < 0) {
-		plic_off = fdt_node_offset_by_compatible(fdt, 0, "riscv,plic0");
-		if (plic_off < 0)
-			return;
+	plic_off = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, 0, "sifive,plic-1.0.0");
+	ఒకవేళ (plic_off < 0) {
+		plic_off = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, 0, "riscv,plic0");
+		ఒకవేళ (plic_off < 0)
+			తిరిగి;
 	}
 
 	cells = (u32 *)fdt_getprop(fdt, plic_off,
-				   "interrupts-extended", &cells_count);
-	if (!cells)
-		return;
+				   "interrupts-extended", &cells_లెక్క);
+	ఒకవేళ (!cells)
+		తిరిగి;
 
-	cells_count = cells_count / sizeof(u32);
-	if (!cells_count)
-		return;
+	cells_లెక్క = cells_లెక్క / పరిమాణం(u32);
+	ఒకవేళ (!cells_లెక్క)
+		తిరిగి;
 
-	for (i = 0; i < (cells_count / 2); i++) {
-		if (fdt32_to_cpu(cells[2 * i + 1]) == IRQ_M_EXT)
-			cells[2 * i + 1] = cpu_to_fdt32(0xffffffff);
+	కొరకు (i = 0; i < (cells_లెక్క / 2); i++) {
+		ఒకవేళ (fdt32_గమ్యం_cpu(cells[2 * i + 1]) == IRQ_M_EXT)
+			cells[2 * i + 1] = cpu_గమ్యం_fdt32(0xffffffff);
 	}
 }
 
-static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
-				       unsigned long size, int index,
-				       int parent)
+స్థిర పూర్ణాంకం fdt_resv_జ్ఞాపకం_update_కణుపు(శూన్య *fdt, గుర్తులేని దీర్ఘ addr,
+				       గుర్తులేని దీర్ఘ కొలత, పూర్ణాంకం సూచీ_2,
+				       పూర్ణాంకం మాతృ)
 {
-	int na = fdt_address_cells(fdt, 0);
-	int ns = fdt_size_cells(fdt, 0);
-	fdt32_t addr_high, addr_low;
-	fdt32_t size_high, size_low;
-	int subnode, err;
+	పూర్ణాంకం na = fdt_చిరునామా_cells(fdt, 0);
+	పూర్ణాంకం ns = fdt_కొలత_cells(fdt, 0);
+	fdt32_t addr_ఎగువ, addr_దిగువ;
+	fdt32_t కొలత_ఎగువ, కొలత_దిగువ;
+	పూర్ణాంకం subnode, err;
 	fdt32_t reg[4];
 	fdt32_t *val;
-	char name[32];
+	అక్షరం name[32];
 
-	addr_high = (u64)addr >> 32;
-	addr_low = addr;
-	size_high = (u64)size >> 32;
-	size_low = size;
+	addr_ఎగువ = (u64)addr >> 32;
+	addr_దిగువ = addr;
+	కొలత_ఎగువ = (u64)కొలత >> 32;
+	కొలత_దిగువ = కొలత;
 
-	if (na > 1 && addr_high)
-		sbi_snprintf(name, sizeof(name),
-			     "mmode_resv%d@%x,%x", index,
-			     addr_high, addr_low);
-	else
-		sbi_snprintf(name, sizeof(name),
-			     "mmode_resv%d@%x", index,
-			     addr_low);
+	ఒకవేళ (na > 1 && addr_ఎగువ)
+		sbi_snprintf(name, పరిమాణం(name),
+			     "mmode_resv%d@%x,%x", సూచీ_2,
+			     addr_ఎగువ, addr_దిగువ);
+	లేకపోతే
+		sbi_snprintf(name, పరిమాణం(name),
+			     "mmode_resv%d@%x", సూచీ_2,
+			     addr_దిగువ);
 
-	subnode = fdt_add_subnode(fdt, parent, name);
-	if (subnode < 0)
-		return subnode;
+	subnode = fdt_కూడు_subnode(fdt, మాతృ, name);
+	ఒకవేళ (subnode < 0)
+		తిరిగి subnode;
 
 	/*
 	 * Tell operating system not to create a virtual
 	 * mapping of the region as part of its standard
 	 * mapping of system memory.
 	 */
-	err = fdt_setprop_empty(fdt, subnode, "no-map");
-	if (err < 0)
-		return err;
+	err = fdt_setprop_ఖాళీలు(fdt, subnode, "no-map");
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
 	/* encode the <reg> property value */
 	val = reg;
-	if (na > 1)
-		*val++ = cpu_to_fdt32(addr_high);
-	*val++ = cpu_to_fdt32(addr_low);
-	if (ns > 1)
-		*val++ = cpu_to_fdt32(size_high);
-	*val++ = cpu_to_fdt32(size_low);
+	ఒకవేళ (na > 1)
+		*val++ = cpu_గమ్యం_fdt32(addr_ఎగువ);
+	*val++ = cpu_గమ్యం_fdt32(addr_దిగువ);
+	ఒకవేళ (ns > 1)
+		*val++ = cpu_గమ్యం_fdt32(కొలత_ఎగువ);
+	*val++ = cpu_గమ్యం_fdt32(కొలత_దిగువ);
 
 	err = fdt_setprop(fdt, subnode, "reg", reg,
-			  (na + ns) * sizeof(fdt32_t));
-	if (err < 0)
-		return err;
+			  (na + ns) * పరిమాణం(fdt32_t));
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -369,16 +369,16 @@ static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
  * Some additional memory spaces may be protected by platform codes via PMP as
  * well, and corresponding child nodes will be inserted.
  */
-int fdt_reserved_memory_fixup(void *fdt)
+పూర్ణాంకం fdt_reserved_జ్ఞాపకం_fixup(శూన్య *fdt)
 {
-	struct sbi_domain_memregion *reg;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	unsigned long filtered_base[PMP_COUNT] = { 0 };
-	unsigned char filtered_order[PMP_COUNT] = { 0 };
-	unsigned long addr, size;
-	int err, parent, i, j;
-	int na = fdt_address_cells(fdt, 0);
-	int ns = fdt_size_cells(fdt, 0);
+	నిర్మాణం sbi_domain_memregion *reg;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	గుర్తులేని దీర్ఘ filtered_పునాది[PMP_లెక్క] = { 0 };
+	గుర్తులేని అక్షరం filtered_క్రమం[PMP_లెక్క] = { 0 };
+	గుర్తులేని దీర్ఘ addr, కొలత;
+	పూర్ణాంకం err, మాతృ, i, j;
+	పూర్ణాంకం na = fdt_చిరునామా_cells(fdt, 0);
+	పూర్ణాంకం ns = fdt_కొలత_cells(fdt, 0);
 
 	/*
 	 * Expand the device tree to accommodate new node
@@ -388,16 +388,16 @@ int fdt_reserved_memory_fixup(void *fdt)
 	 * With 16 PMP memory regions we need 64 * 16 = 1024 bytes.
 	 */
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 1024);
-	if (err < 0)
-		return err;
+	ఒకవేళ (err < 0)
+		తిరిగి err;
 
 	/* try to locate the reserved memory node */
-	parent = fdt_path_offset(fdt, "/reserved-memory");
-	if (parent < 0) {
+	మాతృ = fdt_మార్గం_స్థానభ్రంశం(fdt, "/reserved-memory");
+	ఒకవేళ (మాతృ < 0) {
 		/* if such node does not exist, create one */
-		parent = fdt_add_subnode(fdt, 0, "reserved-memory");
-		if (parent < 0)
-			return parent;
+		మాతృ = fdt_కూడు_subnode(fdt, 0, "reserved-memory");
+		ఒకవేళ (మాతృ < 0)
+			తిరిగి మాతృ;
 
 		/*
 		 * reserved-memory node has 3 required properties:
@@ -406,17 +406,17 @@ int fdt_reserved_memory_fixup(void *fdt)
 		 * - ranges: should be empty
 		 */
 
-		err = fdt_setprop_empty(fdt, parent, "ranges");
-		if (err < 0)
-			return err;
+		err = fdt_setprop_ఖాళీలు(fdt, మాతృ, "ranges");
+		ఒకవేళ (err < 0)
+			తిరిగి err;
 
-		err = fdt_setprop_u32(fdt, parent, "#size-cells", ns);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_u32(fdt, మాతృ, "#size-cells", ns);
+		ఒకవేళ (err < 0)
+			తిరిగి err;
 
-		err = fdt_setprop_u32(fdt, parent, "#address-cells", na);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_u32(fdt, మాతృ, "#address-cells", na);
+		ఒకవేళ (err < 0)
+			తిరిగి err;
 	}
 
 	/*
@@ -432,93 +432,93 @@ int fdt_reserved_memory_fixup(void *fdt)
 	i = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Ignore MMIO or READABLE or WRITABLE or EXECUTABLE regions */
-		if (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
-			continue;
+		ఒకవేళ (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
+			కొనసాగు;
+		ఒకవేళ (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
+			కొనసాగు;
+		ఒకవేళ (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
+			కొనసాగు;
+		ఒకవేళ (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+			కొనసాగు;
 
-		if (i >= PMP_COUNT) {
+		ఒకవేళ (i >= PMP_లెక్క) {
 			sbi_printf("%s: Too many memory regions to fixup.\n",
 				   __func__);
-			return SBI_ENOSPC;
+			తిరిగి SBI_ENOSPC;
 		}
 
 		bool overlap = false;
-		addr = reg->base;
-		for (j = 0; j < i; j++) {
-			if (addr == filtered_base[j]
-			    && filtered_order[j] < reg->order) {
+		addr = reg->పునాది_2;
+		కొరకు (j = 0; j < i; j++) {
+			ఒకవేళ (addr == filtered_పునాది[j]
+			    && filtered_క్రమం[j] < reg->క్రమం) {
 				overlap = true;
-				filtered_order[j] = reg->order;
-				break;
+				filtered_క్రమం[j] = reg->క్రమం;
+				ఆపు;
 			}
 		}
 
-		if (!overlap) {
-			filtered_base[i] = reg->base;
-			filtered_order[i] = reg->order;
+		ఒకవేళ (!overlap) {
+			filtered_పునాది[i] = reg->పునాది_2;
+			filtered_క్రమం[i] = reg->క్రమం;
 			i++;
 		}
 	}
 
-	for (j = 0; j < i; j++) {
-		addr = filtered_base[j];
-		size = 1UL << filtered_order[j];
-		fdt_resv_memory_update_node(fdt, addr, size, j, parent);
+	కొరకు (j = 0; j < i; j++) {
+		addr = filtered_పునాది[j];
+		కొలత = 1UL << filtered_క్రమం[j];
+		fdt_resv_జ్ఞాపకం_update_కణుపు(fdt, addr, కొలత, j, మాతృ);
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void fdt_config_fixup(void *fdt)
+శూన్య fdt_config_fixup(శూన్య *fdt)
 {
-	int chosen_offset, config_offset;
+	పూర్ణాంకం chosen_స్థానభ్రంశం, config_స్థానభ్రంశం;
 
-	chosen_offset = fdt_path_offset(fdt, "/chosen");
-	if (chosen_offset < 0)
-		return;
+	chosen_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/chosen");
+	ఒకవేళ (chosen_స్థానభ్రంశం < 0)
+		తిరిగి;
 
-	config_offset = fdt_node_offset_by_compatible(fdt, chosen_offset, "opensbi,config");
-	if (config_offset < 0)
-		return;
+	config_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, chosen_స్థానభ్రంశం, "opensbi,config");
+	ఒకవేళ (config_స్థానభ్రంశం < 0)
+		తిరిగి;
 
-	fdt_nop_node(fdt, config_offset);
+	fdt_nop_కణుపు(fdt, config_స్థానభ్రంశం);
 }
 
-static SBI_LIST_HEAD(fixup_list);
+స్థిర SBI_LIST_తల(fixup_list);
 
-int fdt_register_general_fixup(struct fdt_general_fixup *fixup)
+పూర్ణాంకం fdt_రిజిస్టరు_general_fixup(నిర్మాణం fdt_general_fixup *fixup)
 {
-	struct fdt_general_fixup *f;
+	నిర్మాణం fdt_general_fixup *f;
 
-	if (!fixup || !fixup->name || !fixup->do_fixup)
-		return SBI_EINVAL;
+	ఒకవేళ (!fixup || !fixup->name || !fixup->do_fixup)
+		తిరిగి SBI_EINVAL;
 
-	sbi_list_for_each_entry(f, &fixup_list, head) {
-		if (f == fixup)
-			return SBI_EALREADY;
+	sbi_list_for_each_నమోదు(f, &fixup_list, తల) {
+		ఒకవేళ (f == fixup)
+			తిరిగి SBI_EALREADY;
 	}
 
-	sbi_list_add_tail(&fixup->head, &fixup_list);
+	sbi_list_కూడు_తోక(&fixup->తల, &fixup_list);
 
-	return 0;
+	తిరిగి 0;
 }
 
-void fdt_unregister_general_fixup(struct fdt_general_fixup *fixup)
+శూన్య fdt_unregister_general_fixup(నిర్మాణం fdt_general_fixup *fixup)
 {
-	if (!fixup)
-		return;
+	ఒకవేళ (!fixup)
+		తిరిగి;
 
-	sbi_list_del(&fixup->head);
+	sbi_list_del(&fixup->తల);
 }
 
-void fdt_fixups(void *fdt)
+శూన్య fdt_fixups(శూన్య *fdt)
 {
-	struct fdt_general_fixup *f;
+	నిర్మాణం fdt_general_fixup *f;
 
 	fdt_aplic_fixup(fdt);
 
@@ -526,14 +526,14 @@ void fdt_fixups(void *fdt)
 
 	fdt_plic_fixup(fdt);
 
-	fdt_reserved_memory_fixup(fdt);
+	fdt_reserved_జ్ఞాపకం_fixup(fdt);
 
-#ifndef CONFIG_FDT_FIXUPS_PRESERVE_PMU_NODE
+#నిర్వచితం_కాకపోతే CONFIG_FDT_FIXUPS_PRESERVE_PMU_కణుపు
 	fdt_pmu_fixup(fdt);
-#endif
+#అయితే_ముగింపు
 
 	fdt_config_fixup(fdt);
 
-	sbi_list_for_each_entry(f, &fixup_list, head)
+	sbi_list_for_each_నమోదు(f, &fixup_list, తల)
 		f->do_fixup(f, fdt);
 }

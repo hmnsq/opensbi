@@ -5,247 +5,247 @@
  * (Regents).  All Rights Reserved.
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/sys/htif.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/sys/htif.h>
 
-#define HTIF_DATA_BITS		48
-#define HTIF_DATA_MASK		((1ULL << HTIF_DATA_BITS) - 1)
-#define HTIF_DATA_SHIFT		0
-#define HTIF_CMD_BITS		8
-#define HTIF_CMD_MASK		((1ULL << HTIF_CMD_BITS) - 1)
-#define HTIF_CMD_SHIFT		48
-#define HTIF_DEV_BITS		8
-#define HTIF_DEV_MASK		((1ULL << HTIF_DEV_BITS) - 1)
-#define HTIF_DEV_SHIFT		56
+#నిర్వచించు HTIF_దత్తాంశం_బిట్లు		48
+#నిర్వచించు HTIF_దత్తాంశం_ముసుగు		((1ULL << HTIF_దత్తాంశం_బిట్లు) - 1)
+#నిర్వచించు HTIF_దత్తాంశం_జరుపు		0
+#నిర్వచించు HTIF_CMD_బిట్లు		8
+#నిర్వచించు HTIF_CMD_ముసుగు		((1ULL << HTIF_CMD_బిట్లు) - 1)
+#నిర్వచించు HTIF_CMD_జరుపు		48
+#నిర్వచించు HTIF_DEV_బిట్లు		8
+#నిర్వచించు HTIF_DEV_ముసుగు		((1ULL << HTIF_DEV_బిట్లు) - 1)
+#నిర్వచించు HTIF_DEV_జరుపు		56
 
-#define HTIF_DEV_SYSTEM		0
-#define HTIF_DEV_CONSOLE	1
+#నిర్వచించు HTIF_DEV_SYSTEM		0
+#నిర్వచించు HTIF_DEV_CONSOLE	1
 
-#define HTIF_CONSOLE_CMD_GETC	0
-#define HTIF_CONSOLE_CMD_PUTC	1
+#నిర్వచించు HTIF_CONSOLE_CMD_GETC	0
+#నిర్వచించు HTIF_CONSOLE_CMD_PUTC	1
 
-#if __riscv_xlen == 64
+#ఒకవేళ __riscv_xlen == 64
 # define TOHOST_CMD(dev, cmd, payload) \
-	(((uint64_t)(dev) << HTIF_DEV_SHIFT) | \
-	 ((uint64_t)(cmd) << HTIF_CMD_SHIFT) | \
+	(((uint64_t)(dev) << HTIF_DEV_జరుపు) | \
+	 ((uint64_t)(cmd) << HTIF_CMD_జరుపు) | \
 	 (uint64_t)(payload))
-#else
+#లేకపోతే
 # define TOHOST_CMD(dev, cmd, payload) ({ \
-  if ((dev) || (cmd)) __builtin_trap(); \
+  ఒకవేళ ((dev) || (cmd)) __builtin_trap(); \
   (payload); })
-#endif
-#define FROMHOST_DEV(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
-#define FROMHOST_CMD(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
-#define FROMHOST_DATA(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
+#అయితే_ముగింపు
+#నిర్వచించు FROMHOST_DEV(fromhost_విలువ) \
+	((uint64_t)((fromhost_విలువ) >> HTIF_DEV_జరుపు) & HTIF_DEV_ముసుగు)
+#నిర్వచించు FROMHOST_CMD(fromhost_విలువ) \
+	((uint64_t)((fromhost_విలువ) >> HTIF_CMD_జరుపు) & HTIF_CMD_ముసుగు)
+#నిర్వచించు FROMHOST_దత్తాంశం(fromhost_విలువ) \
+	((uint64_t)((fromhost_విలువ) >> HTIF_దత్తాంశం_జరుపు) & HTIF_దత్తాంశం_ముసుగు)
 
-#define PK_SYS_write 64
+#నిర్వచించు PK_SYS_write 64
 
-static spinlock_t htif_lock = SPIN_LOCK_INITIALIZER;
+స్థిర spinlock_t htif_తాళం = SPIN_తాళం_INITIALIZER;
 
-volatile uint64_t tohost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
-volatile uint64_t fromhost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
+అస్థిర uint64_t tohost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_తాళం);
+అస్థిర uint64_t fromhost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_తాళం);
 
-static uint64_t *htif_fromhost PT_GUARDED_BY(&htif_lock) = NULL;
-static uint64_t *htif_tohost PT_GUARDED_BY(&htif_lock)	 = NULL;
-static bool htif_custom = false;
+స్థిర uint64_t *htif_fromhost PT_GUARDED_BY(&htif_తాళం) = ఖాళీ;
+స్థిర uint64_t *htif_tohost PT_GUARDED_BY(&htif_తాళం)	 = ఖాళీ;
+స్థిర bool htif_custom = false;
 
-static int htif_console_buf GUARDED_BY(&htif_lock);
+స్థిర పూర్ణాంకం htif_console_buf GUARDED_BY(&htif_తాళం);
 
-static inline uint64_t __read_tohost(void) MUST_HOLD(&htif_lock)
+స్థిర అంతఃవరుస uint64_t __read_tohost(శూన్య) MUST_HOLD(&htif_తాళం)
 {
-	return (htif_custom) ? *htif_tohost : tohost;
+	తిరిగి (htif_custom) ? *htif_tohost : tohost;
 }
 
-static inline void __write_tohost(uint64_t val) MUST_HOLD(&htif_lock)
+స్థిర అంతఃవరుస శూన్య __write_tohost(uint64_t val) MUST_HOLD(&htif_తాళం)
 {
-	if (htif_custom)
+	ఒకవేళ (htif_custom)
 		*htif_tohost = val;
-	else
+	లేకపోతే
 		tohost = val;
 }
 
-static inline uint64_t __read_fromhost(void) MUST_HOLD(&htif_lock)
+స్థిర అంతఃవరుస uint64_t __read_fromhost(శూన్య) MUST_HOLD(&htif_తాళం)
 {
-	return (htif_custom) ? *htif_fromhost : fromhost;
+	తిరిగి (htif_custom) ? *htif_fromhost : fromhost;
 }
 
-static inline void __write_fromhost(uint64_t val) MUST_HOLD(&htif_lock)
+స్థిర అంతఃవరుస శూన్య __write_fromhost(uint64_t val) MUST_HOLD(&htif_తాళం)
 {
-	if (htif_custom)
+	ఒకవేళ (htif_custom)
 		*htif_fromhost = val;
-	else
+	లేకపోతే
 		fromhost = val;
 }
 
-static void __check_fromhost() MUST_HOLD(&htif_lock)
+స్థిర శూన్య __check_fromhost() MUST_HOLD(&htif_తాళం)
 {
 	uint64_t fh = __read_fromhost();
-	if (!fh)
-		return;
+	ఒకవేళ (!fh)
+		తిరిగి;
 	__write_fromhost(0);
 
 	/* this should be from the console */
-	if (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
+	ఒకవేళ (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
 		__builtin_trap();
-	switch (FROMHOST_CMD(fh)) {
-		case HTIF_CONSOLE_CMD_GETC:
-			htif_console_buf = 1 + (uint8_t)FROMHOST_DATA(fh);
-			break;
-		case HTIF_CONSOLE_CMD_PUTC:
-			break;
-		default:
+	ఎంపిక (FROMHOST_CMD(fh)) {
+		స్థితి HTIF_CONSOLE_CMD_GETC:
+			htif_console_buf = 1 + (uint8_t)FROMHOST_దత్తాంశం(fh);
+			ఆపు;
+		స్థితి HTIF_CONSOLE_CMD_PUTC:
+			ఆపు;
+		అప్రమేయ:
 			__builtin_trap();
 	}
 }
 
-static void __set_tohost(uint64_t dev, uint64_t cmd, uint64_t data)
-	MUST_HOLD(&htif_lock)
+స్థిర శూన్య __set_tohost(uint64_t dev, uint64_t cmd, uint64_t దత్తాంశం)
+	MUST_HOLD(&htif_తాళం)
 {
-	while (__read_tohost())
+	అయితే (__read_tohost())
 		__check_fromhost();
-	__write_tohost(TOHOST_CMD(dev, cmd, data));
+	__write_tohost(TOHOST_CMD(dev, cmd, దత్తాంశం));
 }
 
-static int set_custom_addr(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+స్థిర పూర్ణాంకం సమితి_custom_addr(bool custom_addr,
+			   గుర్తులేని దీర్ఘ custom_fromhost_addr,
+			   గుర్తులేని దీర్ఘ custom_tohost_addr)
 {
-	if (custom_addr) {
-		if (htif_custom &&
-		    ((custom_fromhost_addr != (unsigned long)htif_fromhost) ||
-		     (custom_tohost_addr != (unsigned long)htif_tohost)))
-			return SBI_EINVAL;
+	ఒకవేళ (custom_addr) {
+		ఒకవేళ (htif_custom &&
+		    ((custom_fromhost_addr != (గుర్తులేని దీర్ఘ)htif_fromhost) ||
+		     (custom_tohost_addr != (గుర్తులేని దీర్ఘ)htif_tohost)))
+			తిరిగి SBI_EINVAL;
 		htif_fromhost = (uint64_t *)custom_fromhost_addr;
 		htif_tohost = (uint64_t *)custom_tohost_addr;
 		htif_custom = true;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-#if __riscv_xlen == 32
-static void do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
+#ఒకవేళ __riscv_xlen == 32
+స్థిర శూన్య do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t దత్తాంశం)
 {
-	spin_lock(&htif_lock);
+	spin_తాళం(&htif_తాళం);
 
-	__set_tohost(HTIF_DEV_SYSTEM, cmd, data);
+	__set_tohost(HTIF_DEV_SYSTEM, cmd, దత్తాంశం);
 
-	while (1) {
+	అయితే (1) {
 		uint64_t fh = __read_fromhost();
-		if (fh) {
-			if (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
+		ఒకవేళ (fh) {
+			ఒకవేళ (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
 			    FROMHOST_CMD(fh) == cmd) {
 				__write_fromhost(0);
-				break;
+				ఆపు;
 			}
 			__check_fromhost();
 		}
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_తాళం);
 }
 
-static void htif_putc(char ch)
+స్థిర శూన్య htif_putc(అక్షరం ch)
 {
 	/* HTIF devices are not supported on RV32, so do a proxy write call */
-	volatile uint64_t magic_mem[8];
+	అస్థిర uint64_t magic_mem[8];
 	magic_mem[0] = PK_SYS_write;
 	magic_mem[1] = HTIF_DEV_CONSOLE;
 	magic_mem[2] = (uint64_t)(uintptr_t)&ch;
 	magic_mem[3] = HTIF_CONSOLE_CMD_PUTC;
 	do_tohost_fromhost(HTIF_DEV_SYSTEM, 0, (uint64_t)(uintptr_t)magic_mem);
 }
-#else
-static void htif_putc(char ch)
+#లేకపోతే
+స్థిర శూన్య htif_putc(అక్షరం ch)
 {
-	spin_lock(&htif_lock);
+	spin_తాళం(&htif_తాళం);
 	__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_PUTC, ch);
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_తాళం);
 }
-#endif
+#అయితే_ముగింపు
 
-static int htif_getc(void)
+స్థిర పూర్ణాంకం htif_getc(శూన్య)
 {
-	int ch;
+	పూర్ణాంకం ch;
 
-#if __riscv_xlen == 32
+#ఒకవేళ __riscv_xlen == 32
 	/* HTIF devices are not supported on RV32 */
-	return -1;
-#endif
+	తిరిగి -1;
+#అయితే_ముగింపు
 
-	spin_lock(&htif_lock);
+	spin_తాళం(&htif_తాళం);
 
 	__check_fromhost();
 	ch = htif_console_buf;
-	if (ch >= 0) {
+	ఒకవేళ (ch >= 0) {
 		htif_console_buf = -1;
 		__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_GETC, 0);
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_తాళం);
 
-	return ch - 1;
+	తిరిగి ch - 1;
 }
 
-static struct sbi_console_device htif_console = {
+స్థిర నిర్మాణం sbi_console_device htif_console = {
 	.name = "htif",
 	.console_putc = htif_putc,
 	.console_getc = htif_getc
 };
 
-int htif_serial_init(bool custom_addr,
-		     unsigned long custom_fromhost_addr,
-		     unsigned long custom_tohost_addr)
+పూర్ణాంకం htif_serial_init(bool custom_addr,
+		     గుర్తులేని దీర్ఘ custom_fromhost_addr,
+		     గుర్తులేని దీర్ఘ custom_tohost_addr)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = సమితి_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	sbi_console_set_device(&htif_console);
-	return 0;
+	sbi_console_సమితి_device(&htif_console);
+	తిరిగి 0;
 }
 
-static int htif_system_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం htif_system_reset_check(u32 type, u32 reason)
 {
-	return 1;
+	తిరిగి 1;
 }
 
-static void htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
+స్థిర శూన్య htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
 {
-	while (1) {
+	అయితే (1) {
 		__write_fromhost(0);
 		__write_tohost(1);
 	}
 }
 
-static struct sbi_system_reset_device htif_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device htif_reset = {
 	.name = "htif",
 	.system_reset_check = htif_system_reset_check,
 	.system_reset = htif_system_reset
 };
 
-int htif_system_reset_init(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+పూర్ణాంకం htif_system_reset_init(bool custom_addr,
+			   గుర్తులేని దీర్ఘ custom_fromhost_addr,
+			   గుర్తులేని దీర్ఘ custom_tohost_addr)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = సమితి_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	sbi_system_reset_add_device(&htif_reset);
-	return 0;
+	sbi_system_reset_కూడు_device(&htif_reset);
+	తిరిగి 0;
 }

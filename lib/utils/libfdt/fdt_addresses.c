@@ -4,98 +4,98 @@
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
  * Copyright (C) 2018 embedded brains GmbH
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+స్థిర పూర్ణాంకం fdt_cells(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, స్థిరరాశి అక్షరం *name)
 {
-	const fdt32_t *c;
+	స్థిరరాశి fdt32_t *c;
 	uint32_t val;
-	int len;
+	పూర్ణాంకం len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	ఒకవేళ (!c)
+		తిరిగి len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	ఒకవేళ (len != పరిమాణం(*c))
+		తిరిగి -FDT_ERR_BADNCELLS;
 
-	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	val = fdt32_గమ్యం_cpu(*c);
+	ఒకవేళ (val > FDT_MAX_NCELLS)
+		తిరిగి -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	తిరిగి (పూర్ణాంకం)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_చిరునామా_cells(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int val;
+	పూర్ణాంకం val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	ఒకవేళ (val == 0)
+		తిరిగి -FDT_ERR_BADNCELLS;
+	ఒకవేళ (val == -FDT_ERR_NOTFOUND)
+		తిరిగి 2;
+	తిరిగి val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+పూర్ణాంకం fdt_కొలత_cells(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int val;
+	పూర్ణాంకం val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	ఒకవేళ (val == -FDT_ERR_NOTFOUND)
+		తిరిగి 1;
+	తిరిగి val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+పూర్ణాంకం fdt_appendprop_addrrange(శూన్య *fdt, పూర్ణాంకం మాతృ, పూర్ణాంకం nodeoffset,
+			     స్థిరరాశి అక్షరం *name, uint64_t addr, uint64_t కొలత)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	పూర్ణాంకం addr_cells, కొలత_cells, ret;
+	uint8_t దత్తాంశం[పరిమాణం(fdt64_t) * 2], *prop;
 
-	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ret = fdt_చిరునామా_cells(fdt, మాతృ);
+	ఒకవేళ (ret < 0)
+		తిరిగి ret;
 	addr_cells = ret;
 
-	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
-	size_cells = ret;
+	ret = fdt_కొలత_cells(fdt, మాతృ);
+	ఒకవేళ (ret < 0)
+		తిరిగి ret;
+	కొలత_cells = ret;
 
 	/* check validity of address */
-	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	prop = దత్తాంశం;
+	ఒకవేళ (addr_cells == 1) {
+		ఒకవేళ ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < కొలత))
+			తిరిగి -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} లేకపోతే ఒకవేళ (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} లేకపోతే {
+		తిరిగి -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * పరిమాణం(fdt32_t);
+	ఒకవేళ (కొలత_cells == 1) {
+		ఒకవేళ (కొలత > UINT32_MAX)
+			తిరిగి -FDT_ERR_BADVALUE;
 
-		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
-		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+		fdt32_st(prop, (uint32_t)కొలత);
+	} లేకపోతే ఒకవేళ (కొలత_cells == 2) {
+		fdt64_st(prop, కొలత);
+	} లేకపోతే {
+		తిరిగి -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	తిరిగి fdt_appendprop(fdt, nodeoffset, name, దత్తాంశం,
+			      (addr_cells + కొలత_cells) * పరిమాణం(fdt32_t));
 }

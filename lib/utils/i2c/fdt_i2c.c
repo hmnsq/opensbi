@@ -11,51 +11,51 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+బాహ్య స్థిరరాశి నిర్మాణం fdt_driver *స్థిరరాశి fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+స్థిర పూర్ణాంకం fdt_i2c_adapter_కనుగొను(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				నిర్మాణం i2c_adapter **బహిర్గతం_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	పూర్ణాంకం rc;
+	నిర్మాణం i2c_adapter *adapter = i2c_adapter_కనుగొను(nodeoff);
 
-	if (!adapter) {
+	ఒకవేళ (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
-		rc = fdt_driver_init_by_offset(fdt, nodeoff,
+		rc = fdt_driver_init_by_స్థానభ్రంశం(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
 		/* Try to find I2C adapter again */
-		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		adapter = i2c_adapter_కనుగొను(nodeoff);
+		ఒకవేళ (!adapter)
+			తిరిగి SBI_ENOSYS;
 	}
 
-	if (out_adapter)
-		*out_adapter = adapter;
+	ఒకవేళ (బహిర్గతం_adapter)
+		*బహిర్గతం_adapter = adapter;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+పూర్ణాంకం fdt_i2c_adapter_get(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			నిర్మాణం i2c_adapter **బహిర్గతం_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	పూర్ణాంకం rc;
+	నిర్మాణం i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || (nodeoff < 0) || !బహిర్గతం_adapter)
+		తిరిగి SBI_EINVAL;
 
-	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	rc = fdt_i2c_adapter_కనుగొను(fdt, nodeoff, &adapter);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	*out_adapter = adapter;
+	*బహిర్గతం_adapter = adapter;
 
-	return 0;
+	తిరిగి 0;
 }

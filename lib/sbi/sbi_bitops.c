@@ -8,9 +8,9 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
 
-#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
+#నిర్వచించు BITOP_మాట(nr)		((nr) / బిట్లు_చొప్పున_LONG)
 
 /**
  * find_first_bit - find the first set bit in a memory region
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
-			     unsigned long size)
+గుర్తులేని దీర్ఘ కనుగొను_మొదటి_బిట్టు(స్థిరరాశి గుర్తులేని దీర్ఘ *addr,
+			     గుర్తులేని దీర్ఘ కొలత)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	స్థిరరాశి గుర్తులేని దీర్ఘ *p = addr;
+	గుర్తులేని దీర్ఘ ఫలితం = 0;
+	గుర్తులేని దీర్ఘ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	అయితే (కొలత & ~(బిట్లు_చొప్పున_LONG-1)) {
+		ఒకవేళ ((tmp = *(p++)))
+			వెళ్ళు దొరికింది;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
+		కొలత -= బిట్లు_చొప్పున_LONG;
 	}
-	if (!size)
-		return result;
+	ఒకవేళ (!కొలత)
+		తిరిగి ఫలితం;
 
-	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffs(tmp);
+	tmp = (*p) & (~0UL >> (బిట్లు_చొప్పున_LONG - కొలత));
+	ఒకవేళ (tmp == 0UL)		/* Are any bits set? */
+		తిరిగి ఫలితం + కొలత;	/* Nope. */
+దొరికింది:
+	తిరిగి ఫలితం + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
-				  unsigned long size)
+గుర్తులేని దీర్ఘ కనుగొను_మొదటి_zero_బిట్టు(స్థిరరాశి గుర్తులేని దీర్ఘ *addr,
+				  గుర్తులేని దీర్ఘ కొలత)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	స్థిరరాశి గుర్తులేని దీర్ఘ *p = addr;
+	గుర్తులేని దీర్ఘ ఫలితం = 0;
+	గుర్తులేని దీర్ఘ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	అయితే (కొలత & ~(బిట్లు_చొప్పున_LONG-1)) {
+		ఒకవేళ (~(tmp = *(p++)))
+			వెళ్ళు దొరికింది;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
+		కొలత -= బిట్లు_చొప్పున_LONG;
 	}
-	if (!size)
-		return result;
+	ఒకవేళ (!కొలత)
+		తిరిగి ఫలితం;
 
-	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffz(tmp);
+	tmp = (*p) | (~0UL << కొలత);
+	ఒకవేళ (tmp == ~0UL)	/* Are any bits zero? */
+		తిరిగి ఫలితం + కొలత;	/* Nope. */
+దొరికింది:
+	తిరిగి ఫలితం + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
-			    unsigned long size)
+గుర్తులేని దీర్ఘ కనుగొను_చివరి_బిట్టు(స్థిరరాశి గుర్తులేని దీర్ఘ *addr,
+			    గుర్తులేని దీర్ఘ కొలత)
 {
-	unsigned long words;
-	unsigned long tmp;
+	గుర్తులేని దీర్ఘ పదాలు;
+	గుర్తులేని దీర్ఘ tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	పదాలు = కొలత / బిట్లు_చొప్పున_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
-					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+	ఒకవేళ (కొలత & (బిట్లు_చొప్పున_LONG-1)) {
+		tmp = (addr[పదాలు] & (~0UL >> (బిట్లు_చొప్పున_LONG
+					 - (కొలత & (బిట్లు_చొప్పున_LONG-1)))));
+		ఒకవేళ (tmp)
+			వెళ్ళు దొరికింది;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
-found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+	అయితే (పదాలు) {
+		tmp = addr[--పదాలు];
+		ఒకవేళ (tmp) {
+దొరికింది:
+			తిరిగి పదాలు * బిట్లు_చొప్పున_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	తిరిగి కొలత;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
-			    unsigned long size, unsigned long offset)
+గుర్తులేని దీర్ఘ కనుగొను_తదుపరి_బిట్టు(స్థిరరాశి గుర్తులేని దీర్ఘ *addr,
+			    గుర్తులేని దీర్ఘ కొలత, గుర్తులేని దీర్ఘ స్థానభ్రంశం)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	స్థిరరాశి గుర్తులేని దీర్ఘ *p = addr + BITOP_మాట(స్థానభ్రంశం);
+	గుర్తులేని దీర్ఘ ఫలితం = స్థానభ్రంశం & ~(బిట్లు_చొప్పున_LONG-1);
+	గుర్తులేని దీర్ఘ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	ఒకవేళ (స్థానభ్రంశం >= కొలత)
+		తిరిగి కొలత;
+	కొలత -= ఫలితం;
+	స్థానభ్రంశం %= బిట్లు_చొప్పున_LONG;
+	ఒకవేళ (స్థానభ్రంశం) {
 		tmp = *(p++);
-		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp &= (~0UL << స్థానభ్రంశం);
+		ఒకవేళ (కొలత < బిట్లు_చొప్పున_LONG)
+			వెళ్ళు దొరికింది_మొదటి;
+		ఒకవేళ (tmp)
+			వెళ్ళు దొరికింది_మధ్య;
+		కొలత -= బిట్లు_చొప్పున_LONG;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	అయితే (కొలత & ~(బిట్లు_చొప్పున_LONG-1)) {
+		ఒకవేళ ((tmp = *(p++)))
+			వెళ్ళు దొరికింది_మధ్య;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
+		కొలత -= బిట్లు_చొప్పున_LONG;
 	}
-	if (!size)
-		return result;
+	ఒకవేళ (!కొలత)
+		తిరిగి ఫలితం;
 	tmp = *p;
 
-found_first:
-	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+దొరికింది_మొదటి:
+	tmp &= (~0UL >> (బిట్లు_చొప్పున_LONG - కొలత));
+	ఒకవేళ (tmp == 0UL)		/* Are any bits set? */
+		తిరిగి ఫలితం + కొలత;	/* Nope. */
+దొరికింది_మధ్య:
+	తిరిగి ఫలితం + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
-				 unsigned long size,
-				 unsigned long offset)
+గుర్తులేని దీర్ఘ కనుగొను_తదుపరి_zero_బిట్టు(స్థిరరాశి గుర్తులేని దీర్ఘ *addr,
+				 గుర్తులేని దీర్ఘ కొలత,
+				 గుర్తులేని దీర్ఘ స్థానభ్రంశం)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	స్థిరరాశి గుర్తులేని దీర్ఘ *p = addr + BITOP_మాట(స్థానభ్రంశం);
+	గుర్తులేని దీర్ఘ ఫలితం = స్థానభ్రంశం & ~(బిట్లు_చొప్పున_LONG-1);
+	గుర్తులేని దీర్ఘ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	ఒకవేళ (స్థానభ్రంశం >= కొలత)
+		తిరిగి కొలత;
+	కొలత -= ఫలితం;
+	స్థానభ్రంశం %= బిట్లు_చొప్పున_LONG;
+	ఒకవేళ (స్థానభ్రంశం) {
 		tmp = *(p++);
-		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp |= ~0UL >> (బిట్లు_చొప్పున_LONG - స్థానభ్రంశం);
+		ఒకవేళ (కొలత < బిట్లు_చొప్పున_LONG)
+			వెళ్ళు దొరికింది_మొదటి;
+		ఒకవేళ (~tmp)
+			వెళ్ళు దొరికింది_మధ్య;
+		కొలత -= బిట్లు_చొప్పున_LONG;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	అయితే (కొలత & ~(బిట్లు_చొప్పున_LONG-1)) {
+		ఒకవేళ (~(tmp = *(p++)))
+			వెళ్ళు దొరికింది_మధ్య;
+		ఫలితం += బిట్లు_చొప్పున_LONG;
+		కొలత -= బిట్లు_చొప్పున_LONG;
 	}
-	if (!size)
-		return result;
+	ఒకవేళ (!కొలత)
+		తిరిగి ఫలితం;
 	tmp = *p;
 
-found_first:
-	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+దొరికింది_మొదటి:
+	tmp |= ~0UL << కొలత;
+	ఒకవేళ (tmp == ~0UL)	/* Are any bits zero? */
+		తిరిగి ఫలితం + కొలత;	/* Nope. */
+దొరికింది_మధ్య:
+	తిరిగి ఫలితం + sbi_ffz(tmp);
 }

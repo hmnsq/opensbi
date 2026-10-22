@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+స్థిర SBI_LIST_తల(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+నిర్మాణం regmap *regmap_కనుగొను(గుర్తులేని పూర్ణాంకం id)
 {
-	struct sbi_dlist *pos;
+	నిర్మాణం sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		నిర్మాణం regmap *rmap = గమ్యం_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		ఒకవేళ (rmap->id == id)
+			తిరిగి rmap;
 	}
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-int regmap_add(struct regmap *rmap)
+పూర్ణాంకం regmap_కూడు(నిర్మాణం regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	ఒకవేళ (!rmap)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (regmap_కనుగొను(rmap->id))
+		తిరిగి SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_కూడు(&(rmap->కణుపు), &(regmap_list));
 
-	return 0;
+	తిరిగి 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+శూన్య regmap_remove(నిర్మాణం regmap *rmap)
 {
-	if (!rmap)
-		return;
+	ఒకవేళ (!rmap)
+		తిరిగి;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->కణుపు));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+స్థిర bool regmap_reg_valid(నిర్మాణం regmap *rmap, గుర్తులేని పూర్ణాంకం reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	ఒకవేళ ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		తిరిగి false;
+	తిరిగి true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+స్థిర గుర్తులేని పూర్ణాంకం regmap_reg_addr(నిర్మాణం regmap *rmap, గుర్తులేని పూర్ణాంకం reg)
 {
-	reg += rmap->reg_base;
+	reg += rmap->reg_పునాది;
 
-	if (rmap->reg_shift > 0)
-		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
-		reg <<= -(rmap->reg_shift);
+	ఒకవేళ (rmap->reg_జరుపు > 0)
+		reg >>= rmap->reg_జరుపు;
+	లేకపోతే ఒకవేళ (rmap->reg_జరుపు < 0)
+		reg <<= -(rmap->reg_జరుపు);
 
-	return reg;
+	తిరిగి reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+పూర్ణాంకం regmap_read(నిర్మాణం regmap *rmap, గుర్తులేని పూర్ణాంకం reg, గుర్తులేని పూర్ణాంకం *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	ఒకవేళ (!rmap || !regmap_reg_valid(rmap, reg))
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (!rmap->reg_read)
+		తిరిగి SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	తిరిగి rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+పూర్ణాంకం regmap_write(నిర్మాణం regmap *rmap, గుర్తులేని పూర్ణాంకం reg, గుర్తులేని పూర్ణాంకం val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	ఒకవేళ (!rmap || !regmap_reg_valid(rmap, reg))
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (!rmap->reg_write)
+		తిరిగి SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	తిరిగి rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+పూర్ణాంకం regmap_update_బిట్లు(నిర్మాణం regmap *rmap, గుర్తులేని పూర్ణాంకం reg,
+		       గుర్తులేని పూర్ణాంకం ముసుగు, గుర్తులేని పూర్ణాంకం val)
 {
-	int rc;
-	unsigned int reg_val;
+	పూర్ణాంకం rc;
+	గుర్తులేని పూర్ణాంకం reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	ఒకవేళ (!rmap || !regmap_reg_valid(rmap, reg))
+		తిరిగి SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
-					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	ఒకవేళ (rmap->reg_update_బిట్లు) {
+		తిరిగి rmap->reg_update_బిట్లు(rmap, regmap_reg_addr(rmap, reg),
+					     ముసుగు, val);
+	} లేకపోతే ఒకవేళ (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		reg_val &= ~mask;
-		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		reg_val &= ~ముసుగు;
+		reg_val |= val & ముసుగు;
+		తిరిగి rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	తిరిగి SBI_ENOSYS;
 }

@@ -7,158 +7,158 @@
  *   Clément Léger <cleger@rivosinc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_types.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_bitmap.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_hfence.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/sbi_tlb.h>
+#అన్తర్భావ <sbi/sbi_types.h>
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
 
 /** Offset of pointer to FWFT HART state in scratch space */
-static unsigned long fwft_ptr_offset;
+స్థిర గుర్తులేని దీర్ఘ fwft_ptr_స్థానభ్రంశం;
 
-#define fwft_get_hart_state_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, fwft_ptr_offset)
+#నిర్వచించు fwft_get_hart_state_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), శూన్య *, fwft_ptr_స్థానభ్రంశం)
 
-#define fwft_thishart_state_ptr()					\
+#నిర్వచించు fwft_thishart_state_ptr()					\
 	fwft_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define fwft_set_hart_state_ptr(__scratch, __phs)			\
-	sbi_scratch_write_type((__scratch), void *, fwft_ptr_offset, (__phs))
+#నిర్వచించు fwft_సమితి_hart_state_ptr(__scratch, __phs)			\
+	sbi_scratch_write_type((__scratch), శూన్య *, fwft_ptr_స్థానభ్రంశం, (__phs))
 
-#define MIS_DELEG (1UL << CAUSE_MISALIGNED_LOAD | 1UL << CAUSE_MISALIGNED_STORE)
+#నిర్వచించు MIS_DELEG (1UL << CAUSE_MISALIGNED_ఎక్కించు | 1UL << CAUSE_MISALIGNED_STORE)
 
-struct fwft_config;
+నిర్మాణం fwft_config;
 
-struct fwft_feature {
-	enum sbi_fwft_feature_t id;
-	int (*supported)(struct fwft_config *conf);
-	int (*set)(struct fwft_config *conf, unsigned long value);
-	int (*get)(struct fwft_config *conf, unsigned long *value);
+నిర్మాణం fwft_feature {
+	గణన sbi_fwft_feature_t id;
+	పూర్ణాంకం (*supported)(నిర్మాణం fwft_config *conf);
+	పూర్ణాంకం (*సమితి)(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ);
+	పూర్ణాంకం (*get)(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ);
 };
 
-struct fwft_config {
-	const struct fwft_feature *feature;
-	unsigned long flags;
+నిర్మాణం fwft_config {
+	స్థిరరాశి నిర్మాణం fwft_feature *feature;
+	గుర్తులేని దీర్ఘ flags;
 };
 
-struct fwft_hart_state {
-	unsigned int config_count;
-	struct fwft_config configs[];
+నిర్మాణం fwft_hart_state {
+	గుర్తులేని పూర్ణాంకం config_లెక్క;
+	నిర్మాణం fwft_config configs[];
 };
 
-static const unsigned long fwft_defined_features[] = {
+స్థిర స్థిరరాశి గుర్తులేని దీర్ఘ fwft_defined_features[] = {
 	SBI_FWFT_MISALIGNED_EXC_DELEG,
 	SBI_FWFT_LANDING_PAD,
-	SBI_FWFT_SHADOW_STACK,
+	SBI_FWFT_SHADOW_దొంతర,
 	SBI_FWFT_DOUBLE_TRAP,
 	SBI_FWFT_PTE_AD_HW_UPDATING,
-	SBI_FWFT_POINTER_MASKING_PMLEN,
+	SBI_FWFT_సూచిక_MASKING_PMLEN,
 };
 
-static bool fwft_is_defined_feature(enum sbi_fwft_feature_t feature)
+స్థిర bool fwft_is_defined_feature(గణన sbi_fwft_feature_t feature)
 {
-	int i;
+	పూర్ణాంకం i;
 
-	for (i = 0; i < array_size(fwft_defined_features); i++) {
-		if (fwft_defined_features[i] == feature)
-			return true;
+	కొరకు (i = 0; i < array_కొలత(fwft_defined_features); i++) {
+		ఒకవేళ (fwft_defined_features[i] == feature)
+			తిరిగి true;
 	}
 
-	return false;
+	తిరిగి false;
 }
 
-static int fwft_menvcfg_set_bit(unsigned long value, unsigned long bit)
+స్థిర పూర్ణాంకం fwft_menvcfg_సమితి_బిట్టు(గుర్తులేని దీర్ఘ విలువ, గుర్తులేని దీర్ఘ బిట్టు_2)
 {
-	if (value == 1) {
-		if (bit >= 32 && __riscv_xlen == 32)
-			csr_set(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
-			csr_set(CSR_MENVCFG, _ULL(1) << bit);
+	ఒకవేళ (విలువ == 1) {
+		ఒకవేళ (బిట్టు_2 >= 32 && __riscv_xlen == 32)
+			csr_సమితి(CSR_MENVCFGH, _ULL(1) << (బిట్టు_2 - 32));
+		లేకపోతే
+			csr_సమితి(CSR_MENVCFG, _ULL(1) << బిట్టు_2);
 
-	} else if (value == 0) {
-		if (bit >= 32 && __riscv_xlen == 32)
-			csr_clear(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
-			csr_clear(CSR_MENVCFG, _ULL(1) << bit);
-	} else {
-		return SBI_EINVAL;
+	} లేకపోతే ఒకవేళ (విలువ == 0) {
+		ఒకవేళ (బిట్టు_2 >= 32 && __riscv_xlen == 32)
+			csr_clear(CSR_MENVCFGH, _ULL(1) << (బిట్టు_2 - 32));
+		లేకపోతే
+			csr_clear(CSR_MENVCFG, _ULL(1) << బిట్టు_2);
+	} లేకపోతే {
+		తిరిగి SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_menvcfg_read_bit(unsigned long *value, unsigned long bit)
+స్థిర పూర్ణాంకం fwft_menvcfg_read_బిట్టు(గుర్తులేని దీర్ఘ *విలువ, గుర్తులేని దీర్ఘ బిట్టు_2)
 {
-	unsigned long cfg;
+	గుర్తులేని దీర్ఘ cfg;
 
-	if (bit >= 32 && __riscv_xlen == 32)
-		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (bit - 32));
-	else
-		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << bit);
+	ఒకవేళ (బిట్టు_2 >= 32 && __riscv_xlen == 32)
+		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (బిట్టు_2 - 32));
+	లేకపోతే
+		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << బిట్టు_2);
 
-	*value = cfg != 0;
+	*విలువ = cfg != 0;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_misaligned_delegation_supported(struct fwft_config *conf)
+స్థిర పూర్ణాంకం fwft_misaligned_delegation_supported(నిర్మాణం fwft_config *conf)
 {
-	if (!misa_extension('S'))
-		return SBI_ENOTSUPP;
+	ఒకవేళ (!misa_extension('S'))
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_set_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long value)
+స్థిర పూర్ణాంకం fwft_సమితి_misaligned_delegation(నిర్మాణం fwft_config *conf,
+					 గుర్తులేని దీర్ఘ విలువ)
 {
-	if (value == 1)
-		csr_set(CSR_MEDELEG, MIS_DELEG);
-	else if (value == 0)
+	ఒకవేళ (విలువ == 1)
+		csr_సమితి(CSR_MEDELEG, MIS_DELEG);
+	లేకపోతే ఒకవేళ (విలువ == 0)
 		csr_clear(CSR_MEDELEG, MIS_DELEG);
-	else
-		return SBI_EINVAL;
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_get_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_misaligned_delegation(నిర్మాణం fwft_config *conf,
+					 గుర్తులేని దీర్ఘ *విలువ)
 {
-	*value = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
+	*విలువ = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_double_trap_supported(struct fwft_config *conf)
+స్థిర పూర్ణాంకం fwft_double_trap_supported(నిర్మాణం fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SSDBLTRP))
-		return SBI_ENOTSUPP;
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_set_double_trap(struct fwft_config *conf, unsigned long value)
+స్థిర పూర్ణాంకం fwft_సమితి_double_trap(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_DTE_SHIFT);
+	తిరిగి fwft_menvcfg_సమితి_బిట్టు(విలువ, ENVCFG_DTE_జరుపు);
 }
 
-static int fwft_get_double_trap(struct fwft_config *conf, unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_double_trap(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_DTE_SHIFT);
+	తిరిగి fwft_menvcfg_read_బిట్టు(విలువ, ENVCFG_DTE_జరుపు);
 }
 
-static int fwft_adue_supported(struct fwft_config *conf)
+స్థిర పూర్ణాంకం fwft_adue_supported(నిర్మాణం fwft_config *conf)
 {
 	/*
 	 * FWFT.PTE_AD_HW_UPDATING is only supported when both Svade and Svadu
@@ -166,287 +166,287 @@ static int fwft_adue_supported(struct fwft_config *conf)
 	 * ensure the reset value of zero is valid (it wouldn't be when only
 	 * Svadu is supported).
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADU) ||
 	    !sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADE))
-		return SBI_ENOTSUPP;
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_set_adue(struct fwft_config *conf, unsigned long value)
+స్థిర పూర్ణాంకం fwft_సమితి_adue(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ)
 {
-	int res = fwft_menvcfg_set_bit(value, ENVCFG_ADUE_SHIFT);
+	పూర్ణాంకం res = fwft_menvcfg_సమితి_బిట్టు(విలువ, ENVCFG_ADUE_జరుపు);
 
-	if (res == SBI_OK) {
+	ఒకవేళ (res == SBI_OK) {
 		__sbi_sfence_vma_all();
 
-		if (misa_extension('H'))
+		ఒకవేళ (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 
-	return res;
+	తిరిగి res;
 }
 
-static int fwft_get_adue(struct fwft_config *conf, unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_adue(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_ADUE_SHIFT);
+	తిరిగి fwft_menvcfg_read_బిట్టు(విలువ, ENVCFG_ADUE_జరుపు);
 }
 
-static int fwft_lpad_supported(struct fwft_config *conf)
+స్థిర పూర్ణాంకం fwft_lpad_supported(నిర్మాణం fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFILP))
-		return SBI_ENOTSUPP;
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_enable_lpad(struct fwft_config *conf, unsigned long value)
+స్థిర పూర్ణాంకం fwft_enable_lpad(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_LPE_SHIFT);
+	తిరిగి fwft_menvcfg_సమితి_బిట్టు(విలువ, ENVCFG_LPE_జరుపు);
 }
 
-static int fwft_get_lpad(struct fwft_config *conf, unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_lpad(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_LPE_SHIFT);
+	తిరిగి fwft_menvcfg_read_బిట్టు(విలువ, ENVCFG_LPE_జరుపు);
 }
 
-static int fwft_sstack_supported(struct fwft_config *conf)
+స్థిర పూర్ణాంకం fwft_sstack_supported(నిర్మాణం fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFISS))
-		return SBI_ENOTSUPP;
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_enable_sstack(struct fwft_config *conf, unsigned long value)
+స్థిర పూర్ణాంకం fwft_enable_sstack(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_SSE_SHIFT);
+	తిరిగి fwft_menvcfg_సమితి_బిట్టు(విలువ, ENVCFG_SSE_జరుపు);
 }
 
-static int fwft_get_sstack(struct fwft_config *conf, unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_sstack(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_SSE_SHIFT);
+	తిరిగి fwft_menvcfg_read_బిట్టు(విలువ, ENVCFG_SSE_జరుపు);
 }
 
-#if __riscv_xlen > 32
-static int fwft_pmlen_supported(struct fwft_config *conf)
+#ఒకవేళ __riscv_xlen > 32
+స్థిర పూర్ణాంకం fwft_pmlen_supported(నిర్మాణం fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SMNPM))
-		return SBI_ENOTSUPP;
+		తిరిగి SBI_ENOTSUPP;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
+స్థిర పూర్ణాంకం fwft_సమితి_pmlen(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ విలువ)
 {
-	unsigned long pmm, prev;
+	గుర్తులేని దీర్ఘ pmm, prev;
 
-	switch (value) {
-	case 0:
+	ఎంపిక (విలువ) {
+	స్థితి 0:
 		pmm = ENVCFG_PMM_PMLEN_0;
-		break;
-	case 7:
+		ఆపు;
+	స్థితి 7:
 		pmm = ENVCFG_PMM_PMLEN_7;
-		break;
-	case 16:
+		ఆపు;
+	స్థితి 16:
 		pmm = ENVCFG_PMM_PMLEN_16;
-		break;
-	default:
-		return SBI_EINVAL;
+		ఆపు;
+	అప్రమేయ:
+		తిరిగి SBI_EINVAL;
 	}
 
 	prev = csr_read_clear(CSR_MENVCFG, ENVCFG_PMM);
-	csr_set(CSR_MENVCFG, pmm);
-	if ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
+	csr_సమితి(CSR_MENVCFG, pmm);
+	ఒకవేళ ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
 		csr_write(CSR_MENVCFG, prev);
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
+స్థిర పూర్ణాంకం fwft_get_pmlen(నిర్మాణం fwft_config *conf, గుర్తులేని దీర్ఘ *విలువ)
 {
-	switch (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
-	case ENVCFG_PMM_PMLEN_0:
-		*value = 0;
-		break;
-	case ENVCFG_PMM_PMLEN_7:
-		*value = 7;
-		break;
-	case ENVCFG_PMM_PMLEN_16:
-		*value = 16;
-		break;
-	default:
-		return SBI_EFAIL;
+	ఎంపిక (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
+	స్థితి ENVCFG_PMM_PMLEN_0:
+		*విలువ = 0;
+		ఆపు;
+	స్థితి ENVCFG_PMM_PMLEN_7:
+		*విలువ = 7;
+		ఆపు;
+	స్థితి ENVCFG_PMM_PMLEN_16:
+		*విలువ = 16;
+		ఆపు;
+	అప్రమేయ:
+		తిరిగి SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
-#endif
+#అయితే_ముగింపు
 
-static struct fwft_config* get_feature_config(enum sbi_fwft_feature_t feature)
+స్థిర నిర్మాణం fwft_config* get_feature_config(గణన sbi_fwft_feature_t feature)
 {
-	int i;
-	struct fwft_hart_state *fhs = fwft_thishart_state_ptr();
+	పూర్ణాంకం i;
+	నిర్మాణం fwft_hart_state *fhs = fwft_thishart_state_ptr();
 
-	if (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
-		return NULL;
+	ఒకవేళ (feature & SBI_FWFT_GLOBAL_FEATURE_బిట్టు)
+		తిరిగి ఖాళీ;
 
-	for (i = 0; i < fhs->config_count; i++){
-		if (feature == fhs->configs[i].feature->id)
-			return &fhs->configs[i];
+	కొరకు (i = 0; i < fhs->config_లెక్క; i++){
+		ఒకవేళ (feature == fhs->configs[i].feature->id)
+			తిరిగి &fhs->configs[i];
 	}
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-static int fwft_get_feature(enum sbi_fwft_feature_t feature,
-			    struct fwft_config **conf)
+స్థిర పూర్ణాంకం fwft_get_feature(గణన sbi_fwft_feature_t feature,
+			    నిర్మాణం fwft_config **conf)
 {
-	int ret;
-	struct fwft_config *tconf;
+	పూర్ణాంకం ret;
+	నిర్మాణం fwft_config *tconf;
 
 	tconf = get_feature_config(feature);
-	if (!tconf) {
-		if (fwft_is_defined_feature(feature))
-			return SBI_ENOTSUPP;
+	ఒకవేళ (!tconf) {
+		ఒకవేళ (fwft_is_defined_feature(feature))
+			తిరిగి SBI_ENOTSUPP;
 
-		return SBI_EDENIED;
+		తిరిగి SBI_EDENIED;
 	}
 
-	if (tconf->feature->supported) {
+	ఒకవేళ (tconf->feature->supported) {
 		ret = tconf->feature->supported(tconf);
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 	*conf = tconf;
 
-	return SBI_SUCCESS;
+	తిరిగి SBI_SUCCESS;
 }
 
-static void fwft_clear_config_lock(enum sbi_fwft_feature_t feature)
+స్థిర శూన్య fwft_clear_config_తాళం(గణన sbi_fwft_feature_t feature)
 {
-	int ret;
-	struct fwft_config *conf;
+	పూర్ణాంకం ret;
+	నిర్మాణం fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return;
+	ఒకవేళ (ret)
+		తిరిగి;
 
-	conf->flags &= ~SBI_FWFT_SET_FLAG_LOCK;
+	conf->flags &= ~SBI_FWFT_సమితి_FLAG_తాళం;
 }
 
-int sbi_fwft_set(enum sbi_fwft_feature_t feature, unsigned long value,
-		 unsigned long flags)
+పూర్ణాంకం sbi_fwft_సమితి(గణన sbi_fwft_feature_t feature, గుర్తులేని దీర్ఘ విలువ,
+		 గుర్తులేని దీర్ఘ flags)
 {
-	int ret;
-	struct fwft_config *conf;
+	పూర్ణాంకం ret;
+	నిర్మాణం fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	if ((flags & ~SBI_FWFT_SET_FLAG_LOCK) != 0)
-		return SBI_EINVAL;
+	ఒకవేళ ((flags & ~SBI_FWFT_సమితి_FLAG_తాళం) != 0)
+		తిరిగి SBI_EINVAL;
 
-	if (conf->flags & SBI_FWFT_SET_FLAG_LOCK)
-		return SBI_EDENIED_LOCKED;
+	ఒకవేళ (conf->flags & SBI_FWFT_సమితి_FLAG_తాళం)
+		తిరిగి SBI_EDENIED_LOCKED;
 
-	ret = conf->feature->set(conf, value);
-	if (ret)
-		return ret;
+	ret = conf->feature->సమితి(conf, విలువ);
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	conf->flags = flags;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int sbi_fwft_get(enum sbi_fwft_feature_t feature, unsigned long *out_val)
+పూర్ణాంకం sbi_fwft_get(గణన sbi_fwft_feature_t feature, గుర్తులేని దీర్ఘ *బహిర్గతం_val)
 {
-	int ret;
-	struct fwft_config *conf;
+	పూర్ణాంకం ret;
+	నిర్మాణం fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	return conf->feature->get(conf, out_val);
+	తిరిగి conf->feature->get(conf, బహిర్గతం_val);
 }
 
-static const struct fwft_feature features[] =
+స్థిర స్థిరరాశి నిర్మాణం fwft_feature features[] =
 {
 	{
 		.id = SBI_FWFT_MISALIGNED_EXC_DELEG,
 		.supported = fwft_misaligned_delegation_supported,
-		.set = fwft_set_misaligned_delegation,
+		.సమితి = fwft_సమితి_misaligned_delegation,
 		.get = fwft_get_misaligned_delegation,
 	},
 	{
 		.id = SBI_FWFT_LANDING_PAD,
 		.supported = fwft_lpad_supported,
-		.set = fwft_enable_lpad,
+		.సమితి = fwft_enable_lpad,
 		.get = fwft_get_lpad,
 	},
 	{
-		.id = SBI_FWFT_SHADOW_STACK,
+		.id = SBI_FWFT_SHADOW_దొంతర,
 		.supported = fwft_sstack_supported,
-		.set = fwft_enable_sstack,
+		.సమితి = fwft_enable_sstack,
 		.get = fwft_get_sstack,
 	},
 	{
 		.id = SBI_FWFT_DOUBLE_TRAP,
 		.supported = fwft_double_trap_supported,
-		.set = fwft_set_double_trap,
+		.సమితి = fwft_సమితి_double_trap,
 		.get = fwft_get_double_trap,
 	},
 	{
 		.id = SBI_FWFT_PTE_AD_HW_UPDATING,
 		.supported = fwft_adue_supported,
-		.set = fwft_set_adue,
+		.సమితి = fwft_సమితి_adue,
 		.get = fwft_get_adue,
 	},
-#if __riscv_xlen > 32
+#ఒకవేళ __riscv_xlen > 32
 	{
-		.id = SBI_FWFT_POINTER_MASKING_PMLEN,
+		.id = SBI_FWFT_సూచిక_MASKING_PMLEN,
 		.supported = fwft_pmlen_supported,
-		.set = fwft_set_pmlen,
+		.సమితి = fwft_సమితి_pmlen,
 		.get = fwft_get_pmlen,
 	},
-#endif
+#అయితే_ముగింపు
 };
 
-int sbi_fwft_init(struct sbi_scratch *scratch, bool cold_boot)
+పూర్ణాంకం sbi_fwft_init(నిర్మాణం sbi_scratch *scratch, bool cold_boot)
 {
-	int i;
-	struct fwft_hart_state *fhs;
+	పూర్ణాంకం i;
+	నిర్మాణం fwft_hart_state *fhs;
 
-	if (cold_boot) {
-		fwft_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!fwft_ptr_offset)
-			return SBI_ENOMEM;
+	ఒకవేళ (cold_boot) {
+		fwft_ptr_స్థానభ్రంశం = sbi_scratch_alloc_type_స్థానభ్రంశం(శూన్య *);
+		ఒకవేళ (!fwft_ptr_స్థానభ్రంశం)
+			తిరిగి SBI_ENOMEM;
 	}
 
 	fhs = fwft_get_hart_state_ptr(scratch);
-	if (!fhs) {
-		fhs = sbi_zalloc(sizeof(*fhs) + array_size(features) * sizeof(struct fwft_config));
-		if (!fhs)
-			return SBI_ENOMEM;
+	ఒకవేళ (!fhs) {
+		fhs = sbi_zalloc(పరిమాణం(*fhs) + array_కొలత(features) * పరిమాణం(నిర్మాణం fwft_config));
+		ఒకవేళ (!fhs)
+			తిరిగి SBI_ENOMEM;
 
-		fhs->config_count = array_size(features);
-		for (i = 0; i < array_size(features); i++)
+		fhs->config_లెక్క = array_కొలత(features);
+		కొరకు (i = 0; i < array_కొలత(features); i++)
 			fhs->configs[i].feature = &features[i];
 
-		fwft_set_hart_state_ptr(scratch, fhs);
+		fwft_సమితి_hart_state_ptr(scratch, fhs);
 	}
 
-	for (i = 0; i < array_size(features); i++)
-		fwft_clear_config_lock(features[i].id);
+	కొరకు (i = 0; i < array_కొలత(features); i++)
+		fwft_clear_config_తాళం(features[i].id);
 
-	return 0;
+	తిరిగి 0;
 }

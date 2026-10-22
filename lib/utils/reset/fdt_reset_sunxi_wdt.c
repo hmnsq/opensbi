@@ -4,74 +4,74 @@
  * Copyright (c) 2021 Samuel Holland <samuel@sholland.org>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-#define WDT_KEY_VAL			0x16aa0000
+#నిర్వచించు WDT_కీలకం_VAL			0x16aa0000
 
-#define WDT_SOFT_RST_REG		0x08
-#define WDT_SOFT_RST_EN			BIT(0)
+#నిర్వచించు WDT_SOFT_RST_REG		0x08
+#నిర్వచించు WDT_SOFT_RST_EN			బిట్టు(0)
 
-#define WDT_MODE_REG			0x18
+#నిర్వచించు WDT_బహుళకం_REG			0x18
 
-static volatile char *sunxi_wdt_base;
+స్థిర అస్థిర అక్షరం *sunxi_wdt_పునాది;
 
-static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం sunxi_wdt_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 1;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		తిరిగి 1;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void sunxi_wdt_system_reset(u32 type, u32 reason)
+స్థిర శూన్య sunxi_wdt_system_reset(u32 type, u32 reason)
 {
 	/* Disable the watchdog. */
-	writel_relaxed(WDT_KEY_VAL,
-		       sunxi_wdt_base + WDT_MODE_REG);
+	writel_relaxed(WDT_కీలకం_VAL,
+		       sunxi_wdt_పునాది + WDT_బహుళకం_REG);
 
 	/* Trigger soft reset. */
-	writel_relaxed(WDT_KEY_VAL | WDT_SOFT_RST_EN,
-		       sunxi_wdt_base + WDT_SOFT_RST_REG);
+	writel_relaxed(WDT_కీలకం_VAL | WDT_SOFT_RST_EN,
+		       sunxi_wdt_పునాది + WDT_SOFT_RST_REG);
 }
 
-static struct sbi_system_reset_device sunxi_wdt_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device sunxi_wdt_reset = {
 	.name = "sunxi-wdt-reset",
 	.system_reset_check = sunxi_wdt_system_reset_check,
 	.system_reset = sunxi_wdt_system_reset,
 };
 
-static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+స్థిర పూర్ణాంకం sunxi_wdt_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
 	uint64_t reg_addr;
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, ఖాళీ);
+	ఒకవేళ (rc < 0 || !reg_addr)
+		తిరిగి SBI_ENODEV;
 
-	sunxi_wdt_base = (volatile char *)(unsigned long)reg_addr;
+	sunxi_wdt_పునాది = (అస్థిర అక్షరం *)(గుర్తులేని దీర్ఘ)reg_addr;
 
-	sbi_system_reset_add_device(&sunxi_wdt_reset);
+	sbi_system_reset_కూడు_device(&sunxi_wdt_reset);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match sunxi_wdt_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక sunxi_wdt_reset_సరిపోలిక[] = {
 	{ .compatible = "allwinner,sun20i-d1-wdt-reset" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sunxi_wdt = {
-	.match_table = sunxi_wdt_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_sunxi_wdt = {
+	.సరిపోలిక_పట్టిక = sunxi_wdt_reset_సరిపోలిక,
 	.init = sunxi_wdt_reset_init,
 };

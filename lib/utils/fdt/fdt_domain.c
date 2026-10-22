@@ -8,241 +8,241 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <libfdt_env.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_domain.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <libfdt_env.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hartmask.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_domain.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_iterate_each_domain(void *fdt, void *opaque,
-			    int (*fn)(void *fdt, int domain_offset,
-				       void *opaque))
+పూర్ణాంకం fdt_iterate_each_domain(శూన్య *fdt, శూన్య *opaque,
+			    పూర్ణాంకం (*fn)(శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం,
+				       శూన్య *opaque))
 {
-	int rc, doffset, poffset;
+	పూర్ణాంకం rc, doffset, poffset;
 
-	if (!fdt || !fn)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || !fn)
+		తిరిగి SBI_EINVAL;
 
-	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return 0;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_మార్గం_స్థానభ్రంశం(fdt, "/chosen");
+	ఒకవేళ (poffset < 0)
+		తిరిగి 0;
+	poffset = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return 0;
+	ఒకవేళ (poffset < 0)
+		తిరిగి 0;
 
 	fdt_for_each_subnode(doffset, fdt, poffset) {
-		if (fdt_node_check_compatible(fdt, doffset,
+		ఒకవేళ (fdt_కణుపు_check_compatible(fdt, doffset,
 					      "opensbi,domain,instance"))
-			continue;
+			కొనసాగు;
 
 		rc = fn(fdt, doffset, opaque);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int fdt_iterate_each_domain_ro(const void *fdt, void *opaque,
-				      int (*fn)(const void *fdt, int domain_offset,
-						void *opaque))
+స్థిర పూర్ణాంకం fdt_iterate_each_domain_ro(స్థిరరాశి శూన్య *fdt, శూన్య *opaque,
+				      పూర్ణాంకం (*fn)(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం,
+						శూన్య *opaque))
 {
-	return fdt_iterate_each_domain((void *)fdt, opaque,
-				       (int (*)(void *, int,  void *))fn);
+	తిరిగి fdt_iterate_each_domain((శూన్య *)fdt, opaque,
+				       (పూర్ణాంకం (*)(శూన్య *, పూర్ణాంకం,  శూన్య *))fn);
 }
 
-int fdt_iterate_each_memregion(void *fdt, int domain_offset, void *opaque,
-			       int (*fn)(void *fdt, int domain_offset,
-					 int region_offset, u32 region_access,
-					 void *opaque))
+పూర్ణాంకం fdt_iterate_each_memregion(శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం, శూన్య *opaque,
+			       పూర్ణాంకం (*fn)(శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం,
+					 పూర్ణాంకం region_స్థానభ్రంశం, u32 region_access,
+					 శూన్య *opaque))
 {
 	u32 i, rcount;
-	int rc, len, region_offset;
-	const u32 *regions;
+	పూర్ణాంకం rc, len, region_స్థానభ్రంశం;
+	స్థిరరాశి u32 *regions;
 
-	if (!fdt || (domain_offset < 0) || !fn)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || (domain_స్థానభ్రంశం < 0) || !fn)
+		తిరిగి SBI_EINVAL;
 
-	if (fdt_node_check_compatible(fdt, domain_offset,
+	ఒకవేళ (fdt_కణుపు_check_compatible(fdt, domain_స్థానభ్రంశం,
 				      "opensbi,domain,instance"))
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 
-	regions = fdt_getprop(fdt, domain_offset, "regions", &len);
-	if (!regions)
-		return 0;
+	regions = fdt_getprop(fdt, domain_స్థానభ్రంశం, "regions", &len);
+	ఒకవేళ (!regions)
+		తిరిగి 0;
 
-	rcount = (u32)len / (sizeof(u32) * 2);
-	for (i = 0; i < rcount; i++) {
-		region_offset = fdt_node_offset_by_phandle(fdt,
-						fdt32_to_cpu(regions[2 * i]));
-		if (region_offset < 0)
-			return region_offset;
+	rcount = (u32)len / (పరిమాణం(u32) * 2);
+	కొరకు (i = 0; i < rcount; i++) {
+		region_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt,
+						fdt32_గమ్యం_cpu(regions[2 * i]));
+		ఒకవేళ (region_స్థానభ్రంశం < 0)
+			తిరిగి region_స్థానభ్రంశం;
 
-		if (fdt_node_check_compatible(fdt, region_offset,
+		ఒకవేళ (fdt_కణుపు_check_compatible(fdt, region_స్థానభ్రంశం,
 					      "opensbi,domain,memregion"))
-			return SBI_EINVAL;
+			తిరిగి SBI_EINVAL;
 
-		rc = fn(fdt, domain_offset, region_offset,
-			fdt32_to_cpu(regions[(2 * i) + 1]), opaque);
-		if (rc)
-			return rc;
+		rc = fn(fdt, domain_స్థానభ్రంశం, region_స్థానభ్రంశం,
+			fdt32_గమ్యం_cpu(regions[(2 * i) + 1]), opaque);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int fdt_iterate_each_memregion_ro(const void *fdt, int domain_offset, void *opaque,
-					 int (*fn)(const void *fdt, int domain_offset,
-						   int region_offset, u32 region_access,
-						   void *opaque))
+స్థిర పూర్ణాంకం fdt_iterate_each_memregion_ro(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం, శూన్య *opaque,
+					 పూర్ణాంకం (*fn)(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం,
+						   పూర్ణాంకం region_స్థానభ్రంశం, u32 region_access,
+						   శూన్య *opaque))
 {
-	return fdt_iterate_each_memregion((void *)fdt, domain_offset, opaque,
-					  (int (*)(void *, int, int, u32, void *))fn);
+	తిరిగి fdt_iterate_each_memregion((శూన్య *)fdt, domain_స్థానభ్రంశం, opaque,
+					  (పూర్ణాంకం (*)(శూన్య *, పూర్ణాంకం, పూర్ణాంకం, u32, శూన్య *))fn);
 }
 
-struct __fixup_find_domain_offset_info {
-	const char *name;
-	int *doffset;
+నిర్మాణం __fixup_find_domain_offset_info {
+	స్థిరరాశి అక్షరం *name;
+	పూర్ణాంకం *doffset;
 };
 
-static int __fixup_find_domain_offset(void *fdt, int doff, void *p)
+స్థిర పూర్ణాంకం __fixup_find_domain_offset(శూన్య *fdt, పూర్ణాంకం doff, శూన్య *p)
 {
-	struct __fixup_find_domain_offset_info *fdo = p;
+	నిర్మాణం __fixup_find_domain_offset_info *fdo = p;
 
-	if (!strncmp(fdo->name, fdt_get_name(fdt, doff, NULL), strlen(fdo->name)))
+	ఒకవేళ (!అక్షరశ్రేణి_పోలిక(fdo->name, fdt_get_name(fdt, doff, ఖాళీ), అక్షరశ్రేణి_పొడవు(fdo->name)))
 		*fdo->doffset = doff;
 
-	return 0;
+	తిరిగి 0;
 }
 
-#define DISABLE_DEVICES_MASK	(SBI_DOMAIN_MEMREGION_READABLE | \
+#నిర్వచించు DISABLE_DEVICES_ముసుగు	(SBI_DOMAIN_MEMREGION_READABLE | \
 				 SBI_DOMAIN_MEMREGION_WRITEABLE | \
 				 SBI_DOMAIN_MEMREGION_EXECUTABLE)
 
-static int __fixup_count_disable_devices(void *fdt, int doff, int roff,
-					 u32 perm, void *p)
+స్థిర పూర్ణాంకం __fixup_count_disable_devices(శూన్య *fdt, పూర్ణాంకం doff, పూర్ణాంకం roff,
+					 u32 perm, శూన్య *p)
 {
-	int len;
+	పూర్ణాంకం len;
 	u32 *dcount = p;
 
-	if (perm & DISABLE_DEVICES_MASK)
-		return 0;
+	ఒకవేళ (perm & DISABLE_DEVICES_ముసుగు)
+		తిరిగి 0;
 
 	len = 0;
-	if (fdt_getprop(fdt, roff, "devices", &len))
-		*dcount += len / sizeof(u32);
+	ఒకవేళ (fdt_getprop(fdt, roff, "devices", &len))
+		*dcount += len / పరిమాణం(u32);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int __fixup_disable_devices(void *fdt, int doff, int roff,
-				   u32 raccess, void *p)
+స్థిర పూర్ణాంకం __fixup_disable_devices(శూన్య *fdt, పూర్ణాంకం doff, పూర్ణాంకం roff,
+				   u32 raccess, శూన్య *p)
 {
-	int i, len, coff;
-	const u32 *devices;
+	పూర్ణాంకం i, len, coff;
+	స్థిరరాశి u32 *devices;
 
-	if (raccess & DISABLE_DEVICES_MASK)
-		return 0;
+	ఒకవేళ (raccess & DISABLE_DEVICES_ముసుగు)
+		తిరిగి 0;
 
 	len = 0;
 	devices = fdt_getprop(fdt, roff, "devices", &len);
-	if (!devices)
-		return 0;
-	len = len / sizeof(u32);
+	ఒకవేళ (!devices)
+		తిరిగి 0;
+	len = len / పరిమాణం(u32);
 
-	for (i = 0; i < len; i++) {
-		coff = fdt_node_offset_by_phandle(fdt,
-					fdt32_to_cpu(devices[i]));
-		if (coff < 0)
-			return coff;
+	కొరకు (i = 0; i < len; i++) {
+		coff = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt,
+					fdt32_గమ్యం_cpu(devices[i]));
+		ఒకవేళ (coff < 0)
+			తిరిగి coff;
 
 		fdt_setprop_string(fdt, coff, "status", "disabled");
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void fdt_domain_fixup(void *fdt)
+శూన్య fdt_domain_fixup(శూన్య *fdt)
 {
 	u32 dcount;
-	int err, poffset, doffset;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct __fixup_find_domain_offset_info fdo;
+	పూర్ణాంకం err, poffset, doffset;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం __fixup_find_domain_offset_info fdo;
 
 	/* Skip device disable for root domain */
-	if (!dom->index)
-		goto skip_device_disable;
+	ఒకవేళ (!dom->సూచీ_2)
+		వెళ్ళు skip_device_disable;
 
 	/* Find current domain DT node */
 	doffset = -1;
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
-		goto skip_device_disable;
+	ఒకవేళ (doffset < 0)
+		వెళ్ళు skip_device_disable;
 
 	/* Count current domain device DT nodes to be disabled */
 	dcount = 0;
 	fdt_iterate_each_memregion(fdt, doffset, &dcount,
 				   __fixup_count_disable_devices);
-	if (!dcount)
-		goto skip_device_disable;
+	ఒకవేళ (!dcount)
+		వెళ్ళు skip_device_disable;
 
 	/* Expand FDT based on device DT nodes to be disabled */
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + dcount * 32);
-	if (err < 0)
-		return;
+	ఒకవేళ (err < 0)
+		తిరిగి;
 
 	/* Again find current domain DT node */
 	doffset = -1;
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
-		goto skip_device_disable;
+	ఒకవేళ (doffset < 0)
+		వెళ్ళు skip_device_disable;
 
 	/* Disable device DT nodes for current domain */
-	fdt_iterate_each_memregion(fdt, doffset, NULL,
+	fdt_iterate_each_memregion(fdt, doffset, ఖాళీ,
 				   __fixup_disable_devices);
 skip_device_disable:
 
 	/* Remove the OpenSBI domain config DT node */
-	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_మార్గం_స్థానభ్రంశం(fdt, "/chosen");
+	ఒకవేళ (poffset < 0)
+		తిరిగి;
+	poffset = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return;
-	fdt_nop_node(fdt, poffset);
+	ఒకవేళ (poffset < 0)
+		తిరిగి;
+	fdt_nop_కణుపు(fdt, poffset);
 }
 
-#define FDT_DOMAIN_REGION_MAX_COUNT		16
-#define FDT_ROOT_REGION_INHERIT_M_ONLY		0
-#define FDT_ROOT_REGION_INHERIT_ALL		1
+#నిర్వచించు FDT_DOMAIN_REGION_MAX_లెక్క		16
+#నిర్వచించు FDT_మూలం_REGION_INHERIT_M_ONLY		0
+#నిర్వచించు FDT_మూలం_REGION_INHERIT_ALL		1
 
-struct parse_region_data {
-	struct sbi_domain *dom;
-	u32 region_count;
+నిర్మాణం parse_region_దత్తాంశం {
+	నిర్మాణం sbi_domain *dom;
+	u32 region_లెక్క;
 	u32 max_regions;
 };
 
-static int __fdt_parse_region(const void *fdt, int domain_offset,
-			      int region_offset, u32 region_access,
-			      void *opaque)
+స్థిర పూర్ణాంకం __fdt_parse_region(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం,
+			      పూర్ణాంకం region_స్థానభ్రంశం, u32 region_access,
+			      శూన్య *opaque)
 {
-	int len;
+	పూర్ణాంకం len;
 	u32 val32;
 	u64 val64;
-	const u32 *val;
-	unsigned long base, order, flags;
-	struct parse_region_data *preg = opaque;
+	స్థిరరాశి u32 *val;
+	గుర్తులేని దీర్ఘ పునాది_2, క్రమం, flags;
+	నిర్మాణం parse_region_దత్తాంశం *preg = opaque;
 
 	/*
 	 * Non-root domains cannot add a region with only M-mode
@@ -252,248 +252,248 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 	 * SU permission bits can't be all zeroes when M-mode permission
 	 * bits have at least one bit set.
 	 */
-	if (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_MASK)
-	    && (region_access & SBI_DOMAIN_MEMREGION_M_ACCESS_MASK))
-		return SBI_EINVAL;
+	ఒకవేళ (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_ముసుగు)
+	    && (region_access & SBI_DOMAIN_MEMREGION_M_ACCESS_ముసుగు))
+		తిరిగి SBI_EINVAL;
 
 	/* Find next region of the domain */
-	if (preg->max_regions <= preg->region_count)
-		return SBI_ENOSPC;
+	ఒకవేళ (preg->max_regions <= preg->region_లెక్క)
+		తిరిగి SBI_ENOSPC;
 
 	/* Read "base" DT property */
-	val = fdt_getprop(fdt, region_offset, "base", &len);
-	if (!val || len != 8)
-		return SBI_EINVAL;
-	val64 = fdt32_to_cpu(val[0]);
-	val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	base = val64;
+	val = fdt_getprop(fdt, region_స్థానభ్రంశం, "base", &len);
+	ఒకవేళ (!val || len != 8)
+		తిరిగి SBI_EINVAL;
+	val64 = fdt32_గమ్యం_cpu(val[0]);
+	val64 = (val64 << 32) | fdt32_గమ్యం_cpu(val[1]);
+	పునాది_2 = val64;
 
 	/* Read "order" DT property */
-	val = fdt_getprop(fdt, region_offset, "order", &len);
-	if (!val || len != 4)
-		return SBI_EINVAL;
-	val32 = fdt32_to_cpu(*val);
-	if (val32 < 3 || __riscv_xlen < val32)
-		return SBI_EINVAL;
-	order = val32;
+	val = fdt_getprop(fdt, region_స్థానభ్రంశం, "order", &len);
+	ఒకవేళ (!val || len != 4)
+		తిరిగి SBI_EINVAL;
+	val32 = fdt32_గమ్యం_cpu(*val);
+	ఒకవేళ (val32 < 3 || __riscv_xlen < val32)
+		తిరిగి SBI_EINVAL;
+	క్రమం = val32;
 
-	flags = region_access & (SBI_DOMAIN_MEMREGION_ACCESS_MASK
+	flags = region_access & (SBI_DOMAIN_MEMREGION_ACCESS_ముసుగు
 				| SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS);
 
 	/* Read "mmio" DT property */
-	if (fdt_get_property(fdt, region_offset, "mmio", NULL))
+	ఒకవేళ (fdt_get_property(fdt, region_స్థానభ్రంశం, "mmio", ఖాళీ))
 		flags |= SBI_DOMAIN_MEMREGION_MMIO;
 
-	sbi_domain_memregion_init(base, (order == __riscv_xlen) ? ~0UL : BIT(order),
-				  flags, &preg->dom->regions[preg->region_count]);
+	sbi_domain_memregion_init(పునాది_2, (క్రమం == __riscv_xlen) ? ~0UL : బిట్టు(క్రమం),
+				  flags, &preg->dom->regions[preg->region_లెక్క]);
 
-	preg->region_count++;
+	preg->region_లెక్క++;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
+స్థిర పూర్ణాంకం __fdt_parse_domain(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం domain_స్థానభ్రంశం, శూన్య *opaque)
 {
 	u32 val32;
 	u64 val64;
-	const u32 *val;
-	const char *inherit;
-	struct sbi_domain *dom;
-	struct sbi_hartmask *mask;
-	struct parse_region_data preg;
-	struct sbi_domain_memregion *reg;
-	int inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-	int i, err = 0, len, cpu_offset;
+	స్థిరరాశి u32 *val;
+	స్థిరరాశి అక్షరం *inherit;
+	నిర్మాణం sbi_domain *dom;
+	నిర్మాణం sbi_hartmask *ముసుగు;
+	నిర్మాణం parse_region_దత్తాంశం preg;
+	నిర్మాణం sbi_domain_memregion *reg;
+	పూర్ణాంకం inheritance_బహుళకం = FDT_మూలం_REGION_INHERIT_M_ONLY;
+	పూర్ణాంకం i, err = 0, len, cpu_స్థానభ్రంశం;
 
-	dom = sbi_zalloc(sizeof(*dom));
-	if (!dom)
-		return SBI_ENOMEM;
+	dom = sbi_zalloc(పరిమాణం(*dom));
+	ఒకవేళ (!dom)
+		తిరిగి SBI_ENOMEM;
 
-	dom->regions = sbi_calloc(sizeof(*dom->regions),
-				  FDT_DOMAIN_REGION_MAX_COUNT + 1);
-	if (!dom->regions) {
+	dom->regions = sbi_calloc(పరిమాణం(*dom->regions),
+				  FDT_DOMAIN_REGION_MAX_లెక్క + 1);
+	ఒకవేళ (!dom->regions) {
 		err = SBI_ENOMEM;
-		goto fail_free_domain;
+		వెళ్ళు fail_free_domain;
 	}
 	preg.dom = dom;
-	preg.region_count = 0;
-	preg.max_regions = FDT_DOMAIN_REGION_MAX_COUNT;
+	preg.region_లెక్క = 0;
+	preg.max_regions = FDT_DOMAIN_REGION_MAX_లెక్క;
 
-	mask = sbi_zalloc(sizeof(*mask));
-	if (!mask) {
+	ముసుగు = sbi_zalloc(పరిమాణం(*ముసుగు));
+	ఒకవేళ (!ముసుగు) {
 		err = SBI_ENOMEM;
-		goto fail_free_regions;
+		వెళ్ళు fail_free_regions;
 	}
 
 	/* Read DT node name */
-	strncpy(dom->name, fdt_get_name(fdt, domain_offset, NULL),
-		    sizeof(dom->name));
-	dom->name[sizeof(dom->name) - 1] = '\0';
+	strncpy(dom->name, fdt_get_name(fdt, domain_స్థానభ్రంశం, ఖాళీ),
+		    పరిమాణం(dom->name));
+	dom->name[పరిమాణం(dom->name) - 1] = '\0';
 
 	/* Read initalization order */
-	val = fdt_getprop(fdt, domain_offset, "init-order", &len);
-	len = len / sizeof(u32);
-	if (val && len)
-		dom->init_order = fdt32_to_cpu(val[0]);
-	else
-		dom->init_order = (u32)domain_offset;
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "init-order", &len);
+	len = len / పరిమాణం(u32);
+	ఒకవేళ (val && len)
+		dom->init_క్రమం = fdt32_గమ్యం_cpu(val[0]);
+	లేకపోతే
+		dom->init_క్రమం = (u32)domain_స్థానభ్రంశం;
 
 	/* Setup possible HARTs mask */
-	SBI_HARTMASK_INIT(mask);
-	dom->possible_harts = mask;
-	val = fdt_getprop(fdt, domain_offset, "possible-harts", &len);
-	len = len / sizeof(u32);
-	if (val && len) {
-		for (i = 0; i < len; i++) {
-			cpu_offset = fdt_node_offset_by_phandle(fdt,
-							fdt32_to_cpu(val[i]));
-			if (cpu_offset < 0) {
-				err = cpu_offset;
-				goto fail_free_all;
+	SBI_HARTMASK_INIT(ముసుగు);
+	dom->possible_harts = ముసుగు;
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "possible-harts", &len);
+	len = len / పరిమాణం(u32);
+	ఒకవేళ (val && len) {
+		కొరకు (i = 0; i < len; i++) {
+			cpu_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt,
+							fdt32_గమ్యం_cpu(val[i]));
+			ఒకవేళ (cpu_స్థానభ్రంశం < 0) {
+				err = cpu_స్థానభ్రంశం;
+				వెళ్ళు fail_free_all;
 			}
 
-			err = fdt_parse_hart_id(fdt, cpu_offset, &val32);
-			if (err)
-				goto fail_free_all;
+			err = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &val32);
+			ఒకవేళ (err)
+				వెళ్ళు fail_free_all;
 
-			if (!fdt_node_is_enabled(fdt, cpu_offset))
-				continue;
+			ఒకవేళ (!fdt_కణుపు_is_enabled(fdt, cpu_స్థానభ్రంశం))
+				కొనసాగు;
 
-			sbi_hartmask_set_hartid(val32, mask);
+			sbi_hartmask_సమితి_hartid(val32, ముసుగు);
 		}
 	}
 
 	/* Setup memregions from DT */
-	err = fdt_iterate_each_memregion_ro(fdt, domain_offset, &preg,
+	err = fdt_iterate_each_memregion_ro(fdt, domain_స్థానభ్రంశం, &preg,
 					    __fdt_parse_region);
-	if (err)
-		goto fail_free_all;
+	ఒకవేళ (err)
+		వెళ్ళు fail_free_all;
 
 	/* Determine root domain regions inheritance behavior. */
-	inherit = fdt_getprop(fdt, domain_offset,
+	inherit = fdt_getprop(fdt, domain_స్థానభ్రంశం,
 			       "root-regions-inheritance", &len);
-	if (inherit && len > 0) {
-		if (!strcmp(inherit, "all"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_ALL;
-		else if (!strcmp(inherit, "m-only"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-		else {
+	ఒకవేళ (inherit && len > 0) {
+		ఒకవేళ (!strcmp(inherit, "all"))
+			inheritance_బహుళకం = FDT_మూలం_REGION_INHERIT_ALL;
+		లేకపోతే ఒకవేళ (!strcmp(inherit, "m-only"))
+			inheritance_బహుళకం = FDT_మూలం_REGION_INHERIT_M_ONLY;
+		లేకపోతే {
 			sbi_printf("%s: domain \"%s\" has unsupported "
 				   "root-regions-inheritance=\"%s\"\n",
 				   __func__, dom->name, inherit);
 			err = SBI_EINVAL;
-			goto fail_free_all;
+			వెళ్ళు fail_free_all;
 		}
 	}
 
 	/* Copy over root domain memregions according to inheritance_mode. */
-	sbi_domain_for_each_memregion(&root, reg) {
+	sbi_domain_for_each_memregion(&మూలం, reg) {
 		bool copy = false;
 
-		switch (inheritance_mode) {
-		case FDT_ROOT_REGION_INHERIT_ALL:
+		ఎంపిక (inheritance_బహుళకం) {
+		స్థితి FDT_మూలం_REGION_INHERIT_ALL:
 			copy = true;
-			break;
-		case FDT_ROOT_REGION_INHERIT_M_ONLY:
-			if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
+			ఆపు;
+		స్థితి FDT_మూలం_REGION_INHERIT_M_ONLY:
+			ఒకవేళ (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
 			    SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 				copy = true;
 			}
-			break;
+			ఆపు;
 		}
 
-		if (!copy)
-			continue;
+		ఒకవేళ (!copy)
+			కొనసాగు;
 
-		if (preg.max_regions <= preg.region_count) {
+		ఒకవేళ (preg.max_regions <= preg.region_లెక్క) {
 			err = SBI_EINVAL;
-			goto fail_free_all;
+			వెళ్ళు fail_free_all;
 		}
-		memcpy(&dom->regions[preg.region_count++], reg, sizeof(*reg));
+		జ్ఞాపకం_నకలు(&dom->regions[preg.region_లెక్క++], reg, పరిమాణం(*reg));
 	}
-	dom->fw_region_inited = root.fw_region_inited;
+	dom->fw_region_inited = మూలం.fw_region_inited;
 
 	/* Read "boot-hart" DT property */
 	val32 = current_hartid();
-	val = fdt_getprop(fdt, domain_offset, "boot-hart", &len);
-	if (val && len >= 4) {
-		cpu_offset = fdt_node_offset_by_phandle(fdt,
-							 fdt32_to_cpu(*val));
-		if (cpu_offset >= 0 && fdt_node_is_enabled(fdt, cpu_offset))
-			fdt_parse_hart_id(fdt, cpu_offset, &val32);
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "boot-hart", &len);
+	ఒకవేళ (val && len >= 4) {
+		cpu_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt,
+							 fdt32_గమ్యం_cpu(*val));
+		ఒకవేళ (cpu_స్థానభ్రంశం >= 0 && fdt_కణుపు_is_enabled(fdt, cpu_స్థానభ్రంశం))
+			fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &val32);
 	}
 	dom->boot_hartid = val32;
 
 	/* Read "next-arg1" DT property */
 	val64 = 0;
-	val = fdt_getprop(fdt, domain_offset, "next-arg1", &len);
-	if (val && len >= 8) {
-		val64 = fdt32_to_cpu(val[0]);
-		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
-		val64 = root.next_arg1;
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "next-arg1", &len);
+	ఒకవేళ (val && len >= 8) {
+		val64 = fdt32_గమ్యం_cpu(val[0]);
+		val64 = (val64 << 32) | fdt32_గమ్యం_cpu(val[1]);
+	} లేకపోతే {
+		val64 = మూలం.తదుపరి_arg1;
 	}
-	dom->next_arg1 = val64;
+	dom->తదుపరి_arg1 = val64;
 
 	/* Read "next-addr" DT property */
 	val64 = 0;
-	val = fdt_getprop(fdt, domain_offset, "next-addr", &len);
-	if (val && len >= 8) {
-		val64 = fdt32_to_cpu(val[0]);
-		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
-		val64 = root.next_addr;
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "next-addr", &len);
+	ఒకవేళ (val && len >= 8) {
+		val64 = fdt32_గమ్యం_cpu(val[0]);
+		val64 = (val64 << 32) | fdt32_గమ్యం_cpu(val[1]);
+	} లేకపోతే {
+		val64 = మూలం.తదుపరి_addr;
 	}
-	dom->next_addr = val64;
+	dom->తదుపరి_addr = val64;
 
 	/* Read "next-mode" DT property */
 	val32 = 0x1;
-	val = fdt_getprop(fdt, domain_offset, "next-mode", &len);
-	if (val && len >= 4) {
-		val32 = fdt32_to_cpu(val[0]);
-		if (val32 != 0x0 && val32 != 0x1)
+	val = fdt_getprop(fdt, domain_స్థానభ్రంశం, "next-mode", &len);
+	ఒకవేళ (val && len >= 4) {
+		val32 = fdt32_గమ్యం_cpu(val[0]);
+		ఒకవేళ (val32 != 0x0 && val32 != 0x1)
 			val32 = 0x1;
-	} else {
-		val32 = root.next_mode;
+	} లేకపోతే {
+		val32 = మూలం.తదుపరి_బహుళకం;
 	}
-	dom->next_mode = val32;
+	dom->తదుపరి_బహుళకం = val32;
 
 	/* Read "system-reset-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
-			     "system-reset-allowed", NULL))
+	ఒకవేళ (fdt_get_property(fdt, domain_స్థానభ్రంశం,
+			     "system-reset-allowed", ఖాళీ))
 		dom->system_reset_allowed = true;
-	else
+	లేకపోతే
 		dom->system_reset_allowed = false;
 
 	/* Read "system-suspend-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
-			     "system-suspend-allowed", NULL))
+	ఒకవేళ (fdt_get_property(fdt, domain_స్థానభ్రంశం,
+			     "system-suspend-allowed", ఖాళీ))
 		dom->system_suspend_allowed = true;
-	else
+	లేకపోతే
 		dom->system_suspend_allowed = false;
 
 	/* Register the domain */
-	err = sbi_domain_register(dom);
-	if (err)
-		goto fail_free_all;
+	err = sbi_domain_రిజిస్టరు(dom);
+	ఒకవేళ (err)
+		వెళ్ళు fail_free_all;
 
-	return 0;
+	తిరిగి 0;
 
 fail_free_all:
-	sbi_free(mask);
+	sbi_free(ముసుగు);
 fail_free_regions:
 	sbi_free(dom->regions);
 fail_free_domain:
 	sbi_free(dom);
-	return err;
+	తిరిగి err;
 }
 
-int fdt_domains_populate(const void *fdt)
+పూర్ణాంకం fdt_domains_populate(స్థిరరాశి శూన్య *fdt)
 {
 	/* Sanity checks */
-	if (!fdt)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt)
+		తిరిగి SBI_EINVAL;
 
 	/* Iterate over each domain in FDT and populate details */
-	return fdt_iterate_each_domain_ro(fdt, NULL, __fdt_parse_domain);
+	తిరిగి fdt_iterate_each_domain_ro(fdt, ఖాళీ, __fdt_parse_domain);
 }

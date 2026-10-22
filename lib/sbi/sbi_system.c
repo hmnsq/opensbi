@@ -8,65 +8,65 @@
  *   Nick Kossifidis <mick@ics.forth.gr>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_hsm.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi/sbi_ipi.h>
+#అన్తర్భావ <sbi/sbi_init.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
 
-static SBI_LIST_HEAD(reset_devices_list);
+స్థిర SBI_LIST_తల(reset_devices_list);
 
-const struct sbi_system_reset_device *sbi_system_reset_get_device(
+స్థిరరాశి నిర్మాణం sbi_system_reset_device *sbi_system_reset_get_device(
 					u32 reset_type, u32 reset_reason)
 {
-	struct sbi_system_reset_device *reset_dev = NULL;
-	struct sbi_dlist *pos;
+	నిర్మాణం sbi_system_reset_device *reset_dev = ఖాళీ;
+	నిర్మాణం sbi_dlist *pos;
 	/** lowest priority - any non zero is our candidate */
-	int priority = 0;
+	పూర్ణాంకం ప్రాధాన్యత = 0;
 
 	/* Check each reset device registered for supported reset type */
 	sbi_list_for_each(pos, &(reset_devices_list)) {
-		struct sbi_system_reset_device *dev =
-			to_system_reset_device(pos);
-		if (dev->system_reset_check) {
-			int status = dev->system_reset_check(reset_type,
+		నిర్మాణం sbi_system_reset_device *dev =
+			గమ్యం_system_reset_device(pos);
+		ఒకవేళ (dev->system_reset_check) {
+			పూర్ణాంకం స్థితి_2 = dev->system_reset_check(reset_type,
 							     reset_reason);
 			/** reset_type not supported */
-			if (status == 0)
-				continue;
+			ఒకవేళ (స్థితి_2 == 0)
+				కొనసాగు;
 
-			if (status > priority) {
+			ఒకవేళ (స్థితి_2 > ప్రాధాన్యత) {
 				reset_dev = dev;
-				priority = status;
+				ప్రాధాన్యత = స్థితి_2;
 			}
 		}
 	}
 
-	return reset_dev;
+	తిరిగి reset_dev;
 }
 
-void sbi_system_reset_add_device(struct sbi_system_reset_device *dev)
+శూన్య sbi_system_reset_కూడు_device(నిర్మాణం sbi_system_reset_device *dev)
 {
-	if (!dev || !dev->system_reset_check)
-		return;
+	ఒకవేళ (!dev || !dev->system_reset_check)
+		తిరిగి;
 
-	sbi_list_add(&(dev->node), &(reset_devices_list));
+	sbi_list_కూడు(&(dev->కణుపు), &(reset_devices_list));
 }
 
 bool sbi_system_reset_supported(u32 reset_type, u32 reset_reason)
 {
-	return !!sbi_system_reset_get_device(reset_type, reset_reason);
+	తిరిగి !!sbi_system_reset_get_device(reset_type, reset_reason);
 }
 
-void __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
+శూన్య __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
 {
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	/* Send HALT IPI to every hart other than the current hart */
 	sbi_ipi_send_halt(0, -1UL);
@@ -75,10 +75,10 @@ void __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
 	sbi_hsm_hart_stop(scratch, false);
 
 	/* Platform specific reset if domain allowed system reset */
-	if (dom->system_reset_allowed) {
-		const struct sbi_system_reset_device *dev =
+	ఒకవేళ (dom->system_reset_allowed) {
+		స్థిరరాశి నిర్మాణం sbi_system_reset_device *dev =
 			sbi_system_reset_get_device(reset_type, reset_reason);
-		if (dev)
+		ఒకవేళ (dev)
 			dev->system_reset(reset_type, reset_reason);
 	}
 
@@ -86,132 +86,132 @@ void __noreturn sbi_system_reset(u32 reset_type, u32 reset_reason)
 	sbi_exit(scratch);
 }
 
-static const struct sbi_system_suspend_device *suspend_dev = NULL;
-static bool system_suspended;
+స్థిర స్థిరరాశి నిర్మాణం sbi_system_suspend_device *suspend_dev = ఖాళీ;
+స్థిర bool system_suspended;
 
-const struct sbi_system_suspend_device *sbi_system_suspend_get_device(void)
+స్థిరరాశి నిర్మాణం sbi_system_suspend_device *sbi_system_suspend_get_device(శూన్య)
 {
-	return suspend_dev;
+	తిరిగి suspend_dev;
 }
 
-void sbi_system_suspend_set_device(struct sbi_system_suspend_device *dev)
+శూన్య sbi_system_suspend_సమితి_device(నిర్మాణం sbi_system_suspend_device *dev)
 {
-	if (!dev || suspend_dev)
-		return;
+	ఒకవేళ (!dev || suspend_dev)
+		తిరిగి;
 
 	suspend_dev = dev;
 }
 
-static int sbi_system_suspend_test_check(u32 sleep_type)
+స్థిర పూర్ణాంకం sbi_system_suspend_test_check(u32 sleep_type)
 {
-	return sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? 0 : SBI_EINVAL;
+	తిరిగి sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ? 0 : SBI_EINVAL;
 }
 
-static int sbi_system_suspend_test_suspend(u32 sleep_type,
-					   unsigned long mmode_resume_addr)
+స్థిర పూర్ణాంకం sbi_system_suspend_test_suspend(u32 sleep_type,
+					   గుర్తులేని దీర్ఘ mmode_resume_addr)
 {
-	if (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
-		return SBI_EINVAL;
+	ఒకవేళ (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
+		తిరిగి SBI_EINVAL;
 
 	sbi_timer_mdelay(5000);
 
 	/* Wait for interrupt */
 	wfi();
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static struct sbi_system_suspend_device sbi_system_suspend_test = {
+స్థిర నిర్మాణం sbi_system_suspend_device sbi_system_suspend_test = {
 	.name = "system-suspend-test",
 	.system_suspend_check = sbi_system_suspend_test_check,
 	.system_suspend = sbi_system_suspend_test_suspend,
 };
 
-void sbi_system_suspend_test_enable(void)
+శూన్య sbi_system_suspend_test_enable(శూన్య)
 {
-	sbi_system_suspend_set_device(&sbi_system_suspend_test);
+	sbi_system_suspend_సమితి_device(&sbi_system_suspend_test);
 }
 
 bool sbi_system_suspend_supported(u32 sleep_type)
 {
-	return suspend_dev && suspend_dev->system_suspend_check &&
+	తిరిగి suspend_dev && suspend_dev->system_suspend_check &&
 	       suspend_dev->system_suspend_check(sleep_type) == 0;
 }
 
-bool sbi_system_is_suspended(void)
+bool sbi_system_is_suspended(శూన్య)
 {
-	return system_suspended;
+	తిరిగి system_suspended;
 }
 
-void sbi_system_resume(void)
+శూన్య sbi_system_resume(శూన్య)
 {
-	if (suspend_dev && suspend_dev->system_resume)
+	ఒకవేళ (suspend_dev && suspend_dev->system_resume)
 		suspend_dev->system_resume();
 
 	system_suspended = false;
 }
 
-int sbi_system_suspend(u32 sleep_type, ulong resume_addr, ulong opaque)
+పూర్ణాంకం sbi_system_suspend(u32 sleep_type, ulong resume_addr, ulong opaque)
 {
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	void (*jump_warmboot)(void) = (void (*)(void))scratch->warmboot_addr;
-	unsigned int hartindex = current_hartindex();
-	unsigned long prev_mode;
-	unsigned long i;
-	int ret;
+	నిర్మాణం sbi_domain *dom = sbi_domain_thishart_ptr();
+	నిర్మాణం sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	శూన్య (*jump_warmboot)(శూన్య) = (శూన్య (*)(శూన్య))scratch->warmboot_addr;
+	గుర్తులేని పూర్ణాంకం hartindex = current_hartindex();
+	గుర్తులేని దీర్ఘ prev_బహుళకం;
+	గుర్తులేని దీర్ఘ i;
+	పూర్ణాంకం ret;
 
-	if (!dom || !dom->system_suspend_allowed)
-		return SBI_EFAIL;
+	ఒకవేళ (!dom || !dom->system_suspend_allowed)
+		తిరిగి SBI_EFAIL;
 
-	if (!suspend_dev || !suspend_dev->system_suspend ||
+	ఒకవేళ (!suspend_dev || !suspend_dev->system_suspend ||
 	    !suspend_dev->system_suspend_check)
-		return SBI_EFAIL;
+		తిరిగి SBI_EFAIL;
 
 	ret = suspend_dev->system_suspend_check(sleep_type);
-	if (ret != SBI_OK)
-		return ret;
+	ఒకవేళ (ret != SBI_OK)
+		తిరిగి ret;
 
-	prev_mode = sbi_mstatus_prev_mode(csr_read(CSR_MSTATUS));
-	if (prev_mode != PRV_S && prev_mode != PRV_U)
-		return SBI_EFAIL;
+	prev_బహుళకం = sbi_mstatus_prev_బహుళకం(csr_read(CSR_MSTATUS));
+	ఒకవేళ (prev_బహుళకం != PRV_S && prev_బహుళకం != PRV_U)
+		తిరిగి SBI_EFAIL;
 
-	spin_lock(&dom->assigned_harts_lock);
+	spin_తాళం(&dom->assigned_harts_తాళం);
 	sbi_hartmask_for_each_hartindex(i, &dom->assigned_harts) {
-		if (i == hartindex)
-			continue;
-		if (__sbi_hsm_hart_get_state(i) != SBI_HSM_STATE_STOPPED) {
-			spin_unlock(&dom->assigned_harts_lock);
-			return SBI_ERR_DENIED;
+		ఒకవేళ (i == hartindex)
+			కొనసాగు;
+		ఒకవేళ (__sbi_hsm_hart_get_state(i) != SBI_HSM_STATE_STOPPED) {
+			spin_unlock(&dom->assigned_harts_తాళం);
+			తిరిగి SBI_ERR_DENIED;
 		}
 	}
-	spin_unlock(&dom->assigned_harts_lock);
+	spin_unlock(&dom->assigned_harts_తాళం);
 
-	if (!sbi_domain_check_addr(dom, resume_addr, prev_mode,
+	ఒకవేళ (!sbi_domain_check_addr(dom, resume_addr, prev_బహుళకం,
 				   SBI_DOMAIN_EXECUTE))
-		return SBI_EINVALID_ADDR;
+		తిరిగి SBI_EINVALID_ADDR;
 
-	if (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_STARTED,
+	ఒకవేళ (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_STARTED,
 				       SBI_HSM_STATE_SUSPENDED))
-		return SBI_EFAIL;
+		తిరిగి SBI_EFAIL;
 
 	/* Prepare for resume */
-	scratch->next_mode = prev_mode;
-	scratch->next_addr = resume_addr;
-	scratch->next_arg1 = opaque;
+	scratch->తదుపరి_బహుళకం = prev_బహుళకం;
+	scratch->తదుపరి_addr = resume_addr;
+	scratch->తదుపరి_arg1 = opaque;
 
 	__sbi_hsm_suspend_non_ret_save(scratch);
 
 	/* Suspend */
 	system_suspended = true;
 	ret = suspend_dev->system_suspend(sleep_type, scratch->warmboot_addr);
-	if (ret != SBI_OK) {
-		if (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_SUSPENDED,
+	ఒకవేళ (ret != SBI_OK) {
+		ఒకవేళ (!sbi_hsm_hart_change_state(scratch, SBI_HSM_STATE_SUSPENDED,
 					       SBI_HSM_STATE_STARTED))
 			sbi_hart_hang();
 
 		system_suspended = false;
-		return ret;
+		తిరిగి ret;
 	}
 
 	/* Resume */

@@ -9,213 +9,213 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/riscv_io.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/mailbox/mailbox.h>
+#అన్తర్భావ <sbi_utils/mailbox/fdt_mailbox.h>
+#అన్తర్భావ <sbi_utils/mailbox/rpmi_mailbox.h>
 
 /** Minimum Base group version required */
-#define RPMI_BASE_VERSION_MIN		RPMI_VERSION(1, 0)
+#నిర్వచించు RPMI_పునాది_సంస్కరణ_MIN		RPMI_సంస్కరణ(1, 0)
 
 /**************** RPMI Transport Structures and Macros ***********/
 
-#define GET_SERVICEGROUP_ID(msg)		\
+#నిర్వచించు GET_SERVICEGROUP_ID(సందేశం)		\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.servicegroup_id);\
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	le16_గమ్యం_cpu(mbuf->శీర్షిక.servicegroup_id);\
 })
 
-#define GET_SERVICE_ID(msg)			\
+#నిర్వచించు GET_SERVICE_ID(సందేశం)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	mbuf->header.service_id;		\
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	mbuf->శీర్షిక.service_id;		\
 })
 
-#define GET_FLAGS(msg)				\
+#నిర్వచించు GET_FLAGS(సందేశం)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	mbuf->header.flags;			\
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	mbuf->శీర్షిక.flags;			\
 })
 
-#define GET_MESSAGE_ID(msg)			\
+#నిర్వచించు GET_సందేశం_ID(సందేశం)			\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	((u32)mbuf->header.flags << (RPMI_MSG_FLAGS_OFFSET * 8)) | \
-	((u32)mbuf->header.service_id << (RPMI_MSG_SERVICE_ID_OFFSET * 8)) | \
-	((u32)le16_to_cpu(mbuf->header.servicegroup_id)); \
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	((u32)mbuf->శీర్షిక.flags << (RPMI_సందేశం_FLAGS_స్థానభ్రంశం * 8)) | \
+	((u32)mbuf->శీర్షిక.service_id << (RPMI_సందేశం_SERVICE_ID_స్థానభ్రంశం * 8)) | \
+	((u32)le16_గమ్యం_cpu(mbuf->శీర్షిక.servicegroup_id)); \
 })
 
-#define MAKE_MESSAGE_ID(__group_id, __service_id, __flags)	\
+#నిర్వచించు MAKE_సందేశం_ID(__group_id, __service_id, __flags)	\
 ({						\
 	u32 __ret = 0;				\
-	__ret |= (u32)(__group_id) << (RPMI_MSG_SERVICEGROUP_ID_OFFSET * 8); \
-	__ret |= (u32)(__service_id) << (RPMI_MSG_SERVICE_ID_OFFSET * 8); \
-	__ret |= (u32)(__flags) << (RPMI_MSG_FLAGS_OFFSET * 8); \
+	__ret |= (u32)(__group_id) << (RPMI_సందేశం_SERVICEGROUP_ID_స్థానభ్రంశం * 8); \
+	__ret |= (u32)(__service_id) << (RPMI_సందేశం_SERVICE_ID_స్థానభ్రంశం * 8); \
+	__ret |= (u32)(__flags) << (RPMI_సందేశం_FLAGS_స్థానభ్రంశం * 8); \
 	__ret;					\
 })
 
-#define GET_DLEN(msg)				\
+#నిర్వచించు GET_DLEN(సందేశం)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.datalen);	\
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	le16_గమ్యం_cpu(mbuf->శీర్షిక.datalen);	\
 })
 
-#define GET_TOKEN(msg)				\
+#నిర్వచించు GET_TOKEN(సందేశం)				\
 ({						\
-	struct rpmi_message *mbuf = msg;	\
-	le16_to_cpu(mbuf->header.token);	\
+	నిర్మాణం rpmi_సందేశం *mbuf = సందేశం;	\
+	le16_గమ్యం_cpu(mbuf->శీర్షిక.token);	\
 })
 
-#define GET_MESSAGE_TYPE(msg)						\
+#నిర్వచించు GET_సందేశం_TYPE(సందేశం)						\
 ({									\
-	uint8_t flags = *((uint8_t *)msg + RPMI_MSG_FLAGS_OFFSET);	\
-	((flags & RPMI_MSG_FLAGS_TYPE) >> RPMI_MSG_FLAGS_TYPE_POS));	\
+	uint8_t flags = *((uint8_t *)సందేశం + RPMI_సందేశం_FLAGS_స్థానభ్రంశం);	\
+	((flags & RPMI_సందేశం_FLAGS_TYPE) >> RPMI_సందేశం_FLAGS_TYPE_POS));	\
 })
 
-enum rpmi_queue_type {
-	RPMI_QUEUE_TYPE_REQ = 0,
-	RPMI_QUEUE_TYPE_ACK = 1,
+గణన rpmi_వరుస_type {
+	RPMI_వరుస_TYPE_REQ = 0,
+	RPMI_వరుస_TYPE_ACK = 1,
 };
 
-enum rpmi_queue_idx {
-	RPMI_QUEUE_IDX_A2P_REQ = 0,
-	RPMI_QUEUE_IDX_P2A_ACK = 1,
-	RPMI_QUEUE_IDX_P2A_REQ = 2,
-	RPMI_QUEUE_IDX_A2P_ACK = 3,
-	RPMI_QUEUE_IDX_MAX_COUNT,
+గణన rpmi_వరుస_idx {
+	RPMI_వరుస_IDX_A2_P_REQ = 0,
+	RPMI_వరుస_IDX_P2_A_ACK = 1,
+	RPMI_వరుస_IDX_P2_A_REQ = 2,
+	RPMI_వరుస_IDX_A2_P_ACK = 3,
+	RPMI_వరుస_IDX_MAX_లెక్క,
 };
 
-enum rpmi_reg_idx {
+గణన rpmi_reg_idx {
 	RPMI_REG_IDX_DB_REG = 0, /* Doorbell register */
-	RPMI_REG_IDX_MAX_COUNT,
+	RPMI_REG_IDX_MAX_లెక్క,
 };
 
 /** Mailbox registers */
-struct rpmi_mb_regs {
+నిర్మాణం rpmi_mb_regs {
 	/* doorbell from AP -> PuC*/
-	volatile le32_t db_reg;
+	అస్థిర le32_t db_reg;
 } __packed;
 
 /** Single Queue Context Structure */
-struct smq_queue_ctx {
-	u32 queue_id;
-	u32 num_slots;
-	spinlock_t queue_lock;
+నిర్మాణం smq_వరుస_ctx {
+	u32 వరుస_id;
+	u32 అంకె_slots;
+	spinlock_t వరుస_తాళం;
 	/* Type of queue - REQ or ACK */
-	enum rpmi_queue_type queue_type;
+	గణన rpmi_వరుస_type వరుస_type;
 	/* Pointers to the queue shared memory */
-	volatile le32_t *headptr PT_GUARDED_BY(&queue_lock);
-	volatile le32_t *tailptr PT_GUARDED_BY(&queue_lock);
-	volatile uint8_t *buffer PT_GUARDED_BY(&queue_lock);
+	అస్థిర le32_t *headptr PT_GUARDED_BY(&వరుస_తాళం);
+	అస్థిర le32_t *tailptr PT_GUARDED_BY(&వరుస_తాళం);
+	అస్థిర uint8_t *బఫరు PT_GUARDED_BY(&వరుస_తాళం);
 	/* Name of the queue */
-	char name[RPMI_NAME_CHARS_MAX];
+	అక్షరం name[RPMI_NAME_CHARS_MAX];
 };
 
-struct rpmi_srvgrp_chan {
+నిర్మాణం rpmi_srvgrp_chan {
 	u32 servicegroup_id;
-	u32 servicegroup_version;
-	struct mbox_chan chan;
+	u32 servicegroup_సంస్కరణ;
+	నిర్మాణం mbox_chan chan;
 };
 
-#define to_srvgrp_chan(mbox_chan)	\
-		container_of(mbox_chan, struct rpmi_srvgrp_chan, chan);
+#నిర్వచించు గమ్యం_srvgrp_chan(mbox_chan)	\
+		container_యొక్క(mbox_chan, నిర్మాణం rpmi_srvgrp_chan, chan);
 
-struct rpmi_shmem_mbox_controller {
+నిర్మాణం rpmi_shmem_mbox_controller {
 	/* Driver specific members */
-	u32 slot_size;
-	u32 queue_count;
-	u32 p2a_doorbell_sysmsi_index;
-	u32 a2p_doorbell_value;
-	struct rpmi_mb_regs *mb_regs;
-	struct smq_queue_ctx queue_ctx_tbl[RPMI_QUEUE_IDX_MAX_COUNT];
+	u32 స్థానం_కొలత;
+	u32 వరుస_లెక్క;
+	u32 p2a_doorbell_sysmsi_సూచీ;
+	u32 a2p_doorbell_విలువ;
+	నిర్మాణం rpmi_mb_regs *mb_regs;
+	నిర్మాణం smq_వరుస_ctx వరుస_ctx_tbl[RPMI_వరుస_IDX_MAX_లెక్క];
 	/* Mailbox framework related members */
-	struct mbox_controller controller;
-	struct mbox_chan *base_chan;
-	u32 impl_version;
+	నిర్మాణం mbox_controller controller;
+	నిర్మాణం mbox_chan *పునాది_chan;
+	u32 impl_సంస్కరణ;
 	u32 impl_id;
-	u32 spec_version;
+	u32 spec_సంస్కరణ;
 	u32 plat_info_len;
-	char *plat_info;
-	struct {
+	అక్షరం *plat_info;
+	నిర్మాణం {
 		u8 f0_priv_level;
 		bool f0_ev_notif_en;
-	} base_flags;
+	} పునాది_flags;
 };
 
 /**************** Shared Memory Queues Helpers **************/
 
-static bool __smq_queue_full(struct smq_queue_ctx *qctx)
-	MUST_HOLD(&qctx->queue_lock)
+స్థిర bool __smq_queue_full(నిర్మాణం smq_వరుస_ctx *qctx)
+	MUST_HOLD(&qctx->వరుస_తాళం)
 {
-	return ((le32_to_cpu(*qctx->tailptr) + 1) % qctx->num_slots ==
-			le32_to_cpu(*qctx->headptr)) ? true : false;
+	తిరిగి ((le32_గమ్యం_cpu(*qctx->tailptr) + 1) % qctx->అంకె_slots ==
+			le32_గమ్యం_cpu(*qctx->headptr)) ? true : false;
 }
 
-static bool __smq_queue_empty(struct smq_queue_ctx *qctx)
-	MUST_HOLD(&qctx->queue_lock)
+స్థిర bool __smq_queue_empty(నిర్మాణం smq_వరుస_ctx *qctx)
+	MUST_HOLD(&qctx->వరుస_తాళం)
 {
-	return (le32_to_cpu(*qctx->headptr) ==
-		le32_to_cpu(*qctx->tailptr)) ? true : false;
+	తిరిగి (le32_గమ్యం_cpu(*qctx->headptr) ==
+		le32_గమ్యం_cpu(*qctx->tailptr)) ? true : false;
 }
 
-static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
-		    u32 service_group_id, struct mbox_xfer *xfer)
-	MUST_HOLD(&qctx->queue_lock)
+స్థిర పూర్ణాంకం __smq_rx(నిర్మాణం smq_వరుస_ctx *qctx, u32 స్థానం_కొలత,
+		    u32 service_సమూహం_id, నిర్మాణం mbox_xfer *xfer)
+	MUST_HOLD(&qctx->వరుస_తాళం)
 {
-	void *dst, *src;
-	struct rpmi_message *msg;
+	శూన్య *dst, *src;
+	నిర్మాణం rpmi_సందేశం *సందేశం;
 	u32 i, tmp, pos, dlen, msgidn, headidx, tailidx;
-	struct rpmi_message_args *args = xfer->args;
-	bool no_rx_token = (args->flags & RPMI_MSG_FLAGS_NO_RX_TOKEN) ?
+	నిర్మాణం rpmi_సందేశం_వాదనలు *వాదనలు = xfer->వాదనలు;
+	bool no_rx_token = (వాదనలు->flags & RPMI_సందేశం_FLAGS_NO_RX_TOKEN) ?
 			   true : false;
 
 	/* Rx sanity checks */
-	if ((sizeof(u32) * args->rx_endian_words) >
-	    (slot_size - sizeof(struct rpmi_message_header)))
-		return SBI_EINVAL;
-	if ((sizeof(u32) * args->rx_endian_words) > xfer->rx_len)
-		return SBI_EINVAL;
+	ఒకవేళ ((పరిమాణం(u32) * వాదనలు->rx_endian_పదాలు) >
+	    (స్థానం_కొలత - పరిమాణం(నిర్మాణం rpmi_సందేశం_శీర్షిక)))
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ ((పరిమాణం(u32) * వాదనలు->rx_endian_పదాలు) > xfer->rx_len)
+		తిరిగి SBI_EINVAL;
 
 	/* There should be some message in the queue */
-	if (__smq_queue_empty(qctx))
-		return SBI_ENOENT;
+	ఒకవేళ (__smq_queue_empty(qctx))
+		తిరిగి SBI_ENOENT;
 
 	/* Get the head/read index and tail/write index */
-	headidx = le32_to_cpu(*qctx->headptr);
-	tailidx = le32_to_cpu(*qctx->tailptr);
+	headidx = le32_గమ్యం_cpu(*qctx->headptr);
+	tailidx = le32_గమ్యం_cpu(*qctx->tailptr);
 
 	/*
 	 * Compute msgidn expected in the incoming message
 	 * NOTE: DOORBELL bit is not expected to be set.
 	 */
-	msgidn = MAKE_MESSAGE_ID(service_group_id, args->service_id, args->type);
+	msgidn = MAKE_సందేశం_ID(service_సమూహం_id, వాదనలు->service_id, వాదనలు->type);
 
 	/* Find the Rx message with matching token */
 	pos = headidx;
-	while (pos != tailidx) {
-		src = (void *)qctx->buffer + (pos * slot_size);
-		if ((no_rx_token && GET_MESSAGE_ID(src) == msgidn) ||
-		    (GET_TOKEN(src) == (xfer->seq & RPMI_MSG_TOKEN_MASK)))
-			break;
-		pos = (pos + 1) % qctx->num_slots;
+	అయితే (pos != tailidx) {
+		src = (శూన్య *)qctx->బఫరు + (pos * స్థానం_కొలత);
+		ఒకవేళ ((no_rx_token && GET_సందేశం_ID(src) == msgidn) ||
+		    (GET_TOKEN(src) == (xfer->seq & RPMI_సందేశం_TOKEN_ముసుగు)))
+			ఆపు;
+		pos = (pos + 1) % qctx->అంకె_slots;
 	}
-	if (pos == tailidx)
-		return SBI_ENOENT;
+	ఒకవేళ (pos == tailidx)
+		తిరిగి SBI_ENOENT;
 
 	/* If Rx message is not first message then make it first message */
-	if (pos != headidx) {
-		src = (void *)qctx->buffer + (pos * slot_size);
-		dst = (void *)qctx->buffer + (headidx * slot_size);
-		for (i = 0; i < slot_size / sizeof(u32); i++) {
+	ఒకవేళ (pos != headidx) {
+		src = (శూన్య *)qctx->బఫరు + (pos * స్థానం_కొలత);
+		dst = (శూన్య *)qctx->బఫరు + (headidx * స్థానం_కొలత);
+		కొరకు (i = 0; i < స్థానం_కొలత / పరిమాణం(u32); i++) {
 			tmp = ((u32 *)dst)[i];
 			((u32 *)dst)[i] = ((u32 *)src)[i];
 			((u32 *)src)[i] = tmp;
@@ -223,105 +223,105 @@ static int __smq_rx(struct smq_queue_ctx *qctx, u32 slot_size,
 	}
 
 	/* Update rx_token if not available */
-	msg = (void *)qctx->buffer + (headidx * slot_size);
-	if (no_rx_token)
-		args->rx_token = GET_TOKEN(msg);
+	సందేశం = (శూన్య *)qctx->బఫరు + (headidx * స్థానం_కొలత);
+	ఒకవేళ (no_rx_token)
+		వాదనలు->rx_token = GET_TOKEN(సందేశం);
 
 	/* Extract data from the first message */
-	if (xfer->rx) {
-		args->rx_data_len = dlen = GET_DLEN(msg);
-		if (dlen > xfer->rx_len)
+	ఒకవేళ (xfer->rx) {
+		వాదనలు->rx_దత్తాంశం_len = dlen = GET_DLEN(సందేశం);
+		ఒకవేళ (dlen > xfer->rx_len)
 			dlen = xfer->rx_len;
-		src = (void *)msg + sizeof(struct rpmi_message_header);
+		src = (శూన్య *)సందేశం + పరిమాణం(నిర్మాణం rpmi_సందేశం_శీర్షిక);
 		dst = xfer->rx;
-		for (i = 0; i < args->rx_endian_words; i++)
-			((u32 *)dst)[i] = le32_to_cpu(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->rx_endian_words;
-		src += sizeof(u32) * args->rx_endian_words;
+		కొరకు (i = 0; i < వాదనలు->rx_endian_పదాలు; i++)
+			((u32 *)dst)[i] = le32_గమ్యం_cpu(((u32 *)src)[i]);
+		dst += పరిమాణం(u32) * వాదనలు->rx_endian_పదాలు;
+		src += పరిమాణం(u32) * వాదనలు->rx_endian_పదాలు;
 		sbi_memcpy(dst, src,
-			xfer->rx_len - (sizeof(u32) * args->rx_endian_words));
+			xfer->rx_len - (పరిమాణం(u32) * వాదనలు->rx_endian_పదాలు));
 	}
 
 	/* Update the head/read index */
-	*qctx->headptr = cpu_to_le32(headidx + 1) % qctx->num_slots;
+	*qctx->headptr = cpu_గమ్యం_le32(headidx + 1) % qctx->అంకె_slots;
 
 	/* Make sure updates to head are immediately visible to PuC */
 	smp_wmb();
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int __smq_tx(struct smq_queue_ctx *qctx, struct rpmi_mb_regs *mb_regs,
-		    u32 a2p_doorbell_value, u32 slot_size, u32 service_group_id,
-		    struct mbox_xfer *xfer) MUST_HOLD(&qctx->queue_lock)
+స్థిర పూర్ణాంకం __smq_tx(నిర్మాణం smq_వరుస_ctx *qctx, నిర్మాణం rpmi_mb_regs *mb_regs,
+		    u32 a2p_doorbell_విలువ, u32 స్థానం_కొలత, u32 service_సమూహం_id,
+		    నిర్మాణం mbox_xfer *xfer) MUST_HOLD(&qctx->వరుస_తాళం)
 {
 	u32 i, tailidx;
-	void *dst, *src;
-	struct rpmi_message_header header = { 0 };
-	struct rpmi_message_args *args = xfer->args;
+	శూన్య *dst, *src;
+	నిర్మాణం rpmi_సందేశం_శీర్షిక శీర్షిక = { 0 };
+	నిర్మాణం rpmi_సందేశం_వాదనలు *వాదనలు = xfer->వాదనలు;
 
 	/* Tx sanity checks */
-	if ((sizeof(u32) * args->tx_endian_words) >
-	    (slot_size - sizeof(struct rpmi_message_header)))
-		return SBI_EINVAL;
-	if ((sizeof(u32) * args->tx_endian_words) > xfer->tx_len)
-		return SBI_EINVAL;
+	ఒకవేళ ((పరిమాణం(u32) * వాదనలు->tx_endian_పదాలు) >
+	    (స్థానం_కొలత - పరిమాణం(నిర్మాణం rpmi_సందేశం_శీర్షిక)))
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ ((పరిమాణం(u32) * వాదనలు->tx_endian_పదాలు) > xfer->tx_len)
+		తిరిగి SBI_EINVAL;
 
 	/* There should be some room in the queue */
-	if (__smq_queue_full(qctx))
-		return SBI_ENOMEM;
+	ఒకవేళ (__smq_queue_full(qctx))
+		తిరిగి SBI_ENOMEM;
 
 	/* Get the tail/write index */
-	tailidx = le32_to_cpu(*qctx->tailptr);
+	tailidx = le32_గమ్యం_cpu(*qctx->tailptr);
 
 	/* Prepare the header to be written into the slot */
-	header.servicegroup_id = cpu_to_le16(service_group_id);
-	header.service_id = args->service_id;
-	header.flags = args->type;
-	header.datalen = cpu_to_le16((u16)xfer->tx_len);
-	header.token = cpu_to_le16((u16)xfer->seq);
+	శీర్షిక.servicegroup_id = cpu_గమ్యం_le16(service_సమూహం_id);
+	శీర్షిక.service_id = వాదనలు->service_id;
+	శీర్షిక.flags = వాదనలు->type;
+	శీర్షిక.datalen = cpu_గమ్యం_le16((u16)xfer->tx_len);
+	శీర్షిక.token = cpu_గమ్యం_le16((u16)xfer->seq);
 
 	/* Write header into the slot */
-	dst = (char *)qctx->buffer + (tailidx * slot_size);
-	sbi_memcpy(dst, &header, sizeof(header));
-	dst += sizeof(header);
+	dst = (అక్షరం *)qctx->బఫరు + (tailidx * స్థానం_కొలత);
+	sbi_memcpy(dst, &శీర్షిక, పరిమాణం(శీర్షిక));
+	dst += పరిమాణం(శీర్షిక);
 
 	/* Write data into the slot */
-	if (xfer->tx) {
+	ఒకవేళ (xfer->tx) {
 		src = xfer->tx;
-		for (i = 0; i < args->tx_endian_words; i++)
-			((u32 *)dst)[i] = cpu_to_le32(((u32 *)src)[i]);
-		dst += sizeof(u32) * args->tx_endian_words;
-		src += sizeof(u32) * args->tx_endian_words;
+		కొరకు (i = 0; i < వాదనలు->tx_endian_పదాలు; i++)
+			((u32 *)dst)[i] = cpu_గమ్యం_le32(((u32 *)src)[i]);
+		dst += పరిమాణం(u32) * వాదనలు->tx_endian_పదాలు;
+		src += పరిమాణం(u32) * వాదనలు->tx_endian_పదాలు;
 		sbi_memcpy(dst, src,
-			xfer->tx_len - (sizeof(u32) * args->tx_endian_words));
+			xfer->tx_len - (పరిమాణం(u32) * వాదనలు->tx_endian_పదాలు));
 	}
 
 	/* Make sure queue chanages are visible to PuC before updating tail */
 	smp_wmb();
 
 	/* Update the tail/write index */
-	*qctx->tailptr = cpu_to_le32(tailidx + 1) % qctx->num_slots;
+	*qctx->tailptr = cpu_గమ్యం_le32(tailidx + 1) % qctx->అంకె_slots;
 
 	/* Ring the RPMI doorbell if present */
-	if (mb_regs)
-		writel(a2p_doorbell_value, &mb_regs->db_reg);
+	ఒకవేళ (mb_regs)
+		writel(a2p_doorbell_విలువ, &mb_regs->db_reg);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int smq_rx(struct rpmi_shmem_mbox_controller *mctl,
-		  u32 queue_id, u32 service_group_id, struct mbox_xfer *xfer)
+స్థిర పూర్ణాంకం smq_rx(నిర్మాణం rpmi_shmem_mbox_controller *mctl,
+		  u32 వరుస_id, u32 service_సమూహం_id, నిర్మాణం mbox_xfer *xfer)
 {
-	int ret, rxretry = 0;
-	struct smq_queue_ctx *qctx;
+	పూర్ణాంకం ret, rxretry = 0;
+	నిర్మాణం smq_వరుస_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	ఒకవేళ (mctl->వరుస_లెక్క < వరుస_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	}
-	qctx = &mctl->queue_ctx_tbl[queue_id];
+	qctx = &mctl->వరుస_ctx_tbl[వరుస_id];
 
 	/*
 	 * Once the timeout happens and call this function is returned
@@ -331,32 +331,32 @@ static int smq_rx(struct rpmi_shmem_mbox_controller *mctl,
 	 * REVISIT: In complete timeout duration how much duration
 	 * it should wait(delay) before recv retry. udelay or mdelay
 	 */
-	do {
-		spin_lock(&qctx->queue_lock);
-		ret = __smq_rx(qctx, mctl->slot_size, service_group_id, xfer);
-		spin_unlock(&qctx->queue_lock);
-		if (!ret)
-			return 0;
+	చేయి {
+		spin_తాళం(&qctx->వరుస_తాళం);
+		ret = __smq_rx(qctx, mctl->స్థానం_కొలత, service_సమూహం_id, xfer);
+		spin_unlock(&qctx->వరుస_తాళం);
+		ఒకవేళ (!ret)
+			తిరిగి 0;
 
 		sbi_timer_mdelay(1);
 		rxretry += 1;
-	} while (rxretry < xfer->rx_timeout);
+	} అయితే (rxretry < xfer->rx_timeout);
 
-	return SBI_ETIMEDOUT;
+	తిరిగి SBI_ETIMEDOUT;
 }
 
-static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
-		  u32 queue_id, u32 service_group_id, struct mbox_xfer *xfer)
+స్థిర పూర్ణాంకం smq_tx(నిర్మాణం rpmi_shmem_mbox_controller *mctl,
+		  u32 వరుస_id, u32 service_సమూహం_id, నిర్మాణం mbox_xfer *xfer)
 {
-	int ret, txretry = 0;
-	struct smq_queue_ctx *qctx;
+	పూర్ణాంకం ret, txretry = 0;
+	నిర్మాణం smq_వరుస_ctx *qctx;
 
-	if (mctl->queue_count < queue_id) {
+	ఒకవేళ (mctl->వరుస_లెక్క < వరుస_id) {
 		sbi_printf("%s: invalid queue_id or service_group_id\n",
 			   __func__);
-		return SBI_EINVAL;
+		తిరిగి SBI_EINVAL;
 	}
-	qctx = &mctl->queue_ctx_tbl[queue_id];
+	qctx = &mctl->వరుస_ctx_tbl[వరుస_id];
 
 	/*
 	 * Ignoring the tx timeout since in RPMI has no mechanism
@@ -367,434 +367,434 @@ static int smq_tx(struct rpmi_shmem_mbox_controller *mctl,
 	 * REVISIT: In complete timeout duration how much duration
 	 * it should wait(delay) before send retry. udelay or mdelay
 	 */
-	do {
-		spin_lock(&qctx->queue_lock);
-		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_value,
-				mctl->slot_size, service_group_id, xfer);
-		spin_unlock(&qctx->queue_lock);
-		if (!ret)
-			return 0;
+	చేయి {
+		spin_తాళం(&qctx->వరుస_తాళం);
+		ret = __smq_tx(qctx, mctl->mb_regs, mctl->a2p_doorbell_విలువ,
+				mctl->స్థానం_కొలత, service_సమూహం_id, xfer);
+		spin_unlock(&qctx->వరుస_తాళం);
+		ఒకవేళ (!ret)
+			తిరిగి 0;
 
 		sbi_timer_mdelay(1);
 		txretry += 1;
-	} while (txretry < xfer->tx_timeout);
+	} అయితే (txretry < xfer->tx_timeout);
 
-	return SBI_ETIMEDOUT;
+	తిరిగి SBI_ETIMEDOUT;
 }
 
-static int rpmi_get_platform_info(struct rpmi_shmem_mbox_controller *mctl)
+స్థిర పూర్ణాంకం rpmi_get_platform_info(నిర్మాణం rpmi_shmem_mbox_controller *mctl)
 {
-	int ret = SBI_OK;
+	పూర్ణాంకం ret = SBI_OK;
 
 	/**
 	 * platform string can occupy max possible size
 	 * max possible space in the message data as
 	 * per the format
 	 */
-	struct rpmi_base_get_platform_info_resp *resp =
-			sbi_zalloc(RPMI_MSG_DATA_SIZE(mctl->slot_size));
-	if (!resp)
-		return SBI_ENOMEM;
+	నిర్మాణం rpmi_పునాది_get_platform_info_resp *resp =
+			sbi_zalloc(RPMI_సందేశం_దత్తాంశం_కొలత(mctl->స్థానం_కొలత));
+	ఒకవేళ (!resp)
+		తిరిగి SBI_ENOMEM;
 
-	ret = rpmi_normal_request_with_status(mctl->base_chan,
-				 RPMI_BASE_SRV_GET_PLATFORM_INFO,
-				 NULL, 0, 0,
+	ret = rpmi_సాధారణ_request_with_స్థితి(mctl->పునాది_chan,
+				 RPMI_పునాది_SRV_GET_PLATFORM_INFO,
+				 ఖాళీ, 0, 0,
 				 resp,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4,
-				 RPMI_MSG_DATA_SIZE(mctl->slot_size)/4);
-	if (ret)
-		goto fail_free_resp;
+				 RPMI_సందేశం_దత్తాంశం_కొలత(mctl->స్థానం_కొలత)/4,
+				 RPMI_సందేశం_దత్తాంశం_కొలత(mctl->స్థానం_కొలత)/4);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_resp;
 
 	mctl->plat_info_len = resp->plat_info_len;
 	mctl->plat_info = sbi_zalloc(mctl->plat_info_len);
-	if (!mctl->plat_info) {
+	ఒకవేళ (!mctl->plat_info) {
 		ret = SBI_ENOMEM;
-		goto fail_free_resp;
+		వెళ్ళు fail_free_resp;
 	}
 
 	sbi_strncpy(mctl->plat_info, resp->plat_info, mctl->plat_info_len);
 
 fail_free_resp:
 	sbi_free(resp);
-	return ret;
+	తిరిగి ret;
 }
 
-static int smq_base_get_two_u32(struct rpmi_shmem_mbox_controller *mctl,
+స్థిర పూర్ణాంకం smq_పునాది_get_two_u32(నిర్మాణం rpmi_shmem_mbox_controller *mctl,
 				u32 service_id, u32 *inarg, u32 *outvals)
 {
-	return rpmi_normal_request_with_status(
-			mctl->base_chan, service_id,
+	తిరిగి rpmi_సాధారణ_request_with_స్థితి(
+			mctl->పునాది_chan, service_id,
 			inarg, (inarg) ? 1 : 0, (inarg) ? 1 : 0,
 			outvals, 2, 2);
 }
 
 /**************** Mailbox Controller Functions **************/
 
-static int rpmi_shmem_mbox_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+స్థిర పూర్ణాంకం rpmi_shmem_mbox_xfer(నిర్మాణం mbox_chan *chan, నిర్మాణం mbox_xfer *xfer)
 {
-	int ret;
+	పూర్ణాంకం ret;
 	u32 tx_qid = 0, rx_qid = 0;
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(chan->mbox,
-				     struct rpmi_shmem_mbox_controller,
+	నిర్మాణం rpmi_shmem_mbox_controller *mctl =
+			container_యొక్క(chan->mbox,
+				     నిర్మాణం rpmi_shmem_mbox_controller,
 				     controller);
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	నిర్మాణం rpmi_srvgrp_chan *srvgrp_chan = గమ్యం_srvgrp_chan(chan);
 
-	struct rpmi_message_args *args = xfer->args;
-	bool do_tx = (args->flags & RPMI_MSG_FLAGS_NO_TX) ? false : true;
-	bool do_rx = (args->flags & RPMI_MSG_FLAGS_NO_RX) ? false : true;
+	నిర్మాణం rpmi_సందేశం_వాదనలు *వాదనలు = xfer->వాదనలు;
+	bool do_tx = (వాదనలు->flags & RPMI_సందేశం_FLAGS_NO_TX) ? false : true;
+	bool do_rx = (వాదనలు->flags & RPMI_సందేశం_FLAGS_NO_RX) ? false : true;
 
-	if (!do_tx && !do_rx)
-		return SBI_EINVAL;
+	ఒకవేళ (!do_tx && !do_rx)
+		తిరిగి SBI_EINVAL;
 
-	switch (args->type) {
-	case RPMI_MSG_NORMAL_REQUEST:
-		if (do_tx && do_rx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-			rx_qid = RPMI_QUEUE_IDX_P2A_ACK;
-		} else if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-		} else if (do_rx) {
-			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
+	ఎంపిక (వాదనలు->type) {
+	స్థితి RPMI_సందేశం_సాధారణ_REQUEST:
+		ఒకవేళ (do_tx && do_rx) {
+			tx_qid = RPMI_వరుస_IDX_A2_P_REQ;
+			rx_qid = RPMI_వరుస_IDX_P2_A_ACK;
+		} లేకపోతే ఒకవేళ (do_tx) {
+			tx_qid = RPMI_వరుస_IDX_A2_P_REQ;
+		} లేకపోతే ఒకవేళ (do_rx) {
+			rx_qid = RPMI_వరుస_IDX_P2_A_REQ;
 		}
-		break;
-	case RPMI_MSG_POSTED_REQUEST:
-		if (do_tx && do_rx)
-			return SBI_EINVAL;
-		if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_REQ;
-		} else {
-			rx_qid = RPMI_QUEUE_IDX_P2A_REQ;
+		ఆపు;
+	స్థితి RPMI_సందేశం_POSTED_REQUEST:
+		ఒకవేళ (do_tx && do_rx)
+			తిరిగి SBI_EINVAL;
+		ఒకవేళ (do_tx) {
+			tx_qid = RPMI_వరుస_IDX_A2_P_REQ;
+		} లేకపోతే {
+			rx_qid = RPMI_వరుస_IDX_P2_A_REQ;
 		}
-		break;
-	case RPMI_MSG_ACKNOWLDGEMENT:
-		if (do_tx && do_rx)
-			return SBI_EINVAL;
-		if (do_tx) {
-			tx_qid = RPMI_QUEUE_IDX_A2P_ACK;
-		} else {
-			rx_qid = RPMI_QUEUE_IDX_P2A_ACK;
+		ఆపు;
+	స్థితి RPMI_సందేశం_ACKNOWLDGEMENT:
+		ఒకవేళ (do_tx && do_rx)
+			తిరిగి SBI_EINVAL;
+		ఒకవేళ (do_tx) {
+			tx_qid = RPMI_వరుస_IDX_A2_P_ACK;
+		} లేకపోతే {
+			rx_qid = RPMI_వరుస_IDX_P2_A_ACK;
 		}
-		break;
-	default:
-		return SBI_ENOTSUPP;
+		ఆపు;
+	అప్రమేయ:
+		తిరిగి SBI_ENOTSUPP;
 	}
 
-	if (do_tx) {
+	ఒకవేళ (do_tx) {
 		ret = smq_tx(mctl, tx_qid, srvgrp_chan->servicegroup_id, xfer);
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	if (do_rx) {
+	ఒకవేళ (do_rx) {
 		ret = smq_rx(mctl, rx_qid, srvgrp_chan->servicegroup_id, xfer);
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int rpmi_shmem_mbox_get_attribute(struct mbox_chan *chan,
-					 int attr_id, void *out_value)
+స్థిర పూర్ణాంకం rpmi_shmem_mbox_get_attribute(నిర్మాణం mbox_chan *chan,
+					 పూర్ణాంకం attr_id, శూన్య *బహిర్గతం_విలువ)
 {
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(chan->mbox,
-				     struct rpmi_shmem_mbox_controller,
+	నిర్మాణం rpmi_shmem_mbox_controller *mctl =
+			container_యొక్క(chan->mbox,
+				     నిర్మాణం rpmi_shmem_mbox_controller,
 				     controller);
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	నిర్మాణం rpmi_srvgrp_chan *srvgrp_chan = గమ్యం_srvgrp_chan(chan);
 
-	switch (attr_id) {
-	case RPMI_CHANNEL_ATTR_PROTOCOL_VERSION:
-		*((u32 *)out_value) = mctl->spec_version;
-		break;
-	case RPMI_CHANNEL_ATTR_MAX_DATA_LEN:
-		*((u32 *)out_value) = RPMI_MSG_DATA_SIZE(mctl->slot_size);
-		break;
-	case RPMI_CHANNEL_ATTR_P2A_DOORBELL_SYSMSI_INDEX:
-		*((u32 *)out_value) = mctl->p2a_doorbell_sysmsi_index;
-		break;
-	case RPMI_CHANNEL_ATTR_TX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_TX_TIMEOUT;
-		break;
-	case RPMI_CHANNEL_ATTR_RX_TIMEOUT:
-		*((u32 *)out_value) = RPMI_DEF_RX_TIMEOUT;
-		break;
-	case RPMI_CHANNEL_ATTR_SERVICEGROUP_ID:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_id;
-		break;
-	case RPMI_CHANNEL_ATTR_SERVICEGROUP_VERSION:
-		*((u32 *)out_value) = srvgrp_chan->servicegroup_version;
-		break;
-	case RPMI_CHANNEL_ATTR_IMPL_ID:
-		*((u32 *)out_value) = mctl->impl_id;
-		break;
-	case RPMI_CHANNEL_ATTR_IMPL_VERSION:
-		*((u32 *)out_value) = mctl->impl_version;
-		break;
-	default:
-		return SBI_ENOTSUPP;
+	ఎంపిక (attr_id) {
+	స్థితి RPMI_CHANNEL_ATTR_PROTOCOL_సంస్కరణ:
+		*((u32 *)బహిర్గతం_విలువ) = mctl->spec_సంస్కరణ;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_MAX_దత్తాంశం_LEN:
+		*((u32 *)బహిర్గతం_విలువ) = RPMI_సందేశం_దత్తాంశం_కొలత(mctl->స్థానం_కొలత);
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_P2_A_DOORBELL_SYSMSI_సూచీ:
+		*((u32 *)బహిర్గతం_విలువ) = mctl->p2a_doorbell_sysmsi_సూచీ;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_TX_TIMEOUT:
+		*((u32 *)బహిర్గతం_విలువ) = RPMI_DEF_TX_TIMEOUT;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_RX_TIMEOUT:
+		*((u32 *)బహిర్గతం_విలువ) = RPMI_DEF_RX_TIMEOUT;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_SERVICEGROUP_ID:
+		*((u32 *)బహిర్గతం_విలువ) = srvgrp_chan->servicegroup_id;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_SERVICEGROUP_సంస్కరణ:
+		*((u32 *)బహిర్గతం_విలువ) = srvgrp_chan->servicegroup_సంస్కరణ;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_IMPL_ID:
+		*((u32 *)బహిర్గతం_విలువ) = mctl->impl_id;
+		ఆపు;
+	స్థితి RPMI_CHANNEL_ATTR_IMPL_సంస్కరణ:
+		*((u32 *)బహిర్గతం_విలువ) = mctl->impl_సంస్కరణ;
+		ఆపు;
+	అప్రమేయ:
+		తిరిగి SBI_ENOTSUPP;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static struct mbox_chan *rpmi_shmem_mbox_request_chan(
-						struct mbox_controller *mbox,
-						u32 *chan_args)
+స్థిర నిర్మాణం mbox_chan *rpmi_shmem_mbox_request_chan(
+						నిర్మాణం mbox_controller *mbox,
+						u32 *chan_వాదనలు)
 {
-	int ret;
+	పూర్ణాంకం ret;
 	u32 tval[2] = { 0 };
-	struct rpmi_srvgrp_chan *srvgrp_chan;
-	struct rpmi_shmem_mbox_controller *mctl =
-			container_of(mbox,
-				     struct rpmi_shmem_mbox_controller,
+	నిర్మాణం rpmi_srvgrp_chan *srvgrp_chan;
+	నిర్మాణం rpmi_shmem_mbox_controller *mctl =
+			container_యొక్క(mbox,
+				     నిర్మాణం rpmi_shmem_mbox_controller,
 				     controller);
 
 	/* Service group id not defined or in reserved range is invalid */
-	if (chan_args[0] >= RPMI_SRVGRP_ID_MAX_COUNT &&
-		chan_args[0] <= RPMI_SRVGRP_RESERVE_END)
-		return NULL;
+	ఒకవేళ (chan_వాదనలు[0] >= RPMI_SRVGRP_ID_MAX_లెక్క &&
+		chan_వాదనలు[0] <= RPMI_SRVGRP_RESERVE_చివర)
+		తిరిగి ఖాళీ;
 
 	/* Base serivce group is always present so probe other groups */
-	if (chan_args[0] != RPMI_SRVGRP_BASE) {
+	ఒకవేళ (chan_వాదనలు[0] != RPMI_SRVGRP_పునాది) {
 		/* Probe service group */
-		ret = smq_base_get_two_u32(mctl,
-					   RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-					   chan_args, tval);
-		if (ret || !tval[1])
-			return NULL;
+		ret = smq_పునాది_get_two_u32(mctl,
+					   RPMI_పునాది_SRV_PROBE_SERVICE_సమూహం,
+					   chan_వాదనలు, tval);
+		ఒకవేళ (ret || !tval[1])
+			తిరిగి ఖాళీ;
 	}
 
-	srvgrp_chan = sbi_zalloc(sizeof(*srvgrp_chan));
-	if (!srvgrp_chan)
-		return NULL;
+	srvgrp_chan = sbi_zalloc(పరిమాణం(*srvgrp_chan));
+	ఒకవేళ (!srvgrp_chan)
+		తిరిగి ఖాళీ;
 
-	srvgrp_chan->servicegroup_id = chan_args[0];
-	srvgrp_chan->servicegroup_version = tval[1];
+	srvgrp_chan->servicegroup_id = chan_వాదనలు[0];
+	srvgrp_chan->servicegroup_సంస్కరణ = tval[1];
 
-	return &srvgrp_chan->chan;
+	తిరిగి &srvgrp_chan->chan;
 }
 
-static void rpmi_shmem_mbox_free_chan(struct mbox_controller *mbox,
-				      struct mbox_chan *chan)
+స్థిర శూన్య rpmi_shmem_mbox_free_chan(నిర్మాణం mbox_controller *mbox,
+				      నిర్మాణం mbox_chan *chan)
 {
-	struct rpmi_srvgrp_chan *srvgrp_chan = to_srvgrp_chan(chan);
+	నిర్మాణం rpmi_srvgrp_chan *srvgrp_chan = గమ్యం_srvgrp_chan(chan);
 	sbi_free(srvgrp_chan);
 }
 
-extern struct fdt_mailbox fdt_mailbox_rpmi_shmem;
+బాహ్య నిర్మాణం fdt_mailbox fdt_mailbox_rpmi_shmem;
 
-static int rpmi_shmem_transport_init(struct rpmi_shmem_mbox_controller *mctl,
-				     const void *fdt,
-				     int nodeoff) NO_THREAD_SAFETY_ANALYSIS
+స్థిర పూర్ణాంకం rpmi_shmem_transport_init(నిర్మాణం rpmi_shmem_mbox_controller *mctl,
+				     స్థిరరాశి శూన్య *fdt,
+				     పూర్ణాంకం nodeoff) NO_THREAD_SAFETY_ANALYSIS
 {
-	const char *name;
-	const fdt32_t *prop;
-	int count, len, ret, qid;
-	uint64_t reg_addr, reg_size;
-	struct smq_queue_ctx *qctx;
+	స్థిరరాశి అక్షరం *name;
+	స్థిరరాశి fdt32_t *prop;
+	పూర్ణాంకం లెక్క, len, ret, qid;
+	uint64_t reg_addr, reg_కొలత;
+	నిర్మాణం smq_వరుస_ctx *qctx;
 
-	ret = fdt_node_check_compatible(fdt, nodeoff,
+	ret = fdt_కణుపు_check_compatible(fdt, nodeoff,
 					"riscv,rpmi-shmem-mbox");
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	/* get queue slot size in bytes */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,slot-size", &len);
-	if (!prop)
-		return SBI_ENOENT;
+	ఒకవేళ (!prop)
+		తిరిగి SBI_ENOENT;
 
-	mctl->slot_size = fdt32_to_cpu(*prop);
-	if (mctl->slot_size < RPMI_SLOT_SIZE_MIN) {
+	mctl->స్థానం_కొలత = fdt32_గమ్యం_cpu(*prop);
+	ఒకవేళ (mctl->స్థానం_కొలత < RPMI_స్థానం_కొలత_MIN) {
 		sbi_printf("%s: slot_size < mimnum required message size\n",
 			   __func__);
-		mctl->slot_size = RPMI_SLOT_SIZE_MIN;
+		mctl->స్థానం_కొలత = RPMI_స్థానం_కొలత_MIN;
 	}
 
 	/* get p2a doorbell system MSI index */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,p2a-doorbell-sysmsi-index", &len);
-	mctl->p2a_doorbell_sysmsi_index = prop ? fdt32_to_cpu(*prop) : -1U;
+	mctl->p2a_doorbell_sysmsi_సూచీ = prop ? fdt32_గమ్యం_cpu(*prop) : -1U;
 
 	/* get a2p doorbell value */
 	prop = fdt_getprop(fdt, nodeoff, "riscv,a2p-doorbell-value", &len);
-	mctl->a2p_doorbell_value = prop ? fdt32_to_cpu(*prop) : 1;
+	mctl->a2p_doorbell_విలువ = prop ? fdt32_గమ్యం_cpu(*prop) : 1;
 
 	/*
 	 * queue names count is taken as the number of queues
 	 * supported which make it mandatory to provide the
 	 * name of the queue.
 	 */
-	count = fdt_stringlist_count(fdt, nodeoff, "reg-names");
-	if (count < 0 ||
-	    count > (RPMI_QUEUE_IDX_MAX_COUNT + RPMI_REG_IDX_MAX_COUNT))
-		return SBI_EINVAL;
+	లెక్క = fdt_stringlist_లెక్క(fdt, nodeoff, "reg-names");
+	ఒకవేళ (లెక్క < 0 ||
+	    లెక్క > (RPMI_వరుస_IDX_MAX_లెక్క + RPMI_REG_IDX_MAX_లెక్క))
+		తిరిగి SBI_EINVAL;
 
-	mctl->queue_count = count - RPMI_REG_IDX_MAX_COUNT;
+	mctl->వరుస_లెక్క = లెక్క - RPMI_REG_IDX_MAX_లెక్క;
 
 	/* parse all queues and populate queues context structure */
-	for (qid = 0; qid < mctl->queue_count; qid++) {
-		qctx = &mctl->queue_ctx_tbl[qid];
+	కొరకు (qid = 0; qid < mctl->వరుస_లెక్క; qid++) {
+		qctx = &mctl->వరుస_ctx_tbl[qid];
 
 		/* get each queue share-memory base address and size*/
-		ret = fdt_get_node_addr_size(fdt, nodeoff, qid,
-					     &reg_addr, &reg_size);
-		if (ret < 0 || !reg_addr || !reg_size)
-			return SBI_ENOENT;
+		ret = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, qid,
+					     &reg_addr, &reg_కొలత);
+		ఒకవేళ (ret < 0 || !reg_addr || !reg_కొలత)
+			తిరిగి SBI_ENOENT;
 
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+		ret = sbi_domain_మూలం_కూడు_memrange(reg_addr, reg_కొలత, reg_కొలత,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 
 		/* calculate number of slots in each queue */
-		qctx->num_slots =
-			(reg_size - (mctl->slot_size * RPMI_QUEUE_HEADER_SLOTS)) / mctl->slot_size;
+		qctx->అంకె_slots =
+			(reg_కొలత - (mctl->స్థానం_కొలత * RPMI_వరుస_శీర్షిక_SLOTS)) / mctl->స్థానం_కొలత;
 
 		/* setup queue pointers */
-		qctx->headptr = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_HEAD_SLOT * mctl->slot_size;
-		qctx->tailptr = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_TAIL_SLOT * mctl->slot_size;
-		qctx->buffer = ((void *)(unsigned long)reg_addr) +
-				RPMI_QUEUE_HEADER_SLOTS * mctl->slot_size;
+		qctx->headptr = ((శూన్య *)(గుర్తులేని దీర్ఘ)reg_addr) +
+				RPMI_వరుస_తల_స్థానం * mctl->స్థానం_కొలత;
+		qctx->tailptr = ((శూన్య *)(గుర్తులేని దీర్ఘ)reg_addr) +
+				RPMI_వరుస_తోక_స్థానం * mctl->స్థానం_కొలత;
+		qctx->బఫరు = ((శూన్య *)(గుర్తులేని దీర్ఘ)reg_addr) +
+				RPMI_వరుస_శీర్షిక_SLOTS * mctl->స్థానం_కొలత;
 
 		/* get the queue name */
 		name = fdt_stringlist_get(fdt, nodeoff, "reg-names",
 					  qid, &len);
-		if (!name || (name && len < 0))
-			return len;
+		ఒకవేళ (!name || (name && len < 0))
+			తిరిగి len;
 
 		sbi_memcpy(qctx->name, name, len);
 
 		/* store the index as queue_id */
-		qctx->queue_id = qid;
+		qctx->వరుస_id = qid;
 
-		SPIN_LOCK_INIT(qctx->queue_lock);
+		SPIN_తాళం_INIT(qctx->వరుస_తాళం);
 	}
 
 	/* get the a2p-doorbell property name */
 	name = fdt_stringlist_get(fdt, nodeoff, "reg-names", qid, &len);
-	if (!name || (name && len < 0))
-		return len;
+	ఒకవేళ (!name || (name && len < 0))
+		తిరిగి len;
 
 	/* fetch doorbell register address*/
-	ret = fdt_get_node_addr_size(fdt, nodeoff, qid, &reg_addr,
-				       &reg_size);
-	if (!ret && !(strncmp(name, "a2p-doorbell", strlen("a2p-doorbell")))) {
-		mctl->mb_regs = (void *)(unsigned long)reg_addr;
-		ret = sbi_domain_root_add_memrange(reg_addr, reg_size, reg_size,
+	ret = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, qid, &reg_addr,
+				       &reg_కొలత);
+	ఒకవేళ (!ret && !(అక్షరశ్రేణి_పోలిక(name, "a2p-doorbell", అక్షరశ్రేణి_పొడవు("a2p-doorbell")))) {
+		mctl->mb_regs = (శూన్య *)(గుర్తులేని దీర్ఘ)reg_addr;
+		ret = sbi_domain_మూలం_కూడు_memrange(reg_addr, reg_కొలత, reg_కొలత,
 						   (SBI_DOMAIN_MEMREGION_MMIO |
 						    SBI_DOMAIN_MEMREGION_M_READABLE |
 						    SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return SBI_SUCCESS;
+	తిరిగి SBI_SUCCESS;
 }
 
-static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+స్థిర పూర్ణాంకం rpmi_shmem_mbox_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	struct rpmi_base_get_attributes_resp resp;
-	struct rpmi_shmem_mbox_controller *mctl;
-	struct rpmi_srvgrp_chan *base_srvgrp;
-	u32 tval[2], args[1];
-	int ret = 0;
+	నిర్మాణం rpmi_పునాది_get_లక్షణాలు_resp resp;
+	నిర్మాణం rpmi_shmem_mbox_controller *mctl;
+	నిర్మాణం rpmi_srvgrp_chan *పునాది_srvgrp;
+	u32 tval[2], వాదనలు[1];
+	పూర్ణాంకం ret = 0;
 
-	mctl = sbi_zalloc(sizeof(*mctl));
-	if (!mctl)
-		return SBI_ENOMEM;
+	mctl = sbi_zalloc(పరిమాణం(*mctl));
+	ఒకవేళ (!mctl)
+		తిరిగి SBI_ENOMEM;
 
 	/* Initialization transport from device tree */
 	ret = rpmi_shmem_transport_init(mctl, fdt, nodeoff);
-	if (ret)
-		goto fail_free_controller;
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_controller;
 
 	/* Register mailbox controller */
 	mctl->controller.id = nodeoff;
 	mctl->controller.max_xfer_len =
-			mctl->slot_size - sizeof(struct rpmi_message_header);
+			mctl->స్థానం_కొలత - పరిమాణం(నిర్మాణం rpmi_సందేశం_శీర్షిక);
 	mctl->controller.driver = &fdt_mailbox_rpmi_shmem;
 	mctl->controller.request_chan = rpmi_shmem_mbox_request_chan;
 	mctl->controller.free_chan = rpmi_shmem_mbox_free_chan;
 	mctl->controller.xfer = rpmi_shmem_mbox_xfer;
 	mctl->controller.get_attribute = rpmi_shmem_mbox_get_attribute;
-	ret = mbox_controller_add(&mctl->controller);
-	if (ret)
-		goto fail_free_controller;
+	ret = mbox_controller_కూడు(&mctl->controller);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_controller;
 
 	/* Request base service group channel */
-	tval[0] = RPMI_SRVGRP_BASE;
-	mctl->base_chan = mbox_controller_request_chan(&mctl->controller,
+	tval[0] = RPMI_SRVGRP_పునాది;
+	mctl->పునాది_chan = mbox_controller_request_chan(&mctl->controller,
 							tval);
-	if (!mctl->base_chan) {
+	ఒకవేళ (!mctl->పునాది_chan) {
 		ret = SBI_ENOENT;
-		goto fail_remove_controller;
+		వెళ్ళు fail_remove_controller;
 	}
 
 	/* Update base service group version */
-	base_srvgrp = to_srvgrp_chan(mctl->base_chan);
-	args[0] = RPMI_SRVGRP_BASE;
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_PROBE_SERVICE_GROUP,
-				   &args[0], tval);
-	if (ret)
-		goto fail_free_chan;
-	base_srvgrp->servicegroup_version = tval[1];
-	if (base_srvgrp->servicegroup_version < RPMI_BASE_VERSION_MIN) {
+	పునాది_srvgrp = గమ్యం_srvgrp_chan(mctl->పునాది_chan);
+	వాదనలు[0] = RPMI_SRVGRP_పునాది;
+	ret = smq_పునాది_get_two_u32(mctl, RPMI_పునాది_SRV_PROBE_SERVICE_సమూహం,
+				   &వాదనలు[0], tval);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_chan;
+	పునాది_srvgrp->servicegroup_సంస్కరణ = tval[1];
+	ఒకవేళ (పునాది_srvgrp->servicegroup_సంస్కరణ < RPMI_పునాది_సంస్కరణ_MIN) {
 		ret = SBI_EINVAL;
-		goto fail_free_chan;
+		వెళ్ళు fail_free_chan;
 	}
 
 	/* Get implementation id */
-	ret = smq_base_get_two_u32(mctl,
-				   RPMI_BASE_SRV_GET_IMPLEMENTATION_VERSION,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
-	mctl->impl_version = tval[1];
+	ret = smq_పునాది_get_two_u32(mctl,
+				   RPMI_పునాది_SRV_GET_IMPLEMENTATION_సంస్కరణ,
+				   ఖాళీ, tval);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_chan;
+	mctl->impl_సంస్కరణ = tval[1];
 
 	/* Get implementation version */
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_GET_IMPLEMENTATION_IDN,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
+	ret = smq_పునాది_get_two_u32(mctl, RPMI_పునాది_SRV_GET_IMPLEMENTATION_IDN,
+				   ఖాళీ, tval);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_chan;
 	mctl->impl_id = tval[1];
 
 	/* Get specification version */
-	ret = smq_base_get_two_u32(mctl, RPMI_BASE_SRV_GET_SPEC_VERSION,
-				   NULL, tval);
-	if (ret)
-		goto fail_free_chan;
-	mctl->spec_version = tval[1];
-	if (mctl->spec_version < RPMI_BASE_VERSION_MIN ||
-	    mctl->spec_version != base_srvgrp->servicegroup_version) {
+	ret = smq_పునాది_get_two_u32(mctl, RPMI_పునాది_SRV_GET_SPEC_సంస్కరణ,
+				   ఖాళీ, tval);
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_chan;
+	mctl->spec_సంస్కరణ = tval[1];
+	ఒకవేళ (mctl->spec_సంస్కరణ < RPMI_పునాది_సంస్కరణ_MIN ||
+	    mctl->spec_సంస్కరణ != పునాది_srvgrp->servicegroup_సంస్కరణ) {
 		ret = SBI_EINVAL;
-		goto fail_free_chan;
+		వెళ్ళు fail_free_chan;
 	}
 
 	/* Get optional features implementation flags */
-	ret = rpmi_normal_request_with_status(
-			mctl->base_chan, RPMI_BASE_SRV_GET_ATTRIBUTES,
-			NULL, 0, 0,
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (ret)
-		goto fail_free_chan;
+	ret = rpmi_సాధారణ_request_with_స్థితి(
+			mctl->పునాది_chan, RPMI_పునాది_SRV_GET_లక్షణాలు,
+			ఖాళీ, 0, 0,
+			&resp, rpmi_u32_లెక్క(resp), rpmi_u32_లెక్క(resp));
+	ఒకవేళ (ret)
+		వెళ్ళు fail_free_chan;
 
 	/* 1: M-mode, 0: S-mode */
-	mctl->base_flags.f0_priv_level =
-			resp.f0 & RPMI_BASE_FLAGS_F0_PRIVILEGE ? 1 : 0;
+	mctl->పునాది_flags.f0_priv_level =
+			resp.f0 & RPMI_పునాది_FLAGS_F0_PRIVILEGE ? 1 : 0;
 	/* 1: Supported, 0: Not Supported */
-	mctl->base_flags.f0_ev_notif_en =
-			resp.f0 & RPMI_BASE_FLAGS_F0_EV_NOTIFY ? 1 : 0;
+	mctl->పునాది_flags.f0_ev_notif_en =
+			resp.f0 & RPMI_పునాది_FLAGS_F0_EV_NOTIFY ? 1 : 0;
 
 	/* We only use M-mode RPMI context in OpenSBI */
-	if (!mctl->base_flags.f0_priv_level) {
+	ఒకవేళ (!mctl->పునాది_flags.f0_priv_level) {
 		ret = SBI_ENODEV;
-		goto fail_free_chan;
+		వెళ్ళు fail_free_chan;
 	}
 
 	/*
@@ -803,25 +803,25 @@ static int rpmi_shmem_mbox_init(const void *fdt, int nodeoff,
 	 */
 	rpmi_get_platform_info(mctl);
 
-	return 0;
+	తిరిగి 0;
 
 fail_free_chan:
-	mbox_controller_free_chan(mctl->base_chan);
+	mbox_controller_free_chan(mctl->పునాది_chan);
 fail_remove_controller:
 	mbox_controller_remove(&mctl->controller);
 fail_free_controller:
 	sbi_free(mctl);
-	return ret;
+	తిరిగి ret;
 }
 
-static const struct fdt_match rpmi_shmem_mbox_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక rpmi_shmem_mbox_సరిపోలిక[] = {
 	{ .compatible = "riscv,rpmi-shmem-mbox" },
 	{ },
 };
 
-struct fdt_mailbox fdt_mailbox_rpmi_shmem = {
+నిర్మాణం fdt_mailbox fdt_mailbox_rpmi_shmem = {
 	.driver = {
-		.match_table = rpmi_shmem_mbox_match,
+		.సరిపోలిక_పట్టిక = rpmi_shmem_mbox_సరిపోలిక,
 		.init = rpmi_shmem_mbox_init,
 	},
 	.xlate = fdt_mailbox_simple_xlate,

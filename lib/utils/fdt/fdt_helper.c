@@ -6,363 +6,363 @@
  * Copyright (C) 2020 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_hart.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/aplic.h>
-#include <sbi_utils/irqchip/imsic.h>
-#include <sbi_utils/irqchip/plic.h>
+#అన్తర్భావ <libfdt.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_hartmask.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/irqchip/aplic.h>
+#అన్తర్భావ <sbi_utils/irqchip/imsic.h>
+#అన్తర్భావ <sbi_utils/irqchip/plic.h>
 
-#define DEFAULT_UART_FREQ		0
-#define DEFAULT_UART_BAUD		115200
-#define DEFAULT_UART_REG_SHIFT		0
-#define DEFAULT_UART_REG_IO_WIDTH	1
-#define DEFAULT_UART_REG_OFFSET		0
+#నిర్వచించు DEFAULT_UART_FREQ		0
+#నిర్వచించు DEFAULT_UART_BAUD		115200
+#నిర్వచించు DEFAULT_UART_REG_జరుపు		0
+#నిర్వచించు DEFAULT_UART_REG_IO_వెడల్పు	1
+#నిర్వచించు DEFAULT_UART_REG_స్థానభ్రంశం		0
 
-#define DEFAULT_RENESAS_SCIF_FREQ		100000000
-#define DEFAULT_RENESAS_SCIF_BAUD		115200
+#నిర్వచించు DEFAULT_RENESAS_SCIF_FREQ		100000000
+#నిర్వచించు DEFAULT_RENESAS_SCIF_BAUD		115200
 
-#define DEFAULT_SIFIVE_UART_FREQ		0
-#define DEFAULT_SIFIVE_UART_BAUD		115200
+#నిర్వచించు DEFAULT_SIFIVE_UART_FREQ		0
+#నిర్వచించు DEFAULT_SIFIVE_UART_BAUD		115200
 
-#define DEFAULT_SHAKTI_UART_FREQ		50000000
-#define DEFAULT_SHAKTI_UART_BAUD		115200
+#నిర్వచించు DEFAULT_SHAKTI_UART_FREQ		50000000
+#నిర్వచించు DEFAULT_SHAKTI_UART_BAUD		115200
 
-int fdt_parse_phandle_with_args(const void *fdt, int nodeoff,
-				const char *prop, const char *cells_prop,
-				int index, struct fdt_phandle_args *out_args)
+పూర్ణాంకం fdt_parse_phandle_with_వాదనలు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				స్థిరరాశి అక్షరం *prop, స్థిరరాశి అక్షరం *cells_prop,
+				పూర్ణాంకం సూచీ_2, నిర్మాణం fdt_phandle_వాదనలు *బహిర్గతం_వాదనలు)
 {
 	u32 i, pcells;
-	int len, pnodeoff;
-	const fdt32_t *list, *list_end, *val;
+	పూర్ణాంకం len, pnodeoff;
+	స్థిరరాశి fdt32_t *list, *list_చివర, *val;
 
-	if (!fdt || (nodeoff < 0) || !prop || !cells_prop || !out_args)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || (nodeoff < 0) || !prop || !cells_prop || !బహిర్గతం_వాదనలు)
+		తిరిగి SBI_EINVAL;
 
 	list = fdt_getprop(fdt, nodeoff, prop, &len);
-	if (!list)
-		return SBI_ENOENT;
-	list_end = list + (len / sizeof(*list));
+	ఒకవేళ (!list)
+		తిరిగి SBI_ENOENT;
+	list_చివర = list + (len / పరిమాణం(*list));
 
-	while (list < list_end) {
-		pnodeoff = fdt_node_offset_by_phandle(fdt,
-						fdt32_to_cpu(*list));
-		if (pnodeoff < 0)
-			return pnodeoff;
+	అయితే (list < list_చివర) {
+		pnodeoff = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt,
+						fdt32_గమ్యం_cpu(*list));
+		ఒకవేళ (pnodeoff < 0)
+			తిరిగి pnodeoff;
 		list++;
 
 		val = fdt_getprop(fdt, pnodeoff, cells_prop, &len);
-		if (!val)
-			return SBI_ENOENT;
-		pcells = fdt32_to_cpu(*val);
-		if (FDT_MAX_PHANDLE_ARGS < pcells)
-			return SBI_EINVAL;
-		if (list + pcells > list_end)
-			return SBI_ENOENT;
+		ఒకవేళ (!val)
+			తిరిగి SBI_ENOENT;
+		pcells = fdt32_గమ్యం_cpu(*val);
+		ఒకవేళ (FDT_MAX_PHANDLE_వాదనలు < pcells)
+			తిరిగి SBI_EINVAL;
+		ఒకవేళ (list + pcells > list_చివర)
+			తిరిగి SBI_ENOENT;
 
-		if (index > 0) {
+		ఒకవేళ (సూచీ_2 > 0) {
 			list += pcells;
-			index--;
-		} else {
-			out_args->node_offset = pnodeoff;
-			out_args->args_count = pcells;
-			for (i = 0; i < pcells; i++)
-				out_args->args[i] = fdt32_to_cpu(list[i]);
-			return 0;
+			సూచీ_2--;
+		} లేకపోతే {
+			బహిర్గతం_వాదనలు->కణుపు_స్థానభ్రంశం = pnodeoff;
+			బహిర్గతం_వాదనలు->వాదనలు_లెక్క = pcells;
+			కొరకు (i = 0; i < pcells; i++)
+				బహిర్గతం_వాదనలు->వాదనలు[i] = fdt32_గమ్యం_cpu(list[i]);
+			తిరిగి 0;
 		}
 	}
 
-	return SBI_ENOENT;
+	తిరిగి SBI_ENOENT;
 }
 
-static int fdt_translate_address(const void *fdt, uint64_t reg, int parent,
+స్థిర పూర్ణాంకం fdt_translate_చిరునామా(స్థిరరాశి శూన్య *fdt, uint64_t reg, పూర్ణాంకం మాతృ,
 				 uint64_t *addr)
 {
-	int i, rlen;
-	int cell_parent_addr, cell_child_addr, cell_size;
-	const fdt32_t *ranges;
-	uint64_t offset, caddr = 0, paddr = 0, rsize = 0;
+	పూర్ణాంకం i, rlen;
+	పూర్ణాంకం cell_మాతృ_addr, cell_బిడ్డ_addr, cell_కొలత;
+	స్థిరరాశి fdt32_t *ranges;
+	uint64_t స్థానభ్రంశం, caddr = 0, paddr = 0, rsize = 0;
 
-	ranges = fdt_getprop(fdt, parent, "ranges", &rlen);
-	if (ranges && rlen > 0) {
-		cell_child_addr = fdt_address_cells(fdt, parent);
-		if (cell_child_addr < 1)
-			return SBI_ENODEV;
+	ranges = fdt_getprop(fdt, మాతృ, "ranges", &rlen);
+	ఒకవేళ (ranges && rlen > 0) {
+		cell_బిడ్డ_addr = fdt_చిరునామా_cells(fdt, మాతృ);
+		ఒకవేళ (cell_బిడ్డ_addr < 1)
+			తిరిగి SBI_ENODEV;
 
-		cell_parent_addr = fdt_address_cells(fdt, fdt_parent_offset(fdt, parent));
-		if (cell_parent_addr < 1)
-			return SBI_ENODEV;
+		cell_మాతృ_addr = fdt_చిరునామా_cells(fdt, fdt_మాతృ_స్థానభ్రంశం(fdt, మాతృ));
+		ఒకవేళ (cell_మాతృ_addr < 1)
+			తిరిగి SBI_ENODEV;
 
-		cell_size = fdt_size_cells(fdt, parent);
-		if (cell_size < 0)
-			return SBI_ENODEV;
+		cell_కొలత = fdt_కొలత_cells(fdt, మాతృ);
+		ఒకవేళ (cell_కొలత < 0)
+			తిరిగి SBI_ENODEV;
 
-		for (i = 0; i < cell_child_addr; i++)
-			caddr = (caddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_parent_addr; i++)
-			paddr = (paddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_size; i++)
-			rsize = (rsize << 32) | fdt32_to_cpu(*ranges++);
-		if (reg < caddr || caddr >= (reg + rsize )) {
+		కొరకు (i = 0; i < cell_బిడ్డ_addr; i++)
+			caddr = (caddr << 32) | fdt32_గమ్యం_cpu(*ranges++);
+		కొరకు (i = 0; i < cell_మాతృ_addr; i++)
+			paddr = (paddr << 32) | fdt32_గమ్యం_cpu(*ranges++);
+		కొరకు (i = 0; i < cell_కొలత; i++)
+			rsize = (rsize << 32) | fdt32_గమ్యం_cpu(*ranges++);
+		ఒకవేళ (reg < caddr || caddr >= (reg + rsize )) {
 			sbi_printf("invalid address translation\n");
-			return SBI_ENODEV;
+			తిరిగి SBI_ENODEV;
 		}
-		offset = reg - caddr;
-		*addr = paddr + offset;
-	} else {
+		స్థానభ్రంశం = reg - caddr;
+		*addr = paddr + స్థానభ్రంశం;
+	} లేకపోతే {
 		/* No translation required */
 		*addr = reg;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_get_node_addr_size(const void *fdt, int node, int index,
-			   uint64_t *addr, uint64_t *size)
+పూర్ణాంకం fdt_get_కణుపు_addr_కొలత(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం కణుపు, పూర్ణాంకం సూచీ_2,
+			   uint64_t *addr, uint64_t *కొలత)
 {
-	int parent, len, i, rc;
-	int cell_addr, cell_size;
-	const fdt32_t *prop_addr, *prop_size;
-	uint64_t temp = 0;
+	పూర్ణాంకం మాతృ, len, i, rc;
+	పూర్ణాంకం cell_addr, cell_కొలత;
+	స్థిరరాశి fdt32_t *prop_addr, *prop_కొలత;
+	uint64_t తాత్కాలిక = 0;
 
-	if (!fdt || node < 0 || index < 0)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || కణుపు < 0 || సూచీ_2 < 0)
+		తిరిగి SBI_EINVAL;
 
-	parent = fdt_parent_offset(fdt, node);
-	if (parent < 0)
-		return parent;
-	cell_addr = fdt_address_cells(fdt, parent);
-	if (cell_addr < 1)
-		return SBI_ENODEV;
+	మాతృ = fdt_మాతృ_స్థానభ్రంశం(fdt, కణుపు);
+	ఒకవేళ (మాతృ < 0)
+		తిరిగి మాతృ;
+	cell_addr = fdt_చిరునామా_cells(fdt, మాతృ);
+	ఒకవేళ (cell_addr < 1)
+		తిరిగి SBI_ENODEV;
 
-	cell_size = fdt_size_cells(fdt, parent);
-	if (cell_size < 0)
-		return SBI_ENODEV;
+	cell_కొలత = fdt_కొలత_cells(fdt, మాతృ);
+	ఒకవేళ (cell_కొలత < 0)
+		తిరిగి SBI_ENODEV;
 
-	prop_addr = fdt_getprop(fdt, node, "reg", &len);
-	if (!prop_addr)
-		return SBI_ENODEV;
+	prop_addr = fdt_getprop(fdt, కణుపు, "reg", &len);
+	ఒకవేళ (!prop_addr)
+		తిరిగి SBI_ENODEV;
 
-	if ((len / sizeof(u32)) <= (index * (cell_addr + cell_size)))
-		return SBI_EINVAL;
+	ఒకవేళ ((len / పరిమాణం(u32)) <= (సూచీ_2 * (cell_addr + cell_కొలత)))
+		తిరిగి SBI_EINVAL;
 
-	prop_addr = prop_addr + (index * (cell_addr + cell_size));
-	prop_size = prop_addr + cell_addr;
+	prop_addr = prop_addr + (సూచీ_2 * (cell_addr + cell_కొలత));
+	prop_కొలత = prop_addr + cell_addr;
 
-	if (addr) {
-		for (i = 0; i < cell_addr; i++)
-			temp = (temp << 32) | fdt32_to_cpu(*prop_addr++);
-		do {
-			if (parent < 0)
-				break;
-			rc  = fdt_translate_address(fdt, temp, parent, addr);
-			if (rc)
-				break;
-			parent = fdt_parent_offset(fdt, parent);
-			temp = *addr;
-		} while (1);
+	ఒకవేళ (addr) {
+		కొరకు (i = 0; i < cell_addr; i++)
+			తాత్కాలిక = (తాత్కాలిక << 32) | fdt32_గమ్యం_cpu(*prop_addr++);
+		చేయి {
+			ఒకవేళ (మాతృ < 0)
+				ఆపు;
+			rc  = fdt_translate_చిరునామా(fdt, తాత్కాలిక, మాతృ, addr);
+			ఒకవేళ (rc)
+				ఆపు;
+			మాతృ = fdt_మాతృ_స్థానభ్రంశం(fdt, మాతృ);
+			తాత్కాలిక = *addr;
+		} అయితే (1);
 	}
-	temp = 0;
+	తాత్కాలిక = 0;
 
-	if (size) {
-		for (i = 0; i < cell_size; i++)
-			temp = (temp << 32) | fdt32_to_cpu(*prop_size++);
-		*size = temp;
+	ఒకవేళ (కొలత) {
+		కొరకు (i = 0; i < cell_కొలత; i++)
+			తాత్కాలిక = (తాత్కాలిక << 32) | fdt32_గమ్యం_cpu(*prop_కొలత++);
+		*కొలత = తాత్కాలిక;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_get_node_addr_size_by_name(const void *fdt, int node, const char *name,
-				   uint64_t *addr, uint64_t *size)
+పూర్ణాంకం fdt_get_కణుపు_addr_కొలత_by_name(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం కణుపు, స్థిరరాశి అక్షరం *name,
+				   uint64_t *addr, uint64_t *కొలత)
 {
-	int i, j, count;
-	const char *val;
-	const char *regname;
+	పూర్ణాంకం i, j, లెక్క;
+	స్థిరరాశి అక్షరం *val;
+	స్థిరరాశి అక్షరం *regname;
 
-	if (!fdt || node < 0 || !name)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || కణుపు < 0 || !name)
+		తిరిగి SBI_EINVAL;
 
-	val = fdt_getprop(fdt, node, "reg-names", &count);
-	if (!val)
-		return SBI_ENODEV;
+	val = fdt_getprop(fdt, కణుపు, "reg-names", &లెక్క);
+	ఒకవేళ (!val)
+		తిరిగి SBI_ENODEV;
 
-	for (i = 0, j = 0; i < count; i++, j++) {
+	కొరకు (i = 0, j = 0; i < లెక్క; i++, j++) {
 		regname = val + i;
 
-		if (strcmp(name, regname) == 0)
-			return fdt_get_node_addr_size(fdt, node, j, addr, size);
+		ఒకవేళ (strcmp(name, regname) == 0)
+			తిరిగి fdt_get_కణుపు_addr_కొలత(fdt, కణుపు, j, addr, కొలత);
 
-		i += strlen(regname);
+		i += అక్షరశ్రేణి_పొడవు(regname);
 	}
 
-	return SBI_ENODEV;
+	తిరిగి SBI_ENODEV;
 }
 
-bool fdt_node_is_enabled(const void *fdt, int nodeoff)
+bool fdt_కణుపు_is_enabled(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff)
 {
-	int len;
-	const void *prop;
+	పూర్ణాంకం len;
+	స్థిరరాశి శూన్య *prop;
 
 	prop = fdt_getprop(fdt, nodeoff, "status", &len);
-	if (!prop)
-		return true;
+	ఒకవేళ (!prop)
+		తిరిగి true;
 
-	if (!strncmp(prop, "okay", strlen("okay")))
-		return true;
+	ఒకవేళ (!అక్షరశ్రేణి_పోలిక(prop, "okay", అక్షరశ్రేణి_పొడవు("okay")))
+		తిరిగి true;
 
-	if (!strncmp(prop, "ok", strlen("ok")))
-		return true;
+	ఒకవేళ (!అక్షరశ్రేణి_పోలిక(prop, "ok", అక్షరశ్రేణి_పొడవు("ok")))
+		తిరిగి true;
 
-	return false;
+	తిరిగి false;
 }
 
-int fdt_parse_hart_id(const void *fdt, int cpu_offset, u32 *hartid)
+పూర్ణాంకం fdt_parse_hart_id(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం cpu_స్థానభ్రంశం, u32 *hartid)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	పూర్ణాంకం len;
+	స్థిరరాశి శూన్య *prop;
+	స్థిరరాశి fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || cpu_స్థానభ్రంశం < 0)
+		తిరిగి SBI_EINVAL;
 
-	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	prop = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "device_type", &len);
+	ఒకవేళ (!prop || !len)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (అక్షరశ్రేణి_పోలిక (prop, "cpu", అక్షరశ్రేణి_పొడవు ("cpu")))
+		తిరిగి SBI_EINVAL;
 
-	val = fdt_getprop(fdt, cpu_offset, "reg", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	val = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "reg", &len);
+	ఒకవేళ (!val || len < పరిమాణం(fdt32_t))
+		తిరిగి SBI_EINVAL;
 
-	if (len > sizeof(fdt32_t))
+	ఒకవేళ (len > పరిమాణం(fdt32_t))
 		val++;
 
-	if (hartid)
-		*hartid = fdt32_to_cpu(*val);
+	ఒకవేళ (hartid)
+		*hartid = fdt32_గమ్యం_cpu(*val);
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_cbom_block_size(const void *fdt, int cpu_offset, unsigned long *cbom_block_size)
+పూర్ణాంకం fdt_parse_cbom_ఖండం_కొలత(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం cpu_స్థానభ్రంశం, గుర్తులేని దీర్ఘ *cbom_ఖండం_కొలత)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	పూర్ణాంకం len;
+	స్థిరరాశి శూన్య *prop;
+	స్థిరరాశి fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || cpu_స్థానభ్రంశం < 0)
+		తిరిగి SBI_EINVAL;
 
-	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	prop = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "device_type", &len);
+	ఒకవేళ (!prop || !len)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (అక్షరశ్రేణి_పోలిక (prop, "cpu", అక్షరశ్రేణి_పొడవు ("cpu")))
+		తిరిగి SBI_EINVAL;
 
-	val = fdt_getprop(fdt, cpu_offset, "riscv,cbom-block-size", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	val = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "riscv,cbom-block-size", &len);
+	ఒకవేళ (!val || len < పరిమాణం(fdt32_t))
+		తిరిగి SBI_EINVAL;
 
-	if (cbom_block_size)
-		*cbom_block_size = fdt32_to_cpu(*val);
-	return 0;
+	ఒకవేళ (cbom_ఖండం_కొలత)
+		*cbom_ఖండం_కొలత = fdt32_గమ్యం_cpu(*val);
+	తిరిగి 0;
 }
 
-int fdt_parse_max_enabled_hart_id(const void *fdt, u32 *max_hartid)
+పూర్ణాంకం fdt_parse_max_enabled_hart_id(స్థిరరాశి శూన్య *fdt, u32 *max_hartid)
 {
 	u32 hartid;
-	int err, cpu_offset, cpus_offset;
+	పూర్ణాంకం err, cpu_స్థానభ్రంశం, cpus_స్థానభ్రంశం;
 
-	if (!fdt)
-		return SBI_EINVAL;
-	if (!max_hartid)
-		return 0;
+	ఒకవేళ (!fdt)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (!max_hartid)
+		తిరిగి 0;
 
 	*max_hartid = 0;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి cpus_స్థానభ్రంశం;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+	fdt_for_each_subnode(cpu_స్థానభ్రంశం, fdt, cpus_స్థానభ్రంశం) {
+		err = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
+		ఒకవేళ (err)
+			కొనసాగు;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		ఒకవేళ (!fdt_కణుపు_is_enabled(fdt, cpu_స్థానభ్రంశం))
+			కొనసాగు;
 
-		if (hartid > *max_hartid)
+		ఒకవేళ (hartid > *max_hartid)
 			*max_hartid = hartid;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_timebase_frequency(const void *fdt, unsigned long *freq)
+పూర్ణాంకం fdt_parse_timebase_frequency(స్థిరరాశి శూన్య *fdt, గుర్తులేని దీర్ఘ *freq)
 {
-	const fdt32_t *val;
-	int len, cpus_offset;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం len, cpus_స్థానభ్రంశం;
 
-	if (!fdt || !freq)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt || !freq)
+		తిరిగి SBI_EINVAL;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి cpus_స్థానభ్రంశం;
 
-	val = fdt_getprop(fdt, cpus_offset, "timebase-frequency", &len);
-	if (len > 0 && val)
-		*freq = fdt32_to_cpu(*val);
-	else
-		return SBI_ENOENT;
+	val = fdt_getprop(fdt, cpus_స్థానభ్రంశం, "timebase-frequency", &len);
+	ఒకవేళ (len > 0 && val)
+		*freq = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		తిరిగి SBI_ENOENT;
 
-	return 0;
+	తిరిగి 0;
 }
 
-#define RISCV_ISA_EXT_NAME_LEN_MAX	32
+#నిర్వచించు RISCV_ISA_EXT_NAME_LEN_MAX	32
 
-static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
+స్థిర పూర్ణాంకం fdt_parse_isa_one_hart(స్థిరరాశి అక్షరం *isa, గుర్తులేని దీర్ఘ *extensions)
 {
 	size_t i, j, isa_len;
-	char mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
+	అక్షరం mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
 
 	i = 0;
-	isa_len = strlen(isa);
+	isa_len = అక్షరశ్రేణి_పొడవు(isa);
 
-	if (isa[i] == 'r' || isa[i] == 'R')
+	ఒకవేళ (isa[i] == 'r' || isa[i] == 'R')
 		i++;
-	else
-		return SBI_EINVAL;
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
-	if (isa[i] == 'v' || isa[i] == 'V')
+	ఒకవేళ (isa[i] == 'v' || isa[i] == 'V')
 		i++;
-	else
-		return SBI_EINVAL;
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
-	if (isa[i] == '3' || isa[i+1] == '2')
+	ఒకవేళ (isa[i] == '3' || isa[i+1] == '2')
 		i += 2;
-	else if (isa[i] == '6' || isa[i+1] == '4')
+	లేకపోతే ఒకవేళ (isa[i] == '6' || isa[i+1] == '4')
 		i += 2;
-	else
-		return SBI_EINVAL;
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
 	/* Skip base ISA extensions */
-	for (; i < isa_len; i++) {
-		if (isa[i] == '_')
-			break;
+	కొరకు (; i < isa_len; i++) {
+		ఒకవేళ (isa[i] == '_')
+			ఆపు;
 	}
 
-	while (i < isa_len) {
-		if (isa[i] != '_') {
+	అయితే (i < isa_len) {
+		ఒకవేళ (isa[i] != '_') {
 			i++;
-			continue;
+			కొనసాగు;
 		}
 
 		/* Skip the '_' character */
@@ -370,109 +370,109 @@ static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
 
 		/* Extract the multi-letter extension name */
 		j = 0;
-		while ((i < isa_len) && (isa[i] != '_') &&
-		       (j < (sizeof(mstr) - 1)))
+		అయితే ((i < isa_len) && (isa[i] != '_') &&
+		       (j < (పరిమాణం(mstr) - 1)))
 			mstr[j++] = isa[i++];
 		mstr[j] = '\0';
 
 		/* Skip empty multi-letter extension name */
-		if (!j)
-			continue;
+		ఒకవేళ (!j)
+			కొనసాగు;
 
-#define set_multi_letter_ext(name, bit)				\
-			if (!strcmp(mstr, name)) {		\
-				__set_bit(bit, extensions);	\
-				continue;			\
+#నిర్వచించు సమితి_multi_letter_ext(name, బిట్టు_2)				\
+			ఒకవేళ (!strcmp(mstr, name)) {		\
+				__set_bit(బిట్టు_2, extensions);	\
+				కొనసాగు;			\
 			}
 
-		for (j = 0; j < SBI_HART_EXT_MAX; j++) {
-			set_multi_letter_ext(sbi_hart_ext[j].name,
+		కొరకు (j = 0; j < SBI_HART_EXT_MAX; j++) {
+			సమితి_multi_letter_ext(sbi_hart_ext[j].name,
 					     sbi_hart_ext[j].id);
 		}
-#undef set_multi_letter_ext
+#నిర్వచనం_రద్దు సమితి_multi_letter_ext
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void fdt_parse_isa_extensions_one_hart(const char *isa,
-					      unsigned long *extensions,
-					      int len)
+స్థిర శూన్య fdt_parse_isa_extensions_one_hart(స్థిరరాశి అక్షరం *isa,
+					      గుర్తులేని దీర్ఘ *extensions,
+					      పూర్ణాంకం len)
 {
 	size_t i;
 
-	for (i = 0; i < SBI_HART_EXT_MAX; i++) {
-		if (fdt_stringlist_contains(isa, len, sbi_hart_ext[i].name))
+	కొరకు (i = 0; i < SBI_HART_EXT_MAX; i++) {
+		ఒకవేళ (fdt_stringlist_కలిగియుంది(isa, len, sbi_hart_ext[i].name))
 			__set_bit(sbi_hart_ext[i].id, extensions);
 	}
 }
 
-int fdt_parse_isa_extensions_all_harts(const void *fdt)
+పూర్ణాంకం fdt_parse_isa_extensions_all_harts(స్థిరరాశి శూన్య *fdt)
 {
 	u32 hartid;
-	const fdt32_t *val;
-	struct sbi_scratch *scratch;
-	struct sbi_hart_features *hfeatures;
-	int err, cpu_offset, cpus_offset, len;
+	స్థిరరాశి fdt32_t *val;
+	నిర్మాణం sbi_scratch *scratch;
+	నిర్మాణం sbi_hart_features *hfeatures;
+	పూర్ణాంకం err, cpu_స్థానభ్రంశం, cpus_స్థానభ్రంశం, len;
 
-	if (!fdt)
-		return SBI_EINVAL;
+	ఒకవేళ (!fdt)
+		తిరిగి SBI_EINVAL;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_స్థానభ్రంశం = fdt_మార్గం_స్థానభ్రంశం(fdt, "/cpus");
+	ఒకవేళ (cpus_స్థానభ్రంశం < 0)
+		తిరిగి cpus_స్థానభ్రంశం;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+	fdt_for_each_subnode(cpu_స్థానభ్రంశం, fdt, cpus_స్థానభ్రంశం) {
+		err = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
+		ఒకవేళ (err)
+			కొనసాగు;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		ఒకవేళ (!fdt_కణుపు_is_enabled(fdt, cpu_స్థానభ్రంశం))
+			కొనసాగు;
 
-		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			return SBI_ENOENT;
+		scratch = sbi_hartid_గమ్యం_scratch(hartid);
+		ఒకవేళ (!scratch)
+			తిరిగి SBI_ENOENT;
 
 		hfeatures = sbi_hart_features_ptr(scratch);
-		if (!hfeatures)
-			return SBI_ENOENT;
+		ఒకవేళ (!hfeatures)
+			తిరిగి SBI_ENOENT;
 
-		val = fdt_getprop(fdt, cpu_offset, "riscv,isa-extensions", &len);
-		if (val && len > 0) {
-			fdt_parse_isa_extensions_one_hart((const char *)val,
+		val = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "riscv,isa-extensions", &len);
+		ఒకవేళ (val && len > 0) {
+			fdt_parse_isa_extensions_one_hart((స్థిరరాశి అక్షరం *)val,
 							  hfeatures->extensions, len);
-			continue;
+			కొనసాగు;
 		}
 
-		val = fdt_getprop(fdt, cpu_offset, "riscv,isa", &len);
-		if (!val || len <= 0)
-			return SBI_ENOENT;
+		val = fdt_getprop(fdt, cpu_స్థానభ్రంశం, "riscv,isa", &len);
+		ఒకవేళ (!val || len <= 0)
+			తిరిగి SBI_ENOENT;
 
-		err = fdt_parse_isa_one_hart((const char *)val, hfeatures->extensions);
-		if (err)
-			return err;
+		err = fdt_parse_isa_one_hart((స్థిరరాశి అక్షరం *)val, hfeatures->extensions);
+		ఒకవేళ (err)
+			తిరిగి err;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
-				      struct platform_uart_data *uart,
-				      unsigned long default_freq,
-				      unsigned long default_baud)
+స్థిర పూర్ణాంకం fdt_parse_uart_కణుపు_common(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				      నిర్మాణం platform_uart_దత్తాంశం *uart,
+				      గుర్తులేని దీర్ఘ default_freq,
+				      గుర్తులేని దీర్ఘ default_baud)
 {
-	int len, rc;
-	const fdt32_t *val;
-	uint64_t reg_addr, reg_size;
+	పూర్ణాంకం len, rc;
+	స్థిరరాశి fdt32_t *val;
+	uint64_t reg_addr, reg_కొలత;
 
-	if (nodeoffset < 0 || !uart || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (nodeoffset < 0 || !uart || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		తిరిగి SBI_ENODEV;
 	uart->addr = reg_addr;
 
 	/**
@@ -480,657 +480,657 @@ static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
 	 * may not be present. Don't return error.
 	 */
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "clock-frequency", &len);
-	if (len > 0 && val)
-		uart->freq = fdt32_to_cpu(*val);
-	else
+	ఒకవేళ (len > 0 && val)
+		uart->freq = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
 		uart->freq = default_freq;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "current-speed", &len);
-	if (len > 0 && val)
-		uart->baud = fdt32_to_cpu(*val);
-	else
+	ఒకవేళ (len > 0 && val)
+		uart->baud = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
 		uart->baud = default_baud;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_gaisler_uart_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_gaisler_uart_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	తిరిగి fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
 }
 
-int fdt_parse_renesas_scif_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_renesas_scif_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	తిరిగి fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart,
 					  DEFAULT_RENESAS_SCIF_FREQ,
 					  DEFAULT_RENESAS_SCIF_BAUD);
 }
 
-int fdt_parse_shakti_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_shakti_uart_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			       నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	తిరిగి fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart,
 					DEFAULT_SHAKTI_UART_FREQ,
 					DEFAULT_SHAKTI_UART_BAUD);
 }
 
-int fdt_parse_sifive_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_sifive_uart_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			       నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	తిరిగి fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart,
 					DEFAULT_SIFIVE_UART_FREQ,
 					DEFAULT_SIFIVE_UART_BAUD);
 }
 
-int fdt_parse_uart_node(const void *fdt, int nodeoffset,
-			struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_uart_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	int len, rc;
-	const fdt32_t *val;
+	పూర్ణాంకం len, rc;
+	స్థిరరాశి fdt32_t *val;
 
-	rc = fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	rc = fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-shift", &len);
-	if (len > 0 && val)
-		uart->reg_shift = fdt32_to_cpu(*val);
-	else
-		uart->reg_shift = DEFAULT_UART_REG_SHIFT;
+	ఒకవేళ (len > 0 && val)
+		uart->reg_జరుపు = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		uart->reg_జరుపు = DEFAULT_UART_REG_జరుపు;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-io-width", &len);
-	if (len > 0 && val)
-		uart->reg_io_width = fdt32_to_cpu(*val);
-	else
-		uart->reg_io_width = DEFAULT_UART_REG_IO_WIDTH;
+	ఒకవేళ (len > 0 && val)
+		uart->reg_io_వెడల్పు = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		uart->reg_io_వెడల్పు = DEFAULT_UART_REG_IO_వెడల్పు;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-offset", &len);
-	if (len > 0 && val)
-		uart->reg_offset = fdt32_to_cpu(*val);
-	else
-		uart->reg_offset = DEFAULT_UART_REG_OFFSET;
+	ఒకవేళ (len > 0 && val)
+		uart->reg_స్థానభ్రంశం = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		uart->reg_స్థానభ్రంశం = DEFAULT_UART_REG_స్థానభ్రంశం;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_uart8250(const void *fdt, struct platform_uart_data *uart,
-		   const char *compatible)
+పూర్ణాంకం fdt_parse_uart8250(స్థిరరాశి శూన్య *fdt, నిర్మాణం platform_uart_దత్తాంశం *uart,
+		   స్థిరరాశి అక్షరం *compatible)
 {
-	int nodeoffset;
+	పూర్ణాంకం nodeoffset;
 
-	if (!compatible || !uart || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (!compatible || !uart || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, -1, compatible);
+	ఒకవేళ (nodeoffset < 0)
+		తిరిగి nodeoffset;
 
-	return fdt_parse_uart_node(fdt, nodeoffset, uart);
+	తిరిగి fdt_parse_uart_కణుపు(fdt, nodeoffset, uart);
 }
 
-int fdt_parse_xlnx_uartlite_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+పూర్ణాంకం fdt_parse_xlnx_uartlite_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+			       నిర్మాణం platform_uart_దత్తాంశం *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart, 0, 0);
+	తిరిగి fdt_parse_uart_కణుపు_common(fdt, nodeoffset, uart, 0, 0);
 }
 
-static int fdt_aplic_find_imsic_node(const void *fdt, int nodeoff,
-				     struct imsic_data *imsic, bool mmode)
+స్థిర పూర్ణాంకం fdt_aplic_కనుగొను_imsic_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				     నిర్మాణం imsic_దత్తాంశం *imsic, bool mmode)
 {
-	const fdt32_t *val;
-	int i, len, noff, rc;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం i, len, noff, rc;
 
 	val = fdt_getprop(fdt, nodeoff, "msi-parent", &len);
-	if (val && len >= sizeof(fdt32_t)) {
-		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*val));
-		if (noff < 0)
-			return noff;
+	ఒకవేళ (val && len >= పరిమాణం(fdt32_t)) {
+		noff = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, fdt32_గమ్యం_cpu(*val));
+		ఒకవేళ (noff < 0)
+			తిరిగి noff;
 
-		rc = fdt_parse_imsic_node(fdt, noff, imsic);
-		if (rc)
-			return rc;
+		rc = fdt_parse_imsic_కణుపు(fdt, noff, imsic);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		rc = imsic_data_check(imsic);
-		if (rc)
-			return rc;
+		rc = imsic_దత్తాంశం_check(imsic);
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		if (imsic->targets_mmode == mmode) {
-			return 0;
+		ఒకవేళ (imsic->targets_mmode == mmode) {
+			తిరిగి 0;
 		}
-	} else {
-		return SBI_ENODEV;
+	} లేకపోతే {
+		తిరిగి SBI_ENODEV;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_ENODEV;
+	ఒకవేళ (!val || len < పరిమాణం(fdt32_t))
+		తిరిగి SBI_ENODEV;
 
-	len /= sizeof(fdt32_t);
+	len /= పరిమాణం(fdt32_t);
 
-	for (i = 0; i < len; i++) {
-		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[i]));
-		if (noff < 0)
-			return noff;
+	కొరకు (i = 0; i < len; i++) {
+		noff = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, fdt32_గమ్యం_cpu(val[i]));
+		ఒకవేళ (noff < 0)
+			తిరిగి noff;
 
-		rc = fdt_aplic_find_imsic_node(fdt, noff, imsic, mmode);
-		if (!rc)
-			break;
+		rc = fdt_aplic_కనుగొను_imsic_కణుపు(fdt, noff, imsic, mmode);
+		ఒకవేళ (!rc)
+			ఆపు;
 	}
 
-	return rc;
+	తిరిగి rc;
 }
 
-int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
+పూర్ణాంకం fdt_parse_aplic_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, నిర్మాణం aplic_దత్తాంశం *aplic)
 {
-	bool child_found;
-	const fdt32_t *val;
-	const fdt32_t *del;
-	struct imsic_data imsic = { 0 };
-	int i, j, d, dcnt, len, rc;
-	uint64_t reg_addr, reg_size;
-	struct aplic_delegate_data *deleg;
+	bool బిడ్డ_దొరికింది;
+	స్థిరరాశి fdt32_t *val;
+	స్థిరరాశి fdt32_t *del;
+	నిర్మాణం imsic_దత్తాంశం imsic = { 0 };
+	పూర్ణాంకం i, j, d, dcnt, len, rc;
+	uint64_t reg_addr, reg_కొలత;
+	నిర్మాణం aplic_delegate_దత్తాంశం *deleg;
 
-	if (nodeoff < 0 || !aplic || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (nodeoff < 0 || !aplic || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		తిరిగి SBI_ENODEV;
 	aplic->unique_id = nodeoff;
 	aplic->addr = reg_addr;
-	aplic->size = reg_size;
+	aplic->కొలత = reg_కొలత;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-sources", &len);
-	if (len > 0)
-		aplic->num_source = fdt32_to_cpu(*val);
+	ఒకవేళ (len > 0)
+		aplic->అంకె_ఆధారం = fdt32_గమ్యం_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+	ఒకవేళ (val && len > పరిమాణం(fdt32_t)) {
+		len = len / పరిమాణం(fdt32_t);
+		కొరకు (i = 0; i < len; i += 2) {
+			ఒకవేళ (fdt32_గమ్యం_cpu(val[i + 1]) == IRQ_M_EXT) {
 				aplic->targets_mmode = true;
-				break;
+				ఆపు;
 			}
 		}
-		aplic->num_idc = len / 2;
+		aplic->అంకె_idc = len / 2;
 	}
 
-	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, true);
-	if (!rc) {
-		aplic->parent_unique_id = imsic.unique_id;
+	rc = fdt_aplic_కనుగొను_imsic_కణుపు(fdt, nodeoff, &imsic, true);
+	ఒకవేళ (!rc) {
+		aplic->మాతృ_unique_id = imsic.unique_id;
 		aplic->targets_mmode = true;
 		aplic->has_msicfg_mmode = true;
-		aplic->msicfg_mmode.lhxs = imsic.guest_index_bits;
-		aplic->msicfg_mmode.lhxw = imsic.hart_index_bits;
-		aplic->msicfg_mmode.hhxw = imsic.group_index_bits;
-		aplic->msicfg_mmode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		aplic->msicfg_mmode.lhxs = imsic.guest_సూచీ_బిట్లు;
+		aplic->msicfg_mmode.lhxw = imsic.hart_సూచీ_బిట్లు;
+		aplic->msicfg_mmode.hhxw = imsic.సమూహం_సూచీ_బిట్లు;
+		aplic->msicfg_mmode.hhxs = imsic.సమూహం_సూచీ_జరుపు;
+		ఒకవేళ (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_పుట_జరుపు))
+			తిరిగి SBI_EINVAL;
 		aplic->msicfg_mmode.hhxs -= 24;
-		aplic->msicfg_mmode.base_addr = imsic.regs[0].addr;
+		aplic->msicfg_mmode.పునాది_addr = imsic.regs[0].addr;
 	}
 
-	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, false);
-	if (!rc) {
+	rc = fdt_aplic_కనుగొను_imsic_కణుపు(fdt, nodeoff, &imsic, false);
+	ఒకవేళ (!rc) {
 		aplic->has_msicfg_smode = true;
-		aplic->msicfg_smode.lhxs = imsic.guest_index_bits;
-		aplic->msicfg_smode.lhxw = imsic.hart_index_bits;
-		aplic->msicfg_smode.hhxw = imsic.group_index_bits;
-		aplic->msicfg_smode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		aplic->msicfg_smode.lhxs = imsic.guest_సూచీ_బిట్లు;
+		aplic->msicfg_smode.lhxw = imsic.hart_సూచీ_బిట్లు;
+		aplic->msicfg_smode.hhxw = imsic.సమూహం_సూచీ_బిట్లు;
+		aplic->msicfg_smode.hhxs = imsic.సమూహం_సూచీ_జరుపు;
+		ఒకవేళ (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_పుట_జరుపు))
+			తిరిగి SBI_EINVAL;
 		aplic->msicfg_smode.hhxs -= 24;
-		aplic->msicfg_smode.base_addr = imsic.regs[0].addr;
+		aplic->msicfg_smode.పునాది_addr = imsic.regs[0].addr;
 	}
 
-	for (d = 0; d < APLIC_MAX_DELEGATE; d++) {
+	కొరకు (d = 0; d < APLIC_MAX_DELEGATE; d++) {
 		deleg = &aplic->delegate[d];
-		deleg->first_irq = 0;
-		deleg->last_irq = 0;
-		deleg->child_index = 0;
+		deleg->మొదటి_irq = 0;
+		deleg->చివరి_irq = 0;
+		deleg->బిడ్డ_సూచీ = 0;
 	}
 
 	del = fdt_getprop(fdt, nodeoff, "riscv,delegation", &len);
-	if (!del)
+	ఒకవేళ (!del)
 		del = fdt_getprop(fdt, nodeoff, "riscv,delegate", &len);
-	if (!del || len < (3 * sizeof(fdt32_t)))
-		goto skip_delegate_parse;
+	ఒకవేళ (!del || len < (3 * పరిమాణం(fdt32_t)))
+		వెళ్ళు skip_delegate_parse;
 	d = 0;
-	dcnt = len / sizeof(fdt32_t);
-	for (i = 0; i < dcnt; i += 3) {
-		if (d >= APLIC_MAX_DELEGATE)
-			break;
+	dcnt = len / పరిమాణం(fdt32_t);
+	కొరకు (i = 0; i < dcnt; i += 3) {
+		ఒకవేళ (d >= APLIC_MAX_DELEGATE)
+			ఆపు;
 		deleg = &aplic->delegate[d];
 
-		deleg->first_irq = fdt32_to_cpu(del[i + 1]);
-		deleg->last_irq = fdt32_to_cpu(del[i + 2]);
-		deleg->child_index = 0;
+		deleg->మొదటి_irq = fdt32_గమ్యం_cpu(del[i + 1]);
+		deleg->చివరి_irq = fdt32_గమ్యం_cpu(del[i + 2]);
+		deleg->బిడ్డ_సూచీ = 0;
 
-		child_found = false;
+		బిడ్డ_దొరికింది = false;
 		val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-		if (!val || len < sizeof(fdt32_t)) {
-			deleg->first_irq = 0;
-			deleg->last_irq = 0;
-			deleg->child_index = 0;
-			continue;
+		ఒకవేళ (!val || len < పరిమాణం(fdt32_t)) {
+			deleg->మొదటి_irq = 0;
+			deleg->చివరి_irq = 0;
+			deleg->బిడ్డ_సూచీ = 0;
+			కొనసాగు;
 		}
-		len = len / sizeof(fdt32_t);
-		for (j = 0; j < len; j++) {
-			if (del[i] != val[j])
-				continue;
-			deleg->child_index = j;
-			child_found = true;
-			break;
+		len = len / పరిమాణం(fdt32_t);
+		కొరకు (j = 0; j < len; j++) {
+			ఒకవేళ (del[i] != val[j])
+				కొనసాగు;
+			deleg->బిడ్డ_సూచీ = j;
+			బిడ్డ_దొరికింది = true;
+			ఆపు;
 		}
 
-		if (child_found) {
+		ఒకవేళ (బిడ్డ_దొరికింది) {
 			d++;
-		} else {
-			deleg->first_irq = 0;
-			deleg->last_irq = 0;
-			deleg->child_index = 0;
+		} లేకపోతే {
+			deleg->మొదటి_irq = 0;
+			deleg->చివరి_irq = 0;
+			deleg->బిడ్డ_సూచీ = 0;
 		}
 	}
 skip_delegate_parse:
 
-	return 0;
+	తిరిగి 0;
 }
 
-bool fdt_check_imsic_mlevel(const void *fdt)
+bool fdt_check_imsic_mlevel(స్థిరరాశి శూన్య *fdt)
 {
-	const fdt32_t *val;
-	int i, len, noff = 0;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం i, len, noff = 0;
 
-	if (!fdt)
-		return false;
+	ఒకవేళ (!fdt)
+		తిరిగి false;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	అయితే ((noff = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, noff,
 						     "riscv,imsics")) >= 0) {
 		val = fdt_getprop(fdt, noff, "interrupts-extended", &len);
-		if (val && len > sizeof(fdt32_t)) {
-			len = len / sizeof(fdt32_t);
-			for (i = 0; i < len; i += 2) {
-				if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT)
-					return true;
+		ఒకవేళ (val && len > పరిమాణం(fdt32_t)) {
+			len = len / పరిమాణం(fdt32_t);
+			కొరకు (i = 0; i < len; i += 2) {
+				ఒకవేళ (fdt32_గమ్యం_cpu(val[i + 1]) == IRQ_M_EXT)
+					తిరిగి true;
 			}
 		}
 	}
 
-	return false;
+	తిరిగి false;
 }
 
-int fdt_parse_imsic_node(const void *fdt, int nodeoff, struct imsic_data *imsic)
+పూర్ణాంకం fdt_parse_imsic_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff, నిర్మాణం imsic_దత్తాంశం *imsic)
 {
-	const fdt32_t *val;
-	struct imsic_regs *regs;
-	uint64_t reg_addr, reg_size;
-	int i, rc, len, nr_parent_irqs;
+	స్థిరరాశి fdt32_t *val;
+	నిర్మాణం imsic_regs *regs;
+	uint64_t reg_addr, reg_కొలత;
+	పూర్ణాంకం i, rc, len, nr_మాతృ_irqs;
 
-	if (nodeoff < 0 || !imsic || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (nodeoff < 0 || !imsic || !fdt)
+		తిరిగి SBI_ENODEV;
 
 	imsic->unique_id = nodeoff;
 	imsic->targets_mmode = false;
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
-		nr_parent_irqs = len / 2;
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+	ఒకవేళ (val && len > పరిమాణం(fdt32_t)) {
+		len = len / పరిమాణం(fdt32_t);
+		nr_మాతృ_irqs = len / 2;
+		కొరకు (i = 0; i < len; i += 2) {
+			ఒకవేళ (fdt32_గమ్యం_cpu(val[i + 1]) == IRQ_M_EXT) {
 				imsic->targets_mmode = true;
-				break;
+				ఆపు;
 			}
 		}
-	} else
-		return SBI_EINVAL;
+	} లేకపోతే
+		తిరిగి SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,guest-index-bits", &len);
-	if (val && len > 0)
-		imsic->guest_index_bits = fdt32_to_cpu(*val);
-	else
-		imsic->guest_index_bits = 0;
+	ఒకవేళ (val && len > 0)
+		imsic->guest_సూచీ_బిట్లు = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		imsic->guest_సూచీ_బిట్లు = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,hart-index-bits", &len);
-	if (val && len > 0) {
-		imsic->hart_index_bits = fdt32_to_cpu(*val);
-	} else {
-		imsic->hart_index_bits = sbi_fls(nr_parent_irqs);
-		if ((1UL << imsic->hart_index_bits) < nr_parent_irqs)
-			imsic->hart_index_bits++;
+	ఒకవేళ (val && len > 0) {
+		imsic->hart_సూచీ_బిట్లు = fdt32_గమ్యం_cpu(*val);
+	} లేకపోతే {
+		imsic->hart_సూచీ_బిట్లు = sbi_fls(nr_మాతృ_irqs);
+		ఒకవేళ ((1UL << imsic->hart_సూచీ_బిట్లు) < nr_మాతృ_irqs)
+			imsic->hart_సూచీ_బిట్లు++;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-bits", &len);
-	if (val && len > 0)
-		imsic->group_index_bits = fdt32_to_cpu(*val);
-	else
-		imsic->group_index_bits = 0;
+	ఒకవేళ (val && len > 0)
+		imsic->సమూహం_సూచీ_బిట్లు = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		imsic->సమూహం_సూచీ_బిట్లు = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-shift", &len);
-	if (val && len > 0)
-		imsic->group_index_shift = fdt32_to_cpu(*val);
-	else
-		imsic->group_index_shift = 2 * IMSIC_MMIO_PAGE_SHIFT;
+	ఒకవేళ (val && len > 0)
+		imsic->సమూహం_సూచీ_జరుపు = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		imsic->సమూహం_సూచీ_జరుపు = 2 * IMSIC_MMIO_పుట_జరుపు;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-ids", &len);
-	if (val && len > 0)
-		imsic->num_ids = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	ఒకవేళ (val && len > 0)
+		imsic->అంకె_ids = fdt32_గమ్యం_cpu(*val);
+	లేకపోతే
+		తిరిగి SBI_EINVAL;
 
-	for (i = 0; i < IMSIC_MAX_REGS; i++) {
+	కొరకు (i = 0; i < IMSIC_MAX_REGS; i++) {
 		regs = &imsic->regs[i];
 		regs->addr = 0;
-		regs->size = 0;
+		regs->కొలత = 0;
 	}
 
-	for (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
+	కొరకు (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
 		regs = &imsic->regs[i];
 
-		rc = fdt_get_node_addr_size(fdt, nodeoff, i,
-					    &reg_addr, &reg_size);
-		if (rc < 0 || !reg_size)
-			break;
+		rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, i,
+					    &reg_addr, &reg_కొలత);
+		ఒకవేళ (rc < 0 || !reg_కొలత)
+			ఆపు;
 		regs->addr = reg_addr;
-		regs->size = reg_size;
+		regs->కొలత = reg_కొలత;
 	}
-	if (!imsic->regs[0].size)
-		return SBI_EINVAL;
+	ఒకవేళ (!imsic->regs[0].కొలత)
+		తిరిగి SBI_EINVAL;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_plic_node(const void *fdt, int nodeoffset, struct plic_data *plic)
+పూర్ణాంకం fdt_parse_plic_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, నిర్మాణం plic_దత్తాంశం *plic)
 {
-	int len, rc;
-	const fdt32_t *val;
-	uint64_t reg_addr, reg_size;
+	పూర్ణాంకం len, rc;
+	స్థిరరాశి fdt32_t *val;
+	uint64_t reg_addr, reg_కొలత;
 
-	if (nodeoffset < 0 || !plic || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (nodeoffset < 0 || !plic || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		తిరిగి SBI_ENODEV;
 	plic->unique_id = nodeoffset;
 	plic->addr = reg_addr;
-	plic->size = reg_size;
+	plic->కొలత = reg_కొలత;
 
 	val = fdt_getprop(fdt, nodeoffset, "riscv,ndev", &len);
-	if (len > 0)
-		plic->num_src = fdt32_to_cpu(*val);
+	ఒకవేళ (len > 0)
+		plic->అంకె_src = fdt32_గమ్యం_cpu(*val);
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_plic(const void *fdt, struct plic_data *plic, const char *compat)
+పూర్ణాంకం fdt_parse_plic(స్థిరరాశి శూన్య *fdt, నిర్మాణం plic_దత్తాంశం *plic, స్థిరరాశి అక్షరం *compat)
 {
-	int nodeoffset;
+	పూర్ణాంకం nodeoffset;
 
-	if (!compat || !plic || !fdt)
-		return SBI_ENODEV;
+	ఒకవేళ (!compat || !plic || !fdt)
+		తిరిగి SBI_ENODEV;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compat);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, -1, compat);
+	ఒకవేళ (nodeoffset < 0)
+		తిరిగి nodeoffset;
 
-	return fdt_parse_plic_node(fdt, nodeoffset, plic);
+	తిరిగి fdt_parse_plic_కణుపు(fdt, nodeoffset, plic);
 }
 
-static int fdt_get_aclint_addr_size_by_name(const void *fdt, int nodeoffset,
-					    unsigned long *out_addr1,
-					    unsigned long *out_size1,
-					    unsigned long *out_addr2,
-					    unsigned long *out_size2)
+స్థిర పూర్ణాంకం fdt_get_aclint_addr_కొలత_by_name(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+					    గుర్తులేని దీర్ఘ *బహిర్గతం_addr1,
+					    గుర్తులేని దీర్ఘ *బహిర్గతం_size1,
+					    గుర్తులేని దీర్ఘ *బహిర్గతం_addr2,
+					    గుర్తులేని దీర్ఘ *బహిర్గతం_size2)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
+	పూర్ణాంకం rc;
+	uint64_t reg_addr, reg_కొలత;
 
-	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtime",
-					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		reg_addr = reg_size = 0;
-	*out_addr1 = reg_addr;
-	*out_size1 = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత_by_name(fdt, nodeoffset, "mtime",
+					    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		reg_addr = reg_కొలత = 0;
+	*బహిర్గతం_addr1 = reg_addr;
+	*బహిర్గతం_size1 = reg_కొలత;
 
-	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtimecmp",
-					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
-	*out_addr2 = reg_addr;
-	*out_size2 = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత_by_name(fdt, nodeoffset, "mtimecmp",
+					    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		తిరిగి SBI_ENODEV;
+	*బహిర్గతం_addr2 = reg_addr;
+	*బహిర్గతం_size2 = reg_కొలత;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int fdt_get_aclint_addr_size(const void *fdt, int nodeoffset,
-				    unsigned long *out_addr1,
-				    unsigned long *out_size1,
-				    unsigned long *out_addr2,
-				    unsigned long *out_size2)
+స్థిర పూర్ణాంకం fdt_get_aclint_addr_కొలత(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
+				    గుర్తులేని దీర్ఘ *బహిర్గతం_addr1,
+				    గుర్తులేని దీర్ఘ *బహిర్గతం_size1,
+				    గుర్తులేని దీర్ఘ *బహిర్గతం_addr2,
+				    గుర్తులేని దీర్ఘ *బహిర్గతం_size2)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
+	పూర్ణాంకం rc;
+	uint64_t reg_addr, reg_కొలత;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
-	*out_addr1 = reg_addr;
-	*out_size1 = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		తిరిగి SBI_ENODEV;
+	*బహిర్గతం_addr1 = reg_addr;
+	*బహిర్గతం_size1 = reg_కొలత;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 1,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		reg_addr = reg_size = 0;
-	if (out_addr2)
-		*out_addr2 = reg_addr;
-	if (out_size2)
-		*out_size2 = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 1,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0 || !reg_కొలత)
+		reg_addr = reg_కొలత = 0;
+	ఒకవేళ (బహిర్గతం_addr2)
+		*బహిర్గతం_addr2 = reg_addr;
+	ఒకవేళ (బహిర్గతం_size2)
+		*బహిర్గతం_size2 = reg_కొలత;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_aclint_node(const void *fdt, int nodeoffset,
+పూర్ణాంకం fdt_parse_aclint_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset,
 			  bool for_timer, bool allow_regname,
-			  unsigned long *out_addr1, unsigned long *out_size1,
-			  unsigned long *out_addr2, unsigned long *out_size2,
-			  u32 *out_first_hartid, u32 *out_hart_count)
+			  గుర్తులేని దీర్ఘ *బహిర్గతం_addr1, గుర్తులేని దీర్ఘ *బహిర్గతం_size1,
+			  గుర్తులేని దీర్ఘ *బహిర్గతం_addr2, గుర్తులేని దీర్ఘ *బహిర్గతం_size2,
+			  u32 *బహిర్గతం_మొదటి_hartid, u32 *బహిర్గతం_hart_లెక్క)
 {
-	const fdt32_t *val;
-	int i, rc, count, cpu_offset, cpu_intc_offset;
-	u32 phandle, hwirq, hartid, first_hartid, last_hartid;
-	u32 match_hwirq = (for_timer) ? IRQ_M_TIMER : IRQ_M_SOFT;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం i, rc, లెక్క, cpu_స్థానభ్రంశం, cpu_intc_స్థానభ్రంశం;
+	u32 phandle, hwirq, hartid, మొదటి_hartid, చివరి_hartid;
+	u32 సరిపోలిక_hwirq = (for_timer) ? IRQ_M_TIMER : IRQ_M_SOFT;
 
-	if (nodeoffset < 0 || !fdt ||
-	    !out_addr1 || !out_size1 ||
-	    !out_first_hartid || !out_hart_count)
-		return SBI_EINVAL;
+	ఒకవేళ (nodeoffset < 0 || !fdt ||
+	    !బహిర్గతం_addr1 || !బహిర్గతం_size1 ||
+	    !బహిర్గతం_మొదటి_hartid || !బహిర్గతం_hart_లెక్క)
+		తిరిగి SBI_EINVAL;
 
-	if (for_timer && allow_regname && out_addr2 && out_size2 &&
-	    fdt_getprop(fdt, nodeoffset, "reg-names", NULL))
-		rc = fdt_get_aclint_addr_size_by_name(fdt, nodeoffset,
-						      out_addr1, out_size1,
-						      out_addr2, out_size2);
-	else
-		rc = fdt_get_aclint_addr_size(fdt, nodeoffset,
-					      out_addr1, out_size1,
-					      out_addr2, out_size2);
-	if (rc)
-		return rc;
+	ఒకవేళ (for_timer && allow_regname && బహిర్గతం_addr2 && బహిర్గతం_size2 &&
+	    fdt_getprop(fdt, nodeoffset, "reg-names", ఖాళీ))
+		rc = fdt_get_aclint_addr_కొలత_by_name(fdt, nodeoffset,
+						      బహిర్గతం_addr1, బహిర్గతం_size1,
+						      బహిర్గతం_addr2, బహిర్గతం_size2);
+	లేకపోతే
+		rc = fdt_get_aclint_addr_కొలత(fdt, nodeoffset,
+					      బహిర్గతం_addr1, బహిర్గతం_size1,
+					      బహిర్గతం_addr2, బహిర్గతం_size2);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	*out_first_hartid = 0;
-	*out_hart_count = 0;
+	*బహిర్గతం_మొదటి_hartid = 0;
+	*బహిర్గతం_hart_లెక్క = 0;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &లెక్క);
+	ఒకవేళ (!val || లెక్క < పరిమాణం(fdt32_t))
+		తిరిగి 0;
+	లెక్క = లెక్క / పరిమాణం(fdt32_t);
 
-	first_hartid = -1U;
-	last_hartid = 0;
-	for (i = 0; i < (count / 2); i++) {
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[(2 * i) + 1]);
+	మొదటి_hartid = -1U;
+	చివరి_hartid = 0;
+	కొరకు (i = 0; i < (లెక్క / 2); i++) {
+		phandle = fdt32_గమ్యం_cpu(val[2 * i]);
+		hwirq = fdt32_గమ్యం_cpu(val[(2 * i) + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, phandle);
+		ఒకవేళ (cpu_intc_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_స్థానభ్రంశం = fdt_మాతృ_స్థానభ్రంశం(fdt, cpu_intc_స్థానభ్రంశం);
+		ఒకవేళ (cpu_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+		rc = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
+		ఒకవేళ (rc)
+			కొనసాగు;
 
-		if (match_hwirq == hwirq) {
-			if (hartid < first_hartid)
-				first_hartid = hartid;
-			if (hartid > last_hartid)
-				last_hartid = hartid;
+		ఒకవేళ (సరిపోలిక_hwirq == hwirq) {
+			ఒకవేళ (hartid < మొదటి_hartid)
+				మొదటి_hartid = hartid;
+			ఒకవేళ (hartid > చివరి_hartid)
+				చివరి_hartid = hartid;
 		}
 	}
 
-	if ((last_hartid >= first_hartid) && first_hartid != -1U) {
-		*out_first_hartid = first_hartid;
-		*out_hart_count = last_hartid - first_hartid + 1;
+	ఒకవేళ ((చివరి_hartid >= మొదటి_hartid) && మొదటి_hartid != -1U) {
+		*బహిర్గతం_మొదటి_hartid = మొదటి_hartid;
+		*బహిర్గతం_hart_లెక్క = చివరి_hartid - మొదటి_hartid + 1;
 	}
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_plmt_node(const void *fdt, int nodeoffset, unsigned long *plmt_base,
-			  unsigned long *plmt_size, u32 *hart_count)
+పూర్ణాంకం fdt_parse_plmt_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, గుర్తులేని దీర్ఘ *plmt_పునాది,
+			  గుర్తులేని దీర్ఘ *plmt_కొలత, u32 *hart_లెక్క)
 {
-	const fdt32_t *val;
-	int rc, i, count;
-	uint64_t reg_addr, reg_size;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం rc, i, లెక్క;
+	uint64_t reg_addr, reg_కొలత;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plmt_base ||
-	    !hart_count || !plmt_size)
-		return SBI_EINVAL;
+	ఒకవేళ (nodeoffset < 0 || !fdt || !plmt_పునాది ||
+	    !hart_లెక్క || !plmt_కొలత)
+		తిరిగి SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
-	*plmt_base = reg_addr;
-	*plmt_size = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0)
+		తిరిగి SBI_ENODEV;
+	*plmt_పునాది = reg_addr;
+	*plmt_కొలత = reg_కొలత;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &లెక్క);
+	ఒకవేళ (!val || లెక్క < పరిమాణం(fdt32_t))
+		తిరిగి 0;
+	లెక్క = లెక్క / పరిమాణం(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	కొరకు (i = 0; i < (లెక్క / 2); i++) {
+		పూర్ణాంకం cpu_స్థానభ్రంశం, cpu_intc_స్థానభ్రంశం;
 
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[2 * i + 1]);
+		phandle = fdt32_గమ్యం_cpu(val[2 * i]);
+		hwirq = fdt32_గమ్యం_cpu(val[2 * i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, phandle);
+		ఒకవేళ (cpu_intc_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_స్థానభ్రంశం = fdt_మాతృ_స్థానభ్రంశం(fdt, cpu_intc_స్థానభ్రంశం);
+		ఒకవేళ (cpu_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
+		rc = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
 
-		if (rc)
-			continue;
+		ఒకవేళ (rc)
+			కొనసాగు;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		ఒకవేళ (SBI_HARTMASK_MAX_బిట్లు <= sbi_hartid_గమ్యం_hartindex(hartid))
+			కొనసాగు;
 
-		if (hwirq == IRQ_M_TIMER)
+		ఒకవేళ (hwirq == IRQ_M_TIMER)
 			hcount++;
 	}
 
-	*hart_count = hcount;
+	*hart_లెక్క = hcount;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_plicsw_node(const void *fdt, int nodeoffset, unsigned long *plicsw_base,
-			  unsigned long *size, u32 *hart_count)
+పూర్ణాంకం fdt_parse_plicsw_కణుపు(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset, గుర్తులేని దీర్ఘ *plicsw_పునాది,
+			  గుర్తులేని దీర్ఘ *కొలత, u32 *hart_లెక్క)
 {
-	const fdt32_t *val;
-	int rc, i, count;
-	uint64_t reg_addr, reg_size;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం rc, i, లెక్క;
+	uint64_t reg_addr, reg_కొలత;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plicsw_base ||
-	    !hart_count || !size)
-		return SBI_EINVAL;
+	ఒకవేళ (nodeoffset < 0 || !fdt || !plicsw_పునాది ||
+	    !hart_లెక్క || !కొలత)
+		తిరిగి SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
-	*plicsw_base = reg_addr;
-	*size = reg_size;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_కొలత);
+	ఒకవేళ (rc < 0)
+		తిరిగి SBI_ENODEV;
+	*plicsw_పునాది = reg_addr;
+	*కొలత = reg_కొలత;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &లెక్క);
+	ఒకవేళ (!val || లెక్క < పరిమాణం(fdt32_t))
+		తిరిగి 0;
+	లెక్క = లెక్క / పరిమాణం(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	కొరకు (i = 0; i < (లెక్క / 2); i++) {
+		పూర్ణాంకం cpu_స్థానభ్రంశం, cpu_intc_స్థానభ్రంశం;
 
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[2 * i + 1]);
+		phandle = fdt32_గమ్యం_cpu(val[2 * i]);
+		hwirq = fdt32_గమ్యం_cpu(val[2 * i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_స్థానభ్రంశం = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, phandle);
+		ఒకవేళ (cpu_intc_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_స్థానభ్రంశం = fdt_మాతృ_స్థానభ్రంశం(fdt, cpu_intc_స్థానభ్రంశం);
+		ఒకవేళ (cpu_స్థానభ్రంశం < 0)
+			కొనసాగు;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
+		rc = fdt_parse_hart_id(fdt, cpu_స్థానభ్రంశం, &hartid);
 
-		if (rc)
-			continue;
+		ఒకవేళ (rc)
+			కొనసాగు;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		ఒకవేళ (SBI_HARTMASK_MAX_బిట్లు <= sbi_hartid_గమ్యం_hartindex(hartid))
+			కొనసాగు;
 
-		if (hwirq == IRQ_M_SOFT)
+		ఒకవేళ (hwirq == IRQ_M_SOFT)
 			hcount++;
 	}
 
-	*hart_count = hcount;
+	*hart_లెక్క = hcount;
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_parse_compat_addr(const void *fdt, uint64_t *addr,
-			  const char *compatible)
+పూర్ణాంకం fdt_parse_compat_addr(స్థిరరాశి శూన్య *fdt, uint64_t *addr,
+			  స్థిరరాశి అక్షరం *compatible)
 {
-	int nodeoffset, rc;
+	పూర్ణాంకం nodeoffset, rc;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_కణుపు_స్థానభ్రంశం_by_compatible(fdt, -1, compatible);
+	ఒకవేళ (nodeoffset < 0)
+		తిరిగి nodeoffset;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0, addr, NULL);
-	if (rc < 0 || !addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoffset, 0, addr, ఖాళీ);
+	ఒకవేళ (rc < 0 || !addr)
+		తిరిగి SBI_ENODEV;
 
-	return 0;
+	తిరిగి 0;
 }

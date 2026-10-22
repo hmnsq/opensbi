@@ -5,106 +5,106 @@
  *
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_cppc.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_cppc.h>
 
-static const struct sbi_cppc_device *cppc_dev = NULL;
+స్థిర స్థిరరాశి నిర్మాణం sbi_cppc_device *cppc_dev = ఖాళీ;
 
-const struct sbi_cppc_device *sbi_cppc_get_device(void)
+స్థిరరాశి నిర్మాణం sbi_cppc_device *sbi_cppc_get_device(శూన్య)
 {
-	return cppc_dev;
+	తిరిగి cppc_dev;
 }
 
-void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
+శూన్య sbi_cppc_సమితి_device(స్థిరరాశి నిర్మాణం sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	ఒకవేళ (!dev || cppc_dev)
+		తిరిగి;
 
 	cppc_dev = dev;
 }
 
-static bool sbi_cppc_is_reserved(unsigned long reg)
+స్థిర bool sbi_cppc_is_reserved(గుర్తులేని దీర్ఘ reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
-	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+	ఒకవేళ ((reg > SBI_CPPC_ACPI_చివరి && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	    reg > SBI_CPPC_NON_ACPI_చివరి)
+		తిరిగి true;
 
-	return false;
+	తిరిగి false;
 }
 
-static bool sbi_cppc_readable(unsigned long reg)
+స్థిర bool sbi_cppc_readable(గుర్తులేని దీర్ఘ reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	తిరిగి true;
 }
 
-static bool sbi_cppc_writable(unsigned long reg)
+స్థిర bool sbi_cppc_writable(గుర్తులేని దీర్ఘ reg)
 {
-	switch (reg) {
-	case SBI_CPPC_HIGHEST_PERF:
-	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
-	case SBI_CPPC_LOWEST_PERF:
-	case SBI_CPPC_GUARANTEED_PERF:
-	case SBI_CPPC_CTR_WRAP_TIME:
-	case SBI_CPPC_REFERENCE_CTR:
-	case SBI_CPPC_DELIVERED_CTR:
-	case SBI_CPPC_REFERENCE_PERF:
-	case SBI_CPPC_LOWEST_FREQ:
-	case SBI_CPPC_NOMINAL_FREQ:
-	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+	ఎంపిక (reg) {
+	స్థితి SBI_CPPC_HIGHEST_PERF:
+	స్థితి SBI_CPPC_NOMINAL_PERF:
+	స్థితి SBI_CPPC_దిగువ_NON_రేఖీయ_PERF:
+	స్థితి SBI_CPPC_అత్యల్ప_PERF:
+	స్థితి SBI_CPPC_GUARANTEED_PERF:
+	స్థితి SBI_CPPC_CTR_WRAP_సమయం:
+	స్థితి SBI_CPPC_REFERENCE_CTR:
+	స్థితి SBI_CPPC_DELIVERED_CTR:
+	స్థితి SBI_CPPC_REFERENCE_PERF:
+	స్థితి SBI_CPPC_అత్యల్ప_FREQ:
+	స్థితి SBI_CPPC_NOMINAL_FREQ:
+	స్థితి SBI_CPPC_TRANSITION_LATENCY:
+		తిరిగి false;
 	}
 
-	return true;
+	తిరిగి true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+పూర్ణాంకం sbi_cppc_probe(గుర్తులేని దీర్ఘ reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	ఒకవేళ (!cppc_dev || !cppc_dev->cppc_probe)
+		తిరిగి SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	ఒకవేళ (sbi_cppc_is_reserved(reg))
+		తిరిగి SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	తిరిగి cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+పూర్ణాంకం sbi_cppc_read(గుర్తులేని దీర్ఘ reg, uint64_t *val)
 {
-	int ret;
+	పూర్ణాంకం ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	ఒకవేళ (!cppc_dev || !cppc_dev->cppc_read)
+		తిరిగి SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ఒకవేళ (ret <= 0)
+		తిరిగి SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	ఒకవేళ (!sbi_cppc_readable(reg))
+		తిరిగి SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	తిరిగి cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+పూర్ణాంకం sbi_cppc_write(గుర్తులేని దీర్ఘ reg, uint64_t val)
 {
-	int ret;
+	పూర్ణాంకం ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	ఒకవేళ (!cppc_dev || !cppc_dev->cppc_write)
+		తిరిగి SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ఒకవేళ (ret <= 0)
+		తిరిగి SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	ఒకవేళ (!sbi_cppc_writable(reg))
+		తిరిగి SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	తిరిగి cppc_dev->cppc_write(reg, val);
 }

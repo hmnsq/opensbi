@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_hartmask.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_pmu.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
 
-struct timer_state {
-	u64 time_delta;
-	spinlock_t event_list_lock;
-	struct sbi_dlist event_list GUARDED_BY(&event_list_lock);
-	struct sbi_timer_event smode_ev;
+నిర్మాణం timer_state {
+	u64 సమయం_delta;
+	spinlock_t event_list_తాళం;
+	నిర్మాణం sbi_dlist event_list GUARDED_BY(&event_list_తాళం);
+	నిర్మాణం sbi_timer_event smode_ev;
 };
 
-static unsigned long timer_state_off;
-static u64 (*get_time_val)(void);
-static const struct sbi_timer_device *timer_dev = NULL;
+స్థిర గుర్తులేని దీర్ఘ timer_state_off;
+స్థిర u64 (*get_సమయం_val)(శూన్య);
+స్థిర స్థిరరాశి నిర్మాణం sbi_timer_device *timer_dev = ఖాళీ;
 
-#if __riscv_xlen == 32
-static u64 get_ticks(void)
+#ఒకవేళ __riscv_xlen == 32
+స్థిర u64 get_ticks(శూన్య)
 {
 	u32 lo, hi, tmp;
 	__asm__ __volatile__("1:\n"
@@ -41,19 +41,19 @@ static u64 get_ticks(void)
 			     "rdtimeh %2\n"
 			     "bne %0, %2, 1b"
 			     : "=&r"(hi), "=&r"(lo), "=&r"(tmp));
-	return ((u64)hi << 32) | lo;
+	తిరిగి ((u64)hi << 32) | lo;
 }
-#else
-static u64 get_ticks(void)
+#లేకపోతే
+స్థిర u64 get_ticks(శూన్య)
 {
-	unsigned long n;
+	గుర్తులేని దీర్ఘ n;
 
 	__asm__ __volatile__("rdtime %0" : "=r"(n));
-	return n;
+	తిరిగి n;
 }
-#endif
+#అయితే_ముగింపు
 
-static void nop_delay_fn(void *opaque)
+స్థిర శూన్య nop_delay_fn(శూన్య *opaque)
 {
 	cpu_relax();
 }
@@ -64,348 +64,348 @@ u64 sbi_timer_compute_delta(ulong units, u64 unit_freq)
 
 	delta = ((u64)timer_dev->timer_freq * (u64)units);
 	delta = delta / unit_freq;
-	return delta;
+	తిరిగి delta;
 }
 
-void sbi_timer_delay_loop(ulong units, u64 unit_freq,
-			  void (*delay_fn)(void *), void *opaque)
+శూన్య sbi_timer_delay_loop(ulong units, u64 unit_freq,
+			  శూన్య (*delay_fn)(శూన్య *), శూన్య *opaque)
 {
-	u64 start_val, delta;
+	u64 ప్రారంభం_val, delta;
 
 	/* Do nothing if we don't have timer device */
-	if (!timer_dev || !get_time_val) {
+	ఒకవేళ (!timer_dev || !get_సమయం_val) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return;
+		తిరిగి;
 	}
 
 	/* Save starting timer value */
-	start_val = get_time_val();
+	ప్రారంభం_val = get_సమయం_val();
 
 	/* Use NOP delay function if delay function not available */
-	if (!delay_fn)
+	ఒకవేళ (!delay_fn)
 		delay_fn = nop_delay_fn;
 
 	/* Busy loop until desired timer value delta reached */
 	delta = sbi_timer_compute_delta(units, unit_freq);
-	while ((get_time_val() - start_val) < delta)
+	అయితే ((get_సమయం_val() - ప్రారంభం_val) < delta)
 		delay_fn(opaque);
 }
 
-bool sbi_timer_waitms_until(bool (*predicate)(void *), void *arg,
+bool sbi_timer_waitms_until(bool (*predicate)(శూన్య *), శూన్య *arg,
 			    uint64_t timeout_ms)
 {
-	uint64_t start_time = sbi_timer_value();
+	uint64_t ప్రారంభం_సమయం = sbi_timer_విలువ();
 	uint64_t ticks =
 		(sbi_timer_get_device()->timer_freq / 1000) *
 		timeout_ms;
-	while(!predicate(arg))
-		if (sbi_timer_value() - start_time  >= ticks)
-			return false;
-	return true;
+	అయితే(!predicate(arg))
+		ఒకవేళ (sbi_timer_విలువ() - ప్రారంభం_సమయం  >= ticks)
+			తిరిగి false;
+	తిరిగి true;
 }
 
-unsigned long sbi_timer_frequency(void)
+గుర్తులేని దీర్ఘ sbi_timer_frequency(శూన్య)
 {
-	const struct sbi_timer_device *timer_dev = sbi_timer_get_device();
+	స్థిరరాశి నిర్మాణం sbi_timer_device *timer_dev = sbi_timer_get_device();
 
-	if (!timer_dev) {
+	ఒకవేళ (!timer_dev) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return 0;
+		తిరిగి 0;
 	}
 
-	return timer_dev->timer_freq;
+	తిరిగి timer_dev->timer_freq;
 }
 
-u64 sbi_timer_value(void)
+u64 sbi_timer_విలువ(శూన్య)
 {
-	if (get_time_val)
-		return get_time_val();
-	return 0;
+	ఒకవేళ (get_సమయం_val)
+		తిరిగి get_సమయం_val();
+	తిరిగి 0;
 }
 
-u64 sbi_timer_virt_value(void)
+u64 sbi_timer_virt_విలువ(శూన్య)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
 
-	return sbi_timer_value() + tstate->time_delta;
+	తిరిగి sbi_timer_విలువ() + tstate->సమయం_delta;
 }
 
-u64 sbi_timer_get_delta(void)
+u64 sbi_timer_get_delta(శూన్య)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
 
-	return tstate->time_delta;
+	తిరిగి tstate->సమయం_delta;
 }
 
-void sbi_timer_set_delta(ulong delta)
+శూన్య sbi_timer_సమితి_delta(ulong delta)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
 
-#if __riscv_xlen == 32
-	tstate->time_delta &= ~0xffffffffUL;
-	tstate->time_delta |= (u32)delta;
-#else
-	tstate->time_delta = delta;
-#endif
+#ఒకవేళ __riscv_xlen == 32
+	tstate->సమయం_delta &= ~0xffffffffUL;
+	tstate->సమయం_delta |= (u32)delta;
+#లేకపోతే
+	tstate->సమయం_delta = delta;
+#అయితే_ముగింపు
 }
 
-#if __riscv_xlen == 32
-void sbi_timer_set_delta_upper(ulong delta_upper)
+#ఒకవేళ __riscv_xlen == 32
+శూన్య sbi_timer_సమితి_delta_పై(ulong delta_పై)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
 
-	tstate->time_delta &= 0xffffffffUL;
-	tstate->time_delta |= (u64)delta_upper << 32;
+	tstate->సమయం_delta &= 0xffffffffUL;
+	tstate->సమయం_delta |= (u64)delta_పై << 32;
 }
-#endif
+#అయితే_ముగింపు
 
-static void __sbi_timer_update_device(struct timer_state *tstate)
-	MUST_HOLD(&tstate->event_list_lock)
+స్థిర శూన్య __sbi_timer_update_device(నిర్మాణం timer_state *tstate)
+	MUST_HOLD(&tstate->event_list_తాళం)
 {
-	struct sbi_timer_event *ev;
+	నిర్మాణం sbi_timer_event *ev;
 
-	if (!timer_dev)
-		return;
+	ఒకవేళ (!timer_dev)
+		తిరిగి;
 
-	if (sbi_list_empty(&tstate->event_list)) {
-		if (timer_dev->timer_event_stop)
+	ఒకవేళ (sbi_list_ఖాళీలు(&tstate->event_list)) {
+		ఒకవేళ (timer_dev->timer_event_stop)
 			timer_dev->timer_event_stop();
 		csr_clear(CSR_MIE, MIP_MTIP);
-	} else {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (timer_dev->timer_event_start)
-			timer_dev->timer_event_start(ev->time_stamp);
-		csr_set(CSR_MIE, MIP_MTIP);
+	} లేకపోతే {
+		ev = sbi_list_మొదటి_నమోదు(&tstate->event_list, నిర్మాణం sbi_timer_event, తల);
+		ఒకవేళ (timer_dev->timer_event_ప్రారంభం)
+			timer_dev->timer_event_ప్రారంభం(ev->సమయం_stamp);
+		csr_సమితి(CSR_MIE, MIP_MTIP);
 	}
 }
 
-static void __sbi_timer_event_stop(struct sbi_timer_event *ev)
+స్థిర శూన్య __sbi_timer_event_stop(నిర్మాణం sbi_timer_event *ev)
 {
-	if (ev->hart_index > -1) {
-		sbi_list_del(&ev->head);
-		ev->hart_index = -1;
+	ఒకవేళ (ev->hart_సూచీ > -1) {
+		sbi_list_del(&ev->తల);
+		ev->hart_సూచీ = -1;
 	}
 }
 
-static void __sbi_timer_event_start(struct timer_state *tstate,
-				    struct sbi_timer_event *ev, u64 next_event)
-	MUST_HOLD(&tstate->event_list_lock)
+స్థిర శూన్య __sbi_timer_event_start(నిర్మాణం timer_state *tstate,
+				    నిర్మాణం sbi_timer_event *ev, u64 తదుపరి_event)
+	MUST_HOLD(&tstate->event_list_తాళం)
 {
-	struct sbi_timer_event *tev, *next_ev = NULL;
+	నిర్మాణం sbi_timer_event *tev, *తదుపరి_ev = ఖాళీ;
 
 	/* Find where to insert the event in per-HART event list */
-	sbi_list_for_each_entry(tev, &tstate->event_list, head) {
-		if (next_event < tev->time_stamp) {
-			next_ev = tev;
-			break;
+	sbi_list_for_each_నమోదు(tev, &tstate->event_list, తల) {
+		ఒకవేళ (తదుపరి_event < tev->సమయం_stamp) {
+			తదుపరి_ev = tev;
+			ఆపు;
 		}
 	}
 
 	/* Insert the event in per-HART event list */
-	ev->hart_index = current_hartindex();
-	ev->time_stamp = next_event;
-	if (next_ev)
-		sbi_list_add(&ev->head, &next_ev->head);
-	else
-		sbi_list_add_tail(&ev->head, &tstate->event_list);
+	ev->hart_సూచీ = current_hartindex();
+	ev->సమయం_stamp = తదుపరి_event;
+	ఒకవేళ (తదుపరి_ev)
+		sbi_list_కూడు(&ev->తల, &తదుపరి_ev->తల);
+	లేకపోతే
+		sbi_list_కూడు_తోక(&ev->తల, &tstate->event_list);
 }
 
-void sbi_timer_event_start(struct sbi_timer_event *ev, u64 next_event)
+శూన్య sbi_timer_event_ప్రారంభం(నిర్మాణం sbi_timer_event *ev, u64 తదుపరి_event)
 {
-	struct timer_state *tstate;
+	నిర్మాణం timer_state *tstate;
 
-	if (!ev)
-		return;
+	ఒకవేళ (!ev)
+		తిరిగి;
 
 	/* Ensure that event is not on the per-HART event list */
-	if (ev->hart_index > -1) {
-		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
+	ఒకవేళ (ev->hart_సూచీ > -1) {
+		tstate = sbi_scratch_స్థానభ్రంశం_ptr(sbi_hartindex_గమ్యం_scratch(ev->hart_సూచీ),
 						timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+		spin_తాళం(&tstate->event_list_తాళం);
 		__sbi_timer_event_stop(ev);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_తాళం);
 	}
 
-	tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	spin_lock(&tstate->event_list_lock);
+	tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
+	spin_తాళం(&tstate->event_list_తాళం);
 
-	__sbi_timer_event_start(tstate, ev, next_event);
+	__sbi_timer_event_start(tstate, ev, తదుపరి_event);
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_తాళం);
 }
 
-void sbi_timer_event_stop(struct sbi_timer_event *ev)
+శూన్య sbi_timer_event_stop(నిర్మాణం sbi_timer_event *ev)
 {
-	struct timer_state *tstate;
-	int ev_hart_index;
+	నిర్మాణం timer_state *tstate;
+	పూర్ణాంకం ev_hart_సూచీ;
 
-	if (!ev)
-		return;
+	ఒకవేళ (!ev)
+		తిరిగి;
 
 	/* Ensure that event is not on the per-HART event list */
-	ev_hart_index = ev->hart_index;
-	if (ev->hart_index > -1) {
-		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
+	ev_hart_సూచీ = ev->hart_సూచీ;
+	ఒకవేళ (ev->hart_సూచీ > -1) {
+		tstate = sbi_scratch_స్థానభ్రంశం_ptr(sbi_hartindex_గమ్యం_scratch(ev->hart_సూచీ),
 						timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+		spin_తాళం(&tstate->event_list_తాళం);
 		__sbi_timer_event_stop(ev);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_తాళం);
 	}
 
 	/* Re-program timer device on the current HART */
-	if (ev_hart_index == current_hartindex()) {
-		tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+	ఒకవేళ (ev_hart_సూచీ == current_hartindex()) {
+		tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
+		spin_తాళం(&tstate->event_list_తాళం);
 		__sbi_timer_update_device(tstate);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_తాళం);
 	}
 }
 
-static void sbi_timer_smode_event_callback(struct sbi_timer_event *ev,
-					   struct sbi_timer_event_restart *restart)
+స్థిర శూన్య sbi_timer_smode_event_callback(నిర్మాణం sbi_timer_event *ev,
+					   నిర్మాణం sbi_timer_event_restart *restart)
 {
 	/*
 	 * If sstc extension is available, supervisor can receive the timer
 	 * directly without M-mode come in between. This function should
 	 * only invoked if M-mode programs the timer for its own purpose.
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
-		csr_set(CSR_MIP, MIP_STIP);
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+		csr_సమితి(CSR_MIP, MIP_STIP);
 }
 
-static void sbi_timer_smode_event_cleanup(struct sbi_timer_event *ev)
+స్థిర శూన్య sbi_timer_smode_event_cleanup(నిర్మాణం sbi_timer_event *ev)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+	ఒకవేళ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
 		csr_clear(CSR_MIP, MIP_STIP);
 }
 
-void sbi_timer_smode_event_start(u64 next_event)
+శూన్య sbi_timer_smode_event_ప్రారంభం(u64 తదుపరి_event)
 {
-	struct timer_state *tstate = sbi_scratch_offset_ptr(sbi_scratch_thishart_ptr(),
+	నిర్మాణం timer_state *tstate = sbi_scratch_స్థానభ్రంశం_ptr(sbi_scratch_thishart_ptr(),
 							    timer_state_off);
 
-	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SET_TIMER);
+	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_సమితి_TIMER);
 
 	/**
 	 * Update the stimecmp directly if available. This allows
 	 * the older software to leverage sstc extension on newer hardware.
 	 */
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
-		csr_write64(CSR_STIMECMP, next_event);
-	} else {
+	ఒకవేళ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
+		csr_write64(CSR_STIMECMP, తదుపరి_event);
+	} లేకపోతే {
 		csr_clear(CSR_MIP, MIP_STIP);
-		sbi_timer_event_start(&tstate->smode_ev, next_event);
+		sbi_timer_event_ప్రారంభం(&tstate->smode_ev, తదుపరి_event);
 	}
 }
 
-void sbi_timer_process(void)
+శూన్య sbi_timer_process(శూన్య)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event_restart restart;
-	SBI_LIST_HEAD(restart_list);
-	struct sbi_timer_event *ev;
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
+	నిర్మాణం sbi_timer_event_restart restart;
+	SBI_LIST_తల(restart_list);
+	నిర్మాణం sbi_timer_event *ev;
 
-	spin_lock(&tstate->event_list_lock);
+	spin_తాళం(&tstate->event_list_తాళం);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (ev->time_stamp > sbi_timer_value())
-			break;
+	అయితే (!sbi_list_ఖాళీలు(&tstate->event_list)) {
+		ev = sbi_list_మొదటి_నమోదు(&tstate->event_list, నిర్మాణం sbi_timer_event, తల);
+		ఒకవేళ (ev->సమయం_stamp > sbi_timer_విలువ())
+			ఆపు;
 
 		__sbi_timer_event_stop(ev);
-		if (ev->callback) {
+		ఒకవేళ (ev->callback) {
 			restart.required = false;
-			restart.next_event = 0;
+			restart.తదుపరి_event = 0;
 			ev->callback(ev, &restart);
-			if (restart.required) {
-				ev->time_stamp = restart.next_event;
-				sbi_list_add_tail(&ev->head, &restart_list);
+			ఒకవేళ (restart.required) {
+				ev->సమయం_stamp = restart.తదుపరి_event;
+				sbi_list_కూడు_తోక(&ev->తల, &restart_list);
 			}
 		}
 	}
 
-	while (!sbi_list_empty(&restart_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		sbi_list_del(&ev->head);
-		__sbi_timer_event_start(tstate, ev, ev->time_stamp);
+	అయితే (!sbi_list_ఖాళీలు(&restart_list)) {
+		ev = sbi_list_మొదటి_నమోదు(&tstate->event_list, నిర్మాణం sbi_timer_event, తల);
+		sbi_list_del(&ev->తల);
+		__sbi_timer_event_start(tstate, ev, ev->సమయం_stamp);
 	}
 
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_తాళం);
 }
 
-const struct sbi_timer_device *sbi_timer_get_device(void)
+స్థిరరాశి నిర్మాణం sbi_timer_device *sbi_timer_get_device(శూన్య)
 {
-	return timer_dev;
+	తిరిగి timer_dev;
 }
 
-void sbi_timer_set_device(const struct sbi_timer_device *dev)
+శూన్య sbi_timer_సమితి_device(స్థిరరాశి నిర్మాణం sbi_timer_device *dev)
 {
-	if (!dev || timer_dev)
-		return;
+	ఒకవేళ (!dev || timer_dev)
+		తిరిగి;
 
 	timer_dev = dev;
-	if (!get_time_val && timer_dev->timer_value)
-		get_time_val = timer_dev->timer_value;
+	ఒకవేళ (!get_సమయం_val && timer_dev->timer_విలువ)
+		get_సమయం_val = timer_dev->timer_విలువ;
 }
 
-int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)
+పూర్ణాంకం sbi_timer_init(నిర్మాణం sbi_scratch *scratch, bool cold_boot)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct timer_state *tstate;
-	int ret;
+	స్థిరరాశి నిర్మాణం sbi_platform *plat = sbi_platform_ptr(scratch);
+	నిర్మాణం timer_state *tstate;
+	పూర్ణాంకం ret;
 
-	if (cold_boot) {
-		timer_state_off = sbi_scratch_alloc_offset(sizeof(*tstate));
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+	ఒకవేళ (cold_boot) {
+		timer_state_off = sbi_scratch_alloc_స్థానభ్రంశం(పరిమాణం(*tstate));
+		ఒకవేళ (!timer_state_off)
+			తిరిగి SBI_ENOMEM;
 
-		if (sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME))
-			get_time_val = get_ticks;
+		ఒకవేళ (sbi_hart_has_csr(scratch, SBI_HART_CSR_సమయం))
+			get_సమయం_val = get_ticks;
 
 		ret = sbi_platform_timer_init(plat);
-		if (ret)
-			return ret;
-	} else {
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+		ఒకవేళ (ret)
+			తిరిగి ret;
+	} లేకపోతే {
+		ఒకవేళ (!timer_state_off)
+			తిరిగి SBI_ENOMEM;
 	}
 
-	tstate = sbi_scratch_offset_ptr(scratch, timer_state_off);
-	tstate->time_delta = 0;
-	SPIN_LOCK_INIT(tstate->event_list_lock);
-	SBI_INIT_LIST_HEAD(&tstate->event_list);
+	tstate = sbi_scratch_స్థానభ్రంశం_ptr(scratch, timer_state_off);
+	tstate->సమయం_delta = 0;
+	SPIN_తాళం_INIT(tstate->event_list_తాళం);
+	SBI_INIT_LIST_తల(&tstate->event_list);
 	SBI_INIT_TIMER_EVENT(&tstate->smode_ev,
 			     sbi_timer_smode_event_callback,
-			     sbi_timer_smode_event_cleanup, NULL);
+			     sbi_timer_smode_event_cleanup, ఖాళీ);
 
-	if (timer_dev && timer_dev->warm_init) {
+	ఒకవేళ (timer_dev && timer_dev->warm_init) {
 		ret = timer_dev->warm_init();
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-void sbi_timer_exit(struct sbi_scratch *scratch)
+శూన్య sbi_timer_exit(నిర్మాణం sbi_scratch *scratch)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event *ev;
+	నిర్మాణం timer_state *tstate = sbi_scratch_thishart_స్థానభ్రంశం_ptr(timer_state_off);
+	నిర్మాణం sbi_timer_event *ev;
 
-	spin_lock(&tstate->event_list_lock);
+	spin_తాళం(&tstate->event_list_తాళం);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
+	అయితే (!sbi_list_ఖాళీలు(&tstate->event_list)) {
+		ev = sbi_list_మొదటి_నమోదు(&tstate->event_list, నిర్మాణం sbi_timer_event, తల);
 		__sbi_timer_event_stop(ev);
-		if (ev->cleanup)
+		ఒకవేళ (ev->cleanup)
 			ev->cleanup(ev);
 	}
 
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_తాళం);
 }

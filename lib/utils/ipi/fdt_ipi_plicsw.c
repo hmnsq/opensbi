@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+బాహ్య నిర్మాణం plicsw_దత్తాంశం plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+పూర్ణాంకం fdt_plicsw_cold_ipi_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			     స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_కణుపు(fdt, nodeoff, &plicsw.addr, &plicsw.కొలత,
+				   &plicsw.hart_లెక్క);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక ipi_plicsw_సరిపోలిక[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_ipi_plicsw = {
+	.సరిపోలిక_పట్టిక = ipi_plicsw_సరిపోలిక,
 	.init = fdt_plicsw_cold_ipi_init,
 };

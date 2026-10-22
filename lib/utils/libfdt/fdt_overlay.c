@@ -4,12 +4,12 @@
  * Copyright (C) 2016 Free Electrons
  * Copyright (C) 2016 NextThing Co.
  */
-#include "libfdt_env.h"
+#అన్తర్భావ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#అన్తర్భావ <fdt.h>
+#అన్తర్భావ <libfdt.h>
 
-#include "libfdt_internal.h"
+#అన్తర్భావ "libfdt_internal.h"
 
 /**
  * overlay_get_target_phandle - retrieves the target phandle of a fragment
@@ -25,19 +25,19 @@
  *      0, if the phandle was not found
  *	-1, if the phandle was malformed
  */
-static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
+స్థిర uint32_t overlay_get_లక్ష్యం_phandle(స్థిరరాశి శూన్య *fdto, పూర్ణాంకం fragment)
 {
-	const fdt32_t *val;
-	int len;
+	స్థిరరాశి fdt32_t *val;
+	పూర్ణాంకం len;
 
 	val = fdt_getprop(fdto, fragment, "target", &len);
-	if (!val)
-		return 0;
+	ఒకవేళ (!val)
+		తిరిగి 0;
 
-	if ((len != sizeof(*val)) || (fdt32_to_cpu(*val) == (uint32_t)-1))
-		return (uint32_t)-1;
+	ఒకవేళ ((len != పరిమాణం(*val)) || (fdt32_గమ్యం_cpu(*val) == (uint32_t)-1))
+		తిరిగి (uint32_t)-1;
 
-	return fdt32_to_cpu(*val);
+	తిరిగి fdt32_గమ్యం_cpu(*val);
 }
 
 /**
@@ -55,28 +55,28 @@ static uint32_t overlay_get_target_phandle(const void *fdto, int fragment)
  *      the targeted node offset in the base device tree
  *      Negative error code on error
  */
-static int overlay_get_target(const void *fdt, const void *fdto,
-			      int fragment, char const **pathp)
+స్థిర పూర్ణాంకం overlay_get_లక్ష్యం(స్థిరరాశి శూన్య *fdt, స్థిరరాశి శూన్య *fdto,
+			      పూర్ణాంకం fragment, అక్షరం స్థిరరాశి **pathp)
 {
 	uint32_t phandle;
-	const char *path = NULL;
-	int path_len = 0, ret;
+	స్థిరరాశి అక్షరం *మార్గం = ఖాళీ;
+	పూర్ణాంకం మార్గం_len = 0, ret;
 
 	/* Try first to do a phandle based lookup */
-	phandle = overlay_get_target_phandle(fdto, fragment);
-	if (phandle == (uint32_t)-1)
-		return -FDT_ERR_BADPHANDLE;
+	phandle = overlay_get_లక్ష్యం_phandle(fdto, fragment);
+	ఒకవేళ (phandle == (uint32_t)-1)
+		తిరిగి -FDT_ERR_BADPHANDLE;
 
 	/* no phandle, try path */
-	if (!phandle) {
+	ఒకవేళ (!phandle) {
 		/* And then a path based lookup */
-		path = fdt_getprop(fdto, fragment, "target-path", &path_len);
-		if (path)
-			ret = fdt_path_offset(fdt, path);
-		else
-			ret = path_len;
-	} else
-		ret = fdt_node_offset_by_phandle(fdt, phandle);
+		మార్గం = fdt_getprop(fdto, fragment, "target-path", &మార్గం_len);
+		ఒకవేళ (మార్గం)
+			ret = fdt_మార్గం_స్థానభ్రంశం(fdt, మార్గం);
+		లేకపోతే
+			ret = మార్గం_len;
+	} లేకపోతే
+		ret = fdt_కణుపు_స్థానభ్రంశం_by_phandle(fdt, phandle);
 
 	/*
 	* If we haven't found either a target or a
@@ -85,18 +85,18 @@ static int overlay_get_target(const void *fdt, const void *fdto,
 	* otherwise), consider it a improperly written
 	* overlay
 	*/
-	if (ret < 0 && path_len == -FDT_ERR_NOTFOUND)
+	ఒకవేళ (ret < 0 && మార్గం_len == -FDT_ERR_NOTFOUND)
 		ret = -FDT_ERR_BADOVERLAY;
 
 	/* return on error */
-	if (ret < 0)
-		return ret;
+	ఒకవేళ (ret < 0)
+		తిరిగి ret;
 
 	/* return pointer to path (if available) */
-	if (pathp)
-		*pathp = path ? path : NULL;
+	ఒకవేళ (pathp)
+		*pathp = మార్గం ? మార్గం : ఖాళీ;
 
-	return ret;
+	తిరిగి ret;
 }
 
 /**
@@ -113,29 +113,29 @@ static int overlay_get_target(const void *fdt, const void *fdto,
  *      0 on success.
  *      Negative error code on error
  */
-static int overlay_phandle_add_offset(void *fdt, int node,
-				      const char *name, uint32_t delta)
+స్థిర పూర్ణాంకం overlay_phandle_కూడు_స్థానభ్రంశం(శూన్య *fdt, పూర్ణాంకం కణుపు,
+				      స్థిరరాశి అక్షరం *name, uint32_t delta)
 {
-	const fdt32_t *val;
+	స్థిరరాశి fdt32_t *val;
 	uint32_t adj_val;
-	int len;
+	పూర్ణాంకం len;
 
-	val = fdt_getprop(fdt, node, name, &len);
-	if (!val)
-		return len;
+	val = fdt_getprop(fdt, కణుపు, name, &len);
+	ఒకవేళ (!val)
+		తిరిగి len;
 
-	if (len != sizeof(*val))
-		return -FDT_ERR_BADPHANDLE;
+	ఒకవేళ (len != పరిమాణం(*val))
+		తిరిగి -FDT_ERR_BADPHANDLE;
 
-	adj_val = fdt32_to_cpu(*val);
-	if ((adj_val + delta) < adj_val)
-		return -FDT_ERR_NOPHANDLES;
+	adj_val = fdt32_గమ్యం_cpu(*val);
+	ఒకవేళ ((adj_val + delta) < adj_val)
+		తిరిగి -FDT_ERR_NOPHANDLES;
 
 	adj_val += delta;
-	if (adj_val == (uint32_t)-1)
-		return -FDT_ERR_NOPHANDLES;
+	ఒకవేళ (adj_val == (uint32_t)-1)
+		తిరిగి -FDT_ERR_NOPHANDLES;
 
-	return fdt_setprop_inplace_u32(fdt, node, name, adj_val);
+	తిరిగి fdt_setprop_inplace_u32(fdt, కణుపు, name, adj_val);
 }
 
 /**
@@ -153,27 +153,27 @@ static int overlay_phandle_add_offset(void *fdt, int node,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_adjust_node_phandles(void *fdto, int node,
+స్థిర పూర్ణాంకం overlay_adjust_కణుపు_phandles(శూన్య *fdto, పూర్ణాంకం కణుపు,
 					uint32_t delta)
 {
-	int child;
-	int ret;
+	పూర్ణాంకం బిడ్డ;
+	పూర్ణాంకం ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "phandle", delta);
-	if (ret && ret != -FDT_ERR_NOTFOUND)
-		return ret;
+	ret = overlay_phandle_కూడు_స్థానభ్రంశం(fdto, కణుపు, "phandle", delta);
+	ఒకవేళ (ret && ret != -FDT_ERR_NOTFOUND)
+		తిరిగి ret;
 
-	ret = overlay_phandle_add_offset(fdto, node, "linux,phandle", delta);
-	if (ret && ret != -FDT_ERR_NOTFOUND)
-		return ret;
+	ret = overlay_phandle_కూడు_స్థానభ్రంశం(fdto, కణుపు, "linux,phandle", delta);
+	ఒకవేళ (ret && ret != -FDT_ERR_NOTFOUND)
+		తిరిగి ret;
 
-	fdt_for_each_subnode(child, fdto, node) {
-		ret = overlay_adjust_node_phandles(fdto, child, delta);
-		if (ret)
-			return ret;
+	fdt_for_each_subnode(బిడ్డ, fdto, కణుపు) {
+		ret = overlay_adjust_కణుపు_phandles(fdto, బిడ్డ, delta);
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -190,12 +190,12 @@ static int overlay_adjust_node_phandles(void *fdto, int node,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
+స్థిర పూర్ణాంకం overlay_adjust_local_phandles(శూన్య *fdto, uint32_t delta)
 {
 	/*
 	 * Start adjusting the phandles from the overlay root
 	 */
-	return overlay_adjust_node_phandles(fdto, 0, delta);
+	తిరిగి overlay_adjust_కణుపు_phandles(fdto, 0, delta);
 }
 
 /**
@@ -217,45 +217,45 @@ static int overlay_adjust_local_phandles(void *fdto, uint32_t delta)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_update_local_node_references(void *fdto,
-						int tree_node,
-						int fixup_node,
+స్థిర పూర్ణాంకం overlay_update_local_కణుపు_references(శూన్య *fdto,
+						పూర్ణాంకం వృక్ష_కణుపు,
+						పూర్ణాంకం fixup_కణుపు,
 						uint32_t delta)
 {
-	int fixup_prop;
-	int fixup_child;
-	int ret;
+	పూర్ణాంకం fixup_prop;
+	పూర్ణాంకం fixup_బిడ్డ;
+	పూర్ణాంకం ret;
 
-	fdt_for_each_property_offset(fixup_prop, fdto, fixup_node) {
-		const fdt32_t *fixup_val;
-		const char *tree_val;
-		const char *name;
-		int fixup_len;
-		int tree_len;
-		int i;
+	fdt_for_each_property_స్థానభ్రంశం(fixup_prop, fdto, fixup_కణుపు) {
+		స్థిరరాశి fdt32_t *fixup_val;
+		స్థిరరాశి అక్షరం *వృక్షం_val;
+		స్థిరరాశి అక్షరం *name;
+		పూర్ణాంకం fixup_len;
+		పూర్ణాంకం వృక్షం_len;
+		పూర్ణాంకం i;
 
-		fixup_val = fdt_getprop_by_offset(fdto, fixup_prop,
+		fixup_val = fdt_getprop_by_స్థానభ్రంశం(fdto, fixup_prop,
 						  &name, &fixup_len);
-		if (!fixup_val)
-			return fixup_len;
+		ఒకవేళ (!fixup_val)
+			తిరిగి fixup_len;
 
-		if (fixup_len % sizeof(uint32_t))
-			return -FDT_ERR_BADOVERLAY;
-		fixup_len /= sizeof(uint32_t);
+		ఒకవేళ (fixup_len % పరిమాణం(uint32_t))
+			తిరిగి -FDT_ERR_BADOVERLAY;
+		fixup_len /= పరిమాణం(uint32_t);
 
-		tree_val = fdt_getprop(fdto, tree_node, name, &tree_len);
-		if (!tree_val) {
-			if (tree_len == -FDT_ERR_NOTFOUND)
-				return -FDT_ERR_BADOVERLAY;
+		వృక్షం_val = fdt_getprop(fdto, వృక్ష_కణుపు, name, &వృక్షం_len);
+		ఒకవేళ (!వృక్షం_val) {
+			ఒకవేళ (వృక్షం_len == -FDT_ERR_NOTFOUND)
+				తిరిగి -FDT_ERR_BADOVERLAY;
 
-			return tree_len;
+			తిరిగి వృక్షం_len;
 		}
 
-		for (i = 0; i < fixup_len; i++) {
+		కొరకు (i = 0; i < fixup_len; i++) {
 			fdt32_t adj_val;
 			uint32_t poffset;
 
-			poffset = fdt32_to_cpu(fixup_val[i]);
+			poffset = fdt32_గమ్యం_cpu(fixup_val[i]);
 
 			/*
 			 * phandles to fixup can be unaligned.
@@ -263,46 +263,46 @@ static int overlay_update_local_node_references(void *fdto,
 			 * Use a memcpy for the architectures that do
 			 * not support unaligned accesses.
 			 */
-			memcpy(&adj_val, tree_val + poffset, sizeof(adj_val));
+			జ్ఞాపకం_నకలు(&adj_val, వృక్షం_val + poffset, పరిమాణం(adj_val));
 
-			adj_val = cpu_to_fdt32(fdt32_to_cpu(adj_val) + delta);
+			adj_val = cpu_గమ్యం_fdt32(fdt32_గమ్యం_cpu(adj_val) + delta);
 
 			ret = fdt_setprop_inplace_namelen_partial(fdto,
-								  tree_node,
+								  వృక్ష_కణుపు,
 								  name,
-								  strlen(name),
+								  అక్షరశ్రేణి_పొడవు(name),
 								  poffset,
 								  &adj_val,
-								  sizeof(adj_val));
-			if (ret == -FDT_ERR_NOSPACE)
-				return -FDT_ERR_BADOVERLAY;
+								  పరిమాణం(adj_val));
+			ఒకవేళ (ret == -FDT_ERR_NOSPACE)
+				తిరిగి -FDT_ERR_BADOVERLAY;
 
-			if (ret)
-				return ret;
+			ఒకవేళ (ret)
+				తిరిగి ret;
 		}
 	}
 
-	fdt_for_each_subnode(fixup_child, fdto, fixup_node) {
-		const char *fixup_child_name = fdt_get_name(fdto, fixup_child,
-							    NULL);
-		int tree_child;
+	fdt_for_each_subnode(fixup_బిడ్డ, fdto, fixup_కణుపు) {
+		స్థిరరాశి అక్షరం *fixup_బిడ్డ_name = fdt_get_name(fdto, fixup_బిడ్డ,
+							    ఖాళీ);
+		పూర్ణాంకం వృక్షం_బిడ్డ;
 
-		tree_child = fdt_subnode_offset(fdto, tree_node,
-						fixup_child_name);
-		if (tree_child == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_BADOVERLAY;
-		if (tree_child < 0)
-			return tree_child;
+		వృక్షం_బిడ్డ = fdt_subnode_స్థానభ్రంశం(fdto, వృక్ష_కణుపు,
+						fixup_బిడ్డ_name);
+		ఒకవేళ (వృక్షం_బిడ్డ == -FDT_ERR_NOTFOUND)
+			తిరిగి -FDT_ERR_BADOVERLAY;
+		ఒకవేళ (వృక్షం_బిడ్డ < 0)
+			తిరిగి వృక్షం_బిడ్డ;
 
-		ret = overlay_update_local_node_references(fdto,
-							   tree_child,
-							   fixup_child,
+		ret = overlay_update_local_కణుపు_references(fdto,
+							   వృక్షం_బిడ్డ,
+							   fixup_బిడ్డ,
 							   delta);
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -322,23 +322,23 @@ static int overlay_update_local_node_references(void *fdto,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_update_local_references(void *fdto, uint32_t delta)
+స్థిర పూర్ణాంకం overlay_update_local_references(శూన్య *fdto, uint32_t delta)
 {
-	int fixups;
+	పూర్ణాంకం fixups;
 
-	fixups = fdt_path_offset(fdto, "/__local_fixups__");
-	if (fixups < 0) {
+	fixups = fdt_మార్గం_స్థానభ్రంశం(fdto, "/__local_fixups__");
+	ఒకవేళ (fixups < 0) {
 		/* There's no local phandles to adjust, bail out */
-		if (fixups == -FDT_ERR_NOTFOUND)
-			return 0;
+		ఒకవేళ (fixups == -FDT_ERR_NOTFOUND)
+			తిరిగి 0;
 
-		return fixups;
+		తిరిగి fixups;
 	}
 
 	/*
 	 * Update our local references from the root of the tree
 	 */
-	return overlay_update_local_node_references(fdto, 0, fixups,
+	తిరిగి overlay_update_local_కణుపు_references(fdto, 0, fixups,
 						    delta);
 }
 
@@ -365,45 +365,45 @@ static int overlay_update_local_references(void *fdto, uint32_t delta)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_one_phandle(void *fdt, void *fdto,
-				     int symbols_off,
-				     const char *path, uint32_t path_len,
-				     const char *name, uint32_t name_len,
-				     int poffset, const char *label)
+స్థిర పూర్ణాంకం overlay_fixup_one_phandle(శూన్య *fdt, శూన్య *fdto,
+				     పూర్ణాంకం symbols_off,
+				     స్థిరరాశి అక్షరం *మార్గం, uint32_t మార్గం_len,
+				     స్థిరరాశి అక్షరం *name, uint32_t name_len,
+				     పూర్ణాంకం poffset, స్థిరరాశి అక్షరం *label)
 {
-	const char *symbol_path;
+	స్థిరరాశి అక్షరం *చిహ్నం_మార్గం;
 	uint32_t phandle;
 	fdt32_t phandle_prop;
-	int symbol_off, fixup_off;
-	int prop_len;
+	పూర్ణాంకం చిహ్నం_off, fixup_off;
+	పూర్ణాంకం prop_len;
 
-	if (symbols_off < 0)
-		return symbols_off;
+	ఒకవేళ (symbols_off < 0)
+		తిరిగి symbols_off;
 
-	symbol_path = fdt_getprop(fdt, symbols_off, label,
+	చిహ్నం_మార్గం = fdt_getprop(fdt, symbols_off, label,
 				  &prop_len);
-	if (!symbol_path)
-		return prop_len;
+	ఒకవేళ (!చిహ్నం_మార్గం)
+		తిరిగి prop_len;
 
-	symbol_off = fdt_path_offset(fdt, symbol_path);
-	if (symbol_off < 0)
-		return symbol_off;
+	చిహ్నం_off = fdt_మార్గం_స్థానభ్రంశం(fdt, చిహ్నం_మార్గం);
+	ఒకవేళ (చిహ్నం_off < 0)
+		తిరిగి చిహ్నం_off;
 
-	phandle = fdt_get_phandle(fdt, symbol_off);
-	if (!phandle)
-		return -FDT_ERR_NOTFOUND;
+	phandle = fdt_get_phandle(fdt, చిహ్నం_off);
+	ఒకవేళ (!phandle)
+		తిరిగి -FDT_ERR_NOTFOUND;
 
-	fixup_off = fdt_path_offset_namelen(fdto, path, path_len);
-	if (fixup_off == -FDT_ERR_NOTFOUND)
-		return -FDT_ERR_BADOVERLAY;
-	if (fixup_off < 0)
-		return fixup_off;
+	fixup_off = fdt_మార్గం_స్థానభ్రంశం_namelen(fdto, మార్గం, మార్గం_len);
+	ఒకవేళ (fixup_off == -FDT_ERR_NOTFOUND)
+		తిరిగి -FDT_ERR_BADOVERLAY;
+	ఒకవేళ (fixup_off < 0)
+		తిరిగి fixup_off;
 
-	phandle_prop = cpu_to_fdt32(phandle);
-	return fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
+	phandle_prop = cpu_గమ్యం_fdt32(phandle);
+	తిరిగి fdt_setprop_inplace_namelen_partial(fdto, fixup_off,
 						   name, name_len, poffset,
 						   &phandle_prop,
-						   sizeof(phandle_prop));
+						   పరిమాణం(phandle_prop));
 }
 
 /**
@@ -425,69 +425,69 @@ static int overlay_fixup_one_phandle(void *fdt, void *fdto,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
-				 int property)
+స్థిర పూర్ణాంకం overlay_fixup_phandle(శూన్య *fdt, శూన్య *fdto, పూర్ణాంకం symbols_off,
+				 పూర్ణాంకం property)
 {
-	const char *value;
-	const char *label;
-	int len;
+	స్థిరరాశి అక్షరం *విలువ;
+	స్థిరరాశి అక్షరం *label;
+	పూర్ణాంకం len;
 
-	value = fdt_getprop_by_offset(fdto, property,
+	విలువ = fdt_getprop_by_స్థానభ్రంశం(fdto, property,
 				      &label, &len);
-	if (!value) {
-		if (len == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_INTERNAL;
+	ఒకవేళ (!విలువ) {
+		ఒకవేళ (len == -FDT_ERR_NOTFOUND)
+			తిరిగి -FDT_ERR_అంతర్గత;
 
-		return len;
+		తిరిగి len;
 	}
 
-	do {
-		const char *path, *name, *fixup_end;
-		const char *fixup_str = value;
-		uint32_t path_len, name_len;
+	చేయి {
+		స్థిరరాశి అక్షరం *మార్గం, *name, *fixup_చివర;
+		స్థిరరాశి అక్షరం *fixup_str = విలువ;
+		uint32_t మార్గం_len, name_len;
 		uint32_t fixup_len;
-		char *sep, *endptr;
-		int poffset, ret;
+		అక్షరం *sep, *endptr;
+		పూర్ణాంకం poffset, ret;
 
-		fixup_end = memchr(value, '\0', len);
-		if (!fixup_end)
-			return -FDT_ERR_BADOVERLAY;
-		fixup_len = fixup_end - fixup_str;
+		fixup_చివర = memchr(విలువ, '\0', len);
+		ఒకవేళ (!fixup_చివర)
+			తిరిగి -FDT_ERR_BADOVERLAY;
+		fixup_len = fixup_చివర - fixup_str;
 
 		len -= fixup_len + 1;
-		value += fixup_len + 1;
+		విలువ += fixup_len + 1;
 
-		path = fixup_str;
+		మార్గం = fixup_str;
 		sep = memchr(fixup_str, ':', fixup_len);
-		if (!sep || *sep != ':')
-			return -FDT_ERR_BADOVERLAY;
+		ఒకవేళ (!sep || *sep != ':')
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
-		path_len = sep - path;
-		if (path_len == (fixup_len - 1))
-			return -FDT_ERR_BADOVERLAY;
+		మార్గం_len = sep - మార్గం;
+		ఒకవేళ (మార్గం_len == (fixup_len - 1))
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
-		fixup_len -= path_len + 1;
+		fixup_len -= మార్గం_len + 1;
 		name = sep + 1;
 		sep = memchr(name, ':', fixup_len);
-		if (!sep || *sep != ':')
-			return -FDT_ERR_BADOVERLAY;
+		ఒకవేళ (!sep || *sep != ':')
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
 		name_len = sep - name;
-		if (!name_len)
-			return -FDT_ERR_BADOVERLAY;
+		ఒకవేళ (!name_len)
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
 		poffset = strtoul(sep + 1, &endptr, 10);
-		if ((*endptr != '\0') || (endptr <= (sep + 1)))
-			return -FDT_ERR_BADOVERLAY;
+		ఒకవేళ ((*endptr != '\0') || (endptr <= (sep + 1)))
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
 		ret = overlay_fixup_one_phandle(fdt, fdto, symbols_off,
-						path, path_len, name, name_len,
+						మార్గం, మార్గం_len, name, name_len,
 						poffset, label);
-		if (ret)
-			return ret;
-	} while (len > 0);
+		ఒకవేళ (ret)
+			తిరిగి ret;
+	} అయితే (len > 0);
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -507,32 +507,32 @@ static int overlay_fixup_phandle(void *fdt, void *fdto, int symbols_off,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_fixup_phandles(void *fdt, void *fdto)
+స్థిర పూర్ణాంకం overlay_fixup_phandles(శూన్య *fdt, శూన్య *fdto)
 {
-	int fixups_off, symbols_off;
-	int property;
+	పూర్ణాంకం fixups_off, symbols_off;
+	పూర్ణాంకం property;
 
 	/* We can have overlays without any fixups */
-	fixups_off = fdt_path_offset(fdto, "/__fixups__");
-	if (fixups_off == -FDT_ERR_NOTFOUND)
-		return 0; /* nothing to do */
-	if (fixups_off < 0)
-		return fixups_off;
+	fixups_off = fdt_మార్గం_స్థానభ్రంశం(fdto, "/__fixups__");
+	ఒకవేళ (fixups_off == -FDT_ERR_NOTFOUND)
+		తిరిగి 0; /* nothing to do */
+	ఒకవేళ (fixups_off < 0)
+		తిరిగి fixups_off;
 
 	/* And base DTs without symbols */
-	symbols_off = fdt_path_offset(fdt, "/__symbols__");
-	if ((symbols_off < 0 && (symbols_off != -FDT_ERR_NOTFOUND)))
-		return symbols_off;
+	symbols_off = fdt_మార్గం_స్థానభ్రంశం(fdt, "/__symbols__");
+	ఒకవేళ ((symbols_off < 0 && (symbols_off != -FDT_ERR_NOTFOUND)))
+		తిరిగి symbols_off;
 
-	fdt_for_each_property_offset(property, fdto, fixups_off) {
-		int ret;
+	fdt_for_each_property_స్థానభ్రంశం(property, fdto, fixups_off) {
+		పూర్ణాంకం ret;
 
 		ret = overlay_fixup_phandle(fdt, fdto, symbols_off, property);
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -554,51 +554,51 @@ static int overlay_fixup_phandles(void *fdt, void *fdto)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_apply_node(void *fdt, int target,
-			      void *fdto, int node)
+స్థిర పూర్ణాంకం overlay_apply_కణుపు(శూన్య *fdt, పూర్ణాంకం లక్ష్యం,
+			      శూన్య *fdto, పూర్ణాంకం కణుపు)
 {
-	int property;
-	int subnode;
+	పూర్ణాంకం property;
+	పూర్ణాంకం subnode;
 
-	fdt_for_each_property_offset(property, fdto, node) {
-		const char *name;
-		const void *prop;
-		int prop_len;
-		int ret;
+	fdt_for_each_property_స్థానభ్రంశం(property, fdto, కణుపు) {
+		స్థిరరాశి అక్షరం *name;
+		స్థిరరాశి శూన్య *prop;
+		పూర్ణాంకం prop_len;
+		పూర్ణాంకం ret;
 
-		prop = fdt_getprop_by_offset(fdto, property, &name,
+		prop = fdt_getprop_by_స్థానభ్రంశం(fdto, property, &name,
 					     &prop_len);
-		if (prop_len == -FDT_ERR_NOTFOUND)
-			return -FDT_ERR_INTERNAL;
-		if (prop_len < 0)
-			return prop_len;
+		ఒకవేళ (prop_len == -FDT_ERR_NOTFOUND)
+			తిరిగి -FDT_ERR_అంతర్గత;
+		ఒకవేళ (prop_len < 0)
+			తిరిగి prop_len;
 
-		ret = fdt_setprop(fdt, target, name, prop, prop_len);
-		if (ret)
-			return ret;
+		ret = fdt_setprop(fdt, లక్ష్యం, name, prop, prop_len);
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	fdt_for_each_subnode(subnode, fdto, node) {
-		const char *name = fdt_get_name(fdto, subnode, NULL);
-		int nnode;
-		int ret;
+	fdt_for_each_subnode(subnode, fdto, కణుపు) {
+		స్థిరరాశి అక్షరం *name = fdt_get_name(fdto, subnode, ఖాళీ);
+		పూర్ణాంకం nnode;
+		పూర్ణాంకం ret;
 
-		nnode = fdt_add_subnode(fdt, target, name);
-		if (nnode == -FDT_ERR_EXISTS) {
-			nnode = fdt_subnode_offset(fdt, target, name);
-			if (nnode == -FDT_ERR_NOTFOUND)
-				return -FDT_ERR_INTERNAL;
+		nnode = fdt_కూడు_subnode(fdt, లక్ష్యం, name);
+		ఒకవేళ (nnode == -FDT_ERR_EXISTS) {
+			nnode = fdt_subnode_స్థానభ్రంశం(fdt, లక్ష్యం, name);
+			ఒకవేళ (nnode == -FDT_ERR_NOTFOUND)
+				తిరిగి -FDT_ERR_అంతర్గత;
 		}
 
-		if (nnode < 0)
-			return nnode;
+		ఒకవేళ (nnode < 0)
+			తిరిగి nnode;
 
-		ret = overlay_apply_node(fdt, nnode, fdto, subnode);
-		if (ret)
-			return ret;
+		ret = overlay_apply_కణుపు(fdt, nnode, fdto, subnode);
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
 /**
@@ -616,64 +616,64 @@ static int overlay_apply_node(void *fdt, int target,
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_merge(void *fdt, void *fdto)
+స్థిర పూర్ణాంకం overlay_విలీనం(శూన్య *fdt, శూన్య *fdto)
 {
-	int fragment;
+	పూర్ణాంకం fragment;
 
 	fdt_for_each_subnode(fragment, fdto, 0) {
-		int overlay;
-		int target;
-		int ret;
+		పూర్ణాంకం overlay;
+		పూర్ణాంకం లక్ష్యం;
+		పూర్ణాంకం ret;
 
 		/*
 		 * Each fragments will have an __overlay__ node. If
 		 * they don't, it's not supposed to be merged
 		 */
-		overlay = fdt_subnode_offset(fdto, fragment, "__overlay__");
-		if (overlay == -FDT_ERR_NOTFOUND)
-			continue;
+		overlay = fdt_subnode_స్థానభ్రంశం(fdto, fragment, "__overlay__");
+		ఒకవేళ (overlay == -FDT_ERR_NOTFOUND)
+			కొనసాగు;
 
-		if (overlay < 0)
-			return overlay;
+		ఒకవేళ (overlay < 0)
+			తిరిగి overlay;
 
-		target = overlay_get_target(fdt, fdto, fragment, NULL);
-		if (target < 0)
-			return target;
+		లక్ష్యం = overlay_get_లక్ష్యం(fdt, fdto, fragment, ఖాళీ);
+		ఒకవేళ (లక్ష్యం < 0)
+			తిరిగి లక్ష్యం;
 
-		ret = overlay_apply_node(fdt, target, fdto, overlay);
-		if (ret)
-			return ret;
+		ret = overlay_apply_కణుపు(fdt, లక్ష్యం, fdto, overlay);
+		ఒకవేళ (ret)
+			తిరిగి ret;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int get_path_len(const void *fdt, int nodeoffset)
+స్థిర పూర్ణాంకం get_మార్గం_len(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoffset)
 {
-	int len = 0, namelen;
-	const char *name;
+	పూర్ణాంకం len = 0, namelen;
+	స్థిరరాశి అక్షరం *name;
 
 	FDT_RO_PROBE(fdt);
 
-	for (;;) {
+	కొరకు (;;) {
 		name = fdt_get_name(fdt, nodeoffset, &namelen);
-		if (!name)
-			return namelen;
+		ఒకవేళ (!name)
+			తిరిగి namelen;
 
 		/* root? we're done */
-		if (namelen == 0)
-			break;
+		ఒకవేళ (namelen == 0)
+			ఆపు;
 
-		nodeoffset = fdt_parent_offset(fdt, nodeoffset);
-		if (nodeoffset < 0)
-			return nodeoffset;
+		nodeoffset = fdt_మాతృ_స్థానభ్రంశం(fdt, nodeoffset);
+		ఒకవేళ (nodeoffset < 0)
+			తిరిగి nodeoffset;
 		len += namelen + 1;
 	}
 
 	/* in case of root pretend it's "/" */
-	if (len == 0)
+	ఒకవేళ (len == 0)
 		len++;
-	return len;
+	తిరిగి len;
 }
 
 /**
@@ -692,191 +692,191 @@ static int get_path_len(const void *fdt, int nodeoffset)
  *      0 on success
  *      Negative error code on failure
  */
-static int overlay_symbol_update(void *fdt, void *fdto)
+స్థిర పూర్ణాంకం overlay_చిహ్నం_update(శూన్య *fdt, శూన్య *fdto)
 {
-	int root_sym, ov_sym, prop, path_len, fragment, target;
-	int len, frag_name_len, ret, rel_path_len;
-	const char *s, *e;
-	const char *path;
-	const char *name;
-	const char *frag_name;
-	const char *rel_path;
-	const char *target_path;
-	char *buf;
-	void *p;
+	పూర్ణాంకం మూలం_sym, ov_sym, prop, మార్గం_len, fragment, లక్ష్యం;
+	పూర్ణాంకం len, frag_name_len, ret, rel_మార్గం_len;
+	స్థిరరాశి అక్షరం *s, *e;
+	స్థిరరాశి అక్షరం *మార్గం;
+	స్థిరరాశి అక్షరం *name;
+	స్థిరరాశి అక్షరం *frag_name;
+	స్థిరరాశి అక్షరం *rel_మార్గం;
+	స్థిరరాశి అక్షరం *లక్ష్యం_మార్గం;
+	అక్షరం *buf;
+	శూన్య *p;
 
-	ov_sym = fdt_subnode_offset(fdto, 0, "__symbols__");
+	ov_sym = fdt_subnode_స్థానభ్రంశం(fdto, 0, "__symbols__");
 
 	/* if no overlay symbols exist no problem */
-	if (ov_sym < 0)
-		return 0;
+	ఒకవేళ (ov_sym < 0)
+		తిరిగి 0;
 
-	root_sym = fdt_subnode_offset(fdt, 0, "__symbols__");
+	మూలం_sym = fdt_subnode_స్థానభ్రంశం(fdt, 0, "__symbols__");
 
 	/* it no root symbols exist we should create them */
-	if (root_sym == -FDT_ERR_NOTFOUND)
-		root_sym = fdt_add_subnode(fdt, 0, "__symbols__");
+	ఒకవేళ (మూలం_sym == -FDT_ERR_NOTFOUND)
+		మూలం_sym = fdt_కూడు_subnode(fdt, 0, "__symbols__");
 
 	/* any error is fatal now */
-	if (root_sym < 0)
-		return root_sym;
+	ఒకవేళ (మూలం_sym < 0)
+		తిరిగి మూలం_sym;
 
 	/* iterate over each overlay symbol */
-	fdt_for_each_property_offset(prop, fdto, ov_sym) {
-		path = fdt_getprop_by_offset(fdto, prop, &name, &path_len);
-		if (!path)
-			return path_len;
+	fdt_for_each_property_స్థానభ్రంశం(prop, fdto, ov_sym) {
+		మార్గం = fdt_getprop_by_స్థానభ్రంశం(fdto, prop, &name, &మార్గం_len);
+		ఒకవేళ (!మార్గం)
+			తిరిగి మార్గం_len;
 
 		/* verify it's a string property (terminated by a single \0) */
-		if (path_len < 1 || memchr(path, '\0', path_len) != &path[path_len - 1])
-			return -FDT_ERR_BADVALUE;
+		ఒకవేళ (మార్గం_len < 1 || memchr(మార్గం, '\0', మార్గం_len) != &మార్గం[మార్గం_len - 1])
+			తిరిగి -FDT_ERR_BADVALUE;
 
 		/* keep end marker to avoid strlen() */
-		e = path + path_len;
+		e = మార్గం + మార్గం_len;
 
-		if (*path != '/')
-			return -FDT_ERR_BADVALUE;
+		ఒకవేళ (*మార్గం != '/')
+			తిరిగి -FDT_ERR_BADVALUE;
 
 		/* get fragment name first */
-		s = strchr(path + 1, '/');
-		if (!s) {
+		s = strchr(మార్గం + 1, '/');
+		ఒకవేళ (!s) {
 			/* Symbol refers to something that won't end
 			 * up in the target tree */
-			continue;
+			కొనసాగు;
 		}
 
-		frag_name = path + 1;
-		frag_name_len = s - path - 1;
+		frag_name = మార్గం + 1;
+		frag_name_len = s - మార్గం - 1;
 
 		/* verify format; safe since "s" lies in \0 terminated prop */
-		len = sizeof("/__overlay__/") - 1;
-		if ((e - s) > len && (memcmp(s, "/__overlay__/", len) == 0)) {
+		len = పరిమాణం("/__overlay__/") - 1;
+		ఒకవేళ ((e - s) > len && (memcmp(s, "/__overlay__/", len) == 0)) {
 			/* /<fragment-name>/__overlay__/<relative-subnode-path> */
-			rel_path = s + len;
-			rel_path_len = e - rel_path - 1;
-		} else if ((e - s) == len
+			rel_మార్గం = s + len;
+			rel_మార్గం_len = e - rel_మార్గం - 1;
+		} లేకపోతే ఒకవేళ ((e - s) == len
 			   && (memcmp(s, "/__overlay__", len - 1) == 0)) {
 			/* /<fragment-name>/__overlay__ */
-			rel_path = "";
-			rel_path_len = 0;
-		} else {
+			rel_మార్గం = "";
+			rel_మార్గం_len = 0;
+		} లేకపోతే {
 			/* Symbol refers to something that won't end
 			 * up in the target tree */
-			continue;
+			కొనసాగు;
 		}
 
 		/* find the fragment index in which the symbol lies */
-		ret = fdt_subnode_offset_namelen(fdto, 0, frag_name,
+		ret = fdt_subnode_స్థానభ్రంశం_namelen(fdto, 0, frag_name,
 					       frag_name_len);
 		/* not found? */
-		if (ret < 0)
-			return -FDT_ERR_BADOVERLAY;
+		ఒకవేళ (ret < 0)
+			తిరిగి -FDT_ERR_BADOVERLAY;
 		fragment = ret;
 
 		/* an __overlay__ subnode must exist */
-		ret = fdt_subnode_offset(fdto, fragment, "__overlay__");
-		if (ret < 0)
-			return -FDT_ERR_BADOVERLAY;
+		ret = fdt_subnode_స్థానభ్రంశం(fdto, fragment, "__overlay__");
+		ఒకవేళ (ret < 0)
+			తిరిగి -FDT_ERR_BADOVERLAY;
 
 		/* get the target of the fragment */
-		ret = overlay_get_target(fdt, fdto, fragment, &target_path);
-		if (ret < 0)
-			return ret;
-		target = ret;
+		ret = overlay_get_లక్ష్యం(fdt, fdto, fragment, &లక్ష్యం_మార్గం);
+		ఒకవేళ (ret < 0)
+			తిరిగి ret;
+		లక్ష్యం = ret;
 
 		/* if we have a target path use */
-		if (!target_path) {
-			ret = get_path_len(fdt, target);
-			if (ret < 0)
-				return ret;
+		ఒకవేళ (!లక్ష్యం_మార్గం) {
+			ret = get_మార్గం_len(fdt, లక్ష్యం);
+			ఒకవేళ (ret < 0)
+				తిరిగి ret;
 			len = ret;
-		} else {
-			len = strlen(target_path);
+		} లేకపోతే {
+			len = అక్షరశ్రేణి_పొడవు(లక్ష్యం_మార్గం);
 		}
 
-		ret = fdt_setprop_placeholder(fdt, root_sym, name,
-				len + (len > 1) + rel_path_len + 1, &p);
-		if (ret < 0)
-			return ret;
+		ret = fdt_setprop_placeholder(fdt, మూలం_sym, name,
+				len + (len > 1) + rel_మార్గం_len + 1, &p);
+		ఒకవేళ (ret < 0)
+			తిరిగి ret;
 
-		if (!target_path) {
+		ఒకవేళ (!లక్ష్యం_మార్గం) {
 			/* again in case setprop_placeholder changed it */
-			ret = overlay_get_target(fdt, fdto, fragment, &target_path);
-			if (ret < 0)
-				return ret;
-			target = ret;
+			ret = overlay_get_లక్ష్యం(fdt, fdto, fragment, &లక్ష్యం_మార్గం);
+			ఒకవేళ (ret < 0)
+				తిరిగి ret;
+			లక్ష్యం = ret;
 		}
 
 		buf = p;
-		if (len > 1) { /* target is not root */
-			if (!target_path) {
-				ret = fdt_get_path(fdt, target, buf, len + 1);
-				if (ret < 0)
-					return ret;
-			} else
-				memcpy(buf, target_path, len + 1);
+		ఒకవేళ (len > 1) { /* target is not root */
+			ఒకవేళ (!లక్ష్యం_మార్గం) {
+				ret = fdt_get_మార్గం(fdt, లక్ష్యం, buf, len + 1);
+				ఒకవేళ (ret < 0)
+					తిరిగి ret;
+			} లేకపోతే
+				జ్ఞాపకం_నకలు(buf, లక్ష్యం_మార్గం, len + 1);
 
-		} else
+		} లేకపోతే
 			len--;
 
 		buf[len] = '/';
-		memcpy(buf + len + 1, rel_path, rel_path_len);
-		buf[len + 1 + rel_path_len] = '\0';
+		జ్ఞాపకం_నకలు(buf + len + 1, rel_మార్గం, rel_మార్గం_len);
+		buf[len + 1 + rel_మార్గం_len] = '\0';
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-int fdt_overlay_apply(void *fdt, void *fdto)
+పూర్ణాంకం fdt_overlay_apply(శూన్య *fdt, శూన్య *fdto)
 {
 	uint32_t delta;
-	int ret;
+	పూర్ణాంకం ret;
 
 	FDT_RO_PROBE(fdt);
 	FDT_RO_PROBE(fdto);
 
-	ret = fdt_find_max_phandle(fdt, &delta);
-	if (ret)
-		goto err;
+	ret = fdt_కనుగొను_max_phandle(fdt, &delta);
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
 	ret = overlay_adjust_local_phandles(fdto, delta);
-	if (ret)
-		goto err;
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
 	ret = overlay_update_local_references(fdto, delta);
-	if (ret)
-		goto err;
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
 	ret = overlay_fixup_phandles(fdt, fdto);
-	if (ret)
-		goto err;
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
-	ret = overlay_merge(fdt, fdto);
-	if (ret)
-		goto err;
+	ret = overlay_విలీనం(fdt, fdto);
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
-	ret = overlay_symbol_update(fdt, fdto);
-	if (ret)
-		goto err;
+	ret = overlay_చిహ్నం_update(fdt, fdto);
+	ఒకవేళ (ret)
+		వెళ్ళు err;
 
 	/*
 	 * The overlay has been damaged, erase its magic.
 	 */
-	fdt_set_magic(fdto, ~0);
+	fdt_సమితి_magic(fdto, ~0);
 
-	return 0;
+	తిరిగి 0;
 
 err:
 	/*
 	 * The overlay might have been damaged, erase its magic.
 	 */
-	fdt_set_magic(fdto, ~0);
+	fdt_సమితి_magic(fdto, ~0);
 
 	/*
 	 * The base device tree might have been damaged, erase its
 	 * magic.
 	 */
-	fdt_set_magic(fdt, ~0);
+	fdt_సమితి_magic(fdt, ~0);
 
-	return ret;
+	తిరిగి ret;
 }

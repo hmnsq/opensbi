@@ -7,146 +7,146 @@
  *   Nikita Shubin <n.shubin@yadro.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_timer.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/i2c/fdt_i2c.h>
 
-#define SIFIVE_I2C_PRELO	0x00
-#define SIFIVE_I2C_PREHI	0x04
-#define SIFIVE_I2C_CTR		0x08
-#define SIFIVE_I2C_TXR		0x00c
-#define SIFIVE_I2C_RXR		SIFIVE_I2C_TXR
-#define SIFIVE_I2C_CR		0x010
-#define SIFIVE_I2C_SR		SIFIVE_I2C_CR
+#నిర్వచించు SIFIVE_I2C_PRELO	0x00
+#నిర్వచించు SIFIVE_I2C_PREHI	0x04
+#నిర్వచించు SIFIVE_I2C_CTR		0x08
+#నిర్వచించు SIFIVE_I2C_TXR		0x00c
+#నిర్వచించు SIFIVE_I2C_RXR		SIFIVE_I2C_TXR
+#నిర్వచించు SIFIVE_I2C_CR		0x010
+#నిర్వచించు SIFIVE_I2C_SR		SIFIVE_I2C_CR
 
-#define SIFIVE_I2C_CTR_IEN	(1 << 6)
-#define SIFIVE_I2C_CTR_EN	(1 << 7)
+#నిర్వచించు SIFIVE_I2C_CTR_IEN	(1 << 6)
+#నిర్వచించు SIFIVE_I2C_CTR_EN	(1 << 7)
 
-#define SIFIVE_I2C_CMD_IACK	(1 << 0)
-#define SIFIVE_I2C_CMD_ACK	(1 << 3)
-#define SIFIVE_I2C_CMD_WR	(1 << 4)
-#define SIFIVE_I2C_CMD_RD	(1 << 5)
-#define SIFIVE_I2C_CMD_STO	(1 << 6)
-#define SIFIVE_I2C_CMD_STA	(1 << 7)
+#నిర్వచించు SIFIVE_I2C_CMD_IACK	(1 << 0)
+#నిర్వచించు SIFIVE_I2C_CMD_ACK	(1 << 3)
+#నిర్వచించు SIFIVE_I2C_CMD_WR	(1 << 4)
+#నిర్వచించు SIFIVE_I2C_CMD_RD	(1 << 5)
+#నిర్వచించు SIFIVE_I2C_CMD_STO	(1 << 6)
+#నిర్వచించు SIFIVE_I2C_CMD_STA	(1 << 7)
 
-#define SIFIVE_I2C_STATUS_IF	(1 << 0)
-#define SIFIVE_I2C_STATUS_TIP	(1 << 1)
-#define SIFIVE_I2C_STATUS_AL	(1 << 5)
-#define SIFIVE_I2C_STATUS_BUSY	(1 << 6)
-#define SIFIVE_I2C_STATUS_RXACK	(1 << 7)
+#నిర్వచించు SIFIVE_I2_C_స్థితి_IF	(1 << 0)
+#నిర్వచించు SIFIVE_I2_C_స్థితి_TIP	(1 << 1)
+#నిర్వచించు SIFIVE_I2_C_స్థితి_AL	(1 << 5)
+#నిర్వచించు SIFIVE_I2_C_స్థితి_BUSY	(1 << 6)
+#నిర్వచించు SIFIVE_I2_C_స్థితి_RXACK	(1 << 7)
 
-#define SIFIVE_I2C_WRITE_BIT	(0 << 0)
-#define SIFIVE_I2C_READ_BIT	(1 << 0)
+#నిర్వచించు SIFIVE_I2_C_WRITE_బిట్టు	(0 << 0)
+#నిర్వచించు SIFIVE_I2_C_READ_బిట్టు	(1 << 0)
 
-struct sifive_i2c_adapter {
-	unsigned long addr;
-	struct i2c_adapter adapter;
+నిర్మాణం sifive_i2c_adapter {
+	గుర్తులేని దీర్ఘ addr;
+	నిర్మాణం i2c_adapter adapter;
 };
 
-static inline void sifive_i2c_setreg(struct sifive_i2c_adapter *adap,
-				     uint8_t reg, uint8_t value)
+స్థిర అంతఃవరుస శూన్య sifive_i2c_setreg(నిర్మాణం sifive_i2c_adapter *adap,
+				     uint8_t reg, uint8_t విలువ)
 {
-	writel(value, (volatile char *)adap->addr + reg);
+	writel(విలువ, (అస్థిర అక్షరం *)adap->addr + reg);
 }
 
-static inline uint8_t sifive_i2c_getreg(struct sifive_i2c_adapter *adap,
+స్థిర అంతఃవరుస uint8_t sifive_i2c_getreg(నిర్మాణం sifive_i2c_adapter *adap,
 					uint8_t reg)
 {
-	return readl((volatile char *)adap->addr + reg);
+	తిరిగి readl((అస్థిర అక్షరం *)adap->addr + reg);
 }
 
-static int sifive_i2c_adapter_rxack(struct sifive_i2c_adapter *adap)
+స్థిర పూర్ణాంకం sifive_i2c_adapter_rxack(నిర్మాణం sifive_i2c_adapter *adap)
 {
 	uint8_t val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
 
-	if (val & SIFIVE_I2C_STATUS_RXACK)
-		return SBI_EIO;
+	ఒకవేళ (val & SIFIVE_I2_C_స్థితి_RXACK)
+		తిరిగి SBI_EIO;
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sifive_i2c_adapter_poll(struct sifive_i2c_adapter *adap,
-				   uint32_t mask)
+స్థిర పూర్ణాంకం sifive_i2c_adapter_poll(నిర్మాణం sifive_i2c_adapter *adap,
+				   uint32_t ముసుగు)
 {
-	unsigned int timeout = 1; // [msec]
-	int count = 0;
+	గుర్తులేని పూర్ణాంకం timeout = 1; // [msec]
+	పూర్ణాంకం లెక్క = 0;
 	uint8_t val;
 
 	sbi_timer_udelay(80); // worst case if bus speed is 100 kHz
 
-	do {
+	చేయి {
 		val = sifive_i2c_getreg(adap, SIFIVE_I2C_SR);
-		if (!(val & mask))
-			return 0;
+		ఒకవేళ (!(val & ముసుగు))
+			తిరిగి 0;
 
 		sbi_timer_udelay(1);
-		count += 1;
-		if (count == (timeout * 1000))
-			return SBI_ETIMEDOUT;
-	} while (1);
+		లెక్క += 1;
+		ఒకవేళ (లెక్క == (timeout * 1000))
+			తిరిగి SBI_ETIMEDOUT;
+	} అయితే (1);
 }
 
-#define sifive_i2c_adapter_poll_tip(adap)	\
-	sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_TIP)
-#define sifive_i2c_adapter_poll_busy(adap)	\
-sifive_i2c_adapter_poll(adap, SIFIVE_I2C_STATUS_BUSY)
+#నిర్వచించు sifive_i2c_adapter_poll_tip(adap)	\
+	sifive_i2c_adapter_poll(adap, SIFIVE_I2_C_స్థితి_TIP)
+#నిర్వచించు sifive_i2c_adapter_poll_busy(adap)	\
+sifive_i2c_adapter_poll(adap, SIFIVE_I2_C_స్థితి_BUSY)
 
-static int sifive_i2c_adapter_start(struct sifive_i2c_adapter *adap,
-				    uint8_t addr, uint8_t bit)
+స్థిర పూర్ణాంకం sifive_i2c_adapter_ప్రారంభం(నిర్మాణం sifive_i2c_adapter *adap,
+				    uint8_t addr, uint8_t బిట్టు_2)
 {
-	uint8_t val = (addr << 1) | bit;
+	uint8_t val = (addr << 1) | బిట్టు_2;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, val);
 	val = SIFIVE_I2C_CMD_STA | SIFIVE_I2C_CMD_WR | SIFIVE_I2C_CMD_IACK;
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, val);
 
-	return sifive_i2c_adapter_poll_tip(adap);
+	తిరిగి sifive_i2c_adapter_poll_tip(adap);
 }
 
-static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				    uint8_t reg, uint8_t *buffer, int len)
+స్థిర పూర్ణాంకం sifive_i2c_adapter_write(నిర్మాణం i2c_adapter *ia, uint8_t addr,
+				    uint8_t reg, uint8_t *బఫరు, పూర్ణాంకం len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
+	నిర్మాణం sifive_i2c_adapter *adap =
+		container_యొక్క(ia, నిర్మాణం sifive_i2c_adapter, adapter);
+	పూర్ణాంకం rc = sifive_i2c_adapter_ప్రారంభం(adap, addr, SIFIVE_I2_C_WRITE_బిట్టు);
 
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	/* set register address */
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 				SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	/* set value */
-	while (len) {
-		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *buffer);
+	అయితే (len) {
+		sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, *బఫరు);
 		sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 						       SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
 		rc = sifive_i2c_adapter_rxack(adap);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		buffer++;
+		బఫరు++;
 		len--;
 	}
 
@@ -155,117 +155,117 @@ static int sifive_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
 
 	/* poll BUSY instead of ACK*/
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sifive_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				   uint8_t reg, uint8_t *buffer, int len)
+స్థిర పూర్ణాంకం sifive_i2c_adapter_read(నిర్మాణం i2c_adapter *ia, uint8_t addr,
+				   uint8_t reg, uint8_t *బఫరు, పూర్ణాంకం len)
 {
-	struct sifive_i2c_adapter *adap =
-		container_of(ia, struct sifive_i2c_adapter, adapter);
-	int rc;
+	నిర్మాణం sifive_i2c_adapter *adap =
+		container_యొక్క(ia, నిర్మాణం sifive_i2c_adapter, adapter);
+	పూర్ణాంకం rc;
 
-	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_WRITE_BIT);
-	if (rc)
-		return rc;
+	rc = sifive_i2c_adapter_ప్రారంభం(adap, addr, SIFIVE_I2_C_WRITE_బిట్టు);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_TXR, reg);
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_WR |
 					       SIFIVE_I2C_CMD_IACK);
 
 	rc = sifive_i2c_adapter_poll_tip(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	/* setting addr with high 0 bit */
-	rc = sifive_i2c_adapter_start(adap, addr, SIFIVE_I2C_READ_BIT);
-	if (rc)
-		return rc;
+	rc = sifive_i2c_adapter_ప్రారంభం(adap, addr, SIFIVE_I2_C_READ_బిట్టు);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	rc = sifive_i2c_adapter_rxack(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	while (len) {
-		if (len == 1)
+	అయితే (len) {
+		ఒకవేళ (len == 1)
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_ACK |
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
-		else
+		లేకపోతే
 			sifive_i2c_setreg(adap, SIFIVE_I2C_CR,
 					  SIFIVE_I2C_CMD_RD |
 					  SIFIVE_I2C_CMD_IACK);
 
 		rc = sifive_i2c_adapter_poll_tip(adap);
-		if (rc)
-			return rc;
+		ఒకవేళ (rc)
+			తిరిగి rc;
 
-		*buffer = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
-		buffer++;
+		*బఫరు = sifive_i2c_getreg(adap, SIFIVE_I2C_RXR);
+		బఫరు++;
 		len--;
 	}
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_STO |
 					       SIFIVE_I2C_CMD_IACK);
 	rc = sifive_i2c_adapter_poll_busy(adap);
-	if (rc)
-		return rc;
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
 	sifive_i2c_setreg(adap, SIFIVE_I2C_CR, SIFIVE_I2C_CMD_IACK);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sifive_i2c_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+స్థిర పూర్ణాంకం sifive_i2c_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			   స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	int rc;
-	struct sifive_i2c_adapter *adapter;
+	పూర్ణాంకం rc;
+	నిర్మాణం sifive_i2c_adapter *adapter;
 	uint64_t addr;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(పరిమాణం(*adapter));
+	ఒకవేళ (!adapter)
+		తిరిగి SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &addr, ఖాళీ);
+	ఒకవేళ (rc) {
 		sbi_free(adapter);
-		return rc;
+		తిరిగి rc;
 	}
 
 	adapter->addr = addr;
 	adapter->adapter.id = nodeoff;
-	adapter->adapter.write = sifive_i2c_adapter_write;
-	adapter->adapter.read = sifive_i2c_adapter_read;
-	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	adapter->adapter.లిఖ = sifive_i2c_adapter_write;
+	adapter->adapter.పఠ = sifive_i2c_adapter_read;
+	rc = i2c_adapter_కూడు(&adapter->adapter);
+	ఒకవేళ (rc) {
 		sbi_free(adapter);
-		return rc;
+		తిరిగి rc;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match sifive_i2c_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక sifive_i2c_సరిపోలిక[] = {
 	{ .compatible = "sifive,i2c0" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_sifive = {
-	.match_table = sifive_i2c_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_i2c_adapter_sifive = {
+	.సరిపోలిక_పట్టిక = sifive_i2c_సరిపోలిక,
 	.init = sifive_i2c_init,
 };

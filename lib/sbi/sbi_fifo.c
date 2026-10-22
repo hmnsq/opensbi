@@ -7,168 +7,168 @@
  *   Atish Patra<atish.patra@wdc.com>
  *
  */
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_fifo.h>
+#అన్తర్భావ <sbi/sbi_string.h>
 
-void sbi_fifo_init(struct sbi_fifo *fifo, void *queue_mem, u16 entries,
-		   u16 entry_size) NO_THREAD_SAFETY_ANALYSIS
+శూన్య sbi_fifo_init(నిర్మాణం sbi_fifo *fifo, శూన్య *వరుస_mem, u16 entries,
+		   u16 నమోదు_కొలత) NO_THREAD_SAFETY_ANALYSIS
 {
-	fifo->queue	  = queue_mem;
-	fifo->num_entries = entries;
-	fifo->entry_size  = entry_size;
-	SPIN_LOCK_INIT(fifo->qlock);
-	fifo->avail = fifo->tail = 0;
-	sbi_memset(fifo->queue, 0, (size_t)entries * entry_size);
+	fifo->వరుస	  = వరుస_mem;
+	fifo->అంకె_entries = entries;
+	fifo->నమోదు_కొలత  = నమోదు_కొలత;
+	SPIN_తాళం_INIT(fifo->qlock);
+	fifo->avail = fifo->తోక = 0;
+	sbi_memset(fifo->వరుస, 0, (size_t)entries * నమోదు_కొలత);
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_full(struct sbi_fifo *fifo)
+స్థిర అంతఃవరుస bool __sbi_fifo_is_full(నిర్మాణం sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == fifo->num_entries) ? true : false;
+	తిరిగి (fifo->avail == fifo->అంకె_entries) ? true : false;
 }
 
-u16 sbi_fifo_avail(struct sbi_fifo *fifo)
+u16 sbi_fifo_avail(నిర్మాణం sbi_fifo *fifo)
 {
 	u16 ret;
 
-	if (!fifo)
-		return 0;
+	ఒకవేళ (!fifo)
+		తిరిగి 0;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 	ret = fifo->avail;
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_fifo_is_full(struct sbi_fifo *fifo)
+పూర్ణాంకం sbi_fifo_is_నిండిన(నిర్మాణం sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	ఒకవేళ (!fifo)
+		తిరిగి SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 	ret = __sbi_fifo_is_full(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	తిరిగి ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data)
+స్థిర అంతఃవరుస శూన్య __sbi_fifo_enqueue(నిర్మాణం sbi_fifo *fifo, శూన్య *దత్తాంశం)
 	MUST_HOLD(&fifo->qlock)
 {
-	u32 head;
+	u32 తల;
 
-	head = (u32)fifo->tail + fifo->avail;
-	if (head >= fifo->num_entries)
-		head = head - fifo->num_entries;
+	తల = (u32)fifo->తోక + fifo->avail;
+	ఒకవేళ (తల >= fifo->అంకె_entries)
+		తల = తల - fifo->అంకె_entries;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)(fifo->queue + head * fifo->entry_size) = *(char *)data;
-		break;
-	case 2:
-		*(u16 *)(fifo->queue + head * fifo->entry_size) = *(u16 *)data;
-		break;
-	case 4:
-		*(u32 *)(fifo->queue + head * fifo->entry_size) = *(u32 *)data;
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)(fifo->queue + head * fifo->entry_size) = *(u64 *)data;
-		break;
-#endif
-	default:
-		sbi_memcpy(fifo->queue + head * fifo->entry_size,
-			   data, fifo->entry_size);
-		break;
+	ఎంపిక (fifo->నమోదు_కొలత) {
+	స్థితి 1:
+		*(అక్షరం *)(fifo->వరుస + తల * fifo->నమోదు_కొలత) = *(అక్షరం *)దత్తాంశం;
+		ఆపు;
+	స్థితి 2:
+		*(u16 *)(fifo->వరుస + తల * fifo->నమోదు_కొలత) = *(u16 *)దత్తాంశం;
+		ఆపు;
+	స్థితి 4:
+		*(u32 *)(fifo->వరుస + తల * fifo->నమోదు_కొలత) = *(u32 *)దత్తాంశం;
+		ఆపు;
+#ఒకవేళ __riscv_xlen > 32
+	స్థితి 8:
+		*(u64 *)(fifo->వరుస + తల * fifo->నమోదు_కొలత) = *(u64 *)దత్తాంశం;
+		ఆపు;
+#అయితే_ముగింపు
+	అప్రమేయ:
+		sbi_memcpy(fifo->వరుస + తల * fifo->నమోదు_కొలత,
+			   దత్తాంశం, fifo->నమోదు_కొలత);
+		ఆపు;
 	}
 
 	fifo->avail++;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+స్థిర అంతఃవరుస శూన్య __sbi_fifo_dequeue(నిర్మాణం sbi_fifo *fifo, శూన్య *దత్తాంశం)
 	MUST_HOLD(&fifo->qlock)
 {
-	if (!data)
-		goto skip_data_copy;
+	ఒకవేళ (!దత్తాంశం)
+		వెళ్ళు skip_దత్తాంశం_copy;
 
-	switch (fifo->entry_size) {
-	case 1:
-		*(char *)data = *(char *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 2:
-		*(u16 *)data = *(u16 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-	case 4:
-		*(u32 *)data = *(u32 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#if __riscv_xlen > 32
-	case 8:
-		*(u64 *)data = *(u64 *)(fifo->queue + (u32)fifo->tail * fifo->entry_size);
-		break;
-#endif
-	default:
-		sbi_memcpy(data, fifo->queue + (u32)fifo->tail * fifo->entry_size,
-			   fifo->entry_size);
-		break;
+	ఎంపిక (fifo->నమోదు_కొలత) {
+	స్థితి 1:
+		*(అక్షరం *)దత్తాంశం = *(అక్షరం *)(fifo->వరుస + (u32)fifo->తోక * fifo->నమోదు_కొలత);
+		ఆపు;
+	స్థితి 2:
+		*(u16 *)దత్తాంశం = *(u16 *)(fifo->వరుస + (u32)fifo->తోక * fifo->నమోదు_కొలత);
+		ఆపు;
+	స్థితి 4:
+		*(u32 *)దత్తాంశం = *(u32 *)(fifo->వరుస + (u32)fifo->తోక * fifo->నమోదు_కొలత);
+		ఆపు;
+#ఒకవేళ __riscv_xlen > 32
+	స్థితి 8:
+		*(u64 *)దత్తాంశం = *(u64 *)(fifo->వరుస + (u32)fifo->తోక * fifo->నమోదు_కొలత);
+		ఆపు;
+#అయితే_ముగింపు
+	అప్రమేయ:
+		sbi_memcpy(దత్తాంశం, fifo->వరుస + (u32)fifo->తోక * fifo->నమోదు_కొలత,
+			   fifo->నమోదు_కొలత);
+		ఆపు;
 	}
 
-skip_data_copy:
+skip_దత్తాంశం_copy:
 	fifo->avail--;
-	fifo->tail++;
-	if (fifo->tail >= fifo->num_entries)
-		fifo->tail = 0;
+	fifo->తోక++;
+	ఒకవేళ (fifo->తోక >= fifo->అంకె_entries)
+		fifo->తోక = 0;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline bool __sbi_fifo_is_empty(struct sbi_fifo *fifo)
+స్థిర అంతఃవరుస bool __sbi_fifo_is_empty(నిర్మాణం sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	return (fifo->avail == 0) ? true : false;
+	తిరిగి (fifo->avail == 0) ? true : false;
 }
 
-int sbi_fifo_is_empty(struct sbi_fifo *fifo)
+పూర్ణాంకం sbi_fifo_is_ఖాళీలు(నిర్మాణం sbi_fifo *fifo)
 {
 	bool ret;
 
-	if (!fifo)
-		return SBI_EINVAL;
+	ఒకవేళ (!fifo)
+		తిరిగి SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 	ret = __sbi_fifo_is_empty(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	తిరిగి ret;
 }
 
 /* Note: must be called with fifo->qlock held */
-static inline void __sbi_fifo_reset(struct sbi_fifo *fifo)
+స్థిర అంతఃవరుస శూన్య __sbi_fifo_reset(నిర్మాణం sbi_fifo *fifo)
 	MUST_HOLD(&fifo->qlock)
 {
-	size_t size = (size_t)fifo->num_entries * fifo->entry_size;
+	size_t కొలత = (size_t)fifo->అంకె_entries * fifo->నమోదు_కొలత;
 
 	fifo->avail = 0;
-	fifo->tail  = 0;
-	sbi_memset(fifo->queue, 0, size);
+	fifo->తోక  = 0;
+	sbi_memset(fifo->వరుస, 0, కొలత);
 }
 
-bool sbi_fifo_reset(struct sbi_fifo *fifo)
+bool sbi_fifo_reset(నిర్మాణం sbi_fifo *fifo)
 {
-	if (!fifo)
-		return false;
+	ఒకవేళ (!fifo)
+		తిరిగి false;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 	__sbi_fifo_reset(fifo);
 	spin_unlock(&fifo->qlock);
 
-	return true;
+	తిరిగి true;
 }
 
 /**
@@ -178,76 +178,76 @@ bool sbi_fifo_reset(struct sbi_fifo *fifo)
  * **Do not** invoke any other fifo function from callback. Otherwise, it will
  * lead to deadlock.
  */
-int sbi_fifo_inplace_update(struct sbi_fifo *fifo, void *in,
-			    int (*fptr)(void *in, void *data))
+పూర్ణాంకం sbi_fifo_inplace_update(నిర్మాణం sbi_fifo *fifo, శూన్య *లోపల,
+			    పూర్ణాంకం (*fptr)(శూన్య *లోపల, శూన్య *దత్తాంశం))
 {
-	int i, index;
-	int ret = SBI_FIFO_UNCHANGED;
-	void *entry;
+	పూర్ణాంకం i, సూచీ_2;
+	పూర్ణాంకం ret = SBI_FIFO_UNCHANGED;
+	శూన్య *నమోదు_3;
 
-	if (!fifo || !in)
-		return ret;
+	ఒకవేళ (!fifo || !లోపల)
+		తిరిగి ret;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	ఒకవేళ (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return ret;
+		తిరిగి ret;
 	}
 
-	for (i = 0; i < fifo->avail; i++) {
-		index = fifo->tail + i;
-		if (index >= fifo->num_entries)
-			index -= fifo->num_entries;
-		entry = (char *)fifo->queue + (u32)index * fifo->entry_size;
-		ret = fptr(in, entry);
+	కొరకు (i = 0; i < fifo->avail; i++) {
+		సూచీ_2 = fifo->తోక + i;
+		ఒకవేళ (సూచీ_2 >= fifo->అంకె_entries)
+			సూచీ_2 -= fifo->అంకె_entries;
+		నమోదు_3 = (అక్షరం *)fifo->వరుస + (u32)సూచీ_2 * fifo->నమోదు_కొలత;
+		ret = fptr(లోపల, నమోదు_3);
 
-		if (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
-			break;
+		ఒకవేళ (ret == SBI_FIFO_SKIP || ret == SBI_FIFO_UPDATED) {
+			ఆపు;
 		}
 	}
 	spin_unlock(&fifo->qlock);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_fifo_enqueue(struct sbi_fifo *fifo, void *data, bool force)
+పూర్ణాంకం sbi_fifo_వరుసలో_చేర్చు(నిర్మాణం sbi_fifo *fifo, శూన్య *దత్తాంశం, bool force)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	ఒకవేళ (!fifo || !దత్తాంశం)
+		తిరిగి SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 
-	if (__sbi_fifo_is_full(fifo)) {
-		if (!force) {
+	ఒకవేళ (__sbi_fifo_is_full(fifo)) {
+		ఒకవేళ (!force) {
 			spin_unlock(&fifo->qlock);
-			return SBI_ENOSPC;
+			తిరిగి SBI_ENOSPC;
 		}
-		__sbi_fifo_dequeue(fifo, NULL);
+		__sbi_fifo_dequeue(fifo, ఖాళీ);
 	}
 
-	__sbi_fifo_enqueue(fifo, data);
+	__sbi_fifo_enqueue(fifo, దత్తాంశం);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	తిరిగి 0;
 }
 
-int sbi_fifo_dequeue(struct sbi_fifo *fifo, void *data)
+పూర్ణాంకం sbi_fifo_వరుస_నుండి_తీయి(నిర్మాణం sbi_fifo *fifo, శూన్య *దత్తాంశం)
 {
-	if (!fifo || !data)
-		return SBI_EINVAL;
+	ఒకవేళ (!fifo || !దత్తాంశం)
+		తిరిగి SBI_EINVAL;
 
-	spin_lock(&fifo->qlock);
+	spin_తాళం(&fifo->qlock);
 
-	if (__sbi_fifo_is_empty(fifo)) {
+	ఒకవేళ (__sbi_fifo_is_empty(fifo)) {
 		spin_unlock(&fifo->qlock);
-		return SBI_ENOENT;
+		తిరిగి SBI_ENOENT;
 	}
 
-	__sbi_fifo_dequeue(fifo, data);
+	__sbi_fifo_dequeue(fifo, దత్తాంశం);
 
 	spin_unlock(&fifo->qlock);
 
-	return 0;
+	తిరిగి 0;
 }

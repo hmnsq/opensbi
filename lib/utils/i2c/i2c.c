@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+స్థిర SBI_LIST_తల(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+నిర్మాణం i2c_adapter *i2c_adapter_కనుగొను(పూర్ణాంకం id)
 {
-	struct sbi_dlist *pos;
+	నిర్మాణం sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		నిర్మాణం i2c_adapter *adap = గమ్యం_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ఒకవేళ (adap->id == id)
+			తిరిగి adap;
 	}
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+పూర్ణాంకం i2c_adapter_కూడు(నిర్మాణం i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ఒకవేళ (!ia)
+		తిరిగి SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ఒకవేళ (i2c_adapter_కనుగొను(ia->id))
+		తిరిగి SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_కూడు(&(ia->కణుపు), &(i2c_adapters_list));
 
-	return 0;
+	తిరిగి 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+శూన్య i2c_adapter_remove(నిర్మాణం i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ఒకవేళ (!ia)
+		తిరిగి;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->కణుపు));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+పూర్ణాంకం i2c_adapter_write(నిర్మాణం i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *బఫరు, పూర్ణాంకం len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ఒకవేళ (!ia)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (!ia->లిఖ)
+		తిరిగి SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	తిరిగి ia->లిఖ(ia, addr, reg, బఫరు, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+పూర్ణాంకం i2c_adapter_read(నిర్మాణం i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *బఫరు, పూర్ణాంకం len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ఒకవేళ (!ia)
+		తిరిగి SBI_EINVAL;
+	ఒకవేళ (!ia->పఠ)
+		తిరిగి SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	తిరిగి ia->పఠ(ia, addr, reg, బఫరు, len);
 }

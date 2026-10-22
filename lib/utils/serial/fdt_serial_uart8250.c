@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/uart8250.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/serial/fdt_serial.h>
+#అన్తర్భావ <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+స్థిర పూర్ణాంకం serial_uart8250_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+				స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
-	struct platform_uart_data uart = { 0 };
-	ulong caps = (ulong)match->data;
-	int rc;
+	నిర్మాణం platform_uart_దత్తాంశం uart = { 0 };
+	ulong caps = (ulong)సరిపోలిక->దత్తాంశం;
+	పూర్ణాంకం rc;
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_కణుపు(fdt, nodeoff, &uart);
+	ఒకవేళ (rc)
+		తిరిగి rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
-			     uart.reg_shift, uart.reg_io_width,
-			     uart.reg_offset, caps);
+	తిరిగి uart8250_init(uart.addr, uart.freq, uart.baud,
+			     uart.reg_జరుపు, uart.reg_io_వెడల్పు,
+			     uart.reg_స్థానభ్రంశం, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక serial_uart8250_సరిపోలిక[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "intel,xscale-uart",
-	  .data = (void *)UART_CAP_UUE },
+	  .దత్తాంశం = (శూన్య *)UART_CAP_UUE },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
-	.match_table = serial_uart8250_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_serial_uart8250 = {
+	.సరిపోలిక_పట్టిక = serial_uart8250_సరిపోలిక,
 	.init = serial_uart8250_init,
 };

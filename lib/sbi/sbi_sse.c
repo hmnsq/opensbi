@@ -5,113 +5,113 @@
  *
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_sse.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_slist.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/riscv_encoding.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/sbi_domain.h>
+#అన్తర్భావ <sbi/sbi_ecall.h>
+#అన్తర్భావ <sbi/sbi_ecall_interface.h>
+#అన్తర్భావ <sbi/sbi_error.h>
+#అన్తర్భావ <sbi/sbi_fifo.h>
+#అన్తర్భావ <sbi/sbi_hart.h>
+#అన్తర్భావ <sbi/sbi_hart_protection.h>
+#అన్తర్భావ <sbi/sbi_heap.h>
+#అన్తర్భావ <sbi/sbi_hsm.h>
+#అన్తర్భావ <sbi/sbi_ipi.h>
+#అన్తర్భావ <sbi/sbi_list.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_pmu.h>
+#అన్తర్భావ <sbi/sbi_sse.h>
+#అన్తర్భావ <sbi/sbi_scratch.h>
+#అన్తర్భావ <sbi/sbi_slist.h>
+#అన్తర్భావ <sbi/sbi_string.h>
+#అన్తర్భావ <sbi/sbi_trap.h>
 
-#include <sbi/sbi_console.h>
+#అన్తర్భావ <sbi/sbi_console.h>
 
-#define sse_get_hart_state_ptr(__scratch) \
-	sbi_scratch_read_type((__scratch), void *, shs_ptr_off)
+#నిర్వచించు sse_get_hart_state_ptr(__scratch) \
+	sbi_scratch_read_type((__scratch), శూన్య *, shs_ptr_off)
 
-#define sse_thishart_state_ptr() \
+#నిర్వచించు sse_thishart_state_ptr() \
 	sse_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define sse_set_hart_state_ptr(__scratch, __sse_state) \
-	sbi_scratch_write_type((__scratch), void *, shs_ptr_off, (__sse_state))
+#నిర్వచించు sse_సమితి_hart_state_ptr(__scratch, __sse_state) \
+	sbi_scratch_write_type((__scratch), శూన్య *, shs_ptr_off, (__sse_state))
 
-#define EVENT_IS_GLOBAL(__event_id) ((__event_id) & SBI_SSE_EVENT_GLOBAL_BIT)
+#నిర్వచించు EVENT_IS_GLOBAL(__event_id) ((__event_id) & SBI_SSE_EVENT_GLOBAL_బిట్టు)
 
-#define sse_event_invoke_cb(_event, _cb, ...)                                 \
+#నిర్వచించు sse_event_invoke_cb(_event, _cb, ...)                                 \
 	{                                                                     \
-		const struct sbi_sse_cb_ops *__ops = _event->info->cb_ops;    \
-		if (__ops && __ops->_cb)                                      \
+		స్థిరరాశి నిర్మాణం sbi_sse_cb_ops *__ops = _event->info->cb_ops;    \
+		ఒకవేళ (__ops && __ops->_cb)                                      \
 			__ops->_cb(_event->event_id, ##__VA_ARGS__);          \
 	}
 
-struct sse_entry_state {
+నిర్మాణం sse_నమోదు_state {
 	/** entry pc */
-	unsigned long pc;
+	గుర్తులేని దీర్ఘ pc;
 	/** a6 register state */
-	unsigned long arg;
+	గుర్తులేని దీర్ఘ arg;
 };
 
-struct sse_interrupted_state {
+నిర్మాణం sse_interrupted_state {
 	/** sepc register state */
-	unsigned long sepc;
+	గుర్తులేని దీర్ఘ sepc;
 	/** flags register state */
-	unsigned long flags;
+	గుర్తులేని దీర్ఘ flags;
 	/** a6 register state */
-	unsigned long a6;
+	గుర్తులేని దీర్ఘ a6;
 	/** a7 register state */
-	unsigned long a7;
+	గుర్తులేని దీర్ఘ a7;
 };
 
-struct sse_ipi_inject_data {
+నిర్మాణం sse_ipi_inject_దత్తాంశం {
 	uint32_t event_id;
 };
 
-struct sbi_sse_event_attrs {
-	unsigned long status;
-	unsigned long prio;
-	unsigned long config;
-	unsigned long hartid;
-	struct sse_entry_state entry;
-	struct sse_interrupted_state interrupted;
+నిర్మాణం sbi_sse_event_attrs {
+	గుర్తులేని దీర్ఘ స్థితి_2;
+	గుర్తులేని దీర్ఘ prio;
+	గుర్తులేని దీర్ఘ config;
+	గుర్తులేని దీర్ఘ hartid;
+	నిర్మాణం sse_నమోదు_state నమోదు_3;
+	నిర్మాణం sse_interrupted_state interrupted;
 };
 
 /* Make sure all attributes are packed for direct memcpy in ATTR_READ */
-#define assert_field_offset(field, attr_offset)                  \
+#నిర్వచించు assert_క్షేత్రం_స్థానభ్రంశం(క్షేత్రం, attr_స్థానభ్రంశం)                  \
 	_Static_assert(                                          \
-		((offsetof(struct sbi_sse_event_attrs, field)) / \
-		 sizeof(unsigned long)) == attr_offset,          \
+		((offsetof(నిర్మాణం sbi_sse_event_attrs, క్షేత్రం)) / \
+		 పరిమాణం(గుర్తులేని దీర్ఘ)) == attr_స్థానభ్రంశం,          \
 		"field " #field                                  \
 		" from struct sbi_sse_event_attrs invalid offset, expected " #attr_offset)
 
-assert_field_offset(status, SBI_SSE_ATTR_STATUS);
-assert_field_offset(prio, SBI_SSE_ATTR_PRIO);
-assert_field_offset(config, SBI_SSE_ATTR_CONFIG);
-assert_field_offset(hartid, SBI_SSE_ATTR_PREFERRED_HART);
-assert_field_offset(entry.pc, SBI_SSE_ATTR_ENTRY_PC);
-assert_field_offset(entry.arg, SBI_SSE_ATTR_ENTRY_ARG);
-assert_field_offset(interrupted.sepc, SBI_SSE_ATTR_INTERRUPTED_SEPC);
-assert_field_offset(interrupted.flags, SBI_SSE_ATTR_INTERRUPTED_FLAGS);
-assert_field_offset(interrupted.a6, SBI_SSE_ATTR_INTERRUPTED_A6);
-assert_field_offset(interrupted.a7, SBI_SSE_ATTR_INTERRUPTED_A7);
+assert_క్షేత్రం_స్థానభ్రంశం(స్థితి_2, SBI_SSE_ATTR_స్థితి);
+assert_క్షేత్రం_స్థానభ్రంశం(prio, SBI_SSE_ATTR_PRIO);
+assert_క్షేత్రం_స్థానభ్రంశం(config, SBI_SSE_ATTR_CONFIG);
+assert_క్షేత్రం_స్థానభ్రంశం(hartid, SBI_SSE_ATTR_PREFERRED_HART);
+assert_క్షేత్రం_స్థానభ్రంశం(నమోదు_3.pc, SBI_SSE_ATTR_నమోదు_PC);
+assert_క్షేత్రం_స్థానభ్రంశం(నమోదు_3.arg, SBI_SSE_ATTR_నమోదు_ARG);
+assert_క్షేత్రం_స్థానభ్రంశం(interrupted.sepc, SBI_SSE_ATTR_INTERRUPTED_SEPC);
+assert_క్షేత్రం_స్థానభ్రంశం(interrupted.flags, SBI_SSE_ATTR_INTERRUPTED_FLAGS);
+assert_క్షేత్రం_స్థానభ్రంశం(interrupted.a6, SBI_SSE_ATTR_INTERRUPTED_A6);
+assert_క్షేత్రం_స్థానభ్రంశం(interrupted.a7, SBI_SSE_ATTR_INTERRUPTED_A7);
 
-struct sbi_sse_event {
-	struct sbi_sse_event_attrs attrs;
+నిర్మాణం sbi_sse_event {
+	నిర్మాణం sbi_sse_event_attrs attrs;
 	uint32_t event_id;
 	u32 hartindex;
-	struct sse_event_info *info;
-	struct sbi_dlist node;
+	నిర్మాణం sse_event_info *info;
+	నిర్మాణం sbi_dlist కణుపు;
 };
 
 /** Per-hart state */
-struct sse_hart_state {
+నిర్మాణం sse_hart_state {
 	/**
 	 * Lock that protects enabled_event_list
 	 */
-	spinlock_t enabled_event_lock;
+	spinlock_t enabled_event_తాళం;
 
 	/* Priority sorted list of enabled events (global and local in >=
 	 * ENABLED state). This list is protected by the enabled_event_lock.
@@ -129,12 +129,12 @@ struct sse_hart_state {
 	 * this enabled_event_list and thus can only be removed from this
 	 * list upon disable ecall or on complete with ONESHOT flag.
 	 */
-	struct sbi_dlist enabled_event_list GUARDED_BY(&enabled_event_lock);
+	నిర్మాణం sbi_dlist enabled_event_list GUARDED_BY(&enabled_event_తాళం);
 
 	/**
 	 * List of local events allocated at boot time.
 	 */
-	struct sbi_sse_event *local_events;
+	నిర్మాణం sbi_sse_event *local_events;
 
 	/**
 	 * State to track if the hart is ready to take sse events.
@@ -146,391 +146,391 @@ struct sse_hart_state {
 /**
  * Global events are accessible by all harts
  */
-struct sse_global_event {
+నిర్మాణం sse_global_event {
 	/**
 	 * Global event lock protecting access from multiple harts from ecall to
 	 * the event.
 	 */
-	spinlock_t lock;
+	spinlock_t తాళం_2;
 
 	/**
 	 * global event struct
 	 */
-	struct sbi_sse_event event GUARDED_BY(&lock);
+	నిర్మాణం sbi_sse_event event GUARDED_BY(&తాళం_2);
 };
 
-struct sse_event_info {
+నిర్మాణం sse_event_info {
 	uint32_t event_id;
-	const struct sbi_sse_cb_ops *cb_ops;
-	SBI_SLIST_NODE(sse_event_info);
+	స్థిరరాశి నిర్మాణం sbi_sse_cb_ops *cb_ops;
+	SBI_SLIST_కణుపు(sse_event_info);
 };
 
-static unsigned int local_event_count;
-static unsigned int global_event_count;
-static struct sse_global_event *global_events;
+స్థిర గుర్తులేని పూర్ణాంకం local_event_లెక్క;
+స్థిర గుర్తులేని పూర్ణాంకం global_event_లెక్క;
+స్థిర నిర్మాణం sse_global_event *global_events;
 
-static unsigned long sse_inject_fifo_off;
-static unsigned long sse_inject_fifo_mem_off;
+స్థిర గుర్తులేని దీర్ఘ sse_inject_fifo_off;
+స్థిర గుర్తులేని దీర్ఘ sse_inject_fifo_mem_off;
 /* Offset of pointer to SSE HART state in scratch space */
-static unsigned long shs_ptr_off;
+స్థిర గుర్తులేని దీర్ఘ shs_ptr_off;
 
-static u32 sse_ipi_inject_event = SBI_IPI_EVENT_MAX;
+స్థిర u32 sse_ipi_inject_event = SBI_IPI_EVENT_MAX;
 
-static int sse_ipi_inject_send(unsigned long hartid, uint32_t event_id);
+స్థిర పూర్ణాంకం sse_ipi_inject_send(గుర్తులేని దీర్ఘ hartid, uint32_t event_id);
 
-struct sse_event_info global_software_event = {
+నిర్మాణం sse_event_info global_software_event = {
 	.event_id = SBI_SSE_EVENT_GLOBAL_SOFTWARE,
-	SBI_SLIST_NODE_INIT(NULL),
+	SBI_SLIST_కణుపు_INIT(ఖాళీ),
 };
 
-struct sse_event_info local_software_event = {
+నిర్మాణం sse_event_info local_software_event = {
 	.event_id = SBI_SSE_EVENT_LOCAL_SOFTWARE,
-	SBI_SLIST_NODE_INIT(&global_software_event),
+	SBI_SLIST_కణుపు_INIT(&global_software_event),
 };
 
-static SBI_SLIST_HEAD(supported_events, sse_event_info) =
-				SBI_SLIST_HEAD_INIT(&local_software_event);
+స్థిర SBI_SLIST_తల(supported_events, sse_event_info) =
+				SBI_SLIST_తల_INIT(&local_software_event);
 
 /*
  * This array is used to distinguish between standard event and platform
  * events in order to return SBI_ERR_NOT_SUPPORTED for them.
  */
-static const uint32_t standard_events[] = {
-	SBI_SSE_EVENT_LOCAL_HIGH_PRIO_RAS,
+స్థిర స్థిరరాశి uint32_t standard_events[] = {
+	SBI_SSE_EVENT_LOCAL_ఎగువ_PRIO_RAS,
 	SBI_SSE_EVENT_LOCAL_DOUBLE_TRAP,
-	SBI_SSE_EVENT_GLOBAL_HIGH_PRIO_RAS,
-	SBI_SSE_EVENT_LOCAL_PMU_OVERFLOW,
-	SBI_SSE_EVENT_LOCAL_LOW_PRIO_RAS,
-	SBI_SSE_EVENT_GLOBAL_LOW_PRIO_RAS,
+	SBI_SSE_EVENT_GLOBAL_ఎగువ_PRIO_RAS,
+	SBI_SSE_EVENT_LOCAL_PMU_అధికప్రవాహం,
+	SBI_SSE_EVENT_LOCAL_దిగువ_PRIO_RAS,
+	SBI_SSE_EVENT_GLOBAL_దిగువ_PRIO_RAS,
 	SBI_SSE_EVENT_LOCAL_SOFTWARE,
 	SBI_SSE_EVENT_GLOBAL_SOFTWARE,
 };
 
-static bool sse_is_standard_event(uint32_t event_id)
+స్థిర bool sse_is_standard_event(uint32_t event_id)
 {
-	int i;
+	పూర్ణాంకం i;
 
-	for (i = 0; i < array_size(standard_events); i++) {
-		if (event_id == standard_events[i])
-			return true;
+	కొరకు (i = 0; i < array_కొలత(standard_events); i++) {
+		ఒకవేళ (event_id == standard_events[i])
+			తిరిగి true;
 	}
 
-	return false;
+	తిరిగి false;
 }
 
-static struct sse_event_info *sse_event_info_get(uint32_t event_id)
+స్థిర నిర్మాణం sse_event_info *sse_event_info_get(uint32_t event_id)
 {
-	struct sse_event_info *info;
+	నిర్మాణం sse_event_info *info;
 
-	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
-		if (info->event_id == event_id)
-			return info;
+	SBI_SLIST_FOR_EACH_నమోదు(info, supported_events) {
+		ఒకవేళ (info->event_id == event_id)
+			తిరిగి info;
 	}
 
-	return NULL;
+	తిరిగి ఖాళీ;
 }
 
-static unsigned long sse_event_state(struct sbi_sse_event *e)
+స్థిర గుర్తులేని దీర్ఘ sse_event_state(నిర్మాణం sbi_sse_event *e)
 {
-	return e->attrs.status & SBI_SSE_ATTR_STATUS_STATE_MASK;
+	తిరిగి e->attrs.స్థితి_2 & SBI_SSE_ATTR_స్థితి_STATE_ముసుగు;
 }
 
-static unsigned long sse_event_pending(struct sbi_sse_event *e)
+స్థిర గుర్తులేని దీర్ఘ sse_event_pending(నిర్మాణం sbi_sse_event *e)
 {
-	return !!(e->attrs.status & BIT(SBI_SSE_ATTR_STATUS_PENDING_OFFSET));
+	తిరిగి !!(e->attrs.స్థితి_2 & బిట్టు(SBI_SSE_ATTR_స్థితి_PENDING_స్థానభ్రంశం));
 }
 
-static bool sse_event_is_global(struct sbi_sse_event *e)
+స్థిర bool sse_event_is_global(నిర్మాణం sbi_sse_event *e)
 {
-	return EVENT_IS_GLOBAL(e->event_id);
+	తిరిగి EVENT_IS_GLOBAL(e->event_id);
 }
 
-static bool sse_event_is_local(struct sbi_sse_event *e)
+స్థిర bool sse_event_is_local(నిర్మాణం sbi_sse_event *e)
 {
-	return !sse_event_is_global(e);
+	తిరిగి !sse_event_is_global(e);
 }
 
 /**
  * If event is global, must be called under global event lock
  */
-static struct sse_hart_state *sse_get_hart_state(struct sbi_sse_event *e)
+స్థిర నిర్మాణం sse_hart_state *sse_get_hart_state(నిర్మాణం sbi_sse_event *e)
 {
-	struct sbi_scratch *s = sbi_hartindex_to_scratch(e->hartindex);
+	నిర్మాణం sbi_scratch *s = sbi_hartindex_గమ్యం_scratch(e->hartindex);
 
-	return sse_get_hart_state_ptr(s);
+	తిరిగి sse_get_hart_state_ptr(s);
 }
 
-static struct sse_global_event *sse_get_global_event(struct sbi_sse_event *e)
+స్థిర నిర్మాణం sse_global_event *sse_get_global_event(నిర్మాణం sbi_sse_event *e)
 {
-	return container_of(e, struct sse_global_event, event);
+	తిరిగి container_యొక్క(e, నిర్మాణం sse_global_event, event);
 }
 
-static void sse_event_set_state(struct sbi_sse_event *e,
-				unsigned long new_state)
+స్థిర శూన్య sse_event_సమితి_state(నిర్మాణం sbi_sse_event *e,
+				గుర్తులేని దీర్ఘ new_state)
 {
-	e->attrs.status &= ~SBI_SSE_ATTR_STATUS_STATE_MASK;
-	e->attrs.status |= new_state;
+	e->attrs.స్థితి_2 &= ~SBI_SSE_ATTR_స్థితి_STATE_ముసుగు;
+	e->attrs.స్థితి_2 |= new_state;
 }
 
-static int sse_event_get(uint32_t event_id,
-			 struct sbi_sse_event **eret) NO_THREAD_SAFETY_ANALYSIS
+స్థిర పూర్ణాంకం sse_event_get(uint32_t event_id,
+			 నిర్మాణం sbi_sse_event **eret) NO_THREAD_SAFETY_ANALYSIS
 {
-	unsigned int i;
-	struct sbi_sse_event *e;
-	struct sse_hart_state *shs;
+	గుర్తులేని పూర్ణాంకం i;
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_hart_state *shs;
 
-	if (!eret)
-		return SBI_EINVAL;
+	ఒకవేళ (!eret)
+		తిరిగి SBI_EINVAL;
 
-	if (EVENT_IS_GLOBAL(event_id)) {
-		for (i = 0; i < global_event_count; i++) {
+	ఒకవేళ (EVENT_IS_GLOBAL(event_id)) {
+		కొరకు (i = 0; i < global_event_లెక్క; i++) {
 			e = &global_events[i].event;
-			if (e->event_id == event_id) {
-				spin_lock(&global_events[i].lock);
+			ఒకవేళ (e->event_id == event_id) {
+				spin_తాళం(&global_events[i].తాళం_2);
 				*eret = e;
-				return SBI_SUCCESS;
+				తిరిగి SBI_SUCCESS;
 			}
 		}
-	} else {
+	} లేకపోతే {
 		shs = sse_thishart_state_ptr();
-		for (i = 0; i < local_event_count; i++) {
+		కొరకు (i = 0; i < local_event_లెక్క; i++) {
 			e = &shs->local_events[i];
-			if (e->event_id == event_id) {
+			ఒకవేళ (e->event_id == event_id) {
 				*eret = e;
-				return SBI_SUCCESS;
+				తిరిగి SBI_SUCCESS;
 			}
 		}
 	}
 
 	/* Check if the event is a standard one but not supported */
-	if (sse_is_standard_event(event_id))
-		return SBI_ENOTSUPP;
+	ఒకవేళ (sse_is_standard_event(event_id))
+		తిరిగి SBI_ENOTSUPP;
 
 	/* If not supported nor a standard event, it is invalid */
-	return SBI_EINVAL;
+	తిరిగి SBI_EINVAL;
 }
 
-static void sse_event_put(struct sbi_sse_event *e) NO_THREAD_SAFETY_ANALYSIS
+స్థిర శూన్య sse_event_put(నిర్మాణం sbi_sse_event *e) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct sse_global_event *ge;
+	నిర్మాణం sse_global_event *ge;
 
-	if (sse_event_is_local(e))
-		return;
+	ఒకవేళ (sse_event_is_local(e))
+		తిరిగి;
 
 	ge = sse_get_global_event(e);
-	spin_unlock(&ge->lock);
+	spin_unlock(&ge->తాళం_2);
 }
 
-static void sse_event_remove_from_list(struct sbi_sse_event *e)
+స్థిర శూన్య sse_event_remove_from_list(నిర్మాణం sbi_sse_event *e)
 {
-	sbi_list_del(&e->node);
+	sbi_list_del(&e->కణుపు);
 }
 
 /**
  * Must be called under owner hart lock
  */
-static void sse_event_add_to_list(struct sse_hart_state *state,
-				   struct sbi_sse_event *e)
-	MUST_HOLD(&state->enabled_event_lock)
+స్థిర శూన్య sse_event_కూడు_గమ్యం_list(నిర్మాణం sse_hart_state *state,
+				   నిర్మాణం sbi_sse_event *e)
+	MUST_HOLD(&state->enabled_event_తాళం)
 {
-	struct sbi_sse_event *tmp;
+	నిర్మాణం sbi_sse_event *tmp;
 
-	sbi_list_for_each_entry(tmp, &state->enabled_event_list, node) {
-		if (e->attrs.prio < tmp->attrs.prio)
-			break;
-		if (e->attrs.prio == tmp->attrs.prio &&
+	sbi_list_for_each_నమోదు(tmp, &state->enabled_event_list, కణుపు) {
+		ఒకవేళ (e->attrs.prio < tmp->attrs.prio)
+			ఆపు;
+		ఒకవేళ (e->attrs.prio == tmp->attrs.prio &&
 		    e->event_id < tmp->event_id)
-			break;
+			ఆపు;
 	}
-	sbi_list_add_tail(&e->node, &tmp->node);
+	sbi_list_కూడు_తోక(&e->కణుపు, &tmp->కణుపు);
 }
 
 /**
  * Must be called under owner hart lock
  */
-static int sse_event_disable(struct sse_hart_state *shs,
-			      struct sbi_sse_event *e)
-	MUST_HOLD(&shs->enabled_event_lock)
+స్థిర పూర్ణాంకం sse_event_disable(నిర్మాణం sse_hart_state *shs,
+			      నిర్మాణం sbi_sse_event *e)
+	MUST_HOLD(&shs->enabled_event_తాళం)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_ENABLED)
-		return SBI_EINVALID_STATE;
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_ENABLED)
+		తిరిగి SBI_EINVALID_STATE;
 
 	sse_event_invoke_cb(e, disable_cb);
 
 	sse_event_remove_from_list(e);
-	sse_event_set_state(e, SBI_SSE_STATE_REGISTERED);
+	sse_event_సమితి_state(e, SBI_SSE_STATE_REGISTERED);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int sse_event_set_hart_id_check(struct sbi_sse_event *e,
-				       unsigned long new_hartid)
+స్థిర పూర్ణాంకం sse_event_సమితి_hart_id_check(నిర్మాణం sbi_sse_event *e,
+				       గుర్తులేని దీర్ఘ new_hartid)
 {
-	int hstate;
-	unsigned int hartid = (uint32_t)new_hartid;
-	struct sbi_domain *hd = sbi_domain_thishart_ptr();
+	పూర్ణాంకం hstate;
+	గుర్తులేని పూర్ణాంకం hartid = (uint32_t)new_hartid;
+	నిర్మాణం sbi_domain *hd = sbi_domain_thishart_ptr();
 
-	if (!sse_event_is_global(e))
-		return SBI_EDENIED;
+	ఒకవేళ (!sse_event_is_global(e))
+		తిరిగి SBI_EDENIED;
 
-	if (!sbi_domain_is_assigned_hart(hd, sbi_hartid_to_hartindex(hartid)))
-		return SBI_EINVAL;
+	ఒకవేళ (!sbi_domain_is_assigned_hart(hd, sbi_hartid_గమ్యం_hartindex(hartid)))
+		తిరిగి SBI_EINVAL;
 
 	hstate = sbi_hsm_hart_get_state(hd, hartid);
-	if (hstate != SBI_HSM_STATE_STARTED)
-		return SBI_EINVAL;
+	ఒకవేళ (hstate != SBI_HSM_STATE_STARTED)
+		తిరిగి SBI_EINVAL;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int sse_event_set_attr_check(struct sbi_sse_event *e, uint32_t attr_id,
-				    unsigned long val)
+స్థిర పూర్ణాంకం sse_event_సమితి_attr_check(నిర్మాణం sbi_sse_event *e, uint32_t attr_id,
+				    గుర్తులేని దీర్ఘ val)
 {
-	switch (attr_id) {
-	case SBI_SSE_ATTR_CONFIG:
-		if (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
-			return SBI_EINVALID_STATE;
+	ఎంపిక (attr_id) {
+	స్థితి SBI_SSE_ATTR_CONFIG:
+		ఒకవేళ (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
+			తిరిగి SBI_EINVALID_STATE;
 
-		if (val & ~SBI_SSE_ATTR_CONFIG_ONESHOT)
-			return SBI_EINVAL;
+		ఒకవేళ (val & ~SBI_SSE_ATTR_CONFIG_ONESHOT)
+			తిరిగి SBI_EINVAL;
 
-		return SBI_OK;
-	case SBI_SSE_ATTR_PRIO:
-		if (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
-			return SBI_EINVALID_STATE;
+		తిరిగి SBI_OK;
+	స్థితి SBI_SSE_ATTR_PRIO:
+		ఒకవేళ (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
+			తిరిగి SBI_EINVALID_STATE;
 
-#if __riscv_xlen > 32
-		if (val != (uint32_t)val)
-			return SBI_EINVAL;
-#endif
-		return SBI_OK;
-	case SBI_SSE_ATTR_PREFERRED_HART:
-		if (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
-			return SBI_EINVALID_STATE;
+#ఒకవేళ __riscv_xlen > 32
+		ఒకవేళ (val != (uint32_t)val)
+			తిరిగి SBI_EINVAL;
+#అయితే_ముగింపు
+		తిరిగి SBI_OK;
+	స్థితి SBI_SSE_ATTR_PREFERRED_HART:
+		ఒకవేళ (sse_event_state(e) >= SBI_SSE_STATE_ENABLED)
+			తిరిగి SBI_EINVALID_STATE;
 
-		return sse_event_set_hart_id_check(e, val);
-	case SBI_SSE_ATTR_INTERRUPTED_FLAGS:
-		if (val & ~(SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPP |
+		తిరిగి sse_event_సమితి_hart_id_check(e, val);
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_FLAGS:
+		ఒకవేళ (val & ~(SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPP |
 			    SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPIE |
 			    SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPV |
 			    SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPVP |
 			    SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPELP |
 			    SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SDT))
-			return SBI_EINVAL;
+			తిరిగి SBI_EINVAL;
 		__attribute__((__fallthrough__));
-	case SBI_SSE_ATTR_INTERRUPTED_SEPC:
-	case SBI_SSE_ATTR_INTERRUPTED_A6:
-	case SBI_SSE_ATTR_INTERRUPTED_A7:
-		if (sse_event_state(e) != SBI_SSE_STATE_RUNNING)
-			return SBI_EINVALID_STATE;
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_SEPC:
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_A6:
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_A7:
+		ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_RUNNING)
+			తిరిగి SBI_EINVALID_STATE;
 
-		if (current_hartid() != e->attrs.hartid)
-			return SBI_EINVAL;
+		ఒకవేళ (current_hartid() != e->attrs.hartid)
+			తిరిగి SBI_EINVAL;
 
-		return SBI_OK;
-	default:
+		తిరిగి SBI_OK;
+	అప్రమేయ:
 		/*
 		 * Attribute range validity was already checked by
 		 * sbi_sse_attr_check(). If we end up here, attribute was not
 		 * handled by the above 'case' statements and thus it is
 		 * read-only.
 		 */
-		return SBI_EDENIED;
+		తిరిగి SBI_EDENIED;
 	}
 }
 
-static void sse_event_set_attr(struct sbi_sse_event *e, uint32_t attr_id,
-			       unsigned long val)
+స్థిర శూన్య sse_event_సమితి_attr(నిర్మాణం sbi_sse_event *e, uint32_t attr_id,
+			       గుర్తులేని దీర్ఘ val)
 {
-	switch (attr_id) {
-	case SBI_SSE_ATTR_CONFIG:
+	ఎంపిక (attr_id) {
+	స్థితి SBI_SSE_ATTR_CONFIG:
 		e->attrs.config = val;
-		break;
-	case SBI_SSE_ATTR_PRIO:
+		ఆపు;
+	స్థితి SBI_SSE_ATTR_PRIO:
 		e->attrs.prio = (uint32_t)val;
-		break;
-	case SBI_SSE_ATTR_PREFERRED_HART:
+		ఆపు;
+	స్థితి SBI_SSE_ATTR_PREFERRED_HART:
 		e->attrs.hartid = val;
-		e->hartindex = sbi_hartid_to_hartindex(val);
-		sse_event_invoke_cb(e, set_hartid_cb, val);
-		break;
+		e->hartindex = sbi_hartid_గమ్యం_hartindex(val);
+		sse_event_invoke_cb(e, సమితి_hartid_cb, val);
+		ఆపు;
 
-	case SBI_SSE_ATTR_INTERRUPTED_SEPC:
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_SEPC:
 		e->attrs.interrupted.sepc = val;
-		break;
-	case SBI_SSE_ATTR_INTERRUPTED_FLAGS:
+		ఆపు;
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_FLAGS:
 		e->attrs.interrupted.flags = val;
-		break;
-	case SBI_SSE_ATTR_INTERRUPTED_A6:
+		ఆపు;
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_A6:
 		e->attrs.interrupted.a6 = val;
-		break;
-	case SBI_SSE_ATTR_INTERRUPTED_A7:
+		ఆపు;
+	స్థితి SBI_SSE_ATTR_INTERRUPTED_A7:
 		e->attrs.interrupted.a7 = val;
-		break;
+		ఆపు;
 	}
 }
 
-static int sse_event_register(struct sbi_sse_event *e,
-			      unsigned long handler_entry_pc,
-			      unsigned long handler_entry_arg)
+స్థిర పూర్ణాంకం sse_event_రిజిస్టరు(నిర్మాణం sbi_sse_event *e,
+			      గుర్తులేని దీర్ఘ handler_నమోదు_pc,
+			      గుర్తులేని దీర్ఘ handler_నమోదు_arg)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_UNUSED)
-		return SBI_EINVALID_STATE;
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_వాడని)
+		తిరిగి SBI_EINVALID_STATE;
 
-	e->attrs.entry.pc = handler_entry_pc;
-	e->attrs.entry.arg = handler_entry_arg;
+	e->attrs.నమోదు_3.pc = handler_నమోదు_pc;
+	e->attrs.నమోదు_3.arg = handler_నమోదు_arg;
 
-	sse_event_set_state(e, SBI_SSE_STATE_REGISTERED);
+	sse_event_సమితి_state(e, SBI_SSE_STATE_REGISTERED);
 
-	sse_event_invoke_cb(e, register_cb);
+	sse_event_invoke_cb(e, రిజిస్టరు_cb);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static int sse_event_unregister(struct sbi_sse_event *e)
+స్థిర పూర్ణాంకం sse_event_unregister(నిర్మాణం sbi_sse_event *e)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_REGISTERED)
-		return SBI_EINVALID_STATE;
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_REGISTERED)
+		తిరిగి SBI_EINVALID_STATE;
 
 	sse_event_invoke_cb(e, unregister_cb);
 
-	sse_event_set_state(e, SBI_SSE_STATE_UNUSED);
+	sse_event_సమితి_state(e, SBI_SSE_STATE_వాడని);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static unsigned long sse_interrupted_flags(unsigned long mstatus)
+స్థిర గుర్తులేని దీర్ఘ sse_interrupted_flags(గుర్తులేని దీర్ఘ mstatus)
 {
-	unsigned long hstatus, flags = 0;
+	గుర్తులేని దీర్ఘ hstatus, flags = 0;
 
-	if (mstatus & MSTATUS_SPIE)
+	ఒకవేళ (mstatus & MSTATUS_SPIE)
 		flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPIE;
-	if (mstatus & MSTATUS_SPP)
+	ఒకవేళ (mstatus & MSTATUS_SPP)
 		flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPP;
-	if (mstatus & MSTATUS_SPELP)
+	ఒకవేళ (mstatus & MSTATUS_SPELP)
 		flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPELP;
-	if (mstatus & MSTATUS_SDT)
+	ఒకవేళ (mstatus & MSTATUS_SDT)
 		flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SDT;
 
-	if (misa_extension('H')) {
+	ఒకవేళ (misa_extension('H')) {
 		hstatus = csr_read(CSR_HSTATUS);
-		if (hstatus & HSTATUS_SPV)
+		ఒకవేళ (hstatus & HSTATUS_SPV)
 			flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPV;
-		if (hstatus & HSTATUS_SPVP)
+		ఒకవేళ (hstatus & HSTATUS_SPVP)
 			flags |= SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPVP;
 	}
 
-	return flags;
+	తిరిగి flags;
 }
 
-static void sse_event_inject(struct sbi_sse_event *e,
-			     struct sbi_trap_regs *regs)
+స్థిర శూన్య sse_event_inject(నిర్మాణం sbi_sse_event *e,
+			     నిర్మాణం sbi_trap_regs *regs)
 {
-	struct sse_interrupted_state *i_ctx = &e->attrs.interrupted;
+	నిర్మాణం sse_interrupted_state *i_ctx = &e->attrs.interrupted;
 
-	sse_event_set_state(e, SBI_SSE_STATE_RUNNING);
+	sse_event_సమితి_state(e, SBI_SSE_STATE_RUNNING);
 
-	e->attrs.status &= ~BIT(SBI_SSE_ATTR_STATUS_PENDING_OFFSET);
+	e->attrs.స్థితి_2 &= ~బిట్టు(SBI_SSE_ATTR_స్థితి_PENDING_స్థానభ్రంశం);
 
 	i_ctx->a6 = regs->a6;
 	i_ctx->a7 = regs->a7;
@@ -538,20 +538,20 @@ static void sse_event_inject(struct sbi_sse_event *e,
 	i_ctx->sepc = csr_read(CSR_SEPC);
 
 	regs->mstatus &= ~(MSTATUS_SPP | SSTATUS_SPIE);
-	if (regs->mstatus & MSTATUS_MPP)
+	ఒకవేళ (regs->mstatus & MSTATUS_MPP)
 		regs->mstatus |= MSTATUS_SPP;
-	if (regs->mstatus & MSTATUS_SIE)
+	ఒకవేళ (regs->mstatus & MSTATUS_SIE)
 		regs->mstatus |= MSTATUS_SPIE;
 
-	if (misa_extension('H')) {
-		unsigned long hstatus = csr_read(CSR_HSTATUS);
-		if (sbi_regs_from_virt(regs))
+	ఒకవేళ (misa_extension('H')) {
+		గుర్తులేని దీర్ఘ hstatus = csr_read(CSR_HSTATUS);
+		ఒకవేళ (sbi_regs_from_virt(regs))
 			hstatus |= HSTATUS_SPV;
-		else
+		లేకపోతే
 			hstatus &= ~HSTATUS_SPV;
 
 		hstatus &= ~HSTATUS_SPVP;
-		if (hstatus & HSTATUS_SPV && regs->mstatus & SSTATUS_SPP)
+		ఒకవేళ (hstatus & HSTATUS_SPV && regs->mstatus & SSTATUS_SPP)
 			hstatus |= HSTATUS_SPVP;
 
 		csr_write(CSR_HSTATUS, hstatus);
@@ -560,79 +560,79 @@ static void sse_event_inject(struct sbi_sse_event *e,
 
 	/* Setup entry context */
 	regs->a6 = current_hartid();
-	regs->a7 = e->attrs.entry.arg;
-	regs->mepc = e->attrs.entry.pc;
+	regs->a7 = e->attrs.నమోదు_3.arg;
+	regs->mepc = e->attrs.నమోదు_3.pc;
 
 	/*
 	 * Return to S-mode with virtualization disabled, not expected landing
 	 * pad, supervisor trap disabled.
 	 */
 	regs->mstatus &= ~(MSTATUS_MPP | MSTATUS_SIE | MSTATUS_SPELP);
-	regs->mstatus |= (PRV_S << MSTATUS_MPP_SHIFT);
+	regs->mstatus |= (PRV_S << MSTATUS_MPP_జరుపు);
 	regs->mstatus |= MSTATUS_SDT;
 
-#if __riscv_xlen == 64
+#ఒకవేళ __riscv_xlen == 64
 	regs->mstatus &= ~MSTATUS_MPV;
-#elif __riscv_xlen == 32
+#లేదావేళ __riscv_xlen == 32
 	regs->mstatusH &= ~MSTATUSH_MPV;
-#else
-#error "Unexpected __riscv_xlen"
-#endif
+#లేకపోతే
+#దోషం "Unexpected __riscv_xlen"
+#అయితే_ముగింపు
 
 }
 
-static void sse_event_resume(struct sbi_sse_event *e,
-			     struct sbi_trap_regs *regs)
+స్థిర శూన్య sse_event_resume(నిర్మాణం sbi_sse_event *e,
+			     నిర్మాణం sbi_trap_regs *regs)
 {
-	struct sse_interrupted_state *i_ctx = &e->attrs.interrupted;
+	నిర్మాణం sse_interrupted_state *i_ctx = &e->attrs.interrupted;
 
 	regs->mepc = csr_read(CSR_SEPC);
 
 	regs->mstatus &= ~MSTATUS_MPP;
-	if (regs->mstatus & MSTATUS_SPP)
-		regs->mstatus |= (PRV_S << MSTATUS_MPP_SHIFT);
+	ఒకవేళ (regs->mstatus & MSTATUS_SPP)
+		regs->mstatus |= (PRV_S << MSTATUS_MPP_జరుపు);
 
-	if (misa_extension('H')) {
-		unsigned long hstatus = csr_read(CSR_HSTATUS);
-#if __riscv_xlen == 64
+	ఒకవేళ (misa_extension('H')) {
+		గుర్తులేని దీర్ఘ hstatus = csr_read(CSR_HSTATUS);
+#ఒకవేళ __riscv_xlen == 64
 		regs->mstatus &= ~MSTATUS_MPV;
-		if (hstatus & HSTATUS_SPV)
+		ఒకవేళ (hstatus & HSTATUS_SPV)
 			regs->mstatus |= MSTATUS_MPV;
-#elif __riscv_xlen == 32
+#లేదావేళ __riscv_xlen == 32
 		regs->mstatusH &= ~MSTATUSH_MPV;
-		if (hstatus & HSTATUS_SPV)
+		ఒకవేళ (hstatus & HSTATUS_SPV)
 			regs->mstatusH |= MSTATUSH_MPV;
-#else
-#error "Unexpected __riscv_xlen"
-#endif
+#లేకపోతే
+#దోషం "Unexpected __riscv_xlen"
+#అయితే_ముగింపు
 		hstatus &= ~(HSTATUS_SPV | HSTATUS_SPVP);
-		if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPV)
+		ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPV)
 			hstatus |= HSTATUS_SPV;
 
-		if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPVP)
+		ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_HSTATUS_SPVP)
 			hstatus |= HSTATUS_SPVP;
 
 		csr_write(CSR_HSTATUS, hstatus);
 	}
 
 	regs->mstatus &= ~MSTATUS_SIE;
-	if (regs->mstatus & MSTATUS_SPIE)
+	ఒకవేళ (regs->mstatus & MSTATUS_SPIE)
 		regs->mstatus |= MSTATUS_SIE;
 
 	regs->mstatus &= ~MSTATUS_SPIE;
-	if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPIE)
+	ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPIE)
 		regs->mstatus |= MSTATUS_SPIE;
 
 	regs->mstatus &= ~MSTATUS_SPP;
-	if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPP)
+	ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPP)
 		regs->mstatus |= MSTATUS_SPP;
 
 	regs->mstatus &= ~MSTATUS_SPELP;
-	if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPELP)
+	ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SPELP)
 		regs->mstatus |= MSTATUS_SPELP;
 
 	regs->mstatus &= ~MSTATUS_SDT;
-	if (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SDT)
+	ఒకవేళ (i_ctx->flags & SBI_SSE_ATTR_INTERRUPTED_FLAGS_SSTATUS_SDT)
 		regs->mstatus |= MSTATUS_SDT;
 
 	regs->a7 = i_ctx->a7;
@@ -640,19 +640,19 @@ static void sse_event_resume(struct sbi_sse_event *e,
 	csr_write(CSR_SEPC, i_ctx->sepc);
 }
 
-static bool sse_event_is_ready(struct sbi_sse_event *e)
+స్థిర bool sse_event_is_ready(నిర్మాణం sbi_sse_event *e)
 {
-	if (!sse_event_pending(e) ||
+	ఒకవేళ (!sse_event_pending(e) ||
 	    sse_event_state(e) != SBI_SSE_STATE_ENABLED ||
 	    e->attrs.hartid != current_hartid()) {
-		return false;
+		తిరిగి false;
 	}
 
-	return true;
+	తిరిగి true;
 }
 
-static bool sse_event_check_inject(struct sbi_sse_event *e,
-				   struct sbi_trap_regs *regs)
+స్థిర bool sse_event_check_inject(నిర్మాణం sbi_sse_event *e,
+				   నిర్మాణం sbi_trap_regs *regs)
 {
 	/*
 	 * List of event is ordered by priority, stop at first running
@@ -660,316 +660,316 @@ static bool sse_event_check_inject(struct sbi_sse_event *e,
 	 * priority. This means an event of higher priority is already
 	 * running.
 	 */
-	if (sse_event_state(e) == SBI_SSE_STATE_RUNNING) {
-		return true;
+	ఒకవేళ (sse_event_state(e) == SBI_SSE_STATE_RUNNING) {
+		తిరిగి true;
 	}
 
-	if (sse_event_is_ready(e)) {
+	ఒకవేళ (sse_event_is_ready(e)) {
 		sse_event_inject(e, regs);
-		return true;
+		తిరిగి true;
 	}
 
-	return false;
+	తిరిగి false;
 }
 
 /* Return true if an event has been injected, false otherwise */
-void sbi_sse_process_pending_events(struct sbi_trap_regs *regs)
+శూన్య sbi_sse_process_pending_events(నిర్మాణం sbi_trap_regs *regs)
 {
 	bool ret;
-	struct sbi_sse_event *e;
-	struct sse_hart_state *state = sse_thishart_state_ptr();
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_hart_state *state = sse_thishart_state_ptr();
 
 	/* if sse is masked on this hart, do nothing */
-	if (state->masked)
-		return;
+	ఒకవేళ (state->masked)
+		తిరిగి;
 
-	spin_lock(&state->enabled_event_lock);
+	spin_తాళం(&state->enabled_event_తాళం);
 
-	sbi_list_for_each_entry(e, &state->enabled_event_list, node) {
+	sbi_list_for_each_నమోదు(e, &state->enabled_event_list, కణుపు) {
 		ret = sse_event_check_inject(e, regs);
-		if (ret)
-			goto out;
+		ఒకవేళ (ret)
+			వెళ్ళు బహిర్గతం;
 	}
 
-out:
-	spin_unlock(&state->enabled_event_lock);
+బహిర్గతం:
+	spin_unlock(&state->enabled_event_తాళం);
 }
 
-static int sse_event_set_pending(struct sbi_sse_event *e)
+స్థిర పూర్ణాంకం sse_event_సమితి_pending(నిర్మాణం sbi_sse_event *e)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_RUNNING &&
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_RUNNING &&
 	    sse_event_state(e) != SBI_SSE_STATE_ENABLED)
-		return SBI_EINVALID_STATE;
+		తిరిగి SBI_EINVALID_STATE;
 
-	e->attrs.status |= BIT(SBI_SSE_ATTR_STATUS_PENDING_OFFSET);
+	e->attrs.స్థితి_2 |= బిట్టు(SBI_SSE_ATTR_స్థితి_PENDING_స్థానభ్రంశం);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static void sse_ipi_inject_process(struct sbi_scratch *scratch)
+స్థిర శూన్య sse_ipi_inject_process(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_sse_event *e;
-	struct sse_ipi_inject_data evt;
-	struct sbi_fifo *sse_inject_fifo_r =
-		sbi_scratch_offset_ptr(scratch, sse_inject_fifo_off);
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_ipi_inject_దత్తాంశం evt;
+	నిర్మాణం sbi_fifo *sse_inject_fifo_r =
+		sbi_scratch_స్థానభ్రంశం_ptr(scratch, sse_inject_fifo_off);
 
 	/* Mark all queued events as pending */
-	while (!sbi_fifo_dequeue(sse_inject_fifo_r, &evt)) {
-		if (sse_event_get(evt.event_id, &e))
-			continue;
+	అయితే (!sbi_fifo_వరుస_నుండి_తీయి(sse_inject_fifo_r, &evt)) {
+		ఒకవేళ (sse_event_get(evt.event_id, &e))
+			కొనసాగు;
 
-		sse_event_set_pending(e);
+		sse_event_సమితి_pending(e);
 		sse_event_put(e);
 	}
 }
 
-static struct sbi_ipi_event_ops sse_ipi_inject_ops = {
+స్థిర నిర్మాణం sbi_ipi_event_ops sse_ipi_inject_ops = {
 	.name	 = "IPI_SSE_INJECT",
 	.process = sse_ipi_inject_process,
 };
 
-static int sse_ipi_inject_send(unsigned long hartid, uint32_t event_id)
+స్థిర పూర్ణాంకం sse_ipi_inject_send(గుర్తులేని దీర్ఘ hartid, uint32_t event_id)
 {
-	int ret;
-	struct sbi_scratch *remote_scratch = NULL;
-	struct sse_ipi_inject_data evt = {event_id};
-	struct sbi_fifo *sse_inject_fifo_r;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_scratch *remote_scratch = ఖాళీ;
+	నిర్మాణం sse_ipi_inject_దత్తాంశం evt = {event_id};
+	నిర్మాణం sbi_fifo *sse_inject_fifo_r;
 
-	remote_scratch = sbi_hartid_to_scratch(hartid);
-	if (!remote_scratch)
-		return SBI_EINVAL;
+	remote_scratch = sbi_hartid_గమ్యం_scratch(hartid);
+	ఒకవేళ (!remote_scratch)
+		తిరిగి SBI_EINVAL;
 	sse_inject_fifo_r =
-		sbi_scratch_offset_ptr(remote_scratch, sse_inject_fifo_off);
+		sbi_scratch_స్థానభ్రంశం_ptr(remote_scratch, sse_inject_fifo_off);
 
-	ret = sbi_fifo_enqueue(sse_inject_fifo_r, &evt, false);
-	if (ret)
-		return SBI_EFAIL;
+	ret = sbi_fifo_వరుసలో_చేర్చు(sse_inject_fifo_r, &evt, false);
+	ఒకవేళ (ret)
+		తిరిగి SBI_EFAIL;
 
-	ret = sbi_ipi_send_many(1, hartid, sse_ipi_inject_event, NULL);
-	if (ret)
-		return SBI_EFAIL;
+	ret = sbi_ipi_send_many(1, hartid, sse_ipi_inject_event, ఖాళీ);
+	ఒకవేళ (ret)
+		తిరిగి SBI_EFAIL;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int sse_inject_event(uint32_t event_id, unsigned long hartid)
+స్థిర పూర్ణాంకం sse_inject_event(uint32_t event_id, గుర్తులేని దీర్ఘ hartid)
 {
-	int ret;
-	struct sbi_sse_event *e;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_sse_event *e;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	/* In case of global event, provided hart_id is ignored */
-	if (sse_event_is_global(e))
+	ఒకవేళ (sse_event_is_global(e))
 		hartid = e->attrs.hartid;
 
 	/* Event is for another hart, send it through IPI */
-	if (hartid != current_hartid()) {
+	ఒకవేళ (hartid != current_hartid()) {
 		sse_event_put(e);
-		return sse_ipi_inject_send(hartid, event_id);
+		తిరిగి sse_ipi_inject_send(hartid, event_id);
 	}
 
-	ret = sse_event_set_pending(e);
+	ret = sse_event_సమితి_pending(e);
 	sse_event_put(e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
 /**
  * Must be called under owner hart lock
  */
-static int sse_event_enable(struct sse_hart_state *shs,
-			     struct sbi_sse_event *e)
-	MUST_HOLD(&shs->enabled_event_lock)
+స్థిర పూర్ణాంకం sse_event_enable(నిర్మాణం sse_hart_state *shs,
+			     నిర్మాణం sbi_sse_event *e)
+	MUST_HOLD(&shs->enabled_event_తాళం)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_REGISTERED)
-		return SBI_EINVALID_STATE;
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_REGISTERED)
+		తిరిగి SBI_EINVALID_STATE;
 
-	sse_event_set_state(e, SBI_SSE_STATE_ENABLED);
-	sse_event_add_to_list(shs, e);
+	sse_event_సమితి_state(e, SBI_SSE_STATE_ENABLED);
+	sse_event_కూడు_గమ్యం_list(shs, e);
 
 	sse_event_invoke_cb(e, enable_cb);
 
-	if (sse_event_is_global(e) && sse_event_pending(e))
+	ఒకవేళ (sse_event_is_global(e) && sse_event_pending(e))
 		sbi_ipi_send_many(1, e->attrs.hartid, sse_ipi_inject_event,
-				  NULL);
+				  ఖాళీ);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int sse_event_complete(struct sse_hart_state *shs,
-			      struct sbi_sse_event *e,
-			      struct sbi_trap_regs *regs,
-			      struct sbi_ecall_return *out)
-	MUST_HOLD(&shs->enabled_event_lock)
+స్థిర పూర్ణాంకం sse_event_complete(నిర్మాణం sse_hart_state *shs,
+			      నిర్మాణం sbi_sse_event *e,
+			      నిర్మాణం sbi_trap_regs *regs,
+			      నిర్మాణం sbi_ecall_return *బహిర్గతం)
+	MUST_HOLD(&shs->enabled_event_తాళం)
 {
-	if (sse_event_state(e) != SBI_SSE_STATE_RUNNING)
-		return SBI_EINVALID_STATE;
+	ఒకవేళ (sse_event_state(e) != SBI_SSE_STATE_RUNNING)
+		తిరిగి SBI_EINVALID_STATE;
 
-	if (e->attrs.hartid != current_hartid())
-		return SBI_EINVAL;
+	ఒకవేళ (e->attrs.hartid != current_hartid())
+		తిరిగి SBI_EINVAL;
 
-	sse_event_set_state(e, SBI_SSE_STATE_ENABLED);
-	if (e->attrs.config & SBI_SSE_ATTR_CONFIG_ONESHOT)
+	sse_event_సమితి_state(e, SBI_SSE_STATE_ENABLED);
+	ఒకవేళ (e->attrs.config & SBI_SSE_ATTR_CONFIG_ONESHOT)
 		sse_event_disable(shs, e);
 
 	sse_event_invoke_cb(e, complete_cb);
 
 	sse_event_resume(e, regs);
-	out->skip_regs_update = true;
+	బహిర్గతం->skip_regs_update = true;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int sbi_sse_complete(struct sbi_trap_regs *regs, struct sbi_ecall_return *out)
+పూర్ణాంకం sbi_sse_complete(నిర్మాణం sbi_trap_regs *regs, నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	int ret = SBI_OK;
-	struct sbi_sse_event *tmp;
-	struct sse_hart_state *state = sse_thishart_state_ptr();
+	పూర్ణాంకం ret = SBI_OK;
+	నిర్మాణం sbi_sse_event *tmp;
+	నిర్మాణం sse_hart_state *state = sse_thishart_state_ptr();
 
-	spin_lock(&state->enabled_event_lock);
-	sbi_list_for_each_entry(tmp, &state->enabled_event_list, node) {
+	spin_తాళం(&state->enabled_event_తాళం);
+	sbi_list_for_each_నమోదు(tmp, &state->enabled_event_list, కణుపు) {
 		/*
 		 * List of event is ordered by priority, first one running is
 		 * the one that needs to be completed
 		 */
-		if (sse_event_state(tmp) == SBI_SSE_STATE_RUNNING) {
-			ret = sse_event_complete(state, tmp, regs, out);
-			break;
+		ఒకవేళ (sse_event_state(tmp) == SBI_SSE_STATE_RUNNING) {
+			ret = sse_event_complete(state, tmp, regs, బహిర్గతం);
+			ఆపు;
 		}
 	}
-	spin_unlock(&state->enabled_event_lock);
+	spin_unlock(&state->enabled_event_తాళం);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_enable(uint32_t event_id)
+పూర్ణాంకం sbi_sse_enable(uint32_t event_id)
 {
-	int ret;
-	struct sbi_sse_event *e;
-	struct sse_hart_state *shs;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_hart_state *shs;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	shs = sse_get_hart_state(e);
-	spin_lock(&shs->enabled_event_lock);
+	spin_తాళం(&shs->enabled_event_తాళం);
 	ret = sse_event_enable(shs, e);
-	spin_unlock(&shs->enabled_event_lock);
+	spin_unlock(&shs->enabled_event_తాళం);
 	sse_event_put(e);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_disable(uint32_t event_id)
+పూర్ణాంకం sbi_sse_disable(uint32_t event_id)
 {
-	int ret;
-	struct sbi_sse_event *e;
-	struct sse_hart_state *shs;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_hart_state *shs;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	shs = sse_get_hart_state(e);
-	spin_lock(&shs->enabled_event_lock);
+	spin_తాళం(&shs->enabled_event_తాళం);
 	ret = sse_event_disable(shs, e);
-	spin_unlock(&shs->enabled_event_lock);
+	spin_unlock(&shs->enabled_event_తాళం);
 
 	sse_event_put(e);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_hart_mask(void)
+పూర్ణాంకం sbi_sse_hart_ముసుగు(శూన్య)
 {
-	struct sse_hart_state *state = sse_thishart_state_ptr();
+	నిర్మాణం sse_hart_state *state = sse_thishart_state_ptr();
 
-	if (!state)
-		return SBI_EFAIL;
+	ఒకవేళ (!state)
+		తిరిగి SBI_EFAIL;
 
-	if (state->masked)
-		return SBI_EALREADY_STOPPED;
+	ఒకవేళ (state->masked)
+		తిరిగి SBI_EALREADY_STOPPED;
 
 	state->masked = true;
 
-	return SBI_SUCCESS;
+	తిరిగి SBI_SUCCESS;
 }
 
-int sbi_sse_hart_unmask(void)
+పూర్ణాంకం sbi_sse_hart_unmask(శూన్య)
 {
-	struct sse_hart_state *state = sse_thishart_state_ptr();
+	నిర్మాణం sse_hart_state *state = sse_thishart_state_ptr();
 
-	if (!state)
-		return SBI_EFAIL;
+	ఒకవేళ (!state)
+		తిరిగి SBI_EFAIL;
 
-	if (!state->masked)
-		return SBI_EALREADY_STARTED;
+	ఒకవేళ (!state->masked)
+		తిరిగి SBI_EALREADY_STARTED;
 
 	state->masked = false;
 
-	return SBI_SUCCESS;
+	తిరిగి SBI_SUCCESS;
 }
 
-int sbi_sse_inject_from_ecall(uint32_t event_id, unsigned long hartid,
-			      struct sbi_ecall_return *out)
+పూర్ణాంకం sbi_sse_inject_from_ecall(uint32_t event_id, గుర్తులేని దీర్ఘ hartid,
+			      నిర్మాణం sbi_ecall_return *బహిర్గతం)
 {
-	if (!sbi_domain_is_assigned_hart(sbi_domain_thishart_ptr(),
-					 sbi_hartid_to_hartindex(hartid)))
-		return SBI_EINVAL;
+	ఒకవేళ (!sbi_domain_is_assigned_hart(sbi_domain_thishart_ptr(),
+					 sbi_hartid_గమ్యం_hartindex(hartid)))
+		తిరిగి SBI_EINVAL;
 
-	return sse_inject_event(event_id, hartid);
+	తిరిగి sse_inject_event(event_id, hartid);
 }
 
-int sbi_sse_inject_event(uint32_t event_id)
+పూర్ణాంకం sbi_sse_inject_event(uint32_t event_id)
 {
-	return sse_inject_event(event_id, current_hartid());
+	తిరిగి sse_inject_event(event_id, current_hartid());
 }
 
-int sbi_sse_add_event(uint32_t event_id, const struct sbi_sse_cb_ops *cb_ops)
+పూర్ణాంకం sbi_sse_కూడు_event(uint32_t event_id, స్థిరరాశి నిర్మాణం sbi_sse_cb_ops *cb_ops)
 {
-	struct sse_event_info *info;
+	నిర్మాణం sse_event_info *info;
 
 	/* Do not allow adding an event twice */
 	info = sse_event_info_get(event_id);
-	if (info)
-		return SBI_EALREADY;
+	ఒకవేళ (info)
+		తిరిగి SBI_EALREADY;
 
-	if (cb_ops && cb_ops->set_hartid_cb && !EVENT_IS_GLOBAL(event_id))
-		return SBI_EINVAL;
+	ఒకవేళ (cb_ops && cb_ops->సమితి_hartid_cb && !EVENT_IS_GLOBAL(event_id))
+		తిరిగి SBI_EINVAL;
 
-	info = sbi_zalloc(sizeof(*info));
-	if (!info)
-		return SBI_ENOMEM;
+	info = sbi_zalloc(పరిమాణం(*info));
+	ఒకవేళ (!info)
+		తిరిగి SBI_ENOMEM;
 
 	info->cb_ops = cb_ops;
 	info->event_id = event_id;
 
-	SBI_SLIST_ADD(info, supported_events);
+	SBI_SLIST_కూడు(info, supported_events);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_count,
-		       unsigned long phys_lo, unsigned long phys_hi,
-		       unsigned long access)
+పూర్ణాంకం sbi_sse_attr_check(uint32_t పునాది_attr_id, uint32_t attr_లెక్క,
+		       గుర్తులేని దీర్ఘ phys_lo, గుర్తులేని దీర్ఘ phys_hi,
+		       గుర్తులేని దీర్ఘ access)
 {
-	const unsigned align = __riscv_xlen >> 3;
-	uint64_t end_id = (uint64_t)base_attr_id + (attr_count - 1);
+	స్థిరరాశి గుర్తులేని align = __riscv_xlen >> 3;
+	uint64_t చివర_id = (uint64_t)పునాది_attr_id + (attr_లెక్క - 1);
 
-	if (attr_count == 0)
-		return SBI_ERR_INVALID_PARAM;
+	ఒకవేళ (attr_లెక్క == 0)
+		తిరిగి SBI_ERR_INVALID_PARAM;
 
-	if (end_id >= SBI_SSE_ATTR_MAX)
-		return SBI_EBAD_RANGE;
+	ఒకవేళ (చివర_id >= SBI_SSE_ATTR_MAX)
+		తిరిగి SBI_EBAD_RANGE;
 
-	if (phys_lo & (align - 1))
-		return SBI_EINVALID_ADDR;
+	ఒకవేళ (phys_lo & (align - 1))
+		తిరిగి SBI_EINVALID_ADDR;
 
 	/*
 	 * On RV32, the M-mode can only access the first 4GB of
@@ -980,49 +980,49 @@ int sbi_sse_attr_check(uint32_t base_attr_id, uint32_t attr_count,
 	 * the physical address (i.e. a2 register) is non-zero on
 	 * RV32.
 	 */
-	if (phys_hi)
-		return SBI_EINVALID_ADDR;
+	ఒకవేళ (phys_hi)
+		తిరిగి SBI_EINVALID_ADDR;
 
-	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(), phys_lo,
-					 sizeof(unsigned long) * attr_count,
+	ఒకవేళ (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(), phys_lo,
+					 పరిమాణం(గుర్తులేని దీర్ఘ) * attr_లెక్క,
 					 PRV_S, access))
-		return SBI_EINVALID_ADDR;
+		తిరిగి SBI_EINVALID_ADDR;
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static void copy_attrs(unsigned long *out, const unsigned long *in,
-		       unsigned int long_count)
+స్థిర శూన్య copy_attrs(గుర్తులేని దీర్ఘ *బహిర్గతం, స్థిరరాశి గుర్తులేని దీర్ఘ *లోపల,
+		       గుర్తులేని పూర్ణాంకం long_లెక్క)
 {
-	int i = 0;
+	పూర్ణాంకం i = 0;
 
 	/*
 	 * sbi_memcpy() does byte-per-byte copy, using this yields long-per-long
 	 * copy
 	 */
-	for (i = 0; i < long_count; i++)
-		out[i] = in[i];
+	కొరకు (i = 0; i < long_లెక్క; i++)
+		బహిర్గతం[i] = లోపల[i];
 }
 
-int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
-		       uint32_t attr_count, unsigned long output_phys_lo,
-		       unsigned long output_phys_hi)
+పూర్ణాంకం sbi_sse_read_attrs(uint32_t event_id, uint32_t పునాది_attr_id,
+		       uint32_t attr_లెక్క, గుర్తులేని దీర్ఘ output_phys_lo,
+		       గుర్తులేని దీర్ఘ output_phys_hi)
 {
-	int ret;
-	unsigned long *e_attrs;
-	struct sbi_sse_event *e;
-	unsigned long *attrs;
+	పూర్ణాంకం ret;
+	గుర్తులేని దీర్ఘ *e_attrs;
+	నిర్మాణం sbi_sse_event *e;
+	గుర్తులేని దీర్ఘ *attrs;
 
-	ret = sbi_sse_attr_check(base_attr_id, attr_count, output_phys_lo,
+	ret = sbi_sse_attr_check(పునాది_attr_id, attr_లెక్క, output_phys_lo,
 				 output_phys_hi, SBI_DOMAIN_WRITE);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	sbi_hart_protection_temp_map_range(output_phys_lo, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_తాత్కాలిక_map_range(output_phys_lo, పరిమాణం(గుర్తులేని దీర్ఘ) * attr_లెక్క);
 
 	/*
 	 * Copy all attributes at once since struct sse_event_attrs is matching
@@ -1031,255 +1031,255 @@ int sbi_sse_read_attrs(uint32_t event_id, uint32_t base_attr_id,
 	 * doing multiple SBI calls a single one is done allowing to retrieve
 	 * them all at once.
 	 */
-	e_attrs = (unsigned long *)&e->attrs;
-	attrs = (unsigned long *)output_phys_lo;
-	copy_attrs(attrs, &e_attrs[base_attr_id], attr_count);
+	e_attrs = (గుర్తులేని దీర్ఘ *)&e->attrs;
+	attrs = (గుర్తులేని దీర్ఘ *)output_phys_lo;
+	copy_attrs(attrs, &e_attrs[పునాది_attr_id], attr_లెక్క);
 
-	sbi_hart_protection_temp_unmap_range(output_phys_lo, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_తాత్కాలిక_unmap_range(output_phys_lo, పరిమాణం(గుర్తులేని దీర్ఘ) * attr_లెక్క);
 
 	sse_event_put(e);
 
-	return SBI_OK;
+	తిరిగి SBI_OK;
 }
 
-static int sse_write_attrs(struct sbi_sse_event *e, uint32_t base_attr_id,
-			   uint32_t attr_count, unsigned long input_phys)
+స్థిర పూర్ణాంకం sse_write_attrs(నిర్మాణం sbi_sse_event *e, uint32_t పునాది_attr_id,
+			   uint32_t attr_లెక్క, గుర్తులేని దీర్ఘ ఆదానం_phys)
 {
-	int ret = 0;
-	unsigned long attr = 0, val;
-	uint32_t id, end_id = base_attr_id + attr_count;
-	unsigned long *attrs = (unsigned long *)input_phys;
+	పూర్ణాంకం ret = 0;
+	గుర్తులేని దీర్ఘ attr = 0, val;
+	uint32_t id, చివర_id = పునాది_attr_id + attr_లెక్క;
+	గుర్తులేని దీర్ఘ *attrs = (గుర్తులేని దీర్ఘ *)ఆదానం_phys;
 
-	sbi_hart_protection_temp_map_range(input_phys, sizeof(unsigned long) * attr_count);
+	sbi_hart_protection_తాత్కాలిక_map_range(ఆదానం_phys, పరిమాణం(గుర్తులేని దీర్ఘ) * attr_లెక్క);
 
-	for (id = base_attr_id; id < end_id; id++) {
+	కొరకు (id = పునాది_attr_id; id < చివర_id; id++) {
 		val = attrs[attr++];
-		ret = sse_event_set_attr_check(e, id, val);
-		if (ret)
-			goto out;
+		ret = sse_event_సమితి_attr_check(e, id, val);
+		ఒకవేళ (ret)
+			వెళ్ళు బహిర్గతం;
 	}
 
 	attr = 0;
-	for (id = base_attr_id; id < end_id; id++) {
+	కొరకు (id = పునాది_attr_id; id < చివర_id; id++) {
 		val = attrs[attr++];
-		sse_event_set_attr(e, id, val);
+		sse_event_సమితి_attr(e, id, val);
 	}
 
-out:
-	sbi_hart_protection_temp_unmap_range(input_phys, sizeof(unsigned long) * attr_count);
+బహిర్గతం:
+	sbi_hart_protection_తాత్కాలిక_unmap_range(ఆదానం_phys, పరిమాణం(గుర్తులేని దీర్ఘ) * attr_లెక్క);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_write_attrs(uint32_t event_id, uint32_t base_attr_id,
-			uint32_t attr_count, unsigned long input_phys_lo,
-			unsigned long input_phys_hi)
+పూర్ణాంకం sbi_sse_write_attrs(uint32_t event_id, uint32_t పునాది_attr_id,
+			uint32_t attr_లెక్క, గుర్తులేని దీర్ఘ ఆదానం_phys_lo,
+			గుర్తులేని దీర్ఘ ఆదానం_phys_hi)
 {
-	int ret = 0;
-	struct sbi_sse_event *e;
+	పూర్ణాంకం ret = 0;
+	నిర్మాణం sbi_sse_event *e;
 
-	ret = sbi_sse_attr_check(base_attr_id, attr_count, input_phys_lo,
-				 input_phys_hi, SBI_DOMAIN_READ);
-	if (ret)
-		return ret;
+	ret = sbi_sse_attr_check(పునాది_attr_id, attr_లెక్క, ఆదానం_phys_lo,
+				 ఆదానం_phys_hi, SBI_DOMAIN_READ);
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	ret = sse_write_attrs(e, base_attr_id, attr_count, input_phys_lo);
+	ret = sse_write_attrs(e, పునాది_attr_id, attr_లెక్క, ఆదానం_phys_lo);
 	sse_event_put(e);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_register(uint32_t event_id, unsigned long handler_entry_pc,
-		     unsigned long handler_entry_arg)
+పూర్ణాంకం sbi_sse_రిజిస్టరు(uint32_t event_id, గుర్తులేని దీర్ఘ handler_నమోదు_pc,
+		     గుర్తులేని దీర్ఘ handler_నమోదు_arg)
 {
-	int ret;
-	struct sbi_sse_event *e;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_sse_event *e;
 
-	if (handler_entry_pc & 0x1)
-		return SBI_EINVAL;
+	ఒకవేళ (handler_నమోదు_pc & 0x1)
+		తిరిగి SBI_EINVAL;
 
-	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
-					 handler_entry_pc,
-					 sizeof(unsigned long), PRV_S,
+	ఒకవేళ (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+					 handler_నమోదు_pc,
+					 పరిమాణం(గుర్తులేని దీర్ఘ), PRV_S,
 					 SBI_DOMAIN_EXECUTE))
-		return SBI_EINVALID_ADDR;
+		తిరిగి SBI_EINVALID_ADDR;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
-	ret = sse_event_register(e, handler_entry_pc, handler_entry_arg);
+	ret = sse_event_రిజిస్టరు(e, handler_నమోదు_pc, handler_నమోదు_arg);
 	sse_event_put(e);
 
-	return ret;
+	తిరిగి ret;
 }
 
-int sbi_sse_unregister(uint32_t event_id)
+పూర్ణాంకం sbi_sse_unregister(uint32_t event_id)
 {
-	int ret;
-	struct sbi_sse_event *e;
+	పూర్ణాంకం ret;
+	నిర్మాణం sbi_sse_event *e;
 
 	ret = sse_event_get(event_id, &e);
-	if (ret)
-		return ret;
+	ఒకవేళ (ret)
+		తిరిగి ret;
 
 	ret = sse_event_unregister(e);
 	sse_event_put(e);
 
-	return ret;
+	తిరిగి ret;
 }
 
-static void sse_event_init(struct sbi_sse_event *e, struct sse_event_info *info)
+స్థిర శూన్య sse_event_init(నిర్మాణం sbi_sse_event *e, నిర్మాణం sse_event_info *info)
 {
 	e->event_id = info->event_id;
 	e->info = info;
 	e->hartindex = current_hartindex();
 	e->attrs.hartid = current_hartid();
 	/* Declare all events as injectable */
-	e->attrs.status |= BIT(SBI_SSE_ATTR_STATUS_INJECT_OFFSET);
+	e->attrs.స్థితి_2 |= బిట్టు(SBI_SSE_ATTR_స్థితి_INJECT_స్థానభ్రంశం);
 }
 
-static void sse_event_count_init()
+స్థిర శూన్య sse_event_లెక్క_init()
 {
-	struct sse_event_info *info;
+	నిర్మాణం sse_event_info *info;
 
-	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
-		if (EVENT_IS_GLOBAL(info->event_id))
-			global_event_count++;
-		else
-			local_event_count++;
+	SBI_SLIST_FOR_EACH_నమోదు(info, supported_events) {
+		ఒకవేళ (EVENT_IS_GLOBAL(info->event_id))
+			global_event_లెక్క++;
+		లేకపోతే
+			local_event_లెక్క++;
 	}
 }
 
-static int sse_global_init()
+స్థిర పూర్ణాంకం sse_global_init()
 {
-	struct sbi_sse_event *e;
-	unsigned int ev = 0;
-	struct sse_event_info *info;
+	నిర్మాణం sbi_sse_event *e;
+	గుర్తులేని పూర్ణాంకం ev = 0;
+	నిర్మాణం sse_event_info *info;
 
-	global_events = sbi_zalloc(sizeof(*global_events) * global_event_count);
-	if (!global_events)
-		return SBI_ENOMEM;
+	global_events = sbi_zalloc(పరిమాణం(*global_events) * global_event_లెక్క);
+	ఒకవేళ (!global_events)
+		తిరిగి SBI_ENOMEM;
 
-	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
-		if (!EVENT_IS_GLOBAL(info->event_id))
-			continue;
+	SBI_SLIST_FOR_EACH_నమోదు(info, supported_events) {
+		ఒకవేళ (!EVENT_IS_GLOBAL(info->event_id))
+			కొనసాగు;
 
 		e = &global_events[ev].event;
 		sse_event_init(e, info);
-		SPIN_LOCK_INIT(global_events[ev].lock);
+		SPIN_తాళం_INIT(global_events[ev].తాళం_2);
 
 		ev++;
 	}
 
-	return 0;
+	తిరిగి 0;
 }
 
-static void sse_local_init(struct sse_hart_state *shs)
+స్థిర శూన్య sse_local_init(నిర్మాణం sse_hart_state *shs)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	unsigned int ev = 0;
-	struct sse_event_info *info;
+	గుర్తులేని పూర్ణాంకం ev = 0;
+	నిర్మాణం sse_event_info *info;
 
-	SBI_INIT_LIST_HEAD(&shs->enabled_event_list);
-	SPIN_LOCK_INIT(shs->enabled_event_lock);
+	SBI_INIT_LIST_తల(&shs->enabled_event_list);
+	SPIN_తాళం_INIT(shs->enabled_event_తాళం);
 
-	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
-		if (EVENT_IS_GLOBAL(info->event_id))
-			continue;
+	SBI_SLIST_FOR_EACH_నమోదు(info, supported_events) {
+		ఒకవేళ (EVENT_IS_GLOBAL(info->event_id))
+			కొనసాగు;
 		sse_event_init(&shs->local_events[ev++], info);
 	}
 }
 
-int sbi_sse_init(struct sbi_scratch *scratch, bool cold_boot)
+పూర్ణాంకం sbi_sse_init(నిర్మాణం sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	void *sse_inject_mem;
-	struct sse_hart_state *shs;
-	struct sbi_fifo *sse_inject_q;
+	పూర్ణాంకం ret;
+	శూన్య *sse_inject_mem;
+	నిర్మాణం sse_hart_state *shs;
+	నిర్మాణం sbi_fifo *sse_inject_q;
 
-	if (cold_boot) {
-		sse_event_count_init();
+	ఒకవేళ (cold_boot) {
+		sse_event_లెక్క_init();
 
 		ret = sse_global_init();
-		if (ret)
-			return ret;
+		ఒకవేళ (ret)
+			తిరిగి ret;
 
-		shs_ptr_off = sbi_scratch_alloc_offset(sizeof(void *));
-		if (!shs_ptr_off)
-			return SBI_ENOMEM;
+		shs_ptr_off = sbi_scratch_alloc_స్థానభ్రంశం(పరిమాణం(శూన్య *));
+		ఒకవేళ (!shs_ptr_off)
+			తిరిగి SBI_ENOMEM;
 
 		sse_inject_fifo_off =
-			sbi_scratch_alloc_offset(sizeof(*sse_inject_q));
-		if (!sse_inject_fifo_off) {
-			sbi_scratch_free_offset(shs_ptr_off);
-			return SBI_ENOMEM;
+			sbi_scratch_alloc_స్థానభ్రంశం(పరిమాణం(*sse_inject_q));
+		ఒకవేళ (!sse_inject_fifo_off) {
+			sbi_scratch_free_స్థానభ్రంశం(shs_ptr_off);
+			తిరిగి SBI_ENOMEM;
 		}
 
-		sse_inject_fifo_mem_off = sbi_scratch_alloc_offset(
-			(global_event_count + local_event_count) *
-			sizeof(struct sse_ipi_inject_data));
-		if (!sse_inject_fifo_mem_off) {
-			sbi_scratch_free_offset(sse_inject_fifo_off);
-			sbi_scratch_free_offset(shs_ptr_off);
-			return SBI_ENOMEM;
+		sse_inject_fifo_mem_off = sbi_scratch_alloc_స్థానభ్రంశం(
+			(global_event_లెక్క + local_event_లెక్క) *
+			పరిమాణం(నిర్మాణం sse_ipi_inject_దత్తాంశం));
+		ఒకవేళ (!sse_inject_fifo_mem_off) {
+			sbi_scratch_free_స్థానభ్రంశం(sse_inject_fifo_off);
+			sbi_scratch_free_స్థానభ్రంశం(shs_ptr_off);
+			తిరిగి SBI_ENOMEM;
 		}
 
 		ret = sbi_ipi_event_create(&sse_ipi_inject_ops);
-		if (ret < 0) {
-			sbi_scratch_free_offset(shs_ptr_off);
-			return ret;
+		ఒకవేళ (ret < 0) {
+			sbi_scratch_free_స్థానభ్రంశం(shs_ptr_off);
+			తిరిగి ret;
 		}
 		sse_ipi_inject_event = ret;
 	}
 
 	shs = sse_get_hart_state_ptr(scratch);
-	if (!shs) {
+	ఒకవేళ (!shs) {
 		/* Allocate per hart state and local events at once */
-		shs = sbi_zalloc(sizeof(*shs) + sizeof(struct sbi_sse_event) *
-							local_event_count);
-		if (!shs)
-			return SBI_ENOMEM;
+		shs = sbi_zalloc(పరిమాణం(*shs) + పరిమాణం(నిర్మాణం sbi_sse_event) *
+							local_event_లెక్క);
+		ఒకవేళ (!shs)
+			తిరిగి SBI_ENOMEM;
 
-		shs->local_events = (struct sbi_sse_event *)(shs + 1);
+		shs->local_events = (నిర్మాణం sbi_sse_event *)(shs + 1);
 
 		/* SSE events are masked until hart unmasks them */
 		shs->masked = true;
 
-		sse_set_hart_state_ptr(scratch, shs);
+		sse_సమితి_hart_state_ptr(scratch, shs);
 	}
 
 	sse_local_init(shs);
 
-	sse_inject_q = sbi_scratch_offset_ptr(scratch, sse_inject_fifo_off);
+	sse_inject_q = sbi_scratch_స్థానభ్రంశం_ptr(scratch, sse_inject_fifo_off);
 	sse_inject_mem =
-		sbi_scratch_offset_ptr(scratch, sse_inject_fifo_mem_off);
+		sbi_scratch_స్థానభ్రంశం_ptr(scratch, sse_inject_fifo_mem_off);
 
 	sbi_fifo_init(sse_inject_q, sse_inject_mem,
-		      (global_event_count + local_event_count),
-		      sizeof(struct sse_ipi_inject_data));
+		      (global_event_లెక్క + local_event_లెక్క),
+		      పరిమాణం(నిర్మాణం sse_ipi_inject_దత్తాంశం));
 
-	return 0;
+	తిరిగి 0;
 }
 
-void sbi_sse_exit(struct sbi_scratch *scratch)
+శూన్య sbi_sse_exit(నిర్మాణం sbi_scratch *scratch)
 {
-	struct sbi_sse_event *e;
-	struct sse_event_info *info;
+	నిర్మాణం sbi_sse_event *e;
+	నిర్మాణం sse_event_info *info;
 
-	SBI_SLIST_FOR_EACH_ENTRY(info, supported_events) {
-		if (sse_event_get(info->event_id, &e))
-			continue;
+	SBI_SLIST_FOR_EACH_నమోదు(info, supported_events) {
+		ఒకవేళ (sse_event_get(info->event_id, &e))
+			కొనసాగు;
 
-		if (e->attrs.hartid != current_hartid())
-			goto skip;
+		ఒకవేళ (e->attrs.hartid != current_hartid())
+			వెళ్ళు skip;
 
-		if (sse_event_state(e) > SBI_SSE_STATE_REGISTERED)
-			sse_event_set_state(e, SBI_SSE_STATE_UNUSED);
+		ఒకవేళ (sse_event_state(e) > SBI_SSE_STATE_REGISTERED)
+			sse_event_సమితి_state(e, SBI_SSE_STATE_వాడని);
 
 skip:
 		sse_event_put(e);

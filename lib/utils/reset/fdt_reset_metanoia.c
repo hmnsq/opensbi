@@ -5,68 +5,68 @@
  *
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#అన్తర్భావ <sbi/riscv_io.h>
+#అన్తర్భావ <sbi/sbi_platform.h>
+#అన్తర్భావ <sbi/sbi_system.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_helper.h>
+#అన్తర్భావ <sbi_utils/fdt/fdt_driver.h>
 
-#define SWRSTREQ_CTRL_REG_OFFSET 0x00
-#define SWRSTREQ_REG_OFFSET 0x04
+#నిర్వచించు SWRSTREQ_CTRL_REG_స్థానభ్రంశం 0x00
+#నిర్వచించు SWRSTREQ_REG_స్థానభ్రంశం 0x04
 
-struct reset_metanoia_data {
-	u8 *reg_base;
+నిర్మాణం reset_metanoia_దత్తాంశం {
+	u8 *reg_పునాది;
 };
 
-static struct reset_metanoia_data reset_data;
+స్థిర నిర్మాణం reset_metanoia_దత్తాంశం reset_దత్తాంశం;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+స్థిర పూర్ణాంకం metanoia_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	default:
-		return 0;
+	ఎంపిక (type) {
+	స్థితి SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	స్థితి SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		తిరిగి 1;
+	స్థితి SBI_SRST_RESET_TYPE_SHUTDOWN:
+	అప్రమేయ:
+		తిరిగి 0;
 	}
 }
 
-static void metanoia_system_reset(u32 type, u32 reason)
+స్థిర శూన్య metanoia_system_reset(u32 type, u32 reason)
 {
-	writew(0x1, reset_data.reg_base + SWRSTREQ_CTRL_REG_OFFSET);
-	writew(0x1, reset_data.reg_base + SWRSTREQ_REG_OFFSET);
+	writew(0x1, reset_దత్తాంశం.reg_పునాది + SWRSTREQ_CTRL_REG_స్థానభ్రంశం);
+	writew(0x1, reset_దత్తాంశం.reg_పునాది + SWRSTREQ_REG_స్థానభ్రంశం);
 }
 
-static struct sbi_system_reset_device metanoia_reset = {
+స్థిర నిర్మాణం sbi_system_reset_device metanoia_reset = {
 	.name		    = "metanoia-mt2824-reboot",
 	.system_reset_check = metanoia_system_reset_check,
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+స్థిర పూర్ణాంకం metanoia_reset_init(స్థిరరాశి శూన్య *fdt, పూర్ణాంకం nodeoff,
+			       స్థిరరాశి నిర్మాణం fdt_సరిపోలిక *సరిపోలిక)
 {
 	u64 reg_addr;
-	int rc;
+	పూర్ణాంకం rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_కణుపు_addr_కొలత(fdt, nodeoff, 0, &reg_addr, ఖాళీ);
+	ఒకవేళ (rc < 0 || !reg_addr)
+		తిరిగి SBI_ENODEV;
 
-	reset_data.reg_base = (u8 *)(ulong)reg_addr;
+	reset_దత్తాంశం.reg_పునాది = (u8 *)(ulong)reg_addr;
 
-	sbi_system_reset_add_device(&metanoia_reset);
+	sbi_system_reset_కూడు_device(&metanoia_reset);
 
-	return 0;
+	తిరిగి 0;
 }
 
-static const struct fdt_match metanoia_reset_match[] = {
+స్థిర స్థిరరాశి నిర్మాణం fdt_సరిపోలిక metanoia_reset_సరిపోలిక[] = {
 	{ .compatible = "metanoia,mt2824-reboot" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_reset_metanoia = {
-	.match_table = metanoia_reset_match,
+స్థిరరాశి నిర్మాణం fdt_driver fdt_reset_metanoia = {
+	.సరిపోలిక_పట్టిక = metanoia_reset_సరిపోలిక,
 	.init	     = metanoia_reset_init,
 };

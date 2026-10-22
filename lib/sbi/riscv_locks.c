@@ -5,24 +5,24 @@
  * Copyright (c) 2021 Christoph Müllner <cmuellner@linux.com>
  */
 
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_locks.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/riscv_locks.h>
 
-static inline bool spin_lock_unlocked(spinlock_t lock)
+స్థిర అంతఃవరుస bool spin_తాళం_unlocked(spinlock_t తాళం_2)
 {
-	return lock.owner == lock.next;
+	తిరిగి తాళం_2.owner == తాళం_2.తదుపరి;
 }
 
-bool spin_lock_check(spinlock_t *lock)
+bool spin_తాళం_check(spinlock_t *తాళం_2)
 {
 	RISCV_FENCE(r, rw);
-	return !spin_lock_unlocked(*lock);
+	తిరిగి !spin_తాళం_unlocked(*తాళం_2);
 }
 
-bool spin_trylock(spinlock_t *lock)
+bool spin_trylock(spinlock_t *తాళం_2)
 {
-	unsigned long inc = 1u << TICKET_SHIFT;
-	unsigned long mask = 0xffffu << TICKET_SHIFT;
+	గుర్తులేని దీర్ఘ inc = 1u << TICKET_జరుపు;
+	గుర్తులేని దీర్ఘ ముసుగు = 0xffffu << TICKET_జరుపు;
 	u32 l0, tmp1, tmp2;
 
 	__asm__ __volatile__(
@@ -38,35 +38,35 @@ bool spin_trylock(spinlock_t *lock)
 		"	sc.w.rl	%0, %0, %3\n"
 		"	bnez	%0, 1b\n"
 		"2:"
-		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*lock)
-		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
+		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*తాళం_2)
+		: "r"(inc), "r"(ముసుగు), "I"(TICKET_జరుపు)
 		: "memory");
 
-	return l0 == 0;
+	తిరిగి l0 == 0;
 }
 
-void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+శూన్య spin_తాళం(spinlock_t *తాళం_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	unsigned long inc = 1u << TICKET_SHIFT;
-	unsigned long mask = 0xffffu;
+	గుర్తులేని దీర్ఘ inc = 1u << TICKET_జరుపు;
+	గుర్తులేని దీర్ఘ ముసుగు = 0xffffu;
 	u32 l0, tmp1, tmp2;
 
 	__asm__ __volatile__(
 		/* Atomically increment the next ticket. */
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
+#ఒకవేళ defined(__riscv_atomic) || defined(__riscv_zaamo)
 		"	amoadd.w.aqrl	%0, %4, %3\n"
-#elif defined(__riscv_zalrsc)
+#లేదావేళ defined(__riscv_zalrsc)
 		"3:	lr.w.aqrl	%0, %3\n"
-#if __riscv_xlen == 64
+#ఒకవేళ __riscv_xlen == 64
 		"	addw	%1, %0, %4\n"
-#elif __riscv_xlen == 32
+#లేదావేళ __riscv_xlen == 32
 		"	add	%1, %0, %4\n"
-#endif
+#అయితే_ముగింపు
 		"	sc.w.aqrl	%1, %1, %3\n"
 		"	bnez	%1, 3b\n"
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#లేకపోతే
+#దోషం "need A or Zaamo or Zalrsc"
+#అయితే_ముగింపు
 
 		/* Did we get the lock? */
 		"	srli	%1, %0, %6\n"
@@ -79,12 +79,12 @@ void spin_lock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
 		RISCV_ACQUIRE_BARRIER
 		"	j	1b\n"
 		"2:"
-		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*lock)
-		: "r"(inc), "r"(mask), "I"(TICKET_SHIFT)
+		: "=&r"(l0), "=&r"(tmp1), "=&r"(tmp2), "+A"(*తాళం_2)
+		: "r"(inc), "r"(ముసుగు), "I"(TICKET_జరుపు)
 		: "memory");
 }
 
-void spin_unlock(spinlock_t *lock) NO_THREAD_SAFETY_ANALYSIS
+శూన్య spin_unlock(spinlock_t *తాళం_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	__smp_store_release(&lock->owner, lock->owner + 1);
+	__smp_store_release(&తాళం_2->owner, తాళం_2->owner + 1);
 }

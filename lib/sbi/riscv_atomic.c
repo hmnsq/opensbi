@@ -7,108 +7,108 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
+#అన్తర్భావ <sbi/sbi_bitops.h>
+#అన్తర్భావ <sbi/riscv_asm.h>
+#అన్తర్భావ <sbi/riscv_atomic.h>
+#అన్తర్భావ <sbi/riscv_barrier.h>
 
-#if !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
-#error "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
-#endif
+#ఒకవేళ !defined(__riscv_atomic) && !defined(__riscv_zaamo) && !defined(__riscv_zalrsc)
+#దోషం "opensbi strongly relies on the Zaamo or Zalrsc extensions of RISC-V"
+#అయితే_ముగింపు
 
-long atomic_read(atomic_t *atom)
+దీర్ఘ atomic_read(atomic_t *atom)
 {
-	long ret = atom->counter;
+	దీర్ఘ ret = atom->counter;
 	rmb();
-	return ret;
+	తిరిగి ret;
 }
 
-void atomic_write(atomic_t *atom, long value)
+శూన్య atomic_write(atomic_t *atom, దీర్ఘ విలువ)
 {
-	atom->counter = value;
+	atom->counter = విలువ;
 	wmb();
 }
 
-long atomic_add_return(atomic_t *atom, long value)
+దీర్ఘ atomic_కూడు_return(atomic_t *atom, దీర్ఘ విలువ)
 {
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
-	long ret;
-#if __SIZEOF_LONG__ == 4
+#ఒకవేళ defined(__riscv_atomic) || defined(__riscv_zaamo)
+	దీర్ఘ ret;
+#ఒకవేళ __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("	amoadd.w.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(విలువ)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#లేదావేళ __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("	amoadd.d.aqrl  %1, %2, %0"
 			     : "+A"(atom->counter), "=r"(ret)
-			     : "r"(value)
+			     : "r"(విలువ)
 			     : "memory");
-#endif
-#elif defined(__riscv_zalrsc)
-	long ret, temp;
-#if __SIZEOF_LONG__ == 4
+#అయితే_ముగింపు
+#లేదావేళ defined(__riscv_zalrsc)
+	దీర్ఘ ret, తాత్కాలిక;
+#ఒకవేళ __SIZEOF_LONG__ == 4
 	__asm__ __volatile__("1:lr.w.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.w.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
-			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "+A"(atom->counter), "=&r"(ret), "=&r"(తాత్కాలిక)
+			     : "r"(విలువ)
 			     : "memory");
-#elif __SIZEOF_LONG__ == 8
+#లేదావేళ __SIZEOF_LONG__ == 8
 	__asm__ __volatile__("1:lr.d.aqrl	%1,%0\n"
 			     "  add	%2,%1,%3\n"
 			     "  sc.d.aqrl	%2,%2,%0\n"
 			     "  bnez	%2,1b"
-			     : "+A"(atom->counter), "=&r"(ret), "=&r"(temp)
-			     : "r"(value)
+			     : "+A"(atom->counter), "=&r"(ret), "=&r"(తాత్కాలిక)
+			     : "r"(విలువ)
 			     : "memory");
-#endif
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#అయితే_ముగింపు
+#లేకపోతే
+#దోషం "need A or Zaamo or Zalrsc"
+#అయితే_ముగింపు
 
-	return ret + value;
+	తిరిగి ret + విలువ;
 }
 
-long atomic_sub_return(atomic_t *atom, long value)
+దీర్ఘ atomic_sub_return(atomic_t *atom, దీర్ఘ విలువ)
 {
-	return atomic_add_return(atom, -value);
+	తిరిగి atomic_కూడు_return(atom, -విలువ);
 }
 
-#if defined(__riscv_atomic) || defined(__riscv_zaamo)
-#define __axchg(ptr, new, size)							\
+#ఒకవేళ defined(__riscv_atomic) || defined(__riscv_zaamo)
+#నిర్వచించు __axchg(ptr, new, కొలత)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret;					\
-		switch (size) {							\
-		case 4:								\
+		ఎంపిక (కొలత) {							\
+		స్థితి 4:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.w.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			ఆపు;							\
+		స్థితి 8:								\
 			__asm__ __volatile__ (					\
 				"	amoswap.d.aqrl %0, %2, %1\n"		\
 				: "=r" (__ret), "+A" (*__ptr)			\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			ఆపు;							\
+		అప్రమేయ:							\
+			ఆపు;							\
 		}								\
 		__ret;								\
 	})
-#elif defined(__riscv_zalrsc)
-#define __axchg(ptr, new, size)							\
+#లేదావేళ defined(__riscv_zalrsc)
+#నిర్వచించు __axchg(ptr, new, కొలత)							\
 	({									\
 		__typeof__(ptr) __ptr = (ptr);					\
 		__typeof__(new) __new = (new);					\
 		__typeof__(*(ptr)) __ret, __temp;					\
-		switch (size) {							\
-		case 4:								\
+		ఎంపిక (కొలత) {							\
+		స్థితి 4:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.w.aqrl %0, %1\n"			\
 				"	sc.w.aqrl %2, %3, %1\n"			\
@@ -116,8 +116,8 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		case 8:								\
+			ఆపు;							\
+		స్థితి 8:								\
 			__asm__ __volatile__ (					\
 				"1:	lr.d.aqrl %0, %1\n"			\
 				"	sc.d.aqrl %2, %3, %1\n"			\
@@ -125,67 +125,67 @@ long atomic_sub_return(atomic_t *atom, long value)
 				: "=&r" (__ret), "+A" (*__ptr), "=&r" (__temp)	\
 				: "r" (__new)					\
 				: "memory");					\
-			break;							\
-		default:							\
-			break;							\
+			ఆపు;							\
+		అప్రమేయ:							\
+			ఆపు;							\
 		}								\
 		__ret;								\
 	})
-#else
-#error "need A or Zaamo or Zalrsc"
-#endif
+#లేకపోతే
+#దోషం "need A or Zaamo or Zalrsc"
+#అయితే_ముగింపు
 
-#define axchg(ptr, x)								\
+#నిర్వచించు axchg(ptr, x)								\
 	({									\
 		__typeof__(*(ptr)) _x_ = (x);					\
-		(__typeof__(*(ptr))) __axchg((ptr), _x_, sizeof(*(ptr)));	\
+		(__typeof__(*(ptr))) __axchg((ptr), _x_, పరిమాణం(*(ptr)));	\
 	})
 
-long atomic_cmpxchg(atomic_t *atom, long oldval, long newval)
+దీర్ఘ atomic_cmpxchg(atomic_t *atom, దీర్ఘ oldval, దీర్ఘ newval)
 {
-	return __sync_val_compare_and_swap(&atom->counter, oldval, newval);
+	తిరిగి __sync_val_compare_and_swap(&atom->counter, oldval, newval);
 }
 
-long atomic_xchg(atomic_t *atom, long newval)
+దీర్ఘ atomic_xchg(atomic_t *atom, దీర్ఘ newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(&atom->counter, newval);
+	తిరిగి axchg(&atom->counter, newval);
 }
 
-unsigned int atomic_raw_xchg_uint(volatile unsigned int *ptr,
-				  unsigned int newval)
+గుర్తులేని పూర్ణాంకం atomic_raw_xchg_uint(అస్థిర గుర్తులేని పూర్ణాంకం *ptr,
+				  గుర్తులేని పూర్ణాంకం newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	తిరిగి axchg(ptr, newval);
 }
 
-unsigned long atomic_raw_xchg_ulong(volatile unsigned long *ptr,
-				    unsigned long newval)
+గుర్తులేని దీర్ఘ atomic_raw_xchg_ulong(అస్థిర గుర్తులేని దీర్ఘ *ptr,
+				    గుర్తులేని దీర్ఘ newval)
 {
 	/* Atomically set new value and return old value. */
-	return axchg(ptr, newval);
+	తిరిగి axchg(ptr, newval);
 }
 
-int atomic_raw_set_bit(int nr, volatile unsigned long *addr)
+పూర్ణాంకం atomic_raw_సమితి_బిట్టు(పూర్ణాంకం nr, అస్థిర గుర్తులేని దీర్ఘ *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
-	res = __atomic_fetch_or(&addr[BIT_WORD(nr)], mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	గుర్తులేని దీర్ఘ res, ముసుగు = బిట్టు_ముసుగు(nr);
+	res = __atomic_fetch_or(&addr[బిట్టు_మాట(nr)], ముసుగు, __ATOMIC_RELAXED);
+	తిరిగి res & ముసుగు ? 1 : 0;
 }
 
-int atomic_raw_clear_bit(int nr, volatile unsigned long *addr)
+పూర్ణాంకం atomic_raw_clear_బిట్టు(పూర్ణాంకం nr, అస్థిర గుర్తులేని దీర్ఘ *addr)
 {
-	unsigned long res, mask = BIT_MASK(nr);
-	res = __atomic_fetch_and(&addr[BIT_WORD(nr)], ~mask, __ATOMIC_RELAXED);
-	return res & mask ? 1 : 0;
+	గుర్తులేని దీర్ఘ res, ముసుగు = బిట్టు_ముసుగు(nr);
+	res = __atomic_fetch_and(&addr[బిట్టు_మాట(nr)], ~ముసుగు, __ATOMIC_RELAXED);
+	తిరిగి res & ముసుగు ? 1 : 0;
 }
 
-int atomic_set_bit(int nr, atomic_t *atom)
+పూర్ణాంకం atomic_సమితి_బిట్టు(పూర్ణాంకం nr, atomic_t *atom)
 {
-	return atomic_raw_set_bit(nr, (unsigned long *)&atom->counter);
+	తిరిగి atomic_raw_సమితి_బిట్టు(nr, (గుర్తులేని దీర్ఘ *)&atom->counter);
 }
 
-int atomic_clear_bit(int nr, atomic_t *atom)
+పూర్ణాంకం atomic_clear_బిట్టు(పూర్ణాంకం nr, atomic_t *atom)
 {
-	return atomic_raw_clear_bit(nr, (unsigned long *)&atom->counter);
+	తిరిగి atomic_raw_clear_బిట్టు(nr, (గుర్తులేని దీర్ఘ *)&atom->counter);
 }
