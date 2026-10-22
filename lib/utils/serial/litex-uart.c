@@ -7,9 +7,9 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/litex-uart.h>
+#अन्तर्भाव <sbi/riscv_io.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi_utils/serial/litex-uart.h>
 
 /* clang-format off */
 
@@ -24,46 +24,46 @@
 
 /* clang-format on */
 
-static volatile u32 *uart_base;
+स्थिर चञ्चल u32 *uart_base;
 
-static u8 get_reg(u8 reg)
+स्थिर u8 get_reg(u8 reg)
 {
-	return readb(uart_base + reg);
+	पटिनिवत्त readb(uart_base + reg);
 }
 
-static void set_reg(u8 reg, u8 val)
+स्थिर शून्य set_reg(u8 reg, u8 val)
 {
 	writeb(val, uart_base + reg);
 }
 
-static void litex_uart_putc(char ch)
+स्थिर शून्य litex_uart_putc(वर्ण ch)
 {
-	while (get_reg(UART_REG_TXFULL));
+	याव (get_reg(UART_REG_TXFULL));
 	set_reg(UART_REG_RXTX, ch);
 }
 
-static int litex_uart_getc(void)
+स्थिर पूर्णाङ्क litex_uart_getc(शून्य)
 {
-	int ret;
+	पूर्णाङ्क ret;
 
-	if (get_reg(UART_REG_RXEMPTY))
-		return -1;
+	सचे (get_reg(UART_REG_RXEMPTY))
+		पटिनिवत्त -1;
 
 	ret = get_reg(UART_REG_RXTX);
 	set_reg(UART_REG_EV_PENDING, UART_EV_RX); /* ack. char read */
-	return ret;
+	पटिनिवत्त ret;
 }
 
-static struct sbi_console_device litex_console = {
+स्थिर संरचना sbi_console_device litex_console = {
 	.name = "litex_uart",
 	.console_putc = litex_uart_putc,
 	.console_getc = litex_uart_getc
 };
 
-int litex_uart_init(unsigned long base)
+पूर्णाङ्क litex_uart_init(unsigned long base)
 {
-	uart_base = (volatile u32 *)base;
+	uart_base = (चञ्चल u32 *)base;
 	set_reg(UART_REG_EV_ENABLE, 0); /* UART in polling mode: disable IRQ */
 	sbi_console_set_device(&litex_console);
-	return 0;
+	पटिनिवत्त 0;
 }

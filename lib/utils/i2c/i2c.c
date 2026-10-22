@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+स्थिर SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+संरचना i2c_adapter *i2c_adapter_find(पूर्णाङ्क id)
 {
-	struct sbi_dlist *pos;
+	संरचना sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		संरचना i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		सचे (adap->id == id)
+			पटिनिवत्त adap;
 	}
 
-	return NULL;
+	पटिनिवत्त रिक्त;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+पूर्णाङ्क i2c_adapter_add(संरचना i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	सचे (!ia)
+		पटिनिवत्त SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	सचे (i2c_adapter_find(ia->id))
+		पटिनिवत्त SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_add(&(ia->ग्रन्थिः), &(i2c_adapters_list));
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+शून्य i2c_adapter_remove(संरचना i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	सचे (!ia)
+		पटिनिवत्त;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->ग्रन्थिः));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+पूर्णाङ्क i2c_adapter_write(संरचना i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, पूर्णाङ्क len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	सचे (!ia)
+		पटिनिवत्त SBI_EINVAL;
+	सचे (!ia->लिख)
+		पटिनिवत्त SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	पटिनिवत्त ia->लिख(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+पूर्णाङ्क i2c_adapter_read(संरचना i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, पूर्णाङ्क len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	सचे (!ia)
+		पटिनिवत्त SBI_EINVAL;
+	सचे (!ia->पठ)
+		पटिनिवत्त SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	पटिनिवत्त ia->पठ(ia, addr, reg, buffer, len);
 }

@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/uart8250.h>
+#अन्तर्भाव <sbi_utils/fdt/fdt_helper.h>
+#अन्तर्भाव <sbi_utils/serial/fdt_serial.h>
+#अन्तर्भाव <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+स्थिर पूर्णाङ्क serial_uart8250_init(ध्रुव शून्य *fdt, पूर्णाङ्क nodeoff,
+				ध्रुव संरचना fdt_match *match)
 {
-	struct platform_uart_data uart = { 0 };
+	संरचना platform_uart_data uart = { 0 };
 	ulong caps = (ulong)match->data;
-	int rc;
+	पूर्णाङ्क rc;
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_ग्रन्थिः(fdt, nodeoff, &uart);
+	सचे (rc)
+		पटिनिवत्त rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
+	पटिनिवत्त uart8250_init(uart.addr, uart.freq, uart.baud,
 			     uart.reg_shift, uart.reg_io_width,
 			     uart.reg_offset, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+स्थिर ध्रुव संरचना fdt_match serial_uart8250_match[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "intel,xscale-uart",
-	  .data = (void *)UART_CAP_UUE },
+	  .data = (शून्य *)UART_CAP_UUE },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
+ध्रुव संरचना fdt_driver fdt_serial_uart8250 = {
 	.match_table = serial_uart8250_match,
 	.init = serial_uart8250_init,
 };

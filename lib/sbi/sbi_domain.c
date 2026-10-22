@@ -7,151 +7,151 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/riscv_asm.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_domain.h>
+#अन्तर्भाव <sbi/sbi_hartmask.h>
+#अन्तर्भाव <sbi/sbi_heap.h>
+#अन्तर्भाव <sbi/sbi_hsm.h>
+#अन्तर्भाव <sbi/sbi_list.h>
+#अन्तर्भाव <sbi/sbi_math.h>
+#अन्तर्भाव <sbi/sbi_platform.h>
+#अन्तर्भाव <sbi/sbi_scratch.h>
+#अन्तर्भाव <sbi/sbi_string.h>
 
 SBI_LIST_HEAD(domain_list);
 
-static u32 domain_count = 0;
-static bool domain_finalized = false;
+स्थिर u32 domain_गणनम् = 0;
+स्थिर bool domain_finalized = false;
 
-#define ROOT_REGION_MAX	32
+#define मूलम्_REGION_MAX	32
 
-struct sbi_domain root = {
+संरचना sbi_domain मूलम् = {
 	.name = "root",
 	.init_order = -1U,
-	.possible_harts = NULL,
-	.regions = NULL,
+	.possible_harts = रिक्त,
+	.regions = रिक्त,
 	.system_reset_allowed = true,
 	.system_suspend_allowed = true,
 	.fw_region_inited = false,
 };
 
-static unsigned long domain_hart_ptr_offset;
+स्थिर unsigned long domain_hart_ptr_offset;
 
-struct sbi_domain *sbi_hartindex_to_domain(u32 hartindex)
+संरचना sbi_domain *sbi_hartindex_to_domain(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	संरचना sbi_scratch *scratch;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch || !domain_hart_ptr_offset)
-		return NULL;
+	सचे (!scratch || !domain_hart_ptr_offset)
+		पटिनिवत्त रिक्त;
 
-	return sbi_scratch_read_type(scratch, void *, domain_hart_ptr_offset);
+	पटिनिवत्त sbi_scratch_read_type(scratch, शून्य *, domain_hart_ptr_offset);
 }
 
-void sbi_update_hartindex_to_domain(u32 hartindex, struct sbi_domain *dom)
+शून्य sbi_update_hartindex_to_domain(u32 hartindex, संरचना sbi_domain *dom)
 {
-	struct sbi_scratch *scratch;
+	संरचना sbi_scratch *scratch;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return;
+	सचे (!scratch)
+		पटिनिवत्त;
 
-	sbi_scratch_write_type(scratch, void *, domain_hart_ptr_offset, dom);
+	sbi_scratch_write_type(scratch, शून्य *, domain_hart_ptr_offset, dom);
 }
 
-bool sbi_domain_is_assigned_hart(const struct sbi_domain *dom, u32 hartindex)
+bool sbi_domain_is_assigned_hart(ध्रुव संरचना sbi_domain *dom, u32 hartindex)
 	MUST_NOT_HOLD(&dom->assigned_harts_lock)
 {
 	bool ret;
-	struct sbi_domain *tdom = (struct sbi_domain *)dom;
+	संरचना sbi_domain *tdom = (संरचना sbi_domain *)dom;
 
-	if (!dom)
-		return false;
+	सचे (!dom)
+		पटिनिवत्त false;
 
 	spin_lock(&tdom->assigned_harts_lock);
 	ret = sbi_hartmask_test_hartindex(hartindex, &tdom->assigned_harts);
 	spin_unlock(&tdom->assigned_harts_lock);
 
-	return ret;
+	पटिनिवत्त ret;
 }
 
-int sbi_domain_get_assigned_hartmask(const struct sbi_domain *dom,
-				     struct sbi_hartmask *mask)
+पूर्णाङ्क sbi_domain_get_assigned_hartmask(ध्रुव संरचना sbi_domain *dom,
+				     संरचना sbi_hartmask *mask)
 	MUST_NOT_HOLD(&dom->assigned_harts_lock)
 {
 	ulong ret = 0;
-	struct sbi_domain *tdom = (struct sbi_domain *)dom;
+	संरचना sbi_domain *tdom = (संरचना sbi_domain *)dom;
 
-	if (!dom) {
+	सचे (!dom) {
 		sbi_hartmask_clear_all(mask);
-		return 0;
+		पटिनिवत्त 0;
 	}
 
 	spin_lock(&tdom->assigned_harts_lock);
 	sbi_hartmask_copy(mask, &tdom->assigned_harts);
 	spin_unlock(&tdom->assigned_harts_lock);
 
-	return ret;
+	पटिनिवत्त ret;
 }
 
-void sbi_domain_memregion_init(unsigned long addr,
+शून्य sbi_domain_memregion_init(unsigned long addr,
 				unsigned long size,
 				unsigned long flags,
-				struct sbi_domain_memregion *reg)
+				संरचना sbi_domain_memregion *reg)
 {
 	unsigned long base = 0, order;
 
-	for (order = log2roundup(size) ; order <= __riscv_xlen; order++) {
-		if (order < __riscv_xlen) {
+	अत्थाय (order = log2roundup(size) ; order <= __riscv_xlen; order++) {
+		सचे (order < __riscv_xlen) {
 			base = addr & ~((1UL << order) - 1UL);
-			if ((base <= addr) &&
+			सचे ((base <= addr) &&
 			    (addr < (base + (1UL << order))) &&
 			    (base <= (addr + size - 1UL)) &&
 			    ((addr + size - 1UL) < (base + (1UL << order))))
-				break;
-		} else {
+				भङ्ग;
+		} अञ्ञथा {
 			base = 0;
-			break;
+			भङ्ग;
 		}
 
 	}
 
-	if (reg) {
+	सचे (reg) {
 		reg->base = base;
 		reg->order = order;
 		reg->flags = flags;
 	}
 }
 
-unsigned int sbi_domain_get_oldpmp_flags(struct sbi_domain_memregion *reg)
+unsigned पूर्णाङ्क sbi_domain_get_oldpmp_flags(संरचना sbi_domain_memregion *reg)
 {
 
-	unsigned int pmp_flags = 0;
+	unsigned पूर्णाङ्क pmp_flags = 0;
 
 	/*
 	 * If permissions are to be enforced for all modes on
 	 * this region, the lock bit should be set.
 	 */
-	if (reg->flags & SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS)
+	सचे (reg->flags & SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS)
 		pmp_flags |= PMP_L;
 
-	if (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
+	सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
 		pmp_flags |= PMP_R;
-	if (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
+	सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
 		pmp_flags |= PMP_W;
-	if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+	सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
 		pmp_flags |= PMP_X;
 
-	return pmp_flags;
+	पटिनिवत्त pmp_flags;
 }
 
-unsigned int sbi_domain_get_smepmp_flags(struct sbi_domain_memregion *reg)
+unsigned पूर्णाङ्क sbi_domain_get_smepmp_flags(संरचना sbi_domain_memregion *reg)
 {
-	unsigned int pmp_flags = 0;
+	unsigned पूर्णाङ्क pmp_flags = 0;
 	unsigned long rstart, rend;
 
-	if ((reg->flags & SBI_DOMAIN_MEMREGION_ACCESS_MASK) == 0) {
+	सचे ((reg->flags & SBI_DOMAIN_MEMREGION_ACCESS_MASK) == 0) {
 		/*
 		 * Region is inaccessible in all privilege modes.
 		 *
@@ -160,92 +160,92 @@ unsigned int sbi_domain_get_smepmp_flags(struct sbi_domain_memregion *reg)
 		 *   - pmpcfg.LRWX = 1000 (Locked inaccessible region)
 		 * We use the first encoding here.
 		 */
-		return 0;
-	} else if (SBI_DOMAIN_MEMREGION_IS_SHARED(reg->flags)) {
+		पटिनिवत्त 0;
+	} अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_IS_SHARED(reg->flags)) {
 		/* Read only for both M and SU modes */
-		if (SBI_DOMAIN_MEMREGION_IS_SUR_MR(reg->flags))
+		सचे (SBI_DOMAIN_MEMREGION_IS_SUR_MR(reg->flags))
 			pmp_flags = (PMP_L | PMP_R | PMP_W | PMP_X);
 
 		/* Execute for SU but Read/Execute for M mode */
-		else if (SBI_DOMAIN_MEMREGION_IS_SUX_MRX(reg->flags))
+		अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_IS_SUX_MRX(reg->flags))
 			/* locked region */
 			pmp_flags = (PMP_L | PMP_W | PMP_X);
 
 		/* Execute only for both M and SU modes */
-		else if (SBI_DOMAIN_MEMREGION_IS_SUX_MX(reg->flags))
+		अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_IS_SUX_MX(reg->flags))
 			pmp_flags = (PMP_L | PMP_W);
 
 		/* Read/Write for both M and SU modes */
-		else if (SBI_DOMAIN_MEMREGION_IS_SURW_MRW(reg->flags))
+		अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_IS_SURW_MRW(reg->flags))
 			pmp_flags = (PMP_W | PMP_X);
 
 		/* Read only for SU mode but Read/Write for M mode */
-		else if (SBI_DOMAIN_MEMREGION_IS_SUR_MRW(reg->flags))
+		अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_IS_SUR_MRW(reg->flags))
 			pmp_flags = (PMP_W);
-	} else if (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+	} अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 		/*
 		 * When smepmp is supported and used, M region cannot have RWX
 		 * permissions on any region.
 		 */
-		if ((reg->flags & SBI_DOMAIN_MEMREGION_M_ACCESS_MASK)
+		सचे ((reg->flags & SBI_DOMAIN_MEMREGION_M_ACCESS_MASK)
 		    == SBI_DOMAIN_MEMREGION_M_RWX) {
 			sbi_printf("%s: M-mode only regions cannot have"
 				   "RWX permissions\n", __func__);
-			return 0;
+			पटिनिवत्त 0;
 		}
 
 		/* M-mode only access regions are always locked */
 		pmp_flags |= PMP_L;
 
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_READABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_READABLE)
 			pmp_flags |= PMP_R;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_WRITABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_WRITABLE)
 			pmp_flags |= PMP_W;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_EXECUTABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_EXECUTABLE)
 			pmp_flags |= PMP_X;
-	} else if (SBI_DOMAIN_MEMREGION_SU_ONLY_ACCESS(reg->flags)) {
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
+	} अञ्ञथा सचे (SBI_DOMAIN_MEMREGION_SU_ONLY_ACCESS(reg->flags)) {
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
 			pmp_flags |= PMP_R;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
 			pmp_flags |= PMP_W;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
 			pmp_flags |= PMP_X;
-	} else {
+	} अञ्ञथा {
 		rstart = reg->base;
 		rend = (reg->order < __riscv_xlen) ? rstart + ((1UL << reg->order) - 1) : -1UL;
 		sbi_printf("%s: Unsupported Smepmp permissions on region 0x%"PRILX"-0x%"PRILX"\n",
 			   __func__, rstart, rend);
 	}
 
-	return pmp_flags;
+	पटिनिवत्त pmp_flags;
 }
 
-bool sbi_domain_check_addr(const struct sbi_domain *dom,
+bool sbi_domain_check_addr(ध्रुव संरचना sbi_domain *dom,
 			   unsigned long addr, unsigned long mode,
 			   unsigned long access_flags)
 {
 	bool rmmio, mmio = false;
-	struct sbi_domain_memregion *reg;
+	संरचना sbi_domain_memregion *reg;
 	unsigned long rstart, rend, rflags, rwx = 0, rrwx = 0;
 
-	if (!dom)
-		return false;
+	सचे (!dom)
+		पटिनिवत्त false;
 
 	/*
 	 * Use M_{R/W/X} bits because the SU-bits are at the
 	 * same relative offsets. If the mode is not M, the SU
 	 * bits will fall at same offsets after the shift.
 	 */
-	if (access_flags & SBI_DOMAIN_READ)
+	सचे (access_flags & SBI_DOMAIN_READ)
 		rwx |= SBI_DOMAIN_MEMREGION_M_READABLE;
 
-	if (access_flags & SBI_DOMAIN_WRITE)
+	सचे (access_flags & SBI_DOMAIN_WRITE)
 		rwx |= SBI_DOMAIN_MEMREGION_M_WRITABLE;
 
-	if (access_flags & SBI_DOMAIN_EXECUTE)
+	सचे (access_flags & SBI_DOMAIN_EXECUTE)
 		rwx |= SBI_DOMAIN_MEMREGION_M_EXECUTABLE;
 
-	if (access_flags & SBI_DOMAIN_MMIO)
+	सचे (access_flags & SBI_DOMAIN_MMIO)
 		mmio = true;
 
 	sbi_domain_for_each_memregion(dom, reg) {
@@ -258,50 +258,50 @@ bool sbi_domain_check_addr(const struct sbi_domain *dom,
 		rstart = reg->base;
 		rend = (reg->order < __riscv_xlen) ?
 			rstart + ((1UL << reg->order) - 1) : -1UL;
-		if (rstart <= addr && addr <= rend) {
+		सचे (rstart <= addr && addr <= rend) {
 			rmmio = (rflags & SBI_DOMAIN_MEMREGION_MMIO) ? true : false;
 			/*
 			 * MMIO devices may appear in regions without the flag set (such as the
 			 * default region), but MMIO device regions should not be used as memory.
 			 */
-			if (!mmio && rmmio)
-				return false;
-			return ((rrwx & rwx) == rwx) ? true : false;
+			सचे (!mmio && rmmio)
+				पटिनिवत्त false;
+			पटिनिवत्त ((rrwx & rwx) == rwx) ? true : false;
 		}
 	}
 
-	return (mode == PRV_M) ? true : false;
+	पटिनिवत्त (mode == PRV_M) ? true : false;
 }
 
 /* Check if region complies with constraints */
-static bool is_region_valid(const struct sbi_domain_memregion *reg)
+स्थिर bool is_region_valid(ध्रुव संरचना sbi_domain_memregion *reg)
 {
-	if (reg->order < 3 || __riscv_xlen < reg->order)
-		return false;
+	सचे (reg->order < 3 || __riscv_xlen < reg->order)
+		पटिनिवत्त false;
 
-	if (reg->order == __riscv_xlen && reg->base != 0)
-		return false;
+	सचे (reg->order == __riscv_xlen && reg->base != 0)
+		पटिनिवत्त false;
 
-	if (reg->order < __riscv_xlen && (reg->base & (BIT(reg->order) - 1)))
-		return false;
+	सचे (reg->order < __riscv_xlen && (reg->base & (BIT(reg->order) - 1)))
+		पटिनिवत्त false;
 
-	return true;
+	पटिनिवत्त true;
 }
 
 /** Check if regionA can be replaced by regionB */
-static bool is_region_compatible(const struct sbi_domain_memregion *regA,
-				 const struct sbi_domain_memregion *regB)
+स्थिर bool is_region_compatible(ध्रुव संरचना sbi_domain_memregion *regA,
+				 ध्रुव संरचना sbi_domain_memregion *regB)
 {
-	if (sbi_domain_memregion_is_subset(regA, regB) &&
+	सचे (sbi_domain_memregion_is_subset(regA, regB) &&
 	    regA->flags == regB->flags)
-		return true;
+		पटिनिवत्त true;
 
-	return false;
+	पटिनिवत्त false;
 }
 
 /** Check if regionA should be placed before regionB */
-static bool is_region_before(const struct sbi_domain_memregion *regA,
-			     const struct sbi_domain_memregion *regB)
+स्थिर bool is_region_before(ध्रुव संरचना sbi_domain_memregion *regA,
+			     ध्रुव संरचना sbi_domain_memregion *regB)
 {
 	/*
 	 * Enforce firmware region ordering for memory access
@@ -309,161 +309,161 @@ static bool is_region_before(const struct sbi_domain_memregion *regA,
 	 * Place firmware regions first to ensure consistent
 	 * PMP entries during domain context switches.
 	 */
-	if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regA->flags) &&
+	सचे (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regA->flags) &&
 	   !SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regB->flags))
-		return true;
-	if (!SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regA->flags) &&
+		पटिनिवत्त true;
+	सचे (!SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regA->flags) &&
 	    SBI_DOMAIN_MEMREGION_IS_FIRMWARE(regB->flags))
-		return false;
+		पटिनिवत्त false;
 
-	if (regA->order < regB->order)
-		return true;
+	सचे (regA->order < regB->order)
+		पटिनिवत्त true;
 
-	if ((regA->order == regB->order) &&
+	सचे ((regA->order == regB->order) &&
 	    (regA->base < regB->base))
-		return true;
+		पटिनिवत्त true;
 
-	return false;
+	पटिनिवत्त false;
 }
 
-static const struct sbi_domain_memregion *find_region(
-						const struct sbi_domain *dom,
+स्थिर ध्रुव संरचना sbi_domain_memregion *find_region(
+						ध्रुव संरचना sbi_domain *dom,
 						unsigned long addr)
 {
 	unsigned long rstart, rend;
-	struct sbi_domain_memregion *reg;
+	संरचना sbi_domain_memregion *reg;
 
 	sbi_domain_for_each_memregion(dom, reg) {
 		rstart = reg->base;
 		rend = (reg->order < __riscv_xlen) ?
 			rstart + ((1UL << reg->order) - 1) : -1UL;
-		if (rstart <= addr && addr <= rend)
-			return reg;
+		सचे (rstart <= addr && addr <= rend)
+			पटिनिवत्त reg;
 	}
 
-	return NULL;
+	पटिनिवत्त रिक्त;
 }
 
-static const struct sbi_domain_memregion *find_next_subset_region(
-				const struct sbi_domain *dom,
-				const struct sbi_domain_memregion *reg,
+स्थिर ध्रुव संरचना sbi_domain_memregion *find_next_subset_region(
+				ध्रुव संरचना sbi_domain *dom,
+				ध्रुव संरचना sbi_domain_memregion *reg,
 				unsigned long addr)
 {
-	struct sbi_domain_memregion *sreg, *ret = NULL;
+	संरचना sbi_domain_memregion *sreg, *ret = रिक्त;
 
 	sbi_domain_for_each_memregion(dom, sreg) {
-		if (sreg == reg || (sreg->base <= addr) ||
+		सचे (sreg == reg || (sreg->base <= addr) ||
 		    !sbi_domain_memregion_is_subset(sreg, reg))
-			continue;
+			अनुवर्त;
 
-		if (!ret || (sreg->base < ret->base) ||
+		सचे (!ret || (sreg->base < ret->base) ||
 		    ((sreg->base == ret->base) && (sreg->order < ret->order)))
 			ret = sreg;
 	}
 
-	return ret;
+	पटिनिवत्त ret;
 }
 
-static void swap_region(struct sbi_domain_memregion* reg1,
-			struct sbi_domain_memregion* reg2)
+स्थिर शून्य swap_region(संरचना sbi_domain_memregion* reg1,
+			संरचना sbi_domain_memregion* reg2)
 {
-	struct sbi_domain_memregion treg;
+	संरचना sbi_domain_memregion treg;
 
-	sbi_memcpy(&treg, reg1, sizeof(treg));
-	sbi_memcpy(reg1, reg2, sizeof(treg));
-	sbi_memcpy(reg2, &treg, sizeof(treg));
+	sbi_memcpy(&treg, reg1, परिमाण(treg));
+	sbi_memcpy(reg1, reg2, परिमाण(treg));
+	sbi_memcpy(reg2, &treg, परिमाण(treg));
 }
 
-static int sbi_domain_used_memregions(const struct sbi_domain *dom)
+स्थिर पूर्णाङ्क sbi_domain_used_memregions(ध्रुव संरचना sbi_domain *dom)
 {
-	int count = 0;
-	struct sbi_domain_memregion *reg;
+	पूर्णाङ्क गणनम् = 0;
+	संरचना sbi_domain_memregion *reg;
 
 	sbi_domain_for_each_memregion(dom, reg)
-		count++;
+		गणनम्++;
 
-	return count;
+	पटिनिवत्त गणनम्;
 }
 
-static int sanitize_domain(struct sbi_domain *dom)
+स्थिर पूर्णाङ्क sanitize_domain(संरचना sbi_domain *dom)
 {
-	u32 i, j, count;
+	u32 i, j, गणनम्;
 	bool is_covered;
-	struct sbi_domain_memregion *reg, *reg1;
+	संरचना sbi_domain_memregion *reg, *reg1;
 
 	/* Check possible HARTs */
-	if (!dom->possible_harts) {
+	सचे (!dom->possible_harts) {
 		sbi_printf("%s: %s possible HART mask is NULL\n",
 			   __func__, dom->name);
-		return SBI_EINVAL;
+		पटिनिवत्त SBI_EINVAL;
 	}
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
-		if (!sbi_hartindex_valid(i)) {
+		सचे (!sbi_hartindex_valid(i)) {
 			sbi_printf("%s: %s possible HART mask has invalid "
 				   "hart %d\n", __func__,
 				   dom->name, sbi_hartindex_to_hartid(i));
-			return SBI_EINVAL;
+			पटिनिवत्त SBI_EINVAL;
 		}
 	}
 
 	/* Check memory regions */
-	if (!dom->regions) {
+	सचे (!dom->regions) {
 		sbi_printf("%s: %s regions is NULL\n",
 			   __func__, dom->name);
-		return SBI_EINVAL;
+		पटिनिवत्त SBI_EINVAL;
 	}
 	sbi_domain_for_each_memregion(dom, reg) {
-		if (!is_region_valid(reg)) {
+		सचे (!is_region_valid(reg)) {
 			sbi_printf("%s: %s has invalid region base=0x%lx "
 				   "order=%lu flags=0x%lx\n", __func__,
 				   dom->name, reg->base, reg->order,
 				   reg->flags);
-			return SBI_EINVAL;
+			पटिनिवत्त SBI_EINVAL;
 		}
 	}
 
 	/* Count memory regions */
-	count = sbi_domain_used_memregions(dom);
+	गणनम् = sbi_domain_used_memregions(dom);
 
 	/* Check presence of firmware regions */
-	if (!dom->fw_region_inited) {
+	सचे (!dom->fw_region_inited) {
 		sbi_printf("%s: %s does not have firmware region\n",
 			   __func__, dom->name);
-		return SBI_EINVAL;
+		पटिनिवत्त SBI_EINVAL;
 	}
 
 	/* Sort the memory regions */
-	for (i = 0; i < (count - 1); i++) {
+	अत्थाय (i = 0; i < (गणनम् - 1); i++) {
 		reg = &dom->regions[i];
-		for (j = i + 1; j < count; j++) {
+		अत्थाय (j = i + 1; j < गणनम्; j++) {
 			reg1 = &dom->regions[j];
 
-			if (!is_region_before(reg1, reg))
-				continue;
+			सचे (!is_region_before(reg1, reg))
+				अनुवर्त;
 
 			swap_region(reg, reg1);
 		}
 	}
 
 	/* Remove covered regions */
-	for (i = 0; i < (count - 1);) {
+	अत्थाय (i = 0; i < (गणनम् - 1);) {
 		is_covered = false;
 		reg = &dom->regions[i];
 
-		for (j = i + 1; j < count; j++) {
+		अत्थाय (j = i + 1; j < गणनम्; j++) {
 			reg1 = &dom->regions[j];
 
-			if (is_region_compatible(reg, reg1)) {
+			सचे (is_region_compatible(reg, reg1)) {
 				is_covered = true;
-				break;
+				भङ्ग;
 			}
 		}
 
 		/* find a region is superset of reg, remove reg */
-		if (is_covered) {
-			sbi_memmove(reg, reg + 1, sizeof(*reg) * (count - i));
-			count--;
-		} else
+		सचे (is_covered) {
+			sbi_memmove(reg, reg + 1, परिमाण(*reg) * (गणनम् - i));
+			गणनम्--;
+		} अञ्ञथा
 			i++;
 	}
 
@@ -479,63 +479,63 @@ static int sanitize_domain(struct sbi_domain *dom)
 	 * We only allow next mode to be S-mode or U-mode, so that we can
 	 * protect M-mode context and enforce checks on memory accesses.
 	 */
-	if (dom->next_mode != PRV_S &&
+	सचे (dom->next_mode != PRV_S &&
 	    dom->next_mode != PRV_U) {
 		sbi_printf("%s: %s invalid next booting stage mode 0x%lx\n",
 			   __func__, dom->name, dom->next_mode);
-		return SBI_EINVAL;
+		पटिनिवत्त SBI_EINVAL;
 	}
 
 	/* Check next address and next mode */
-	if (!sbi_domain_check_addr(dom, dom->next_addr, dom->next_mode,
+	सचे (!sbi_domain_check_addr(dom, dom->next_addr, dom->next_mode,
 				   SBI_DOMAIN_EXECUTE)) {
 		sbi_printf("%s: %s next booting stage address 0x%lx can't "
 			   "execute\n", __func__, dom->name, dom->next_addr);
-		return SBI_EINVAL;
+		पटिनिवत्त SBI_EINVAL;
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-bool sbi_domain_check_addr_range(const struct sbi_domain *dom,
+bool sbi_domain_check_addr_range(ध्रुव संरचना sbi_domain *dom,
 				 unsigned long addr, unsigned long size,
 				 unsigned long mode,
 				 unsigned long access_flags)
 {
 	unsigned long max = addr + size;
-	const struct sbi_domain_memregion *reg, *sreg;
+	ध्रुव संरचना sbi_domain_memregion *reg, *sreg;
 
-	if (!dom)
-		return false;
+	सचे (!dom)
+		पटिनिवत्त false;
 
-	if (size && max <= addr)
-		return false;
+	सचे (size && max <= addr)
+		पटिनिवत्त false;
 
-	while (addr < max) {
+	याव (addr < max) {
 		reg = find_region(dom, addr);
-		if (!reg)
-			return false;
+		सचे (!reg)
+			पटिनिवत्त false;
 
-		if (!sbi_domain_check_addr(dom, addr, mode, access_flags))
-			return false;
+		सचे (!sbi_domain_check_addr(dom, addr, mode, access_flags))
+			पटिनिवत्त false;
 
 		sreg = find_next_subset_region(dom, reg, addr);
-		if (sreg)
+		सचे (sreg)
 			addr = sreg->base;
-		else if (reg->order < __riscv_xlen)
+		अञ्ञथा सचे (reg->order < __riscv_xlen)
 			addr = reg->base + (1UL << reg->order);
-		else
-			break;
+		अञ्ञथा
+			भङ्ग;
 	}
 
-	return true;
+	पटिनिवत्त true;
 }
 
-void sbi_domain_dump(const struct sbi_domain *dom, const char *suffix)
+शून्य sbi_domain_dump(ध्रुव संरचना sbi_domain *dom, ध्रुव वर्ण *suffix)
 {
 	u32 i, j, k;
 	unsigned long rstart, rend;
-	struct sbi_domain_memregion *reg;
+	संरचना sbi_domain_memregion *reg;
 
 	sbi_printf("Domain%d Name        %s: %s\n",
 		   dom->index, suffix, dom->name);
@@ -567,25 +567,25 @@ void sbi_domain_dump(const struct sbi_domain *dom, const char *suffix)
 		k = 0;
 
 		sbi_printf("M: ");
-		if (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
 			sbi_printf("%cI", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_FW)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_FW)
 			sbi_printf("%cF", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_READABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_READABLE)
 			sbi_printf("%cR", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_WRITABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_WRITABLE)
 			sbi_printf("%cW", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_M_EXECUTABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_M_EXECUTABLE)
 			sbi_printf("%cX", (k++) ? ',' : '(');
 		sbi_printf("%s ", (k++) ? ")" : "()");
 
 		k = 0;
 		sbi_printf("S/U: ");
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
 			sbi_printf("%cR", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
 			sbi_printf("%cW", (k++) ? ',' : '(');
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+		सचे (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
 			sbi_printf("%cX", (k++) ? ',' : '(');
 		sbi_printf("%s\n", (k++) ? ")" : "()");
 
@@ -599,19 +599,19 @@ void sbi_domain_dump(const struct sbi_domain *dom, const char *suffix)
 		   dom->index, suffix, dom->next_arg1);
 
 	sbi_printf("Domain%d Next Mode   %s: ", dom->index, suffix);
-	switch (dom->next_mode) {
-	case PRV_M:
+	विकल्प (dom->next_mode) {
+	पक्ष PRV_M:
 		sbi_printf("M-mode\n");
-		break;
-	case PRV_S:
+		भङ्ग;
+	पक्ष PRV_S:
 		sbi_printf("S-mode\n");
-		break;
-	case PRV_U:
+		भङ्ग;
+	पक्ष PRV_U:
 		sbi_printf("U-mode\n");
-		break;
-	default:
+		भङ्ग;
+	स्वभाव:
 		sbi_printf("Unknown\n");
-		break;
+		भङ्ग;
 	}
 
 	sbi_printf("Domain%d SysReset    %s: %s\n",
@@ -621,9 +621,9 @@ void sbi_domain_dump(const struct sbi_domain *dom, const char *suffix)
 		   dom->index, suffix, (dom->system_suspend_allowed) ? "yes" : "no");
 }
 
-void sbi_domain_dump_all(const char *suffix)
+शून्य sbi_domain_dump_all(ध्रुव वर्ण *suffix)
 {
-	const struct sbi_domain *dom;
+	ध्रुव संरचना sbi_domain *dom;
 
 	sbi_domain_for_each(dom) {
 		sbi_domain_dump(dom, suffix);
@@ -631,16 +631,16 @@ void sbi_domain_dump_all(const char *suffix)
 	}
 }
 
-int sbi_domain_register(struct sbi_domain *dom)
+पूर्णाङ्क sbi_domain_register(संरचना sbi_domain *dom)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	u32 i, cold_hartid = current_hartid();
-	struct sbi_domain *tdom;
-	int rc;
+	संरचना sbi_domain *tdom;
+	पूर्णाङ्क rc;
 
 	/* Sanity checks */
-	if (!dom || domain_finalized)
-		return SBI_EINVAL;
+	सचे (!dom || domain_finalized)
+		पटिनिवत्त SBI_EINVAL;
 
 	/*
 	 * Ensure that:
@@ -648,24 +648,24 @@ int sbi_domain_register(struct sbi_domain *dom)
 	 *  2) Initialization order is unique
 	 */
 	sbi_domain_for_each(tdom) {
-		if (tdom == dom ||
+		सचे (tdom == dom ||
 		    tdom->init_order == dom->init_order)
-			return SBI_EALREADY;
+			पटिनिवत्त SBI_EALREADY;
 	}
 
 	/* Sanitize discovered domain */
 	rc = sanitize_domain(dom);
-	if (rc) {
+	सचे (rc) {
 		sbi_printf("%s: sanity checks failed for"
 			   " %s (error %d)\n", __func__,
 			   dom->name, rc);
-		return rc;
+		पटिनिवत्त rc;
 	}
 
-	sbi_list_add_tail(&dom->node, &domain_list);
+	sbi_list_add_tail(&dom->ग्रन्थिः, &domain_list);
 
 	/* Assign index to domain */
-	dom->index = domain_count++;
+	dom->index = domain_गणनम्++;
 
 	/* Initialize spinlock for dom->assigned_harts */
 	SPIN_LOCK_INIT(dom->assigned_harts_lock);
@@ -679,11 +679,11 @@ int sbi_domain_register(struct sbi_domain *dom)
 	 */
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
 		tdom = sbi_hartindex_to_domain(i);
-		if (tdom) {
-			if (tdom->init_order > dom->init_order)
+		सचे (tdom) {
+			सचे (tdom->init_order > dom->init_order)
 				sbi_hartmask_clear_hartindex(i, &tdom->assigned_harts);
-			else
-				continue;
+			अञ्ञथा
+				अनुवर्त;
 		}
 
 		sbi_update_hartindex_to_domain(i, dom);
@@ -693,7 +693,7 @@ int sbi_domain_register(struct sbi_domain *dom)
 		 * If cold boot HART is assigned to this domain then
 		 * override boot HART of this domain.
 		 */
-		if (sbi_hartindex_to_hartid(i) == cold_hartid &&
+		सचे (sbi_hartindex_to_hartid(i) == cold_hartid &&
 		    dom->boot_hartid != cold_hartid) {
 			sbi_printf("Domain%d Boot HARTID forced to"
 				   " %d\n", dom->index, cold_hartid);
@@ -703,111 +703,111 @@ int sbi_domain_register(struct sbi_domain *dom)
 
 	/* Setup state for the discovered domain */
 	rc = sbi_domain_setup_state(dom);
-	if (rc) {
+	सचे (rc) {
 		sbi_printf("%s: domain state setup failed for %s (error %d)\n",
 			   __func__, dom->name, rc);
-		sbi_list_del(&dom->node);
-		return rc;
+		sbi_list_del(&dom->ग्रन्थिः);
+		पटिनिवत्त rc;
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-static int root_add_memregion(const struct sbi_domain_memregion *reg)
+स्थिर पूर्णाङ्क मूलम्_add_memregion(ध्रुव संरचना sbi_domain_memregion *reg)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	bool reg_merged;
-	struct sbi_domain_memregion *nreg, *nreg1;
-	int root_memregs_count = sbi_domain_used_memregions(&root);
+	संरचना sbi_domain_memregion *nreg, *nreg1;
+	पूर्णाङ्क मूलम्_memregs_गणनम् = sbi_domain_used_memregions(&मूलम्);
 
 	/* Sanity checks */
-	if (!reg || domain_finalized || !root.regions ||
-	    (ROOT_REGION_MAX <= root_memregs_count))
-		return SBI_EINVAL;
+	सचे (!reg || domain_finalized || !मूलम्.regions ||
+	    (मूलम्_REGION_MAX <= मूलम्_memregs_गणनम्))
+		पटिनिवत्त SBI_EINVAL;
 
 	/* Check whether compatible region exists for the new one */
-	sbi_domain_for_each_memregion(&root, nreg) {
-		if (is_region_compatible(reg, nreg))
-			return 0;
+	sbi_domain_for_each_memregion(&मूलम्, nreg) {
+		सचे (is_region_compatible(reg, nreg))
+			पटिनिवत्त 0;
 	}
 
 	/* Append the memregion to root memregions */
-	nreg = &root.regions[root_memregs_count];
-	sbi_memcpy(nreg, reg, sizeof(*reg));
-	root_memregs_count++;
-	root.regions[root_memregs_count].order = 0;
+	nreg = &मूलम्.regions[मूलम्_memregs_गणनम्];
+	sbi_memcpy(nreg, reg, परिमाण(*reg));
+	मूलम्_memregs_गणनम्++;
+	मूलम्.regions[मूलम्_memregs_गणनम्].order = 0;
 
 	/* Sort and optimize root regions */
-	do {
+	करोहि {
 		/* Sanitize the root domain so that memregions are sorted */
-		rc = sanitize_domain(&root);
-		if (rc) {
+		rc = sanitize_domain(&मूलम्);
+		सचे (rc) {
 			sbi_printf("%s: sanity checks failed for"
 				   " %s (error %d)\n", __func__,
-				   root.name, rc);
-			return rc;
+				   मूलम्.name, rc);
+			पटिनिवत्त rc;
 		}
 
 		/* Merge consecutive memregions with same order and flags */
 		reg_merged = false;
-		sbi_domain_for_each_memregion(&root, nreg) {
+		sbi_domain_for_each_memregion(&मूलम्, nreg) {
 			nreg1 = nreg + 1;
-			if (!nreg1->order)
-				continue;
+			सचे (!nreg1->order)
+				अनुवर्त;
 
-			if (!(nreg->base & (BIT(nreg->order + 1) - 1)) &&
+			सचे (!(nreg->base & (BIT(nreg->order + 1) - 1)) &&
 			    (nreg->base + BIT(nreg->order)) == nreg1->base &&
 			    nreg->order == nreg1->order &&
 			    nreg->flags == nreg1->flags) {
-				int i1 = nreg1 - root.regions;
+				पूर्णाङ्क i1 = nreg1 - मूलम्.regions;
 				nreg->order++;
 				sbi_memmove(nreg1, nreg1 + 1,
-					    sizeof(*nreg1) * (root_memregs_count - i1));
+					    परिमाण(*nreg1) * (मूलम्_memregs_गणनम् - i1));
 				reg_merged = true;
-				root_memregs_count--;
+				मूलम्_memregs_गणनम्--;
 			}
 		}
-	} while (reg_merged);
+	} याव (reg_merged);
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-int sbi_domain_root_add_memrange(unsigned long addr, unsigned long size,
+पूर्णाङ्क sbi_domain_मूलम्_add_memrange(unsigned long addr, unsigned long size,
 			   unsigned long align, unsigned long region_flags)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	unsigned long pos, end, rsize;
-	struct sbi_domain_memregion reg;
+	संरचना sbi_domain_memregion reg;
 
 	pos = addr;
 	end = addr + size;
-	while (pos < end) {
+	याव (pos < end) {
 		rsize = pos & (align - 1);
-		if (rsize)
+		सचे (rsize)
 			rsize = 1UL << sbi_ffs(pos);
-		else
+		अञ्ञथा
 			rsize = ((end - pos) < align) ?
 				(end - pos) : align;
 
 		sbi_domain_memregion_init(pos, rsize, region_flags, &reg);
-		rc = root_add_memregion(&reg);
-		if (rc)
-			return rc;
+		rc = मूलम्_add_memregion(&reg);
+		सचे (rc)
+			पटिनिवत्त rc;
 		pos += rsize;
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-int sbi_domain_startup(struct sbi_scratch *scratch, u32 cold_hartid)
+पूर्णाङ्क sbi_domain_startup(संरचना sbi_scratch *scratch, u32 cold_hartid)
 {
-	int rc;
+	पूर्णाङ्क rc;
 	u32 dhart;
-	struct sbi_domain *dom;
+	संरचना sbi_domain *dom;
 
 	/* Sanity checks */
-	if (!domain_finalized)
-		return SBI_EINVAL;
+	सचे (!domain_finalized)
+		पटिनिवत्त SBI_EINVAL;
 
 	/* Startup boot HART of domains */
 	sbi_domain_for_each(dom) {
@@ -815,62 +815,62 @@ int sbi_domain_startup(struct sbi_scratch *scratch, u32 cold_hartid)
 		dhart = sbi_hartid_to_hartindex(dom->boot_hartid);
 
 		/* Ignore of boot HART is off limits */
-		if (!sbi_hartindex_valid(dhart))
-			continue;
+		सचे (!sbi_hartindex_valid(dhart))
+			अनुवर्त;
 
 		/* Ignore if boot HART not possible for this domain */
-		if (!sbi_hartmask_test_hartindex(dhart, dom->possible_harts))
-			continue;
+		सचे (!sbi_hartmask_test_hartindex(dhart, dom->possible_harts))
+			अनुवर्त;
 
 		/* Ignore if boot HART assigned different domain */
-		if (sbi_hartindex_to_domain(dhart) != dom)
-			continue;
+		सचे (sbi_hartindex_to_domain(dhart) != dom)
+			अनुवर्त;
 
 		/* Ignore if boot HART is not part of the assigned HARTs */
 		spin_lock(&dom->assigned_harts_lock);
 		rc = sbi_hartmask_test_hartindex(dhart, &dom->assigned_harts);
 		spin_unlock(&dom->assigned_harts_lock);
-		if (!rc)
-			continue;
+		सचे (!rc)
+			अनुवर्त;
 
 		/* Startup boot HART of domain */
-		if (dom->boot_hartid == cold_hartid) {
+		सचे (dom->boot_hartid == cold_hartid) {
 			scratch->next_addr = dom->next_addr;
 			scratch->next_mode = dom->next_mode;
 			scratch->next_arg1 = dom->next_arg1;
-		} else {
-			rc = sbi_hsm_hart_start(scratch, NULL,
+		} अञ्ञथा {
+			rc = sbi_hsm_hart_start(scratch, रिक्त,
 						dom->boot_hartid,
 						dom->next_addr,
 						dom->next_mode,
 						dom->next_arg1);
-			if (rc) {
+			सचे (rc) {
 				sbi_printf("%s: failed to start boot HART %d"
 					   " for %s (error %d)\n", __func__,
 					   dom->boot_hartid, dom->name, rc);
-				return rc;
+				पटिनिवत्त rc;
 			}
 		}
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-int sbi_domain_finalize(struct sbi_scratch *scratch)
+पूर्णाङ्क sbi_domain_finalize(संरचना sbi_scratch *scratch)
 {
-	int rc;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	पूर्णाङ्क rc;
+	ध्रुव संरचना sbi_platform *plat = sbi_platform_ptr(scratch);
 
 	/* Sanity checks */
-	if (domain_finalized)
-		return SBI_EINVAL;
+	सचे (domain_finalized)
+		पटिनिवत्त SBI_EINVAL;
 
 	/* Initialize and populate domains for the platform */
 	rc = sbi_platform_domains_init(plat);
-	if (rc) {
+	सचे (rc) {
 		sbi_printf("%s: platform domains_init() failed (error %d)\n",
 			   __func__, rc);
-		return rc;
+		पटिनिवत्त rc;
 	}
 
 	/*
@@ -879,74 +879,74 @@ int sbi_domain_finalize(struct sbi_scratch *scratch)
 	 */
 	domain_finalized = true;
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
+पूर्णाङ्क sbi_domain_init(संरचना sbi_scratch *scratch, u32 cold_hartid)
 {
-	int rc;
-	struct sbi_hartmask *root_hmask;
-	struct sbi_domain_memregion *root_memregs;
-	int root_memregs_count = 0;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	पूर्णाङ्क rc;
+	संरचना sbi_hartmask *मूलम्_hmask;
+	संरचना sbi_domain_memregion *मूलम्_memregs;
+	पूर्णाङ्क मूलम्_memregs_गणनम् = 0;
+	ध्रुव संरचना sbi_platform *plat = sbi_platform_ptr(scratch);
 	bool fw_single_region = sbi_platform_single_fw_region(plat);
 
 	SBI_INIT_LIST_HEAD(&domain_list);
 
-	if (!fw_single_region) {
-		if (scratch->fw_rw_offset == 0 ||
+	सचे (!fw_single_region) {
+		सचे (scratch->fw_rw_offset == 0 ||
 		    (scratch->fw_rw_offset & (scratch->fw_rw_offset - 1)) != 0) {
 			sbi_printf("%s: fw_rw_offset is not a power of 2 (0x%lx)\n",
 				   __func__, scratch->fw_rw_offset);
-			return SBI_EINVAL;
+			पटिनिवत्त SBI_EINVAL;
 		}
-		if ((scratch->fw_start & (scratch->fw_rw_offset - 1)) != 0) {
+		सचे ((scratch->fw_start & (scratch->fw_rw_offset - 1)) != 0) {
 			sbi_printf("%s: fw_start and fw_rw_offset not aligned\n",
 				   __func__);
-			return SBI_EINVAL;
+			पटिनिवत्त SBI_EINVAL;
 		}
 	}
 
-	domain_hart_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-	if (!domain_hart_ptr_offset)
-		return SBI_ENOMEM;
+	domain_hart_ptr_offset = sbi_scratch_alloc_type_offset(शून्य *);
+	सचे (!domain_hart_ptr_offset)
+		पटिनिवत्त SBI_ENOMEM;
 
 	/* Initialize domain context support */
 	rc = sbi_domain_context_init();
-	if (rc)
-		goto fail_free_domain_hart_ptr_offset;
+	सचे (rc)
+		गच्छ fail_free_domain_hart_ptr_offset;
 
-	root_memregs = sbi_calloc(sizeof(*root_memregs), ROOT_REGION_MAX + 1);
-	if (!root_memregs) {
+	मूलम्_memregs = sbi_calloc(परिमाण(*मूलम्_memregs), मूलम्_REGION_MAX + 1);
+	सचे (!मूलम्_memregs) {
 		sbi_printf("%s: no memory for root regions\n", __func__);
 		rc = SBI_ENOMEM;
-		goto fail_deinit_context;
+		गच्छ fail_deinit_context;
 	}
-	root.regions = root_memregs;
+	मूलम्.regions = मूलम्_memregs;
 
-	root_hmask = sbi_zalloc(sizeof(*root_hmask));
-	if (!root_hmask) {
+	मूलम्_hmask = sbi_zalloc(परिमाण(*मूलम्_hmask));
+	सचे (!मूलम्_hmask) {
 		sbi_printf("%s: no memory for root hartmask\n", __func__);
 		rc = SBI_ENOMEM;
-		goto fail_free_root_memregs;
+		गच्छ fail_free_मूलम्_memregs;
 	}
-	root.possible_harts = root_hmask;
+	मूलम्.possible_harts = मूलम्_hmask;
 
 	/* Root domain firmware memory region */
-	if (fw_single_region) {
+	सचे (fw_single_region) {
 		sbi_domain_memregion_init(scratch->fw_start, scratch->fw_size,
 					  (SBI_DOMAIN_MEMREGION_M_READABLE |
 					   SBI_DOMAIN_MEMREGION_M_WRITABLE |
 					   SBI_DOMAIN_MEMREGION_M_EXECUTABLE |
 					   SBI_DOMAIN_MEMREGION_FW),
-					  &root_memregs[root_memregs_count++]);
-	} else {
+					  &मूलम्_memregs[मूलम्_memregs_गणनम्++]);
+	} अञ्ञथा {
 		sbi_domain_memregion_init(scratch->fw_start,
 					  scratch->fw_rw_offset,
 					  (SBI_DOMAIN_MEMREGION_M_READABLE |
 					   SBI_DOMAIN_MEMREGION_M_EXECUTABLE |
 					   SBI_DOMAIN_MEMREGION_FW),
-					  &root_memregs[root_memregs_count++]);
+					  &मूलम्_memregs[मूलम्_memregs_गणनम्++]);
 
 		sbi_domain_memregion_init((scratch->fw_start +
 					   scratch->fw_rw_offset),
@@ -955,10 +955,10 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
 					  (SBI_DOMAIN_MEMREGION_M_READABLE |
 					   SBI_DOMAIN_MEMREGION_M_WRITABLE |
 					   SBI_DOMAIN_MEMREGION_FW),
-					  &root_memregs[root_memregs_count++]);
+					  &मूलम्_memregs[मूलम्_memregs_गणनम्++]);
 	}
 
-	root.fw_region_inited = true;
+	मूलम्.fw_region_inited = true;
 
 	/*
 	 * Allow SU RWX on rest of the memory region. Since pmp entries
@@ -971,37 +971,37 @@ int sbi_domain_init(struct sbi_scratch *scratch, u32 cold_hartid)
 				  (SBI_DOMAIN_MEMREGION_SU_READABLE |
 				   SBI_DOMAIN_MEMREGION_SU_WRITABLE |
 				   SBI_DOMAIN_MEMREGION_SU_EXECUTABLE),
-				  &root_memregs[root_memregs_count++]);
+				  &मूलम्_memregs[मूलम्_memregs_गणनम्++]);
 
 	/* Root domain memory region end */
-	root_memregs[root_memregs_count].order = 0;
+	मूलम्_memregs[मूलम्_memregs_गणनम्].order = 0;
 
 	/* Root domain boot HART id is same as coldboot HART id */
-	root.boot_hartid = cold_hartid;
+	मूलम्.boot_hartid = cold_hartid;
 
 	/* Root domain next booting stage details */
-	root.next_arg1 = scratch->next_arg1;
-	root.next_addr = scratch->next_addr;
-	root.next_mode = scratch->next_mode;
+	मूलम्.next_arg1 = scratch->next_arg1;
+	मूलम्.next_addr = scratch->next_addr;
+	मूलम्.next_mode = scratch->next_mode;
 
 	/* Root domain possible and assigned HARTs */
 	sbi_for_each_hartindex(i)
-		sbi_hartmask_set_hartindex(i, root_hmask);
+		sbi_hartmask_set_hartindex(i, मूलम्_hmask);
 
 	/* Finally register the root domain */
-	rc = sbi_domain_register(&root);
-	if (rc)
-		goto fail_free_root_hmask;
+	rc = sbi_domain_register(&मूलम्);
+	सचे (rc)
+		गच्छ fail_free_मूलम्_hmask;
 
-	return 0;
+	पटिनिवत्त 0;
 
-fail_free_root_hmask:
-	sbi_free(root_hmask);
-fail_free_root_memregs:
-	sbi_free(root_memregs);
+fail_free_मूलम्_hmask:
+	sbi_free(मूलम्_hmask);
+fail_free_मूलम्_memregs:
+	sbi_free(मूलम्_memregs);
 fail_deinit_context:
 	sbi_domain_context_deinit();
 fail_free_domain_hart_ptr_offset:
 	sbi_scratch_free_offset(domain_hart_ptr_offset);
-	return rc;
+	पटिनिवत्त rc;
 }

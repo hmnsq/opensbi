@@ -4,214 +4,214 @@
  * Copyright (c) 2025 Ventana Micro Systems Inc.
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#अन्तर्भाव <sbi/sbi_console.h>
+#अन्तर्भाव <sbi/sbi_error.h>
+#अन्तर्भाव <sbi/sbi_hart_protection.h>
+#अन्तर्भाव <sbi/sbi_scratch.h>
+#अन्तर्भाव <sbi/sbi_string.h>
 
-static SBI_LIST_HEAD(hart_protection_list);
+स्थिर SBI_LIST_HEAD(hart_protection_list);
 
-static struct sbi_hart_protection *__hart_memory_protection_best(void)
+स्थिर संरचना sbi_hart_protection *__hart_memory_protection_best(शून्य)
 {
-	struct sbi_hart_protection *pos;
+	संरचना sbi_hart_protection *pos;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
-			return pos;
+		सचे (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
+			पटिनिवत्त pos;
 	}
 
-	return NULL;
+	पटिनिवत्त रिक्त;
 }
 
-void sbi_hart_protection_get_str(char *out_str, int out_str_size)
+शून्य sbi_hart_protection_get_str(वर्ण *out_str, पूर्णाङ्क out_str_size)
 {
 	bool memory_protect_done = false;
-	struct sbi_hart_protection *pos;
-	int offset = 0;
+	संरचना sbi_hart_protection *pos;
+	पूर्णाङ्क offset = 0;
 
-	if (!out_str || out_str_size <= 0)
-		return;
+	सचे (!out_str || out_str_size <= 0)
+		पटिनिवत्त;
 	sbi_memset(out_str, 0, out_str_size);
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
-			if (memory_protect_done)
-				continue;
+		सचे (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
+			सचे (memory_protect_done)
+				अनुवर्त;
 			memory_protect_done = true;
 		}
 		sbi_snprintf(out_str + offset, out_str_size - offset, "%s,", pos->name);
 		offset = offset + sbi_strlen(pos->name) + 1;
 	}
 
-	if (offset)
+	सचे (offset)
 		out_str[offset - 1] = '\0';
-	else
+	अञ्ञथा
 		sbi_strncpy(out_str, "none", out_str_size);
 }
 
-int sbi_hart_protection_register(struct sbi_hart_protection *hprot)
+पूर्णाङ्क sbi_hart_protection_register(संरचना sbi_hart_protection *hprot)
 {
-	struct sbi_hart_protection *pos = NULL;
+	संरचना sbi_hart_protection *pos = रिक्त;
 	bool found_pos = false;
 
-	if (!hprot)
-		return SBI_EINVAL;
-	if (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
-		return SBI_EINVAL;
+	सचे (!hprot)
+		पटिनिवत्त SBI_EINVAL;
+	सचे (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
+		पटिनिवत्त SBI_EINVAL;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (hprot->rating > pos->rating) {
+		सचे (hprot->rating > pos->rating) {
 			found_pos = true;
-			break;
+			भङ्ग;
 		}
 	}
 
-	if (found_pos)
+	सचे (found_pos)
 		sbi_list_add_tail(&hprot->head, &pos->head);
-	else
+	अञ्ञथा
 		sbi_list_add_tail(&hprot->head, &hart_protection_list);
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-void sbi_hart_protection_unregister(struct sbi_hart_protection *hprot)
+शून्य sbi_hart_protection_unregister(संरचना sbi_hart_protection *hprot)
 {
-	if (!hprot)
-		return;
+	सचे (!hprot)
+		पटिनिवत्त;
 
 	sbi_list_del(&hprot->head);
 }
 
-static int __hart_protection_configure(struct sbi_scratch *scratch,
-				       struct sbi_hart_protection *hprot,
-				       struct sbi_domain *dom)
+स्थिर पूर्णाङ्क __hart_protection_configure(संरचना sbi_scratch *scratch,
+				       संरचना sbi_hart_protection *hprot,
+				       संरचना sbi_domain *dom)
 {
-	if (!hprot)
-		return 0;
-	if (!hprot->configure)
-		return SBI_ENOSYS;
+	सचे (!hprot)
+		पटिनिवत्त 0;
+	सचे (!hprot->configure)
+		पटिनिवत्त SBI_ENOSYS;
 
-	return hprot->configure(scratch, dom);
+	पटिनिवत्त hprot->configure(scratch, dom);
 }
 
-static void __hart_protection_unconfigure(struct sbi_scratch *scratch,
-					  struct sbi_hart_protection *hprot,
-					  struct sbi_domain *dom)
+स्थिर शून्य __hart_protection_unconfigure(संरचना sbi_scratch *scratch,
+					  संरचना sbi_hart_protection *hprot,
+					  संरचना sbi_domain *dom)
 {
-	if (!hprot || !hprot->unconfigure)
-		return;
+	सचे (!hprot || !hprot->unconfigure)
+		पटिनिवत्त;
 
 	hprot->unconfigure(scratch, dom);
 }
 
-int sbi_hart_protection_configure(struct sbi_scratch *scratch,
-				  struct sbi_domain *dom)
+पूर्णाङ्क sbi_hart_protection_configure(संरचना sbi_scratch *scratch,
+				  संरचना sbi_domain *dom)
 {
 	bool do_configure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	संरचना sbi_hart_protection *hprot;
+	पूर्णाङ्क ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_configure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		विकल्प (hprot->type) {
+		पक्ष SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_configure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			भङ्ग;
+		पक्ष SBI_HART_PROTECTION_TYPE_ID:
 			do_configure = true;
-			break;
-		default:
-			break;
+			भङ्ग;
+		स्वभाव:
+			भङ्ग;
 		}
-		if (!do_configure)
-			continue;
+		सचे (!do_configure)
+			अनुवर्त;
 
 		ret = __hart_protection_configure(scratch, hprot, dom);
-		if (ret)
-			return ret;
+		सचे (ret)
+			पटिनिवत्त ret;
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+शून्य sbi_hart_protection_unconfigure(संरचना sbi_scratch *scratch,
+				     संरचना sbi_domain *dom)
 {
 
 	bool do_unconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
+	संरचना sbi_hart_protection *hprot;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_unconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		विकल्प (hprot->type) {
+		पक्ष SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_unconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			भङ्ग;
+		पक्ष SBI_HART_PROTECTION_TYPE_ID:
 			do_unconfigure = true;
-			break;
-		default:
-			break;
+			भङ्ग;
+		स्वभाव:
+			भङ्ग;
 		}
-		if (!do_unconfigure)
-			continue;
+		सचे (!do_unconfigure)
+			अनुवर्त;
 
 		__hart_protection_unconfigure(scratch, hprot, dom);
 	}
 }
 
-int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
-				    struct sbi_domain *current_dom,
-				    struct sbi_domain *next_dom)
+पूर्णाङ्क sbi_hart_protection_reconfigure(संरचना sbi_scratch *scratch,
+				    संरचना sbi_domain *current_dom,
+				    संरचना sbi_domain *next_dom)
 {
 	bool do_reconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	संरचना sbi_hart_protection *hprot;
+	पूर्णाङ्क ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_reconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
+		विकल्प (hprot->type) {
+		पक्ष SBI_HART_PROTECTION_TYPE_MEMORY:
 			do_reconfigure = !memory_protect_done;
 			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+			भङ्ग;
+		पक्ष SBI_HART_PROTECTION_TYPE_ID:
 			do_reconfigure = true;
-			break;
-		default:
-			break;
+			भङ्ग;
+		स्वभाव:
+			भङ्ग;
 		}
-		if (!do_reconfigure)
-			continue;
+		सचे (!do_reconfigure)
+			अनुवर्त;
 
 		__hart_protection_unconfigure(scratch, hprot, current_dom);
 		ret = __hart_protection_configure(scratch, hprot, next_dom);
-		if (ret)
-			return ret;
+		सचे (ret)
+			पटिनिवत्त ret;
 	}
 
-	return 0;
+	पटिनिवत्त 0;
 }
 
-int sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
+पूर्णाङ्क sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	संरचना sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_map_range)
-		return 0;
+	सचे (!hprot || !hprot->temp_map_range)
+		पटिनिवत्त 0;
 
-	return hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
+	पटिनिवत्त hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
 }
 
-int sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
+पूर्णाङ्क sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	संरचना sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_unmap_range)
-		return 0;
+	सचे (!hprot || !hprot->temp_unmap_range)
+		पटिनिवत्त 0;
 
-	return hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
+	पटिनिवत्त hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
 }

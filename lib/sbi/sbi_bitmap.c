@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#अन्तर्भाव <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+शून्य __bitmap_and(unsigned long *dst, ध्रुव unsigned long *bitmap1,
+		  ध्रुव unsigned long *bitmap2, पूर्णाङ्क bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	पूर्णाङ्क k;
+	पूर्णाङ्क nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	अत्थाय (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+शून्य __bitmap_or(unsigned long *dst, ध्रुव unsigned long *bitmap1,
+		 ध्रुव unsigned long *bitmap2, पूर्णाङ्क bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	पूर्णाङ्क k;
+	पूर्णाङ्क nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	अत्थाय (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+शून्य __bitmap_xor(unsigned long *dst, ध्रुव unsigned long *bitmap1,
+		  ध्रुव unsigned long *bitmap2, पूर्णाङ्क bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	पूर्णाङ्क k;
+	पूर्णाङ्क nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	अत्थाय (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

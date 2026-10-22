@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#अन्तर्भाव "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#अन्तर्भाव <fdt.h>
+#अन्तर्भाव <libfdt.h>
 
-#include "libfdt_internal.h"
+#अन्तर्भाव "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+पूर्णाङ्क fdt_check_full(ध्रुव शून्य *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	पूर्णाङ्क err;
+	पूर्णाङ्क अङ्कः_memrsv;
+	पूर्णाङ्क offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
+	unsigned पूर्णाङ्क depth = 0;
+	ध्रुव शून्य *prop;
+	ध्रुव वर्ण *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	सचे (bufsize < FDT_V1_SIZE)
+		पटिनिवत्त -FDT_ERR_TRUNCATED;
+	सचे (bufsize < fdt_header_size(fdt))
+		पटिनिवत्त -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	सचे (err != 0)
+		पटिनिवत्त err;
+	सचे (bufsize < fdt_totalsize(fdt))
+		पटिनिवत्त -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	अङ्कः_memrsv = fdt_अङ्कः_mem_rsv(fdt);
+	सचे (अङ्कः_memrsv < 0)
+		पटिनिवत्त अङ्कः_memrsv;
 
-	while (1) {
+	याव (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		सचे (nextoffset < 0)
+			पटिनिवत्त nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		सचे (expect_end && tag != FDT_END)
+			पटिनिवत्त -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		विकल्प (tag) {
+		पक्ष FDT_NOP:
+			भङ्ग;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		पक्ष FDT_END:
+			सचे (depth != 0)
+				पटिनिवत्त -FDT_ERR_BADSTRUCTURE;
+			पटिनिवत्त 0;
 
-		case FDT_BEGIN_NODE:
+		पक्ष FDT_BEGIN_ग्रन्थिः:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			सचे (depth > INT_MAX)
+				पटिनिवत्त -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			सचे (depth == 1) {
+				ध्रुव वर्ण *name;
+				पूर्णाङ्क len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				सचे (*name || len)
+					पटिनिवत्त -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			भङ्ग;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		पक्ष FDT_END_ग्रन्थिः:
+			सचे (depth == 0)
+				पटिनिवत्त -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			सचे (depth == 0)
 				expect_end = true;
-			break;
+			भङ्ग;
 
-		case FDT_PROP:
+		पक्ष FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			सचे (!prop)
+				पटिनिवत्त err;
+			भङ्ग;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		स्वभाव:
+			पटिनिवत्त -FDT_ERR_INTERNAL;
 		}
 	}
 }
