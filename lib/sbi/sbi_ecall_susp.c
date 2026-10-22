@@ -5,21 +5,21 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_system.h>
 
-static int sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+static පූර්ණ_සංඛ්‍යා sbi_ecall_susp_handler(unsigned long extid, unsigned long funcid,
+				  sa_nracanaa sbi_trap_regs *regs,
+				  sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = SBI_ENOTSUPP;
+	පූර්ණ_සංඛ්‍යා ret = SBI_ENOTSUPP;
 
-	if (funcid == SBI_EXT_SUSP_SUSPEND)
+	නම් (funcid == SBI_EXT_SUSP_SUSPEND)
 		ret = sbi_system_suspend(regs->a0, regs->a1, regs->a2);
 
-	if (ret >= 0) {
+	නම් (ret >= 0) {
 		out->value = ret;
 		ret = 0;
 	}
 
-	return ret;
+	ආපසු ret;
 }
 
 static bool susp_available(void)
@@ -30,25 +30,25 @@ static bool susp_available(void)
 	 * At least one suspend type should be supported by the
 	 * platform for the SBI SUSP extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
-		if (sbi_system_suspend_supported(type))
-			return true;
+	සඳහා (type = 0; type <= SBI_SUSP_SLEEP_TYPE_LAST; type++) {
+		නම් (sbi_system_suspend_supported(type))
+			ආපසු true;
 	}
 
-	return false;
+	ආපසු false;
 }
 
-struct sbi_ecall_extension ecall_susp;
+sa_nracanaa sbi_ecall_extension ecall_susp;
 
-static int sbi_ecall_susp_register_extensions(void)
+static පූර්ණ_සංඛ්‍යා sbi_ecall_susp_register_extensions(void)
 {
-	if (!susp_available())
-		return 0;
+	නම් (!susp_available())
+		ආපසු 0;
 
-	return sbi_ecall_register_extension(&ecall_susp);
+	ආපසු sbi_ecall_register_extension(&ecall_susp);
 }
 
-struct sbi_ecall_extension ecall_susp = {
+sa_nracanaa sbi_ecall_extension ecall_susp = {
 	.name			= "susp",
 	.extid_start		= SBI_EXT_SUSP,
 	.extid_end		= SBI_EXT_SUSP,

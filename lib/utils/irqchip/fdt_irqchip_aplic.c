@@ -16,89 +16,89 @@
 #include <sbi_utils/irqchip/fdt_irqchip.h>
 #include <sbi_utils/irqchip/aplic.h>
 
-static int irqchip_aplic_update_idc_map(const void *fdt, int nodeoff,
-					struct aplic_data *pd)
+static පූර්ණ_සංඛ්‍යා irqchip_aplic_update_idc_map(const void *fdt, පූර්ණ_සංඛ්‍යා nodeoff,
+					sa_nracanaa aplic_data *pd)
 {
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	පූර්ණ_සංඛ්‍යා i, err, count, cpu_offset, cpu_intc_offset;
 	u32 phandle, hartid, hartindex;
 	const fdt32_t *val;
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	නම් (!val || count < parimaa_na(fdt32_t))
+		ආපසු SBI_EINVAL;
+	count = count / parimaa_na(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	සඳහා (i = 0; i < count; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
+		නම් (cpu_intc_offset < 0)
 			continue;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
+		නම් (cpu_offset < 0)
 			continue;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
+		නම් (err)
 			continue;
 
 		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
+		නම් (hartindex == -1U)
 			continue;
 
 		pd->idc_map[i / 2] = hartindex;
 	}
 
-	return 0;
+	ආපසු 0;
 }
 
-static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+static පූර්ණ_සංඛ්‍යා irqchip_aplic_cold_init(const void *fdt, පූර්ණ_සංඛ්‍යා nodeoff,
+				   const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct aplic_data *pd;
+	පූර්ණ_සංඛ්‍යා rc;
+	sa_nracanaa aplic_data *pd;
 
-	pd = sbi_zalloc(sizeof(*pd));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(parimaa_na(*pd));
+	නම් (!pd)
+		ආපසු SBI_ENOMEM;
 
 	rc = fdt_parse_aplic_node(fdt, nodeoff, pd);
-	if (rc)
+	නම් (rc)
 		goto fail_free_data;
 
-	if (pd->num_idc) {
-		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->num_idc);
-		if (!pd->idc_map) {
+	නම් (pd->num_idc) {
+		pd->idc_map = sbi_zalloc(parimaa_na(*pd->idc_map) * pd->num_idc);
+		නම් (!pd->idc_map) {
 			rc = SBI_ENOMEM;
 			goto fail_free_data;
 		}
 
 		rc = irqchip_aplic_update_idc_map(fdt, nodeoff, pd);
-		if (rc)
+		නම් (rc)
 			goto fail_free_idc_map;
 	}
 
 	rc = aplic_cold_irqchip_init(pd);
-	if (rc)
+	නම් (rc)
 		goto fail_free_idc_map;
 
-	return 0;
+	ආපසු 0;
 
 fail_free_idc_map:
-	if (pd->num_idc)
+	නම් (pd->num_idc)
 		sbi_free(pd->idc_map);
 fail_free_data:
 	sbi_free(pd);
-	return rc;
+	ආපසු rc;
 }
 
-static const struct fdt_match irqchip_aplic_match[] = {
+static const sa_nracanaa fdt_match irqchip_aplic_match[] = {
 	{ .compatible = "riscv,aplic" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_aplic = {
+const sa_nracanaa fdt_driver fdt_irqchip_aplic = {
 	.match_table = irqchip_aplic_match,
 	.init = irqchip_aplic_cold_init,
 };

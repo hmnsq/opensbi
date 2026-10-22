@@ -15,31 +15,31 @@
 #include <sbi_utils/fdt/fdt_helper.h>
 #include <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+extern sa_nracanaa plicsw_data plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+පූර්ණ_සංඛ්‍යා fdt_plicsw_cold_ipi_init(const void *fdt, පූර්ණ_සංඛ්‍යා nodeoff,
+			     const sa_nracanaa fdt_match *match)
 {
-	int rc;
+	පූර්ණ_සංඛ්‍යා rc;
 
 	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
 				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	නම් (rc)
+		ආපසු rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	නම් (rc)
+		ආපසු rc;
 
-	return 0;
+	ආපසු 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+static const sa_nracanaa fdt_match ipi_plicsw_match[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
+const sa_nracanaa fdt_driver fdt_ipi_plicsw = {
 	.match_table = ipi_plicsw_match,
 	.init = fdt_plicsw_cold_ipi_init,
 };

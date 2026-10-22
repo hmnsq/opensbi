@@ -9,25 +9,25 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/shakti-uart.h>
 
-static int serial_shakti_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+static පූර්ණ_සංඛ්‍යා serial_shakti_init(const void *fdt, පූර්ණ_සංඛ්‍යා nodeoff,
+			      const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	පූර්ණ_සංඛ්‍යා rc;
+	sa_nracanaa platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_shakti_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	නම් (rc)
+		ආපසු rc;
 
-	return shakti_uart_init(uart.addr, uart.freq, uart.baud);
+	ආපසු shakti_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_shakti_match[] = {
+static const sa_nracanaa fdt_match serial_shakti_match[] = {
 	{ .compatible = "shakti,uart0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_shakti = {
+const sa_nracanaa fdt_driver fdt_serial_shakti = {
 	.match_table = serial_shakti_match,
 	.init = serial_shakti_init
 };

@@ -13,13 +13,13 @@
 #include <sbi_utils/timer/fdt_timer.h>
 
 /* List of FDT timer drivers generated at compile time */
-extern const struct fdt_driver *const fdt_timer_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_timer_drivers[];
 
-int fdt_timer_init(void)
+පූර්ණ_සංඛ්‍යා fdt_timer_init(void)
 {
 	/*
 	 * Systems with Sstc might not provide any node in the FDT,
 	 * so do not return a failure if no device is found.
 	 */
-	return fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
+	ආපසු fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
 }

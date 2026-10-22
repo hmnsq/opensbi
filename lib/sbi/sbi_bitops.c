@@ -26,20 +26,20 @@ unsigned long find_first_bit(const unsigned long *addr,
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
+	අතරතුර (size & ~(BITS_PER_LONG-1)) {
+		නම් ((tmp = *(p++)))
 			goto found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	නම් (!size)
+		ආපසු result;
 
 	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	නම් (tmp == 0UL)		/* Are any bits set? */
+		ආපසු result + size;	/* Nope. */
 found:
-	return result + sbi_ffs(tmp);
+	ආපසු result + sbi_ffs(tmp);
 }
 
 /**
@@ -56,20 +56,20 @@ unsigned long find_first_zero_bit(const unsigned long *addr,
 	unsigned long result = 0;
 	unsigned long tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
+	අතරතුර (size & ~(BITS_PER_LONG-1)) {
+		නම් (~(tmp = *(p++)))
 			goto found;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	නම් (!size)
+		ආපසු result;
 
 	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	නම් (tmp == ~0UL)	/* Are any bits zero? */
+		ආපසු result + size;	/* Nope. */
 found:
-	return result + sbi_ffz(tmp);
+	ආපසු result + sbi_ffz(tmp);
 }
 
 /**
@@ -89,23 +89,23 @@ unsigned long find_last_bit(const unsigned long *addr,
 	words = size / BITS_PER_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
+	නම් (size & (BITS_PER_LONG-1)) {
 		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
 					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
+		නම් (tmp)
 			goto found;
 	}
 
-	while (words) {
+	අතරතුර (words) {
 		tmp = addr[--words];
-		if (tmp) {
+		නම් (tmp) {
 found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+			ආපසු words * BITS_PER_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	ආපසු size;
 }
 
 /**
@@ -121,36 +121,36 @@ unsigned long find_next_bit(const unsigned long *addr,
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	නම් (offset >= size)
+		ආපසු size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	නම් (offset) {
 		tmp = *(p++);
 		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
+		නම් (size < BITS_PER_LONG)
 			goto found_first;
-		if (tmp)
+		නම් (tmp)
 			goto found_middle;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
+	අතරතුර (size & ~(BITS_PER_LONG-1)) {
+		නම් ((tmp = *(p++)))
 			goto found_middle;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	නම් (!size)
+		ආපසු result;
 	tmp = *p;
 
 found_first:
 	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
+	නම් (tmp == 0UL)		/* Are any bits set? */
+		ආපසු result + size;	/* Nope. */
 found_middle:
-	return result + sbi_ffs(tmp);
+	ආපසු result + sbi_ffs(tmp);
 }
 
 /**
@@ -167,34 +167,34 @@ unsigned long find_next_zero_bit(const unsigned long *addr,
 	unsigned long result = offset & ~(BITS_PER_LONG-1);
 	unsigned long tmp;
 
-	if (offset >= size)
-		return size;
+	නම් (offset >= size)
+		ආපසු size;
 	size -= result;
 	offset %= BITS_PER_LONG;
-	if (offset) {
+	නම් (offset) {
 		tmp = *(p++);
 		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
+		නම් (size < BITS_PER_LONG)
 			goto found_first;
-		if (~tmp)
+		නම් (~tmp)
 			goto found_middle;
 		size -= BITS_PER_LONG;
 		result += BITS_PER_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
+	අතරතුර (size & ~(BITS_PER_LONG-1)) {
+		නම් (~(tmp = *(p++)))
 			goto found_middle;
 		result += BITS_PER_LONG;
 		size -= BITS_PER_LONG;
 	}
-	if (!size)
-		return result;
+	නම් (!size)
+		ආපසු result;
 	tmp = *p;
 
 found_first:
 	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
+	නම් (tmp == ~0UL)	/* Are any bits zero? */
+		ආපසු result + size;	/* Nope. */
 found_middle:
-	return result + sbi_ffz(tmp);
+	ආපසු result + sbi_ffz(tmp);
 }

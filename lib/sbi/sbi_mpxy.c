@@ -69,21 +69,21 @@ static SBI_LIST_HEAD(mpxy_channel_list);
 #define SHMEM_PHYS_ADDR(_hi, _lo) (_lo)
 
 /** Per hart shared memory */
-struct mpxy_shmem {
+sa_nracanaa mpxy_shmem {
 	unsigned long shmem_addr_lo;
 	unsigned long shmem_addr_hi;
 };
 
-struct mpxy_state {
+sa_nracanaa mpxy_state {
 	/* MSI support in MPXY */
 	bool msi_avail;
 	/* SSE support in MPXY */
 	bool sse_avail;
 	/* MPXY Shared memory details */
-	struct mpxy_shmem shmem;
+	sa_nracanaa mpxy_shmem shmem;
 };
 
-static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
+static sa_nracanaa mpxy_state *sbi_domain_get_mpxy_state(sa_nracanaa sbi_domain *dom,
 						    u32 hartindex);
 
 /** Macro to obtain the current hart's MPXY state pointer in current domain */
@@ -92,32 +92,32 @@ static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
 				  current_hartindex())
 
 /** Disable hart shared memory */
-static inline void sbi_mpxy_shmem_disable(struct mpxy_state *ms)
+static anta_hstha void sbi_mpxy_shmem_disable(sa_nracanaa mpxy_state *ms)
 {
 	ms->shmem.shmem_addr_lo = INVALID_ADDR;
 	ms->shmem.shmem_addr_hi = INVALID_ADDR;
 }
 
 /** Check if shared memory is already setup on hart */
-static inline bool mpxy_shmem_enabled(struct mpxy_state *ms)
+static anta_hstha bool mpxy_shmem_enabled(sa_nracanaa mpxy_state *ms)
 {
-	return (ms->shmem.shmem_addr_lo == INVALID_ADDR
+	ආපසු (ms->shmem.shmem_addr_lo == INVALID_ADDR
 		&& ms->shmem.shmem_addr_hi == INVALID_ADDR) ?
 		false : true;
 }
 
 /** Get hart shared memory base address */
-static inline void *hart_shmem_base(struct mpxy_state *ms)
+static anta_hstha void *hart_shmem_base(sa_nracanaa mpxy_state *ms)
 {
-	return (void *)(unsigned long)SHMEM_PHYS_ADDR(ms->shmem.shmem_addr_hi,
+	ආපසු (void *)(unsigned long)SHMEM_PHYS_ADDR(ms->shmem.shmem_addr_hi,
 						ms->shmem.shmem_addr_lo);
 }
 
 /** Make sure all attributes are packed for direct memcpy in ATTR_READ */
 #define assert_field_offset(field, attr_offset)				\
 	_Static_assert(							\
-		((offsetof(struct sbi_mpxy_channel_attrs, field)) /	\
-		 sizeof(u32)) == attr_offset,				\
+		((offsetof(sa_nracanaa sbi_mpxy_channel_attrs, field)) /	\
+		 parimaa_na(u32)) == attr_offset,				\
 		"field " #field						\
 		" from struct sbi_mpxy_channel_attrs invalid offset, expected " #attr_offset)
 
@@ -140,62 +140,62 @@ assert_field_offset(eventsstate_ctrl, SBI_MPXY_ATTR_EVENTS_STATE_CONTROL);
  * attr_id[31] = 0 for standard
  * attr_id[31] = 1 for message protocol specific
  */
-static inline bool mpxy_is_std_attr(u32 attr_id)
+static anta_hstha bool mpxy_is_std_attr(u32 attr_id)
 {
-	return (attr_id >> 31) ? false : true;
+	ආපසු (attr_id >> 31) ? false : true;
 }
 
-static inline bool mpxy_channel_visible(struct sbi_mpxy_channel *channel,
-					struct sbi_domain *dom)
+static anta_hstha bool mpxy_channel_visible(sa_nracanaa sbi_mpxy_channel *channel,
+					sa_nracanaa sbi_domain *dom)
 {
-	return channel->owner_domain == dom;
+	ආපසු channel->owner_domain == dom;
 }
 
 /** Find channel_id in registered channels list for this domain */
-static struct sbi_mpxy_channel *mpxy_find_channel(u32 channel_id,
-					struct sbi_domain *dom)
+static sa_nracanaa sbi_mpxy_channel *mpxy_find_channel(u32 channel_id,
+					sa_nracanaa sbi_domain *dom)
 {
-	struct sbi_mpxy_channel *channel;
+	sa_nracanaa sbi_mpxy_channel *channel;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (channel->channel_id == channel_id &&
+		නම් (channel->channel_id == channel_id &&
 		    mpxy_channel_visible(channel, dom))
-			return channel;
+			ආපසු channel;
 	}
 
-	return NULL;
+	ආපසු NULL;
 }
 
 /** Find channel_id in registered channels list */
-struct sbi_mpxy_channel *sbi_mpxy_find_channel_any(u32 channel_id)
+sa_nracanaa sbi_mpxy_channel *sbi_mpxy_find_channel_any(u32 channel_id)
 {
-	struct sbi_mpxy_channel *channel;
+	sa_nracanaa sbi_mpxy_channel *channel;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (channel->channel_id == channel_id)
-			return channel;
+		නම් (channel->channel_id == channel_id)
+			ආපසු channel;
 	}
 
-	return NULL;
+	ආපසු NULL;
 }
 
 /** Copy attributes word size */
 static void mpxy_copy_std_attrs(u32 *outmem, u32 *inmem, u32 count)
 {
-	int idx;
-	for (idx = 0; idx < count; idx++)
+	පූර්ණ_සංඛ්‍යා idx;
+	සඳහා (idx = 0; idx < count; idx++)
 		outmem[idx] = cpu_to_le32(inmem[idx]);
 }
 
 /** Check if any channel is registered with mpxy framework */
 bool sbi_mpxy_channel_available(void)
 {
-	return sbi_list_empty(&mpxy_channel_list) ? false : true;
+	ආපසු sbi_list_empty(&mpxy_channel_list) ? false : true;
 }
 
-static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
+static void mpxy_std_attrs_init(sa_nracanaa sbi_mpxy_channel *channel)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 capability = 0;
 
 	/* Reset values */
@@ -206,21 +206,21 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
 	channel->attrs.capability = 0;
 	channel->attrs.eventsstate_ctrl = 0;
 
-	if (channel->send_message_with_response)
+	නම් (channel->send_message_with_response)
 		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITH_RESP_MASK);
 
-	if (channel->send_message_without_response)
+	නම් (channel->send_message_without_response)
 		capability = CAP_ENABLE(capability, CAP_SEND_MSG_WITHOUT_RESP_MASK);
 
-	if (channel->get_notification_events) {
+	නම් (channel->get_notification_events) {
 		capability = CAP_ENABLE(capability, CAP_GET_NOTIFICATIONS_MASK);
 		/**
 		 * Check if MSI or SSE available for notification interrrupt.
 		 * Priority given to MSI if both MSI and SSE are avaialble.
 		 */
-		if (ms->msi_avail)
+		නම් (ms->msi_avail)
 			capability = CAP_ENABLE(capability, CAP_MSI_MASK);
-		else if (ms->sse_avail) {
+		නැතහොත් නම් (ms->sse_avail) {
 			capability = CAP_ENABLE(capability, CAP_SSE_MASK);
 			/* TODO: Assign SSE EVENT_ID for the channel */
 		}
@@ -230,7 +230,7 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
 		 * state reporting supoprt. Enable events state reporting in
 		 * channel capability.
 		 */
-		if (channel->switch_eventsstate)
+		නම් (channel->switch_eventsstate)
 			capability = CAP_ENABLE(capability, CAP_EVENTSSTATE_MASK);
 	}
 
@@ -241,44 +241,44 @@ static void mpxy_std_attrs_init(struct sbi_mpxy_channel *channel)
  * Register a channel with MPXY framework.
  * Called by message protocol drivers
  */
-int sbi_mpxy_register_channel(struct sbi_mpxy_channel *channel)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_register_channel(sa_nracanaa sbi_mpxy_channel *channel)
 {
-	if (!channel)
-		return SBI_EINVAL;
+	නම් (!channel)
+		ආපසු SBI_EINVAL;
 
-	if (!channel->owner_domain)
-		return SBI_EINVAL;
+	නම් (!channel->owner_domain)
+		ආපසු SBI_EINVAL;
 
-	if (sbi_mpxy_find_channel_any(channel->channel_id))
-		return SBI_EALREADY;
+	නම් (sbi_mpxy_find_channel_any(channel->channel_id))
+		ආපසු SBI_EALREADY;
 
 	/* Initialize channel specific attributes */
 	mpxy_std_attrs_init(channel);
 
 	/* Update shared memory size if required */
-	if (mpxy_shmem_size < channel->attrs.msg_data_maxlen) {
+	නම් (mpxy_shmem_size < channel->attrs.msg_data_maxlen) {
 		mpxy_shmem_size = ROUNDUP(channel->attrs.msg_data_maxlen,
 					  PAGE_SIZE);
 	}
 
 	sbi_list_add_tail(&channel->head, &mpxy_channel_list);
 
-	return SBI_OK;
+	ආපසු SBI_OK;
 }
 
 /** Setup per domain MPXY state data */
-static int domain_mpxy_state_setup(struct sbi_domain *dom,
-					struct sbi_domain_state *state,
+static පූර්ණ_සංඛ්‍යා domain_mpxy_state_setup(sa_nracanaa sbi_domain *dom,
+					sa_nracanaa sbi_domain_state *state,
 					void *state_ptr)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
-	struct mpxy_state *ms;
+	sa_nracanaa mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
+	sa_nracanaa mpxy_state *ms;
 	u32 i;
 
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
-		ms = sbi_zalloc(sizeof(*ms));
-		if (!ms)
-			return SBI_ENOMEM;
+		ms = sbi_zalloc(parimaa_na(*ms));
+		නම් (!ms)
+			ආපසු SBI_ENOMEM;
 
 		/*
 		 * TODO: Proper support for checking sse support from
@@ -292,22 +292,22 @@ static int domain_mpxy_state_setup(struct sbi_domain *dom,
 		dom_hartindex_to_mpxy_state_table[i] = ms;
 	}
 
-	return 0;
+	ආපසු 0;
 }
 
 /** Cleanup per domain MPXY state data */
-static void domain_mpxy_state_cleanup(struct sbi_domain *dom,
-					   struct sbi_domain_state *state,
+static void domain_mpxy_state_cleanup(sa_nracanaa sbi_domain *dom,
+					   sa_nracanaa sbi_domain_state *state,
 					   void *state_ptr)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
+	sa_nracanaa mpxy_state **dom_hartindex_to_mpxy_state_table = state_ptr;
 	u32 i;
 
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts)
 		sbi_free(dom_hartindex_to_mpxy_state_table[i]);
 }
 
-static struct sbi_domain_state dmstate = {
+static sa_nracanaa sbi_domain_state dmstate = {
 	.state_setup = domain_mpxy_state_setup,
 	.state_cleanup = domain_mpxy_state_cleanup,
 };
@@ -319,22 +319,22 @@ static struct sbi_domain_state dmstate = {
  *
  * @return per-domain MPXY state pointer for given HART index
  */
-static struct mpxy_state *sbi_domain_get_mpxy_state(struct sbi_domain *dom,
+static sa_nracanaa mpxy_state *sbi_domain_get_mpxy_state(sa_nracanaa sbi_domain *dom,
 						    u32 hartindex)
 {
-	struct mpxy_state **dom_hartindex_to_mpxy_state_table;
+	sa_nracanaa mpxy_state **dom_hartindex_to_mpxy_state_table;
 
 	dom_hartindex_to_mpxy_state_table = sbi_domain_state_ptr(dom, &dmstate);
-	if (!dom_hartindex_to_mpxy_state_table ||
+	නම් (!dom_hartindex_to_mpxy_state_table ||
 	    !sbi_hartindex_valid(hartindex))
-		return NULL;
+		ආපසු NULL;
 
-	return dom_hartindex_to_mpxy_state_table[hartindex];
+	ආපසු dom_hartindex_to_mpxy_state_table[hartindex];
 }
 
-int sbi_mpxy_init(struct sbi_scratch *scratch)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_init(sa_nracanaa sbi_scratch *scratch)
 {
-	int ret;
+	පූර්ණ_සංඛ්‍යා ret;
 
 	/**
 	 * Allocate per-domain and per-hart MPXY state data.
@@ -343,39 +343,39 @@ int sbi_mpxy_init(struct sbi_scratch *scratch)
 	 * domain_mpxy_state_setup(). Calculate needed size of memory space
 	 * here.
 	 */
-	dmstate.state_size = sizeof(struct mpxy_state *) * sbi_hart_count();
+	dmstate.state_size = parimaa_na(sa_nracanaa mpxy_state *) * sbi_hart_count();
 	ret = sbi_domain_register_state(&dmstate);
-	if (ret)
-		return ret;
+	නම් (ret)
+		ආපසු ret;
 
-	return sbi_platform_mpxy_init(sbi_platform_ptr(scratch));
+	ආපසු sbi_platform_mpxy_init(sbi_platform_ptr(scratch));
 }
 
 unsigned long sbi_mpxy_get_shmem_size(void)
 {
-	return mpxy_shmem_size;
+	ආපසු mpxy_shmem_size;
 }
 
-int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
+පූර්ණ_සංඛ්‍යා sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 		       unsigned long shmem_phys_hi,
 		       unsigned long flags)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	unsigned long *ret_buf;
 
 	/** Disable shared memory if both hi and lo have all bit 1s */
-	if (shmem_phys_lo == INVALID_ADDR &&
+	නම් (shmem_phys_lo == INVALID_ADDR &&
 	    shmem_phys_hi == INVALID_ADDR) {
 		sbi_mpxy_shmem_disable(ms);
-		return SBI_SUCCESS;
+		ආපසු SBI_SUCCESS;
 	}
 
-	if (flags >= SBI_EXT_MPXY_SHMEM_FLAG_MAX_IDX)
-		return SBI_ERR_INVALID_PARAM;
+	නම් (flags >= SBI_EXT_MPXY_SHMEM_FLAG_MAX_IDX)
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	/** Check shared memory size and address aligned to 4K Page */
-	if (shmem_phys_lo & ~PAGE_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	නම් (shmem_phys_lo & ~PAGE_MASK)
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	/*
 	* On RV32, the M-mode can only access the first 4GB of
@@ -388,17 +388,17 @@ int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 	* So fail if the upper 64bit of the physical address
 	* is non-zero on RV64.
 	*/
-	if (shmem_phys_hi)
-		return SBI_ERR_INVALID_ADDRESS;
+	නම් (shmem_phys_hi)
+		ආපසු SBI_ERR_INVALID_ADDRESS;
 
-	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+	නම් (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
 				SHMEM_PHYS_ADDR(shmem_phys_hi, shmem_phys_lo),
 				mpxy_shmem_size, PRV_S,
 				SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		ආපසු SBI_ERR_INVALID_ADDRESS;
 
 	/** Save the current shmem details in new shmem region */
-	if (flags == SBI_EXT_MPXY_SHMEM_FLAG_OVERWRITE_RETURN) {
+	නම් (flags == SBI_EXT_MPXY_SHMEM_FLAG_OVERWRITE_RETURN) {
 		ret_buf = (unsigned long *)(ulong)SHMEM_PHYS_ADDR(shmem_phys_hi,
 								  shmem_phys_lo);
 		sbi_hart_protection_temp_map_range((unsigned long)ret_buf, mpxy_shmem_size);
@@ -411,36 +411,36 @@ int sbi_mpxy_set_shmem(unsigned long shmem_phys_lo,
 	ms->shmem.shmem_addr_lo = shmem_phys_lo;
 	ms->shmem.shmem_addr_hi = shmem_phys_hi;
 
-	return SBI_SUCCESS;
+	ආපසු SBI_SUCCESS;
 }
 
-int sbi_mpxy_get_channel_ids(u32 start_index)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_get_channel_ids(u32 start_index)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 remaining, returned, max_channelids;
 	u32 node_index = 0, node_ret = 0;
-	struct sbi_mpxy_channel *channel;
+	sa_nracanaa sbi_mpxy_channel *channel;
 	u32 channels_count = 0;
 	u32 *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	sa_nracanaa sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	නම් (!mpxy_shmem_enabled(ms))
+		ආපසු SBI_ERR_NO_SHMEM;
 
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (mpxy_channel_visible(channel, dom))
+		නම් (mpxy_channel_visible(channel, dom))
 			channels_count += 1;
 	}
 
-	if (start_index > channels_count)
-		return SBI_ERR_INVALID_PARAM;
+	නම් (start_index > channels_count)
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
 	/** number of channel ids which can be stored in shmem adjusting
 	 * for remaining and returned fields */
-	max_channelids = (mpxy_shmem_size / sizeof(u32)) - 2;
+	max_channelids = (mpxy_shmem_size / parimaa_na(u32)) - 2;
 	/* total remaining from the start index */
 	remaining = channels_count - start_index;
 	/* how many can be returned */
@@ -448,10 +448,10 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 
 	// Iterate over the list of channels to get the channel ids.
 	sbi_list_for_each_entry(channel, &mpxy_channel_list, head) {
-		if (!mpxy_channel_visible(channel, sbi_domain_thishart_ptr()))
+		නම් (!mpxy_channel_visible(channel, sbi_domain_thishart_ptr()))
 			continue;
 
-		if (node_index >= start_index &&
+		නම් (node_index >= start_index &&
 			node_index < (start_index + returned)) {
 			shmem_base[2 + node_ret] = cpu_to_le32(channel->channel_id);
 			node_ret += 1;
@@ -468,32 +468,32 @@ int sbi_mpxy_get_channel_ids(u32 start_index)
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
-	return SBI_SUCCESS;
+	ආපසු SBI_SUCCESS;
 }
 
-int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	int ret = SBI_SUCCESS;
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	පූර්ණ_සංඛ්‍යා ret = SBI_SUCCESS;
 	u32 *attr_ptr, end_id;
 	void *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	sa_nracanaa sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	නම් (!mpxy_shmem_enabled(ms))
+		ආපසු SBI_ERR_NO_SHMEM;
 
-	struct sbi_mpxy_channel *channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	sa_nracanaa sbi_mpxy_channel *channel = mpxy_find_channel(channel_id, dom);
+	නම් (!channel)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
 	/* base attribute id is not a defined std attribute or reserved */
-	if (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
+	නම් (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
 		base_attr_id < SBI_MPXY_ATTR_MSGPROTO_ATTR_START)
-		return SBI_ERR_INVALID_PARAM;
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
-		return SBI_ERR_INVALID_PARAM;
+	නම් (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	end_id = base_attr_id + attr_count - 1;
@@ -501,8 +501,8 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 	sbi_hart_protection_temp_map_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
 
 	/* Standard attributes range check */
-	if (mpxy_is_std_attr(base_attr_id)) {
-		if (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
+	නම් (mpxy_is_std_attr(base_attr_id)) {
+		නම් (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
 			ret = SBI_EBAD_RANGE;
 			goto out;
 		}
@@ -510,7 +510,7 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		attr_ptr = (u32 *)&channel->attrs;
 		mpxy_copy_std_attrs((u32 *)shmem_base, &attr_ptr[base_attr_id],
 				    attr_count);
-	} else {
+	} නැතහොත් {
 		/**
 		 * Even if the message protocol driver does not provide
 		 * read attribute callback, return bad range error instead
@@ -520,7 +520,7 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * attributes. Actual supported attributes will be checked
 		 * by the message protocol driver.
 		 */
-		if (!channel->read_attributes ||
+		නම් (!channel->read_attributes ||
 				end_id > SBI_MPXY_ATTR_MSGPROTO_ATTR_END) {
 			ret = SBI_ERR_BAD_RANGE;
 			goto out;
@@ -538,7 +538,7 @@ int sbi_mpxy_read_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)hart_shmem_base(ms), mpxy_shmem_size);
-	return ret;
+	ආපසු ret;
 }
 
 /**
@@ -552,100 +552,100 @@ out:
  * either complete range of attributes is written successfully or not
  * at all.
  */
-static int mpxy_check_write_std_attr(struct sbi_mpxy_channel *channel,
+static පූර්ණ_සංඛ්‍යා mpxy_check_write_std_attr(sa_nracanaa sbi_mpxy_channel *channel,
 				     u32 attr_id, u32 attr_val)
 {
-	struct sbi_mpxy_channel_attrs *attrs = &channel->attrs;
-	int ret = SBI_SUCCESS;
+	sa_nracanaa sbi_mpxy_channel_attrs *attrs = &channel->attrs;
+	පූර්ණ_සංඛ්‍යා ret = SBI_SUCCESS;
 
 	switch(attr_id) {
-	case SBI_MPXY_ATTR_MSI_CONTROL:
-		if (attr_val > 1)
+	pak_sa SBI_MPXY_ATTR_MSI_CONTROL:
+		නම් (attr_val > 1)
 			ret = SBI_ERR_INVALID_PARAM;
-		if (attr_val == 1 &&
+		නම් (attr_val == 1 &&
 		    (attrs->msi_info.msi_addr_lo == (u32)INVALID_ADDR) &&
 		    (attrs->msi_info.msi_addr_hi == (u32)INVALID_ADDR))
 			ret = SBI_ERR_DENIED;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_LO:
-	case SBI_MPXY_ATTR_MSI_ADDR_HI:
-	case SBI_MPXY_ATTR_MSI_DATA:
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_MSI_ADDR_LO:
+	pak_sa SBI_MPXY_ATTR_MSI_ADDR_HI:
+	pak_sa SBI_MPXY_ATTR_MSI_DATA:
 		ret = SBI_SUCCESS;
-		break;
-	case SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
-		if (attr_val > 1)
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
+		නම් (attr_val > 1)
 			ret = SBI_ERR_INVALID_PARAM;
-		break;
+		bha_nga;
 	default:
 		/** All RO access attributes falls under default */
 		ret = SBI_ERR_BAD_RANGE;
 	};
 
-	return ret;
+	ආපසු ret;
 }
 
 /**
  * Write the attribute value
  */
-static void mpxy_write_std_attr(struct sbi_mpxy_channel *channel, u32 attr_id,
+static void mpxy_write_std_attr(sa_nracanaa sbi_mpxy_channel *channel, u32 attr_id,
 				u32 attr_val)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel_attrs *attrs = &channel->attrs;
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa sbi_mpxy_channel_attrs *attrs = &channel->attrs;
 
 	switch(attr_id) {
-	case SBI_MPXY_ATTR_MSI_CONTROL:
-		if (ms->msi_avail && attr_val <= 1)
+	pak_sa SBI_MPXY_ATTR_MSI_CONTROL:
+		නම් (ms->msi_avail && attr_val <= 1)
 			attrs->msi_control = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_LO:
-		if (ms->msi_avail)
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_MSI_ADDR_LO:
+		නම් (ms->msi_avail)
 			attrs->msi_info.msi_addr_lo = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_ADDR_HI:
-		if (ms->msi_avail)
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_MSI_ADDR_HI:
+		නම් (ms->msi_avail)
 			attrs->msi_info.msi_addr_hi = attr_val;
-		break;
-	case SBI_MPXY_ATTR_MSI_DATA:
-		if (ms->msi_avail)
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_MSI_DATA:
+		නම් (ms->msi_avail)
 			attrs->msi_info.msi_data = attr_val;
-		break;
-	case SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
-		if (channel->switch_eventsstate && attr_val <= 1) {
+		bha_nga;
+	pak_sa SBI_MPXY_ATTR_EVENTS_STATE_CONTROL:
+		නම් (channel->switch_eventsstate && attr_val <= 1) {
 			attrs->eventsstate_ctrl = attr_val;
 			 /* message protocol callback to enable/disable
 			 * events state reporting. */
 			channel->switch_eventsstate(attr_val);
 		}
 
-		break;
+		bha_nga;
 	};
 }
 
-int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
 	u32 *mem_ptr, attr_id, end_id, attr_val;
-	struct sbi_mpxy_channel *channel;
-	int ret, mem_idx;
+	sa_nracanaa sbi_mpxy_channel *channel;
+	පූර්ණ_සංඛ්‍යා ret, mem_idx;
 	void *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	sa_nracanaa sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	නම් (!mpxy_shmem_enabled(ms))
+		ආපසු SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	නම් (!channel)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
 	/* base attribute id is not a defined std attribute or reserved */
-	if (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
+	නම් (base_attr_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX &&
 		base_attr_id < SBI_MPXY_ATTR_MSGPROTO_ATTR_START)
-		return SBI_ERR_INVALID_PARAM;
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	/* Sanity check for base_attr_id and attr_count */
-	if (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
-		return SBI_ERR_INVALID_PARAM;
+	නම් (!attr_count || (attr_count > (mpxy_shmem_size / ATTR_SIZE)))
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	end_id = base_attr_id + attr_count - 1;
@@ -654,29 +654,29 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 
 	mem_ptr = (u32 *)shmem_base;
 
-	if (mpxy_is_std_attr(base_attr_id)) {
-		if (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
+	නම් (mpxy_is_std_attr(base_attr_id)) {
+		නම් (end_id >= SBI_MPXY_ATTR_STD_ATTR_MAX_IDX) {
 			ret = SBI_ERR_BAD_RANGE;
 			goto out;
 		}
 
 		/** Verify the attribute ids range and values */
 		mem_idx = 0;
-		for (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
+		සඳහා (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
 			attr_val = le32_to_cpu(mem_ptr[mem_idx++]);
 			ret = mpxy_check_write_std_attr(channel,
 							attr_id, attr_val);
-			if (ret)
+			නම් (ret)
 				goto out;
 		}
 
 		/* Write the attribute ids values */
 		mem_idx = 0;
-		for (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
+		සඳහා (attr_id = base_attr_id; attr_id <= end_id; attr_id++) {
 			attr_val = le32_to_cpu(mem_ptr[mem_idx++]);
 			mpxy_write_std_attr(channel, attr_id, attr_val);
 		}
-	} else {/**
+	} නැතහොත් {/**
 		 * Message protocol specific attributes:
 		 * If attributes belong to message protocol, they
 		 * are simply passed to the message protocol driver
@@ -690,7 +690,7 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 		 * of not supported to let client distinguish it from channel
 		 * id not supported.
 		 */
-		if (!channel->write_attributes ||
+		නම් (!channel->write_attributes ||
 				end_id > SBI_MPXY_ATTR_MSGPROTO_ATTR_END) {
 			ret = SBI_ERR_BAD_RANGE;
 			goto out;
@@ -708,41 +708,41 @@ int sbi_mpxy_write_attrs(u32 channel_id, u32 base_attr_id, u32 attr_count)
 	}
 out:
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
-	return ret;
+	ආපසු ret;
 }
 
-int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
+පූර්ණ_සංඛ්‍යා sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 			  unsigned long msg_data_len,
 			  unsigned long *resp_data_len)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel *channel;
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa sbi_mpxy_channel *channel;
 	void *shmem_base, *resp_buf;
 	u32 resp_bufsize;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int ret;
+	sa_nracanaa sbi_domain *dom = sbi_domain_thishart_ptr();
+	පූර්ණ_සංඛ්‍යා ret;
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	නම් (!mpxy_shmem_enabled(ms))
+		ආපසු SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel)
-		return SBI_ERR_NOT_SUPPORTED;
+	නම් (!channel)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
-	if (resp_data_len && !channel->send_message_with_response)
-		return SBI_ERR_NOT_SUPPORTED;
+	නම් (resp_data_len && !channel->send_message_with_response)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
-	if (!resp_data_len && !channel->send_message_without_response)
-		return SBI_ERR_NOT_SUPPORTED;
+	නම් (!resp_data_len && !channel->send_message_without_response)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
-	if (msg_data_len > mpxy_shmem_size ||
+	නම් (msg_data_len > mpxy_shmem_size ||
 		msg_data_len > channel->attrs.msg_data_maxlen)
-		return SBI_ERR_INVALID_PARAM;
+		ආපසු SBI_ERR_INVALID_PARAM;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (resp_data_len) {
+	නම් (resp_data_len) {
 		resp_buf = shmem_base;
 		resp_bufsize = mpxy_shmem_size;
 		ret = channel->send_message_with_response(channel, msg_id,
@@ -751,7 +751,7 @@ int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 							  resp_buf,
 							  resp_bufsize,
 							  resp_data_len);
-	} else {
+	} නැතහොත් {
 		ret = channel->send_message_without_response(channel, msg_id,
 							     shmem_base,
 							     msg_data_len);
@@ -759,33 +759,33 @@ int sbi_mpxy_send_message(u32 channel_id, u8 msg_id,
 
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (ret == SBI_ERR_TIMEOUT || ret == SBI_ERR_IO)
-		return ret;
-	else if (ret)
-		return SBI_ERR_FAILED;
+	නම් (ret == SBI_ERR_TIMEOUT || ret == SBI_ERR_IO)
+		ආපසු ret;
+	නැතහොත් නම් (ret)
+		ආපසු SBI_ERR_FAILED;
 
-	if (resp_data_len &&
+	නම් (resp_data_len &&
 	    (*resp_data_len > mpxy_shmem_size ||
 	     *resp_data_len > channel->attrs.msg_data_maxlen))
-		return SBI_ERR_FAILED;
+		ආපසු SBI_ERR_FAILED;
 
-	return SBI_SUCCESS;
+	ආපසු SBI_SUCCESS;
 }
 
-int sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
+පූර්ණ_සංඛ්‍යා sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
 {
-	struct mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
-	struct sbi_mpxy_channel *channel;
+	sa_nracanaa mpxy_state *ms = sbi_domain_mpxy_state_thishart_ptr();
+	sa_nracanaa sbi_mpxy_channel *channel;
 	void *eventsbuf, *shmem_base;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	int ret;
+	sa_nracanaa sbi_domain *dom = sbi_domain_thishart_ptr();
+	පූර්ණ_සංඛ්‍යා ret;
 
-	if (!mpxy_shmem_enabled(ms))
-		return SBI_ERR_NO_SHMEM;
+	නම් (!mpxy_shmem_enabled(ms))
+		ආපසු SBI_ERR_NO_SHMEM;
 
 	channel = mpxy_find_channel(channel_id, dom);
-	if (!channel || !channel->get_notification_events)
-		return SBI_ERR_NOT_SUPPORTED;
+	නම් (!channel || !channel->get_notification_events)
+		ආපසු SBI_ERR_NOT_SUPPORTED;
 
 	shmem_base = hart_shmem_base(ms);
 	sbi_hart_protection_temp_map_range((unsigned long)shmem_base, mpxy_shmem_size);
@@ -795,11 +795,11 @@ int sbi_mpxy_get_notification_events(u32 channel_id, unsigned long *events_len)
 					       events_len);
 	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base, mpxy_shmem_size);
 
-	if (ret)
-		return ret;
+	නම් (ret)
+		ආපසු ret;
 
-	if (*events_len > (mpxy_shmem_size - 16))
-		return SBI_ERR_FAILED;
+	නම් (*events_len > (mpxy_shmem_size - 16))
+		ආපසු SBI_ERR_FAILED;
 
-	return SBI_SUCCESS;
+	ආපසු SBI_SUCCESS;
 }

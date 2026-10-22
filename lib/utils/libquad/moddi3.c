@@ -33,8 +33,8 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
+#නම් defined(LIBC_SCCS) && !defined(lint)
+static var_na sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
@@ -51,16 +51,16 @@ quad_t
 __moddi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, ur;
-	int neg;
+	පූර්ණ_සංඛ්‍යා neg;
 
-	if (a < 0)
+	නම් (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	නැතහොත්
 		ua = a, neg = 0;
-	if (b < 0)
+	නම් (b < 0)
 		ub = -(u_quad_t)b;
-	else
+	නැතහොත්
 		ub = b;
 	(void)__qdivrem(ua, ub, &ur);
-	return (neg ? -ur : ur);
+	ආපසු (neg ? -ur : ur);
 }

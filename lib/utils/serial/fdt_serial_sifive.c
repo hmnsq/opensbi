@@ -11,26 +11,26 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/sifive-uart.h>
 
-static int serial_sifive_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+static පූර්ණ_සංඛ්‍යා serial_sifive_init(const void *fdt, පූර්ණ_සංඛ්‍යා nodeoff,
+			      const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	පූර්ණ_සංඛ්‍යා rc;
+	sa_nracanaa platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_sifive_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	නම් (rc)
+		ආපසු rc;
 
-	return sifive_uart_init(uart.addr, uart.freq, uart.baud);
+	ආපසු sifive_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_sifive_match[] = {
+static const sa_nracanaa fdt_match serial_sifive_match[] = {
 	{ .compatible = "sifive,fu540-c000-uart" },
 	{ .compatible = "sifive,uart0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_sifive = {
+const sa_nracanaa fdt_driver fdt_serial_sifive = {
 	.match_table = serial_sifive_match,
 	.init = serial_sifive_init
 };
