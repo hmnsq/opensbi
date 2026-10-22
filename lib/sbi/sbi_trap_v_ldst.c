@@ -9,26 +9,26 @@
  *   Zong Li <nylon.chen@sifive.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap_ldst.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_vector.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/sbi_bitops.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_trap_ldst.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_unpriv.h>
+#ضمن <sbi/sbi_vector.h>
 
 #ifdef OPENSBI_CC_SUPPORT_VECTOR
 
 #define MASK_BUFFLEN 1024
 
-static inline void set_vreg(ulong vlenb, ulong which,
-			    ulong pos, ulong size, const uint8_t *bytes)
+ساكن مضمن فراغ set_vreg(ulong vlenb, ulong which,
+			    ulong pos, ulong size, ثابت uint8_t *bytes)
 {
 	pos += (which % 8) * vlenb;
 	bytes -= pos;
 
-	asm volatile (
+	asm متطاير (
 		"	.option push\n\t"
 		"	.option arch, +v\n\t"
 		"	vsetvli x0, %0, e8, m8, tu, ma\n\t"
@@ -37,51 +37,51 @@ static inline void set_vreg(ulong vlenb, ulong which,
 
 	csr_write(CSR_VSTART, pos);
 
-	switch (which / 8) {
-	case 0:
-		asm volatile (
+	بدل (which / 8) {
+	حالة 0:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vle8.v v0,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 1:
-		asm volatile (
+		اكسر;
+	حالة 1:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vle8.v v8,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 2:
-		asm volatile (
+		اكسر;
+	حالة 2:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vle8.v v16,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 3:
-		asm volatile (
+		اكسر;
+	حالة 3:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vle8.v v24,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	default:
-		break;
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 }
 
-static inline void get_vreg(ulong vlenb, ulong which,
+ساكن مضمن فراغ get_vreg(ulong vlenb, ulong which,
 			    ulong pos, ulong size, uint8_t *bytes)
 {
 	pos += (which % 8) * vlenb;
 	bytes -= pos;
 
-	asm volatile (
+	asm متطاير (
 		"	.option push\n\t"
 		"	.option arch, +v\n\t"
 		"	vsetvli x0, %0, e8, m8, tu, ma\n\t"
@@ -90,47 +90,47 @@ static inline void get_vreg(ulong vlenb, ulong which,
 
 	csr_write(CSR_VSTART, pos);
 
-	switch (which / 8) {
-	case 0:
-		asm volatile (
+	بدل (which / 8) {
+	حالة 0:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vse8.v v0,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 1:
-		asm volatile (
+		اكسر;
+	حالة 1:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vse8.v v8,  (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 2:
-		asm volatile (
+		اكسر;
+	حالة 2:
+		asm متطاير (
 			"	.option push\n\t"
 			"	.option arch, +v\n\t"
 			"	vse8.v v16, (%0)\n\t"
 			"	.option pop\n\t"
 			:: "r" (bytes) : "memory");
-		break;
-	case 3:
-		asm volatile (
+		اكسر;
+	حالة 3:
+		asm متطاير (
 				".option push\n\t"
 				".option arch, +v\n\t"
 				"vse8.v v24, (%0)\n\t"
 				".option pop\n\t"
 				:: "r" (bytes) : "memory");
-		break;
-	default:
-		break;
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 }
 
-static inline void vsetvl(ulong vl, ulong vtype)
+ساكن مضمن فراغ vsetvl(ulong vl, ulong vtype)
 {
-	asm volatile (
+	asm متطاير (
 		"	.option push\n\t"
 		"	.option arch, +v\n\t"
 		"	vsetvl x0, %0, %1\n\t"
@@ -146,25 +146,25 @@ static inline void vsetvl(ulong vl, ulong vtype)
  * vector insn, simply null out tinst if it's not a guest-page fault, as
  * there's no transformed insn for vector load/store
  */
-static inline void sbi_misaligned_v_tinst_fixup(struct sbi_trap_info *uptrap)
+ساكن مضمن فراغ sbi_misaligned_v_tinst_fixup(بنية sbi_trap_info *uptrap)
 {
 	/*
 	 * The function is called in code path for handling a vector
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	إذا (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		أرجع;
 
 	uptrap->tinst = 0;
 }
 
-int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
+صحيح sbi_misaligned_v_ld_emulator(ulong insn, بنية sbi_trap_context *tcntx)
 {
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	بنية sbi_trap_info uptrap;
 	ulong vl = csr_read(CSR_VL);
 	ulong vtype = csr_read(CSR_VTYPE);
 	ulong vlenb = csr_read(CSR_VLENB);
@@ -179,51 +179,51 @@ int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	bool illegal = GET_MEW(insn);
 	bool masked = IS_MASKED(insn);
 	uint8_t mask[MASK_BUFFLEN / 8];
-	uint8_t bytes[8 * sizeof(uint64_t)];
+	uint8_t bytes[8 * حجم(uint64_t)];
 	ulong mask_len = MASK_BUFFLEN < vlenb * 8 ? MASK_BUFFLEN : vlenb * 8;
 	ulong len = GET_LEN(view);
 	ulong nf = GET_NF(insn);
 	ulong vemul = GET_VEMUL(vlmul, view, vsew);
 	ulong emul = GET_EMUL(vemul);
 
-	if (IS_UNIT_STRIDE_LOAD(insn) || IS_FAULT_ONLY_FIRST_LOAD(insn)) {
+	إذا (IS_UNIT_STRIDE_LOAD(insn) || IS_FAULT_ONLY_FIRST_LOAD(insn)) {
 		stride = nf * len;
-	} else if (IS_WHOLE_REG_LOAD(insn)) {
+	} وإلا إذا (IS_WHOLE_REG_LOAD(insn)) {
 		vl = (nf * vlenb) >> view;
 		nf = 1;
 		vemul = 0;
 		emul = 1;
 		stride = nf * len;
-	} else if (IS_INDEXED_LOAD(insn)) {
+	} وإلا إذا (IS_INDEXED_LOAD(insn)) {
 		len = 1 << vsew;
 		vemul = (vlmul + vsew - vsew) & 7;
 		emul = 1 << ((vemul & 4) ? 0 : vemul);
 		stride = nf * len;
 	}
 
-	if (illegal) {
-		struct sbi_trap_info trap = {
+	إذا (illegal) {
+		بنية sbi_trap_info trap = {
 			uptrap.cause = CAUSE_ILLEGAL_INSTRUCTION,
 			uptrap.tval = insn,
 		};
-		return sbi_trap_redirect(regs, &trap);
+		أرجع sbi_trap_redirect(regs, &trap);
 	}
 
-	do {
-		if (masked) {
-			if (vstart == orig_vstart || vstart % mask_len == 0)
+	افعل {
+		إذا (masked) {
+			إذا (vstart == orig_vstart || vstart % mask_len == 0)
 				/* Fetch a mask_len chunk of mask */
 				get_vreg(vlenb, 0, vstart / mask_len * mask_len,
 					 mask_len, mask);
 
-			if (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
-				continue;
+			إذا (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
+				استمر;
 		}
 
 		/* compute element address */
 		ulong addr = base + vstart * stride;
 
-		if (IS_INDEXED_LOAD(insn)) {
+		إذا (IS_INDEXED_LOAD(insn)) {
 			ulong offset = 0;
 
 			get_vreg(vlenb, vs2, vstart << view, 1 << view, (uint8_t *)&offset);
@@ -233,32 +233,32 @@ int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 		csr_write(CSR_VSTART, vstart);
 
 		/* obtain load data from memory */
-		for (ulong seg = 0; seg < nf; seg++) {
+		لكل (ulong seg = 0; seg < nf; seg++) {
 			sbi_load_loop(bytes + seg * len,
 				       addr + seg * len, len, &uptrap);
 
-			if (!uptrap.cause)
-				continue;
+			إذا (!uptrap.cause)
+				استمر;
 
-			if (IS_FAULT_ONLY_FIRST_LOAD(insn) && vstart != 0) {
+			إذا (IS_FAULT_ONLY_FIRST_LOAD(insn) && vstart != 0) {
 				vl = vstart;
-				goto done;
+				اذهب done;
 			}
 
 			vsetvl(vl, vtype);
 			csr_write(CSR_VSTART, vstart);
 			/* Don't forget to set dirty if vstart has changed */
-			if (vstart != orig_vstart)
+			إذا (vstart != orig_vstart)
 				SET_VS_DIRTY(regs);
 			sbi_misaligned_v_tinst_fixup(&uptrap);
-			return sbi_trap_redirect(regs, &uptrap);
+			أرجع sbi_trap_redirect(regs, &uptrap);
 		}
 
 		/* write load data to regfile */
-		for (ulong seg = 0; seg < nf; seg++)
+		لكل (ulong seg = 0; seg < nf; seg++)
 			set_vreg(vlenb, vd + seg * emul, vstart * len,
 				 len, &bytes[seg * len]);
-	} while (++vstart < vl);
+	} طالما (++vstart < vl);
 
 done:
 	/* restore clobbered vl/vtype */
@@ -271,13 +271,13 @@ done:
 	SET_VS_DIRTY(regs);
 
 	/* Return a >0 value for the caller to advance mepc */
-	return 1;
+	أرجع 1;
 }
 
-int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
+صحيح sbi_misaligned_v_st_emulator(ulong insn, بنية sbi_trap_context *tcntx)
 {
-	struct sbi_trap_regs *regs = &tcntx->regs;
-	struct sbi_trap_info uptrap;
+	بنية sbi_trap_regs *regs = &tcntx->regs;
+	بنية sbi_trap_info uptrap;
 	ulong vl = csr_read(CSR_VL);
 	ulong vtype = csr_read(CSR_VTYPE);
 	ulong vlenb = csr_read(CSR_VLENB);
@@ -292,51 +292,51 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	bool illegal = GET_MEW(insn);
 	bool masked = IS_MASKED(insn);
 	uint8_t mask[MASK_BUFFLEN / 8];
-	uint8_t bytes[8 * sizeof(uint64_t)];
+	uint8_t bytes[8 * حجم(uint64_t)];
 	ulong mask_len = MASK_BUFFLEN < vlenb * 8 ? MASK_BUFFLEN : vlenb * 8;
 	ulong len = GET_LEN(view);
 	ulong nf = GET_NF(insn);
 	ulong vemul = GET_VEMUL(vlmul, view, vsew);
 	ulong emul = GET_EMUL(vemul);
 
-	if (IS_UNIT_STRIDE_STORE(insn)) {
+	إذا (IS_UNIT_STRIDE_STORE(insn)) {
 		stride = nf * len;
-	} else if (IS_WHOLE_REG_STORE(insn)) {
+	} وإلا إذا (IS_WHOLE_REG_STORE(insn)) {
 		vl = (nf * vlenb) >> view;
 		nf = 1;
 		vemul = 0;
 		emul = 1;
 		stride = nf * len;
-	} else if (IS_INDEXED_STORE(insn)) {
+	} وإلا إذا (IS_INDEXED_STORE(insn)) {
 		len = 1 << vsew;
 		vemul = (vlmul + vsew - vsew) & 7;
 		emul = 1 << ((vemul & 4) ? 0 : vemul);
 		stride = nf * len;
 	}
 
-	if (illegal) {
-		struct sbi_trap_info trap = {
+	إذا (illegal) {
+		بنية sbi_trap_info trap = {
 			uptrap.cause = CAUSE_ILLEGAL_INSTRUCTION,
 			uptrap.tval = insn,
 		};
-		return sbi_trap_redirect(regs, &trap);
+		أرجع sbi_trap_redirect(regs, &trap);
 	}
 
-	do {
-		if (masked) {
-			if (vstart == orig_vstart || vstart % mask_len == 0)
+	افعل {
+		إذا (masked) {
+			إذا (vstart == orig_vstart || vstart % mask_len == 0)
 				/* Fetch a mask_len chunk of mask */
 				get_vreg(vlenb, 0, vstart / mask_len * mask_len,
 					 mask_len, mask);
 
-			if (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
-				continue;
+			إذا (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
+				استمر;
 		}
 
 		/* compute element address */
 		ulong addr = base + vstart * stride;
 
-		if (IS_INDEXED_STORE(insn)) {
+		إذا (IS_INDEXED_STORE(insn)) {
 			ulong offset = 0;
 
 			get_vreg(vlenb, vs2, vstart << view, 1 << view, (uint8_t *)&offset);
@@ -344,27 +344,27 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 		}
 
 		/* obtain store data from regfile */
-		for (ulong seg = 0; seg < nf; seg++)
+		لكل (ulong seg = 0; seg < nf; seg++)
 			get_vreg(vlenb, vd + seg * emul, vstart * len,
 				 len, &bytes[seg * len]);
 
 		/* write store data to memory */
-		for (ulong seg = 0; seg < nf; seg++) {
+		لكل (ulong seg = 0; seg < nf; seg++) {
 			sbi_store_loop(bytes + seg * len,
 					addr + seg * len, len, &uptrap);
 
-			if (!uptrap.cause)
-				continue;
+			إذا (!uptrap.cause)
+				استمر;
 
 			vsetvl(vl, vtype);
 			csr_write(CSR_VSTART, vstart);
 			/* Don't forget to set dirty if vstart has changed */
-			if (vstart != orig_vstart)
+			إذا (vstart != orig_vstart)
 				SET_VS_DIRTY(regs);
 			sbi_misaligned_v_tinst_fixup(&uptrap);
-			return sbi_trap_redirect(regs, &uptrap);
+			أرجع sbi_trap_redirect(regs, &uptrap);
 		}
-	} while (++vstart < vl);
+	} طالما (++vstart < vl);
 
 	/* restore clobbered vl/vtype */
 	vsetvl(vl, vtype); // VSTART resets to 0
@@ -373,22 +373,22 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	 * No need to set dirty for memory store, but as VSTART resets to
 	 * 0 above, need to set dirty if it's originally not 0.
 	 */
-	if (orig_vstart != 0)
+	إذا (orig_vstart != 0)
 		SET_VS_DIRTY(regs);
 
 	/* Return a >0 value for the caller to advance mepc */
-	return 1;
+	أرجع 1;
 }
-#else
-int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
+#وإلا
+صحيح sbi_misaligned_v_ld_emulator(ulong insn, بنية sbi_trap_context *tcntx)
 {
 	/* Unable to emulate, send trap to previous mode. */
-	return sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
+	أرجع sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
 }
 
-int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
+صحيح sbi_misaligned_v_st_emulator(ulong insn, بنية sbi_trap_context *tcntx)
 {
 	/* Unable to emulate, send trap to previous mode. */
-	return sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
+	أرجع sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
 }
 #endif /* OPENSBI_CC_SUPPORT_VECTOR */
