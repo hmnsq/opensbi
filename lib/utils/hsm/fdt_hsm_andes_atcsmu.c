@@ -4,146 +4,146 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <andes/andes.h>
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ضمن <andes/andes.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_hsm.h>
+#ضمن <sbi/sbi_init.h>
+#ضمن <sbi/sbi_ipi.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-static unsigned long atcsmu_base;
+ساكن unsigned long atcsmu_base;
 
-void atcsmu_set_wakeup_events(u32 events, u32 hartid)
+فراغ atcsmu_set_wakeup_events(u32 events, u32 hartid)
 {
-	writel_relaxed(events, (char *)atcsmu_base + PCSm_WE_OFFSET(hartid));
+	writel_relaxed(events, (حرف *)atcsmu_base + PCSm_WE_OFFSET(hartid));
 }
 
 bool atcsmu_support_sleep_mode(u32 sleep_type, u32 hartid)
 {
 	u32 pcs_cfg;
 	u32 mask;
-	const char *sleep_mode;
+	ثابت حرف *sleep_mode;
 
-	pcs_cfg = readl_relaxed((char *)atcsmu_base + PCSm_CFG_OFFSET(hartid));
-	switch (sleep_type) {
-	case SBI_SUSP_AE350_LIGHT_SLEEP:
+	pcs_cfg = readl_relaxed((حرف *)atcsmu_base + PCSm_CFG_OFFSET(hartid));
+	بدل (sleep_type) {
+	حالة SBI_SUSP_AE350_LIGHT_SLEEP:
 		mask = PCS_CFG_LIGHT_SLEEP;
 		sleep_mode = "light sleep";
-		break;
-	case SBI_SUSP_SLEEP_TYPE_SUSPEND:
+		اكسر;
+	حالة SBI_SUSP_SLEEP_TYPE_SUSPEND:
 		mask = PCS_CFG_DEEP_SLEEP;
 		sleep_mode = "deep sleep";
-		break;
-	default:
-		return false;
+		اكسر;
+	افتراضي:
+		أرجع false;
 	}
 
-	if (!EXTRACT_FIELD(pcs_cfg, mask)) {
+	إذا (!EXTRACT_FIELD(pcs_cfg, mask)) {
 		sbi_printf("ATCSMU: hart%d (PCS%d) does not support %s mode\n",
 			   hartid, hartid + 3, sleep_mode);
-		return false;
+		أرجع false;
 	}
 
-	return true;
+	أرجع true;
 }
 
-void atcsmu_set_command(u32 pcs_ctl, u32 hartid)
+فراغ atcsmu_set_command(u32 pcs_ctl, u32 hartid)
 {
-	writel(pcs_ctl, (char *)atcsmu_base + PCSm_CTL_OFFSET(hartid));
+	writel(pcs_ctl, (حرف *)atcsmu_base + PCSm_CTL_OFFSET(hartid));
 }
 
-int atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
+صحيح atcsmu_set_reset_vector(u64 wakeup_addr, u32 hartid)
 {
 	u32 vec_lo;
 	u32 vec_hi;
 	u64 reset_vector;
 
-	writel((u32)wakeup_addr, (char *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
-	writel((u32)(wakeup_addr >> 32), (char *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
-	vec_lo = readl((char *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
-	vec_hi = readl((char *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
+	writel((u32)wakeup_addr, (حرف *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
+	writel((u32)(wakeup_addr >> 32), (حرف *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
+	vec_lo = readl((حرف *)atcsmu_base + HARTn_RESET_VEC_LO(hartid));
+	vec_hi = readl((حرف *)atcsmu_base + HARTn_RESET_VEC_HI(hartid));
 	reset_vector = (u64)vec_hi << 32 | vec_lo;
-	if (reset_vector != wakeup_addr) {
+	إذا (reset_vector != wakeup_addr) {
 		sbi_printf("ATCSMU: hart%d (PCS%d): failed to program the reset vector\n",
 			   hartid, hartid + 3);
-		return SBI_EFAIL;
+		أرجع SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
 u32 atcsmu_get_sleep_type(u32 hartid)
 {
-	return readl_relaxed((char *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
+	أرجع readl_relaxed((حرف *)atcsmu_base + PCSm_SCRATCH_OFFSET(hartid));
 }
 
-void atcsmu_write_scratch(u32 value)
+فراغ atcsmu_write_scratch(u32 قدر)
 {
-	writel_relaxed(value, (char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	writel_relaxed(قدر, (حرف *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
-u32 atcsmu_read_scratch(void)
+u32 atcsmu_read_scratch(فراغ)
 {
-	return readl_relaxed((char *)atcsmu_base + SCRATCH_PAD_OFFSET);
+	أرجع readl_relaxed((حرف *)atcsmu_base + SCRATCH_PAD_OFFSET);
 }
 
-bool atcsmu_hart_is_sleep(void *opaque)
+bool atcsmu_hart_is_sleep(فراغ *opaque)
 {
-	struct atcsmu_sleep_arg *arg = opaque;
+	بنية atcsmu_sleep_arg *arg = opaque;
 
-	u32 pcs_status = readl_relaxed((char *)atcsmu_base +
+	u32 pcs_status = readl_relaxed((حرف *)atcsmu_base +
 				       PCSm_STATUS_OFFSET(arg->hartid));
 	u32 pd_status = arg->deep_sleep ? PD_STATUS_DEEP_SLEEP :
 					  PD_STATUS_LIGHT_SLEEP;
 
-	return EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
+	أرجع EXTRACT_FIELD(pcs_status, PD_TYPE_MASK) == PD_TYPE_SLEEP &&
 	       EXTRACT_FIELD(pcs_status, PD_STATUS_MASK) == pd_status;
 }
 
-static int ae350_hart_start(u32 hartid, ulong saddr)
+ساكن صحيح ae350_hart_start(u32 hartid, ulong saddr)
 {
 	u32 hartindex = sbi_hartid_to_hartindex(hartid);
 
-	return sbi_ipi_raw_send(hartindex, false);
+	أرجع sbi_ipi_raw_send(hartindex, false);
 }
 
-static int ae350_hart_stop(void)
+ساكن صحيح ae350_hart_stop(فراغ)
 {
 	u32 hartid = current_hartid();
 	u32 sleep_type = atcsmu_get_sleep_type(hartid);
-	int rc;
+	صحيح rc;
 
 	/*
 	 * For Andes AX25MP, the hart0 shares power domain with the last level
 	 * cache. Instead of turning it off, it should fall through and jump to
 	 * warmboot_addr.
 	 */
-	if (is_andes(25) && hartid == 0)
-		return SBI_ENOTSUPP;
+	إذا (is_andes(25) && hartid == 0)
+		أرجع SBI_ENOTSUPP;
 
-	if (!atcsmu_support_sleep_mode(sleep_type, hartid))
-		return SBI_ENOTSUPP;
+	إذا (!atcsmu_support_sleep_mode(sleep_type, hartid))
+		أرجع SBI_ENOTSUPP;
 
 	/* Prevent the core leaving the WFI mode unexpectedly */
 	csr_write(CSR_MIE, 0);
 
 	atcsmu_set_wakeup_events(PCS_WAKEUP_MSIP_MASK | PCS_WAKEUP_MEIP_MASK, hartid);
-	if (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
+	إذا (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
 		/* Clock-gated only: needs MSI or MEI set to resume past the WFI */
 		csr_set(CSR_MIE, MIP_MSIP | MIP_MEIP);
 		atcsmu_set_command(LIGHT_SLEEP_CMD, hartid);
-	} else if (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
+	} وإلا إذا (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
 		/* Power-gated: SMU wakes it via cold reset, interrupts not needed */
 		rc = atcsmu_set_reset_vector((ulong)ae350_enable_coherency_warmboot, hartid);
-		if (rc)
-			return SBI_EFAIL;
+		إذا (rc)
+			أرجع SBI_EFAIL;
 
 		ae350_non_ret_save(sbi_scratch_thishart_ptr());
 		atcsmu_set_command(DEEP_SLEEP_CMD, hartid);
@@ -155,49 +155,49 @@ static int ae350_hart_stop(void)
 	/* Light sleep resumes here */
 	ae350_enable_coherency();
 
-	return SBI_ENOTSUPP;
+	أرجع SBI_ENOTSUPP;
 }
 
-static const struct sbi_hsm_device hsm_andes_atcsmu = {
+ساكن ثابت بنية sbi_hsm_device hsm_andes_atcsmu = {
 	.name = "andes_atcsmu",
 	.hart_start = ae350_hart_start,
 	.hart_stop = ae350_hart_stop,
 };
 
-static int hsm_andes_atcsmu_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساكن صحيح hsm_andes_atcsmu_probe(ثابت فراغ *fdt, صحيح nodeoff, ثابت بنية fdt_match *match)
 {
-	int poff, rc;
+	صحيح poff, rc;
 	u64 addr, size;
 
 	/* Need to find the parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	إذا (poff < 0)
+		أرجع SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, &size);
-	if (rc < 0 || !addr || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_گرہ_addr_size(fdt, poff, 0, &addr, &size);
+	إذا (rc < 0 || !addr || !size)
+		أرجع SBI_ENODEV;
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
+	إذا (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_جڑ_add_memrange(
 			(unsigned long)addr, (unsigned long)size, PAGE_SIZE,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
 	atcsmu_base = addr;
 	sbi_hsm_set_device(&hsm_andes_atcsmu);
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match hsm_andes_atcsmu_match[] = {
+ساكن ثابت بنية fdt_match hsm_andes_atcsmu_match[] = {
 	{ .compatible = "andestech,atcsmu-hsm" },
 	{ },
 };
 
-const struct fdt_driver fdt_hsm_andes_atcsmu = {
+ثابت بنية fdt_driver fdt_hsm_andes_atcsmu = {
 	.match_table = hsm_andes_atcsmu_match,
 	.init = hsm_andes_atcsmu_probe,
 };
