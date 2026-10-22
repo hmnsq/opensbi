@@ -8,85 +8,85 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_tlb.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_tlb.h>
 
-static int sbi_ecall_rfence_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_rfence_handler(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ extid, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ funcid,
+				    ರಚನೆ sbi_trap_regs *regs,
+				    ರಚನೆ sbi_ecall_return *ಹೊರಹೋಗು)
 {
-	int ret = 0;
-	unsigned long vmid;
-	struct sbi_tlb_info tlb_info;
-	u32 source_hart = current_hartid();
+	ಪೂರ್ಣಾಂಕ ret = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ vmid;
+	ರಚನೆ sbi_tlb_info tlb_info;
+	u32 ಮೂಲ_hart = current_hartid();
 
-	if (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
+	ಆದರೆ (funcid >= SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID &&
 	    funcid <= SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA)
-		if (!misa_extension('H'))
-			return SBI_ENOTSUPP;
+		ಆದರೆ (!misa_extension('H'))
+			ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	switch (funcid) {
-	case SBI_EXT_RFENCE_REMOTE_FENCE_I:
+	ಆಯ್ಕೆ (funcid) {
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_FENCE_I:
 		SBI_TLB_INFO_INIT(&tlb_info, 0, 0, 0, 0,
-				  SBI_TLB_FENCE_I, source_hart);
+				  SBI_TLB_FENCE_I, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, 0,
-				  SBI_TLB_HFENCE_GVMA, source_hart);
+				  SBI_TLB_HFENCE_GVMA, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_HFENCE_GVMA_VMID:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, regs->a4,
-				  SBI_TLB_HFENCE_GVMA_VMID, source_hart);
+				  SBI_TLB_HFENCE_GVMA_VMID, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA:
-		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_MASK);
-		vmid = vmid >> HGATP_VMID_SHIFT;
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA:
+		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_ಮುಖವಾಡ);
+		vmid = vmid >> HGATP_VMID_ಸರಿಸು;
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, vmid,
-				  SBI_TLB_HFENCE_VVMA, source_hart);
+				  SBI_TLB_HFENCE_VVMA, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID:
-		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_MASK);
-		vmid = vmid >> HGATP_VMID_SHIFT;
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_HFENCE_VVMA_ASID:
+		vmid = (csr_read(CSR_HGATP) & HGATP_VMID_ಮುಖವಾಡ);
+		vmid = vmid >> HGATP_VMID_ಸರಿಸು;
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, regs->a4,
-				  vmid, SBI_TLB_HFENCE_VVMA_ASID, source_hart);
+				  vmid, SBI_TLB_HFENCE_VVMA_ASID, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_SFENCE_VMA:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_SFENCE_VMA:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, 0, 0,
-				  SBI_TLB_SFENCE_VMA, source_hart);
+				  SBI_TLB_SFENCE_VMA, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	case SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_EXT_RFENCE_REMOTE_SFENCE_VMA_ASID:
 		SBI_TLB_INFO_INIT(&tlb_info, regs->a2, regs->a3, regs->a4, 0,
-				  SBI_TLB_SFENCE_VMA_ASID, source_hart);
+				  SBI_TLB_SFENCE_VMA_ASID, ಮೂಲ_hart);
 		ret = sbi_tlb_request(regs->a0, regs->a1, &tlb_info);
-		break;
-	default:
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-struct sbi_ecall_extension ecall_rfence;
+ರಚನೆ sbi_ecall_extension ecall_rfence;
 
-static int sbi_ecall_rfence_register_extensions(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_rfence_ರಿಜಿಸ್ಟರ್_extensions(ಶೂನ್ಯ)
 {
-	return sbi_ecall_register_extension(&ecall_rfence);
+	ಹಿಂತಿರುಗಿ sbi_ecall_ರಿಜಿಸ್ಟರ್_extension(&ecall_rfence);
 }
 
-struct sbi_ecall_extension ecall_rfence = {
+ರಚನೆ sbi_ecall_extension ecall_rfence = {
 	.name			= "rfnc",
-	.extid_start		= SBI_EXT_RFENCE,
-	.extid_end		= SBI_EXT_RFENCE,
-	.register_extensions	= sbi_ecall_rfence_register_extensions,
+	.extid_ಆರಂಭ		= SBI_EXT_RFENCE,
+	.extid_ಕೊನೆ		= SBI_EXT_RFENCE,
+	.ರಿಜಿಸ್ಟರ್_extensions	= sbi_ecall_rfence_ರಿಜಿಸ್ಟರ್_extensions,
 	.handle			= sbi_ecall_rfence_handler,
 };

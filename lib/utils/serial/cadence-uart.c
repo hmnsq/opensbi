@@ -6,113 +6,113 @@
  * Author: Jun Liang Tan <junliang.tan@linux.starfivetech.com>
  */
 
-#include <sbi/sbi_domain.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/cadence-uart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/cadence-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_CTRL		0x00
-#define UART_REG_MODE		0x04
-#define UART_REG_IDR		0x0C
-#define UART_REG_BRGR		0x18
-#define UART_REG_CSR		0x2C
-#define UART_REG_RFIFO_TFIFO	0x30
-#define UART_REG_BDIVR		0x34
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_CTRL		0x00
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_ಬಹುಲಕ		0x04
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_IDR		0x0C
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_BRGR		0x18
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_CSR		0x2C
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_RFIFO_TFIFO	0x30
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_BDIVR		0x34
 
-#define UART_CTRL_RXRES		0x00000001
-#define UART_CTRL_TXRES		0x00000002
-#define UART_CTRL_RXEN		0x00000004
-#define UART_CTRL_RXDIS		0x00000008
-#define UART_CTRL_TXEN		0x00000010
-#define UART_CTRL_TXDIS		0x00000020
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_RXRES		0x00000001
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_TXRES		0x00000002
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_RXEN		0x00000004
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_RXDIS		0x00000008
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_TXEN		0x00000010
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_TXDIS		0x00000020
 
-#define UART_MODE_PAR_NONE	0x00000020	/* No parity set */
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_ಬಹುಲಕ_PAR_NONE	0x00000020	/* No parity set */
 
-#define UART_BRGR_CD_CLKDIVISOR	0x00000001	/* baud_sample = sel_clk */
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_BRGR_CD_CLKDIVISOR	0x00000001	/* baud_sample = sel_clk */
 
-#define	UART_CSR_REMPTY		0x00000002
-#define	UART_CSR_TFUL		0x00000010
+#ವ್ಯಾಖ್ಯಾನಿಸು	UART_CSR_REMPTY		0x00000002
+#ವ್ಯಾಖ್ಯಾನಿಸು	UART_CSR_TFUL		0x00000010
 
 /* clang-format on */
 
-static volatile void *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+ಸ್ಥಿರ ಅಸ್ಥಿರ ಶೂನ್ಯ *uart_ತಳ;
+ಸ್ಥಿರ u32 uart_ಒಳ_freq;
+ಸ್ಥಿರ u32 uart_baudrate;
 
 /*
  * Find minimum divisor divides in_freq to max_target_hz;
  * Based on SiFive UART driver (sifive-uart.c)
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
-						uint64_t max_target_hz)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ uart_min_clk_ಭಾಜಕ(uint64_t ಒಳ_freq,
+						uint64_t max_ಗುರಿ_hz)
 {
-	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
+	uint64_t quotient = (ಒಳ_freq + max_ಗುರಿ_hz - 1) / (max_ಗುರಿ_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	ಆದರೆ (quotient == 0)
+		ಹಿಂತಿರುಗಿ 0;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ quotient - 1;
 }
 
-static u32 get_reg(u32 offset)
+ಸ್ಥಿರ u32 get_reg(u32 ಸ್ಥಾನಾಂತರ)
 {
-	return readl(uart_base + offset);
+	ಹಿಂತಿರುಗಿ readl(uart_ತಳ + ಸ್ಥಾನಾಂತರ);
 }
 
-static void set_reg(u32 offset, u32 val)
+ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_reg(u32 ಸ್ಥಾನಾಂತರ, u32 val)
 {
-	writel(val, uart_base + offset);
+	writel(val, uart_ತಳ + ಸ್ಥಾನಾಂತರ);
 }
 
-static void cadence_uart_putc(char ch)
+ಸ್ಥಿರ ಶೂನ್ಯ cadence_uart_putc(ಅಕ್ಷರ ch)
 {
-	while (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
+	ಆಗ (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
 		;
 
-	set_reg(UART_REG_RFIFO_TFIFO, ch);
+	ಗಣ_reg(UART_REG_RFIFO_TFIFO, ch);
 }
 
-static int cadence_uart_getc(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ cadence_uart_getc(ಶೂನ್ಯ)
 {
 	u32 ret = get_reg(UART_REG_CSR);
 
-	if (!(ret & UART_CSR_REMPTY))
-		return get_reg(UART_REG_RFIFO_TFIFO);
+	ಆದರೆ (!(ret & UART_CSR_REMPTY))
+		ಹಿಂತಿರುಗಿ get_reg(UART_REG_RFIFO_TFIFO);
 
-	return -1;
+	ಹಿಂತಿರುಗಿ -1;
 }
 
-static struct sbi_console_device cadence_console = {
+ಸ್ಥಿರ ರಚನೆ sbi_console_device cadence_console = {
 	.name = "cadence_uart",
 	.console_putc = cadence_uart_putc,
 	.console_getc = cadence_uart_getc
 };
 
-int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ಪೂರ್ಣಾಂಕ cadence_uart_init(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2, u32 ಒಳ_freq, u32 baudrate)
 {
-	uart_base     = (volatile void *)base;
-	uart_in_freq  = in_freq;
+	uart_ತಳ     = (ಅಸ್ಥಿರ ಶೂನ್ಯ *)ತಳ_2;
+	uart_ಒಳ_freq  = ಒಳ_freq;
 	uart_baudrate = baudrate;
 
 	/* Disable interrupts */
-	set_reg(UART_REG_IDR, 0xFFFFFFFF);
+	ಗಣ_reg(UART_REG_IDR, 0xFFFFFFFF);
 
 	/* Disable TX RX */
-	set_reg(UART_REG_CTRL, UART_CTRL_TXDIS | UART_CTRL_RXDIS);
+	ಗಣ_reg(UART_REG_CTRL, UART_CTRL_TXDIS | UART_CTRL_RXDIS);
 
 	/* Configure baudrate */
-	if (in_freq && baudrate) {
-		set_reg(UART_REG_BRGR, UART_BRGR_CD_CLKDIVISOR);
-		set_reg(UART_REG_BDIVR,
-			uart_min_clk_divisor(in_freq, baudrate));
+	ಆದರೆ (ಒಳ_freq && baudrate) {
+		ಗಣ_reg(UART_REG_BRGR, UART_BRGR_CD_CLKDIVISOR);
+		ಗಣ_reg(UART_REG_BDIVR,
+			uart_min_clk_ಭಾಜಕ(ಒಳ_freq, baudrate));
 	}
 
 	/* Software reset TX RX data path and enable TX RX */
-	set_reg(UART_REG_CTRL, UART_CTRL_TXRES | UART_CTRL_RXRES
+	ಗಣ_reg(UART_REG_CTRL, UART_CTRL_TXRES | UART_CTRL_RXRES
 		| UART_CTRL_TXEN | UART_CTRL_RXEN);
 
 	/*
@@ -122,11 +122,11 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 	 * 8 bits character length, bits[02:01] = 0x00,
 	 * sel_clk = uart_clk, bit[0] = 0x0
 	 */
-	set_reg(UART_REG_MODE, UART_MODE_PAR_NONE);
+	ಗಣ_reg(UART_REG_ಬಹುಲಕ, UART_ಬಹುಲಕ_PAR_NONE);
 
-	sbi_console_set_device(&cadence_console);
+	sbi_console_ಗಣ_device(&cadence_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	ಹಿಂತಿರುಗಿ sbi_domain_ಬೇರು_ಕೂಡಿಸು_memrange(ತಳ_2, ಪುಟ_ಗಾತ್ರ, ಪುಟ_ಗಾತ್ರ,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

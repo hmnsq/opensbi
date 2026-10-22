@@ -8,36 +8,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_atomic.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_barrier.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_fifo.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ipi.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_tlb.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hfence.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmu.h>
 
-static unsigned long tlb_sync_off;
-static unsigned long tlb_fifo_off;
-static unsigned long tlb_fifo_mem_off;
-static unsigned long tlb_range_flush_limit;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tlb_sync_off;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tlb_fifo_off;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tlb_fifo_mem_off;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tlb_range_flush_ಎಲ್ಲೆ;
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo);
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_fence_i(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_sfence_vma(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_sfence_vma_asid(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_gvma_vmid(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_gvma(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_vvma_asid(ರಚನೆ sbi_tlb_info *tinfo);
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_vvma(ರಚನೆ sbi_tlb_info *tinfo);
 
-static struct sbi_tlb_local_operations default_tlb_local_ops = {
+ಸ್ಥಿರ ರಚನೆ sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_fence_i = sbi_tlb_local_fence_i,
 	.local_sfence_vma = sbi_tlb_local_sfence_vma,
 	.local_sfence_vma_asid = sbi_tlb_local_sfence_vma_asid,
@@ -47,242 +47,242 @@ static struct sbi_tlb_local_operations default_tlb_local_ops = {
 	.local_hfence_vvma = sbi_tlb_local_hfence_vvma
 };
 
-static const struct sbi_tlb_local_operations *tlb_local_ops =
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_tlb_local_operations *tlb_local_ops =
 	&default_tlb_local_ops;
 
-const struct sbi_tlb_local_operations *sbi_tlb_get_local_operations(void)
+ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_tlb_local_operations *sbi_tlb_get_local_operations(ಶೂನ್ಯ)
 {
-	return tlb_local_ops;
+	ಹಿಂತಿರುಗಿ tlb_local_ops;
 }
 
-void sbi_tlb_set_local_operations(
-		const struct sbi_tlb_local_operations *ops)
+ಶೂನ್ಯ sbi_tlb_ಗಣ_local_operations(
+		ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_tlb_local_operations *ops)
 {
 	tlb_local_ops = ops;
 }
 
-void __sbi_sfence_vma_all(void)
+ಶೂನ್ಯ __sbi_sfence_vma_all(ಶೂನ್ಯ)
 {
 	__asm__ __volatile("sfence.vma");
 }
 
-static void sbi_tlb_local_hfence_vvma(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_vvma(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i, hgatp;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ vmid  = tinfo->vmid;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i, hgatp;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_VVMA_RCVD);
 
-	hgatp = csr_swap(CSR_HGATP,
-			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
+	hgatp = csr_ಅದಲುಬದಲು(CSR_HGATP,
+			 (vmid << HGATP_VMID_ಸರಿಸು) & HGATP_VMID_ಮುಖವಾಡ);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_all();
-		goto done;
+		ಹೋಗು ಮುಗಿದ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
-		__sbi_hfence_vvma_va(start+i);
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
+		__sbi_hfence_vvma_va(ಆರಂಭ+i);
 	}
 
-done:
+ಮುಗಿದ:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_gvma(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_all();
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
-		__sbi_hfence_gvma_gpa((start + i) >> 2);
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
+		__sbi_hfence_gvma_gpa((ಆರಂಭ + i) >> 2);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_sfence_vma(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__sbi_sfence_vma_all();
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
 		__asm__ __volatile__("sfence.vma %0"
 				     :
-				     : "r"(start + i)
+				     : "r"(ಆರಂಭ + i)
 				     : "memory");
 	}
 }
 
-static void sbi_tlb_local_hfence_vvma_asid(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_vvma_asid(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long asid  = tinfo->asid;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i, hgatp;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ asid  = tinfo->asid;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ vmid  = tinfo->vmid;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i, hgatp;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_VVMA_ASID_RCVD);
 
-	hgatp = csr_swap(CSR_HGATP,
-			 (vmid << HGATP_VMID_SHIFT) & HGATP_VMID_MASK);
+	hgatp = csr_ಅದಲುಬದಲು(CSR_HGATP,
+			 (vmid << HGATP_VMID_ಸರಿಸು) & HGATP_VMID_ಮುಖವಾಡ);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_vvma_asid(asid);
-		goto done;
+		ಹೋಗು ಮುಗಿದ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
-		__sbi_hfence_vvma_asid_va(start + i, asid);
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
+		__sbi_hfence_vvma_asid_va(ಆರಂಭ + i, asid);
 	}
 
-done:
+ಮುಗಿದ:
 	csr_write(CSR_HGATP, hgatp);
 }
 
-static void sbi_tlb_local_hfence_gvma_vmid(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_hfence_gvma_vmid(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long vmid  = tinfo->vmid;
-	unsigned long i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ vmid  = tinfo->vmid;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_HFENCE_GVMA_VMID_RCVD);
 
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__sbi_hfence_gvma_vmid(vmid);
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
-		__sbi_hfence_gvma_vmid_gpa((start + i) >> 2, vmid);
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
+		__sbi_hfence_gvma_vmid_gpa((ಆರಂಭ + i) >> 2, vmid);
 	}
 }
 
-static void sbi_tlb_local_sfence_vma_asid(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_sfence_vma_asid(ರಚನೆ sbi_tlb_info *tinfo)
 {
-	unsigned long start = tinfo->start;
-	unsigned long size  = tinfo->size;
-	unsigned long asid  = tinfo->asid;
-	unsigned long i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಆರಂಭ = tinfo->ಆರಂಭ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2  = tinfo->ಗಾತ್ರ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ asid  = tinfo->asid;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SFENCE_VMA_ASID_RCVD);
 
 	/* Flush entire MM context for a given ASID */
-	if ((start == 0 && size == 0) || (size == SBI_TLB_FLUSH_ALL)) {
+	ಆದರೆ ((ಆರಂಭ == 0 && ಗಾತ್ರ_2 == 0) || (ಗಾತ್ರ_2 == SBI_TLB_FLUSH_ALL)) {
 		__asm__ __volatile__("sfence.vma x0, %0"
 				     :
 				     : "r"(asid)
 				     : "memory");
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	for (i = 0; i < size; i += PAGE_SIZE) {
+	ಗಾಗಿ (i = 0; i < ಗಾತ್ರ_2; i += ಪುಟ_ಗಾತ್ರ) {
 		__asm__ __volatile__("sfence.vma %0, %1"
 				     :
-				     : "r"(start + i), "r"(asid)
+				     : "r"(ಆರಂಭ + i), "r"(asid)
 				     : "memory");
 	}
 }
 
-static void sbi_tlb_local_fence_i(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_tlb_local_fence_i(ರಚನೆ sbi_tlb_info *tinfo)
 {
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_FENCE_I_RECVD);
 
 	__asm__ __volatile("fence.i");
 }
 
-static void tlb_entry_local_process(struct sbi_tlb_info *data)
+ಸ್ಥಿರ ಶೂನ್ಯ tlb_ನಮೂದು_local_process(ರಚನೆ sbi_tlb_info *ದತ್ತಾಂಶ)
 {
-	if (unlikely(!data))
-		return;
+	ಆದರೆ (unlikely(!ದತ್ತಾಂಶ))
+		ಹಿಂತಿರುಗಿ;
 
-	switch (data->type) {
-	case SBI_TLB_FENCE_I:
-		tlb_local_ops->local_fence_i(data);
-		break;
-	case SBI_TLB_SFENCE_VMA:
-		tlb_local_ops->local_sfence_vma(data);
-		break;
-	case SBI_TLB_SFENCE_VMA_ASID:
-		tlb_local_ops->local_sfence_vma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA_VMID:
-		tlb_local_ops->local_hfence_gvma_vmid(data);
-		break;
-	case SBI_TLB_HFENCE_GVMA:
-		tlb_local_ops->local_hfence_gvma(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA_ASID:
-		tlb_local_ops->local_hfence_vvma_asid(data);
-		break;
-	case SBI_TLB_HFENCE_VVMA:
-		tlb_local_ops->local_hfence_vvma(data);
-		break;
-	default:
-		break;
+	ಆಯ್ಕೆ (ದತ್ತಾಂಶ->type) {
+	ಸ್ಥಿತಿ SBI_TLB_FENCE_I:
+		tlb_local_ops->local_fence_i(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_SFENCE_VMA:
+		tlb_local_ops->local_sfence_vma(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_SFENCE_VMA_ASID:
+		tlb_local_ops->local_sfence_vma_asid(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_HFENCE_GVMA_VMID:
+		tlb_local_ops->local_hfence_gvma_vmid(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_HFENCE_GVMA:
+		tlb_local_ops->local_hfence_gvma(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_HFENCE_VVMA_ASID:
+		tlb_local_ops->local_hfence_vvma_asid(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_TLB_HFENCE_VVMA:
+		tlb_local_ops->local_hfence_vvma(ದತ್ತಾಂಶ);
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ನಿಲ್ಲಿಸು;
 	};
 }
 
-static void tlb_entry_process(struct sbi_tlb_info *tinfo)
+ಸ್ಥಿರ ಶೂನ್ಯ tlb_ನಮೂದು_process(ರಚನೆ sbi_tlb_info *tinfo)
 {
 	u32 rindex;
-	struct sbi_scratch *rscratch = NULL;
-	atomic_t *rtlb_sync = NULL;
+	ರಚನೆ sbi_scratch *rscratch = ಖಾಲಿ;
+	atomic_t *rtlb_sync = ಖಾಲಿ;
 
-	tlb_entry_local_process(tinfo);
+	tlb_ನಮೂದು_local_process(tinfo);
 
 	sbi_hartmask_for_each_hartindex(rindex, &tinfo->smask) {
-		rscratch = sbi_hartindex_to_scratch(rindex);
-		if (!rscratch)
-			continue;
+		rscratch = sbi_hartindex_ಗಮ್ಯ_scratch(rindex);
+		ಆದರೆ (!rscratch)
+			ಮುಂದುವರಿ;
 
-		rtlb_sync = sbi_scratch_offset_ptr(rscratch, tlb_sync_off);
+		rtlb_sync = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(rscratch, tlb_sync_off);
 		atomic_sub_return(rtlb_sync, 1);
 	}
 }
 
-static bool tlb_process_once(struct sbi_scratch *scratch)
+ಸ್ಥಿರ bool tlb_process_once(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_tlb_info tinfo;
-	struct sbi_fifo *tlb_fifo =
-			sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
+	ರಚನೆ sbi_tlb_info tinfo;
+	ರಚನೆ sbi_fifo *tlb_fifo =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, tlb_fifo_off);
 
-	if (!sbi_fifo_dequeue(tlb_fifo, &tinfo)) {
-		tlb_entry_process(&tinfo);
-		return true;
+	ಆದರೆ (!sbi_fifo_ಸರತಿಯಿಂದ_ತೆಗೆ(tlb_fifo, &tinfo)) {
+		tlb_ನಮೂದು_process(&tinfo);
+		ಹಿಂತಿರುಗಿ true;
 	}
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-static void tlb_process(struct sbi_scratch *scratch)
+ಸ್ಥಿರ ಶೂನ್ಯ tlb_process(ರಚನೆ sbi_scratch *scratch)
 {
-	while (tlb_process_once(scratch));
+	ಆಗ (tlb_process_once(scratch));
 }
 
-static void tlb_sync(struct sbi_scratch *scratch)
+ಸ್ಥಿರ ಶೂನ್ಯ tlb_sync(ರಚನೆ sbi_scratch *scratch)
 {
 	atomic_t *tlb_sync =
-			sbi_scratch_offset_ptr(scratch, tlb_sync_off);
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, tlb_sync_off);
 
-	while (atomic_read(tlb_sync) > 0) {
+	ಆಗ (atomic_read(tlb_sync) > 0) {
 		/*
 		 * While we are waiting for remote hart to set the sync,
 		 * consume fifo requests to avoid deadlock.
@@ -290,32 +290,32 @@ static void tlb_sync(struct sbi_scratch *scratch)
 		tlb_process_once(scratch);
 	}
 
-	return;
+	ಹಿಂತಿರುಗಿ;
 }
 
-static inline int tlb_range_check(struct sbi_tlb_info *curr,
-					struct sbi_tlb_info *next)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಪೂರ್ಣಾಂಕ tlb_range_check(ರಚನೆ sbi_tlb_info *curr,
+					ರಚನೆ sbi_tlb_info *ಮುಂದಿನ)
 {
-	unsigned long curr_end;
-	unsigned long next_end;
-	int ret = SBI_FIFO_UNCHANGED;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ curr_ಕೊನೆ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಮುಂದಿನ_ಕೊನೆ;
+	ಪೂರ್ಣಾಂಕ ret = SBI_FIFO_UNCHANGED;
 
-	if (!curr || !next)
-		return ret;
+	ಆದರೆ (!curr || !ಮುಂದಿನ)
+		ಹಿಂತಿರುಗಿ ret;
 
-	next_end = next->start + next->size;
-	curr_end = curr->start + curr->size;
-	if (next->start <= curr->start && next_end > curr_end) {
-		curr->start = next->start;
-		curr->size  = next->size;
-		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
+	ಮುಂದಿನ_ಕೊನೆ = ಮುಂದಿನ->ಆರಂಭ + ಮುಂದಿನ->ಗಾತ್ರ_2;
+	curr_ಕೊನೆ = curr->ಆರಂಭ + curr->ಗಾತ್ರ_2;
+	ಆದರೆ (ಮುಂದಿನ->ಆರಂಭ <= curr->ಆರಂಭ && ಮುಂದಿನ_ಕೊನೆ > curr_ಕೊನೆ) {
+		curr->ಆರಂಭ = ಮುಂದಿನ->ಆರಂಭ;
+		curr->ಗಾತ್ರ_2  = ಮುಂದಿನ->ಗಾತ್ರ_2;
+		sbi_hartmask_or(&curr->smask, &curr->smask, &ಮುಂದಿನ->smask);
 		ret = SBI_FIFO_UPDATED;
-	} else if (next->start >= curr->start && next_end <= curr_end) {
-		sbi_hartmask_or(&curr->smask, &curr->smask, &next->smask);
+	} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಮುಂದಿನ->ಆರಂಭ >= curr->ಆರಂಭ && ಮುಂದಿನ_ಕೊನೆ <= curr_ಕೊನೆ) {
+		sbi_hartmask_or(&curr->smask, &curr->smask, &ಮುಂದಿನ->smask);
 		ret = SBI_FIFO_SKIP;
 	}
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
 /**
@@ -336,55 +336,55 @@ static inline int tlb_range_check(struct sbi_tlb_info *curr,
  *	before continuing the while loop. This method is preferred over wfi/ipi because
  *	of MMIO cost involved in later method.
  */
-static int tlb_update_cb(void *in, void *data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ tlb_update_cb(ಶೂನ್ಯ *ಒಳ, ಶೂನ್ಯ *ದತ್ತಾಂಶ)
 {
-	struct sbi_tlb_info *curr;
-	struct sbi_tlb_info *next;
-	int ret = SBI_FIFO_UNCHANGED;
+	ರಚನೆ sbi_tlb_info *curr;
+	ರಚನೆ sbi_tlb_info *ಮುಂದಿನ;
+	ಪೂರ್ಣಾಂಕ ret = SBI_FIFO_UNCHANGED;
 
-	if (!in || !data)
-		return ret;
+	ಆದರೆ (!ಒಳ || !ದತ್ತಾಂಶ)
+		ಹಿಂತಿರುಗಿ ret;
 
-	curr = (struct sbi_tlb_info *)data;
-	next = (struct sbi_tlb_info *)in;
+	curr = (ರಚನೆ sbi_tlb_info *)ದತ್ತಾಂಶ;
+	ಮುಂದಿನ = (ರಚನೆ sbi_tlb_info *)ಒಳ;
 
-	if (next->type == SBI_TLB_SFENCE_VMA_ASID &&
+	ಆದರೆ (ಮುಂದಿನ->type == SBI_TLB_SFENCE_VMA_ASID &&
 	    curr->type == SBI_TLB_SFENCE_VMA_ASID) {
-		if (next->asid == curr->asid)
-			ret = tlb_range_check(curr, next);
-	} else if (next->type == SBI_TLB_SFENCE_VMA &&
+		ಆದರೆ (ಮುಂದಿನ->asid == curr->asid)
+			ret = tlb_range_check(curr, ಮುಂದಿನ);
+	} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಮುಂದಿನ->type == SBI_TLB_SFENCE_VMA &&
 		   curr->type == SBI_TLB_SFENCE_VMA) {
-		ret = tlb_range_check(curr, next);
+		ret = tlb_range_check(curr, ಮುಂದಿನ);
 	}
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-static int tlb_update(struct sbi_scratch *scratch,
-			  struct sbi_scratch *remote_scratch,
-			  u32 remote_hartindex, void *data)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ tlb_update(ರಚನೆ sbi_scratch *scratch,
+			  ರಚನೆ sbi_scratch *remote_scratch,
+			  u32 remote_hartindex, ಶೂನ್ಯ *ದತ್ತಾಂಶ)
 {
-	int ret;
+	ಪೂರ್ಣಾಂಕ ret;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_fifo_r;
-	struct sbi_tlb_info *tinfo = data;
+	ರಚನೆ sbi_fifo *tlb_fifo_r;
+	ರಚನೆ sbi_tlb_info *tinfo = ದತ್ತಾಂಶ;
 	u32 curr_hartid = current_hartid();
 
 	/*
 	 * If the request is to queue a tlb flush entry for itself
 	 * then just do a local flush and return;
 	 */
-	if (sbi_hartindex_to_hartid(remote_hartindex) == curr_hartid) {
-		tlb_entry_local_process(tinfo);
-		return SBI_IPI_UPDATE_BREAK;
+	ಆದರೆ (sbi_hartindex_ಗಮ್ಯ_hartid(remote_hartindex) == curr_hartid) {
+		tlb_ನಮೂದು_local_process(tinfo);
+		ಹಿಂತಿರುಗಿ SBI_IPI_UPDATE_BREAK;
 	}
 
-	tlb_fifo_r = sbi_scratch_offset_ptr(remote_scratch, tlb_fifo_off);
+	tlb_fifo_r = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(remote_scratch, tlb_fifo_off);
 
-	ret = sbi_fifo_inplace_update(tlb_fifo_r, data, tlb_update_cb);
+	ret = sbi_fifo_inplace_update(tlb_fifo_r, ದತ್ತಾಂಶ, tlb_update_cb);
 
-	if (ret == SBI_FIFO_UNCHANGED &&
-	    sbi_fifo_enqueue(tlb_fifo_r, data, false) < 0) {
+	ಆದರೆ (ret == SBI_FIFO_UNCHANGED &&
+	    sbi_fifo_ಸರತಿಗೆ_ಸೇರಿಸು(tlb_fifo_r, ದತ್ತಾಂಶ, false) < 0) {
 		/**
 		 * For now, Busy loop until there is space in the fifo.
 		 * There may be case where target hart is also
@@ -395,111 +395,111 @@ static int tlb_update(struct sbi_scratch *scratch,
 		 */
 		tlb_process_once(scratch);
 		sbi_dprintf("hart%d: hart%d tlb fifo full\n", curr_hartid,
-			    sbi_hartindex_to_hartid(remote_hartindex));
-		return SBI_IPI_UPDATE_RETRY;
+			    sbi_hartindex_ಗಮ್ಯ_hartid(remote_hartindex));
+		ಹಿಂತಿರುಗಿ SBI_IPI_UPDATE_RETRY;
 	}
 
-	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
-	atomic_add_return(tlb_sync, 1);
+	tlb_sync = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, tlb_sync_off);
+	atomic_ಕೂಡಿಸು_return(tlb_sync, 1);
 
-	return SBI_IPI_UPDATE_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_IPI_UPDATE_SUCCESS;
 }
 
-static struct sbi_ipi_event_ops tlb_ops = {
+ಸ್ಥಿರ ರಚನೆ sbi_ipi_event_ops tlb_ops = {
 	.name = "IPI_TLB",
 	.update = tlb_update,
 	.sync = tlb_sync,
 	.process = tlb_process,
 };
 
-static u32 tlb_event = SBI_IPI_EVENT_MAX;
+ಸ್ಥಿರ u32 tlb_event = SBI_IPI_EVENT_MAX;
 
-static const u32 tlb_type_to_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
-	[SBI_TLB_FENCE_I] = SBI_PMU_FW_FENCE_I_SENT,
-	[SBI_TLB_SFENCE_VMA] = SBI_PMU_FW_SFENCE_VMA_SENT,
-	[SBI_TLB_SFENCE_VMA_ASID] = SBI_PMU_FW_SFENCE_VMA_ASID_SENT,
-	[SBI_TLB_HFENCE_GVMA_VMID] = SBI_PMU_FW_HFENCE_GVMA_VMID_SENT,
-	[SBI_TLB_HFENCE_GVMA] = SBI_PMU_FW_HFENCE_GVMA_SENT,
-	[SBI_TLB_HFENCE_VVMA_ASID] = SBI_PMU_FW_HFENCE_VVMA_ASID_SENT,
-	[SBI_TLB_HFENCE_VVMA] = SBI_PMU_FW_HFENCE_VVMA_SENT,
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ u32 tlb_type_ಗಮ್ಯ_pmu_fw_event[SBI_TLB_TYPE_MAX] = {
+	[SBI_TLB_FENCE_I] = SBI_PMU_FW_FENCE_I_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_SFENCE_VMA] = SBI_PMU_FW_SFENCE_VMA_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_SFENCE_VMA_ASID] = SBI_PMU_FW_SFENCE_VMA_ASID_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_HFENCE_GVMA_VMID] = SBI_PMU_FW_HFENCE_GVMA_VMID_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_HFENCE_GVMA] = SBI_PMU_FW_HFENCE_GVMA_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_HFENCE_VVMA_ASID] = SBI_PMU_FW_HFENCE_VVMA_ASID_ಕಳುಹಿಸಿದ,
+	[SBI_TLB_HFENCE_VVMA] = SBI_PMU_FW_HFENCE_VVMA_ಕಳುಹಿಸಿದ,
 };
 
-int sbi_tlb_request(ulong hmask, ulong hbase, struct sbi_tlb_info *tinfo)
+ಪೂರ್ಣಾಂಕ sbi_tlb_request(ulong hmask, ulong hbase, ರಚನೆ sbi_tlb_info *tinfo)
 {
-	if (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
-		return SBI_EINVAL;
+	ಆದರೆ (tinfo->type < 0 || tinfo->type >= SBI_TLB_TYPE_MAX)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/*
 	 * If address range to flush is too big then simply
 	 * upgrade it to flush all because we can only flush
 	 * 4KB at a time.
 	 */
-	if (tinfo->size > tlb_range_flush_limit) {
-		tinfo->start = 0;
-		tinfo->size = SBI_TLB_FLUSH_ALL;
+	ಆದರೆ (tinfo->ಗಾತ್ರ_2 > tlb_range_flush_ಎಲ್ಲೆ) {
+		tinfo->ಆರಂಭ = 0;
+		tinfo->ಗಾತ್ರ_2 = SBI_TLB_FLUSH_ALL;
 	}
 
-	sbi_pmu_ctr_incr_fw(tlb_type_to_pmu_fw_event[tinfo->type]);
+	sbi_pmu_ctr_incr_fw(tlb_type_ಗಮ್ಯ_pmu_fw_event[tinfo->type]);
 
-	return sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
+	ಹಿಂತಿರುಗಿ sbi_ipi_send_many(hmask, hbase, tlb_event, tinfo);
 }
 
-int sbi_tlb_init(struct sbi_scratch *scratch, bool cold_boot)
+ಪೂರ್ಣಾಂಕ sbi_tlb_init(ರಚನೆ sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	void *tlb_mem;
+	ಪೂರ್ಣಾಂಕ ret;
+	ಶೂನ್ಯ *tlb_mem;
 	atomic_t *tlb_sync;
-	struct sbi_fifo *tlb_q;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ರಚನೆ sbi_fifo *tlb_q;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (cold_boot) {
-		tlb_sync_off = sbi_scratch_alloc_offset(sizeof(*tlb_sync));
-		if (!tlb_sync_off)
-			return SBI_ENOMEM;
-		tlb_fifo_off = sbi_scratch_alloc_offset(sizeof(*tlb_q));
-		if (!tlb_fifo_off) {
-			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+	ಆದರೆ (cold_boot) {
+		tlb_sync_off = sbi_scratch_alloc_ಸ್ಥಾನಾಂತರ(ಗಾತ್ರ(*tlb_sync));
+		ಆದರೆ (!tlb_sync_off)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
+		tlb_fifo_off = sbi_scratch_alloc_ಸ್ಥಾನಾಂತರ(ಗಾತ್ರ(*tlb_q));
+		ಆದರೆ (!tlb_fifo_off) {
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_sync_off);
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 		}
-		tlb_fifo_mem_off = sbi_scratch_alloc_offset(sizeof(tlb_mem));
-		if (!tlb_fifo_mem_off) {
-			sbi_scratch_free_offset(tlb_fifo_off);
-			sbi_scratch_free_offset(tlb_sync_off);
-			return SBI_ENOMEM;
+		tlb_fifo_mem_off = sbi_scratch_alloc_ಸ್ಥಾನಾಂತರ(ಗಾತ್ರ(tlb_mem));
+		ಆದರೆ (!tlb_fifo_mem_off) {
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_fifo_off);
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_sync_off);
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 		}
 		ret = sbi_ipi_event_create(&tlb_ops);
-		if (ret < 0) {
-			sbi_scratch_free_offset(tlb_fifo_mem_off);
-			sbi_scratch_free_offset(tlb_fifo_off);
-			sbi_scratch_free_offset(tlb_sync_off);
-			return ret;
+		ಆದರೆ (ret < 0) {
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_fifo_mem_off);
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_fifo_off);
+			sbi_scratch_free_ಸ್ಥಾನಾಂತರ(tlb_sync_off);
+			ಹಿಂತಿರುಗಿ ret;
 		}
 		tlb_event = ret;
-		tlb_range_flush_limit = sbi_platform_tlbr_flush_limit(plat);
-	} else {
-		if (!tlb_sync_off ||
+		tlb_range_flush_ಎಲ್ಲೆ = sbi_platform_tlbr_flush_ಎಲ್ಲೆ(plat);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಆದರೆ (!tlb_sync_off ||
 		    !tlb_fifo_off ||
 		    !tlb_fifo_mem_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= tlb_event)
-			return SBI_ENOSPC;
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
+		ಆದರೆ (SBI_IPI_EVENT_MAX <= tlb_event)
+			ಹಿಂತಿರುಗಿ SBI_ENOSPC;
 	}
 
-	tlb_sync = sbi_scratch_offset_ptr(scratch, tlb_sync_off);
-	tlb_q = sbi_scratch_offset_ptr(scratch, tlb_fifo_off);
-	tlb_mem = sbi_scratch_read_type(scratch, void *, tlb_fifo_mem_off);
-	if (!tlb_mem) {
+	tlb_sync = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, tlb_sync_off);
+	tlb_q = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, tlb_fifo_off);
+	tlb_mem = sbi_scratch_read_type(scratch, ಶೂನ್ಯ *, tlb_fifo_mem_off);
+	ಆದರೆ (!tlb_mem) {
 		tlb_mem = sbi_malloc(
-				sbi_platform_tlb_fifo_num_entries(plat) * SBI_TLB_INFO_SIZE);
-		if (!tlb_mem)
-			return SBI_ENOMEM;
-		sbi_scratch_write_type(scratch, void *, tlb_fifo_mem_off, tlb_mem);
+				sbi_platform_tlb_fifo_ಅಂಕೆ_entries(plat) * SBI_TLB_INFO_ಗಾತ್ರ);
+		ಆದರೆ (!tlb_mem)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
+		sbi_scratch_write_type(scratch, ಶೂನ್ಯ *, tlb_fifo_mem_off, tlb_mem);
 	}
 
 	ATOMIC_INIT(tlb_sync, 0);
 
 	sbi_fifo_init(tlb_q, tlb_mem,
-		      sbi_platform_tlb_fifo_num_entries(plat), SBI_TLB_INFO_SIZE);
+		      sbi_platform_tlb_fifo_ಅಂಕೆ_entries(plat), SBI_TLB_INFO_ಗಾತ್ರ);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

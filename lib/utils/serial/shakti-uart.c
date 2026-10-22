@@ -4,57 +4,57 @@
  * Copyright (c) 2020 Vijai Kumar K <vijai@behindbytes.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/shakti-uart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/shakti-uart.h>
 
-#define REG_BAUD	0x00
-#define REG_TX		0x04
-#define REG_RX		0x08
-#define REG_STATUS	0x0C
-#define REG_DELAY	0x10
-#define REG_CONTROL	0x14
-#define REG_INT_EN	0x18
-#define REG_IQ_CYCLES	0x1C
-#define REG_RX_THRES	0x20
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_BAUD	0x00
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_TX		0x04
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_RX		0x08
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_ಸ್ಥಿತಿ	0x0C
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_DELAY	0x10
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_CONTROL	0x14
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_INT_EN	0x18
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_IQ_ಚಕ್ರಗಳು	0x1C
+#ವ್ಯಾಖ್ಯಾನಿಸು REG_RX_THRES	0x20
 
-#define UART_TX_FULL  0x2
-#define UART_RX_NOT_EMPTY 0x4
-#define UART_RX_FULL  0x8
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_TX_ತುಂಬಿದ  0x2
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_RX_NOT_ಖಾಲಿಗಳು 0x4
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_RX_ತುಂಬಿದ  0x8
 
-static volatile char *uart_base;
+ಸ್ಥಿರ ಅಸ್ಥಿರ ಅಕ್ಷರ *uart_ತಳ;
 
-static void shakti_uart_putc(char ch)
+ಸ್ಥಿರ ಶೂನ್ಯ shakti_uart_putc(ಅಕ್ಷರ ch)
 {
-	while ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
+	ಆಗ ((readb(uart_ತಳ + REG_ಸ್ಥಿತಿ) & UART_TX_ತುಂಬಿದ))
 		;
-	writeb(ch, uart_base + REG_TX);
+	writeb(ch, uart_ತಳ + REG_TX);
 }
 
-static int shakti_uart_getc(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ shakti_uart_getc(ಶೂನ್ಯ)
 {
-	if (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
-		return readb(uart_base + REG_RX);
-	return -1;
+	ಆದರೆ (readb(uart_ತಳ + REG_ಸ್ಥಿತಿ) & UART_RX_NOT_ಖಾಲಿಗಳು)
+		ಹಿಂತಿರುಗಿ readb(uart_ತಳ + REG_RX);
+	ಹಿಂತಿರುಗಿ -1;
 }
 
-static struct sbi_console_device shakti_console = {
+ಸ್ಥಿರ ರಚನೆ sbi_console_device shakti_console = {
 	.name = "shakti_uart",
 	.console_putc = shakti_uart_putc,
 	.console_getc = shakti_uart_getc
 };
 
-int shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ಪೂರ್ಣಾಂಕ shakti_uart_init(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2, u32 ಒಳ_freq, u32 baudrate)
 {
-	uart_base = (volatile char *)base;
+	uart_ತಳ = (ಅಸ್ಥಿರ ಅಕ್ಷರ *)ತಳ_2;
 	u16 baud;
 
-	if (baudrate) {
-		baud = (u16)(in_freq / (16 * baudrate));
-		writew(baud, uart_base + REG_BAUD);
+	ಆದರೆ (baudrate) {
+		baud = (u16)(ಒಳ_freq / (16 * baudrate));
+		writew(baud, uart_ತಳ + REG_BAUD);
 	}
 
-	sbi_console_set_device(&shakti_console);
+	sbi_console_ಗಣ_device(&shakti_console);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

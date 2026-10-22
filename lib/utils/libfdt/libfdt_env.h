@@ -1,85 +1,85 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause */
-#ifndef LIBFDT_ENV_H
-#define LIBFDT_ENV_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LIBFDT_ENV_H
+#ವ್ಯಾಖ್ಯಾನಿಸು LIBFDT_ENV_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_byteorder.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_types.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_byteorder.h>
 
-#define INT_MAX		((int)(~0U >> 1))
-#define UINT_MAX	((unsigned int)~0U)
-#define INT32_MAX	INT_MAX
-#define UINT32_MAX	UINT_MAX
+#ವ್ಯಾಖ್ಯಾನಿಸು ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ		((ಪೂರ್ಣಾಂಕ)(~0U >> 1))
+#ವ್ಯಾಖ್ಯಾನಿಸು UINT_MAX	((ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ)~0U)
+#ವ್ಯಾಖ್ಯಾನಿಸು INT32_MAX	ಗರಿಷ್ಠ_ಪೂರ್ಣಾಂಕ
+#ವ್ಯಾಖ್ಯಾನಿಸು UINT32_MAX	UINT_MAX
 
-#ifdef __CHECKER__
-#define FDT_FORCE __attribute__((force))
-#define FDT_BITWISE __attribute__((bitwise))
-#else
-#define FDT_FORCE
-#define FDT_BITWISE
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __CHECKER__
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_FORCE __attribute__((force))
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_BITWISE __attribute__((bitwise))
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_FORCE
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_BITWISE
+#ಆದರೆ_ಅಂತ್ಯ
 
-#define memmove		sbi_memmove
-#define memcpy		sbi_memcpy
-#define memcmp		sbi_memcmp
-#define memchr		sbi_memchr
-#define memset		sbi_memset
-#define strchr		sbi_strchr
-#define strrchr		sbi_strrchr
-#define strcpy		sbi_strcpy
-#define strncpy		sbi_strncpy
-#define strcmp		sbi_strcmp
-#define strncmp		sbi_strncmp
-#define strlen		sbi_strlen
-#define strnlen		sbi_strnlen
+#ವ್ಯಾಖ್ಯಾನಿಸು memmove		sbi_memmove
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸ್ಮರಣೆ_ನಕಲು		sbi_memcpy
+#ವ್ಯಾಖ್ಯಾನಿಸು memcmp		sbi_memcmp
+#ವ್ಯಾಖ್ಯಾನಿಸು memchr		sbi_memchr
+#ವ್ಯಾಖ್ಯಾನಿಸು memset		sbi_memset
+#ವ್ಯಾಖ್ಯಾನಿಸು strchr		sbi_strchr
+#ವ್ಯಾಖ್ಯಾನಿಸು strrchr		sbi_strrchr
+#ವ್ಯಾಖ್ಯಾನಿಸು strcpy		sbi_strcpy
+#ವ್ಯಾಖ್ಯಾನಿಸು strncpy		sbi_strncpy
+#ವ್ಯಾಖ್ಯಾನಿಸು strcmp		sbi_strcmp
+#ವ್ಯಾಖ್ಯಾನಿಸು ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ		sbi_strncmp
+#ವ್ಯಾಖ್ಯಾನಿಸು ಅಕ್ಷರಸರಣಿ_ಉದ್ದ		sbi_strlen
+#ವ್ಯಾಖ್ಯಾನಿಸು strnlen		sbi_strnlen
 
-typedef be16_t FDT_BITWISE fdt16_t;
-typedef be32_t FDT_BITWISE fdt32_t;
-typedef be64_t FDT_BITWISE fdt64_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ be16_t FDT_BITWISE fdt16_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ be32_t FDT_BITWISE fdt32_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ be64_t FDT_BITWISE fdt64_t;
 
-static inline uint16_t fdt16_to_cpu(fdt16_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint16_t fdt16_ಗಮ್ಯ_cpu(fdt16_t x)
 {
-	return (FDT_FORCE uint16_t)be16_to_cpu(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE uint16_t)be16_ಗಮ್ಯ_cpu(x);
 }
 
-static inline fdt16_t cpu_to_fdt16(uint16_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ fdt16_t cpu_ಗಮ್ಯ_fdt16(uint16_t x)
 {
-	return (FDT_FORCE fdt16_t)cpu_to_be16(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE fdt16_t)cpu_ಗಮ್ಯ_be16(x);
 }
 
-static inline uint32_t fdt32_to_cpu(fdt32_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint32_t fdt32_ಗಮ್ಯ_cpu(fdt32_t x)
 {
-	return (FDT_FORCE uint32_t)be32_to_cpu(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE uint32_t)be32_ಗಮ್ಯ_cpu(x);
 }
 
-static inline fdt32_t cpu_to_fdt32(uint32_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ fdt32_t cpu_ಗಮ್ಯ_fdt32(uint32_t x)
 {
-	return (FDT_FORCE fdt32_t)cpu_to_be32(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE fdt32_t)cpu_ಗಮ್ಯ_be32(x);
 }
 
-static inline uint64_t fdt64_to_cpu(fdt64_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint64_t fdt64_ಗಮ್ಯ_cpu(fdt64_t x)
 {
-	return (FDT_FORCE uint64_t)be64_to_cpu(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE uint64_t)be64_ಗಮ್ಯ_cpu(x);
 }
 
-static inline fdt64_t cpu_to_fdt64(uint64_t x)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ fdt64_t cpu_ಗಮ್ಯ_fdt64(uint64_t x)
 {
-	return (FDT_FORCE fdt64_t)cpu_to_be64(x);
+	ಹಿಂತಿರುಗಿ (FDT_FORCE fdt64_t)cpu_ಗಮ್ಯ_be64(x);
 }
 
-#ifdef __APPLE__
-#include <AvailabilityMacros.h>
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __APPLE__
+#ಅನ್ತರ್ಭಾವ <AvailabilityMacros.h>
 
 /* strnlen() is not available on Mac OS < 10.7 */
-# if !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
-                                         MAC_OS_X_VERSION_10_7)
+# ಆದರೆ !defined(MAC_OS_X_ಆವೃತ್ತಿ_10_7) || (MAC_OS_X_ಆವೃತ್ತಿ_MAX_ALLOWED < \
+                                         MAC_OS_X_ಆವೃತ್ತಿ_10_7)
 
-#define strnlen fdt_strnlen
+#ವ್ಯಾಖ್ಯಾನಿಸು strnlen fdt_strnlen
 
 /*
  * fdt_strnlen: returns the length of a string or max_count - which ever is
@@ -88,15 +88,15 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ size_t fdt_strnlen(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *string, size_t max_ಎಣಿಕೆ)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *p = memchr(string, 0, max_ಎಣಿಕೆ);
+    ಹಿಂತಿರುಗಿ p ? p - string : max_ಎಣಿಕೆ;
 }
 
-#endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
+#ಆದರೆ_ಅಂತ್ಯ /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
           MAC_OS_X_VERSION_10_7) */
 
-#endif /* __APPLE__ */
+#ಆದರೆ_ಅಂತ್ಯ /* __APPLE__ */
 
-#endif /* LIBFDT_ENV_H */
+#ಆದರೆ_ಅಂತ್ಯ /* LIBFDT_ENV_H */

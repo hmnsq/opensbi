@@ -1,44 +1,44 @@
-#include <sbi/sbi_unit_test.h>
-#include <sbi/riscv_locks.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_unit_test.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_locks.h>
 
-static spinlock_t test_lock = SPIN_LOCK_INITIALIZER;
+ಸ್ಥಿರ spinlock_t test_ಬೀಗ = SPIN_ಬೀಗ_INITIALIZER;
 
-static void spin_lock_test(struct sbiunit_test_case *test)
+ಸ್ಥಿರ ಶೂನ್ಯ spin_ಬೀಗ_test(ರಚನೆ sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_ಬೀಗ_check(&test_ಬೀಗ));
 
-	spin_lock(&test_lock);
-	SBIUNIT_EXPECT(test, spin_lock_check(&test_lock));
-	spin_unlock(&test_lock);
+	spin_ಬೀಗ(&test_ಬೀಗ);
+	SBIUNIT_EXPECT(test, spin_ಬೀಗ_check(&test_ಬೀಗ));
+	spin_unlock(&test_ಬೀಗ);
 
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_ಬೀಗ_check(&test_ಬೀಗ));
 }
 
-static void spin_trylock_fail(struct sbiunit_test_case *test)
+ಸ್ಥಿರ ಶೂನ್ಯ spin_trylock_fail(ರಚನೆ sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
 	/* We don't want to accidentally get locked */
-	SBIUNIT_ASSERT(test, !spin_lock_check(&test_lock));
+	SBIUNIT_ASSERT(test, !spin_ಬೀಗ_check(&test_ಬೀಗ));
 
-	spin_lock(&test_lock);
-	SBIUNIT_EXPECT(test, !spin_trylock(&test_lock));
-	spin_unlock(&test_lock);
+	spin_ಬೀಗ(&test_ಬೀಗ);
+	SBIUNIT_EXPECT(test, !spin_trylock(&test_ಬೀಗ));
+	spin_unlock(&test_ಬೀಗ);
 }
 
-static void spin_trylock_success(struct sbiunit_test_case *test)
+ಸ್ಥಿರ ಶೂನ್ಯ spin_trylock_success(ರಚನೆ sbiunit_test_case *test)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	SBIUNIT_EXPECT(test, spin_trylock(&test_lock));
-	spin_unlock(&test_lock);
+	SBIUNIT_EXPECT(test, spin_trylock(&test_ಬೀಗ));
+	spin_unlock(&test_ಬೀಗ);
 }
 
-static struct sbiunit_test_case locks_test_cases[] = {
-	SBIUNIT_TEST_CASE(spin_lock_test),
+ಸ್ಥಿರ ರಚನೆ sbiunit_test_case locks_test_cases[] = {
+	SBIUNIT_TEST_CASE(spin_ಬೀಗ_test),
 	SBIUNIT_TEST_CASE(spin_trylock_fail),
 	SBIUNIT_TEST_CASE(spin_trylock_success),
-	SBIUNIT_END_CASE,
+	SBIUNIT_ಕೊನೆ_CASE,
 };
 
 SBIUNIT_TEST_SUITE(locks_test_suite, locks_test_cases);

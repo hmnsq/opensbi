@@ -8,97 +8,97 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/aplic.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/fdt_irqchip.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/aplic.h>
 
-static int irqchip_aplic_update_idc_map(const void *fdt, int nodeoff,
-					struct aplic_data *pd)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ irqchip_aplic_update_idc_map(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+					ರಚನೆ aplic_ದತ್ತಾಂಶ *pd)
 {
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	ಪೂರ್ಣಾಂಕ i, err, ಎಣಿಕೆ_2, cpu_ಸ್ಥಾನಾಂತರ, cpu_intc_ಸ್ಥಾನಾಂತರ;
 	u32 phandle, hartid, hartindex;
-	const fdt32_t *val;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val || ಎಣಿಕೆ_2 < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಎಣಿಕೆ_2 = ಎಣಿಕೆ_2 / ಗಾತ್ರ(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
-		phandle = fdt32_to_cpu(val[i]);
+	ಗಾಗಿ (i = 0; i < ಎಣಿಕೆ_2; i += 2) {
+		phandle = fdt32_ಗಮ್ಯ_cpu(val[i]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, phandle);
+		ಆದರೆ (cpu_intc_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, cpu_intc_ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		err = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
+		ಆದರೆ (err)
+			ಮುಂದುವರಿ;
 
-		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		hartindex = sbi_hartid_ಗಮ್ಯ_hartindex(hartid);
+		ಆದರೆ (hartindex == -1U)
+			ಮುಂದುವರಿ;
 
 		pd->idc_map[i / 2] = hartindex;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int irqchip_aplic_cold_init(const void *fdt, int nodeoff,
-				   const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ irqchip_aplic_cold_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				   ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
-	struct aplic_data *pd;
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ aplic_ದತ್ತಾಂಶ *pd;
 
-	pd = sbi_zalloc(sizeof(*pd));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(ಗಾತ್ರ(*pd));
+	ಆದರೆ (!pd)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
-	rc = fdt_parse_aplic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_aplic_ಗಂಟು(fdt, nodeoff, pd);
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_ದತ್ತಾಂಶ;
 
-	if (pd->num_idc) {
-		pd->idc_map = sbi_zalloc(sizeof(*pd->idc_map) * pd->num_idc);
-		if (!pd->idc_map) {
+	ಆದರೆ (pd->ಅಂಕೆ_idc) {
+		pd->idc_map = sbi_zalloc(ಗಾತ್ರ(*pd->idc_map) * pd->ಅಂಕೆ_idc);
+		ಆದರೆ (!pd->idc_map) {
 			rc = SBI_ENOMEM;
-			goto fail_free_data;
+			ಹೋಗು fail_free_ದತ್ತಾಂಶ;
 		}
 
 		rc = irqchip_aplic_update_idc_map(fdt, nodeoff, pd);
-		if (rc)
-			goto fail_free_idc_map;
+		ಆದರೆ (rc)
+			ಹೋಗು fail_free_idc_map;
 	}
 
 	rc = aplic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_idc_map;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_idc_map;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 
 fail_free_idc_map:
-	if (pd->num_idc)
+	ಆದರೆ (pd->ಅಂಕೆ_idc)
 		sbi_free(pd->idc_map);
-fail_free_data:
+fail_free_ದತ್ತಾಂಶ:
 	sbi_free(pd);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
-static const struct fdt_match irqchip_aplic_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ irqchip_aplic_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "riscv,aplic" },
 	{ },
 };
 
-const struct fdt_driver fdt_irqchip_aplic = {
-	.match_table = irqchip_aplic_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_irqchip_aplic = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = irqchip_aplic_ಹೊಂದಿಕೆ,
 	.init = irqchip_aplic_cold_init,
 };

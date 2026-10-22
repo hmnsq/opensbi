@@ -7,88 +7,88 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_double_trap.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_illegal_insn.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_trap_ldst.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_sse.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_double_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_illegal_insn.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ipi.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_irqchip.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap_ldst.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmu.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_sse.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_timer.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
 
-static void sbi_trap_error_one(const struct sbi_trap_context *tcntx,
-			       const char *prefix, u32 hartid, u32 depth)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_trap_error_one(ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_context *tcntx,
+			       ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, u32 hartid, u32 ಆಳ)
 {
-	const struct sbi_trap_info *trap = &tcntx->trap;
-	const struct sbi_trap_regs *regs = &tcntx->regs;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_info *trap = &tcntx->trap;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_regs *regs = &tcntx->regs;
 
 	sbi_printf("\n");
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "mcause", trap->cause, "mtval", trap->tval);
-	if (misa_extension('H')) {
-		sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-			   hartid, depth, "mtval2", trap->tval2, "mtinst", trap->tinst);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "mcause", trap->cause, "mtval", trap->tval);
+	ಆದರೆ (misa_extension('H')) {
+		sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+			   hartid, ಆಳ, "mtval2", trap->tval2, "mtinst", trap->tinst);
 	}
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "mepc", regs->mepc, "mstatus", regs->mstatus);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "ra", regs->ra, "sp", regs->sp);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "gp", regs->gp, "tp", regs->tp);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s0", regs->s0, "s1", regs->s1);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "a0", regs->a0, "a1", regs->a1);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "a2", regs->a2, "a3", regs->a3);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "a4", regs->a4, "a5", regs->a5);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "a6", regs->a6, "a7", regs->a7);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s2", regs->s2, "s3", regs->s3);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s4", regs->s4, "s5", regs->s5);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s6", regs->s6, "s7", regs->s7);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s8", regs->s8, "s9", regs->s9);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "s10", regs->s10, "s11", regs->s11);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "t0", regs->t0, "t1", regs->t1);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "t2", regs->t2, "t3", regs->t3);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "t4", regs->t4, "t5", regs->t5);
-	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX "\n", prefix,
-		   hartid, depth, "t6", regs->t6);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "mepc", regs->mepc, "mstatus", regs->mstatus);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "ra", regs->ra, "sp", regs->sp);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "gp", regs->gp, "tp", regs->tp);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s0", regs->s0, "s1", regs->s1);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "a0", regs->a0, "a1", regs->a1);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "a2", regs->a2, "a3", regs->a3);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "a4", regs->a4, "a5", regs->a5);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "a6", regs->a6, "a7", regs->a7);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s2", regs->s2, "s3", regs->s3);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s4", regs->s4, "s5", regs->s5);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s6", regs->s6, "s7", regs->s7);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s8", regs->s8, "s9", regs->s9);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "s10", regs->s10, "s11", regs->s11);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "t0", regs->t0, "t1", regs->t1);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "t2", regs->t2, "t3", regs->t3);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX " %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "t4", regs->t4, "t5", regs->t5);
+	sbi_printf("%s: hart%d: trap%d: %s=0x%" PRILX "\n", ಪೂರ್ವಪ್ರತ್ಯಯ,
+		   hartid, ಆಳ, "t6", regs->t6);
 }
 
-static void __noreturn sbi_trap_error(const char *msg, int rc,
-				      const struct sbi_trap_context *tcntx)
+ಸ್ಥಿರ ಶೂನ್ಯ __noreturn sbi_trap_error(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ, ಪೂರ್ಣಾಂಕ rc,
+				      ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_context *tcntx)
 {
-	u32 depth = 0, hartid = current_hartid();
-	const struct sbi_trap_context *tc;
+	u32 ಆಳ = 0, hartid = current_hartid();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_context *tc;
 
-	for (tc = tcntx; tc; tc = tc->prev_context)
-		depth++;
+	ಗಾಗಿ (tc = tcntx; tc; tc = tc->prev_context)
+		ಆಳ++;
 
 	sbi_printf("\n");
 	sbi_printf("%s: hart%d: trap%d: %s (error %d)\n", __func__,
-		   hartid, depth - 1, msg, rc);
-	for (tc = tcntx; tc; tc = tc->prev_context)
-		sbi_trap_error_one(tc, __func__, hartid, --depth);
+		   hartid, ಆಳ - 1, ಸಂದೇಶ, rc);
+	ಗಾಗಿ (tc = tcntx; tc; tc = tc->prev_context)
+		sbi_trap_error_one(tc, __func__, hartid, --ಆಳ);
 
 	sbi_hart_hang();
 }
@@ -101,57 +101,57 @@ static void __noreturn sbi_trap_error(const char *msg, int rc,
  *
  * @return 0 on success and negative error code on failure
  */
-int sbi_trap_redirect(struct sbi_trap_regs *regs,
-		      const struct sbi_trap_info *trap)
+ಪೂರ್ಣಾಂಕ sbi_trap_redirect(ರಚನೆ sbi_trap_regs *regs,
+		      ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_info *trap)
 {
-	ulong hstatus, vsstatus, prev_mode;
+	ulong hstatus, vsstatus, prev_ಬಹುಲಕ;
 	bool elp = false;
 	bool prev_virt = sbi_regs_from_virt(regs);
 	/* By default, we redirect to HS-mode */
-	bool next_virt = false;
+	bool ಮುಂದಿನ_virt = false;
 
 	/* Sanity check on previous mode */
-	prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
-	if (prev_mode != PRV_S && prev_mode != PRV_U)
-		return SBI_ENOTSUPP;
+	prev_ಬಹುಲಕ = sbi_mstatus_prev_ಬಹುಲಕ(regs->mstatus);
+	ಆದರೆ (prev_ಬಹುಲಕ != PRV_S && prev_ಬಹುಲಕ != PRV_U)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
 	/* If hart support for zicfilp, clear MPELP because redirecting to VS or (H)S */
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_ZICFILP)) {
-#if __riscv_xlen == 32
+	ಆದರೆ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_ZICFILP)) {
+#ಆದರೆ __riscv_xlen == 32
 		elp = regs->mstatusH & MSTATUSH_MPELP;
 		regs->mstatusH &= ~MSTATUSH_MPELP;
-#else
+#ಇಲ್ಲದಿದ್ದರೆ
 		elp = regs->mstatus & MSTATUS_MPELP;
 		regs->mstatus &= ~MSTATUS_MPELP;
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	}
 
 	/* If exceptions came from VS/VU-mode, redirect to VS-mode if
 	 * delegated in hedeleg
 	 */
-	if (misa_extension('H') && prev_virt) {
-		if ((trap->cause < __riscv_xlen) &&
-		    (csr_read(CSR_HEDELEG) & BIT(trap->cause))) {
-			next_virt = true;
+	ಆದರೆ (misa_extension('H') && prev_virt) {
+		ಆದರೆ ((trap->cause < __riscv_xlen) &&
+		    (csr_read(CSR_HEDELEG) & ಬಿಟ್(trap->cause))) {
+			ಮುಂದಿನ_virt = true;
 		}
 	}
 
 	/* Update MSTATUS MPV bits */
-#if __riscv_xlen == 32
+#ಆದರೆ __riscv_xlen == 32
 	regs->mstatusH &= ~MSTATUSH_MPV;
-	regs->mstatusH |= (next_virt) ? MSTATUSH_MPV : 0UL;
-#else
+	regs->mstatusH |= (ಮುಂದಿನ_virt) ? MSTATUSH_MPV : 0UL;
+#ಇಲ್ಲದಿದ್ದರೆ
 	regs->mstatus &= ~MSTATUS_MPV;
-	regs->mstatus |= (next_virt) ? MSTATUS_MPV : 0UL;
-#endif
+	regs->mstatus |= (ಮುಂದಿನ_virt) ? MSTATUS_MPV : 0UL;
+#ಆದರೆ_ಅಂತ್ಯ
 
 	/* Update hypervisor CSRs if going to HS-mode */
-	if (misa_extension('H') && !next_virt) {
+	ಆದರೆ (misa_extension('H') && !ಮುಂದಿನ_virt) {
 		hstatus = csr_read(CSR_HSTATUS);
-		if (prev_virt) {
+		ಆದರೆ (prev_virt) {
 			/* hstatus.SPVP is only updated if coming from VS/VU-mode */
 			hstatus &= ~HSTATUS_SPVP;
-			hstatus |= (prev_mode == PRV_S) ? HSTATUS_SPVP : 0;
+			hstatus |= (prev_ಬಹುಲಕ == PRV_S) ? HSTATUS_SPVP : 0;
 		}
 		hstatus &= ~HSTATUS_SPV;
 		hstatus |= (prev_virt) ? HSTATUS_SPV : 0;
@@ -163,127 +163,127 @@ int sbi_trap_redirect(struct sbi_trap_regs *regs,
 	}
 
 	/* Update exception related CSRs */
-	if (next_virt) {
+	ಆದರೆ (ಮುಂದಿನ_virt) {
 		/* Update VS-mode exception info */
 		csr_write(CSR_VSTVAL, trap->tval);
 		csr_write(CSR_VSEPC, regs->mepc);
 		csr_write(CSR_VSCAUSE, trap->cause);
 
 		/* Set MEPC to VS-mode exception vector base */
-		regs->mepc = csr_read(CSR_VSTVEC) & ~MTVEC_MODE;
+		regs->mepc = csr_read(CSR_VSTVEC) & ~MTVEC_ಬಹುಲಕ;
 
 		/* Set MPP to VS-mode */
 		regs->mstatus &= ~MSTATUS_MPP;
-		regs->mstatus |= (PRV_S << MSTATUS_MPP_SHIFT);
+		regs->mstatus |= (PRV_S << MSTATUS_MPP_ಸರಿಸು);
 
 		/* Get VS-mode SSTATUS CSR */
 		vsstatus = csr_read(CSR_VSSTATUS);
 
 		/* If elp was set, set it back in vsstatus */
-		if (elp)
+		ಆದರೆ (elp)
 			vsstatus |= MSTATUS_SPELP;
 
 		/* Set SPP for VS-mode */
 		vsstatus &= ~SSTATUS_SPP;
-		if (prev_mode == PRV_S)
-			vsstatus |= (1UL << SSTATUS_SPP_SHIFT);
+		ಆದರೆ (prev_ಬಹುಲಕ == PRV_S)
+			vsstatus |= (1UL << SSTATUS_SPP_ಸರಿಸು);
 
 		/* Set SPIE for VS-mode */
 		vsstatus &= ~SSTATUS_SPIE;
-		if (vsstatus & SSTATUS_SIE)
-			vsstatus |= (1UL << SSTATUS_SPIE_SHIFT);
+		ಆದರೆ (vsstatus & SSTATUS_SIE)
+			vsstatus |= (1UL << SSTATUS_SPIE_ಸರಿಸು);
 
 		/* Clear SIE for VS-mode */
 		vsstatus &= ~SSTATUS_SIE;
 
 		/* Update VS-mode SSTATUS CSR */
 		csr_write(CSR_VSSTATUS, vsstatus);
-	} else {
+	} ಇಲ್ಲದಿದ್ದರೆ {
 		/* Update S-mode exception info */
 		csr_write(CSR_STVAL, trap->tval);
 		csr_write(CSR_SEPC, regs->mepc);
 		csr_write(CSR_SCAUSE, trap->cause);
 
 		/* Set MEPC to S-mode exception vector base */
-		regs->mepc = csr_read(CSR_STVEC) & ~MTVEC_MODE;
+		regs->mepc = csr_read(CSR_STVEC) & ~MTVEC_ಬಹುಲಕ;
 
 		/* Set MPP to S-mode */
 		regs->mstatus &= ~MSTATUS_MPP;
-		regs->mstatus |= (PRV_S << MSTATUS_MPP_SHIFT);
+		regs->mstatus |= (PRV_S << MSTATUS_MPP_ಸರಿಸು);
 
 		/* Set SPP for S-mode */
 		regs->mstatus &= ~MSTATUS_SPP;
-		if (prev_mode == PRV_S)
-			regs->mstatus |= (1UL << MSTATUS_SPP_SHIFT);
+		ಆದರೆ (prev_ಬಹುಲಕ == PRV_S)
+			regs->mstatus |= (1UL << MSTATUS_SPP_ಸರಿಸು);
 
 		/* Set SPIE for S-mode */
 		regs->mstatus &= ~MSTATUS_SPIE;
-		if (regs->mstatus & MSTATUS_SIE)
-			regs->mstatus |= (1UL << MSTATUS_SPIE_SHIFT);
+		ಆದರೆ (regs->mstatus & MSTATUS_SIE)
+			regs->mstatus |= (1UL << MSTATUS_SPIE_ಸರಿಸು);
 
 		/* Clear SIE for S-mode */
 		regs->mstatus &= ~MSTATUS_SIE;
 
 		/* If elp was set, set it back in mstatus */
-		if (elp)
+		ಆದರೆ (elp)
 			regs->mstatus |= MSTATUS_SPELP;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int sbi_trap_nonaia_irq(unsigned long irq)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_trap_nonaia_irq(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ irq)
 {
-	switch (irq) {
-	case IRQ_M_TIMER:
+	ಆಯ್ಕೆ (irq) {
+	ಸ್ಥಿತಿ IRQ_M_TIMER:
 		sbi_timer_process();
-		break;
-	case IRQ_M_SOFT:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ IRQ_M_SOFT:
 		sbi_ipi_process();
-		break;
-	case IRQ_M_EXT:
-		return sbi_irqchip_process();
-	default:
-		if (irq == sbi_pmu_irq_bit()) {
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ IRQ_M_EXT:
+		ಹಿಂತಿರುಗಿ sbi_irqchip_process();
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಆದರೆ (irq == sbi_pmu_irq_ಬಿಟ್()) {
 			sbi_pmu_ovf_irq();
-			return 0;
+			ಹಿಂತಿರುಗಿ 0;
 		}
-		return SBI_ENOENT;
+		ಹಿಂತಿರುಗಿ SBI_ENOENT;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int sbi_trap_aia_irq(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_trap_aia_irq(ಶೂನ್ಯ)
 {
-	int rc;
-	unsigned long mtopi;
+	ಪೂರ್ಣಾಂಕ rc;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ mtopi;
 
-	while ((mtopi = csr_read(CSR_MTOPI))) {
-		mtopi = mtopi >> TOPI_IID_SHIFT;
-		switch (mtopi) {
-		case IRQ_M_TIMER:
+	ಆಗ ((mtopi = csr_read(CSR_MTOPI))) {
+		mtopi = mtopi >> TOPI_IID_ಸರಿಸು;
+		ಆಯ್ಕೆ (mtopi) {
+		ಸ್ಥಿತಿ IRQ_M_TIMER:
 			sbi_timer_process();
-			break;
-		case IRQ_M_SOFT:
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ IRQ_M_SOFT:
 			sbi_ipi_process();
-			break;
-		case IRQ_M_EXT:
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ IRQ_M_EXT:
 			rc = sbi_irqchip_process();
-			if (rc)
-				return rc;
-			break;
-		default:
-			if (mtopi == sbi_pmu_irq_bit()) {
+			ಆದರೆ (rc)
+				ಹಿಂತಿರುಗಿ rc;
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ:
+			ಆದರೆ (mtopi == sbi_pmu_irq_ಬಿಟ್()) {
 				sbi_pmu_ovf_irq();
-				break;
+				ನಿಲ್ಲಿಸು;
 			}
 
-			return SBI_ENOENT;
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
 		}
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
 /**
@@ -302,79 +302,79 @@ static int sbi_trap_aia_irq(void)
  *
  * @param tcntx pointer to trap context
  */
-struct sbi_trap_context *sbi_trap_handler(struct sbi_trap_context *tcntx)
+ರಚನೆ sbi_trap_context *sbi_trap_handler(ರಚನೆ sbi_trap_context *tcntx)
 {
-	int rc = SBI_ENOTSUPP;
-	const char *msg = "trap handler failed";
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct sbi_trap_info *trap = &tcntx->trap;
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	ಪೂರ್ಣಾಂಕ rc = SBI_ENOTSUPP;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಸಂದೇಶ = "trap handler failed";
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_trap_info *trap = &tcntx->trap;
+	ರಚನೆ sbi_trap_regs *regs = &tcntx->regs;
 	ulong mcause = tcntx->trap.cause;
 
 	/* Update trap context pointer */
 	tcntx->prev_context = sbi_trap_get_context(scratch);
-	sbi_trap_set_context(scratch, tcntx);
+	sbi_trap_ಗಣ_context(scratch, tcntx);
 
-	if (mcause & MCAUSE_IRQ_MASK) {
-		if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ಆದರೆ (mcause & MCAUSE_IRQ_ಮುಖವಾಡ) {
+		ಆದರೆ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 					   SBI_HART_EXT_SMAIA))
 			rc = sbi_trap_aia_irq();
-		else
-			rc = sbi_trap_nonaia_irq(mcause & ~MCAUSE_IRQ_MASK);
-		msg = "unhandled local interrupt";
-		goto trap_done;
+		ಇಲ್ಲದಿದ್ದರೆ
+			rc = sbi_trap_nonaia_irq(mcause & ~MCAUSE_IRQ_ಮುಖವಾಡ);
+		ಸಂದೇಶ = "unhandled local interrupt";
+		ಹೋಗು trap_ಮುಗಿದ;
 	}
 
-	switch (mcause) {
-	case CAUSE_ILLEGAL_INSTRUCTION:
+	ಆಯ್ಕೆ (mcause) {
+	ಸ್ಥಿತಿ CAUSE_ILLEGAL_INSTRUCTION:
 		rc  = sbi_illegal_insn_handler(tcntx);
-		msg = "illegal instruction handler failed";
-		break;
-	case CAUSE_MISALIGNED_LOAD:
-		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_MISALIGNED_LOAD);
-		rc  = sbi_misaligned_load_handler(tcntx);
-		msg = "misaligned load handler failed";
-		break;
-	case CAUSE_MISALIGNED_STORE:
+		ಸಂದೇಶ = "illegal instruction handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_MISALIGNED_ತುಂಬು:
+		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_MISALIGNED_ತುಂಬು);
+		rc  = sbi_misaligned_ತುಂಬು_handler(tcntx);
+		ಸಂದೇಶ = "misaligned load handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_MISALIGNED_STORE:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_MISALIGNED_STORE);
 		rc  = sbi_misaligned_store_handler(tcntx);
-		msg = "misaligned store handler failed";
-		break;
-	case CAUSE_SUPERVISOR_ECALL:
-	case CAUSE_MACHINE_ECALL:
+		ಸಂದೇಶ = "misaligned store handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_SUPERVISOR_ECALL:
+	ಸ್ಥಿತಿ CAUSE_MACHINE_ECALL:
 		rc  = sbi_ecall_handler(tcntx);
-		msg = "ecall handler failed";
-		break;
-	case CAUSE_LOAD_ACCESS:
-		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_LOAD);
-		rc  = sbi_load_access_handler(tcntx);
-		msg = "load fault handler failed";
-		break;
-	case CAUSE_STORE_ACCESS:
+		ಸಂದೇಶ = "ecall handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_ತುಂಬು_ACCESS:
+		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_ತುಂಬು);
+		rc  = sbi_ತುಂಬು_access_handler(tcntx);
+		ಸಂದೇಶ = "load fault handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_STORE_ACCESS:
 		sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ACCESS_STORE);
 		rc  = sbi_store_access_handler(tcntx);
-		msg = "store fault handler failed";
-		break;
-	case CAUSE_DOUBLE_TRAP:
+		ಸಂದೇಶ = "store fault handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CAUSE_DOUBLE_TRAP:
 		rc  = sbi_double_trap_handler(tcntx);
-		msg = "double trap handler failed";
-		break;
-	default:
+		ಸಂದೇಶ = "double trap handler failed";
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
 		/* If the trap came from S or U mode, redirect it there */
-		msg = "trap redirect failed";
+		ಸಂದೇಶ = "trap redirect failed";
 		rc  = sbi_trap_redirect(regs, trap);
-		break;
+		ನಿಲ್ಲಿಸು;
 	}
 
-trap_done:
-	if (rc)
-		sbi_trap_error(msg, rc, tcntx);
+trap_ಮುಗಿದ:
+	ಆದರೆ (rc)
+		sbi_trap_error(ಸಂದೇಶ, rc, tcntx);
 
-	if (sbi_mstatus_prev_mode(regs->mstatus) != PRV_M)
+	ಆದರೆ (sbi_mstatus_prev_ಬಹುಲಕ(regs->mstatus) != PRV_M)
 		sbi_sse_process_pending_events(regs);
 
-	sbi_trap_set_context(scratch, tcntx->prev_context);
-	return tcntx;
+	sbi_trap_ಗಣ_context(scratch, tcntx->prev_context);
+	ಹಿಂತಿರುಗಿ tcntx;
 }
 
 /**
@@ -391,20 +391,20 @@ trap_done:
  * @param tcntx Pointer to trap context (saved on stack)
  * @return Same trap context pointer (needed for restore macros)
  */
-struct sbi_trap_context *sbi_trap_rnmi_handler(struct sbi_trap_context *tcntx)
+ರಚನೆ sbi_trap_context *sbi_trap_rnmi_handler(ರಚನೆ sbi_trap_context *tcntx)
 {
-	int rc;
-	const struct sbi_platform *plat = sbi_platform_thishart_ptr();
-	const struct sbi_platform_operations *ops = sbi_platform_ops(plat);
+	ಪೂರ್ಣಾಂಕ rc;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform *plat = sbi_platform_thishart_ptr();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform_operations *ops = sbi_platform_ops(plat);
 
 	/* Call platform-specific NMI handler if registered */
-	if (ops && ops->rnmi_handler) {
+	ಆದರೆ (ops && ops->rnmi_handler) {
 		rc = ops->rnmi_handler(tcntx);
-		if (rc) {
+		ಆದರೆ (rc) {
 			/* Platform handler failed to handle NMI */
 			sbi_trap_error("platform NMI handler failed", rc, tcntx);
 		}
-		return tcntx;
+		ಹಿಂತಿರುಗಿ tcntx;
 	}
 
 	/* No platform handler - treat as unhandled NMI */
@@ -412,28 +412,28 @@ struct sbi_trap_context *sbi_trap_rnmi_handler(struct sbi_trap_context *tcntx)
 		       SBI_ENOTSUPP, tcntx);
 
 	/* Never returns */
-	return tcntx;
+	ಹಿಂತಿರುಗಿ tcntx;
 }
 
-static int delegate_traps(struct sbi_scratch *scratch)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ delegate_traps(ರಚನೆ sbi_scratch *scratch)
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	unsigned long interrupts, exceptions;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform *plat = sbi_platform_ptr(scratch);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ interrupts, exceptions;
 
-	if (!misa_extension('S'))
+	ಆದರೆ (!misa_extension('S'))
 		/* No delegation possible as mideleg does not exist */
-		return 0;
+		ಹಿಂತಿರುಗಿ 0;
 
 	/* Send M-mode interrupts and most exceptions to S-mode */
 	interrupts = MIP_SSIP | MIP_STIP | MIP_SEIP;
-	interrupts |= sbi_pmu_irq_mask();
+	interrupts |= sbi_pmu_irq_ಮುಖವಾಡ();
 
 	exceptions = (1U << CAUSE_MISALIGNED_FETCH) | (1U << CAUSE_BREAKPOINT) |
 		     (1U << CAUSE_USER_ECALL);
-	if (sbi_platform_has_mfaults_delegation(plat))
-		exceptions |= (1U << CAUSE_FETCH_PAGE_FAULT) |
-			      (1U << CAUSE_LOAD_PAGE_FAULT) |
-			      (1U << CAUSE_STORE_PAGE_FAULT) |
+	ಆದರೆ (sbi_platform_has_mfaults_delegation(plat))
+		exceptions |= (1U << CAUSE_FETCH_ಪುಟ_FAULT) |
+			      (1U << CAUSE_ತುಂಬು_ಪುಟ_FAULT) |
+			      (1U << CAUSE_STORE_ಪುಟ_FAULT) |
 			      (1U << CAUSE_SW_CHECK_EXCP);
 
 	/*
@@ -443,21 +443,21 @@ static int delegate_traps(struct sbi_scratch *scratch)
 	 * The HS-mode will additionally handle supervisor calls (i.e. ecalls
 	 * from VS-mode), Guest page faults and Virtual interrupts.
 	 */
-	if (misa_extension('H')) {
+	ಆದರೆ (misa_extension('H')) {
 		exceptions |= (1U << CAUSE_VIRTUAL_SUPERVISOR_ECALL);
-		exceptions |= (1U << CAUSE_FETCH_GUEST_PAGE_FAULT);
-		exceptions |= (1U << CAUSE_LOAD_GUEST_PAGE_FAULT);
+		exceptions |= (1U << CAUSE_FETCH_GUEST_ಪುಟ_FAULT);
+		exceptions |= (1U << CAUSE_ತುಂಬು_GUEST_ಪುಟ_FAULT);
 		exceptions |= (1U << CAUSE_VIRTUAL_INST_FAULT);
-		exceptions |= (1U << CAUSE_STORE_GUEST_PAGE_FAULT);
+		exceptions |= (1U << CAUSE_STORE_GUEST_ಪುಟ_FAULT);
 	}
 
 	csr_write(CSR_MIDELEG, interrupts);
 	csr_write(CSR_MEDELEG, exceptions);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_trap_init(struct sbi_scratch *scratch, bool cold_boot)
+ಪೂರ್ಣಾಂಕ sbi_trap_init(ರಚನೆ sbi_scratch *scratch, bool cold_boot)
 {
-	return delegate_traps(scratch);
+	ಹಿಂತಿರುಗಿ delegate_traps(scratch);
 }

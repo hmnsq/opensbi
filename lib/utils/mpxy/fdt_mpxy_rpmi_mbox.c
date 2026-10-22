@@ -8,67 +8,67 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
-#include <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
 
 /**
  * MPXY mbox instance per MPXY channel. This ties
  * an MPXY channel with an RPMI Service group.
  */
-struct mpxy_rpmi_mbox {
-	struct mbox_chan *chan;
-	const struct mpxy_rpmi_mbox_data *mbox_data;
-	struct mpxy_rpmi_channel_attrs msgprot_attrs;
-	struct sbi_mpxy_channel channel;
-	void *group_context;
+ರಚನೆ mpxy_rpmi_mbox {
+	ರಚನೆ mbox_chan *chan;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_mbox_ದತ್ತಾಂಶ *mbox_ದತ್ತಾಂಶ;
+	ರಚನೆ mpxy_rpmi_channel_attrs msgprot_attrs;
+	ರಚನೆ sbi_mpxy_channel channel;
+	ಶೂನ್ಯ *ಗುಂಪು_context;
 };
 
 /**
  * Discover the RPMI service data using message_id
  * MPXY message_id == RPMI service_id
  */
-static const struct mpxy_rpmi_service_data *mpxy_find_rpmi_srvid(u32 message_id,
-					const struct mpxy_rpmi_mbox_data *mbox_data)
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_service_ದತ್ತಾಂಶ *mpxy_ಕಂಡುಹಿಡಿ_rpmi_srvid(u32 ಸಂದೇಶ_id_2,
+					ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_mbox_ದತ್ತಾಂಶ *mbox_ದತ್ತಾಂಶ)
 {
-	const struct mpxy_rpmi_service_data *srv = mbox_data->service_data;
-	int mid = 0;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_service_ದತ್ತಾಂಶ *srv = mbox_ದತ್ತಾಂಶ->service_ದತ್ತಾಂಶ;
+	ಪೂರ್ಣಾಂಕ mid = 0;
 
-	for (mid = 0; srv[mid].id < mbox_data->num_services; mid++) {
-		if (srv[mid].id == (u8)message_id)
-			return &srv[mid];
+	ಗಾಗಿ (mid = 0; srv[mid].id < mbox_ದತ್ತಾಂಶ->ಅಂಕೆ_services; mid++) {
+		ಆದರೆ (srv[mid].id == (u8)ಸಂದೇಶ_id_2)
+			ಹಿಂತಿರುಗಿ &srv[mid];
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
 /** Copy attributes word size */
-static void mpxy_copy_attrs(u32 *outmem, u32 *inmem, u32 count)
+ಸ್ಥಿರ ಶೂನ್ಯ mpxy_copy_attrs(u32 *outmem, u32 *inmem, u32 ಎಣಿಕೆ_2)
 {
 	u32 idx;
-	for (idx = 0; idx < count; idx++)
-		outmem[idx] = cpu_to_le32(inmem[idx]);
+	ಗಾಗಿ (idx = 0; idx < ಎಣಿಕೆ_2; idx++)
+		outmem[idx] = cpu_ಗಮ್ಯ_le32(inmem[idx]);
 }
 
-static int mpxy_mbox_read_attributes(struct sbi_mpxy_channel *channel,
-				     u32 *outmem, u32 base_attr_id,
-				     u32 attr_count)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ mpxy_mbox_read_ಗುಣಲಕ್ಷಣಗಳು(ರಚನೆ sbi_mpxy_channel *channel,
+				     u32 *outmem, u32 ತಳ_attr_id,
+				     u32 attr_ಎಣಿಕೆ)
 {
-	struct mpxy_rpmi_mbox *rmb =
-		container_of(channel, struct mpxy_rpmi_mbox, channel);
+	ರಚನೆ mpxy_rpmi_mbox *rmb =
+		container_ದ(channel, ರಚನೆ mpxy_rpmi_mbox, channel);
 	u32 *attr_array = (u32 *)&rmb->msgprot_attrs;
-	u32 end_id = base_attr_id + attr_count - 1;
+	u32 ಕೊನೆ_id = ತಳ_attr_id + attr_ಎಣಿಕೆ - 1;
 
-	if (end_id >= MPXY_MSGPROT_RPMI_ATTR_MAX_ID)
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (ಕೊನೆ_id >= MPXY_MSGPROT_RPMI_ATTR_MAX_ID)
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
-	mpxy_copy_attrs(outmem, &attr_array[attr_id2index(base_attr_id)],
-			attr_count);
+	mpxy_copy_attrs(outmem, &attr_array[attr_id2index(ತಳ_attr_id)],
+			attr_ಎಣಿಕೆ);
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
 /**
@@ -82,206 +82,206 @@ static int mpxy_mbox_read_attributes(struct sbi_mpxy_channel *channel,
  * either complete range of attributes is written successfully or not
  * at all.
  */
-static int mpxy_check_write_attr(u32 attr_id, u32 attr_val)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ mpxy_check_write_attr(u32 attr_id, u32 attr_val)
 {
-	int ret = SBI_OK;
+	ಪೂರ್ಣಾಂಕ ret = SBI_OK;
 
-	switch(attr_id) {
+	ಆಯ್ಕೆ(attr_id) {
 	/** All RO access attributes falls under default */
-	default:
+	ಪೂರ್ವನಿಯೋಜಿತ:
 		ret = SBI_EBAD_RANGE;
 	};
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-static void mpxy_write_attr(struct mpxy_rpmi_channel_attrs *attrs,
+ಸ್ಥಿರ ಶೂನ್ಯ mpxy_write_attr(ರಚನೆ mpxy_rpmi_channel_attrs *attrs,
 			   u32 attr_id,
 			   u32 attr_val)
 {
 	/* No writable attributes in RPMI */
 }
 
-static int mpxy_mbox_write_attributes(struct sbi_mpxy_channel *channel,
-				     u32 *outmem, u32 base_attr_id,
-				     u32 attr_count)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ mpxy_mbox_write_ಗುಣಲಕ್ಷಣಗಳು(ರಚನೆ sbi_mpxy_channel *channel,
+				     u32 *outmem, u32 ತಳ_attr_id,
+				     u32 attr_ಎಣಿಕೆ)
 {
-	struct mpxy_rpmi_mbox *rmb =
-		container_of(channel, struct mpxy_rpmi_mbox, channel);
-	u32 end_id = base_attr_id + attr_count - 1;
+	ರಚನೆ mpxy_rpmi_mbox *rmb =
+		container_ದ(channel, ರಚನೆ mpxy_rpmi_mbox, channel);
+	u32 ಕೊನೆ_id = ತಳ_attr_id + attr_ಎಣಿಕೆ - 1;
 	u32 attr_val, idx;
-	int ret, mem_idx;
+	ಪೂರ್ಣಾಂಕ ret, mem_idx;
 
-	if (end_id >= MPXY_MSGPROT_RPMI_ATTR_MAX_ID)
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (ಕೊನೆ_id >= MPXY_MSGPROT_RPMI_ATTR_MAX_ID)
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
 	mem_idx = 0;
-	for (idx = base_attr_id; idx <= end_id; idx++) {
-		attr_val = le32_to_cpu(outmem[mem_idx++]);
+	ಗಾಗಿ (idx = ತಳ_attr_id; idx <= ಕೊನೆ_id; idx++) {
+		attr_val = le32_ಗಮ್ಯ_cpu(outmem[mem_idx++]);
 		ret = mpxy_check_write_attr(idx, attr_val);
-		if (ret)
-			return ret;
+		ಆದರೆ (ret)
+			ಹಿಂತಿರುಗಿ ret;
 	}
 
 	mem_idx = 0;
-	for (idx = base_attr_id; idx <= end_id; idx++) {
-		attr_val = le32_to_cpu(outmem[mem_idx++]);
+	ಗಾಗಿ (idx = ತಳ_attr_id; idx <= ಕೊನೆ_id; idx++) {
+		attr_val = le32_ಗಮ್ಯ_cpu(outmem[mem_idx++]);
 		mpxy_write_attr(&rmb->msgprot_attrs, idx, attr_val);
 	}
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-static int __mpxy_mbox_send_message(struct sbi_mpxy_channel *channel,
-				  u32 message_id, void *tx, u32 tx_len,
-				  void *rx, u32 rx_max_len,
-				  unsigned long *ack_len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __mpxy_mbox_send_message(ರಚನೆ sbi_mpxy_channel *channel,
+				  u32 ಸಂದೇಶ_id_2, ಶೂನ್ಯ *tx, u32 tx_len,
+				  ಶೂನ್ಯ *rx, u32 rx_max_len,
+				  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ack_len)
 {
-	struct mpxy_rpmi_mbox *rmb =
-		container_of(channel, struct mpxy_rpmi_mbox, channel);
-	const struct mpxy_rpmi_mbox_data *data = rmb->mbox_data;
-	const struct mpxy_rpmi_service_data *srv =
-		mpxy_find_rpmi_srvid(message_id, data);
-	struct rpmi_message_args args = {0};
-	struct mbox_xfer xfer;
+	ರಚನೆ mpxy_rpmi_mbox *rmb =
+		container_ದ(channel, ರಚನೆ mpxy_rpmi_mbox, channel);
+	ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_mbox_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ = rmb->mbox_ದತ್ತಾಂಶ;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_service_ದತ್ತಾಂಶ *srv =
+		mpxy_ಕಂಡುಹಿಡಿ_rpmi_srvid(ಸಂದೇಶ_id_2, ದತ್ತಾಂಶ);
+	ರಚನೆ rpmi_ಸಂದೇಶ_ವಾದಗಳು ವಾದಗಳು = {0};
+	ರಚನೆ mbox_xfer xfer;
 	u32 rx_len = 0;
-	int ret;
+	ಪೂರ್ಣಾಂಕ ret;
 
-	if (!srv)
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!srv)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
 	/** message data size to be sent is in the
 	 * supported service data size range */
-	if (tx_len < srv->min_tx_len || tx_len > srv->max_tx_len)
-		return SBI_EFAIL;
+	ಆದರೆ (tx_len < srv->min_tx_len || tx_len > srv->max_tx_len)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
-	if (ack_len) {
+	ಆದರೆ (ack_len) {
 		/** MPXY buffer cannnot hold service min response data */
-		if (rx_max_len < srv->min_rx_len)
-			return SBI_EFAIL;
+		ಆದರೆ (rx_max_len < srv->min_rx_len)
+			ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 		/* Max rx data size it can expect */
-		if (srv->max_rx_len < channel->attrs.msg_data_maxlen)
+		ಆದರೆ (srv->max_rx_len < channel->attrs.ಸಂದೇಶ_ದತ್ತಾಂಶ_maxlen)
 			rx_len = srv->max_rx_len;
-		else
-			rx_len = channel->attrs.msg_data_maxlen;
+		ಇಲ್ಲದಿದ್ದರೆ
+			rx_len = channel->attrs.ಸಂದೇಶ_ದತ್ತಾಂಶ_maxlen;
 
-		args.type = RPMI_MSG_NORMAL_REQUEST;
-		args.flags = (rx) ? 0 : RPMI_MSG_FLAGS_NO_RX;
-		args.service_id = srv->id;
-		mbox_xfer_init_txrx(&xfer, &args,
+		ವಾದಗಳು.type = RPMI_ಸಂದೇಶ_ಸಾಮಾನ್ಯ_REQUEST;
+		ವಾದಗಳು.flags = (rx) ? 0 : RPMI_ಸಂದೇಶ_FLAGS_NO_RX;
+		ವಾದಗಳು.service_id = srv->id;
+		mbox_xfer_init_txrx(&xfer, &ವಾದಗಳು,
 				    tx, tx_len, RPMI_DEF_TX_TIMEOUT,
 				    rx, rx_len, RPMI_DEF_RX_TIMEOUT);
 	}
-	else {
-		args.type = RPMI_MSG_POSTED_REQUEST;
-		args.flags = RPMI_MSG_FLAGS_NO_RX;
-		args.service_id = srv->id;
-		mbox_xfer_init_tx(&xfer, &args,
+	ಇಲ್ಲದಿದ್ದರೆ {
+		ವಾದಗಳು.type = RPMI_ಸಂದೇಶ_POSTED_REQUEST;
+		ವಾದಗಳು.flags = RPMI_ಸಂದೇಶ_FLAGS_NO_RX;
+		ವಾದಗಳು.service_id = srv->id;
+		mbox_xfer_init_tx(&xfer, &ವಾದಗಳು,
 				  tx, tx_len, RPMI_DEF_TX_TIMEOUT);
 	}
 
-	if (data->xfer_group)
-		ret = data->xfer_group(rmb->group_context, rmb->chan, &xfer);
-	else
+	ಆದರೆ (ದತ್ತಾಂಶ->xfer_ಗುಂಪು)
+		ret = ದತ್ತಾಂಶ->xfer_ಗುಂಪು(rmb->ಗುಂಪು_context, rmb->chan, &xfer);
+	ಇಲ್ಲದಿದ್ದರೆ
 		ret = mbox_chan_xfer(rmb->chan, &xfer);
-	if (ret)
-		return ret;
+	ಆದರೆ (ret)
+		ಹಿಂತಿರುಗಿ ret;
 
-	if (ack_len)
-		*ack_len = args.rx_data_len;
+	ಆದರೆ (ack_len)
+		*ack_len = ವಾದಗಳು.rx_ದತ್ತಾಂಶ_len;
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-static int mpxy_mbox_send_message_withresp(struct sbi_mpxy_channel *channel,
-				  u32 message_id, void *tx, u32 tx_len,
-				  void *rx, u32 rx_max_len,
-				  unsigned long *ack_len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ mpxy_mbox_send_ಸಂದೇಶ_withresp(ರಚನೆ sbi_mpxy_channel *channel,
+				  u32 ಸಂದೇಶ_id_2, ಶೂನ್ಯ *tx, u32 tx_len,
+				  ಶೂನ್ಯ *rx, u32 rx_max_len,
+				  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ack_len)
 {
-	return __mpxy_mbox_send_message(channel, message_id, tx, tx_len,
+	ಹಿಂತಿರುಗಿ __mpxy_mbox_send_message(channel, ಸಂದೇಶ_id_2, tx, tx_len,
 				 rx, rx_max_len, ack_len);
 }
 
-static int mpxy_mbox_send_message_withoutresp(struct sbi_mpxy_channel *channel,
-				  u32 message_id, void *tx, u32 tx_len)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ mpxy_mbox_send_ಸಂದೇಶ_withoutresp(ರಚನೆ sbi_mpxy_channel *channel,
+				  u32 ಸಂದೇಶ_id_2, ಶೂನ್ಯ *tx, u32 tx_len)
 {
-	return __mpxy_mbox_send_message(channel, message_id, tx, tx_len,
-				 NULL, 0, NULL);
+	ಹಿಂತಿರುಗಿ __mpxy_mbox_send_message(channel, ಸಂದೇಶ_id_2, tx, tx_len,
+				 ಖಾಲಿ, 0, ಖಾಲಿ);
 }
 
-int mpxy_rpmi_mbox_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+ಪೂರ್ಣಾಂಕ mpxy_rpmi_mbox_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff, ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	u32 channel_id, servicegrp_ver, pro_ver, max_data_len, tx_tout, rx_tout;
+	u32 channel_id, servicegrp_ver, pro_ver, max_ದತ್ತಾಂಶ_len, tx_tout, rx_tout;
 	u32 impl_id, impl_ver;
-	const struct mpxy_rpmi_mbox_data *data = match->data;
-	struct mpxy_rpmi_mbox *rmb;
-	struct mbox_chan *chan;
-	const fdt32_t *val;
-	int rc, len;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ mpxy_rpmi_mbox_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ = ಹೊಂದಿಕೆ->ದತ್ತಾಂಶ;
+	ರಚನೆ mpxy_rpmi_mbox *rmb;
+	ರಚನೆ mbox_chan *chan;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ rc, len;
 
 	/* Allocate context for MPXY mbox client */
-	rmb = sbi_zalloc(sizeof(*rmb));
-	if (!rmb)
-		return SBI_ENOMEM;
+	rmb = sbi_zalloc(ಗಾತ್ರ(*rmb));
+	ಆದರೆ (!rmb)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &chan);
-	if (rc) {
+	ಆದರೆ (rc) {
 		rc = SBI_ENODEV;
-		goto fail_free_client;
+		ಹೋಗು fail_free_client;
 	}
 
 	/* Match channel service group id */
-	if (data->servicegrp_id != chan->chan_args[0]) {
+	ಆದರೆ (ದತ್ತಾಂಶ->servicegrp_id != chan->chan_ವಾದಗಳು[0]) {
 		rc = SBI_EINVAL;
-		goto fail_free_chan;
+		ಹೋಗು fail_free_chan;
 	}
 
 	/* Get channel protocol version */
-	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_PROTOCOL_VERSION,
+	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_PROTOCOL_ಆವೃತ್ತಿ,
 				     &pro_ver);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel maximum data length */
-	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_MAX_DATA_LEN,
-				     &max_data_len);
-	if (rc)
-		goto fail_free_chan;
+	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_MAX_ದತ್ತಾಂಶ_LEN,
+				     &max_ದತ್ತಾಂಶ_len);
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel Tx timeout */
 	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_TX_TIMEOUT,
 				     &tx_tout);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel Rx timeout */
 	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_RX_TIMEOUT,
 				     &rx_tout);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel service group version */
-	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_SERVICEGROUP_VERSION,
+	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_SERVICEGROUP_ಆವೃತ್ತಿ,
 				     &servicegrp_ver);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel implementation id */
 	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_IMPL_ID,
 				     &impl_id);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/* Get channel implementation version */
-	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_IMPL_VERSION,
+	rc = mbox_chan_get_attribute(chan, RPMI_CHANNEL_ATTR_IMPL_ಆವೃತ್ತಿ,
 				     &impl_ver);
-	if (rc)
-		goto fail_free_chan;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_chan;
 
 	/*
 	 * The "riscv,sbi-mpxy-channel-id" DT property is mandatory
@@ -289,74 +289,74 @@ int mpxy_rpmi_mbox_init(const void *fdt, int nodeoff, const struct fdt_match *ma
 	 * present then try other drivers.
 	 */
 	val = fdt_getprop(fdt, nodeoff, "riscv,sbi-mpxy-channel-id", &len);
-	if (len > 0 && val) {
-		channel_id = fdt32_to_cpu(*val);
-	} else {
+	ಆದರೆ (len > 0 && val) {
+		channel_id = fdt32_ಗಮ್ಯ_cpu(*val);
+	} ಇಲ್ಲದಿದ್ದರೆ {
 		rc = SBI_ENODEV;
-		goto fail_free_chan;
+		ಹೋಗು fail_free_chan;
 	}
 
 	/* Setup MPXY mbox client */
 	/* Channel ID*/
 	rmb->channel.channel_id = channel_id;
 	/* Set the owner domain */
-	rmb->channel.owner_domain = &root;
+	rmb->channel.owner_domain = &ಬೇರು;
 	/* Callback for read RPMI attributes */
-	rmb->channel.read_attributes = mpxy_mbox_read_attributes;
+	rmb->channel.read_ಗುಣಲಕ್ಷಣಗಳು = mpxy_mbox_read_ಗುಣಲಕ್ಷಣಗಳು;
 	/* Callback for write RPMI attributes */
-	rmb->channel.write_attributes = mpxy_mbox_write_attributes;
+	rmb->channel.write_ಗುಣಲಕ್ಷಣಗಳು = mpxy_mbox_write_ಗುಣಲಕ್ಷಣಗಳು;
 	/* Callback for sending RPMI message */
-	rmb->channel.send_message_with_response =
-					mpxy_mbox_send_message_withresp;
-	rmb->channel.send_message_without_response =
-					mpxy_mbox_send_message_withoutresp;
+	rmb->channel.send_ಸಂದೇಶ_with_response =
+					mpxy_mbox_send_ಸಂದೇಶ_withresp;
+	rmb->channel.send_ಸಂದೇಶ_without_response =
+					mpxy_mbox_send_ಸಂದೇಶ_withoutresp;
 
 	/* RPMI Message Protocol ID */
-	rmb->channel.attrs.msg_proto_id = SBI_MPXY_MSGPROTO_RPMI_ID;
+	rmb->channel.attrs.ಸಂದೇಶ_proto_id = SBI_MPXY_MSGPROTO_RPMI_ID;
 	/* RPMI Message Protocol Version */
-	rmb->channel.attrs.msg_proto_version = pro_ver;
+	rmb->channel.attrs.ಸಂದೇಶ_proto_ಆವೃತ್ತಿ = pro_ver;
 
 	/*
 	 * RPMI supported max message data length(bytes), same for
 	 * all service groups
 	 */
-	rmb->channel.attrs.msg_data_maxlen = max_data_len;
+	rmb->channel.attrs.ಸಂದೇಶ_ದತ್ತಾಂಶ_maxlen = max_ದತ್ತಾಂಶ_len;
 	/*
 	 * RPMI message send timeout(milliseconds)
 	 * same for all service groups
 	 */
-	rmb->channel.attrs.msg_send_timeout = tx_tout;
-	rmb->channel.attrs.msg_completion_timeout = tx_tout + rx_tout;
+	rmb->channel.attrs.ಸಂದೇಶ_send_timeout = tx_tout;
+	rmb->channel.attrs.ಸಂದೇಶ_completion_timeout = tx_tout + rx_tout;
 
 	/* RPMI service group attributes */
-	rmb->msgprot_attrs.servicegrp_id = data->servicegrp_id;
+	rmb->msgprot_attrs.servicegrp_id = ದತ್ತಾಂಶ->servicegrp_id;
 	rmb->msgprot_attrs.servicegrp_ver = servicegrp_ver;
 	rmb->msgprot_attrs.impl_id = impl_id;
 	rmb->msgprot_attrs.impl_ver = impl_ver;
 
-	rmb->mbox_data = data;
+	rmb->mbox_ದತ್ತಾಂಶ = ದತ್ತಾಂಶ;
 	rmb->chan = chan;
 
 	/* Setup RPMI service group context */
-	if (data->setup_group) {
-		rc = data->setup_group(&rmb->group_context, chan, data);
-		if (rc)
-			goto fail_free_chan;
+	ಆದರೆ (ದತ್ತಾಂಶ->ಸಿದ್ಧತೆ_ಗುಂಪು) {
+		rc = ದತ್ತಾಂಶ->ಸಿದ್ಧತೆ_ಗುಂಪು(&rmb->ಗುಂಪು_context, chan, ದತ್ತಾಂಶ);
+		ಆದರೆ (rc)
+			ಹೋಗು fail_free_chan;
 	}
 
 	/* Register RPMI service group */
-	rc = sbi_mpxy_register_channel(&rmb->channel);
-	if (rc) {
-		if (data->cleanup_group)
-			data->cleanup_group(rmb->group_context);
-		goto fail_free_chan;
+	rc = sbi_mpxy_ರಿಜಿಸ್ಟರ್_channel(&rmb->channel);
+	ಆದರೆ (rc) {
+		ಆದರೆ (ದತ್ತಾಂಶ->cleanup_ಗುಂಪು)
+			ದತ್ತಾಂಶ->cleanup_ಗುಂಪು(rmb->ಗುಂಪು_context);
+		ಹೋಗು fail_free_chan;
 	}
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 
 fail_free_chan:
 	mbox_controller_free_chan(chan);
 fail_free_client:
 	sbi_free(rmb);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }

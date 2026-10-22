@@ -8,9 +8,9 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
 
-#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
+#ವ್ಯಾಖ್ಯಾನಿಸು BITOP_ಶಬ್ದ(nr)		((nr) / ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG)
 
 /**
  * find_first_bit - find the first set bit in a memory region
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
-			     unsigned long size)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕಂಡುಹಿಡಿ_ಮೊದಲ_ಬಿಟ್(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr,
+			     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *p = addr;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಫಲಿತಾಂಶ = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	ಆಗ (ಗಾತ್ರ_2 & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)) {
+		ಆದರೆ ((tmp = *(p++)))
+			ಹೋಗು ಸಿಕ್ಕಿತು;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	if (!size)
-		return result;
+	ಆದರೆ (!ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffs(tmp);
+	tmp = (*p) & (~0UL >> (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG - ಗಾತ್ರ_2));
+	ಆದರೆ (tmp == 0UL)		/* Are any bits set? */
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + ಗಾತ್ರ_2;	/* Nope. */
+ಸಿಕ್ಕಿತು:
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
-				  unsigned long size)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕಂಡುಹಿಡಿ_ಮೊದಲ_zero_ಬಿಟ್(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr,
+				  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *p = addr;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಫಲಿತಾಂಶ = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	ಆಗ (ಗಾತ್ರ_2 & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)) {
+		ಆದರೆ (~(tmp = *(p++)))
+			ಹೋಗು ಸಿಕ್ಕಿತು;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	if (!size)
-		return result;
+	ಆದರೆ (!ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 
-	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffz(tmp);
+	tmp = (*p) | (~0UL << ಗಾತ್ರ_2);
+	ಆದರೆ (tmp == ~0UL)	/* Are any bits zero? */
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + ಗಾತ್ರ_2;	/* Nope. */
+ಸಿಕ್ಕಿತು:
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
-			    unsigned long size)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕಂಡುಹಿಡಿ_ಕೊನೆಯ_ಬಿಟ್(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr,
+			    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
-	unsigned long words;
-	unsigned long tmp;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಪದಗಳು;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	ಪದಗಳು = ಗಾತ್ರ_2 / ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
-					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+	ಆದರೆ (ಗಾತ್ರ_2 & (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)) {
+		tmp = (addr[ಪದಗಳು] & (~0UL >> (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG
+					 - (ಗಾತ್ರ_2 & (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)))));
+		ಆದರೆ (tmp)
+			ಹೋಗು ಸಿಕ್ಕಿತು;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
-found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+	ಆಗ (ಪದಗಳು) {
+		tmp = addr[--ಪದಗಳು];
+		ಆದರೆ (tmp) {
+ಸಿಕ್ಕಿತು:
+			ಹಿಂತಿರುಗಿ ಪದಗಳು * ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
-			    unsigned long size, unsigned long offset)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕಂಡುಹಿಡಿ_ಮುಂದಿನ_ಬಿಟ್(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr,
+			    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಸ್ಥಾನಾಂತರ)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *p = addr + BITOP_ಶಬ್ದ(ಸ್ಥಾನಾಂತರ);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಫಲಿತಾಂಶ = ಸ್ಥಾನಾಂತರ & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	ಆದರೆ (ಸ್ಥಾನಾಂತರ >= ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
+	ಗಾತ್ರ_2 -= ಫಲಿತಾಂಶ;
+	ಸ್ಥಾನಾಂತರ %= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+	ಆದರೆ (ಸ್ಥಾನಾಂತರ) {
 		tmp = *(p++);
-		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp &= (~0UL << ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (ಗಾತ್ರ_2 < ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG)
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮೊದಲ;
+		ಆದರೆ (tmp)
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮಧ್ಯ;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	ಆಗ (ಗಾತ್ರ_2 & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)) {
+		ಆದರೆ ((tmp = *(p++)))
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮಧ್ಯ;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	if (!size)
-		return result;
+	ಆದರೆ (!ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 	tmp = *p;
 
-found_first:
-	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+ಸಿಕ್ಕಿತು_ಮೊದಲ:
+	tmp &= (~0UL >> (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG - ಗಾತ್ರ_2));
+	ಆದರೆ (tmp == 0UL)		/* Are any bits set? */
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + ಗಾತ್ರ_2;	/* Nope. */
+ಸಿಕ್ಕಿತು_ಮಧ್ಯ:
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
-				 unsigned long size,
-				 unsigned long offset)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕಂಡುಹಿಡಿ_ಮುಂದಿನ_zero_ಬಿಟ್(ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr,
+				 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2,
+				 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಸ್ಥಾನಾಂತರ)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *p = addr + BITOP_ಶಬ್ದ(ಸ್ಥಾನಾಂತರ);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಫಲಿತಾಂಶ = ಸ್ಥಾನಾಂತರ & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	ಆದರೆ (ಸ್ಥಾನಾಂತರ >= ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಗಾತ್ರ_2;
+	ಗಾತ್ರ_2 -= ಫಲಿತಾಂಶ;
+	ಸ್ಥಾನಾಂತರ %= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+	ಆದರೆ (ಸ್ಥಾನಾಂತರ) {
 		tmp = *(p++);
-		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp |= ~0UL >> (ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG - ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (ಗಾತ್ರ_2 < ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG)
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮೊದಲ;
+		ಆದರೆ (~tmp)
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮಧ್ಯ;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	ಆಗ (ಗಾತ್ರ_2 & ~(ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG-1)) {
+		ಆದರೆ (~(tmp = *(p++)))
+			ಹೋಗು ಸಿಕ್ಕಿತು_ಮಧ್ಯ;
+		ಫಲಿತಾಂಶ += ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
+		ಗಾತ್ರ_2 -= ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG;
 	}
-	if (!size)
-		return result;
+	ಆದರೆ (!ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 	tmp = *p;
 
-found_first:
-	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+ಸಿಕ್ಕಿತು_ಮೊದಲ:
+	tmp |= ~0UL << ಗಾತ್ರ_2;
+	ಆದರೆ (tmp == ~0UL)	/* Are any bits zero? */
+		ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + ಗಾತ್ರ_2;	/* Nope. */
+ಸಿಕ್ಕಿತು_ಮಧ್ಯ:
+	ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ + sbi_ffz(tmp);
 }

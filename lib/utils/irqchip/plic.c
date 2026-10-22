@@ -8,196 +8,196 @@
  *   Samuel Holland <samuel@sholland.org>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/irqchip/plic.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/plic.h>
 
-#define PLIC_PRIORITY_BASE 0x0
-#define PLIC_PENDING_BASE 0x1000
-#define PLIC_ENABLE_BASE 0x2000
-#define PLIC_ENABLE_STRIDE 0x80
-#define PLIC_CONTEXT_BASE 0x200000
-#define PLIC_CONTEXT_STRIDE 0x1000
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_ಆದ್ಯತೆ_ತಳ 0x0
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_PENDING_ತಳ 0x1000
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_ENABLE_ತಳ 0x2000
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_ENABLE_STRIDE 0x80
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_CONTEXT_ತಳ 0x200000
+#ವ್ಯಾಖ್ಯಾನಿಸು PLIC_CONTEXT_STRIDE 0x1000
 
-#define THEAD_PLIC_CTRL_REG 0x1ffffc
+#ವ್ಯಾಖ್ಯಾನಿಸು THEAD_PLIC_CTRL_REG 0x1ffffc
 
-static unsigned long plic_ptr_offset;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ plic_ptr_ಸ್ಥಾನಾಂತರ;
 
-#define plic_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, plic_ptr_offset)
+#ವ್ಯಾಖ್ಯಾನಿಸು plic_get_hart_ದತ್ತಾಂಶ_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), ಶೂನ್ಯ *, plic_ptr_ಸ್ಥಾನಾಂತರ)
 
-#define plic_set_hart_data_ptr(__scratch, __plic)			\
-	sbi_scratch_write_type((__scratch), void *, plic_ptr_offset, (__plic))
+#ವ್ಯಾಖ್ಯಾನಿಸು plic_ಗಣ_hart_ದತ್ತಾಂಶ_ptr(__scratch, __plic)			\
+	sbi_scratch_write_type((__scratch), ಶೂನ್ಯ *, plic_ptr_ಸ್ಥಾನಾಂತರ, (__plic))
 
-struct plic_data *plic_get(void)
+ರಚನೆ plic_ದತ್ತಾಂಶ *plic_get(ಶೂನ್ಯ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	return plic_get_hart_data_ptr(scratch);
+	ಹಿಂತಿರುಗಿ plic_get_hart_ದತ್ತಾಂಶ_ptr(scratch);
 }
 
-static u32 plic_get_priority(const struct plic_data *plic, u32 source)
+ಸ್ಥಿರ u32 plic_get_ಆದ್ಯತೆ(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 ಮೂಲ)
 {
-	volatile void *plic_priority = (char *)plic->addr +
-			PLIC_PRIORITY_BASE + 4 * source;
-	return readl(plic_priority);
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_ಆದ್ಯತೆ = (ಅಕ್ಷರ *)plic->addr +
+			PLIC_ಆದ್ಯತೆ_ತಳ + 4 * ಮೂಲ;
+	ಹಿಂತಿರುಗಿ readl(plic_ಆದ್ಯತೆ);
 }
 
-static void plic_set_priority(const struct plic_data *plic, u32 source, u32 val)
+ಸ್ಥಿರ ಶೂನ್ಯ plic_ಗಣ_ಆದ್ಯತೆ(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 ಮೂಲ, u32 val)
 {
-	volatile void *plic_priority = (char *)plic->addr +
-			PLIC_PRIORITY_BASE + 4 * source;
-	writel(val, plic_priority);
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_ಆದ್ಯತೆ = (ಅಕ್ಷರ *)plic->addr +
+			PLIC_ಆದ್ಯತೆ_ತಳ + 4 * ಮೂಲ;
+	writel(val, plic_ಆದ್ಯತೆ);
 }
 
-static u32 plic_get_thresh(const struct plic_data *plic, u32 cntxid)
+ಸ್ಥಿರ u32 plic_get_thresh(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 cntxid)
 {
-	volatile void *plic_thresh;
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_thresh;
 
-	plic_thresh = (char *)plic->addr +
-		      PLIC_CONTEXT_BASE + PLIC_CONTEXT_STRIDE * cntxid;
+	plic_thresh = (ಅಕ್ಷರ *)plic->addr +
+		      PLIC_CONTEXT_ತಳ + PLIC_CONTEXT_STRIDE * cntxid;
 
-	return readl(plic_thresh);
+	ಹಿಂತಿರುಗಿ readl(plic_thresh);
 }
 
-static void plic_set_thresh(const struct plic_data *plic, u32 cntxid, u32 val)
+ಸ್ಥಿರ ಶೂನ್ಯ plic_ಗಣ_thresh(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 cntxid, u32 val)
 {
-	volatile void *plic_thresh;
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_thresh;
 
-	plic_thresh = (char *)plic->addr +
-		      PLIC_CONTEXT_BASE + PLIC_CONTEXT_STRIDE * cntxid;
+	plic_thresh = (ಅಕ್ಷರ *)plic->addr +
+		      PLIC_CONTEXT_ತಳ + PLIC_CONTEXT_STRIDE * cntxid;
 	writel(val, plic_thresh);
 }
 
-static u32 plic_get_ie(const struct plic_data *plic, u32 cntxid,
-		       u32 word_index)
+ಸ್ಥಿರ u32 plic_get_ie(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 cntxid,
+		       u32 ಶಬ್ದ_ಸೂಚ್ಯಂಕ)
 {
-	volatile void *plic_ie;
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_ie;
 
-	plic_ie = (char *)plic->addr +
-		   PLIC_ENABLE_BASE + PLIC_ENABLE_STRIDE * cntxid +
-		   4 * word_index;
+	plic_ie = (ಅಕ್ಷರ *)plic->addr +
+		   PLIC_ENABLE_ತಳ + PLIC_ENABLE_STRIDE * cntxid +
+		   4 * ಶಬ್ದ_ಸೂಚ್ಯಂಕ;
 
-	return readl(plic_ie);
+	ಹಿಂತಿರುಗಿ readl(plic_ie);
 }
 
-static void plic_set_ie(const struct plic_data *plic, u32 cntxid,
-			u32 word_index, u32 val)
+ಸ್ಥಿರ ಶೂನ್ಯ plic_ಗಣ_ie(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, u32 cntxid,
+			u32 ಶಬ್ದ_ಸೂಚ್ಯಂಕ, u32 val)
 {
-	volatile void *plic_ie;
+	ಅಸ್ಥಿರ ಶೂನ್ಯ *plic_ie;
 
-	plic_ie = (char *)plic->addr +
-		   PLIC_ENABLE_BASE + PLIC_ENABLE_STRIDE * cntxid +
-		   4 * word_index;
+	plic_ie = (ಅಕ್ಷರ *)plic->addr +
+		   PLIC_ENABLE_ತಳ + PLIC_ENABLE_STRIDE * cntxid +
+		   4 * ಶಬ್ದ_ಸೂಚ್ಯಂಕ;
 	writel(val, plic_ie);
 }
 
-static void plic_delegate(const struct plic_data *plic)
+ಸ್ಥಿರ ಶೂನ್ಯ plic_delegate(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic)
 {
 	/* If this is a T-HEAD PLIC, delegate access to S-mode */
-	if (plic->flags & PLIC_FLAG_THEAD_DELEGATION)
-		writel_relaxed(BIT(0), (char *)plic->addr + THEAD_PLIC_CTRL_REG);
+	ಆದರೆ (plic->flags & PLIC_FLAG_THEAD_DELEGATION)
+		writel_relaxed(ಬಿಟ್(0), (ಅಕ್ಷರ *)plic->addr + THEAD_PLIC_CTRL_REG);
 }
 
-static int plic_context_init(const struct plic_data *plic, int context_id,
-			     bool enable, u32 threshold)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plic_context_init(ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic, ಪೂರ್ಣಾಂಕ context_id,
+			     bool enable, u32 ಮಿತಿ)
 {
-	u32 ie_words, ie_value;
+	u32 ie_ಪದಗಳು, ie_ಮೌಲ್ಯ;
 
-	if (!plic || context_id < 0)
-		return SBI_EINVAL;
+	ಆದರೆ (!plic || context_id < 0)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	ie_words = PLIC_IE_WORDS(plic);
-	ie_value = enable ? 0xffffffffU : 0U;
+	ie_ಪದಗಳು = PLIC_IE_ಪದಗಳು(plic);
+	ie_ಮೌಲ್ಯ = enable ? 0xffffffffU : 0U;
 
-	for (u32 i = 0; i < ie_words; i++)
-		plic_set_ie(plic, context_id, i, ie_value);
+	ಗಾಗಿ (u32 i = 0; i < ie_ಪದಗಳು; i++)
+		plic_ಗಣ_ie(plic, context_id, i, ie_ಮೌಲ್ಯ);
 
-	plic_set_thresh(plic, context_id, threshold);
+	plic_ಗಣ_thresh(plic, context_id, ಮಿತಿ);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void plic_suspend(void)
+ಶೂನ್ಯ plic_suspend(ಶೂನ್ಯ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
-	u32 ie_words = PLIC_IE_WORDS(plic);
-	u32 *data_word = plic->pm_data;
-	u8 *data_byte;
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic = plic_get_hart_ದತ್ತಾಂಶ_ptr(scratch);
+	u32 ie_ಪದಗಳು = PLIC_IE_ಪದಗಳು(plic);
+	u32 *ದತ್ತಾಂಶ_ಶಬ್ದ = plic->pm_ದತ್ತಾಂಶ;
+	u8 *ದತ್ತಾಂಶ_byte;
 
-	if (!data_word)
-		return;
+	ಆದರೆ (!ದತ್ತಾಂಶ_ಶಬ್ದ)
+		ಹಿಂತಿರುಗಿ;
 
 	sbi_for_each_hartindex(h) {
 		s16 context_id = plic->context_map[h][PLIC_S_CONTEXT];
 
-		if (context_id < 0)
-			continue;
+		ಆದರೆ (context_id < 0)
+			ಮುಂದುವರಿ;
 
 		/* Save the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
-			*data_word++ = plic_get_ie(plic, context_id, i);
+		ಗಾಗಿ (u32 i = 0; i < ie_ಪದಗಳು; i++)
+			*ದತ್ತಾಂಶ_ಶಬ್ದ++ = plic_get_ie(plic, context_id, i);
 
 		/* Save the context threshold */
-		*data_word++ = plic_get_thresh(plic, context_id);
+		*ದತ್ತಾಂಶ_ಶಬ್ದ++ = plic_get_thresh(plic, context_id);
 	}
 
 	/* Restore the input priorities */
-	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
-		*data_byte++ = plic_get_priority(plic, i);
+	ದತ್ತಾಂಶ_byte = (u8 *)ದತ್ತಾಂಶ_ಶಬ್ದ;
+	ಗಾಗಿ (u32 i = 1; i <= plic->ಅಂಕೆ_src; i++)
+		*ದತ್ತಾಂಶ_byte++ = plic_get_ಆದ್ಯತೆ(plic, i);
 }
 
-void plic_resume(void)
+ಶೂನ್ಯ plic_resume(ಶೂನ್ಯ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
-	u32 ie_words = PLIC_IE_WORDS(plic);
-	u32 *data_word = plic->pm_data;
-	u8 *data_byte;
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic = plic_get_hart_ದತ್ತಾಂಶ_ptr(scratch);
+	u32 ie_ಪದಗಳು = PLIC_IE_ಪದಗಳು(plic);
+	u32 *ದತ್ತಾಂಶ_ಶಬ್ದ = plic->pm_ದತ್ತಾಂಶ;
+	u8 *ದತ್ತಾಂಶ_byte;
 
-	if (!data_word)
-		return;
+	ಆದರೆ (!ದತ್ತಾಂಶ_ಶಬ್ದ)
+		ಹಿಂತಿರುಗಿ;
 
 	sbi_for_each_hartindex(h) {
 		s16 context_id = plic->context_map[h][PLIC_S_CONTEXT];
 
-		if (context_id < 0)
-			continue;
+		ಆದರೆ (context_id < 0)
+			ಮುಂದುವರಿ;
 
 		/* Restore the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
-			plic_set_ie(plic, context_id, i, *data_word++);
+		ಗಾಗಿ (u32 i = 0; i < ie_ಪದಗಳು; i++)
+			plic_ಗಣ_ie(plic, context_id, i, *ದತ್ತಾಂಶ_ಶಬ್ದ++);
 
 		/* Restore the context threshold */
-		plic_set_thresh(plic, context_id, *data_word++);
+		plic_ಗಣ_thresh(plic, context_id, *ದತ್ತಾಂಶ_ಶಬ್ದ++);
 	}
 
 	/* Restore the input priorities */
-	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
-		plic_set_priority(plic, i, *data_byte++);
+	ದತ್ತಾಂಶ_byte = (u8 *)ದತ್ತಾಂಶ_ಶಬ್ದ;
+	ಗಾಗಿ (u32 i = 1; i <= plic->ಅಂಕೆ_src; i++)
+		plic_ಗಣ_ಆದ್ಯತೆ(plic, i, *ದತ್ತಾಂಶ_byte++);
 
 	/* Restore the delegation */
 	plic_delegate(plic);
 }
 
-static int plic_warm_irqchip_init(struct sbi_irqchip_device *dev)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ plic_warm_irqchip_init(ರಚನೆ sbi_irqchip_device *dev)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಸ್ಥಿರಾಂಕ ರಚನೆ plic_ದತ್ತಾಂಶ *plic = plic_get_hart_ದತ್ತಾಂಶ_ptr(scratch);
 	u32 hartindex = current_hartindex();
 	s16 m_cntx_id = plic->context_map[hartindex][PLIC_M_CONTEXT];
 	s16 s_cntx_id = plic->context_map[hartindex][PLIC_S_CONTEXT];
 	bool enable;
-	int ret;
+	ಪೂರ್ಣಾಂಕ ret;
 
 	/*
 	 * By default, disable all IRQs for the target HART. Ariane
@@ -205,83 +205,83 @@ static int plic_warm_irqchip_init(struct sbi_irqchip_device *dev)
 	 */
 	enable = plic->flags & PLIC_FLAG_ARIANE_BUG;
 
-	if (m_cntx_id > -1) {
+	ಆದರೆ (m_cntx_id > -1) {
 		ret = plic_context_init(plic, m_cntx_id, enable, 0x7);
-		if (ret)
-			return ret;
+		ಆದರೆ (ret)
+			ಹಿಂತಿರುಗಿ ret;
 	}
 
-	if (s_cntx_id > -1) {
+	ಆದರೆ (s_cntx_id > -1) {
 		ret = plic_context_init(plic, s_cntx_id, enable, 0x7);
-		if (ret)
-			return ret;
+		ಆದರೆ (ret)
+			ಹಿಂತಿರುಗಿ ret;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int plic_cold_irqchip_init(struct plic_data *plic)
+ಪೂರ್ಣಾಂಕ plic_cold_irqchip_init(ರಚನೆ plic_ದತ್ತಾಂಶ *plic)
 {
-	int i, ret;
+	ಪೂರ್ಣಾಂಕ i, ret;
 
-	if (!plic)
-		return SBI_EINVAL;
+	ಆದರೆ (!plic)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (!plic_ptr_offset) {
-		plic_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!plic_ptr_offset)
-			return SBI_ENOMEM;
+	ಆದರೆ (!plic_ptr_ಸ್ಥಾನಾಂತರ) {
+		plic_ptr_ಸ್ಥಾನಾಂತರ = sbi_scratch_alloc_type_ಸ್ಥಾನಾಂತರ(ಶೂನ್ಯ *);
+		ಆದರೆ (!plic_ptr_ಸ್ಥಾನಾಂತರ)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 	}
 
-	if (plic->flags & PLIC_FLAG_ENABLE_PM) {
-		unsigned long data_size = 0;
+	ಆದರೆ (plic->flags & PLIC_FLAG_ENABLE_PM) {
+		ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದತ್ತಾಂಶ_ಗಾತ್ರ_2 = 0;
 
 		sbi_for_each_hartindex(i) {
-			if (plic->context_map[i][PLIC_S_CONTEXT] < 0)
-				continue;
+			ಆದರೆ (plic->context_map[i][PLIC_S_CONTEXT] < 0)
+				ಮುಂದುವರಿ;
 
 			/* Allocate space for enable bits */
-			data_size += (plic->num_src / 32 + 1) * sizeof(u32);
+			ದತ್ತಾಂಶ_ಗಾತ್ರ_2 += (plic->ಅಂಕೆ_src / 32 + 1) * ಗಾತ್ರ(u32);
 
 			/* Allocate space for the context threshold */
-			data_size += sizeof(u32);
+			ದತ್ತಾಂಶ_ಗಾತ್ರ_2 += ಗಾತ್ರ(u32);
 		}
 
 		/*
 		 * Allocate space for the input priorities. So far,
 		 * priorities on all known implementations fit in 8 bits.
 		 */
-		data_size += plic->num_src * sizeof(u8);
+		ದತ್ತಾಂಶ_ಗಾತ್ರ_2 += plic->ಅಂಕೆ_src * ಗಾತ್ರ(u8);
 
-		plic->pm_data = sbi_malloc(data_size);
-		if (!plic->pm_data)
-			return SBI_ENOMEM;
+		plic->pm_ದತ್ತಾಂಶ = sbi_malloc(ದತ್ತಾಂಶ_ಗಾತ್ರ_2);
+		ಆದರೆ (!plic->pm_ದತ್ತಾಂಶ)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 	}
 
 	/* Configure default priorities of all IRQs */
-	for (i = 1; i <= plic->num_src; i++)
-		plic_set_priority(plic, i, 0);
+	ಗಾಗಿ (i = 1; i <= plic->ಅಂಕೆ_src; i++)
+		plic_ಗಣ_ಆದ್ಯತೆ(plic, i, 0);
 
 	plic_delegate(plic);
 
-	ret = sbi_domain_root_add_memrange(plic->addr, plic->size, BIT(20),
+	ret = sbi_domain_ಬೇರು_ಕೂಡಿಸು_memrange(plic->addr, plic->ಗಾತ್ರ_2, ಬಿಟ್(20),
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (ret)
-		return ret;
+	ಆದರೆ (ret)
+		ಹಿಂತಿರುಗಿ ret;
 
 	sbi_for_each_hartindex(i) {
-		if (plic->context_map[i][PLIC_M_CONTEXT] < 0 &&
+		ಆದರೆ (plic->context_map[i][PLIC_M_CONTEXT] < 0 &&
 		    plic->context_map[i][PLIC_S_CONTEXT] < 0)
-			continue;
+			ಮುಂದುವರಿ;
 
-		plic_set_hart_data_ptr(sbi_hartindex_to_scratch(i), plic);
-		sbi_hartmask_set_hartindex(i, &plic->irqchip.target_harts);
+		plic_ಗಣ_hart_ದತ್ತಾಂಶ_ptr(sbi_hartindex_ಗಮ್ಯ_scratch(i), plic);
+		sbi_hartmask_ಗಣ_hartindex(i, &plic->irqchip.ಗುರಿ_harts);
 	}
 
 	/* Register irqchip device */
 	plic->irqchip.id = plic->unique_id;
-	plic->irqchip.num_hwirq = plic->num_src + 1;
+	plic->irqchip.ಅಂಕೆ_hwirq = plic->ಅಂಕೆ_src + 1;
 	plic->irqchip.warm_init = plic_warm_irqchip_init;
-	return sbi_irqchip_add_device(&plic->irqchip);
+	ಹಿಂತಿರುಗಿ sbi_irqchip_ಕೂಡಿಸು_device(&plic->irqchip);
 }

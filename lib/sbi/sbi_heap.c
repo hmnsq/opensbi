@@ -7,281 +7,281 @@
  *   Anup Patel<apatel@ventanamicro.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_locks.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_list.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
 
 /* Minimum size and alignment of heap allocations */
-#define HEAP_ALLOC_ALIGN		64
+#ವ್ಯಾಖ್ಯಾನಿಸು ರಾಶಿ_ALLOC_ALIGN		64
 
 /* Number of heap nodes to allocate at once */
-#define HEAP_NODE_BATCH_SIZE		8
+#ವ್ಯಾಖ್ಯಾನಿಸು ರಾಶಿ_ಗಂಟು_BATCH_ಗಾತ್ರ		8
 
-struct heap_node {
-	struct sbi_dlist head;
-	unsigned long addr;
-	unsigned long size;
+ರಚನೆ ರಾಶಿ_ಗಂಟು {
+	ರಚನೆ sbi_dlist ತಲೆ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addr;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2;
 };
 
-struct sbi_heap_control {
-	spinlock_t lock;
-	unsigned long base GUARDED_BY(&lock);
-	unsigned long size GUARDED_BY(&lock);
-	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+ರಚನೆ sbi_ರಾಶಿ_control {
+	spinlock_t ಬೀಗ_2;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2 GUARDED_BY(&ಬೀಗ_2);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2 GUARDED_BY(&ಬೀಗ_2);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ resv GUARDED_BY(&ಬೀಗ_2);
+	ರಚನೆ sbi_dlist free_ಗಂಟು_list GUARDED_BY(&ಬೀಗ_2);
+	ರಚನೆ sbi_dlist free_space_list GUARDED_BY(&ಬೀಗ_2);
+	ರಚನೆ sbi_dlist ಬಳಸಿದ_space_list GUARDED_BY(&ಬೀಗ_2);
+	ರಚನೆ ರಾಶಿ_ಗಂಟು init_free_space_ಗಂಟು GUARDED_BY(&ಬೀಗ_2);
 };
 
-struct sbi_heap_control global_hpctrl;
+ರಚನೆ sbi_ರಾಶಿ_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+ಸ್ಥಿರ bool alloc_nodes(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl) MUST_HOLD(&hpctrl->ಬೀಗ_2)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t ಗಾತ್ರ_2 = ರಾಶಿ_ಗಂಟು_BATCH_ಗಾತ್ರ * ಗಾತ್ರ(ರಚನೆ ರಾಶಿ_ಗಂಟು);
+	ರಚನೆ ರಾಶಿ_ಗಂಟು *n, *new = ಖಾಲಿ;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	ಆದರೆ (hpctrl->free_ಗಂಟು_list.ಮುಂದಿನ != hpctrl->free_ಗಂಟು_list.prev)
+		ಹಿಂತಿರುಗಿ true;
 
-	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
-			n->size -= size;
-			if (!n->size) {
-				sbi_list_del(&n->head);
-				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
+	sbi_list_for_each_ನಮೂದು_ಹಿಮ್ಮುಖ(n, &hpctrl->free_space_list, ತಲೆ) {
+		ಆದರೆ (n->ಗಾತ್ರ_2 >= ಗಾತ್ರ_2) {
+			n->ಗಾತ್ರ_2 -= ಗಾತ್ರ_2;
+			ಆದರೆ (!n->ಗಾತ್ರ_2) {
+				sbi_list_del(&n->ತಲೆ);
+				sbi_list_ಕೂಡಿಸು_ಬಾಲ(&n->ತಲೆ, &hpctrl->free_ಗಂಟು_list);
 			}
-			new = (void *)(n->addr + n->size);
-			break;
+			new = (ಶೂನ್ಯ *)(n->addr + n->ಗಾತ್ರ_2);
+			ನಿಲ್ಲಿಸು;
 		}
 	}
-	if (!new)
-		return false;
+	ಆದರೆ (!new)
+		ಹಿಂತಿರುಗಿ false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
-		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
-	hpctrl->resv += size;
+	ಗಾಗಿ (size_t i = 0; i < ರಾಶಿ_ಗಂಟು_BATCH_ಗಾತ್ರ; i++)
+		sbi_list_ಕೂಡಿಸು_ಬಾಲ(&new[i].ತಲೆ, &hpctrl->free_ಗಂಟು_list);
+	hpctrl->resv += ಗಾತ್ರ_2;
 
-	return true;
+	ಹಿಂತಿರುಗಿ true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
-			      size_t size)
-	MUST_NOT_HOLD(&hpctrl->lock)
+ಸ್ಥಿರ ಶೂನ್ಯ *alloc_with_align(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl, size_t align,
+			      size_t ಗಾತ್ರ_2)
+	MUST_NOT_HOLD(&hpctrl->ಬೀಗ_2)
 {
-	void *ret = NULL;
-	struct heap_node *n, *np;
-	unsigned long lowest_aligned;
+	ಶೂನ್ಯ *ret = ಖಾಲಿ;
+	ರಚನೆ ರಾಶಿ_ಗಂಟು *n, *np;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಅತಿಕಡಿಮೆ_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	ಆದರೆ (!ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	size += align - 1;
-	size &= ~((unsigned long)align - 1);
+	ಗಾತ್ರ_2 += align - 1;
+	ಗಾತ್ರ_2 &= ~((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)align - 1);
 
-	spin_lock(&hpctrl->lock);
+	spin_ಬೀಗ(&hpctrl->ಬೀಗ_2);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
-		goto out;
+	ಆದರೆ (!alloc_nodes(hpctrl))
+		ಹೋಗು ಹೊರಹೋಗು;
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		lowest_aligned = ROUNDUP(n->addr, align);
-		pad = lowest_aligned - n->addr;
+	np = ಖಾಲಿ;
+	sbi_list_for_each_ನಮೂದು(n, &hpctrl->free_space_list, ತಲೆ) {
+		ಅತಿಕಡಿಮೆ_aligned = ROUNDUP(n->addr, align);
+		pad = ಅತಿಕಡಿಮೆ_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		ಆದರೆ (ಗಾತ್ರ_2 + pad <= n->ಗಾತ್ರ_2) {
 			np = n;
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
-	if (!np)
-		goto out;
+	ಆದರೆ (!np)
+		ಹೋಗು ಹೊರಹೋಗು;
 
-	if (pad) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	ಆದರೆ (pad) {
+		n = sbi_list_ಮೊದಲ_ನಮೂದು(&hpctrl->free_ಗಂಟು_list,
+					 ರಚನೆ ರಾಶಿ_ಗಂಟು, ತಲೆ);
+		sbi_list_del(&n->ತಲೆ);
 
 		n->addr = np->addr;
-		n->size = pad;
-		sbi_list_add_tail(&n->head, &np->head);
+		n->ಗಾತ್ರ_2 = pad;
+		sbi_list_ಕೂಡಿಸು_ಬಾಲ(&n->ತಲೆ, &np->ತಲೆ);
 
 		np->addr += pad;
-		np->size -= pad;
+		np->ಗಾತ್ರ_2 -= pad;
 	}
 
-	if (size < np->size) {
-		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
-		sbi_list_del(&n->head);
+	ಆದರೆ (ಗಾತ್ರ_2 < np->ಗಾತ್ರ_2) {
+		n = sbi_list_ಮೊದಲ_ನಮೂದು(&hpctrl->free_ಗಂಟು_list,
+					 ರಚನೆ ರಾಶಿ_ಗಂಟು, ತಲೆ);
+		sbi_list_del(&n->ತಲೆ);
 
-		n->addr = np->addr + size;
-		n->size = np->size - size;
-		sbi_list_add(&n->head, &np->head);
+		n->addr = np->addr + ಗಾತ್ರ_2;
+		n->ಗಾತ್ರ_2 = np->ಗಾತ್ರ_2 - ಗಾತ್ರ_2;
+		sbi_list_ಕೂಡಿಸು(&n->ತಲೆ, &np->ತಲೆ);
 
-		np->size = size;
+		np->ಗಾತ್ರ_2 = ಗಾತ್ರ_2;
 	}
 
-	sbi_list_del(&np->head);
-	sbi_list_add_tail(&np->head, &hpctrl->used_space_list);
-	ret = (void *)np->addr;
+	sbi_list_del(&np->ತಲೆ);
+	sbi_list_ಕೂಡಿಸು_ಬಾಲ(&np->ತಲೆ, &hpctrl->ಬಳಸಿದ_space_list);
+	ret = (ಶೂನ್ಯ *)np->addr;
 
-out:
-	spin_unlock(&hpctrl->lock);
+ಹೊರಹೋಗು:
+	spin_unlock(&hpctrl->ಬೀಗ_2);
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+ಶೂನ್ಯ *sbi_malloc_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl, size_t ಗಾತ್ರ_2)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	ಹಿಂತಿರುಗಿ alloc_with_align(hpctrl, ರಾಶಿ_ALLOC_ALIGN, ಗಾತ್ರ_2);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
-			     size_t alignment, size_t size)
+ಶೂನ್ಯ *sbi_aligned_alloc_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl,
+			     size_t alignment, size_t ಗಾತ್ರ_2)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
-		alignment = HEAP_ALLOC_ALIGN;
+	ಆದರೆ (alignment < ರಾಶಿ_ALLOC_ALIGN)
+		alignment = ರಾಶಿ_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	ಆದರೆ ((alignment & (alignment - 1)) != 0)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	ಆದರೆ (ಗಾತ್ರ_2 % alignment != 0)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	ಹಿಂತಿರುಗಿ alloc_with_align(hpctrl, alignment, ಗಾತ್ರ_2);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+ಶೂನ್ಯ *sbi_zalloc_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl, size_t ಗಾತ್ರ_2)
 {
-	void *ret = sbi_malloc_from(hpctrl, size);
+	ಶೂನ್ಯ *ret = sbi_malloc_from(hpctrl, ಗಾತ್ರ_2);
 
-	if (ret)
-		sbi_memset(ret, 0, size);
-	return ret;
+	ಆದರೆ (ret)
+		sbi_memset(ret, 0, ಗಾತ್ರ_2);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+ಶೂನ್ಯ sbi_free_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl, ಶೂನ್ಯ *ptr)
 {
-	struct heap_node *n, *np;
+	ರಚನೆ ರಾಶಿ_ಗಂಟು *n, *np;
 
-	if (!ptr)
-		return;
+	ಆದರೆ (!ptr)
+		ಹಿಂತಿರುಗಿ;
 
-	spin_lock(&hpctrl->lock);
+	spin_ಬೀಗ(&hpctrl->ಬೀಗ_2);
 
-	np = NULL;
-	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
-		    ((unsigned long)ptr < (n->addr + n->size))) {
+	np = ಖಾಲಿ;
+	sbi_list_for_each_ನಮೂದು(n, &hpctrl->ಬಳಸಿದ_space_list, ತಲೆ) {
+		ಆದರೆ ((n->addr <= (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ptr) &&
+		    ((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ptr < (n->addr + n->ಗಾತ್ರ_2))) {
 			np = n;
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
-	if (!np) {
-		spin_unlock(&hpctrl->lock);
-		return;
+	ಆದರೆ (!np) {
+		spin_unlock(&hpctrl->ಬೀಗ_2);
+		ಹಿಂತಿರುಗಿ;
 	}
 
-	sbi_list_del(&np->head);
+	sbi_list_del(&np->ತಲೆ);
 
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+	sbi_list_for_each_ನಮೂದು(n, &hpctrl->free_space_list, ತಲೆ) {
+		ಆದರೆ ((np->addr + np->ಗಾತ್ರ_2) == n->addr) {
 			n->addr = np->addr;
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
-			n->size += np->size;
-			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
-			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
-			sbi_list_add(&np->head, &n->head);
-			np = NULL;
-			break;
+			n->ಗಾತ್ರ_2 += np->ಗಾತ್ರ_2;
+			sbi_list_ಕೂಡಿಸು_ಬಾಲ(&np->ತಲೆ, &hpctrl->free_ಗಂಟು_list);
+			np = ಖಾಲಿ;
+			ನಿಲ್ಲಿಸು;
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (np->addr == (n->addr + n->ಗಾತ್ರ_2)) {
+			n->ಗಾತ್ರ_2 += np->ಗಾತ್ರ_2;
+			sbi_list_ಕೂಡಿಸು_ಬಾಲ(&np->ತಲೆ, &hpctrl->free_ಗಂಟು_list);
+			np = ಖಾಲಿ;
+			ನಿಲ್ಲಿಸು;
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ ((n->addr + n->ಗಾತ್ರ_2) < np->addr) {
+			sbi_list_ಕೂಡಿಸು(&np->ತಲೆ, &n->ತಲೆ);
+			np = ಖಾಲಿ;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
-	if (np)
-		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
+	ಆದರೆ (np)
+		sbi_list_ಕೂಡಿಸು_ಬಾಲ(&np->ತಲೆ, &hpctrl->free_space_list);
 
-	spin_unlock(&hpctrl->lock);
+	spin_unlock(&hpctrl->ಬೀಗ_2);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sbi_ರಾಶಿ_free_space_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl)
 {
-	struct heap_node *n;
-	unsigned long ret = 0;
+	ರಚನೆ ರಾಶಿ_ಗಂಟು *n;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ret = 0;
 
-	spin_lock(&hpctrl->lock);
-	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head)
-		ret += n->size;
-	spin_unlock(&hpctrl->lock);
+	spin_ಬೀಗ(&hpctrl->ಬೀಗ_2);
+	sbi_list_for_each_ನಮೂದು(n, &hpctrl->free_space_list, ತಲೆ)
+		ret += n->ಗಾತ್ರ_2;
+	spin_unlock(&hpctrl->ಬೀಗ_2);
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sbi_ರಾಶಿ_ಬಳಸಿದ_space_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	ಹಿಂತಿರುಗಿ hpctrl->ಗಾತ್ರ_2 - hpctrl->resv - sbi_ರಾಶಿ_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sbi_ರಾಶಿ_reserved_space_from(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	ಹಿಂತಿರುಗಿ hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
-		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
+ಪೂರ್ಣಾಂಕ sbi_ರಾಶಿ_init_new(ರಚನೆ sbi_ರಾಶಿ_control *hpctrl, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2,
+		      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	ರಚನೆ ರಾಶಿ_ಗಂಟು *n;
 
 	/* Initialize heap control */
-	SPIN_LOCK_INIT(hpctrl->lock);
-	hpctrl->base = base;
-	hpctrl->size = size;
+	SPIN_ಬೀಗ_INIT(hpctrl->ಬೀಗ_2);
+	hpctrl->ತಳ_2 = ತಳ_2;
+	hpctrl->ಗಾತ್ರ_2 = ಗಾತ್ರ_2;
 	hpctrl->resv = 0;
-	SBI_INIT_LIST_HEAD(&hpctrl->free_node_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->free_space_list);
-	SBI_INIT_LIST_HEAD(&hpctrl->used_space_list);
+	SBI_INIT_LIST_ತಲೆ(&hpctrl->free_ಗಂಟು_list);
+	SBI_INIT_LIST_ತಲೆ(&hpctrl->free_space_list);
+	SBI_INIT_LIST_ತಲೆ(&hpctrl->ಬಳಸಿದ_space_list);
 
 	/* Prepare free space list */
-	n = &hpctrl->init_free_space_node;
-	n->addr = base;
-	n->size = size;
-	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
+	n = &hpctrl->init_free_space_ಗಂಟು;
+	n->addr = ತಳ_2;
+	n->ಗಾತ್ರ_2 = ಗಾತ್ರ_2;
+	sbi_list_ಕೂಡಿಸು_ಬಾಲ(&n->ತಲೆ, &hpctrl->free_space_list);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+ಪೂರ್ಣಾಂಕ sbi_ರಾಶಿ_init(ರಚನೆ sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
-	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
-	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
-	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
-	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+	ಆದರೆ (!scratch->fw_ರಾಶಿ_ಗಾತ್ರ ||
+	    (scratch->fw_ರಾಶಿ_ಗಾತ್ರ & (ರಾಶಿ_ತಳ_ALIGN - 1)) ||
+	    (scratch->fw_ರಾಶಿ_ಸ್ಥಾನಾಂತರ < scratch->fw_rw_ಸ್ಥಾನಾಂತರ) ||
+	    (scratch->fw_ಗಾತ್ರ < (scratch->fw_ರಾಶಿ_ಸ್ಥಾನಾಂತರ + scratch->fw_ರಾಶಿ_ಗಾತ್ರ)) ||
+	    (scratch->fw_ರಾಶಿ_ಸ್ಥಾನಾಂತರ & (ರಾಶಿ_ತಳ_ALIGN - 1)))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
-				  scratch->fw_start + scratch->fw_heap_offset,
-				  scratch->fw_heap_size);
+	ಹಿಂತಿರುಗಿ sbi_ರಾಶಿ_init_new(&global_hpctrl,
+				  scratch->fw_ಆರಂಭ + scratch->fw_ರಾಶಿ_ಸ್ಥಾನಾಂತರ,
+				  scratch->fw_ರಾಶಿ_ಗಾತ್ರ);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+ಪೂರ್ಣಾಂಕ sbi_ರಾಶಿ_alloc_new(ರಚನೆ sbi_ರಾಶಿ_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, ಗಾತ್ರ(ರಚನೆ sbi_ರಾಶಿ_control));
+	ಹಿಂತಿರುಗಿ 0;
 }

@@ -7,30 +7,30 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/fdt_serial.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/sifive-uart.h>
 
-static int serial_sifive_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ serial_sifive_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			      ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ platform_uart_ದತ್ತಾಂಶ uart = { 0 };
 
-	rc = fdt_parse_sifive_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_sifive_uart_ಗಂಟು(fdt, nodeoff, &uart);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return sifive_uart_init(uart.addr, uart.freq, uart.baud);
+	ಹಿಂತಿರುಗಿ sifive_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_sifive_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ serial_sifive_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "sifive,fu540-c000-uart" },
 	{ .compatible = "sifive,uart0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_sifive = {
-	.match_table = serial_sifive_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_serial_sifive = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = serial_sifive_ಹೊಂದಿಕೆ,
 	.init = serial_sifive_init
 };

@@ -7,107 +7,107 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/plic.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/fdt_irqchip.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/plic.h>
 
-static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
-					   struct plic_data *pd)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ irqchip_plic_update_context_map(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+					   ರಚನೆ plic_ದತ್ತಾಂಶ *pd)
 {
-	const fdt32_t *val;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	ಪೂರ್ಣಾಂಕ i, err, ಎಣಿಕೆ_2, cpu_ಸ್ಥಾನಾಂತರ, cpu_intc_ಸ್ಥಾನಾಂತರ;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	ಗಾಗಿ (i = 0; i < sbi_hart_ಎಣಿಕೆ(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val || ಎಣಿಕೆ_2 < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಎಣಿಕೆ_2 = ಎಣಿಕೆ_2 / ಗಾತ್ರ(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
-		phandle = fdt32_to_cpu(val[i]);
-		hwirq = fdt32_to_cpu(val[i + 1]);
+	ಗಾಗಿ (i = 0; i < ಎಣಿಕೆ_2; i += 2) {
+		phandle = fdt32_ಗಮ್ಯ_cpu(val[i]);
+		hwirq = fdt32_ಗಮ್ಯ_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, phandle);
+		ಆದರೆ (cpu_intc_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, cpu_intc_ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		err = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
+		ಆದರೆ (err)
+			ಮುಂದುವರಿ;
 
-		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		hartindex = sbi_hartid_ಗಮ್ಯ_hartindex(hartid);
+		ಆದರೆ (hartindex == -1U)
+			ಮುಂದುವರಿ;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
+		ಆಯ್ಕೆ (hwirq) {
+		ಸ್ಥಿತಿ IRQ_M_EXT:
 			pd->context_map[hartindex][PLIC_M_CONTEXT] = i / 2;
-			break;
-		case IRQ_S_EXT:
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ IRQ_S_EXT:
 			pd->context_map[hartindex][PLIC_S_CONTEXT] = i / 2;
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ irqchip_plic_cold_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				  ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
-	struct plic_data *pd;
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ plic_ದತ್ತಾಂಶ *pd;
 
-	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(PLIC_ದತ್ತಾಂಶ_ಗಾತ್ರ(sbi_hart_ಎಣಿಕೆ()));
+	ಆದರೆ (!pd)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
-	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_plic_ಗಂಟು(fdt, nodeoff, pd);
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_ದತ್ತಾಂಶ;
 
-	pd->flags = (unsigned long)match->data;
+	pd->flags = (ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ಹೊಂದಿಕೆ->ದತ್ತಾಂಶ;
 
 	rc = irqchip_plic_update_context_map(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_ದತ್ತಾಂಶ;
 
 	rc = plic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_data;
+	ಆದರೆ (rc)
+		ಹೋಗು fail_free_ದತ್ತಾಂಶ;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 
-fail_free_data:
+fail_free_ದತ್ತಾಂಶ:
 	sbi_free(pd);
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
-static const struct fdt_match irqchip_plic_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ irqchip_plic_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "andestech,nceplic100" },
 	{ .compatible = "riscv,plic0" },
 	{ .compatible = "sifive,plic-1.0.0" },
 	{ .compatible = "thead,c900-plic",
-	  .data = (void *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
+	  .ದತ್ತಾಂಶ = (ಶೂನ್ಯ *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_irqchip_plic = {
-	.match_table = irqchip_plic_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_irqchip_plic = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = irqchip_plic_ಹೊಂದಿಕೆ,
 	.init = irqchip_plic_cold_init,
 };

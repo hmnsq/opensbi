@@ -6,363 +6,363 @@
  * Copyright (C) 2020 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_hart.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/aplic.h>
-#include <sbi_utils/irqchip/imsic.h>
-#include <sbi_utils/irqchip/plic.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hartmask.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/aplic.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/imsic.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/plic.h>
 
-#define DEFAULT_UART_FREQ		0
-#define DEFAULT_UART_BAUD		115200
-#define DEFAULT_UART_REG_SHIFT		0
-#define DEFAULT_UART_REG_IO_WIDTH	1
-#define DEFAULT_UART_REG_OFFSET		0
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_UART_FREQ		0
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_UART_BAUD		115200
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_UART_REG_ಸರಿಸು		0
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_UART_REG_IO_ಅಗಲ	1
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_UART_REG_ಸ್ಥಾನಾಂತರ		0
 
-#define DEFAULT_RENESAS_SCIF_FREQ		100000000
-#define DEFAULT_RENESAS_SCIF_BAUD		115200
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_RENESAS_SCIF_FREQ		100000000
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_RENESAS_SCIF_BAUD		115200
 
-#define DEFAULT_SIFIVE_UART_FREQ		0
-#define DEFAULT_SIFIVE_UART_BAUD		115200
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_SIFIVE_UART_FREQ		0
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_SIFIVE_UART_BAUD		115200
 
-#define DEFAULT_SHAKTI_UART_FREQ		50000000
-#define DEFAULT_SHAKTI_UART_BAUD		115200
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_SHAKTI_UART_FREQ		50000000
+#ವ್ಯಾಖ್ಯಾನಿಸು DEFAULT_SHAKTI_UART_BAUD		115200
 
-int fdt_parse_phandle_with_args(const void *fdt, int nodeoff,
-				const char *prop, const char *cells_prop,
-				int index, struct fdt_phandle_args *out_args)
+ಪೂರ್ಣಾಂಕ fdt_parse_phandle_with_ವಾದಗಳು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *prop, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *cells_prop,
+				ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ_2, ರಚನೆ fdt_phandle_ವಾದಗಳು *ಹೊರಹೋಗು_ವಾದಗಳು)
 {
 	u32 i, pcells;
-	int len, pnodeoff;
-	const fdt32_t *list, *list_end, *val;
+	ಪೂರ್ಣಾಂಕ len, pnodeoff;
+	ಸ್ಥಿರಾಂಕ fdt32_t *list, *list_ಕೊನೆ, *val;
 
-	if (!fdt || (nodeoff < 0) || !prop || !cells_prop || !out_args)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || (nodeoff < 0) || !prop || !cells_prop || !ಹೊರಹೋಗು_ವಾದಗಳು)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	list = fdt_getprop(fdt, nodeoff, prop, &len);
-	if (!list)
-		return SBI_ENOENT;
-	list_end = list + (len / sizeof(*list));
+	ಆದರೆ (!list)
+		ಹಿಂತಿರುಗಿ SBI_ENOENT;
+	list_ಕೊನೆ = list + (len / ಗಾತ್ರ(*list));
 
-	while (list < list_end) {
-		pnodeoff = fdt_node_offset_by_phandle(fdt,
-						fdt32_to_cpu(*list));
-		if (pnodeoff < 0)
-			return pnodeoff;
+	ಆಗ (list < list_ಕೊನೆ) {
+		pnodeoff = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt,
+						fdt32_ಗಮ್ಯ_cpu(*list));
+		ಆದರೆ (pnodeoff < 0)
+			ಹಿಂತಿರುಗಿ pnodeoff;
 		list++;
 
 		val = fdt_getprop(fdt, pnodeoff, cells_prop, &len);
-		if (!val)
-			return SBI_ENOENT;
-		pcells = fdt32_to_cpu(*val);
-		if (FDT_MAX_PHANDLE_ARGS < pcells)
-			return SBI_EINVAL;
-		if (list + pcells > list_end)
-			return SBI_ENOENT;
+		ಆದರೆ (!val)
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
+		pcells = fdt32_ಗಮ್ಯ_cpu(*val);
+		ಆದರೆ (FDT_MAX_PHANDLE_ವಾದಗಳು < pcells)
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
+		ಆದರೆ (list + pcells > list_ಕೊನೆ)
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-		if (index > 0) {
+		ಆದರೆ (ಸೂಚ್ಯಂಕ_2 > 0) {
 			list += pcells;
-			index--;
-		} else {
-			out_args->node_offset = pnodeoff;
-			out_args->args_count = pcells;
-			for (i = 0; i < pcells; i++)
-				out_args->args[i] = fdt32_to_cpu(list[i]);
-			return 0;
+			ಸೂಚ್ಯಂಕ_2--;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಹೊರಹೋಗು_ವಾದಗಳು->ಗಂಟು_ಸ್ಥಾನಾಂತರ = pnodeoff;
+			ಹೊರಹೋಗು_ವಾದಗಳು->ವಾದಗಳು_ಎಣಿಕೆ = pcells;
+			ಗಾಗಿ (i = 0; i < pcells; i++)
+				ಹೊರಹೋಗು_ವಾದಗಳು->ವಾದಗಳು[i] = fdt32_ಗಮ್ಯ_cpu(list[i]);
+			ಹಿಂತಿರುಗಿ 0;
 		}
 	}
 
-	return SBI_ENOENT;
+	ಹಿಂತಿರುಗಿ SBI_ENOENT;
 }
 
-static int fdt_translate_address(const void *fdt, uint64_t reg, int parent,
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_translate_ವಿಳಾಸ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, uint64_t reg, ಪೂರ್ಣಾಂಕ ಪೋಷಕ,
 				 uint64_t *addr)
 {
-	int i, rlen;
-	int cell_parent_addr, cell_child_addr, cell_size;
-	const fdt32_t *ranges;
-	uint64_t offset, caddr = 0, paddr = 0, rsize = 0;
+	ಪೂರ್ಣಾಂಕ i, rlen;
+	ಪೂರ್ಣಾಂಕ cell_ಪೋಷಕ_addr, cell_ಮಗು_addr, cell_ಗಾತ್ರ;
+	ಸ್ಥಿರಾಂಕ fdt32_t *ranges;
+	uint64_t ಸ್ಥಾನಾಂತರ, caddr = 0, paddr = 0, rsize = 0;
 
-	ranges = fdt_getprop(fdt, parent, "ranges", &rlen);
-	if (ranges && rlen > 0) {
-		cell_child_addr = fdt_address_cells(fdt, parent);
-		if (cell_child_addr < 1)
-			return SBI_ENODEV;
+	ranges = fdt_getprop(fdt, ಪೋಷಕ, "ranges", &rlen);
+	ಆದರೆ (ranges && rlen > 0) {
+		cell_ಮಗು_addr = fdt_ವಿಳಾಸ_cells(fdt, ಪೋಷಕ);
+		ಆದರೆ (cell_ಮಗು_addr < 1)
+			ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-		cell_parent_addr = fdt_address_cells(fdt, fdt_parent_offset(fdt, parent));
-		if (cell_parent_addr < 1)
-			return SBI_ENODEV;
+		cell_ಪೋಷಕ_addr = fdt_ವಿಳಾಸ_cells(fdt, fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, ಪೋಷಕ));
+		ಆದರೆ (cell_ಪೋಷಕ_addr < 1)
+			ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-		cell_size = fdt_size_cells(fdt, parent);
-		if (cell_size < 0)
-			return SBI_ENODEV;
+		cell_ಗಾತ್ರ = fdt_ಗಾತ್ರ_cells(fdt, ಪೋಷಕ);
+		ಆದರೆ (cell_ಗಾತ್ರ < 0)
+			ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-		for (i = 0; i < cell_child_addr; i++)
-			caddr = (caddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_parent_addr; i++)
-			paddr = (paddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_size; i++)
-			rsize = (rsize << 32) | fdt32_to_cpu(*ranges++);
-		if (reg < caddr || caddr >= (reg + rsize )) {
+		ಗಾಗಿ (i = 0; i < cell_ಮಗು_addr; i++)
+			caddr = (caddr << 32) | fdt32_ಗಮ್ಯ_cpu(*ranges++);
+		ಗಾಗಿ (i = 0; i < cell_ಪೋಷಕ_addr; i++)
+			paddr = (paddr << 32) | fdt32_ಗಮ್ಯ_cpu(*ranges++);
+		ಗಾಗಿ (i = 0; i < cell_ಗಾತ್ರ; i++)
+			rsize = (rsize << 32) | fdt32_ಗಮ್ಯ_cpu(*ranges++);
+		ಆದರೆ (reg < caddr || caddr >= (reg + rsize )) {
 			sbi_printf("invalid address translation\n");
-			return SBI_ENODEV;
+			ಹಿಂತಿರುಗಿ SBI_ENODEV;
 		}
-		offset = reg - caddr;
-		*addr = paddr + offset;
-	} else {
+		ಸ್ಥಾನಾಂತರ = reg - caddr;
+		*addr = paddr + ಸ್ಥಾನಾಂತರ;
+	} ಇಲ್ಲದಿದ್ದರೆ {
 		/* No translation required */
 		*addr = reg;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_get_node_addr_size(const void *fdt, int node, int index,
-			   uint64_t *addr, uint64_t *size)
+ಪೂರ್ಣಾಂಕ fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಗಂಟು, ಪೂರ್ಣಾಂಕ ಸೂಚ್ಯಂಕ_2,
+			   uint64_t *addr, uint64_t *ಗಾತ್ರ_2)
 {
-	int parent, len, i, rc;
-	int cell_addr, cell_size;
-	const fdt32_t *prop_addr, *prop_size;
-	uint64_t temp = 0;
+	ಪೂರ್ಣಾಂಕ ಪೋಷಕ, len, i, rc;
+	ಪೂರ್ಣಾಂಕ cell_addr, cell_ಗಾತ್ರ;
+	ಸ್ಥಿರಾಂಕ fdt32_t *prop_addr, *prop_ಗಾತ್ರ;
+	uint64_t ತಾತ್ಕಾಲಿಕ = 0;
 
-	if (!fdt || node < 0 || index < 0)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || ಗಂಟು < 0 || ಸೂಚ್ಯಂಕ_2 < 0)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	parent = fdt_parent_offset(fdt, node);
-	if (parent < 0)
-		return parent;
-	cell_addr = fdt_address_cells(fdt, parent);
-	if (cell_addr < 1)
-		return SBI_ENODEV;
+	ಪೋಷಕ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, ಗಂಟು);
+	ಆದರೆ (ಪೋಷಕ < 0)
+		ಹಿಂತಿರುಗಿ ಪೋಷಕ;
+	cell_addr = fdt_ವಿಳಾಸ_cells(fdt, ಪೋಷಕ);
+	ಆದರೆ (cell_addr < 1)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	cell_size = fdt_size_cells(fdt, parent);
-	if (cell_size < 0)
-		return SBI_ENODEV;
+	cell_ಗಾತ್ರ = fdt_ಗಾತ್ರ_cells(fdt, ಪೋಷಕ);
+	ಆದರೆ (cell_ಗಾತ್ರ < 0)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	prop_addr = fdt_getprop(fdt, node, "reg", &len);
-	if (!prop_addr)
-		return SBI_ENODEV;
+	prop_addr = fdt_getprop(fdt, ಗಂಟು, "reg", &len);
+	ಆದರೆ (!prop_addr)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	if ((len / sizeof(u32)) <= (index * (cell_addr + cell_size)))
-		return SBI_EINVAL;
+	ಆದರೆ ((len / ಗಾತ್ರ(u32)) <= (ಸೂಚ್ಯಂಕ_2 * (cell_addr + cell_ಗಾತ್ರ)))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	prop_addr = prop_addr + (index * (cell_addr + cell_size));
-	prop_size = prop_addr + cell_addr;
+	prop_addr = prop_addr + (ಸೂಚ್ಯಂಕ_2 * (cell_addr + cell_ಗಾತ್ರ));
+	prop_ಗಾತ್ರ = prop_addr + cell_addr;
 
-	if (addr) {
-		for (i = 0; i < cell_addr; i++)
-			temp = (temp << 32) | fdt32_to_cpu(*prop_addr++);
-		do {
-			if (parent < 0)
-				break;
-			rc  = fdt_translate_address(fdt, temp, parent, addr);
-			if (rc)
-				break;
-			parent = fdt_parent_offset(fdt, parent);
-			temp = *addr;
-		} while (1);
+	ಆದರೆ (addr) {
+		ಗಾಗಿ (i = 0; i < cell_addr; i++)
+			ತಾತ್ಕಾಲಿಕ = (ತಾತ್ಕಾಲಿಕ << 32) | fdt32_ಗಮ್ಯ_cpu(*prop_addr++);
+		ಮಾಡು {
+			ಆದರೆ (ಪೋಷಕ < 0)
+				ನಿಲ್ಲಿಸು;
+			rc  = fdt_translate_ವಿಳಾಸ(fdt, ತಾತ್ಕಾಲಿಕ, ಪೋಷಕ, addr);
+			ಆದರೆ (rc)
+				ನಿಲ್ಲಿಸು;
+			ಪೋಷಕ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, ಪೋಷಕ);
+			ತಾತ್ಕಾಲಿಕ = *addr;
+		} ಆಗ (1);
 	}
-	temp = 0;
+	ತಾತ್ಕಾಲಿಕ = 0;
 
-	if (size) {
-		for (i = 0; i < cell_size; i++)
-			temp = (temp << 32) | fdt32_to_cpu(*prop_size++);
-		*size = temp;
+	ಆದರೆ (ಗಾತ್ರ_2) {
+		ಗಾಗಿ (i = 0; i < cell_ಗಾತ್ರ; i++)
+			ತಾತ್ಕಾಲಿಕ = (ತಾತ್ಕಾಲಿಕ << 32) | fdt32_ಗಮ್ಯ_cpu(*prop_ಗಾತ್ರ++);
+		*ಗಾತ್ರ_2 = ತಾತ್ಕಾಲಿಕ;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_get_node_addr_size_by_name(const void *fdt, int node, const char *name,
-				   uint64_t *addr, uint64_t *size)
+ಪೂರ್ಣಾಂಕ fdt_get_ಗಂಟು_addr_ಗಾತ್ರ_by_name(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಗಂಟು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name,
+				   uint64_t *addr, uint64_t *ಗಾತ್ರ_2)
 {
-	int i, j, count;
-	const char *val;
-	const char *regname;
+	ಪೂರ್ಣಾಂಕ i, j, ಎಣಿಕೆ_2;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *val;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *regname;
 
-	if (!fdt || node < 0 || !name)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || ಗಂಟು < 0 || !name)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	val = fdt_getprop(fdt, node, "reg-names", &count);
-	if (!val)
-		return SBI_ENODEV;
+	val = fdt_getprop(fdt, ಗಂಟು, "reg-names", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	for (i = 0, j = 0; i < count; i++, j++) {
+	ಗಾಗಿ (i = 0, j = 0; i < ಎಣಿಕೆ_2; i++, j++) {
 		regname = val + i;
 
-		if (strcmp(name, regname) == 0)
-			return fdt_get_node_addr_size(fdt, node, j, addr, size);
+		ಆದರೆ (strcmp(name, regname) == 0)
+			ಹಿಂತಿರುಗಿ fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, ಗಂಟು, j, addr, ಗಾತ್ರ_2);
 
-		i += strlen(regname);
+		i += ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(regname);
 	}
 
-	return SBI_ENODEV;
+	ಹಿಂತಿರುಗಿ SBI_ENODEV;
 }
 
-bool fdt_node_is_enabled(const void *fdt, int nodeoff)
+bool fdt_ಗಂಟು_is_enabled(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff)
 {
-	int len;
-	const void *prop;
+	ಪೂರ್ಣಾಂಕ len;
+	ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *prop;
 
 	prop = fdt_getprop(fdt, nodeoff, "status", &len);
-	if (!prop)
-		return true;
+	ಆದರೆ (!prop)
+		ಹಿಂತಿರುಗಿ true;
 
-	if (!strncmp(prop, "okay", strlen("okay")))
-		return true;
+	ಆದರೆ (!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(prop, "okay", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("okay")))
+		ಹಿಂತಿರುಗಿ true;
 
-	if (!strncmp(prop, "ok", strlen("ok")))
-		return true;
+	ಆದರೆ (!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(prop, "ok", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ("ok")))
+		ಹಿಂತಿರುಗಿ true;
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-int fdt_parse_hart_id(const void *fdt, int cpu_offset, u32 *hartid)
+ಪೂರ್ಣಾಂಕ fdt_parse_hart_id(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ cpu_ಸ್ಥಾನಾಂತರ, u32 *hartid)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ len;
+	ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *prop;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || cpu_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	prop = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "device_type", &len);
+	ಆದರೆ (!prop || !len)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ (prop, "cpu", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ ("cpu")))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	val = fdt_getprop(fdt, cpu_offset, "reg", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	val = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "reg", &len);
+	ಆದರೆ (!val || len < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (len > sizeof(fdt32_t))
+	ಆದರೆ (len > ಗಾತ್ರ(fdt32_t))
 		val++;
 
-	if (hartid)
-		*hartid = fdt32_to_cpu(*val);
+	ಆದರೆ (hartid)
+		*hartid = fdt32_ಗಮ್ಯ_cpu(*val);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_cbom_block_size(const void *fdt, int cpu_offset, unsigned long *cbom_block_size)
+ಪೂರ್ಣಾಂಕ fdt_parse_cbom_ಖಂಡ_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ cpu_ಸ್ಥಾನಾಂತರ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *cbom_ಖಂಡ_ಗಾತ್ರ)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ len;
+	ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *prop;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || cpu_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	prop = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "device_type", &len);
+	ಆದರೆ (!prop || !len)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ (prop, "cpu", ಅಕ್ಷರಸರಣಿ_ಉದ್ದ ("cpu")))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	val = fdt_getprop(fdt, cpu_offset, "riscv,cbom-block-size", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	val = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "riscv,cbom-block-size", &len);
+	ಆದರೆ (!val || len < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (cbom_block_size)
-		*cbom_block_size = fdt32_to_cpu(*val);
-	return 0;
+	ಆದರೆ (cbom_ಖಂಡ_ಗಾತ್ರ)
+		*cbom_ಖಂಡ_ಗಾತ್ರ = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_max_enabled_hart_id(const void *fdt, u32 *max_hartid)
+ಪೂರ್ಣಾಂಕ fdt_parse_max_enabled_hart_id(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, u32 *max_hartid)
 {
 	u32 hartid;
-	int err, cpu_offset, cpus_offset;
+	ಪೂರ್ಣಾಂಕ err, cpu_ಸ್ಥಾನಾಂತರ, cpus_ಸ್ಥಾನಾಂತರ;
 
-	if (!fdt)
-		return SBI_EINVAL;
-	if (!max_hartid)
-		return 0;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (!max_hartid)
+		ಹಿಂತಿರುಗಿ 0;
 
 	*max_hartid = 0;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_ಸ್ಥಾನಾಂತರ = fdt_ಮಾರ್ಗ_ಸ್ಥಾನಾಂತರ(fdt, "/cpus");
+	ಆದರೆ (cpus_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ cpus_ಸ್ಥಾನಾಂತರ;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+	fdt_for_each_subnode(cpu_ಸ್ಥಾನಾಂತರ, fdt, cpus_ಸ್ಥಾನಾಂತರ) {
+		err = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
+		ಆದರೆ (err)
+			ಮುಂದುವರಿ;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		ಆದರೆ (!fdt_ಗಂಟು_is_enabled(fdt, cpu_ಸ್ಥಾನಾಂತರ))
+			ಮುಂದುವರಿ;
 
-		if (hartid > *max_hartid)
+		ಆದರೆ (hartid > *max_hartid)
 			*max_hartid = hartid;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_timebase_frequency(const void *fdt, unsigned long *freq)
+ಪೂರ್ಣಾಂಕ fdt_parse_timebase_frequency(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *freq)
 {
-	const fdt32_t *val;
-	int len, cpus_offset;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ len, cpus_ಸ್ಥಾನಾಂತರ;
 
-	if (!fdt || !freq)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || !freq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_ಸ್ಥಾನಾಂತರ = fdt_ಮಾರ್ಗ_ಸ್ಥಾನಾಂತರ(fdt, "/cpus");
+	ಆದರೆ (cpus_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ cpus_ಸ್ಥಾನಾಂತರ;
 
-	val = fdt_getprop(fdt, cpus_offset, "timebase-frequency", &len);
-	if (len > 0 && val)
-		*freq = fdt32_to_cpu(*val);
-	else
-		return SBI_ENOENT;
+	val = fdt_getprop(fdt, cpus_ಸ್ಥಾನಾಂತರ, "timebase-frequency", &len);
+	ಆದರೆ (len > 0 && val)
+		*freq = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-#define RISCV_ISA_EXT_NAME_LEN_MAX	32
+#ವ್ಯಾಖ್ಯಾನಿಸು RISCV_ISA_EXT_NAME_LEN_MAX	32
 
-static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_parse_isa_one_hart(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *isa, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *extensions)
 {
 	size_t i, j, isa_len;
-	char mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
+	ಅಕ್ಷರ mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
 
 	i = 0;
-	isa_len = strlen(isa);
+	isa_len = ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(isa);
 
-	if (isa[i] == 'r' || isa[i] == 'R')
+	ಆದರೆ (isa[i] == 'r' || isa[i] == 'R')
 		i++;
-	else
-		return SBI_EINVAL;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (isa[i] == 'v' || isa[i] == 'V')
+	ಆದರೆ (isa[i] == 'v' || isa[i] == 'V')
 		i++;
-	else
-		return SBI_EINVAL;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (isa[i] == '3' || isa[i+1] == '2')
+	ಆದರೆ (isa[i] == '3' || isa[i+1] == '2')
 		i += 2;
-	else if (isa[i] == '6' || isa[i+1] == '4')
+	ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (isa[i] == '6' || isa[i+1] == '4')
 		i += 2;
-	else
-		return SBI_EINVAL;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* Skip base ISA extensions */
-	for (; i < isa_len; i++) {
-		if (isa[i] == '_')
-			break;
+	ಗಾಗಿ (; i < isa_len; i++) {
+		ಆದರೆ (isa[i] == '_')
+			ನಿಲ್ಲಿಸು;
 	}
 
-	while (i < isa_len) {
-		if (isa[i] != '_') {
+	ಆಗ (i < isa_len) {
+		ಆದರೆ (isa[i] != '_') {
 			i++;
-			continue;
+			ಮುಂದುವರಿ;
 		}
 
 		/* Skip the '_' character */
@@ -370,109 +370,109 @@ static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
 
 		/* Extract the multi-letter extension name */
 		j = 0;
-		while ((i < isa_len) && (isa[i] != '_') &&
-		       (j < (sizeof(mstr) - 1)))
+		ಆಗ ((i < isa_len) && (isa[i] != '_') &&
+		       (j < (ಗಾತ್ರ(mstr) - 1)))
 			mstr[j++] = isa[i++];
 		mstr[j] = '\0';
 
 		/* Skip empty multi-letter extension name */
-		if (!j)
-			continue;
+		ಆದರೆ (!j)
+			ಮುಂದುವರಿ;
 
-#define set_multi_letter_ext(name, bit)				\
-			if (!strcmp(mstr, name)) {		\
-				__set_bit(bit, extensions);	\
-				continue;			\
+#ವ್ಯಾಖ್ಯಾನಿಸು ಗಣ_multi_letter_ext(name, ಬಿಟ್_2)				\
+			ಆದರೆ (!strcmp(mstr, name)) {		\
+				__set_bit(ಬಿಟ್_2, extensions);	\
+				ಮುಂದುವರಿ;			\
 			}
 
-		for (j = 0; j < SBI_HART_EXT_MAX; j++) {
-			set_multi_letter_ext(sbi_hart_ext[j].name,
+		ಗಾಗಿ (j = 0; j < SBI_HART_EXT_MAX; j++) {
+			ಗಣ_multi_letter_ext(sbi_hart_ext[j].name,
 					     sbi_hart_ext[j].id);
 		}
-#undef set_multi_letter_ext
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು ಗಣ_multi_letter_ext
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static void fdt_parse_isa_extensions_one_hart(const char *isa,
-					      unsigned long *extensions,
-					      int len)
+ಸ್ಥಿರ ಶೂನ್ಯ fdt_parse_isa_extensions_one_hart(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *isa,
+					      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *extensions,
+					      ಪೂರ್ಣಾಂಕ len)
 {
 	size_t i;
 
-	for (i = 0; i < SBI_HART_EXT_MAX; i++) {
-		if (fdt_stringlist_contains(isa, len, sbi_hart_ext[i].name))
+	ಗಾಗಿ (i = 0; i < SBI_HART_EXT_MAX; i++) {
+		ಆದರೆ (fdt_stringlist_ಒಳಗೊಂಡಿದೆ(isa, len, sbi_hart_ext[i].name))
 			__set_bit(sbi_hart_ext[i].id, extensions);
 	}
 }
 
-int fdt_parse_isa_extensions_all_harts(const void *fdt)
+ಪೂರ್ಣಾಂಕ fdt_parse_isa_extensions_all_harts(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt)
 {
 	u32 hartid;
-	const fdt32_t *val;
-	struct sbi_scratch *scratch;
-	struct sbi_hart_features *hfeatures;
-	int err, cpu_offset, cpus_offset, len;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ರಚನೆ sbi_scratch *scratch;
+	ರಚನೆ sbi_hart_features *hfeatures;
+	ಪೂರ್ಣಾಂಕ err, cpu_ಸ್ಥಾನಾಂತರ, cpus_ಸ್ಥಾನಾಂತರ, len;
 
-	if (!fdt)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	cpus_ಸ್ಥಾನಾಂತರ = fdt_ಮಾರ್ಗ_ಸ್ಥಾನಾಂತರ(fdt, "/cpus");
+	ಆದರೆ (cpus_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ cpus_ಸ್ಥಾನಾಂತರ;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+	fdt_for_each_subnode(cpu_ಸ್ಥಾನಾಂತರ, fdt, cpus_ಸ್ಥಾನಾಂತರ) {
+		err = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
+		ಆದರೆ (err)
+			ಮುಂದುವರಿ;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		ಆದರೆ (!fdt_ಗಂಟು_is_enabled(fdt, cpu_ಸ್ಥಾನಾಂತರ))
+			ಮುಂದುವರಿ;
 
-		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			return SBI_ENOENT;
+		scratch = sbi_hartid_ಗಮ್ಯ_scratch(hartid);
+		ಆದರೆ (!scratch)
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
 		hfeatures = sbi_hart_features_ptr(scratch);
-		if (!hfeatures)
-			return SBI_ENOENT;
+		ಆದರೆ (!hfeatures)
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-		val = fdt_getprop(fdt, cpu_offset, "riscv,isa-extensions", &len);
-		if (val && len > 0) {
-			fdt_parse_isa_extensions_one_hart((const char *)val,
+		val = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "riscv,isa-extensions", &len);
+		ಆದರೆ (val && len > 0) {
+			fdt_parse_isa_extensions_one_hart((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)val,
 							  hfeatures->extensions, len);
-			continue;
+			ಮುಂದುವರಿ;
 		}
 
-		val = fdt_getprop(fdt, cpu_offset, "riscv,isa", &len);
-		if (!val || len <= 0)
-			return SBI_ENOENT;
+		val = fdt_getprop(fdt, cpu_ಸ್ಥಾನಾಂತರ, "riscv,isa", &len);
+		ಆದರೆ (!val || len <= 0)
+			ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-		err = fdt_parse_isa_one_hart((const char *)val, hfeatures->extensions);
-		if (err)
-			return err;
+		err = fdt_parse_isa_one_hart((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)val, hfeatures->extensions);
+		ಆದರೆ (err)
+			ಹಿಂತಿರುಗಿ err;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
-				      struct platform_uart_data *uart,
-				      unsigned long default_freq,
-				      unsigned long default_baud)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_parse_uart_ಗಂಟು_common(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+				      ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart,
+				      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ default_freq,
+				      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ default_baud)
 {
-	int len, rc;
-	const fdt32_t *val;
-	uint64_t reg_addr, reg_size;
+	ಪೂರ್ಣಾಂಕ len, rc;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 
-	if (nodeoffset < 0 || !uart || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (nodeoffset < 0 || !uart || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 	uart->addr = reg_addr;
 
 	/**
@@ -480,657 +480,657 @@ static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
 	 * may not be present. Don't return error.
 	 */
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "clock-frequency", &len);
-	if (len > 0 && val)
-		uart->freq = fdt32_to_cpu(*val);
-	else
+	ಆದರೆ (len > 0 && val)
+		uart->freq = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
 		uart->freq = default_freq;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "current-speed", &len);
-	if (len > 0 && val)
-		uart->baud = fdt32_to_cpu(*val);
-	else
+	ಆದರೆ (len > 0 && val)
+		uart->baud = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
 		uart->baud = default_baud;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_gaisler_uart_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_gaisler_uart_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+				ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
 }
 
-int fdt_parse_renesas_scif_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_renesas_scif_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+				ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart,
 					  DEFAULT_RENESAS_SCIF_FREQ,
 					  DEFAULT_RENESAS_SCIF_BAUD);
 }
 
-int fdt_parse_shakti_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_shakti_uart_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+			       ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart,
 					DEFAULT_SHAKTI_UART_FREQ,
 					DEFAULT_SHAKTI_UART_BAUD);
 }
 
-int fdt_parse_sifive_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_sifive_uart_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+			       ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart,
 					DEFAULT_SIFIVE_UART_FREQ,
 					DEFAULT_SIFIVE_UART_BAUD);
 }
 
-int fdt_parse_uart_node(const void *fdt, int nodeoffset,
-			struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_uart_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+			ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	int len, rc;
-	const fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ len, rc;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
 
-	rc = fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	rc = fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-shift", &len);
-	if (len > 0 && val)
-		uart->reg_shift = fdt32_to_cpu(*val);
-	else
-		uart->reg_shift = DEFAULT_UART_REG_SHIFT;
+	ಆದರೆ (len > 0 && val)
+		uart->reg_ಸರಿಸು = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		uart->reg_ಸರಿಸು = DEFAULT_UART_REG_ಸರಿಸು;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-io-width", &len);
-	if (len > 0 && val)
-		uart->reg_io_width = fdt32_to_cpu(*val);
-	else
-		uart->reg_io_width = DEFAULT_UART_REG_IO_WIDTH;
+	ಆದರೆ (len > 0 && val)
+		uart->reg_io_ಅಗಲ = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		uart->reg_io_ಅಗಲ = DEFAULT_UART_REG_IO_ಅಗಲ;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-offset", &len);
-	if (len > 0 && val)
-		uart->reg_offset = fdt32_to_cpu(*val);
-	else
-		uart->reg_offset = DEFAULT_UART_REG_OFFSET;
+	ಆದರೆ (len > 0 && val)
+		uart->reg_ಸ್ಥಾನಾಂತರ = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		uart->reg_ಸ್ಥಾನಾಂತರ = DEFAULT_UART_REG_ಸ್ಥಾನಾಂತರ;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_uart8250(const void *fdt, struct platform_uart_data *uart,
-		   const char *compatible)
+ಪೂರ್ಣಾಂಕ fdt_parse_uart8250(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart,
+		   ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *compatible)
 {
-	int nodeoffset;
+	ಪೂರ್ಣಾಂಕ nodeoffset;
 
-	if (!compatible || !uart || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (!compatible || !uart || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, -1, compatible);
+	ಆದರೆ (nodeoffset < 0)
+		ಹಿಂತಿರುಗಿ nodeoffset;
 
-	return fdt_parse_uart_node(fdt, nodeoffset, uart);
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು(fdt, nodeoffset, uart);
 }
 
-int fdt_parse_xlnx_uartlite_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+ಪೂರ್ಣಾಂಕ fdt_parse_xlnx_uartlite_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+			       ರಚನೆ platform_uart_ದತ್ತಾಂಶ *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart, 0, 0);
+	ಹಿಂತಿರುಗಿ fdt_parse_uart_ಗಂಟು_common(fdt, nodeoffset, uart, 0, 0);
 }
 
-static int fdt_aplic_find_imsic_node(const void *fdt, int nodeoff,
-				     struct imsic_data *imsic, bool mmode)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_aplic_ಕಂಡುಹಿಡಿ_imsic_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				     ರಚನೆ imsic_ದತ್ತಾಂಶ *imsic, bool mmode)
 {
-	const fdt32_t *val;
-	int i, len, noff, rc;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ i, len, noff, rc;
 
 	val = fdt_getprop(fdt, nodeoff, "msi-parent", &len);
-	if (val && len >= sizeof(fdt32_t)) {
-		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*val));
-		if (noff < 0)
-			return noff;
+	ಆದರೆ (val && len >= ಗಾತ್ರ(fdt32_t)) {
+		noff = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, fdt32_ಗಮ್ಯ_cpu(*val));
+		ಆದರೆ (noff < 0)
+			ಹಿಂತಿರುಗಿ noff;
 
-		rc = fdt_parse_imsic_node(fdt, noff, imsic);
-		if (rc)
-			return rc;
+		rc = fdt_parse_imsic_ಗಂಟು(fdt, noff, imsic);
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 
-		rc = imsic_data_check(imsic);
-		if (rc)
-			return rc;
+		rc = imsic_ದತ್ತಾಂಶ_check(imsic);
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 
-		if (imsic->targets_mmode == mmode) {
-			return 0;
+		ಆದರೆ (imsic->targets_mmode == mmode) {
+			ಹಿಂತಿರುಗಿ 0;
 		}
-	} else {
-		return SBI_ENODEV;
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_ENODEV;
+	ಆದರೆ (!val || len < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	len /= sizeof(fdt32_t);
+	len /= ಗಾತ್ರ(fdt32_t);
 
-	for (i = 0; i < len; i++) {
-		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[i]));
-		if (noff < 0)
-			return noff;
+	ಗಾಗಿ (i = 0; i < len; i++) {
+		noff = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, fdt32_ಗಮ್ಯ_cpu(val[i]));
+		ಆದರೆ (noff < 0)
+			ಹಿಂತಿರುಗಿ noff;
 
-		rc = fdt_aplic_find_imsic_node(fdt, noff, imsic, mmode);
-		if (!rc)
-			break;
+		rc = fdt_aplic_ಕಂಡುಹಿಡಿ_imsic_ಗಂಟು(fdt, noff, imsic, mmode);
+		ಆದರೆ (!rc)
+			ನಿಲ್ಲಿಸು;
 	}
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
-int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
+ಪೂರ್ಣಾಂಕ fdt_parse_aplic_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff, ರಚನೆ aplic_ದತ್ತಾಂಶ *aplic)
 {
-	bool child_found;
-	const fdt32_t *val;
-	const fdt32_t *del;
-	struct imsic_data imsic = { 0 };
-	int i, j, d, dcnt, len, rc;
-	uint64_t reg_addr, reg_size;
-	struct aplic_delegate_data *deleg;
+	bool ಮಗು_ಸಿಕ್ಕಿತು;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಸ್ಥಿರಾಂಕ fdt32_t *del;
+	ರಚನೆ imsic_ದತ್ತಾಂಶ imsic = { 0 };
+	ಪೂರ್ಣಾಂಕ i, j, d, dcnt, len, rc;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
+	ರಚನೆ aplic_delegate_ದತ್ತಾಂಶ *deleg;
 
-	if (nodeoff < 0 || !aplic || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (nodeoff < 0 || !aplic || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoff, 0, &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 	aplic->unique_id = nodeoff;
 	aplic->addr = reg_addr;
-	aplic->size = reg_size;
+	aplic->ಗಾತ್ರ_2 = reg_ಗಾತ್ರ;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-sources", &len);
-	if (len > 0)
-		aplic->num_source = fdt32_to_cpu(*val);
+	ಆದರೆ (len > 0)
+		aplic->ಅಂಕೆ_ಮೂಲ = fdt32_ಗಮ್ಯ_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+	ಆದರೆ (val && len > ಗಾತ್ರ(fdt32_t)) {
+		len = len / ಗಾತ್ರ(fdt32_t);
+		ಗಾಗಿ (i = 0; i < len; i += 2) {
+			ಆದರೆ (fdt32_ಗಮ್ಯ_cpu(val[i + 1]) == IRQ_M_EXT) {
 				aplic->targets_mmode = true;
-				break;
+				ನಿಲ್ಲಿಸು;
 			}
 		}
-		aplic->num_idc = len / 2;
+		aplic->ಅಂಕೆ_idc = len / 2;
 	}
 
-	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, true);
-	if (!rc) {
-		aplic->parent_unique_id = imsic.unique_id;
+	rc = fdt_aplic_ಕಂಡುಹಿಡಿ_imsic_ಗಂಟು(fdt, nodeoff, &imsic, true);
+	ಆದರೆ (!rc) {
+		aplic->ಪೋಷಕ_unique_id = imsic.unique_id;
 		aplic->targets_mmode = true;
 		aplic->has_msicfg_mmode = true;
-		aplic->msicfg_mmode.lhxs = imsic.guest_index_bits;
-		aplic->msicfg_mmode.lhxw = imsic.hart_index_bits;
-		aplic->msicfg_mmode.hhxw = imsic.group_index_bits;
-		aplic->msicfg_mmode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		aplic->msicfg_mmode.lhxs = imsic.guest_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_mmode.lhxw = imsic.hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_mmode.hhxw = imsic.ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_mmode.hhxs = imsic.ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಸರಿಸು;
+		ಆದರೆ (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_ಪುಟ_ಸರಿಸು))
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 		aplic->msicfg_mmode.hhxs -= 24;
-		aplic->msicfg_mmode.base_addr = imsic.regs[0].addr;
+		aplic->msicfg_mmode.ತಳ_addr = imsic.regs[0].addr;
 	}
 
-	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, false);
-	if (!rc) {
+	rc = fdt_aplic_ಕಂಡುಹಿಡಿ_imsic_ಗಂಟು(fdt, nodeoff, &imsic, false);
+	ಆದರೆ (!rc) {
 		aplic->has_msicfg_smode = true;
-		aplic->msicfg_smode.lhxs = imsic.guest_index_bits;
-		aplic->msicfg_smode.lhxw = imsic.hart_index_bits;
-		aplic->msicfg_smode.hhxw = imsic.group_index_bits;
-		aplic->msicfg_smode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		aplic->msicfg_smode.lhxs = imsic.guest_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_smode.lhxw = imsic.hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_smode.hhxw = imsic.ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು;
+		aplic->msicfg_smode.hhxs = imsic.ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಸರಿಸು;
+		ಆದರೆ (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_ಪುಟ_ಸರಿಸು))
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 		aplic->msicfg_smode.hhxs -= 24;
-		aplic->msicfg_smode.base_addr = imsic.regs[0].addr;
+		aplic->msicfg_smode.ತಳ_addr = imsic.regs[0].addr;
 	}
 
-	for (d = 0; d < APLIC_MAX_DELEGATE; d++) {
+	ಗಾಗಿ (d = 0; d < APLIC_MAX_DELEGATE; d++) {
 		deleg = &aplic->delegate[d];
-		deleg->first_irq = 0;
-		deleg->last_irq = 0;
-		deleg->child_index = 0;
+		deleg->ಮೊದಲ_irq = 0;
+		deleg->ಕೊನೆಯ_irq = 0;
+		deleg->ಮಗು_ಸೂಚ್ಯಂಕ = 0;
 	}
 
 	del = fdt_getprop(fdt, nodeoff, "riscv,delegation", &len);
-	if (!del)
+	ಆದರೆ (!del)
 		del = fdt_getprop(fdt, nodeoff, "riscv,delegate", &len);
-	if (!del || len < (3 * sizeof(fdt32_t)))
-		goto skip_delegate_parse;
+	ಆದರೆ (!del || len < (3 * ಗಾತ್ರ(fdt32_t)))
+		ಹೋಗು skip_delegate_parse;
 	d = 0;
-	dcnt = len / sizeof(fdt32_t);
-	for (i = 0; i < dcnt; i += 3) {
-		if (d >= APLIC_MAX_DELEGATE)
-			break;
+	dcnt = len / ಗಾತ್ರ(fdt32_t);
+	ಗಾಗಿ (i = 0; i < dcnt; i += 3) {
+		ಆದರೆ (d >= APLIC_MAX_DELEGATE)
+			ನಿಲ್ಲಿಸು;
 		deleg = &aplic->delegate[d];
 
-		deleg->first_irq = fdt32_to_cpu(del[i + 1]);
-		deleg->last_irq = fdt32_to_cpu(del[i + 2]);
-		deleg->child_index = 0;
+		deleg->ಮೊದಲ_irq = fdt32_ಗಮ್ಯ_cpu(del[i + 1]);
+		deleg->ಕೊನೆಯ_irq = fdt32_ಗಮ್ಯ_cpu(del[i + 2]);
+		deleg->ಮಗು_ಸೂಚ್ಯಂಕ = 0;
 
-		child_found = false;
+		ಮಗು_ಸಿಕ್ಕಿತು = false;
 		val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-		if (!val || len < sizeof(fdt32_t)) {
-			deleg->first_irq = 0;
-			deleg->last_irq = 0;
-			deleg->child_index = 0;
-			continue;
+		ಆದರೆ (!val || len < ಗಾತ್ರ(fdt32_t)) {
+			deleg->ಮೊದಲ_irq = 0;
+			deleg->ಕೊನೆಯ_irq = 0;
+			deleg->ಮಗು_ಸೂಚ್ಯಂಕ = 0;
+			ಮುಂದುವರಿ;
 		}
-		len = len / sizeof(fdt32_t);
-		for (j = 0; j < len; j++) {
-			if (del[i] != val[j])
-				continue;
-			deleg->child_index = j;
-			child_found = true;
-			break;
+		len = len / ಗಾತ್ರ(fdt32_t);
+		ಗಾಗಿ (j = 0; j < len; j++) {
+			ಆದರೆ (del[i] != val[j])
+				ಮುಂದುವರಿ;
+			deleg->ಮಗು_ಸೂಚ್ಯಂಕ = j;
+			ಮಗು_ಸಿಕ್ಕಿತು = true;
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if (child_found) {
+		ಆದರೆ (ಮಗು_ಸಿಕ್ಕಿತು) {
 			d++;
-		} else {
-			deleg->first_irq = 0;
-			deleg->last_irq = 0;
-			deleg->child_index = 0;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			deleg->ಮೊದಲ_irq = 0;
+			deleg->ಕೊನೆಯ_irq = 0;
+			deleg->ಮಗು_ಸೂಚ್ಯಂಕ = 0;
 		}
 	}
 skip_delegate_parse:
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-bool fdt_check_imsic_mlevel(const void *fdt)
+bool fdt_check_imsic_mlevel(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt)
 {
-	const fdt32_t *val;
-	int i, len, noff = 0;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ i, len, noff = 0;
 
-	if (!fdt)
-		return false;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ false;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	ಆಗ ((noff = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, noff,
 						     "riscv,imsics")) >= 0) {
 		val = fdt_getprop(fdt, noff, "interrupts-extended", &len);
-		if (val && len > sizeof(fdt32_t)) {
-			len = len / sizeof(fdt32_t);
-			for (i = 0; i < len; i += 2) {
-				if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT)
-					return true;
+		ಆದರೆ (val && len > ಗಾತ್ರ(fdt32_t)) {
+			len = len / ಗಾತ್ರ(fdt32_t);
+			ಗಾಗಿ (i = 0; i < len; i += 2) {
+				ಆದರೆ (fdt32_ಗಮ್ಯ_cpu(val[i + 1]) == IRQ_M_EXT)
+					ಹಿಂತಿರುಗಿ true;
 			}
 		}
 	}
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-int fdt_parse_imsic_node(const void *fdt, int nodeoff, struct imsic_data *imsic)
+ಪೂರ್ಣಾಂಕ fdt_parse_imsic_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff, ರಚನೆ imsic_ದತ್ತಾಂಶ *imsic)
 {
-	const fdt32_t *val;
-	struct imsic_regs *regs;
-	uint64_t reg_addr, reg_size;
-	int i, rc, len, nr_parent_irqs;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ರಚನೆ imsic_regs *regs;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
+	ಪೂರ್ಣಾಂಕ i, rc, len, nr_ಪೋಷಕ_irqs;
 
-	if (nodeoff < 0 || !imsic || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (nodeoff < 0 || !imsic || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
 	imsic->unique_id = nodeoff;
 	imsic->targets_mmode = false;
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
-		nr_parent_irqs = len / 2;
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+	ಆದರೆ (val && len > ಗಾತ್ರ(fdt32_t)) {
+		len = len / ಗಾತ್ರ(fdt32_t);
+		nr_ಪೋಷಕ_irqs = len / 2;
+		ಗಾಗಿ (i = 0; i < len; i += 2) {
+			ಆದರೆ (fdt32_ಗಮ್ಯ_cpu(val[i + 1]) == IRQ_M_EXT) {
 				imsic->targets_mmode = true;
-				break;
+				ನಿಲ್ಲಿಸು;
 			}
 		}
-	} else
-		return SBI_EINVAL;
+	} ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,guest-index-bits", &len);
-	if (val && len > 0)
-		imsic->guest_index_bits = fdt32_to_cpu(*val);
-	else
-		imsic->guest_index_bits = 0;
+	ಆದರೆ (val && len > 0)
+		imsic->guest_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		imsic->guest_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,hart-index-bits", &len);
-	if (val && len > 0) {
-		imsic->hart_index_bits = fdt32_to_cpu(*val);
-	} else {
-		imsic->hart_index_bits = sbi_fls(nr_parent_irqs);
-		if ((1UL << imsic->hart_index_bits) < nr_parent_irqs)
-			imsic->hart_index_bits++;
+	ಆದರೆ (val && len > 0) {
+		imsic->hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = fdt32_ಗಮ್ಯ_cpu(*val);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		imsic->hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = sbi_fls(nr_ಪೋಷಕ_irqs);
+		ಆದರೆ ((1UL << imsic->hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು) < nr_ಪೋಷಕ_irqs)
+			imsic->hart_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು++;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-bits", &len);
-	if (val && len > 0)
-		imsic->group_index_bits = fdt32_to_cpu(*val);
-	else
-		imsic->group_index_bits = 0;
+	ಆದರೆ (val && len > 0)
+		imsic->ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		imsic->ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಬಿಟ್ಟುಗಳು = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-shift", &len);
-	if (val && len > 0)
-		imsic->group_index_shift = fdt32_to_cpu(*val);
-	else
-		imsic->group_index_shift = 2 * IMSIC_MMIO_PAGE_SHIFT;
+	ಆದರೆ (val && len > 0)
+		imsic->ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಸರಿಸು = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		imsic->ಗುಂಪು_ಸೂಚ್ಯಂಕ_ಸರಿಸು = 2 * IMSIC_MMIO_ಪುಟ_ಸರಿಸು;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-ids", &len);
-	if (val && len > 0)
-		imsic->num_ids = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	ಆದರೆ (val && len > 0)
+		imsic->ಅಂಕೆ_ids = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	for (i = 0; i < IMSIC_MAX_REGS; i++) {
+	ಗಾಗಿ (i = 0; i < IMSIC_MAX_REGS; i++) {
 		regs = &imsic->regs[i];
 		regs->addr = 0;
-		regs->size = 0;
+		regs->ಗಾತ್ರ_2 = 0;
 	}
 
-	for (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
+	ಗಾಗಿ (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
 		regs = &imsic->regs[i];
 
-		rc = fdt_get_node_addr_size(fdt, nodeoff, i,
-					    &reg_addr, &reg_size);
-		if (rc < 0 || !reg_size)
-			break;
+		rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoff, i,
+					    &reg_addr, &reg_ಗಾತ್ರ);
+		ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+			ನಿಲ್ಲಿಸು;
 		regs->addr = reg_addr;
-		regs->size = reg_size;
+		regs->ಗಾತ್ರ_2 = reg_ಗಾತ್ರ;
 	}
-	if (!imsic->regs[0].size)
-		return SBI_EINVAL;
+	ಆದರೆ (!imsic->regs[0].ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_plic_node(const void *fdt, int nodeoffset, struct plic_data *plic)
+ಪೂರ್ಣಾಂಕ fdt_parse_plic_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset, ರಚನೆ plic_ದತ್ತಾಂಶ *plic)
 {
-	int len, rc;
-	const fdt32_t *val;
-	uint64_t reg_addr, reg_size;
+	ಪೂರ್ಣಾಂಕ len, rc;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 
-	if (nodeoffset < 0 || !plic || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (nodeoffset < 0 || !plic || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 	plic->unique_id = nodeoffset;
 	plic->addr = reg_addr;
-	plic->size = reg_size;
+	plic->ಗಾತ್ರ_2 = reg_ಗಾತ್ರ;
 
 	val = fdt_getprop(fdt, nodeoffset, "riscv,ndev", &len);
-	if (len > 0)
-		plic->num_src = fdt32_to_cpu(*val);
+	ಆದರೆ (len > 0)
+		plic->ಅಂಕೆ_src = fdt32_ಗಮ್ಯ_cpu(*val);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_plic(const void *fdt, struct plic_data *plic, const char *compat)
+ಪೂರ್ಣಾಂಕ fdt_parse_plic(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ರಚನೆ plic_ದತ್ತಾಂಶ *plic, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *compat)
 {
-	int nodeoffset;
+	ಪೂರ್ಣಾಂಕ nodeoffset;
 
-	if (!compat || !plic || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (!compat || !plic || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compat);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, -1, compat);
+	ಆದರೆ (nodeoffset < 0)
+		ಹಿಂತಿರುಗಿ nodeoffset;
 
-	return fdt_parse_plic_node(fdt, nodeoffset, plic);
+	ಹಿಂತಿರುಗಿ fdt_parse_plic_ಗಂಟು(fdt, nodeoffset, plic);
 }
 
-static int fdt_get_aclint_addr_size_by_name(const void *fdt, int nodeoffset,
-					    unsigned long *out_addr1,
-					    unsigned long *out_size1,
-					    unsigned long *out_addr2,
-					    unsigned long *out_size2)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_get_aclint_addr_ಗಾತ್ರ_by_name(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+					    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr1,
+					    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size1,
+					    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr2,
+					    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size2)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
+	ಪೂರ್ಣಾಂಕ rc;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 
-	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtime",
-					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		reg_addr = reg_size = 0;
-	*out_addr1 = reg_addr;
-	*out_size1 = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ_by_name(fdt, nodeoffset, "mtime",
+					    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		reg_addr = reg_ಗಾತ್ರ = 0;
+	*ಹೊರಹೋಗು_addr1 = reg_addr;
+	*ಹೊರಹೋಗು_size1 = reg_ಗಾತ್ರ;
 
-	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtimecmp",
-					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
-	*out_addr2 = reg_addr;
-	*out_size2 = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ_by_name(fdt, nodeoffset, "mtimecmp",
+					    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
+	*ಹೊರಹೋಗು_addr2 = reg_addr;
+	*ಹೊರಹೋಗು_size2 = reg_ಗಾತ್ರ;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int fdt_get_aclint_addr_size(const void *fdt, int nodeoffset,
-				    unsigned long *out_addr1,
-				    unsigned long *out_size1,
-				    unsigned long *out_addr2,
-				    unsigned long *out_size2)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_get_aclint_addr_ಗಾತ್ರ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
+				    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr1,
+				    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size1,
+				    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr2,
+				    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size2)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
+	ಪೂರ್ಣಾಂಕ rc;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
-	*out_addr1 = reg_addr;
-	*out_size1 = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
+	*ಹೊರಹೋಗು_addr1 = reg_addr;
+	*ಹೊರಹೋಗು_size1 = reg_ಗಾತ್ರ;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 1,
-				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		reg_addr = reg_size = 0;
-	if (out_addr2)
-		*out_addr2 = reg_addr;
-	if (out_size2)
-		*out_size2 = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 1,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_ಗಾತ್ರ)
+		reg_addr = reg_ಗಾತ್ರ = 0;
+	ಆದರೆ (ಹೊರಹೋಗು_addr2)
+		*ಹೊರಹೋಗು_addr2 = reg_addr;
+	ಆದರೆ (ಹೊರಹೋಗು_size2)
+		*ಹೊರಹೋಗು_size2 = reg_ಗಾತ್ರ;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_aclint_node(const void *fdt, int nodeoffset,
+ಪೂರ್ಣಾಂಕ fdt_parse_aclint_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset,
 			  bool for_timer, bool allow_regname,
-			  unsigned long *out_addr1, unsigned long *out_size1,
-			  unsigned long *out_addr2, unsigned long *out_size2,
-			  u32 *out_first_hartid, u32 *out_hart_count)
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr1, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size1,
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_addr2, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು_size2,
+			  u32 *ಹೊರಹೋಗು_ಮೊದಲ_hartid, u32 *ಹೊರಹೋಗು_hart_ಎಣಿಕೆ)
 {
-	const fdt32_t *val;
-	int i, rc, count, cpu_offset, cpu_intc_offset;
-	u32 phandle, hwirq, hartid, first_hartid, last_hartid;
-	u32 match_hwirq = (for_timer) ? IRQ_M_TIMER : IRQ_M_SOFT;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ i, rc, ಎಣಿಕೆ_2, cpu_ಸ್ಥಾನಾಂತರ, cpu_intc_ಸ್ಥಾನಾಂತರ;
+	u32 phandle, hwirq, hartid, ಮೊದಲ_hartid, ಕೊನೆಯ_hartid;
+	u32 ಹೊಂದಿಕೆ_hwirq = (for_timer) ? IRQ_M_TIMER : IRQ_M_SOFT;
 
-	if (nodeoffset < 0 || !fdt ||
-	    !out_addr1 || !out_size1 ||
-	    !out_first_hartid || !out_hart_count)
-		return SBI_EINVAL;
+	ಆದರೆ (nodeoffset < 0 || !fdt ||
+	    !ಹೊರಹೋಗು_addr1 || !ಹೊರಹೋಗು_size1 ||
+	    !ಹೊರಹೋಗು_ಮೊದಲ_hartid || !ಹೊರಹೋಗು_hart_ಎಣಿಕೆ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (for_timer && allow_regname && out_addr2 && out_size2 &&
-	    fdt_getprop(fdt, nodeoffset, "reg-names", NULL))
-		rc = fdt_get_aclint_addr_size_by_name(fdt, nodeoffset,
-						      out_addr1, out_size1,
-						      out_addr2, out_size2);
-	else
-		rc = fdt_get_aclint_addr_size(fdt, nodeoffset,
-					      out_addr1, out_size1,
-					      out_addr2, out_size2);
-	if (rc)
-		return rc;
+	ಆದರೆ (for_timer && allow_regname && ಹೊರಹೋಗು_addr2 && ಹೊರಹೋಗು_size2 &&
+	    fdt_getprop(fdt, nodeoffset, "reg-names", ಖಾಲಿ))
+		rc = fdt_get_aclint_addr_ಗಾತ್ರ_by_name(fdt, nodeoffset,
+						      ಹೊರಹೋಗು_addr1, ಹೊರಹೋಗು_size1,
+						      ಹೊರಹೋಗು_addr2, ಹೊರಹೋಗು_size2);
+	ಇಲ್ಲದಿದ್ದರೆ
+		rc = fdt_get_aclint_addr_ಗಾತ್ರ(fdt, nodeoffset,
+					      ಹೊರಹೋಗು_addr1, ಹೊರಹೋಗು_size1,
+					      ಹೊರಹೋಗು_addr2, ಹೊರಹೋಗು_size2);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	*out_first_hartid = 0;
-	*out_hart_count = 0;
+	*ಹೊರಹೋಗು_ಮೊದಲ_hartid = 0;
+	*ಹೊರಹೋಗು_hart_ಎಣಿಕೆ = 0;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val || ಎಣಿಕೆ_2 < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ 0;
+	ಎಣಿಕೆ_2 = ಎಣಿಕೆ_2 / ಗಾತ್ರ(fdt32_t);
 
-	first_hartid = -1U;
-	last_hartid = 0;
-	for (i = 0; i < (count / 2); i++) {
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[(2 * i) + 1]);
+	ಮೊದಲ_hartid = -1U;
+	ಕೊನೆಯ_hartid = 0;
+	ಗಾಗಿ (i = 0; i < (ಎಣಿಕೆ_2 / 2); i++) {
+		phandle = fdt32_ಗಮ್ಯ_cpu(val[2 * i]);
+		hwirq = fdt32_ಗಮ್ಯ_cpu(val[(2 * i) + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, phandle);
+		ಆದರೆ (cpu_intc_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, cpu_intc_ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+		rc = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
+		ಆದರೆ (rc)
+			ಮುಂದುವರಿ;
 
-		if (match_hwirq == hwirq) {
-			if (hartid < first_hartid)
-				first_hartid = hartid;
-			if (hartid > last_hartid)
-				last_hartid = hartid;
+		ಆದರೆ (ಹೊಂದಿಕೆ_hwirq == hwirq) {
+			ಆದರೆ (hartid < ಮೊದಲ_hartid)
+				ಮೊದಲ_hartid = hartid;
+			ಆದರೆ (hartid > ಕೊನೆಯ_hartid)
+				ಕೊನೆಯ_hartid = hartid;
 		}
 	}
 
-	if ((last_hartid >= first_hartid) && first_hartid != -1U) {
-		*out_first_hartid = first_hartid;
-		*out_hart_count = last_hartid - first_hartid + 1;
+	ಆದರೆ ((ಕೊನೆಯ_hartid >= ಮೊದಲ_hartid) && ಮೊದಲ_hartid != -1U) {
+		*ಹೊರಹೋಗು_ಮೊದಲ_hartid = ಮೊದಲ_hartid;
+		*ಹೊರಹೋಗು_hart_ಎಣಿಕೆ = ಕೊನೆಯ_hartid - ಮೊದಲ_hartid + 1;
 	}
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_plmt_node(const void *fdt, int nodeoffset, unsigned long *plmt_base,
-			  unsigned long *plmt_size, u32 *hart_count)
+ಪೂರ್ಣಾಂಕ fdt_parse_plmt_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *plmt_ತಳ,
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *plmt_ಗಾತ್ರ, u32 *hart_ಎಣಿಕೆ)
 {
-	const fdt32_t *val;
-	int rc, i, count;
-	uint64_t reg_addr, reg_size;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ rc, i, ಎಣಿಕೆ_2;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plmt_base ||
-	    !hart_count || !plmt_size)
-		return SBI_EINVAL;
+	ಆದರೆ (nodeoffset < 0 || !fdt || !plmt_ತಳ ||
+	    !hart_ಎಣಿಕೆ || !plmt_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
-	*plmt_base = reg_addr;
-	*plmt_size = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
+	*plmt_ತಳ = reg_addr;
+	*plmt_ಗಾತ್ರ = reg_ಗಾತ್ರ;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val || ಎಣಿಕೆ_2 < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ 0;
+	ಎಣಿಕೆ_2 = ಎಣಿಕೆ_2 / ಗಾತ್ರ(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	ಗಾಗಿ (i = 0; i < (ಎಣಿಕೆ_2 / 2); i++) {
+		ಪೂರ್ಣಾಂಕ cpu_ಸ್ಥಾನಾಂತರ, cpu_intc_ಸ್ಥಾನಾಂತರ;
 
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[2 * i + 1]);
+		phandle = fdt32_ಗಮ್ಯ_cpu(val[2 * i]);
+		hwirq = fdt32_ಗಮ್ಯ_cpu(val[2 * i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, phandle);
+		ಆದರೆ (cpu_intc_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, cpu_intc_ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
+		rc = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
 
-		if (rc)
-			continue;
+		ಆದರೆ (rc)
+			ಮುಂದುವರಿ;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		ಆದರೆ (SBI_HARTMASK_MAX_ಬಿಟ್ಟುಗಳು <= sbi_hartid_ಗಮ್ಯ_hartindex(hartid))
+			ಮುಂದುವರಿ;
 
-		if (hwirq == IRQ_M_TIMER)
+		ಆದರೆ (hwirq == IRQ_M_TIMER)
 			hcount++;
 	}
 
-	*hart_count = hcount;
+	*hart_ಎಣಿಕೆ = hcount;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_plicsw_node(const void *fdt, int nodeoffset, unsigned long *plicsw_base,
-			  unsigned long *size, u32 *hart_count)
+ಪೂರ್ಣಾಂಕ fdt_parse_plicsw_ಗಂಟು(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *plicsw_ತಳ,
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಗಾತ್ರ_2, u32 *hart_ಎಣಿಕೆ)
 {
-	const fdt32_t *val;
-	int rc, i, count;
-	uint64_t reg_addr, reg_size;
+	ಸ್ಥಿರಾಂಕ fdt32_t *val;
+	ಪೂರ್ಣಾಂಕ rc, i, ಎಣಿಕೆ_2;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plicsw_base ||
-	    !hart_count || !size)
-		return SBI_EINVAL;
+	ಆದರೆ (nodeoffset < 0 || !fdt || !plicsw_ತಳ ||
+	    !hart_ಎಣಿಕೆ || !ಗಾತ್ರ_2)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
-				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
-	*plicsw_base = reg_addr;
-	*size = reg_size;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0,
+				    &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
+	*plicsw_ತಳ = reg_addr;
+	*ಗಾತ್ರ_2 = reg_ಗಾತ್ರ;
 
-	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &ಎಣಿಕೆ_2);
+	ಆದರೆ (!val || ಎಣಿಕೆ_2 < ಗಾತ್ರ(fdt32_t))
+		ಹಿಂತಿರುಗಿ 0;
+	ಎಣಿಕೆ_2 = ಎಣಿಕೆ_2 / ಗಾತ್ರ(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	ಗಾಗಿ (i = 0; i < (ಎಣಿಕೆ_2 / 2); i++) {
+		ಪೂರ್ಣಾಂಕ cpu_ಸ್ಥಾನಾಂತರ, cpu_intc_ಸ್ಥಾನಾಂತರ;
 
-		phandle = fdt32_to_cpu(val[2 * i]);
-		hwirq = fdt32_to_cpu(val[2 * i + 1]);
+		phandle = fdt32_ಗಮ್ಯ_cpu(val[2 * i]);
+		hwirq = fdt32_ಗಮ್ಯ_cpu(val[2 * i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt, phandle);
+		ಆದರೆ (cpu_intc_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಪೋಷಕ_ಸ್ಥಾನಾಂತರ(fdt, cpu_intc_ಸ್ಥಾನಾಂತರ);
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0)
+			ಮುಂದುವರಿ;
 
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
+		rc = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &hartid);
 
-		if (rc)
-			continue;
+		ಆದರೆ (rc)
+			ಮುಂದುವರಿ;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		ಆದರೆ (SBI_HARTMASK_MAX_ಬಿಟ್ಟುಗಳು <= sbi_hartid_ಗಮ್ಯ_hartindex(hartid))
+			ಮುಂದುವರಿ;
 
-		if (hwirq == IRQ_M_SOFT)
+		ಆದರೆ (hwirq == IRQ_M_SOFT)
 			hcount++;
 	}
 
-	*hart_count = hcount;
+	*hart_ಎಣಿಕೆ = hcount;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_parse_compat_addr(const void *fdt, uint64_t *addr,
-			  const char *compatible)
+ಪೂರ್ಣಾಂಕ fdt_parse_compat_addr(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, uint64_t *addr,
+			  ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *compatible)
 {
-	int nodeoffset, rc;
+	ಪೂರ್ಣಾಂಕ nodeoffset, rc;
 
-	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	nodeoffset = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, -1, compatible);
+	ಆದರೆ (nodeoffset < 0)
+		ಹಿಂತಿರುಗಿ nodeoffset;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0, addr, NULL);
-	if (rc < 0 || !addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoffset, 0, addr, ಖಾಲಿ);
+	ಆದರೆ (rc < 0 || !addr)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

@@ -4,125 +4,125 @@
  * Copyright (c) 2025 Ventana Micro Systems Inc.
  */
 
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmp.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitmap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart_protection.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hfence.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_math.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmp.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_tlb.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
 
-static int hart_pmp_read(pmp_t *pmp, unsigned int n)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ hart_pmp_read(pmp_t *pmp, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
-	unsigned long cfgmask;
+	ಪೂರ್ಣಾಂಕ pmpcfg_csr, pmpcfg_ಸರಿಸು, pmpaddr_csr;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ cfgmask;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	ಆದರೆ (n >= PMP_ಎಣಿಕೆ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#ಆದರೆ __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
-	pmpcfg_shift = (n & 3) << 3;
-#elif __riscv_xlen == 64
+	pmpcfg_ಸರಿಸು = (n & 3) << 3;
+#ಅಥವಾಆದರೆ __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
-	pmpcfg_shift = (n & 7) << 3;
-#else
+	pmpcfg_ಸರಿಸು = (n & 7) << 3;
+#ಇಲ್ಲದಿದ್ದರೆ
 # error "Unexpected __riscv_xlen"
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	pmpaddr_csr = CSR_PMPADDR0 + n;
 
-	cfgmask = (0xffUL << pmpcfg_shift);
-	pmp->cfg = (csr_read_num(pmpcfg_csr) & cfgmask) >> pmpcfg_shift;
-	pmp->addr = csr_read_num(pmpaddr_csr);
+	cfgmask = (0xffUL << pmpcfg_ಸರಿಸು);
+	pmp->cfg = (csr_read_ಅಂಕೆ(pmpcfg_csr) & cfgmask) >> pmpcfg_ಸರಿಸು;
+	pmp->addr = csr_read_ಅಂಕೆ(pmpaddr_csr);
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-static int hart_pmp_write(pmp_t *pmp, unsigned int n)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ hart_pmp_write(pmp_t *pmp, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n)
 {
-	int pmpcfg_csr, pmpcfg_shift, pmpaddr_csr;
-	unsigned long cfgmask, pmpcfg;
+	ಪೂರ್ಣಾಂಕ pmpcfg_csr, pmpcfg_ಸರಿಸು, pmpaddr_csr;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ cfgmask, pmpcfg;
 
 	/* check parameters */
-	if (n >= PMP_COUNT)
-		return SBI_EINVAL;
+	ಆದರೆ (n >= PMP_ಎಣಿಕೆ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* calculate PMP register and offset */
-#if __riscv_xlen == 32
+#ಆದರೆ __riscv_xlen == 32
 	pmpcfg_csr   = CSR_PMPCFG0 + (n >> 2);
-	pmpcfg_shift = (n & 3) << 3;
-#elif __riscv_xlen == 64
+	pmpcfg_ಸರಿಸು = (n & 3) << 3;
+#ಅಥವಾಆದರೆ __riscv_xlen == 64
 	pmpcfg_csr   = (CSR_PMPCFG0 + (n >> 2)) & ~1;
-	pmpcfg_shift = (n & 7) << 3;
-#else
+	pmpcfg_ಸರಿಸು = (n & 7) << 3;
+#ಇಲ್ಲದಿದ್ದರೆ
 # error "Unexpected __riscv_xlen"
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	pmpaddr_csr = CSR_PMPADDR0 + n;
 
 	/* write csrs */
-	csr_write_num(pmpaddr_csr, pmp->addr);
-	cfgmask = ~(0xffUL << pmpcfg_shift);
-	pmpcfg  = (csr_read_num(pmpcfg_csr) & cfgmask);
-	pmpcfg |= (((unsigned long)pmp->cfg << pmpcfg_shift) & ~cfgmask);
-	csr_write_num(pmpcfg_csr, pmpcfg);
+	csr_write_ಅಂಕೆ(pmpaddr_csr, pmp->addr);
+	cfgmask = ~(0xffUL << pmpcfg_ಸರಿಸು);
+	pmpcfg  = (csr_read_ಅಂಕೆ(pmpcfg_csr) & cfgmask);
+	pmpcfg |= (((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)pmp->cfg << pmpcfg_ಸರಿಸು) & ~cfgmask);
+	csr_write_ಅಂಕೆ(pmpcfg_csr, pmpcfg);
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-int sbi_hart_pmp_disable(unsigned int n)
+ಪೂರ್ಣಾಂಕ sbi_hart_pmp_disable(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n)
 {
 	pmp_t pmp;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
 	pmp.cfg = 0;
 
-	return hart_pmp_write(&pmp, n);
+	ಹಿಂತಿರುಗಿ hart_pmp_write(&pmp, n);
 }
 
-bool sbi_hart_is_pmp_enabled(unsigned int n)
+bool sbi_hart_is_pmp_enabled(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n)
 {
 	pmp_t pmp;
 
-	if (hart_pmp_read(&pmp, n) != SBI_OK)
-		return false;
+	ಆದರೆ (hart_pmp_read(&pmp, n) != SBI_OK)
+		ಹಿಂತಿರುಗಿ false;
 
-	return sbi_pmp_is_enabled(&pmp);
+	ಹಿಂತಿರುಗಿ sbi_pmp_is_enabled(&pmp);
 }
 
-int sbi_hart_pmp_set(unsigned int n, unsigned long prot, unsigned long addr,
-		     unsigned long log2len)
+ಪೂರ್ಣಾಂಕ sbi_hart_pmp_ಗಣ(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ prot, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addr,
+		     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ log2len)
 {
 	pmp_t pmp;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	rc = sbi_pmp_encode(&pmp, prot, addr, log2len);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return hart_pmp_write(&pmp, n);
+	ಹಿಂತಿರುಗಿ hart_pmp_write(&pmp, n);
 }
 
-int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *addr_out,
-		     unsigned long *log2len)
+ಪೂರ್ಣಾಂಕ sbi_hart_pmp_get(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ n, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *prot_ಹೊರಹೋಗು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr_ಹೊರಹೋಗು,
+		     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *log2len)
 {
 	pmp_t pmp;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	rc = hart_pmp_read(&pmp, n);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return sbi_pmp_decode(&pmp, prot_out, addr_out, log2len);
+	ಹಿಂತಿರುಗಿ sbi_pmp_decode(&pmp, prot_ಹೊರಹೋಗು, addr_ಹೊರಹೋಗು, log2len);
 }
 
 /*
@@ -138,41 +138,41 @@ int sbi_hart_pmp_get(unsigned int n, unsigned long *prot_out, unsigned long *add
  * unmapped. sbi_hart_protection_temp_map_range/sbi_hart_protection_temp_unmap_range
  * function pair should be used to map/unmap the shared memory.
  */
-#define SBI_SMEPMP_RESV_ENTRY		0
+#ವ್ಯಾಖ್ಯಾನಿಸು SBI_SMEPMP_RESV_ನಮೂದು		0
 
-static DECLARE_BITMAP(fw_smepmp_ids, PMP_COUNT);
-static bool fw_smepmp_ids_inited;
+ಸ್ಥಿರ DECLARE_BITMAP(fw_smepmp_ids, PMP_ಎಣಿಕೆ);
+ಸ್ಥಿರ bool fw_smepmp_ids_inited;
 
-unsigned int sbi_hart_pmp_count(struct sbi_scratch *scratch)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ sbi_hart_pmp_ಎಣಿಕೆ(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	ರಚನೆ sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_count;
+	ಹಿಂತಿರುಗಿ hfeatures->pmp_ಎಣಿಕೆ;
 }
 
-unsigned int sbi_hart_pmp_log2gran(struct sbi_scratch *scratch)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ sbi_hart_pmp_log2gran(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	ರಚನೆ sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_log2gran;
+	ಹಿಂತಿರುಗಿ hfeatures->pmp_log2gran;
 }
 
-unsigned int sbi_hart_pmp_addrbits(struct sbi_scratch *scratch)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ sbi_hart_pmp_addrbits(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
+	ರಚನೆ sbi_hart_features *hfeatures = sbi_hart_features_ptr(scratch);
 
-	return hfeatures->pmp_addr_bits;
+	ಹಿಂತಿರುಗಿ hfeatures->pmp_addr_ಬಿಟ್ಟುಗಳು;
 }
 
-bool sbi_hart_smepmp_is_fw_region(unsigned int pmp_idx)
+bool sbi_hart_smepmp_is_fw_region(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_idx)
 {
-	if (!fw_smepmp_ids_inited)
-		return false;
+	ಆದರೆ (!fw_smepmp_ids_inited)
+		ಹಿಂತಿರುಗಿ false;
 
-	return bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
+	ಹಿಂತಿರುಗಿ bitmap_test(fw_smepmp_ids, pmp_idx) ? true : false;
 }
 
-void sbi_hart_pmp_fence(void)
+ಶೂನ್ಯ sbi_hart_pmp_fence(ಶೂನ್ಯ)
 {
 	/*
 	 * As per section 3.7.2 of privileged specification v1.12,
@@ -184,86 +184,86 @@ void sbi_hart_pmp_fence(void)
 	 * It is advisable to flush the caching structures under such
 	 * conditions.
 	 */
-	if (misa_extension('S')) {
+	ಆದರೆ (misa_extension('S')) {
 		__sbi_sfence_vma_all();
 
 		/*
 		 * If hypervisor mode is supported, flush caching
 		 * structures in guest mode too.
 		 */
-		if (misa_extension('H'))
+		ಆದರೆ (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 }
 
-static void sbi_hart_smepmp_set(struct sbi_scratch *scratch,
-				struct sbi_domain *dom,
-				struct sbi_domain_memregion *reg,
-				unsigned int pmp_idx,
-				unsigned int pmp_flags,
-				unsigned int pmp_log2gran,
-				unsigned long pmp_addr_max)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_hart_smepmp_ಗಣ(ರಚನೆ sbi_scratch *scratch,
+				ರಚನೆ sbi_domain *dom,
+				ರಚನೆ sbi_domain_memregion *reg,
+				ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_idx,
+				ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_flags,
+				ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_log2gran,
+				ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ pmp_addr_max)
 {
-	unsigned long pmp_addr = reg->base >> PMP_SHIFT;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ pmp_addr = reg->ತಳ_2 >> PMP_ಸರಿಸು;
 
-	if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
-		sbi_platform_pmp_set(sbi_platform_ptr(scratch),
+	ಆದರೆ (pmp_log2gran <= reg->ಕ್ರಮ && pmp_addr < pmp_addr_max) {
+		sbi_platform_pmp_ಗಣ(sbi_platform_ptr(scratch),
 				     pmp_idx, reg->flags, pmp_flags,
-				     reg->base, reg->order);
-		sbi_hart_pmp_set(pmp_idx, pmp_flags, reg->base, reg->order);
-	} else {
+				     reg->ತಳ_2, reg->ಕ್ರಮ);
+		sbi_hart_pmp_ಗಣ(pmp_idx, pmp_flags, reg->ತಳ_2, reg->ಕ್ರಮ);
+	} ಇಲ್ಲದಿದ್ದರೆ {
 		sbi_printf("Can not configure pmp for domain %s because"
 			   " memory region address 0x%lx or size 0x%lx "
-			   "is not in range.\n", dom->name, reg->base,
-			   reg->order);
+			   "is not in range.\n", dom->name, reg->ತಳ_2,
+			   reg->ಕ್ರಮ);
 	}
 }
 
-static bool is_valid_pmp_idx(unsigned int pmp_count, unsigned int pmp_idx)
+ಸ್ಥಿರ bool is_valid_pmp_idx(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_ಎಣಿಕೆ, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_idx)
 {
-	if (pmp_count > pmp_idx)
-		return true;
+	ಆದರೆ (pmp_ಎಣಿಕೆ > pmp_idx)
+		ಹಿಂತಿರುಗಿ true;
 
 	sbi_printf("error: insufficient PMP entries\n");
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_hart_smepmp_configure(ರಚನೆ sbi_scratch *scratch,
+				     ರಚನೆ sbi_domain *dom)
 {
-	struct sbi_domain_memregion *reg;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
-	unsigned long pmp_addr_max;
-	unsigned int pmp_flags;
+	ರಚನೆ sbi_domain_memregion *reg;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_log2gran, pmp_ಬಿಟ್ಟುಗಳು;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_idx, pmp_ಎಣಿಕೆ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ pmp_addr_max;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_flags;
 
-	pmp_count = sbi_hart_pmp_count(scratch);
+	pmp_ಎಣಿಕೆ = sbi_hart_pmp_ಎಣಿಕೆ(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
-	pmp_bits = sbi_hart_pmp_addrbits(scratch) - 1;
-	pmp_addr_max = (1UL << pmp_bits) | ((1UL << pmp_bits) - 1);
+	pmp_ಬಿಟ್ಟುಗಳು = sbi_hart_pmp_addrbits(scratch) - 1;
+	pmp_addr_max = (1UL << pmp_ಬಿಟ್ಟುಗಳು) | ((1UL << pmp_ಬಿಟ್ಟುಗಳು) - 1);
 
 	/*
 	 * Set the RLB so that, we can write to PMP entries without
 	 * enforcement even if some entries are locked.
 	 */
-	csr_set(CSR_MSECCFG, MSECCFG_RLB);
+	csr_ಗಣ(CSR_MSECCFG, MSECCFG_RLB);
 
 	/* Disable the reserved entry */
-	sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
+	sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ನಮೂದು);
 
 	/* Program M-only regions when MML is not set. */
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		ಆದರೆ (pmp_idx == SBI_SMEPMP_RESV_ನಮೂದು)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ಆದರೆ (!is_valid_pmp_idx(pmp_ಎಣಿಕೆ, pmp_idx))
+			ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 		/* Skip shared and SU-only regions */
-		if (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		ಆದರೆ (!SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
-			continue;
+			ಮುಂದುವರಿ;
 		}
 
 		/*
@@ -273,49 +273,49 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 		 * These entries must remain enabled across domain
 		 * context switches to prevent M-mode access faults.
 		 */
-		if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
-			if (fw_smepmp_ids_inited) {
+		ಆದರೆ (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags)) {
+			ಆದರೆ (fw_smepmp_ids_inited) {
 				/* Check inconsistent firmware region */
-				if (!sbi_hart_smepmp_is_fw_region(pmp_idx))
-					return SBI_EINVAL;
-			} else {
-				bitmap_set(fw_smepmp_ids, pmp_idx, 1);
+				ಆದರೆ (!sbi_hart_smepmp_is_fw_region(pmp_idx))
+					ಹಿಂತಿರುಗಿ SBI_EINVAL;
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				bitmap_ಗಣ(fw_smepmp_ids, pmp_idx, 1);
 			}
 		}
 
 		pmp_flags = sbi_domain_get_smepmp_flags(reg);
 
-		sbi_hart_smepmp_set(scratch, dom, reg, pmp_idx++, pmp_flags,
+		sbi_hart_smepmp_ಗಣ(scratch, dom, reg, pmp_idx++, pmp_flags,
 				    pmp_log2gran, pmp_addr_max);
 	}
 
 	fw_smepmp_ids_inited = true;
 
 	/* Set the MML to enforce new encoding */
-	csr_set(CSR_MSECCFG, MSECCFG_MML);
+	csr_ಗಣ(CSR_MSECCFG, MSECCFG_MML);
 
 	/* Program shared and SU-only regions */
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Skip reserved entry */
-		if (pmp_idx == SBI_SMEPMP_RESV_ENTRY)
+		ಆದರೆ (pmp_idx == SBI_SMEPMP_RESV_ನಮೂದು)
 			pmp_idx++;
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ಆದರೆ (!is_valid_pmp_idx(pmp_ಎಣಿಕೆ, pmp_idx))
+			ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 		/* Skip M-only regions */
-		if (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
+		ಆದರೆ (SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 			pmp_idx++;
-			continue;
+			ಮುಂದುವರಿ;
 		}
 
 		pmp_flags = sbi_domain_get_smepmp_flags(reg);
 
-		sbi_hart_smepmp_set(scratch, dom, reg, pmp_idx++, pmp_flags,
+		sbi_hart_smepmp_ಗಣ(scratch, dom, reg, pmp_idx++, pmp_flags,
 				    pmp_log2gran, pmp_addr_max);
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	ಗಾಗಿ(; pmp_idx < pmp_ಎಣಿಕೆ; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	/*
@@ -324,137 +324,137 @@ static int sbi_hart_smepmp_configure(struct sbi_scratch *scratch,
 	 */
 
 	sbi_hart_pmp_fence();
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int sbi_hart_smepmp_temp_map_range(struct sbi_scratch *scratch,
-				     unsigned long addr, unsigned long size)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_hart_smepmp_ತಾತ್ಕಾಲಿಕ_map_range(ರಚನೆ sbi_scratch *scratch,
+				     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addr, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
 	/* shared R/W access for M and S/U mode */
-	unsigned int pmp_flags = (PMP_W | PMP_X);
-	unsigned long order, base = 0;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_flags = (PMP_W | PMP_X);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಕ್ರಮ, ತಳ_2 = 0;
 
-	if (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ENTRY))
-		return SBI_ENOSPC;
+	ಆದರೆ (sbi_hart_is_pmp_enabled(SBI_SMEPMP_RESV_ನಮೂದು))
+		ಹಿಂತಿರುಗಿ SBI_ENOSPC;
 
-	for (order = MAX(sbi_hart_pmp_log2gran(scratch), log2roundup(size));
-	     order <= __riscv_xlen; order++) {
-		if (order < __riscv_xlen) {
-			base = addr & ~((1UL << order) - 1UL);
-			if ((base <= addr) &&
-			    (addr < (base + (1UL << order))) &&
-			    (base <= (addr + size - 1UL)) &&
-			    ((addr + size - 1UL) < (base + (1UL << order))))
-				break;
-		} else {
-			return SBI_EFAIL;
+	ಗಾಗಿ (ಕ್ರಮ = MAX(sbi_hart_pmp_log2gran(scratch), log2roundup(ಗಾತ್ರ_2));
+	     ಕ್ರಮ <= __riscv_xlen; ಕ್ರಮ++) {
+		ಆದರೆ (ಕ್ರಮ < __riscv_xlen) {
+			ತಳ_2 = addr & ~((1UL << ಕ್ರಮ) - 1UL);
+			ಆದರೆ ((ತಳ_2 <= addr) &&
+			    (addr < (ತಳ_2 + (1UL << ಕ್ರಮ))) &&
+			    (ತಳ_2 <= (addr + ಗಾತ್ರ_2 - 1UL)) &&
+			    ((addr + ಗಾತ್ರ_2 - 1UL) < (ತಳ_2 + (1UL << ಕ್ರಮ))))
+				ನಿಲ್ಲಿಸು;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಹಿಂತಿರುಗಿ SBI_EFAIL;
 		}
 	}
 
-	sbi_platform_pmp_set(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ENTRY,
+	sbi_platform_pmp_ಗಣ(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ನಮೂದು,
 			     SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW,
-			     pmp_flags, base, order);
-	sbi_hart_pmp_set(SBI_SMEPMP_RESV_ENTRY, pmp_flags, base, order);
+			     pmp_flags, ತಳ_2, ಕ್ರಮ);
+	sbi_hart_pmp_ಗಣ(SBI_SMEPMP_RESV_ನಮೂದು, pmp_flags, ತಳ_2, ಕ್ರಮ);
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-static int sbi_hart_smepmp_temp_unmap_range(struct sbi_scratch *scratch,
-				       unsigned long addr, unsigned long size)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_hart_smepmp_ತಾತ್ಕಾಲಿಕ_unmap_range(ರಚನೆ sbi_scratch *scratch,
+				       ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addr, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಗಾತ್ರ_2)
 {
-	sbi_platform_pmp_disable(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ENTRY);
-	return sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ENTRY);
+	sbi_platform_pmp_disable(sbi_platform_ptr(scratch), SBI_SMEPMP_RESV_ನಮೂದು);
+	ಹಿಂತಿರುಗಿ sbi_hart_pmp_disable(SBI_SMEPMP_RESV_ನಮೂದು);
 }
 
-static int sbi_hart_oldpmp_configure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_hart_oldpmp_configure(ರಚನೆ sbi_scratch *scratch,
+				     ರಚನೆ sbi_domain *dom)
 {
-	struct sbi_domain_memregion *reg;
-	unsigned long pmp_addr, pmp_addr_max;
-	unsigned int pmp_log2gran, pmp_bits;
-	unsigned int pmp_idx, pmp_count;
-	unsigned int pmp_flags;
+	ರಚನೆ sbi_domain_memregion *reg;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ pmp_addr, pmp_addr_max;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_log2gran, pmp_ಬಿಟ್ಟುಗಳು;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_idx, pmp_ಎಣಿಕೆ;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ pmp_flags;
 
-	pmp_count = sbi_hart_pmp_count(scratch);
+	pmp_ಎಣಿಕೆ = sbi_hart_pmp_ಎಣಿಕೆ(scratch);
 	pmp_log2gran = sbi_hart_pmp_log2gran(scratch);
-	pmp_bits = sbi_hart_pmp_addrbits(scratch) - 1;
-	pmp_addr_max = (1UL << pmp_bits) | ((1UL << pmp_bits) - 1);
+	pmp_ಬಿಟ್ಟುಗಳು = sbi_hart_pmp_addrbits(scratch) - 1;
+	pmp_addr_max = (1UL << pmp_ಬಿಟ್ಟುಗಳು) | ((1UL << pmp_ಬಿಟ್ಟುಗಳು) - 1);
 
 	pmp_idx = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
-		if (!is_valid_pmp_idx(pmp_count, pmp_idx))
-			return SBI_EFAIL;
+		ಆದರೆ (!is_valid_pmp_idx(pmp_ಎಣಿಕೆ, pmp_idx))
+			ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 		pmp_flags = sbi_domain_get_oldpmp_flags(reg);
-		pmp_addr = reg->base >> PMP_SHIFT;
-		if (pmp_log2gran <= reg->order && pmp_addr < pmp_addr_max) {
-			sbi_platform_pmp_set(sbi_platform_ptr(scratch),
+		pmp_addr = reg->ತಳ_2 >> PMP_ಸರಿಸು;
+		ಆದರೆ (pmp_log2gran <= reg->ಕ್ರಮ && pmp_addr < pmp_addr_max) {
+			sbi_platform_pmp_ಗಣ(sbi_platform_ptr(scratch),
 					     pmp_idx, reg->flags, pmp_flags,
-					     reg->base, reg->order);
-			sbi_hart_pmp_set(pmp_idx++, pmp_flags, reg->base, reg->order);
-		} else {
+					     reg->ತಳ_2, reg->ಕ್ರಮ);
+			sbi_hart_pmp_ಗಣ(pmp_idx++, pmp_flags, reg->ತಳ_2, reg->ಕ್ರಮ);
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			sbi_printf("Can not configure pmp for domain %s because"
 				   " memory region address 0x%lx or size 0x%lx "
-				   "is not in range.\n", dom->name, reg->base,
-				   reg->order);
+				   "is not in range.\n", dom->name, reg->ತಳ_2,
+				   reg->ಕ್ರಮ);
 		}
 	}
 	/* Disable remaining PMP entries */
-	for(; pmp_idx < pmp_count; pmp_idx++)
+	ಗಾಗಿ(; pmp_idx < pmp_ಎಣಿಕೆ; pmp_idx++)
 		sbi_hart_pmp_disable(pmp_idx);
 
 	sbi_hart_pmp_fence();
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static void sbi_hart_pmp_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_hart_pmp_unconfigure(ರಚನೆ sbi_scratch *scratch,
+				     ರಚನೆ sbi_domain *dom)
 {
-	int i, pmp_count = sbi_hart_pmp_count(scratch);
+	ಪೂರ್ಣಾಂಕ i, pmp_ಎಣಿಕೆ = sbi_hart_pmp_ಎಣಿಕೆ(scratch);
 
-	for (i = 0; i < pmp_count; i++) {
+	ಗಾಗಿ (i = 0; i < pmp_ಎಣಿಕೆ; i++) {
 		/* Don't revoke firmware access permissions */
-		if (sbi_hart_smepmp_is_fw_region(i))
-			continue;
+		ಆದರೆ (sbi_hart_smepmp_is_fw_region(i))
+			ಮುಂದುವರಿ;
 
 		sbi_platform_pmp_disable(sbi_platform_ptr(scratch), i);
 		sbi_hart_pmp_disable(i);
 	}
 }
 
-static struct sbi_hart_protection pmp_protection = {
+ಸ್ಥಿರ ರಚನೆ sbi_hart_protection pmp_protection = {
 	.name = "pmp",
 	.rating = 100,
-	.type = SBI_HART_PROTECTION_TYPE_MEMORY,
+	.type = SBI_HART_PROTECTION_TYPE_ಸ್ಮರಣೆ,
 	.configure = sbi_hart_oldpmp_configure,
 	.unconfigure = sbi_hart_pmp_unconfigure,
 };
 
-static struct sbi_hart_protection epmp_protection = {
+ಸ್ಥಿರ ರಚನೆ sbi_hart_protection epmp_protection = {
 	.name = "epmp",
 	.rating = 200,
-	.type = SBI_HART_PROTECTION_TYPE_MEMORY,
+	.type = SBI_HART_PROTECTION_TYPE_ಸ್ಮರಣೆ,
 	.configure = sbi_hart_smepmp_configure,
 	.unconfigure = sbi_hart_pmp_unconfigure,
-	.temp_map_range = sbi_hart_smepmp_temp_map_range,
-	.temp_unmap_range = sbi_hart_smepmp_temp_unmap_range,
+	.ತಾತ್ಕಾಲಿಕ_map_range = sbi_hart_smepmp_ತಾತ್ಕಾಲಿಕ_map_range,
+	.ತಾತ್ಕಾಲಿಕ_unmap_range = sbi_hart_smepmp_ತಾತ್ಕಾಲಿಕ_unmap_range,
 };
 
-int sbi_hart_pmp_init(struct sbi_scratch *scratch)
+ಪೂರ್ಣಾಂಕ sbi_hart_pmp_init(ರಚನೆ sbi_scratch *scratch)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if (sbi_hart_pmp_count(scratch)) {
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
-			rc = sbi_hart_protection_register(&epmp_protection);
-			if (rc)
-				return rc;
-		} else {
-			rc = sbi_hart_protection_register(&pmp_protection);
-			if (rc)
-				return rc;
+	ಆದರೆ (sbi_hart_pmp_ಎಣಿಕೆ(scratch)) {
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP)) {
+			rc = sbi_hart_protection_ರಿಜಿಸ್ಟರ್(&epmp_protection);
+			ಆದರೆ (rc)
+				ಹಿಂತಿರುಗಿ rc;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			rc = sbi_hart_protection_ರಿಜಿಸ್ಟರ್(&pmp_protection);
+			ಆದರೆ (rc)
+				ಹಿಂತಿರುಗಿ rc;
 		}
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

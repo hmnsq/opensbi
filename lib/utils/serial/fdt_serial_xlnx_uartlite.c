@@ -7,29 +7,29 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/fdt_serial.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/xlnx_uartlite.h>
 
-static int serial_xlnx_uartlite_init(const void *fdt, int nodeoff,
-				     const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ serial_xlnx_uartlite_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				     ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ platform_uart_ದತ್ತಾಂಶ uart = { 0 };
 
-	rc = fdt_parse_xlnx_uartlite_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_xlnx_uartlite_ಗಂಟು(fdt, nodeoff, &uart);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return xlnx_uartlite_init(uart.addr);
+	ಹಿಂತಿರುಗಿ xlnx_uartlite_init(uart.addr);
 }
 
-static const struct fdt_match serial_xlnx_uartlite_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ serial_xlnx_uartlite_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "xlnx,xps-uartlite-1.00.a" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_xlnx_uartlite = {
-	.match_table = serial_xlnx_uartlite_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_serial_xlnx_uartlite = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = serial_xlnx_uartlite_ಹೊಂದಿಕೆ,
 	.init = serial_xlnx_uartlite_init,
 };

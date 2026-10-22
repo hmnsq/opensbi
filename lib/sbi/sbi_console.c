@@ -7,203 +7,203 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_locks.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_fifo.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
 
-#define CONSOLE_TBUF_MAX 256
+#ವ್ಯಾಖ್ಯಾನಿಸು CONSOLE_TBUF_MAX 256
 
-static const struct sbi_console_device *console_dev = NULL;
-static char console_tbuf[CONSOLE_TBUF_MAX];
-static u32 console_tbuf_len;
-static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_console_device *console_dev = ಖಾಲಿ;
+ಸ್ಥಿರ ಅಕ್ಷರ console_tbuf[CONSOLE_TBUF_MAX];
+ಸ್ಥಿರ u32 console_tbuf_len;
+ಸ್ಥಿರ spinlock_t console_ಹೊರಹೋಗು_ಬೀಗ	       = SPIN_ಬೀಗ_INITIALIZER;
 
-#ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
-#define CONSOLE_EARLY_BUFFER_SIZE	256
-#endif
-static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
-static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
-		       CONSOLE_EARLY_BUFFER_SIZE, sizeof(char));
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ CONFIG_CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ
+#ವ್ಯಾಖ್ಯಾನಿಸು CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ	CONFIG_CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ	256
+#ಆದರೆ_ಅಂತ್ಯ
+ಸ್ಥಿರ ಅಕ್ಷರ console_early_ಬಫರ್[CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ] = { 0 };
+ಸ್ಥಿರ SBI_FIFO_DEFINE(console_early_fifo, console_early_ಬಫರ್, \
+		       CONSOLE_EARLY_ಬಫರ್_ಗಾತ್ರ, ಗಾತ್ರ(ಅಕ್ಷರ));
 
-bool sbi_isprintable(char c)
+bool sbi_isprintable(ಅಕ್ಷರ c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	ಆದರೆ (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		ಹಿಂತಿರುಗಿ true;
 	}
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-int sbi_getc(void)
+ಪೂರ್ಣಾಂಕ sbi_getc(ಶೂನ್ಯ)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	ಆದರೆ (console_dev && console_dev->console_getc)
+		ಹಿಂತಿರುಗಿ console_dev->console_getc();
+	ಹಿಂತಿರುಗಿ -1;
 }
 
-static unsigned long nputs(const char *str, unsigned long len)
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ nputs(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-	char ch;
-	unsigned long i;
+	ಅಕ್ಷರ ch;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	ಆದರೆ (console_dev) {
+		ಆದರೆ (console_dev->console_puts)
+			ಹಿಂತಿರುಗಿ console_dev->console_puts(str, len);
+		ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (console_dev->console_putc) {
+			ಗಾಗಿ (i = 0; i < len; i++) {
+				ಆದರೆ (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಗಾಗಿ (i = 0; i < len; i++) {
 			ch = str[i];
-			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
+			sbi_fifo_ಸರತಿಗೆ_ಸೇರಿಸು(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	ಹಿಂತಿರುಗಿ len;
 }
 
-static void nputs_all(const char *str, unsigned long len)
+ಸ್ಥಿರ ಶೂನ್ಯ nputs_all(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-	unsigned long p = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ p = 0;
 
-	while (p < len)
+	ಆಗ (p < len)
 		p += nputs(&str[p], len - p);
 }
 
-void sbi_putc(char ch)
+ಶೂನ್ಯ sbi_putc(ಅಕ್ಷರ ch)
 {
 	nputs_all(&ch, 1);
 }
 
-void sbi_puts(const char *str)
+ಶೂನ್ಯ sbi_puts(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str)
 {
-	unsigned long len = sbi_strlen(str);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len = sbi_strlen(str);
 
-	spin_lock(&console_out_lock);
+	spin_ಬೀಗ(&console_ಹೊರಹೋಗು_ಬೀಗ);
 	nputs_all(str, len);
-	spin_unlock(&console_out_lock);
+	spin_unlock(&console_ಹೊರಹೋಗು_ಬೀಗ);
 }
 
-unsigned long sbi_nputs(const char *str, unsigned long len)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sbi_nputs(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *str, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-	unsigned long ret;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ret;
 
-	spin_lock(&console_out_lock);
+	spin_ಬೀಗ(&console_ಹೊರಹೋಗು_ಬೀಗ);
 	ret = nputs(str, len);
-	spin_unlock(&console_out_lock);
+	spin_unlock(&console_ಹೊರಹೋಗು_ಬೀಗ);
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+ಶೂನ್ಯ sbi_gets(ಅಕ್ಷರ *s, ಪೂರ್ಣಾಂಕ maxwidth, ಅಕ್ಷರ endchar)
 {
-	int ch;
-	char *retval = s;
+	ಪೂರ್ಣಾಂಕ ch;
+	ಅಕ್ಷರ *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
-		*retval = (char)ch;
+	ಆಗ ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+		*retval = (ಅಕ್ಷರ)ch;
 		retval++;
 		maxwidth--;
 	}
 	*retval = '\0';
 }
 
-unsigned long sbi_ngets(char *str, unsigned long len)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ sbi_ngets(ಅಕ್ಷರ *str, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ len)
 {
-	int ch;
-	unsigned long i;
+	ಪೂರ್ಣಾಂಕ ch;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ i;
 
-	for (i = 0; i < len; i++) {
+	ಗಾಗಿ (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
-			break;
+		ಆದರೆ (ch < 0)
+			ನಿಲ್ಲಿಸು;
 		str[i] = ch;
 	}
 
-	return i;
+	ಹಿಂತಿರುಗಿ i;
 }
 
-#define PAD_RIGHT 1
-#define PAD_ZERO 2
-#define PAD_ALTERNATE 4
-#define PAD_SIGN 8
-#define USE_TBUF 16
-#define PRINT_BUF_LEN 64
+#ವ್ಯಾಖ್ಯಾನಿಸು PAD_ಬಲ 1
+#ವ್ಯಾಖ್ಯಾನಿಸು PAD_ZERO 2
+#ವ್ಯಾಖ್ಯಾನಿಸು PAD_ALTERNATE 4
+#ವ್ಯಾಖ್ಯಾನಿಸು PAD_SIGN 8
+#ವ್ಯಾಖ್ಯಾನಿಸು USE_TBUF 16
+#ವ್ಯಾಖ್ಯಾನಿಸು PRINT_BUF_LEN 64
 
-#define va_start(v, l) __builtin_va_start((v), l)
-#define va_end __builtin_va_end
-#define va_arg __builtin_va_arg
-typedef __builtin_va_list va_list;
+#ವ್ಯಾಖ್ಯಾನಿಸು va_ಆರಂಭ(v, l) __builtin_va_start((v), l)
+#ವ್ಯಾಖ್ಯಾನಿಸು va_ಕೊನೆ __builtin_va_end
+#ವ್ಯಾಖ್ಯಾನಿಸು va_arg __builtin_va_arg
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+ಸ್ಥಿರ ಶೂನ್ಯ printc(ಅಕ್ಷರ **ಹೊರಹೋಗು, u32 *ಹೊರಹೋಗು_len, ಅಕ್ಷರ ch, ಪೂರ್ಣಾಂಕ flags)
 {
-	if (!out) {
+	ಆದರೆ (!ಹೊರಹೋಗು) {
 		sbi_putc(ch);
-		return;
+		ಹಿಂತಿರುಗಿ;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
-		*(*out)++ = ch;
-		**out = '\0';
-		if (out_len) {
-			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
-				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
-				*out = console_tbuf;
-				*out_len = CONSOLE_TBUF_MAX;
+	ಆದರೆ (!ಹೊರಹೋಗು_len || *ಹೊರಹೋಗು_len > 1) {
+		*(*ಹೊರಹೋಗು)++ = ch;
+		**ಹೊರಹೋಗು = '\0';
+		ಆದರೆ (ಹೊರಹೋಗು_len) {
+			--(*ಹೊರಹೋಗು_len);
+			ಆದರೆ ((flags & USE_TBUF) && *ಹೊರಹೋಗು_len == 1) {
+				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *ಹೊರಹೋಗು_len);
+				*ಹೊರಹೋಗು = console_tbuf;
+				*ಹೊರಹೋಗು_len = CONSOLE_TBUF_MAX;
 			}
 		}
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ prints(ಅಕ್ಷರ **ಹೊರಹೋಗು, u32 *ಹೊರಹೋಗು_len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *string, ಪೂರ್ಣಾಂಕ ಅಗಲ,
+		  ಪೂರ್ಣಾಂಕ flags)
 {
-	int pc = 0;
-	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
-			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
+	ಪೂರ್ಣಾಂಕ pc = 0;
+	ಅಗಲ -= sbi_strlen(string);
+	ಆದರೆ (!(flags & PAD_ಬಲ)) {
+		ಗಾಗಿ (; ಅಗಲ > 0; --ಅಗಲ) {
+			printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
-		printc(out, out_len, *string, flags);
+	ಗಾಗಿ (; *string; ++string) {
+		printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
-		printc(out, out_len, ' ', flags);
+	ಗಾಗಿ (; ಅಗಲ > 0; --ಅಗಲ) {
+		printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	ಹಿಂತಿರುಗಿ pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ printi(ಅಕ್ಷರ **ಹೊರಹೋಗು, u32 *ಹೊರಹೋಗು_len, ದೀರ್ಘ ದೀರ್ಘ i,
+		  ಪೂರ್ಣಾಂಕ ಅಗಲ, ಪೂರ್ಣಾಂಕ flags, ಪೂರ್ಣಾಂಕ type)
 {
-	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
-	unsigned long long u, b, t;
+	ಪೂರ್ಣಾಂಕ pc = 0;
+	ಅಕ್ಷರ *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದೀರ್ಘ u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	ಆದರೆ (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	ಆದರೆ (type == 'i' || type == 'd') {
+		ಆದರೆ ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		ಆದರೆ (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,284 +223,284 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	ಆದರೆ (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಆಗ (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			ಆದರೆ (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
-			printc(out, out_len, sign, flags);
+	ಆದರೆ (flags & PAD_ZERO) {
+		ಆದರೆ (sign) {
+			printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, sign, flags);
 			++pc;
-			--width;
+			--ಅಗಲ;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
-				printc(out, out_len, '0', flags);
+		ಆದರೆ (i && (flags & PAD_ALTERNATE)) {
+			ಆದರೆ (b == 16 || b == 8) {
+				printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, '0', flags);
 				++pc;
-				--width;
+				--ಅಗಲ;
 			}
-			if (b == 16) {
-				printc(out, out_len, 'x' - 'a' + letbase, flags);
+			ಆದರೆ (b == 16) {
+				printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, 'x' - 'a' + letbase, flags);
 				++pc;
-				--width;
+				--ಅಗಲ;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಆದರೆ (i && (flags & PAD_ALTERNATE)) {
+			ಆದರೆ (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			ಆದರೆ (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		ಆದರೆ (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	ಹಿಂತಿರುಗಿ pc + prints(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, s, ಅಗಲ, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ print(ಅಕ್ಷರ **ಹೊರಹೋಗು, u32 *ಹೊರಹೋಗು_len, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, va_list ವಾದಗಳು)
 {
-	bool flags_done;
-	int width, flags, pc = 0;
-	char type, scr[2], *tout;
-	bool use_tbuf = (!out) ? true : false;
+	bool flags_ಮುಗಿದ;
+	ಪೂರ್ಣಾಂಕ ಅಗಲ, flags, pc = 0;
+	ಅಕ್ಷರ type, scr[2], *tout;
+	bool use_tbuf = (!ಹೊರಹೋಗು) ? true : false;
 
 	/*
 	 * The console_tbuf is protected by console_out_lock and
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	ಆದರೆ (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
-		out = &tout;
-		out_len = &console_tbuf_len;
+		ಹೊರಹೋಗು = &tout;
+		ಹೊರಹೋಗು_len = &console_tbuf_len;
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
-			**out = '\0';
+	ಆದರೆ (ಹೊರಹೋಗು) {
+		ಆದರೆ(!ಹೊರಹೋಗು_len || *ಹೊರಹೋಗು_len)
+			**ಹೊರಹೋಗು = '\0';
 	}
 
-	for (; *format != 0; ++format) {
-		width = flags = 0;
-		if (use_tbuf)
+	ಗಾಗಿ (; *format != 0; ++format) {
+		ಅಗಲ = flags = 0;
+		ಆದರೆ (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		ಆದರೆ (*format == '%') {
 			++format;
-			if (*format == '\0')
-				break;
-			if (*format == '%')
-				goto literal;
+			ಆದರೆ (*format == '\0')
+				ನಿಲ್ಲಿಸು;
+			ಆದರೆ (*format == '%')
+				ಹೋಗು literal;
 			/* Get flags */
-			flags_done = false;
-			while (!flags_done) {
-				switch (*format) {
-				case '-':
-					flags |= PAD_RIGHT;
-					break;
-				case '+':
+			flags_ಮುಗಿದ = false;
+			ಆಗ (!flags_ಮುಗಿದ) {
+				ಆಯ್ಕೆ (*format) {
+				ಸ್ಥಿತಿ '-':
+					flags |= PAD_ಬಲ;
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ '+':
 					flags |= PAD_SIGN;
-					break;
-				case '#':
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ '#':
 					flags |= PAD_ALTERNATE;
-					break;
-				case '0':
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ '0':
 					flags |= PAD_ZERO;
-					break;
-				case ' ':
-				case '\'':
+					ನಿಲ್ಲಿಸು;
+				ಸ್ಥಿತಿ ' ':
+				ಸ್ಥಿತಿ '\'':
 					/* Ignored flags, do nothing */
-					break;
-				default:
-					flags_done = true;
-					break;
+					ನಿಲ್ಲಿಸು;
+				ಪೂರ್ವನಿಯೋಜಿತ:
+					flags_ಮುಗಿದ = true;
+					ನಿಲ್ಲಿಸು;
 				}
-				if (!flags_done)
+				ಆದರೆ (!flags_ಮುಗಿದ)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			ಆದರೆ (flags & PAD_ಬಲ)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
-				width *= 10;
-				width += *format - '0';
+			ಗಾಗಿ (; *format >= '0' && *format <= '9'; ++format) {
+				ಅಗಲ *= 10;
+				ಅಗಲ += *format - '0';
 			}
-			if (*format == 's') {
-				char *s = va_arg(args, char *);
-				pc += prints(out, out_len, s ? s : "(null)",
-					     width, flags);
-				continue;
+			ಆದರೆ (*format == 's') {
+				ಅಕ್ಷರ *s = va_arg(ವಾದಗಳು, ಅಕ್ಷರ *);
+				pc += prints(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, s ? s : "(null)",
+					     ಅಗಲ, flags);
+				ಮುಂದುವರಿ;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
-					     width, flags, *format);
-				continue;
+			ಆದರೆ ((*format == 'd') || (*format == 'i')) {
+				pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, va_arg(ವಾದಗಳು, ಪೂರ್ಣಾಂಕ),
+					     ಅಗಲ, flags, *format);
+				ಮುಂದುವರಿ;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			ಆದರೆ ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
-					     width, flags, *format);
-				continue;
+				pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, va_arg(ವಾದಗಳು, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ),
+					     ಅಗಲ, flags, *format);
+				ಮುಂದುವರಿ;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
-					     width, flags, *format);
-				continue;
+			ಆದರೆ ((*format == 'p') || (*format == 'P')) {
+				pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, (uintptr_t)va_arg(ವಾದಗಳು, ಶೂನ್ಯ*),
+					     ಅಗಲ, flags, *format);
+				ಮುಂದುವರಿ;
 			}
-			if (*format == 'l') {
+			ಆದರೆ (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				ಆದರೆ (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					ಆದರೆ ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
 						type = *format;
 					}
-					pc += printi(out, out_len, va_arg(args, long long),
-						width, flags, type);
-					continue;
+					pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, va_arg(ವಾದಗಳು, ದೀರ್ಘ ದೀರ್ಘ),
+						ಅಗಲ, flags, type);
+					ಮುಂದುವರಿ;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				ಆದರೆ ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
-					pc += printi(out, out_len, va_arg(args, long),
-					     width, flags, type);
-				else
-					pc += printi(out, out_len, va_arg(args, unsigned long),
-					     width, flags, type);
-				continue;
+				ಆದರೆ ((type == 'd') || (type == 'i'))
+					pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, va_arg(ವಾದಗಳು, ದೀರ್ಘ),
+					     ಅಗಲ, flags, type);
+				ಇಲ್ಲದಿದ್ದರೆ
+					pc += printi(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, va_arg(ವಾದಗಳು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ),
+					     ಅಗಲ, flags, type);
+				ಮುಂದುವರಿ;
 			}
-			if (*format == 'c') {
+			ಆದರೆ (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(ವಾದಗಳು, ಪೂರ್ಣಾಂಕ);
 				scr[1] = '\0';
-				pc += prints(out, out_len, scr, width, flags);
-				continue;
+				pc += prints(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, scr, ಅಗಲ, flags);
+				ಮುಂದುವರಿ;
 			}
-		} else {
+		} ಇಲ್ಲದಿದ್ದರೆ {
 literal:
-			printc(out, out_len, *format, flags);
+			printc(ಹೊರಹೋಗು, ಹೊರಹೋಗು_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	ಆದರೆ (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	ಹಿಂತಿರುಗಿ pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+ಪೂರ್ಣಾಂಕ sbi_sprintf(ಅಕ್ಷರ *ಹೊರಹೋಗು, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list ವಾದಗಳು;
+	ಪೂರ್ಣಾಂಕ retval;
 
-	if (unlikely(!out))
+	ಆದರೆ (unlikely(!ಹೊರಹೋಗು))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
-	va_start(args, format);
-	retval = print(&out, NULL, format, args);
-	va_end(args);
+	va_ಆರಂಭ(ವಾದಗಳು, format);
+	retval = print(&ಹೊರಹೋಗು, ಖಾಲಿ, format, ವಾದಗಳು);
+	va_ಕೊನೆ(ವಾದಗಳು);
 
-	return retval;
+	ಹಿಂತಿರುಗಿ retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+ಪೂರ್ಣಾಂಕ sbi_snprintf(ಅಕ್ಷರ *ಹೊರಹೋಗು, u32 ಹೊರಹೋಗು_sz, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list ವಾದಗಳು;
+	ಪೂರ್ಣಾಂಕ retval;
 
-	if (unlikely(!out && out_sz != 0))
+	ಆದರೆ (unlikely(!ಹೊರಹೋಗು && ಹೊರಹೋಗು_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
-	va_start(args, format);
-	retval = print(&out, &out_sz, format, args);
-	va_end(args);
+	va_ಆರಂಭ(ವಾದಗಳು, format);
+	retval = print(&ಹೊರಹೋಗು, &ಹೊರಹೋಗು_sz, format, ವಾದಗಳು);
+	va_ಕೊನೆ(ವಾದಗಳು);
 
-	return retval;
+	ಹಿಂತಿರುಗಿ retval;
 }
 
-int sbi_printf(const char *format, ...)
+ಪೂರ್ಣಾಂಕ sbi_printf(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list ವಾದಗಳು;
+	ಪೂರ್ಣಾಂಕ retval;
 
-	spin_lock(&console_out_lock);
-	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
-	va_end(args);
-	spin_unlock(&console_out_lock);
+	spin_ಬೀಗ(&console_ಹೊರಹೋಗು_ಬೀಗ);
+	va_ಆರಂಭ(ವಾದಗಳು, format);
+	retval = print(ಖಾಲಿ, ಖಾಲಿ, format, ವಾದಗಳು);
+	va_ಕೊನೆ(ವಾದಗಳು);
+	spin_unlock(&console_ಹೊರಹೋಗು_ಬೀಗ);
 
-	return retval;
+	ಹಿಂತಿರುಗಿ retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+ಪೂರ್ಣಾಂಕ sbi_dprintf(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
-	va_list args;
-	int retval = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	va_list ವಾದಗಳು;
+	ಪೂರ್ಣಾಂಕ retval = 0;
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
-		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
-		spin_unlock(&console_out_lock);
+	va_ಆರಂಭ(ವಾದಗಳು, format);
+	ಆದರೆ (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+		spin_ಬೀಗ(&console_ಹೊರಹೋಗು_ಬೀಗ);
+		retval = print(ಖಾಲಿ, ಖಾಲಿ, format, ವಾದಗಳು);
+		spin_unlock(&console_ಹೊರಹೋಗು_ಬೀಗ);
 	}
-	va_end(args);
+	va_ಕೊನೆ(ವಾದಗಳು);
 
-	return retval;
+	ಹಿಂತಿರುಗಿ retval;
 }
 
-void sbi_panic(const char *format, ...)
+ಶೂನ್ಯ sbi_panic(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *format, ...)
 {
-	va_list args;
+	va_list ವಾದಗಳು;
 
-	spin_lock(&console_out_lock);
-	va_start(args, format);
-	print(NULL, NULL, format, args);
-	va_end(args);
-	spin_unlock(&console_out_lock);
+	spin_ಬೀಗ(&console_ಹೊರಹೋಗು_ಬೀಗ);
+	va_ಆರಂಭ(ವಾದಗಳು, format);
+	print(ಖಾಲಿ, ಖಾಲಿ, format, ವಾದಗಳು);
+	va_ಕೊನೆ(ವಾದಗಳು);
+	spin_unlock(&console_ಹೊರಹೋಗು_ಬೀಗ);
 
 	sbi_hart_hang();
 }
 
-const struct sbi_console_device *sbi_console_get_device(void)
+ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_console_device *sbi_console_get_device(ಶೂನ್ಯ)
 {
-	return console_dev;
+	ಹಿಂತಿರುಗಿ console_dev;
 }
 
-void sbi_console_set_device(const struct sbi_console_device *dev)
+ಶೂನ್ಯ sbi_console_ಗಣ_device(ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_console_device *dev)
 {
-	char ch;
+	ಅಕ್ಷರ ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	ಆದರೆ (!dev)
+		ಹಿಂತಿರುಗಿ;
 
-	if (!console_dev)
+	ಆದರೆ (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	ಆದರೆ (flush_early_fifo) {
+		ಆಗ (!sbi_fifo_ಸರತಿಯಿಂದ_ತೆಗೆ(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

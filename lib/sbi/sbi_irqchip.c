@@ -7,614 +7,614 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hsm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_irqchip.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_list.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
 
 /** Internal irqchip hardware interrupt data */
-struct sbi_irqchip_hwirq_data {
+ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ {
 	/** raw hardware interrupt handler */
-	int (*raw_handler)(struct sbi_irqchip_device *chip, u32 hwirq);
+	ಪೂರ್ಣಾಂಕ (*raw_handler)(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq);
 
-#define IRQ_ENABLED	BIT(0)
+#ವ್ಯಾಖ್ಯಾನಿಸು IRQ_ENABLED	ಬಿಟ್(0)
 	/** interrupt state
 	 * bit 0 - 1: enabled, 0: disabled */
 	u32 irq_state;
 
 	/** target hart index */
-	u32 hart_index;
+	u32 hart_ಸೂಚ್ಯಂಕ;
 
 	/** chip's private data */
-	void *priv;
+	ಶೂನ್ಯ *priv;
 };
 
 /** Internal irqchip interrupt handler */
-struct sbi_irqchip_handler {
+ರಚನೆ sbi_irqchip_handler {
 	/** Node in the list of irqchip handlers (private) */
-	struct sbi_dlist node;
+	ರಚನೆ sbi_dlist ಗಂಟು;
 
 	/** First hardware IRQ handled by this handler */
-	u32 first_hwirq;
+	u32 ಮೊದಲ_hwirq;
 
 	/** Number of consecutive hardware IRQs handled by this handler */
-	u32 num_hwirq;
+	u32 ಅಂಕೆ_hwirq;
 
 	/** Write MSI function of this handler */
-	void (*write_msi)(u32 hwirq, const struct sbi_irqchip_msi_msg *msg, void *priv);
+	ಶೂನ್ಯ (*write_msi)(u32 hwirq, ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_irqchip_msi_ಸಂದೇಶ *ಸಂದೇಶ, ಶೂನ್ಯ *priv);
 
 	/** Callback function of this handler */
-	int (*callback)(u32 hwirq, void *priv);
+	ಪೂರ್ಣಾಂಕ (*callback)(u32 hwirq, ಶೂನ್ಯ *priv);
 
 	/** Callback private data */
-	void *priv;
+	ಶೂನ್ಯ *priv;
 };
 
-struct sbi_irqchip_hart_data {
-	struct sbi_irqchip_device *chip;
+ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ {
+	ರಚನೆ sbi_irqchip_device *chip;
 };
 
-static unsigned long irqchip_hart_data_off;
-static SBI_LIST_HEAD(irqchip_list);
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ irqchip_hart_ದತ್ತಾಂಶ_off;
+ಸ್ಥಿರ SBI_LIST_ತಲೆ(irqchip_list);
 
-int sbi_irqchip_process(void)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_process(ಶೂನ್ಯ)
 {
-	struct sbi_irqchip_hart_data *hd;
+	ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ *hd;
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (!hd || !hd->chip || !hd->chip->process_hwirqs)
-		return SBI_ENODEV;
+	hd = sbi_scratch_thishart_ಸ್ಥಾನಾಂತರ_ptr(irqchip_hart_ದತ್ತಾಂಶ_off);
+	ಆದರೆ (!hd || !hd->chip || !hd->chip->process_hwirqs)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	return hd->chip->process_hwirqs(hd->chip);
+	ಹಿಂತಿರುಗಿ hd->chip->process_hwirqs(hd->chip);
 }
 
-int sbi_irqchip_process_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_process_hwirq(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (!data->raw_handler)
-		return SBI_ENOENT;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ಆದರೆ (!ದತ್ತಾಂಶ->raw_handler)
+		ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-	return data->raw_handler(chip, hwirq);
+	ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ->raw_handler(chip, hwirq);
 }
 
-static inline u32 sbi_irqchip_get_irq_state(struct sbi_irqchip_device *chip,
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ u32 sbi_irqchip_get_irq_state(ರಚನೆ sbi_irqchip_device *chip,
 					     u32 hwirq)
 {
-	if (!chip || !chip->hwirqs || hwirq >= chip->num_hwirq)
-		return 0;
+	ಆದರೆ (!chip || !chip->hwirqs || hwirq >= chip->ಅಂಕೆ_hwirq)
+		ಹಿಂತಿರುಗಿ 0;
 
-	return chip->hwirqs[hwirq].irq_state;
+	ಹಿಂತಿರುಗಿ chip->hwirqs[hwirq].irq_state;
 }
 
-bool sbi_irqchip_is_hwirq_enabled(struct sbi_irqchip_device *chip,
+bool sbi_irqchip_is_hwirq_enabled(ರಚನೆ sbi_irqchip_device *chip,
 				   u32 hwirq)
 {
-	return !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
+	ಹಿಂತಿರುಗಿ !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
 }
 
-int sbi_irqchip_unmask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_unmask_hwirq(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ಆದರೆ (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	if (chip->hwirq_unmask)
+	ಆದರೆ (chip->hwirq_unmask)
 		chip->hwirq_unmask(chip, hwirq);
 
-	data->irq_state |= IRQ_ENABLED;
-	return 0;
+	ದತ್ತಾಂಶ->irq_state |= IRQ_ENABLED;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_mask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ಮುಖವಾಡ_hwirq(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	ಆದರೆ (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	if (chip->hwirq_mask)
-		chip->hwirq_mask(chip, hwirq);
+	ಆದರೆ (chip->hwirq_ಮುಖವಾಡ)
+		chip->hwirq_ಮುಖವಾಡ(chip, hwirq);
 
-	data = &chip->hwirqs[hwirq];
-	data->irq_state &= ~IRQ_ENABLED;
-	return 0;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ದತ್ತಾಂಶ->irq_state &= ~IRQ_ENABLED;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static struct sbi_irqchip_handler *sbi_irqchip_find_handler(struct sbi_irqchip_device *chip,
+ಸ್ಥಿರ ರಚನೆ sbi_irqchip_handler *sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(ರಚನೆ sbi_irqchip_device *chip,
 							    u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
+	ರಚನೆ sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return NULL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq))
-			return h;
+	sbi_list_for_each_ನಮೂದು(h, &chip->handler_list, ಗಂಟು) {
+		ಆದರೆ (h->ಮೊದಲ_hwirq <= hwirq && hwirq < (h->ಮೊದಲ_hwirq + h->ಅಂಕೆ_hwirq))
+			ಹಿಂತಿರುಗಿ h;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int sbi_irqchip_set_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq, void *priv)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ಗಣ_hwirq_priv(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq, ಶೂನ್ಯ *priv)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-	     return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+	     ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->priv = priv;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ದತ್ತಾಂಶ->priv = priv;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void *sbi_irqchip_get_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq)
+ಶೂನ್ಯ *sbi_irqchip_get_hwirq_priv(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	if (!chip || chip->num_hwirq <= hwirq)
-	    return NULL;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+	    ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	data = &chip->hwirqs[hwirq];
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
 
-	return data->priv;
+	ಹಿಂತಿರುಗಿ ದತ್ತಾಂಶ->priv;
 }
 
-int sbi_irqchip_raw_handler_default(struct sbi_irqchip_device *chip, u32 hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_raw_handler_default(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
-	int rc = SBI_OK;
+	ರಚನೆ sbi_irqchip_handler *h;
+	ಪೂರ್ಣಾಂಕ rc = SBI_OK;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EINVAL;
+	h = sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, hwirq);
+	ಆದರೆ (!h)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (h->callback)
+	ಆದರೆ (h->callback)
 		rc = h->callback(hwirq, h->priv);
 
-	if (chip->hwirq_eoi)
+	ಆದರೆ (chip->hwirq_eoi)
 		chip->hwirq_eoi(chip, hwirq);
 
-	return rc;
+	ಹಿಂತಿರುಗಿ rc;
 }
 
-int sbi_irqchip_set_raw_handler(struct sbi_irqchip_device *chip, u32 hwirq,
-				int (*raw_hndl)(struct sbi_irqchip_device *, u32))
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ಗಣ_raw_handler(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq,
+				ಪೂರ್ಣಾಂಕ (*raw_hndl)(ರಚನೆ sbi_irqchip_device *, u32))
 {
-	struct sbi_irqchip_hwirq_data *data;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->raw_handler = raw_hndl;
-	return 0;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ದತ್ತಾಂಶ->raw_handler = raw_hndl;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_write_msi(struct sbi_irqchip_device *chip, u32 hwirq,
-			  const struct sbi_irqchip_msi_msg *msg)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_write_msi(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq,
+			  ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_irqchip_msi_ಸಂದೇಶ *ಸಂದೇಶ)
 {
-	struct sbi_irqchip_handler *h;
+	ರಚನೆ sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq || !msg)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq || !ಸಂದೇಶ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EFAIL;
-	if (!h->write_msi)
-		return SBI_ENOTSUPP;
+	h = sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, hwirq);
+	ಆದರೆ (!h)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
+	ಆದರೆ (!h->write_msi)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	h->write_msi(hwirq, msg, h->priv);
-	return 0;
+	h->write_msi(hwirq, ಸಂದೇಶ, h->priv);
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_get_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 *out_hart_index)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_get_affinity(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq,
+			     u32 *ಹೊರಹೋಗು_hart_ಸೂಚ್ಯಂಕ)
 {
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, hwirq))
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	*out_hart_index = chip->hwirqs[hwirq].hart_index;
-	return 0;
+	*ಹೊರಹೋಗು_hart_ಸೂಚ್ಯಂಕ = chip->hwirqs[hwirq].hart_ಸೂಚ್ಯಂಕ;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_set_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 hart_index)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ಗಣ_affinity(ರಚನೆ sbi_irqchip_device *chip, u32 hwirq,
+			     u32 hart_ಸೂಚ್ಯಂಕ)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	int rc;
+	ರಚನೆ sbi_irqchip_hwirq_ದತ್ತಾಂಶ *ದತ್ತಾಂಶ;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if (!chip || chip->num_hwirq <= hwirq || sbi_hart_count() <= hart_index)
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || chip->ಅಂಕೆ_hwirq <= hwirq || sbi_hart_ಎಣಿಕೆ() <= hart_ಸೂಚ್ಯಂಕ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, hwirq))
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	data = &chip->hwirqs[hwirq];
-	if (data->hart_index != hart_index) {
-		if (chip->hwirq_set_affinity) {
-			rc = chip->hwirq_set_affinity(chip, hwirq, hart_index);
-			if (rc)
-				return rc;
+	ದತ್ತಾಂಶ = &chip->hwirqs[hwirq];
+	ಆದರೆ (ದತ್ತಾಂಶ->hart_ಸೂಚ್ಯಂಕ != hart_ಸೂಚ್ಯಂಕ) {
+		ಆದರೆ (chip->hwirq_ಗಣ_affinity) {
+			rc = chip->hwirq_ಗಣ_affinity(chip, hwirq, hart_ಸೂಚ್ಯಂಕ);
+			ಆದರೆ (rc)
+				ಹಿಂತಿರುಗಿ rc;
 		}
-		data->hart_index = hart_index;
+		ದತ್ತಾಂಶ->hart_ಸೂಚ್ಯಂಕ = hart_ಸೂಚ್ಯಂಕ;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int __sbi_irqchip_handler_set_affinity(struct sbi_irqchip_device *chip,
-					      struct sbi_irqchip_handler *h,
-					      u32 compare_hart_index,
-					      u32 hart_index)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __sbi_irqchip_handler_set_affinity(ರಚನೆ sbi_irqchip_device *chip,
+					      ರಚನೆ sbi_irqchip_handler *h,
+					      u32 compare_hart_ಸೂಚ್ಯಂಕ,
+					      u32 hart_ಸೂಚ್ಯಂಕ)
 {
-	u32 i, current_hart_index;
-	int rc;
+	u32 i, current_hart_ಸೂಚ್ಯಂಕ;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	for (i = 0; i < h->num_hwirq; i++) {
-		rc = sbi_irqchip_get_affinity(chip, h->first_hwirq + i,
-					      &current_hart_index);
-		if (rc)
-			return rc;
+	ಗಾಗಿ (i = 0; i < h->ಅಂಕೆ_hwirq; i++) {
+		rc = sbi_irqchip_get_affinity(chip, h->ಮೊದಲ_hwirq + i,
+					      &current_hart_ಸೂಚ್ಯಂಕ);
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 
-		if (compare_hart_index != -1U &&
-		    current_hart_index != compare_hart_index)
-			continue;
+		ಆದರೆ (compare_hart_ಸೂಚ್ಯಂಕ != -1U &&
+		    current_hart_ಸೂಚ್ಯಂಕ != compare_hart_ಸೂಚ್ಯಂಕ)
+			ಮುಂದುವರಿ;
 
-		rc = sbi_irqchip_set_affinity(chip, h->first_hwirq + i, hart_index);
-		if (rc)
-			return rc;
+		rc = sbi_irqchip_ಗಣ_affinity(chip, h->ಮೊದಲ_hwirq + i, hart_ಸೂಚ್ಯಂಕ);
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int __sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-					  u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-					  void (*write_msi)(u32 hwirq,
-							    const struct sbi_irqchip_msi_msg *msg,
-							    void *priv),
-					  int (*callback)(u32 hwirq, void *priv), void *priv)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __sbi_irqchip_register_handler(ರಚನೆ sbi_irqchip_device *chip,
+					  u32 ಮೊದಲ_hwirq, u32 ಅಂಕೆ_hwirq, u32 hwirq_flags,
+					  ಶೂನ್ಯ (*write_msi)(u32 hwirq,
+							    ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_irqchip_msi_ಸಂದೇಶ *ಸಂದೇಶ,
+							    ಶೂನ್ಯ *priv),
+					  ಪೂರ್ಣಾಂಕ (*callback)(u32 hwirq, ಶೂನ್ಯ *priv), ಶೂನ್ಯ *priv)
 {
-	struct sbi_irqchip_handler *h, *th, *nh;
+	ರಚನೆ sbi_irqchip_handler *h, *th, *nh;
 	u32 i, j;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	for (i = first_hwirq; i < (first_hwirq + num_hwirq); i++) {
-		h = sbi_irqchip_find_handler(chip, i);
-		if (h)
-			return SBI_EALREADY;
+	ಗಾಗಿ (i = ಮೊದಲ_hwirq; i < (ಮೊದಲ_hwirq + ಅಂಕೆ_hwirq); i++) {
+		h = sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, i);
+		ಆದರೆ (h)
+			ಹಿಂತಿರುಗಿ SBI_EALREADY;
 	}
 
-	h = sbi_zalloc(sizeof(*h));
-	if (!h)
-		return SBI_ENOMEM;
-	h->first_hwirq = first_hwirq;
-	h->num_hwirq = num_hwirq;
+	h = sbi_zalloc(ಗಾತ್ರ(*h));
+	ಆದರೆ (!h)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
+	h->ಮೊದಲ_hwirq = ಮೊದಲ_hwirq;
+	h->ಅಂಕೆ_hwirq = ಅಂಕೆ_hwirq;
 	h->write_msi = write_msi;
 	h->callback = callback;
 	h->priv = priv;
 
-	nh = NULL;
-	sbi_list_for_each_entry(th, &chip->handler_list, node) {
-		if (h->first_hwirq < th->first_hwirq) {
+	nh = ಖಾಲಿ;
+	sbi_list_for_each_ನಮೂದು(th, &chip->handler_list, ಗಂಟು) {
+		ಆದರೆ (h->ಮೊದಲ_hwirq < th->ಮೊದಲ_hwirq) {
 			nh = th;
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 	}
-	if (nh)
-		sbi_list_add(&h->node, &nh->node);
-	else
-		sbi_list_add_tail(&h->node, &chip->handler_list);
+	ಆದರೆ (nh)
+		sbi_list_ಕೂಡಿಸು(&h->ಗಂಟು, &nh->ಗಂಟು);
+	ಇಲ್ಲದಿದ್ದರೆ
+		sbi_list_ಕೂಡಿಸು_ಬಾಲ(&h->ಗಂಟು, &chip->handler_list);
 
-	if (chip->hwirq_setup) {
-		for (i = 0; i < h->num_hwirq; i++) {
-			rc = chip->hwirq_setup(chip, h->first_hwirq + i, hwirq_flags);
-			if (rc) {
-				if (chip->hwirq_cleanup) {
-					for (j = 0; j < i; j++)
-						chip->hwirq_cleanup(chip, h->first_hwirq + j);
+	ಆದರೆ (chip->hwirq_ಸಿದ್ಧತೆ) {
+		ಗಾಗಿ (i = 0; i < h->ಅಂಕೆ_hwirq; i++) {
+			rc = chip->hwirq_ಸಿದ್ಧತೆ(chip, h->ಮೊದಲ_hwirq + i, hwirq_flags);
+			ಆದರೆ (rc) {
+				ಆದರೆ (chip->hwirq_cleanup) {
+					ಗಾಗಿ (j = 0; j < i; j++)
+						chip->hwirq_cleanup(chip, h->ಮೊದಲ_hwirq + j);
 				}
-				sbi_list_del(&h->node);
+				sbi_list_del(&h->ಗಂಟು);
 				sbi_free(h);
-				return rc;
+				ಹಿಂತಿರುಗಿ rc;
 			}
 		}
 	}
 
 	rc = __sbi_irqchip_handler_set_affinity(chip, h, -1U, current_hartindex());
-	if (rc) {
-		if (chip->hwirq_cleanup) {
-			for (i = 0; i < h->num_hwirq; i++)
-				chip->hwirq_cleanup(chip, h->first_hwirq + i);
+	ಆದರೆ (rc) {
+		ಆದರೆ (chip->hwirq_cleanup) {
+			ಗಾಗಿ (i = 0; i < h->ಅಂಕೆ_hwirq; i++)
+				chip->hwirq_cleanup(chip, h->ಮೊದಲ_hwirq + i);
 		}
-		sbi_list_del(&h->node);
+		sbi_list_del(&h->ಗಂಟು);
 		sbi_free(h);
-		return rc;
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if (chip->hwirq_unmask) {
-		for (i = 0; i < h->num_hwirq; i++)
-			chip->hwirq_unmask(chip, h->first_hwirq + i);
+	ಆದರೆ (chip->hwirq_unmask) {
+		ಗಾಗಿ (i = 0; i < h->ಅಂಕೆ_hwirq; i++)
+			chip->hwirq_unmask(chip, h->ಮೊದಲ_hwirq + i);
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_register_msi(struct sbi_irqchip_device *chip, u32 num_hwirq,
-			     void (*write_msi)(u32 hwirq,
-					       const struct sbi_irqchip_msi_msg *msg,
-					       void *priv),
-			     int (*callback)(u32 hwirq, void *priv), void *priv,
-			     u32 *out_first_hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ರಿಜಿಸ್ಟರ್_msi(ರಚನೆ sbi_irqchip_device *chip, u32 ಅಂಕೆ_hwirq,
+			     ಶೂನ್ಯ (*write_msi)(u32 hwirq,
+					       ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_irqchip_msi_ಸಂದೇಶ *ಸಂದೇಶ,
+					       ಶೂನ್ಯ *priv),
+			     ಪೂರ್ಣಾಂಕ (*callback)(u32 hwirq, ಶೂನ್ಯ *priv), ಶೂನ್ಯ *priv,
+			     u32 *ಹೊರಹೋಗು_ಮೊದಲ_hwirq)
 {
-	struct sbi_irqchip_handler *h;
-	bool found;
+	ರಚನೆ sbi_irqchip_handler *h;
+	bool ಸಿಕ್ಕಿತು;
 	u32 hwirq;
 
-	if (!chip || !chip->hwirq_set_affinity || !num_hwirq ||
-	    !write_msi || !callback || !out_first_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq < num_hwirq)
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (!chip || !chip->hwirq_ಗಣ_affinity || !ಅಂಕೆ_hwirq ||
+	    !write_msi || !callback || !ಹೊರಹೋಗು_ಮೊದಲ_hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (chip->ಅಂಕೆ_hwirq < ಅಂಕೆ_hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
 	hwirq = 0;
-	found = false;
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq)) {
-			hwirq = h->first_hwirq + h->num_hwirq;
-		} else if (hwirq < h->first_hwirq) {
-			if (h->first_hwirq - hwirq >= num_hwirq) {
-				found = true;
-				break;
-			} else {
-				hwirq = h->first_hwirq + h->num_hwirq;
+	ಸಿಕ್ಕಿತು = false;
+	sbi_list_for_each_ನಮೂದು(h, &chip->handler_list, ಗಂಟು) {
+		ಆದರೆ (h->ಮೊದಲ_hwirq <= hwirq && hwirq < (h->ಮೊದಲ_hwirq + h->ಅಂಕೆ_hwirq)) {
+			hwirq = h->ಮೊದಲ_hwirq + h->ಅಂಕೆ_hwirq;
+		} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (hwirq < h->ಮೊದಲ_hwirq) {
+			ಆದರೆ (h->ಮೊದಲ_hwirq - hwirq >= ಅಂಕೆ_hwirq) {
+				ಸಿಕ್ಕಿತು = true;
+				ನಿಲ್ಲಿಸು;
+			} ಇಲ್ಲದಿದ್ದರೆ {
+				hwirq = h->ಮೊದಲ_hwirq + h->ಅಂಕೆ_hwirq;
 			}
 		}
 	}
-	if (!found && (chip->num_hwirq - hwirq) >= num_hwirq)
-		found = true;
-	if (!found)
-		return SBI_ENOSPC;
-	*out_first_hwirq = hwirq;
+	ಆದರೆ (!ಸಿಕ್ಕಿತು && (chip->ಅಂಕೆ_hwirq - hwirq) >= ಅಂಕೆ_hwirq)
+		ಸಿಕ್ಕಿತು = true;
+	ಆದರೆ (!ಸಿಕ್ಕಿತು)
+		ಹಿಂತಿರುಗಿ SBI_ENOSPC;
+	*ಹೊರಹೋಗು_ಮೊದಲ_hwirq = hwirq;
 
-	return __sbi_irqchip_register_handler(chip, *out_first_hwirq,
-					      num_hwirq, SBI_HWIRQ_FLAGS_NONE,
+	ಹಿಂತಿರುಗಿ __sbi_irqchip_register_handler(chip, *ಹೊರಹೋಗು_ಮೊದಲ_hwirq,
+					      ಅಂಕೆ_hwirq, SBI_HWIRQ_FLAGS_NONE,
 					      write_msi, callback, priv);
 }
 
-int sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-				 u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-				 int (*callback)(u32 hwirq, void *priv), void *priv)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ರಿಜಿಸ್ಟರ್_handler(ರಚನೆ sbi_irqchip_device *chip,
+				 u32 ಮೊದಲ_hwirq, u32 ಅಂಕೆ_hwirq, u32 hwirq_flags,
+				 ಪೂರ್ಣಾಂಕ (*callback)(u32 hwirq, ಶೂನ್ಯ *priv), ಶೂನ್ಯ *priv)
 {
-	if (!chip || !num_hwirq || !callback)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (!chip || !ಅಂಕೆ_hwirq || !callback)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (chip->ಅಂಕೆ_hwirq <= ಮೊದಲ_hwirq ||
+	    chip->ಅಂಕೆ_hwirq <= (ಮೊದಲ_hwirq + ಅಂಕೆ_hwirq - 1))
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq, hwirq_flags,
-					      NULL, callback, priv);
+	ಹಿಂತಿರುಗಿ __sbi_irqchip_register_handler(chip, ಮೊದಲ_hwirq, ಅಂಕೆ_hwirq, hwirq_flags,
+					      ಖಾಲಿ, callback, priv);
 }
 
-int sbi_irqchip_register_reserved(struct sbi_irqchip_device *chip,
-				  u32 first_hwirq, u32 num_hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ರಿಜಿಸ್ಟರ್_reserved(ರಚನೆ sbi_irqchip_device *chip,
+				  u32 ಮೊದಲ_hwirq, u32 ಅಂಕೆ_hwirq)
 {
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (!chip || !ಅಂಕೆ_hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (chip->ಅಂಕೆ_hwirq <= ಮೊದಲ_hwirq ||
+	    chip->ಅಂಕೆ_hwirq <= (ಮೊದಲ_hwirq + ಅಂಕೆ_hwirq - 1))
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq,
-					      SBI_HWIRQ_FLAGS_NONE, NULL, NULL, NULL);
+	ಹಿಂತಿರುಗಿ __sbi_irqchip_register_handler(chip, ಮೊದಲ_hwirq, ಅಂಕೆ_hwirq,
+					      SBI_HWIRQ_FLAGS_NONE, ಖಾಲಿ, ಖಾಲಿ, ಖಾಲಿ);
 }
 
-int sbi_irqchip_unregister_handler(struct sbi_irqchip_device *chip,
-				   u32 first_hwirq, u32 num_hwirq)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_unregister_handler(ರಚನೆ sbi_irqchip_device *chip,
+				   u32 ಮೊದಲ_hwirq, u32 ಅಂಕೆ_hwirq)
 {
-	struct sbi_irqchip_handler *fh, *lh;
+	ರಚನೆ sbi_irqchip_handler *fh, *lh;
 	u32 i;
 
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	ಆದರೆ (!chip || !ಅಂಕೆ_hwirq)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (chip->ಅಂಕೆ_hwirq <= ಮೊದಲ_hwirq ||
+	    chip->ಅಂಕೆ_hwirq <= (ಮೊದಲ_hwirq + ಅಂಕೆ_hwirq - 1))
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
 
-	fh = sbi_irqchip_find_handler(chip, first_hwirq);
-	if (!fh || fh->first_hwirq != first_hwirq || fh->num_hwirq != num_hwirq)
-		return SBI_ENODEV;
-	lh = sbi_irqchip_find_handler(chip, first_hwirq + num_hwirq - 1);
-	if (!lh || lh != fh)
-		return SBI_ENODEV;
+	fh = sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, ಮೊದಲ_hwirq);
+	ಆದರೆ (!fh || fh->ಮೊದಲ_hwirq != ಮೊದಲ_hwirq || fh->ಅಂಕೆ_hwirq != ಅಂಕೆ_hwirq)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
+	lh = sbi_irqchip_ಕಂಡುಹಿಡಿ_handler(chip, ಮೊದಲ_hwirq + ಅಂಕೆ_hwirq - 1);
+	ಆದರೆ (!lh || lh != fh)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	if (chip->hwirq_mask) {
-		for (i = 0; i < fh->num_hwirq; i++)
-			chip->hwirq_mask(chip, fh->first_hwirq + i);
+	ಆದರೆ (chip->hwirq_ಮುಖವಾಡ) {
+		ಗಾಗಿ (i = 0; i < fh->ಅಂಕೆ_hwirq; i++)
+			chip->hwirq_ಮುಖವಾಡ(chip, fh->ಮೊದಲ_hwirq + i);
 	}
 
-	if (chip->hwirq_cleanup) {
-		for (i = 0; i < fh->num_hwirq; i++)
-			chip->hwirq_cleanup(chip, fh->first_hwirq + i);
+	ಆದರೆ (chip->hwirq_cleanup) {
+		ಗಾಗಿ (i = 0; i < fh->ಅಂಕೆ_hwirq; i++)
+			chip->hwirq_cleanup(chip, fh->ಮೊದಲ_hwirq + i);
 	}
 
-	sbi_list_del(&fh->node);
-	return 0;
+	sbi_list_del(&fh->ಗಂಟು);
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device_by_caps(unsigned long caps,
-							   struct sbi_irqchip_device *first)
+ರಚನೆ sbi_irqchip_device *sbi_irqchip_ಕಂಡುಹಿಡಿ_device_by_caps(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ caps,
+							   ರಚನೆ sbi_irqchip_device *ಮೊದಲ)
 {
-	struct sbi_irqchip_device *chip;
-	bool found = (first == NULL);
+	ರಚನೆ sbi_irqchip_device *chip;
+	bool ಸಿಕ್ಕಿತು = (ಮೊದಲ == ಖಾಲಿ);
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!found) {
-			if (first == chip)
-				found = true;
-			continue;
+	sbi_list_for_each_ನಮೂದು(chip, &irqchip_list, ಗಂಟು) {
+		ಆದರೆ (!ಸಿಕ್ಕಿತು) {
+			ಆದರೆ (ಮೊದಲ == chip)
+				ಸಿಕ್ಕಿತು = true;
+			ಮುಂದುವರಿ;
 		}
-		if ((chip->caps & caps) == caps)
-			return chip;
+		ಆದರೆ ((chip->caps & caps) == caps)
+			ಹಿಂತಿರುಗಿ chip;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device(u32 id)
+ರಚನೆ sbi_irqchip_device *sbi_irqchip_ಕಂಡುಹಿಡಿ_device(u32 id)
 {
-	struct sbi_irqchip_device *chip;
+	ರಚನೆ sbi_irqchip_device *chip;
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (chip->id == id)
-			return chip;
+	sbi_list_for_each_ನಮೂದು(chip, &irqchip_list, ಗಂಟು) {
+		ಆದರೆ (chip->id == id)
+			ಹಿಂತಿರುಗಿ chip;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int sbi_irqchip_add_device(struct sbi_irqchip_device *chip)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_ಕೂಡಿಸು_device(ರಚನೆ sbi_irqchip_device *chip)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_scratch *scratch;
+	ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ *hd;
+	ರಚನೆ sbi_scratch *scratch;
 	u32 i, h;
 
-	if (!chip || !chip->num_hwirq || !sbi_hartmask_weight(&chip->target_harts))
-		return SBI_EINVAL;
+	ಆದರೆ (!chip || !chip->ಅಂಕೆ_hwirq || !sbi_hartmask_ತೂಕ(&chip->ಗುರಿ_harts))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (sbi_irqchip_find_device(chip->id))
-		return SBI_EALREADY;
+	ಆದರೆ (sbi_irqchip_ಕಂಡುಹಿಡಿ_device(chip->id))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	if (chip->process_hwirqs) {
-		sbi_hartmask_for_each_hartindex(h, &chip->target_harts) {
-			scratch = sbi_hartindex_to_scratch(h);
-			if (!scratch)
-				continue;
+	ಆದರೆ (chip->process_hwirqs) {
+		sbi_hartmask_for_each_hartindex(h, &chip->ಗುರಿ_harts) {
+			scratch = sbi_hartindex_ಗಮ್ಯ_scratch(h);
+			ಆದರೆ (!scratch)
+				ಮುಂದುವರಿ;
 
-			hd = sbi_scratch_offset_ptr(scratch, irqchip_hart_data_off);
-			if (hd->chip && hd->chip != chip)
-				return SBI_EINVAL;
+			hd = sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, irqchip_hart_ದತ್ತಾಂಶ_off);
+			ಆದರೆ (hd->chip && hd->chip != chip)
+				ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 			hd->chip = chip;
 		}
 	}
 
-	chip->hwirqs = sbi_zalloc(sizeof(*chip->hwirqs) * chip->num_hwirq);
-	if (!chip->hwirqs)
-		return SBI_ENOMEM;
-	for (i = 0; i < chip->num_hwirq; i++) {
-		sbi_irqchip_set_raw_handler(chip, i, sbi_irqchip_raw_handler_default);
-		chip->hwirqs[i].hart_index = -1U;
+	chip->hwirqs = sbi_zalloc(ಗಾತ್ರ(*chip->hwirqs) * chip->ಅಂಕೆ_hwirq);
+	ಆದರೆ (!chip->hwirqs)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
+	ಗಾಗಿ (i = 0; i < chip->ಅಂಕೆ_hwirq; i++) {
+		sbi_irqchip_ಗಣ_raw_handler(chip, i, sbi_irqchip_raw_handler_default);
+		chip->hwirqs[i].hart_ಸೂಚ್ಯಂಕ = -1U;
 	}
 
-	SBI_INIT_LIST_HEAD(&chip->handler_list);
+	SBI_INIT_LIST_ತಲೆ(&chip->handler_list);
 
-	sbi_list_add_tail(&chip->node, &irqchip_list);
-	return 0;
+	sbi_list_ಕೂಡಿಸು_ಬಾಲ(&chip->ಗಂಟು, &irqchip_list);
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_irqchip_init(struct sbi_scratch *scratch, bool cold_boot)
+ಪೂರ್ಣಾಂಕ sbi_irqchip_init(ರಚನೆ sbi_scratch *scratch, bool cold_boot)
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	int rc;
+	ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform *plat = sbi_platform_ptr(scratch);
+	ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ *hd;
+	ರಚನೆ sbi_irqchip_device *chip;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if (cold_boot) {
-		irqchip_hart_data_off =
-			sbi_scratch_alloc_offset(sizeof(struct sbi_irqchip_hart_data));
-		if (!irqchip_hart_data_off)
-			return SBI_ENOMEM;
+	ಆದರೆ (cold_boot) {
+		irqchip_hart_ದತ್ತಾಂಶ_off =
+			sbi_scratch_alloc_ಸ್ಥಾನಾಂತರ(ಗಾತ್ರ(ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ));
+		ಆದರೆ (!irqchip_hart_ದತ್ತಾಂಶ_off)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 		rc = sbi_platform_irqchip_init(plat);
-		if (rc)
-			return rc;
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!chip->warm_init)
-			continue;
-		if (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->target_harts))
-			continue;
+	sbi_list_for_each_ನಮೂದು(chip, &irqchip_list, ಗಂಟು) {
+		ಆದರೆ (!chip->warm_init)
+			ಮುಂದುವರಿ;
+		ಆದರೆ (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->ಗುರಿ_harts))
+			ಮುಂದುವರಿ;
 		rc = chip->warm_init(chip);
-		if (rc)
-			return rc;
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
-		csr_set(CSR_MIE, MIP_MEIP);
+	hd = sbi_scratch_thishart_ಸ್ಥಾನಾಂತರ_ptr(irqchip_hart_ದತ್ತಾಂಶ_off);
+	ಆದರೆ (hd && hd->chip && hd->chip->process_hwirqs)
+		csr_ಗಣ(CSR_MIE, MIP_MEIP);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void sbi_irqchip_exit(struct sbi_scratch *scratch)
+ಶೂನ್ಯ sbi_irqchip_exit(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	struct sbi_irqchip_handler *h;
+	ರಚನೆ sbi_irqchip_hart_ದತ್ತಾಂಶ *hd;
+	ರಚನೆ sbi_irqchip_device *chip;
+	ರಚನೆ sbi_irqchip_handler *h;
 	u32 migrate_hidx = -1U;
 	bool migrate = false;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	sbi_for_each_hartindex(i) {
-		if (i == current_hartindex())
-			continue;
-		if (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
+		ಆದರೆ (i == current_hartindex())
+			ಮುಂದುವರಿ;
+		ಆದರೆ (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
 		    __sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOP_PENDING)
-			continue;
+			ಮುಂದುವರಿ;
 		migrate_hidx = i;
 		migrate = true;
-		break;
+		ನಿಲ್ಲಿಸು;
 	}
 
-	if (!migrate)
-		goto skip_migrate;
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		sbi_list_for_each_entry(h, &chip->handler_list, node) {
+	ಆದರೆ (!migrate)
+		ಹೋಗು skip_migrate;
+	sbi_list_for_each_ನಮೂದು(chip, &irqchip_list, ಗಂಟು) {
+		sbi_list_for_each_ನಮೂದು(h, &chip->handler_list, ಗಂಟು) {
 			rc = __sbi_irqchip_handler_set_affinity(chip, h,
 								current_hartindex(),
 								migrate_hidx);
-			if (rc) {
+			ಆದರೆ (rc) {
 				sbi_printf("%s: chip 0x%x handler 0x%x set affinity (err %d)\n",
-					   __func__, chip->id, h->first_hwirq, rc);
+					   __func__, chip->id, h->ಮೊದಲ_hwirq, rc);
 			}
 		}
 	}
 skip_migrate:
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
+	hd = sbi_scratch_thishart_ಸ್ಥಾನಾಂತರ_ptr(irqchip_hart_ದತ್ತಾಂಶ_off);
+	ಆದರೆ (hd && hd->chip && hd->chip->process_hwirqs)
 		csr_clear(CSR_MIE, MIP_MEIP);
 }

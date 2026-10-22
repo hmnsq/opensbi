@@ -11,51 +11,51 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver *ಸ್ಥಿರಾಂಕ fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_i2c_adapter_ಕಂಡುಹಿಡಿ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				ರಚನೆ i2c_adapter **ಹೊರಹೋಗು_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ i2c_adapter *adapter = i2c_adapter_ಕಂಡುಹಿಡಿ(nodeoff);
 
-	if (!adapter) {
+	ಆದರೆ (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
-		rc = fdt_driver_init_by_offset(fdt, nodeoff,
+		rc = fdt_driver_init_by_ಸ್ಥಾನಾಂತರ(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 
 		/* Try to find I2C adapter again */
-		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		adapter = i2c_adapter_ಕಂಡುಹಿಡಿ(nodeoff);
+		ಆದರೆ (!adapter)
+			ಹಿಂತಿರುಗಿ SBI_ENOSYS;
 	}
 
-	if (out_adapter)
-		*out_adapter = adapter;
+	ಆದರೆ (ಹೊರಹೋಗು_adapter)
+		*ಹೊರಹೋಗು_adapter = adapter;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+ಪೂರ್ಣಾಂಕ fdt_i2c_adapter_get(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			ರಚನೆ i2c_adapter **ಹೊರಹೋಗು_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	ಪೂರ್ಣಾಂಕ rc;
+	ರಚನೆ i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || (nodeoff < 0) || !ಹೊರಹೋಗು_adapter)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	rc = fdt_i2c_adapter_ಕಂಡುಹಿಡಿ(fdt, nodeoff, &adapter);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	*out_adapter = adapter;
+	*ಹೊರಹೋಗು_adapter = adapter;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

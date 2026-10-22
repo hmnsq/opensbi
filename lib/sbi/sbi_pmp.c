@@ -7,99 +7,99 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmp.h>
 
-static unsigned long ctz(unsigned long x)
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ctz(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ x)
 {
-	unsigned long ret = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ret = 0;
 
-	if (x == 0)
-		return 8 * sizeof(x);
+	ಆದರೆ (x == 0)
+		ಹಿಂತಿರುಗಿ 8 * ಗಾತ್ರ(x);
 
-	while (!(x & 1UL)) {
+	ಆಗ (!(x & 1UL)) {
 		ret++;
 		x = x >> 1;
 	}
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
 bool sbi_pmp_is_enabled(pmp_t *pmp)
 {
 	/* If address matching bits are non-zero, the entry is enable */
-	if (pmp->cfg & PMP_A)
-		return true;
+	ಆದರೆ (pmp->cfg & PMP_A)
+		ಹಿಂತಿರುಗಿ true;
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-int sbi_pmp_encode(pmp_t *pmp, unsigned long prot, unsigned long addr,
-		    unsigned long log2len)
+ಪೂರ್ಣಾಂಕ sbi_pmp_encode(pmp_t *pmp, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ prot, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addr,
+		    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ log2len)
 {
 	/* check parameters */
-	if (log2len > __riscv_xlen || log2len < PMP_SHIFT)
-		return SBI_EINVAL;
+	ಆದರೆ (log2len > __riscv_xlen || log2len < PMP_ಸರಿಸು)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* encode PMP config */
 	prot &= ~PMP_A;
-	prot |= (log2len == PMP_SHIFT) ? PMP_A_NA4 : PMP_A_NAPOT;
+	prot |= (log2len == PMP_ಸರಿಸು) ? PMP_A_NA4 : PMP_A_NAPOT;
 	pmp->cfg = prot;
 
 	/* encode PMP address */
-	if (log2len == PMP_SHIFT) {
-		pmp->addr = (addr >> PMP_SHIFT);
-	} else {
-		if (log2len == __riscv_xlen) {
+	ಆದರೆ (log2len == PMP_ಸರಿಸು) {
+		pmp->addr = (addr >> PMP_ಸರಿಸು);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		ಆದರೆ (log2len == __riscv_xlen) {
 			pmp->addr = -1UL;
-		} else {
-			unsigned long addrmask;
-			addrmask = (1UL << (log2len - PMP_SHIFT)) - 1;
-			pmp->addr = ((addr >> PMP_SHIFT) & ~addrmask);
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ addrmask;
+			addrmask = (1UL << (log2len - PMP_ಸರಿಸು)) - 1;
+			pmp->addr = ((addr >> PMP_ಸರಿಸು) & ~addrmask);
 			pmp->addr |= (addrmask >> 1);
 		}
 	}
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-int sbi_pmp_decode(pmp_t *pmp, unsigned long *prot_out, unsigned long *addr_out,
-		    unsigned long *log2len)
+ಪೂರ್ಣಾಂಕ sbi_pmp_decode(pmp_t *pmp, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *prot_ಹೊರಹೋಗು, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr_ಹೊರಹೋಗು,
+		    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *log2len)
 {
-	unsigned long prot;
-	unsigned long t1, addr, len;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ prot;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ t1, addr, len;
 
 	/* check parameters */
-	if (!prot_out || !addr_out || !log2len)
-		return SBI_EINVAL;
-	*prot_out = *addr_out = *log2len = 0;
+	ಆದರೆ (!prot_ಹೊರಹೋಗು || !addr_ಹೊರಹೋಗು || !log2len)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	*prot_ಹೊರಹೋಗು = *addr_ಹೊರಹೋಗು = *log2len = 0;
 
 	/* decode PMP config */
 	prot = pmp->cfg;
 
 	/* decode PMP address */
-	if ((prot & PMP_A) == PMP_A_NAPOT) {
+	ಆದರೆ ((prot & PMP_A) == PMP_A_NAPOT) {
 		addr = pmp->addr;
-		if (addr == -1UL) {
+		ಆದರೆ (addr == -1UL) {
 			addr	= 0;
 			len	= __riscv_xlen;
-		} else {
+		} ಇಲ್ಲದಿದ್ದರೆ {
 			t1	= ctz(~addr);
-			addr	= (addr & ~((1UL << t1) - 1)) << PMP_SHIFT;
-			len	= (t1 + PMP_SHIFT + 1);
+			addr	= (addr & ~((1UL << t1) - 1)) << PMP_ಸರಿಸು;
+			len	= (t1 + PMP_ಸರಿಸು + 1);
 		}
-	} else {
-		addr	= pmp->addr << PMP_SHIFT;
-		len	= PMP_SHIFT;
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		addr	= pmp->addr << PMP_ಸರಿಸು;
+		len	= PMP_ಸರಿಸು;
 	}
 
 	/* return details */
-	*prot_out    = prot;
-	*addr_out    = addr;
+	*prot_ಹೊರಹೋಗು    = prot;
+	*addr_ಹೊರಹೋಗು    = addr;
 	*log2len     = len;
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }

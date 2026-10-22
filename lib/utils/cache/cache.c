@@ -4,54 +4,54 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/cache/cache.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/cache/cache.h>
 
-static SBI_LIST_HEAD(cache_list);
+ಸ್ಥಿರ SBI_LIST_ತಲೆ(cache_list);
 
-struct cache_device *cache_find(u32 id)
+ರಚನೆ cache_device *cache_ಕಂಡುಹಿಡಿ(u32 id)
 {
-	struct cache_device *dev;
+	ರಚನೆ cache_device *dev;
 
-	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+	sbi_list_for_each_ನಮೂದು(dev, &cache_list, ಗಂಟು) {
+		ಆದರೆ (dev->id == id)
+			ಹಿಂತಿರುಗಿ dev;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int cache_add(struct cache_device *dev)
+ಪೂರ್ಣಾಂಕ cache_ಕೂಡಿಸು(ರಚನೆ cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ಆದರೆ (!dev)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ಆದರೆ (cache_ಕಂಡುಹಿಡಿ(dev->id))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	sbi_list_add(&dev->node, &cache_list);
+	sbi_list_ಕೂಡಿಸು(&dev->ಗಂಟು, &cache_list);
 
-	return SBI_OK;
+	ಹಿಂತಿರುಗಿ SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+ಪೂರ್ಣಾಂಕ cache_flush_all(ರಚನೆ cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ಆದರೆ (!dev)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!dev->ops || !dev->ops->cache_flush_all)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	ಹಿಂತಿರುಗಿ dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+ಪೂರ್ಣಾಂಕ cache_enable(ರಚನೆ cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ಆದರೆ (!dev)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!dev->ops || !dev->ops->cache_enable)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	ಹಿಂತಿರುಗಿ dev->ops->cache_enable(dev, enable);
 }

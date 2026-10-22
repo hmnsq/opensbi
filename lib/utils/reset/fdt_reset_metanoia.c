@@ -5,68 +5,68 @@
  *
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_system.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
 
-#define SWRSTREQ_CTRL_REG_OFFSET 0x00
-#define SWRSTREQ_REG_OFFSET 0x04
+#ವ್ಯಾಖ್ಯಾನಿಸು SWRSTREQ_CTRL_REG_ಸ್ಥಾನಾಂತರ 0x00
+#ವ್ಯಾಖ್ಯಾನಿಸು SWRSTREQ_REG_ಸ್ಥಾನಾಂತರ 0x04
 
-struct reset_metanoia_data {
-	u8 *reg_base;
+ರಚನೆ reset_metanoia_ದತ್ತಾಂಶ {
+	u8 *reg_ತಳ;
 };
 
-static struct reset_metanoia_data reset_data;
+ಸ್ಥಿರ ರಚನೆ reset_metanoia_ದತ್ತಾಂಶ reset_ದತ್ತಾಂಶ;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ metanoia_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	default:
-		return 0;
+	ಆಯ್ಕೆ (type) {
+	ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		ಹಿಂತಿರುಗಿ 1;
+	ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_SHUTDOWN:
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಹಿಂತಿರುಗಿ 0;
 	}
 }
 
-static void metanoia_system_reset(u32 type, u32 reason)
+ಸ್ಥಿರ ಶೂನ್ಯ metanoia_system_reset(u32 type, u32 reason)
 {
-	writew(0x1, reset_data.reg_base + SWRSTREQ_CTRL_REG_OFFSET);
-	writew(0x1, reset_data.reg_base + SWRSTREQ_REG_OFFSET);
+	writew(0x1, reset_ದತ್ತಾಂಶ.reg_ತಳ + SWRSTREQ_CTRL_REG_ಸ್ಥಾನಾಂತರ);
+	writew(0x1, reset_ದತ್ತಾಂಶ.reg_ತಳ + SWRSTREQ_REG_ಸ್ಥಾನಾಂತರ);
 }
 
-static struct sbi_system_reset_device metanoia_reset = {
+ಸ್ಥಿರ ರಚನೆ sbi_system_reset_device metanoia_reset = {
 	.name		    = "metanoia-mt2824-reboot",
 	.system_reset_check = metanoia_system_reset_check,
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ metanoia_reset_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			       ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
 	u64 reg_addr;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoff, 0, &reg_addr, ಖಾಲಿ);
+	ಆದರೆ (rc < 0 || !reg_addr)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	reset_data.reg_base = (u8 *)(ulong)reg_addr;
+	reset_ದತ್ತಾಂಶ.reg_ತಳ = (u8 *)(ulong)reg_addr;
 
-	sbi_system_reset_add_device(&metanoia_reset);
+	sbi_system_reset_ಕೂಡಿಸು_device(&metanoia_reset);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static const struct fdt_match metanoia_reset_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ metanoia_reset_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "metanoia,mt2824-reboot" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_reset_metanoia = {
-	.match_table = metanoia_reset_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_reset_metanoia = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = metanoia_reset_ಹೊಂದಿಕೆ,
 	.init	     = metanoia_reset_init,
 };

@@ -1,49 +1,49 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause */
-#ifndef LIBFDT_INTERNAL_H
-#define LIBFDT_INTERNAL_H
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ LIBFDT_ಆಂತರಿಕ_H
+#ವ್ಯಾಖ್ಯಾನಿಸು LIBFDT_ಆಂತರಿಕ_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include <fdt.h>
+#ಅನ್ತರ್ಭಾವ <fdt.h>
 
-#define FDT_ALIGN(x, a)		(((x) + (a) - 1) & ~((a) - 1))
-#define FDT_TAGALIGN(x)		(FDT_ALIGN((x), FDT_TAGSIZE))
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_ALIGN(x, a)		(((x) + (a) - 1) & ~((a) - 1))
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_TAGALIGN(x)		(FDT_ALIGN((x), FDT_TAGSIZE))
 
-int32_t fdt_ro_probe_(const void *fdt);
-#define FDT_RO_PROBE(fdt)					\
+int32_t fdt_ro_probe_(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt);
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_RO_PROBE(fdt)					\
 	{							\
 		int32_t totalsize_;				\
-		if ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
-			return totalsize_;			\
+		ಆದರೆ ((totalsize_ = fdt_ro_probe_(fdt)) < 0)	\
+			ಹಿಂತಿರುಗಿ totalsize_;			\
 	}
 
-int fdt_check_node_offset_(const void *fdt, int offset);
-int fdt_check_prop_offset_(const void *fdt, int offset);
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s);
-int fdt_node_end_offset_(void *fdt, int nodeoffset);
+ಪೂರ್ಣಾಂಕ fdt_check_ಗಂಟು_ಸ್ಥಾನಾಂತರ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ);
+ಪೂರ್ಣಾಂಕ fdt_check_prop_ಸ್ಥಾನಾಂತರ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ);
+ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *fdt_ಕಂಡುಹಿಡಿ_string(ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *strtab, ಪೂರ್ಣಾಂಕ tabsize, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *s);
+ಪೂರ್ಣಾಂಕ fdt_ಗಂಟು_ಕೊನೆ_ಸ್ಥಾನಾಂತರ(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoffset);
 
-static inline const void *fdt_offset_ptr_(const void *fdt, int offset)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt_ಸ್ಥಾನಾಂತರ_ptr_2(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ)
 {
-	return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;
+	ಹಿಂತಿರುಗಿ (ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)fdt + fdt_off_dt_struct(fdt) + ಸ್ಥಾನಾಂತರ;
 }
 
-static inline void *fdt_offset_ptr_w_(void *fdt, int offset)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ *fdt_ಸ್ಥಾನಾಂತರ_ptr_w(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ)
 {
-	return (void *)(uintptr_t)fdt_offset_ptr_(fdt, offset);
+	ಹಿಂತಿರುಗಿ (ಶೂನ್ಯ *)(uintptr_t)fdt_ಸ್ಥಾನಾಂತರ_ptr_2(fdt, ಸ್ಥಾನಾಂತರ);
 }
 
-static inline const struct fdt_reserve_entry *fdt_mem_rsv_(const void *fdt, int n)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_reserve_ನಮೂದು *fdt_mem_rsv_(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ n)
 {
-	const struct fdt_reserve_entry *rsv_table =
-		(const struct fdt_reserve_entry *)
-		((const char *)fdt + fdt_off_mem_rsvmap(fdt));
+	ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_reserve_ನಮೂದು *rsv_ಕೋಷ್ಟಕ =
+		(ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_reserve_ನಮೂದು *)
+		((ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *)fdt + fdt_off_mem_rsvmap(fdt));
 
-	return rsv_table + n;
+	ಹಿಂತಿರುಗಿ rsv_ಕೋಷ್ಟಕ + n;
 }
-static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ರಚನೆ fdt_reserve_ನಮೂದು *fdt_mem_rsv_w_(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ n)
 {
-	return (void *)(uintptr_t)fdt_mem_rsv_(fdt, n);
+	ಹಿಂತಿರುಗಿ (ಶೂನ್ಯ *)(uintptr_t)fdt_mem_rsv_(fdt, n);
 }
 
 /*
@@ -55,25 +55,25 @@ static inline struct fdt_reserve_entry *fdt_mem_rsv_w_(void *fdt, int n)
  * If not the external helpers fdtXX_ld() from libfdt.h can be used
  * instead.
  */
-static inline uint32_t fdt32_ld_(const fdt32_t *p)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint32_t fdt32_ld_(ಸ್ಥಿರಾಂಕ fdt32_t *p)
 {
-	return fdt32_to_cpu(*p);
+	ಹಿಂತಿರುಗಿ fdt32_ಗಮ್ಯ_cpu(*p);
 }
 
-static inline uint64_t fdt64_ld_(const fdt64_t *p)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ uint64_t fdt64_ld_(ಸ್ಥಿರಾಂಕ fdt64_t *p)
 {
-	return fdt64_to_cpu(*p);
+	ಹಿಂತಿರುಗಿ fdt64_ಗಮ್ಯ_cpu(*p);
 }
 
-#define FDT_SW_MAGIC		(~FDT_MAGIC)
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_SW_MAGIC		(~FDT_MAGIC)
 
 /**********************************************************************/
 /* Checking controls                                                  */
 /**********************************************************************/
 
-#ifndef FDT_ASSUME_MASK
-#define FDT_ASSUME_MASK 0
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ FDT_ASSUME_ಮುಖವಾಡ
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_ASSUME_ಮುಖವಾಡ 0
+#ಆದರೆ_ಅಂತ್ಯ
 
 /*
  * Defines assumptions which can be enabled. Each of these can be enabled
@@ -86,7 +86,7 @@ static inline uint64_t fdt64_ld_(const fdt64_t *p)
  * For situations where security is not a concern it may be safe to enable
  * ASSUME_SANE.
  */
-enum {
+ಎಣಿಕೆ {
 	/*
 	 * This does essentially no checks. Only the latest device-tree
 	 * version is correctly handled. Inconsistencies or errors in the device
@@ -130,7 +130,7 @@ enum {
 	 * It doesn't make sense to enable this assumption unless
 	 * ASSUME_VALID_DTB is also enabled.
 	 */
-	ASSUME_VALID_INPUT	= 1 << 1,
+	ASSUME_VALID_ಒಳಹರಿವು	= 1 << 1,
 
 	/*
 	 * This disables checks for device-tree version and removes all code
@@ -163,7 +163,7 @@ enum {
 	 * ability to fix the problem there. This is safe if you know that the
 	 * device tree is correctly ordered. See fdt_blocks_misordered_().
 	 */
-	ASSUME_LIBFDT_ORDER	= 1 << 4,
+	ASSUME_LIBFDT_ಕ್ರಮ	= 1 << 4,
 
 	/*
 	 * This assumes that libfdt itself does not have any internal bugs. It
@@ -181,12 +181,12 @@ enum {
  * @mask: Mask to check (ASSUME_...)
  * @return true if that assumption is enabled, else false
  */
-static inline bool can_assume_(int mask)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool can_assume_(ಪೂರ್ಣಾಂಕ ಮುಖವಾಡ)
 {
-	return FDT_ASSUME_MASK & mask;
+	ಹಿಂತಿರುಗಿ FDT_ASSUME_ಮುಖವಾಡ & ಮುಖವಾಡ;
 }
 
 /** helper macros for checking assumptions */
-#define can_assume(_assume)	can_assume_(ASSUME_ ## _assume)
+#ವ್ಯಾಖ್ಯಾನಿಸು can_assume(_assume)	can_assume_(ASSUME_ ## _assume)
 
-#endif /* LIBFDT_INTERNAL_H */
+#ಆದರೆ_ಅಂತ್ಯ /* LIBFDT_INTERNAL_H */

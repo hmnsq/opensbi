@@ -8,41 +8,41 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_timer.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_timer.h>
 
-static int sbi_ecall_time_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_ಸಮಯ_handler(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ extid, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ funcid,
+				  ರಚನೆ sbi_trap_regs *regs,
+				  ರಚನೆ sbi_ecall_return *ಹೊರಹೋಗು)
 {
-	int ret = 0;
+	ಪೂರ್ಣಾಂಕ ret = 0;
 
-	if (funcid == SBI_EXT_TIME_SET_TIMER) {
-#if __riscv_xlen == 32
-		sbi_timer_smode_event_start((((u64)regs->a1 << 32) | (u64)regs->a0));
-#else
-		sbi_timer_smode_event_start((u64)regs->a0);
-#endif
-	} else
+	ಆದರೆ (funcid == SBI_EXT_ಸಮಯ_ಗಣ_TIMER) {
+#ಆದರೆ __riscv_xlen == 32
+		sbi_timer_smode_event_ಆರಂಭ((((u64)regs->a1 << 32) | (u64)regs->a0));
+#ಇಲ್ಲದಿದ್ದರೆ
+		sbi_timer_smode_event_ಆರಂಭ((u64)regs->a0);
+#ಆದರೆ_ಅಂತ್ಯ
+	} ಇಲ್ಲದಿದ್ದರೆ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-struct sbi_ecall_extension ecall_time;
+ರಚನೆ sbi_ecall_extension ecall_ಸಮಯ;
 
-static int sbi_ecall_time_register_extensions(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_ಸಮಯ_ರಿಜಿಸ್ಟರ್_extensions(ಶೂನ್ಯ)
 {
-	return sbi_ecall_register_extension(&ecall_time);
+	ಹಿಂತಿರುಗಿ sbi_ecall_ರಿಜಿಸ್ಟರ್_extension(&ecall_ಸಮಯ);
 }
 
-struct sbi_ecall_extension ecall_time = {
+ರಚನೆ sbi_ecall_extension ecall_ಸಮಯ = {
 	.name			= "time",
-	.extid_start		= SBI_EXT_TIME,
-	.extid_end		= SBI_EXT_TIME,
-	.register_extensions	= sbi_ecall_time_register_extensions,
-	.handle			= sbi_ecall_time_handler,
+	.extid_ಆರಂಭ		= SBI_EXT_ಸಮಯ,
+	.extid_ಕೊನೆ		= SBI_EXT_ಸಮಯ,
+	.ರಿಜಿಸ್ಟರ್_extensions	= sbi_ecall_ಸಮಯ_ರಿಜಿಸ್ಟರ್_extensions,
+	.handle			= sbi_ecall_ಸಮಯ_handler,
 };

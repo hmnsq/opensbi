@@ -7,34 +7,34 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitmap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitmap.h>
 
-void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+ಶೂನ್ಯ __bitmap_and(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *dst, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap1,
+		  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap2, ಪೂರ್ಣಾಂಕ ಬಿಟ್ಟುಗಳು)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	ಪೂರ್ಣಾಂಕ k;
+	ಪೂರ್ಣಾಂಕ nr = ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_LONGS(ಬಿಟ್ಟುಗಳು);
 
-	for (k = 0; k < nr; k++)
+	ಗಾಗಿ (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
-void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+ಶೂನ್ಯ __bitmap_or(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *dst, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap1,
+		 ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap2, ಪೂರ್ಣಾಂಕ ಬಿಟ್ಟುಗಳು)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	ಪೂರ್ಣಾಂಕ k;
+	ಪೂರ್ಣಾಂಕ nr = ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_LONGS(ಬಿಟ್ಟುಗಳು);
 
-	for (k = 0; k < nr; k++)
+	ಗಾಗಿ (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
-void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+ಶೂನ್ಯ __bitmap_xor(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *dst, ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap1,
+		  ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *bitmap2, ಪೂರ್ಣಾಂಕ ಬಿಟ್ಟುಗಳು)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	ಪೂರ್ಣಾಂಕ k;
+	ಪೂರ್ಣಾಂಕ nr = ಬಿಟ್ಟುಗಳು_ಗಮ್ಯ_LONGS(ಬಿಟ್ಟುಗಳು);
 
-	for (k = 0; k < nr; k++)
+	ಗಾಗಿ (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/uart8250.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/fdt_serial.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ serial_uart8250_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+				ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	struct platform_uart_data uart = { 0 };
-	ulong caps = (ulong)match->data;
-	int rc;
+	ರಚನೆ platform_uart_ದತ್ತಾಂಶ uart = { 0 };
+	ulong caps = (ulong)ಹೊಂದಿಕೆ->ದತ್ತಾಂಶ;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_ಗಂಟು(fdt, nodeoff, &uart);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
-			     uart.reg_shift, uart.reg_io_width,
-			     uart.reg_offset, caps);
+	ಹಿಂತಿರುಗಿ uart8250_init(uart.addr, uart.freq, uart.baud,
+			     uart.reg_ಸರಿಸು, uart.reg_io_ಅಗಲ,
+			     uart.reg_ಸ್ಥಾನಾಂತರ, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ serial_uart8250_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "intel,xscale-uart",
-	  .data = (void *)UART_CAP_UUE },
+	  .ದತ್ತಾಂಶ = (ಶೂನ್ಯ *)UART_CAP_UUE },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
-	.match_table = serial_uart8250_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_serial_uart8250 = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = serial_uart8250_ಹೊಂದಿಕೆ,
 	.init = serial_uart8250_init,
 };

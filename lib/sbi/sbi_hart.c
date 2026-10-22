@@ -7,49 +7,49 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_fp.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_pmp.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_barrier.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_fp.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_csr_detect.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart_pmp.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmu.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
 
-extern void __sbi_expected_trap(void);
-extern void __sbi_expected_trap_hext(void);
+ಬಾಹ್ಯ ಶೂನ್ಯ __sbi_expected_trap(ಶೂನ್ಯ);
+ಬಾಹ್ಯ ಶೂನ್ಯ __sbi_expected_trap_hext(ಶೂನ್ಯ);
 
-void (*sbi_hart_expected_trap)(void) = &__sbi_expected_trap;
+ಶೂನ್ಯ (*sbi_hart_expected_trap)(ಶೂನ್ಯ) = &__sbi_expected_trap;
 
-unsigned long hart_features_offset;
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ hart_features_ಸ್ಥಾನಾಂತರ;
 
-static void mstatus_init(struct sbi_scratch *scratch)
+ಸ್ಥಿರ ಶೂನ್ಯ mstatus_init(ರಚನೆ sbi_scratch *scratch)
 {
-	int cidx;
-	unsigned long mstatus_val = 0;
-	unsigned int mhpm_mask = sbi_hart_mhpm_mask(scratch);
+	ಪೂರ್ಣಾಂಕ cidx;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ mstatus_val = 0;
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ mhpm_ಮುಖವಾಡ = sbi_hart_mhpm_ಮುಖವಾಡ(scratch);
 	uint64_t mhpmevent_init_val = 0;
 	uint64_t menvcfg_val, mstateen_val;
 
 	/* Enable FPU */
-	if (misa_extension('D') || misa_extension('F'))
+	ಆದರೆ (misa_extension('D') || misa_extension('F'))
 		mstatus_val |=  MSTATUS_FS;
 
 	/* Enable Vector context */
-	if (misa_extension('V'))
+	ಆದರೆ (misa_extension('V'))
 		mstatus_val |=  MSTATUS_VS;
 
 	csr_write(CSR_MSTATUS, mstatus_val);
 
 	/* Disable user mode usage of all perf counters except TM */
-	if (misa_extension('S') &&
-	    sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	ಆದರೆ (misa_extension('S') &&
+	    sbi_hart_priv_ಆವೃತ್ತಿ(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_SCOUNTEREN, 0x02);
 
 	/**
@@ -57,60 +57,60 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	 * Supervisor mode usage for all counters are enabled by default
 	 * But counters will not run until mcountinhibit is set.
 	 */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	ಆದರೆ (sbi_hart_priv_ಆವೃತ್ತಿ(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_MCOUNTEREN, -1);
 
 	/* All programmable counters will start running at runtime after S-mode request */
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
+	ಆದರೆ (sbi_hart_priv_ಆವೃತ್ತಿ(scratch) >= SBI_HART_PRIV_VER_1_11)
 		csr_write(CSR_MCOUNTINHIBIT, 0xFFFFFFF8);
 
 	/**
 	 * The mhpmeventn[h] CSR should be initialized with interrupt disabled
 	 * and inhibited running in M-mode during init.
 	 */
-	mhpmevent_init_val |= (MHPMEVENT_OF | MHPMEVENT_MINH);
-	for (cidx = 0; cidx <= 28; cidx++) {
-		if (!(mhpm_mask & 1UL << (cidx + 3)))
-			continue;
-#if __riscv_xlen == 32
-		csr_write_num(CSR_MHPMEVENT3 + cidx,
+	mhpmevent_init_val |= (MHPMEVENT_ದ | MHPMEVENT_MINH);
+	ಗಾಗಿ (cidx = 0; cidx <= 28; cidx++) {
+		ಆದರೆ (!(mhpm_ಮುಖವಾಡ & 1UL << (cidx + 3)))
+			ಮುಂದುವರಿ;
+#ಆದರೆ __riscv_xlen == 32
+		csr_write_ಅಂಕೆ(CSR_MHPMEVENT3 + cidx,
 			       mhpmevent_init_val & 0xFFFFFFFF);
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-			csr_write_num(CSR_MHPMEVENT3H + cidx,
-				      mhpmevent_init_val >> BITS_PER_LONG);
-#else
-		csr_write_num(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
-#endif
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+			csr_write_ಅಂಕೆ(CSR_MHPMEVENT3H + cidx,
+				      mhpmevent_init_val >> ಬಿಟ್ಟುಗಳು_ಪ್ರತಿ_LONG);
+#ಇಲ್ಲದಿದ್ದರೆ
+		csr_write_ಅಂಕೆ(CSR_MHPMEVENT3 + cidx, mhpmevent_init_val);
+#ಆದರೆ_ಅಂತ್ಯ
 	}
 
-	if (misa_extension('H'))
+	ಆದರೆ (misa_extension('H'))
 		csr_write(CSR_HSTATUS, 0);
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
+	ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMSTATEEN)) {
 		mstateen_val = 0;
 		mstateen_val |= SMSTATEEN_STATEN;
 		mstateen_val |= SMSTATEEN0_CONTEXT;
 		mstateen_val |= SMSTATEEN0_HSENVCFG;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA))
 			mstateen_val |= (SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
-		else
+		ಇಲ್ಲದಿದ್ದರೆ
 			mstateen_val &= ~(SMSTATEEN0_AIA | SMSTATEEN0_IMSIC);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMAIA) ||
 		    sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCSRIND))
 			mstateen_val |= (SMSTATEEN0_SVSLCT);
-		else
+		ಇಲ್ಲದಿದ್ದರೆ
 			mstateen_val &= ~(SMSTATEEN0_SVSLCT);
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCTR))
 			mstateen_val |= SMSTATEEN0_CTR;
-		else
+		ಇಲ್ಲದಿದ್ದರೆ
 			mstateen_val &= ~SMSTATEEN0_CTR;
 
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
 			mstateen_val |= SMSTATEEN0_SRMCFG;
-		else
+		ಇಲ್ಲದಿದ್ದರೆ
 			mstateen_val &= ~SMSTATEEN0_SRMCFG;
 
 		csr_write64(CSR_MSTATEEN0, mstateen_val);
@@ -119,14 +119,14 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		csr_write64(CSR_MSTATEEN3, SMSTATEEN_STATEN);
 	}
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
-		if (misa_extension('S')) {
+	ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSSTATEEN)) {
+		ಆದರೆ (misa_extension('S')) {
 			csr_write(CSR_SSTATEEN0, 0);
 			csr_write(CSR_SSTATEEN1, 0);
 			csr_write(CSR_SSTATEEN2, 0);
 			csr_write(CSR_SSTATEEN3, 0);
 		}
-		if (misa_extension('H')) {
+		ಆದರೆ (misa_extension('H')) {
 			csr_write64(CSR_HSTATEEN0, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN1, (uint64_t)0);
 			csr_write64(CSR_HSTATEEN2, (uint64_t)0);
@@ -134,7 +134,7 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		}
 	}
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12) {
+	ಆದರೆ (sbi_hart_priv_ಆವೃತ್ತಿ(scratch) >= SBI_HART_PRIV_VER_1_12) {
 		menvcfg_val = csr_read64(CSR_MENVCFG);
 
 		/* Disable HW A/D updating by default */
@@ -143,8 +143,8 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		/* Disable double trap by default */
 		menvcfg_val &= ~ENVCFG_DTE;
 
-#define __set_menvcfg_ext(__ext, __bits)				\
-		if (sbi_hart_has_extension(scratch, __ext))		\
+#ವ್ಯಾಖ್ಯಾನಿಸು __set_menvcfg_ext(__ext, __bits)				\
+		ಆದರೆ (sbi_hart_has_extension(scratch, __ext))		\
 			menvcfg_val |= __bits;
 
 		/*
@@ -155,10 +155,10 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOZ, ENVCFG_CBZE)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM, ENVCFG_CBCFE)
 		__set_menvcfg_ext(SBI_HART_EXT_ZICBOM,
-				  ENVCFG_CBIE_INV << ENVCFG_CBIE_SHIFT)
-#if __riscv_xlen > 32
+				  ENVCFG_CBIE_INV << ENVCFG_CBIE_ಸರಿಸು)
+#ಆದರೆ __riscv_xlen > 32
 		__set_menvcfg_ext(SBI_HART_EXT_SVPBMT, ENVCFG_PBMTE)
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 		__set_menvcfg_ext(SBI_HART_EXT_SSTC, ENVCFG_STCE)
 		__set_menvcfg_ext(SBI_HART_EXT_SMCDELEG, ENVCFG_CDE);
 
@@ -168,16 +168,16 @@ static void mstatus_init(struct sbi_scratch *scratch)
 		 * present. When both are present we must default to Svade (see
 		 * the zero reset value of FWFT.PTE_AD_HW_UPDATING).
 		 */
-		if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
+		ಆದರೆ (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SVADE))
 			__set_menvcfg_ext(SBI_HART_EXT_SVADU, ENVCFG_ADUE);
 
-#undef __set_menvcfg_ext
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __set_menvcfg_ext
 
 		csr_write64(CSR_MENVCFG, menvcfg_val);
 
 		/* Enable S-mode access to seed CSR */
-		if (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
-			csr_set(CSR_MSECCFG, MSECCFG_SSEED);
+		ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
+			csr_ಗಣ(CSR_MSECCFG, MSECCFG_SSEED);
 			csr_clear(CSR_MSECCFG, MSECCFG_USEED);
 		}
 	}
@@ -186,101 +186,101 @@ static void mstatus_init(struct sbi_scratch *scratch)
 	csr_write(CSR_MIE, 0);
 
 	/* Disable S-mode paging */
-	if (misa_extension('S'))
+	ಆದರೆ (misa_extension('S'))
 		csr_write(CSR_SATP, 0);
 }
 
-static int fp_init(struct sbi_scratch *scratch)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fp_init(ರಚನೆ sbi_scratch *scratch)
 {
-#ifdef __riscv_flen
-	int i;
-#endif
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __riscv_flen
+	ಪೂರ್ಣಾಂಕ i;
+#ಆದರೆ_ಅಂತ್ಯ
 
-	if (!misa_extension('D') && !misa_extension('F'))
-		return 0;
+	ಆದರೆ (!misa_extension('D') && !misa_extension('F'))
+		ಹಿಂತಿರುಗಿ 0;
 
-	if (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
-		return SBI_EINVAL;
+	ಆದರೆ (!(csr_read(CSR_MSTATUS) & MSTATUS_FS))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-#ifdef __riscv_flen
-	for (i = 0; i < 32; i++)
+#ವ್ಯಾಖ್ಯಾನಿತವಾದರೆ __riscv_flen
+	ಗಾಗಿ (i = 0; i < 32; i++)
 		init_fp_reg(i);
 	csr_write(CSR_FCSR, 0);
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void sbi_hart_delegation_dump(struct sbi_scratch *scratch,
-			      const char *prefix, const char *suffix)
+ಶೂನ್ಯ sbi_hart_delegation_dump(ರಚನೆ sbi_scratch *scratch,
+			      ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *ಪೂರ್ವಪ್ರತ್ಯಯ, ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *suffix)
 {
-	if (!misa_extension('S'))
+	ಆದರೆ (!misa_extension('S'))
 		/* No delegation possible as mideleg does not exist*/
-		return;
+		ಹಿಂತಿರುಗಿ;
 
 	sbi_printf("%sMIDELEG%s: 0x%" PRILX "\n",
-		   prefix, suffix, csr_read(CSR_MIDELEG));
+		   ಪೂರ್ವಪ್ರತ್ಯಯ, suffix, csr_read(CSR_MIDELEG));
 	sbi_printf("%sMEDELEG%s: 0x%" PRILX "\n",
-		   prefix, suffix, csr_read(CSR_MEDELEG));
+		   ಪೂರ್ವಪ್ರತ್ಯಯ, suffix, csr_read(CSR_MEDELEG));
 }
 
-unsigned int sbi_hart_mhpm_mask(struct sbi_scratch *scratch)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ sbi_hart_mhpm_ಮುಖವಾಡ(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	return hfeatures->mhpm_mask;
+	ಹಿಂತಿರುಗಿ hfeatures->mhpm_ಮುಖವಾಡ;
 }
 
-unsigned int sbi_hart_mhpm_bits(struct sbi_scratch *scratch)
+ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ sbi_hart_mhpm_ಬಿಟ್ಟುಗಳು(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	return hfeatures->mhpm_bits;
+	ಹಿಂತಿರುಗಿ hfeatures->mhpm_ಬಿಟ್ಟುಗಳು;
 }
 
-int sbi_hart_priv_version(struct sbi_scratch *scratch)
+ಪೂರ್ಣಾಂಕ sbi_hart_priv_ಆವೃತ್ತಿ(ರಚನೆ sbi_scratch *scratch)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	return hfeatures->priv_version;
+	ಹಿಂತಿರುಗಿ hfeatures->priv_ಆವೃತ್ತಿ;
 }
 
-void sbi_hart_get_priv_version_str(struct sbi_scratch *scratch,
-				   char *version_str, int nvstr)
+ಶೂನ್ಯ sbi_hart_get_priv_ಆವೃತ್ತಿ_str(ರಚನೆ sbi_scratch *scratch,
+				   ಅಕ್ಷರ *ಆವೃತ್ತಿ_str, ಪೂರ್ಣಾಂಕ nvstr)
 {
-	char *temp;
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ಅಕ್ಷರ *ತಾತ್ಕಾಲಿಕ;
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	switch (hfeatures->priv_version) {
-	case SBI_HART_PRIV_VER_1_10:
-		temp = "v1.10";
-		break;
-	case SBI_HART_PRIV_VER_1_11:
-		temp = "v1.11";
-		break;
-	case SBI_HART_PRIV_VER_1_12:
-		temp = "v1.12";
-		break;
-	default:
-		temp = "unknown";
-		break;
+	ಆಯ್ಕೆ (hfeatures->priv_ಆವೃತ್ತಿ) {
+	ಸ್ಥಿತಿ SBI_HART_PRIV_VER_1_10:
+		ತಾತ್ಕಾಲಿಕ = "v1.10";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_HART_PRIV_VER_1_11:
+		ತಾತ್ಕಾಲಿಕ = "v1.11";
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ SBI_HART_PRIV_VER_1_12:
+		ತಾತ್ಕಾಲಿಕ = "v1.12";
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ತಾತ್ಕಾಲಿಕ = "unknown";
+		ನಿಲ್ಲಿಸು;
 	}
 
-	sbi_snprintf(version_str, nvstr, "%s", temp);
+	sbi_snprintf(ಆವೃತ್ತಿ_str, nvstr, "%s", ತಾತ್ಕಾಲಿಕ);
 }
 
-static inline void __sbi_hart_update_extension(
-					struct sbi_hart_features *hfeatures,
-					enum sbi_hart_extensions ext,
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ __sbi_hart_update_extension(
+					ರಚನೆ sbi_hart_features *hfeatures,
+					ಎಣಿಕೆ sbi_hart_extensions ext,
 					bool enable)
 {
-	if (enable)
+	ಆದರೆ (enable)
 		__set_bit(ext, hfeatures->extensions);
-	else
+	ಇಲ್ಲದಿದ್ದರೆ
 		__clear_bit(ext, hfeatures->extensions);
 }
 
@@ -291,12 +291,12 @@ static inline void __sbi_hart_update_extension(
  * @param ext the extension number to check
  * @param enable new state of hart extension
  */
-void sbi_hart_update_extension(struct sbi_scratch *scratch,
-			       enum sbi_hart_extensions ext,
+ಶೂನ್ಯ sbi_hart_update_extension(ರಚನೆ sbi_scratch *scratch,
+			       ಎಣಿಕೆ sbi_hart_extensions ext,
 			       bool enable)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
 	__sbi_hart_update_extension(hfeatures, ext, enable);
 }
@@ -308,24 +308,24 @@ void sbi_hart_update_extension(struct sbi_scratch *scratch,
  * @param ext the extension number to check
  * @returns true (available) or false (not available)
  */
-bool sbi_hart_has_extension(struct sbi_scratch *scratch,
-			    enum sbi_hart_extensions ext)
+bool sbi_hart_has_extension(ರಚನೆ sbi_scratch *scratch,
+			    ಎಣಿಕೆ sbi_hart_extensions ext)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	if (__test_bit(ext, hfeatures->extensions))
-		return true;
-	else
-		return false;
+	ಆದರೆ (__test_bit(ext, hfeatures->extensions))
+		ಹಿಂತಿರುಗಿ true;
+	ಇಲ್ಲದಿದ್ದರೆ
+		ಹಿಂತಿರುಗಿ false;
 }
 
-#define __SBI_HART_EXT_DATA(_name, _id) {	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __SBI_HART_EXT_DATA(_name, _id) {	\
 	.name = #_name,				\
 	.id = _id,				\
 }
 
-const struct sbi_hart_ext_data sbi_hart_ext[] = {
+ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_hart_ext_ದತ್ತಾಂಶ sbi_hart_ext[] = {
 	__SBI_HART_EXT_DATA(smaia, SBI_HART_EXT_SMAIA),
 	__SBI_HART_EXT_DATA(smepmp, SBI_HART_EXT_SMEPMP),
 	__SBI_HART_EXT_DATA(smstateen, SBI_HART_EXT_SMSTATEEN),
@@ -362,7 +362,7 @@ const struct sbi_hart_ext_data sbi_hart_ext[] = {
 	__SBI_HART_EXT_DATA(d, SBI_HART_EXT_D),
 };
 
-_Static_assert(SBI_HART_EXT_MAX == array_size(sbi_hart_ext),
+_Static_assert(SBI_HART_EXT_MAX == array_ಗಾತ್ರ(sbi_hart_ext),
 	       "sbi_hart_ext[]: wrong number of entries");
 
 /**
@@ -374,31 +374,31 @@ _Static_assert(SBI_HART_EXT_MAX == array_size(sbi_hart_ext),
  * @param nestr length of the features_str. The feature string will be
  *		truncated if nestr is not long enough.
  */
-void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
-				 char *extensions_str, int nestr)
+ಶೂನ್ಯ sbi_hart_get_extensions_str(ರಚನೆ sbi_scratch *scratch,
+				 ಅಕ್ಷರ *extensions_str, ಪೂರ್ಣಾಂಕ nestr)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
-	int offset = 0, ext = 0;
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
+	ಪೂರ್ಣಾಂಕ ಸ್ಥಾನಾಂತರ = 0, ext = 0;
 
-	if (!extensions_str || nestr <= 0)
-		return;
+	ಆದರೆ (!extensions_str || nestr <= 0)
+		ಹಿಂತಿರುಗಿ;
 	sbi_memset(extensions_str, 0, nestr);
 
-	for_each_set_bit(ext, hfeatures->extensions, SBI_HART_EXT_MAX) {
-		if (offset + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
+	for_each_ಗಣ_ಬಿಟ್(ext, hfeatures->extensions, SBI_HART_EXT_MAX) {
+		ಆದರೆ (ಸ್ಥಾನಾಂತರ + sbi_strlen(sbi_hart_ext[ext].name) + 1 > nestr) {
 			sbi_printf("%s:extension name is longer than buffer (error)\n", __func__);
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
-		sbi_snprintf(extensions_str + offset,
-				 nestr - offset,
+		sbi_snprintf(extensions_str + ಸ್ಥಾನಾಂತರ,
+				 nestr - ಸ್ಥಾನಾಂತರ,
 				 "%s,", sbi_hart_ext[ext].name);
-		offset = offset + sbi_strlen(sbi_hart_ext[ext].name) + 1;
+		ಸ್ಥಾನಾಂತರ = ಸ್ಥಾನಾಂತರ + sbi_strlen(sbi_hart_ext[ext].name) + 1;
 	}
 
-	if (offset)
-		extensions_str[offset - 1] = '\0';
-	else
+	ಆದರೆ (ಸ್ಥಾನಾಂತರ)
+		extensions_str[ಸ್ಥಾನಾಂತರ - 1] = '\0';
+	ಇಲ್ಲದಿದ್ದರೆ
 		sbi_strncpy(extensions_str, "none", nestr);
 }
 
@@ -408,75 +408,75 @@ void sbi_hart_get_extensions_str(struct sbi_scratch *scratch,
  * @param scratch pointer to the HART scratch space
  * @param csr the CSR number to check
  */
-bool sbi_hart_has_csr(struct sbi_scratch *scratch, enum sbi_hart_csrs csr)
+bool sbi_hart_has_csr(ರಚನೆ sbi_scratch *scratch, ಎಣಿಕೆ sbi_hart_csrs csr)
 {
-	struct sbi_hart_features *hfeatures =
-			sbi_scratch_offset_ptr(scratch, hart_features_offset);
+	ರಚನೆ sbi_hart_features *hfeatures =
+			sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
 
-	return __test_bit(csr, hfeatures->csrs);
+	ಹಿಂತಿರುಗಿ __test_bit(csr, hfeatures->csrs);
 }
 
-static unsigned long hart_pmp_get_allowed_addr(void)
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ hart_pmp_get_allowed_addr(ಶೂನ್ಯ)
 {
-	unsigned long val = 0;
-	struct sbi_trap_info trap = {0};
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val = 0;
+	ರಚನೆ sbi_trap_info trap = {0};
 
 	csr_write_allowed(CSR_PMPCFG0, &trap, 0);
-	if (trap.cause)
-		return 0;
+	ಆದರೆ (trap.cause)
+		ಹಿಂತಿರುಗಿ 0;
 
-	csr_write_allowed(CSR_PMPADDR0, &trap, PMP_ADDR_MASK);
-	if (!trap.cause) {
+	csr_write_allowed(CSR_PMPADDR0, &trap, PMP_ADDR_ಮುಖವಾಡ);
+	ಆದರೆ (!trap.cause) {
 		val = csr_read_allowed(CSR_PMPADDR0, &trap);
-		if (trap.cause)
+		ಆದರೆ (trap.cause)
 			val = 0;
 	}
 
-	return val;
+	ಹಿಂತಿರುಗಿ val;
 }
 
-static int hart_mhpm_get_allowed_bits(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ hart_mhpm_get_allowed_ಬಿಟ್ಟುಗಳು(ಶೂನ್ಯ)
 {
-	unsigned long val = ~(0UL);
-	struct sbi_trap_info trap = {0};
-	int num_bits = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val = ~(0UL);
+	ರಚನೆ sbi_trap_info trap = {0};
+	ಪೂರ್ಣಾಂಕ ಅಂಕೆ_ಬಿಟ್ಟುಗಳು = 0;
 
 	/**
 	 * It is assumed that platforms will implement same number of bits for
 	 * all the performance counters including mcycle/minstret.
 	 */
 	csr_write_allowed(CSR_MHPMCOUNTER3, &trap, val);
-	if (!trap.cause) {
+	ಆದರೆ (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3, &trap);
-		if (trap.cause)
-			return 0;
+		ಆದರೆ (trap.cause)
+			ಹಿಂತಿರುಗಿ 0;
 	}
-	num_bits = sbi_fls(val) + 1;
-#if __riscv_xlen == 32
+	ಅಂಕೆ_ಬಿಟ್ಟುಗಳು = sbi_fls(val) + 1;
+#ಆದರೆ __riscv_xlen == 32
 	csr_write_allowed(CSR_MHPMCOUNTER3H, &trap, val);
-	if (!trap.cause) {
+	ಆದರೆ (!trap.cause) {
 		val = csr_read_allowed(CSR_MHPMCOUNTER3H, &trap);
-		if (trap.cause)
-			return num_bits;
+		ಆದರೆ (trap.cause)
+			ಹಿಂತಿರುಗಿ ಅಂಕೆ_ಬಿಟ್ಟುಗಳು;
 	}
-	num_bits += sbi_fls(val) + 1;
+	ಅಂಕೆ_ಬಿಟ್ಟುಗಳು += sbi_fls(val) + 1;
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 
-	return num_bits;
+	ಹಿಂತಿರುಗಿ ಅಂಕೆ_ಬಿಟ್ಟುಗಳು;
 }
 
-static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ hart_detect_features(ರಚನೆ sbi_scratch *scratch, bool cold_boot)
 {
-	struct sbi_trap_info trap = {0};
-	struct sbi_hart_features *hfeatures =
-		sbi_scratch_offset_ptr(scratch, hart_features_offset);
-	unsigned long val, oldval;
-	int rc;
+	ರಚನೆ sbi_trap_info trap = {0};
+	ರಚನೆ sbi_hart_features *hfeatures =
+		sbi_scratch_ಸ್ಥಾನಾಂತರ_ptr(scratch, hart_features_ಸ್ಥಾನಾಂತರ);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val, oldval;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	/* If hart features already detected then do nothing */
-	if (hfeatures->detected)
-		return 0;
+	ಆದರೆ (hfeatures->detected)
+		ಹಿಂತಿರುಗಿ 0;
 
 	/*
 	 * Parse device tree extensions early, before any trap-based checks.
@@ -484,16 +484,16 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * that may trigger traps.
 	 */
 	rc = sbi_platform_extensions_init(sbi_platform_ptr(scratch), cold_boot);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
-		const struct sbi_platform *plat = sbi_platform_thishart_ptr();
-		const struct sbi_platform_operations *ops = sbi_platform_ops(plat);
-		extern void _trap_rnmi_handler(void);
-		extern void _trap_handler(void);
+	ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMRNMI)) {
+		ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform *plat = sbi_platform_thishart_ptr();
+		ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_platform_operations *ops = sbi_platform_ops(plat);
+		ಬಾಹ್ಯ ಶೂನ್ಯ _trap_rnmi_handler(ಶೂನ್ಯ);
+		ಬಾಹ್ಯ ಶೂನ್ಯ _trap_handler(ಶೂನ್ಯ);
 
-		if (!ops || !ops->smrnmi_handlers_init)
+		ಆದರೆ (!ops || !ops->smrnmi_handlers_init)
 			sbi_panic("Smrnmi detected, but platform lacks smrnmi_handlers_init callback\n");
 
 		/* Reuse _trap_handler for the RNME slot since RNME is taken
@@ -504,66 +504,66 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 		csr_write(CSR_MNSCRATCH, scratch);
 
 		/* Enable NMIs */
-		csr_set(CSR_MNSTATUS, MNSTATUS_NMIE);
+		csr_ಗಣ(CSR_MNSTATUS, MNSTATUS_NMIE);
 	}
 
-#define __check_hpm_csr(__csr, __mask) 					  \
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_hpm_csr(__csr, __mask) 					  \
 	oldval = csr_read_allowed(__csr, &trap);			  \
-	if (!trap.cause) {						  \
+	ಆದರೆ (!trap.cause) {						  \
 		csr_write_allowed(__csr, &trap, 1UL);			  \
-		if (!trap.cause && csr_swap(__csr, oldval) == 1UL) {	  \
+		ಆದರೆ (!trap.cause && csr_ಅದಲುಬದಲು(__csr, oldval) == 1UL) {	  \
 			(hfeatures->__mask) |= 1 << (__csr - CSR_MCYCLE); \
 		}							  \
 	}
 
-#define __check_hpm_csr_2(__csr, __mask)	 		  \
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_hpm_csr_2(__csr, __mask)	 		  \
 	__check_hpm_csr(__csr + 0, __mask)	 		  \
 	__check_hpm_csr(__csr + 1, __mask)
-#define __check_hpm_csr_4(__csr, __mask)	 		  \
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_hpm_csr_4(__csr, __mask)	 		  \
 	__check_hpm_csr_2(__csr + 0, __mask) 			  \
 	__check_hpm_csr_2(__csr + 2, __mask)
-#define __check_hpm_csr_8(__csr, __mask)	 		  \
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_hpm_csr_8(__csr, __mask)	 		  \
 	__check_hpm_csr_4(__csr + 0, __mask) 			  \
 	__check_hpm_csr_4(__csr + 4, __mask)
-#define __check_hpm_csr_16(__csr, __mask)	 		  \
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_hpm_csr_16(__csr, __mask)	 		  \
 	__check_hpm_csr_8(__csr + 0, __mask) 			  \
 	__check_hpm_csr_8(__csr + 8, __mask)
 
-#define __check_csr(__csr, __rdonly, __wrval, __field, __skip)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr(__csr, __rdonly, __wrval, __field, __skip)		\
 	oldval = csr_read_allowed(__csr, &trap);			\
-	if (!trap.cause) {						\
-		if (__rdonly) {						\
+	ಆದರೆ (!trap.cause) {						\
+		ಆದರೆ (__rdonly) {						\
 			(hfeatures->__field)++;				\
-		} else {						\
+		} ಇಲ್ಲದಿದ್ದರೆ {						\
 			csr_write_allowed(__csr, &trap, __wrval);	\
-			if (!trap.cause) {				\
-				if ((csr_swap(__csr, oldval) & __wrval) == __wrval)	\
+			ಆದರೆ (!trap.cause) {				\
+				ಆದರೆ ((csr_ಅದಲುಬದಲು(__csr, oldval) & __wrval) == __wrval)	\
 					(hfeatures->__field)++;		\
-				else					\
-					goto __skip;			\
-			} else {					\
-				goto __skip;				\
+				ಇಲ್ಲದಿದ್ದರೆ					\
+					ಹೋಗು __skip;			\
+			} ಇಲ್ಲದಿದ್ದರೆ {					\
+				ಹೋಗು __skip;				\
 			}						\
 		}							\
-	} else {							\
-		goto __skip;						\
+	} ಇಲ್ಲದಿದ್ದರೆ {							\
+		ಹೋಗು __skip;						\
 	}
-#define __check_csr_2(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_2(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr(__csr + 1, __rdonly, __wrval, __field, __skip)
-#define __check_csr_4(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_4(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_2(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_2(__csr + 2, __rdonly, __wrval, __field, __skip)
-#define __check_csr_8(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_8(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_4(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_4(__csr + 4, __rdonly, __wrval, __field, __skip)
-#define __check_csr_16(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_16(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_8(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_8(__csr + 8, __rdonly, __wrval, __field, __skip)
-#define __check_csr_32(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_32(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_16(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_16(__csr + 16, __rdonly, __wrval, __field, __skip)
-#define __check_csr_64(__csr, __rdonly, __wrval, __field, __skip)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_64(__csr, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_32(__csr + 0, __rdonly, __wrval, __field, __skip)	\
 	__check_csr_32(__csr + 32, __rdonly, __wrval, __field, __skip)
 
@@ -572,37 +572,37 @@ static int hart_detect_features(struct sbi_scratch *scratch, bool cold_boot)
 	 * should be implemented.
 	 */
 	val = hart_pmp_get_allowed_addr();
-	if (val) {
+	ಆದರೆ (val) {
 		hfeatures->pmp_log2gran = sbi_ffs(val) + 2;
-		hfeatures->pmp_addr_bits = sbi_fls(val) + 1;
+		hfeatures->pmp_addr_ಬಿಟ್ಟುಗಳು = sbi_fls(val) + 1;
 		/* Detect number of PMP regions. At least PMPADDR0 should be implemented*/
-		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_count, __pmp_skip);
+		__check_csr_64(CSR_PMPADDR0, 0, val, pmp_ಎಣಿಕೆ, __pmp_skip);
 	}
 __pmp_skip:
 	/* Detect number of MHPM counters */
-	__check_hpm_csr(CSR_MHPMCOUNTER3, mhpm_mask);
-	hfeatures->mhpm_bits = hart_mhpm_get_allowed_bits();
-	__check_hpm_csr_4(CSR_MHPMCOUNTER4, mhpm_mask);
-	__check_hpm_csr_8(CSR_MHPMCOUNTER8, mhpm_mask);
-	__check_hpm_csr_16(CSR_MHPMCOUNTER16, mhpm_mask);
+	__check_hpm_csr(CSR_MHPMCOUNTER3, mhpm_ಮುಖವಾಡ);
+	hfeatures->mhpm_ಬಿಟ್ಟುಗಳು = hart_mhpm_get_allowed_ಬಿಟ್ಟುಗಳು();
+	__check_hpm_csr_4(CSR_MHPMCOUNTER4, mhpm_ಮುಖವಾಡ);
+	__check_hpm_csr_8(CSR_MHPMCOUNTER8, mhpm_ಮುಖವಾಡ);
+	__check_hpm_csr_16(CSR_MHPMCOUNTER16, mhpm_ಮುಖವಾಡ);
 
 	/**
 	 * No need to check for MHPMCOUNTERH for RV32 as they are expected to be
 	 * implemented if MHPMCOUNTER is implemented.
 	 */
-#undef __check_csr_64
-#undef __check_csr_32
-#undef __check_csr_16
-#undef __check_csr_8
-#undef __check_csr_4
-#undef __check_csr_2
-#undef __check_csr
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_64
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_32
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_16
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_8
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_4
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_2
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr
 
 
-#define __check_priv(__csr, __base_priv, __priv)			\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_priv(__csr, __base_priv, __priv)			\
 	val = csr_read_allowed(__csr, &trap);				\
-	if (!trap.cause && (hfeatures->priv_version >= __base_priv)) {	\
-		hfeatures->priv_version = __priv;			\
+	ಆದರೆ (!trap.cause && (hfeatures->priv_ಆವೃತ್ತಿ >= __base_priv)) {	\
+		hfeatures->priv_ಆವೃತ್ತಿ = __priv;			\
 	}
 
 	/* Detect if hart supports Priv v1.10 */
@@ -615,12 +615,12 @@ __pmp_skip:
 	__check_priv(CSR_MENVCFG,
 		     SBI_HART_PRIV_VER_1_11, SBI_HART_PRIV_VER_1_12);
 
-#undef __check_priv_csr
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_priv_csr
 
-#define __check_ext_csr(__base_priv, __csr, __ext)			\
-	if (hfeatures->priv_version >= __base_priv) {			\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_ext_csr(__base_priv, __csr, __ext)			\
+	ಆದರೆ (hfeatures->priv_ಆವೃತ್ತಿ >= __base_priv) {			\
 		csr_read_allowed(__csr, &trap);				\
-		if (!trap.cause)					\
+		ಆದರೆ (!trap.cause)					\
 			__sbi_hart_update_extension(hfeatures,		\
 						    __ext, true);	\
 	}
@@ -648,27 +648,27 @@ __pmp_skip:
 	__check_ext_csr(SBI_HART_PRIV_VER_UNKNOWN,
 			CSR_TSELECT, SBI_HART_EXT_SDTRIG);
 
-#undef __check_ext_csr
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_ext_csr
 
-#define __check_csr_existence(__csr, __csr_id)				\
+#ವ್ಯಾಖ್ಯಾನಿಸು __check_csr_existence(__csr, __csr_id)				\
 	csr_read_allowed(__csr, &trap);					\
-	if (!trap.cause)						\
+	ಆದರೆ (!trap.cause)						\
 		__set_bit(__csr_id, hfeatures->csrs);
 
-	__check_csr_existence(CSR_CYCLE, SBI_HART_CSR_CYCLE);
-	__check_csr_existence(CSR_TIME, SBI_HART_CSR_TIME);
+	__check_csr_existence(CSR_ಚಕ್ರ, SBI_HART_CSR_ಚಕ್ರ);
+	__check_csr_existence(CSR_ಸಮಯ, SBI_HART_CSR_ಸಮಯ);
 	__check_csr_existence(CSR_INSTRET, SBI_HART_CSR_INSTRET);
 
-#undef __check_csr_existence
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು __check_csr_existence
 
 	/* Zicntr should only be detected using traps */
 	__sbi_hart_update_extension(hfeatures, SBI_HART_EXT_ZICNTR,
-			    sbi_hart_has_csr(scratch, SBI_HART_CSR_CYCLE) &&
-			    sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME)  &&
+			    sbi_hart_has_csr(scratch, SBI_HART_CSR_ಚಕ್ರ) &&
+			    sbi_hart_has_csr(scratch, SBI_HART_CSR_ಸಮಯ)  &&
 			    sbi_hart_has_csr(scratch, SBI_HART_CSR_INSTRET));
 
 	/* Extensions implied by other extensions and features */
-	if (hfeatures->mhpm_mask)
+	ಆದರೆ (hfeatures->mhpm_ಮುಖವಾಡ)
 		__sbi_hart_update_extension(hfeatures,
 					SBI_HART_EXT_ZIHPM, true);
 
@@ -681,29 +681,29 @@ __pmp_skip:
 	 * to configure it's own M-mode only regions without depending
 	 * on the previous booting stage.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
+	ಆದರೆ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMEPMP) &&
 	    (csr_read(CSR_MSECCFG) & MSECCFG_MML))
-		return SBI_EILL;
+		ಹಿಂತಿರುಗಿ SBI_EILL;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_hart_reinit(struct sbi_scratch *scratch)
+ಪೂರ್ಣಾಂಕ sbi_hart_reinit(ರಚನೆ sbi_scratch *scratch)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	mstatus_init(scratch);
 
 	rc = fp_init(scratch);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
+ಪೂರ್ಣಾಂಕ sbi_hart_init(ರಚನೆ sbi_scratch *scratch, bool cold_boot)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
 	/*
 	 * Clear mip CSR before proceeding with init to avoid any spurious
@@ -711,100 +711,100 @@ int sbi_hart_init(struct sbi_scratch *scratch, bool cold_boot)
 	 */
 	csr_write(CSR_MIP, 0);
 
-	if (cold_boot) {
-		if (misa_extension('H'))
+	ಆದರೆ (cold_boot) {
+		ಆದರೆ (misa_extension('H'))
 			sbi_hart_expected_trap = &__sbi_expected_trap_hext;
 
-		hart_features_offset = sbi_scratch_alloc_offset(
-					sizeof(struct sbi_hart_features));
-		if (!hart_features_offset)
-			return SBI_ENOMEM;
+		hart_features_ಸ್ಥಾನಾಂತರ = sbi_scratch_alloc_ಸ್ಥಾನಾಂತರ(
+					ಗಾತ್ರ(ರಚನೆ sbi_hart_features));
+		ಆದರೆ (!hart_features_ಸ್ಥಾನಾಂತರ)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 	}
 
 	rc = hart_detect_features(scratch, cold_boot);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	if (cold_boot) {
+	ಆದರೆ (cold_boot) {
 		rc = sbi_hart_pmp_init(scratch);
-		if (rc)
-			return rc;
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return sbi_hart_reinit(scratch);
+	ಹಿಂತಿರುಗಿ sbi_hart_reinit(scratch);
 }
 
-void __attribute__((noreturn)) sbi_hart_hang(void)
+ಶೂನ್ಯ __attribute__((noreturn)) sbi_hart_hang(ಶೂನ್ಯ)
 {
-	while (1)
+	ಆಗ (1)
 		wfi();
 	__builtin_unreachable();
 }
 
-void __attribute__((noreturn))
-sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
-		     unsigned long next_addr, unsigned long next_mode,
-		     bool next_virt)
+ಶೂನ್ಯ __attribute__((noreturn))
+sbi_hart_switch_ಬಹುಲಕ(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ arg0, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ arg1,
+		     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಮುಂದಿನ_addr, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಮುಂದಿನ_ಬಹುಲಕ,
+		     bool ಮುಂದಿನ_virt)
 {
-#if __riscv_xlen == 32
-	unsigned long val, valH;
-#else
-	unsigned long val;
-#endif
+#ಆದರೆ __riscv_xlen == 32
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val, valH;
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val;
+#ಆದರೆ_ಅಂತ್ಯ
 
-	switch (next_mode) {
-	case PRV_M:
-		break;
-	case PRV_S:
-		if (!misa_extension('S'))
+	ಆಯ್ಕೆ (ಮುಂದಿನ_ಬಹುಲಕ) {
+	ಸ್ಥಿತಿ PRV_M:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ PRV_S:
+		ಆದರೆ (!misa_extension('S'))
 			sbi_hart_hang();
-		break;
-	case PRV_U:
-		if (!misa_extension('U'))
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ PRV_U:
+		ಆದರೆ (!misa_extension('U'))
 			sbi_hart_hang();
-		break;
-	default:
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
 		sbi_hart_hang();
 	}
 
 	val = csr_read(CSR_MSTATUS);
-	val = INSERT_FIELD(val, MSTATUS_MPP, next_mode);
-	val = INSERT_FIELD(val, MSTATUS_MPIE, 0);
-#if __riscv_xlen == 32
-	if (misa_extension('H')) {
+	val = ಸೇರಿಸು_ಕ್ಷೇತ್ರ(val, MSTATUS_MPP, ಮುಂದಿನ_ಬಹುಲಕ);
+	val = ಸೇರಿಸು_ಕ್ಷೇತ್ರ(val, MSTATUS_MPIE, 0);
+#ಆದರೆ __riscv_xlen == 32
+	ಆದರೆ (misa_extension('H')) {
 		valH = csr_read(CSR_MSTATUSH);
-		valH = INSERT_FIELD(valH, MSTATUSH_MPV, next_virt);
+		valH = ಸೇರಿಸು_ಕ್ಷೇತ್ರ(valH, MSTATUSH_MPV, ಮುಂದಿನ_virt);
 		csr_write(CSR_MSTATUSH, valH);
 	}
-#else
-	if (misa_extension('H'))
-		val = INSERT_FIELD(val, MSTATUS_MPV, next_virt);
-#endif
+#ಇಲ್ಲದಿದ್ದರೆ
+	ಆದರೆ (misa_extension('H'))
+		val = ಸೇರಿಸು_ಕ್ಷೇತ್ರ(val, MSTATUS_MPV, ಮುಂದಿನ_virt);
+#ಆದರೆ_ಅಂತ್ಯ
 	csr_write(CSR_MSTATUS, val);
-	csr_write(CSR_MEPC, next_addr);
+	csr_write(CSR_MEPC, ಮುಂದಿನ_addr);
 
-	if (next_mode == PRV_S) {
-		if (next_virt) {
-			csr_write(CSR_VSTVEC, next_addr);
+	ಆದರೆ (ಮುಂದಿನ_ಬಹುಲಕ == PRV_S) {
+		ಆದರೆ (ಮುಂದಿನ_virt) {
+			csr_write(CSR_VSTVEC, ಮುಂದಿನ_addr);
 			csr_write(CSR_VSSCRATCH, 0);
 			csr_write(CSR_VSIE, 0);
 			csr_write(CSR_VSATP, 0);
-		} else {
-			csr_write(CSR_STVEC, next_addr);
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			csr_write(CSR_STVEC, ಮುಂದಿನ_addr);
 			csr_write(CSR_SSCRATCH, 0);
 			csr_write(CSR_SIE, 0);
 			csr_write(CSR_SATP, 0);
 		}
-	} else if (next_mode == PRV_U) {
-		if (misa_extension('N')) {
-			csr_write(CSR_UTVEC, next_addr);
+	} ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (ಮುಂದಿನ_ಬಹುಲಕ == PRV_U) {
+		ಆದರೆ (misa_extension('N')) {
+			csr_write(CSR_UTVEC, ಮುಂದಿನ_addr);
 			csr_write(CSR_USCRATCH, 0);
 			csr_write(CSR_UIE, 0);
 		}
 	}
 
-	register unsigned long a0 asm("a0") = arg0;
-	register unsigned long a1 asm("a1") = arg1;
+	ನೋಂದಣಿ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ a0 asm("a0") = arg0;
+	ನೋಂದಣಿ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ a1 asm("a1") = arg1;
 	__asm__ __volatile__("mret" : : "r"(a0), "r"(a1));
 	__builtin_unreachable();
 }

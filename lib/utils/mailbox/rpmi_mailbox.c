@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/mailbox/mailbox.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+ಪೂರ್ಣಾಂಕ rpmi_xlate_error(ಎಣಿಕೆ rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	ಆಯ್ಕೆ(error) {
+	ಸ್ಥಿತಿ RPMI_SUCCESS:
+		ಹಿಂತಿರುಗಿ SBI_OK;
+	ಸ್ಥಿತಿ RPMI_ERR_FAILED:
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
+	ಸ್ಥಿತಿ RPMI_ERR_NOTSUPP:
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
+	ಸ್ಥಿತಿ RPMI_ERR_INVALID_PARAM:
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಸ್ಥಿತಿ RPMI_ERR_DENIED:
+		ಹಿಂತಿರುಗಿ SBI_EDENIED;
+	ಸ್ಥಿತಿ RPMI_ERR_INVALID_ADDR:
+		ಹಿಂತಿರುಗಿ SBI_EINVALID_ADDR;
+	ಸ್ಥಿತಿ RPMI_ERR_ALREADY:
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
+	ಸ್ಥಿತಿ RPMI_ERR_EXTENSION:
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
+	ಸ್ಥಿತಿ RPMI_ERR_HW_FAULT:
+		ಹಿಂತಿರುಗಿ SBI_EIO;
+	ಸ್ಥಿತಿ RPMI_ERR_BUSY:
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
+	ಸ್ಥಿತಿ RPMI_ERR_INVALID_STATE:
+		ಹಿಂತಿರುಗಿ SBI_EINVALID_STATE;
+	ಸ್ಥಿತಿ RPMI_ERR_BAD_RANGE:
+		ಹಿಂತಿರುಗಿ SBI_EBAD_RANGE;
+	ಸ್ಥಿತಿ RPMI_ERR_TIMEOUT:
+		ಹಿಂತಿರುಗಿ SBI_ETIMEDOUT;
+	ಸ್ಥಿತಿ RPMI_ERR_IO:
+		ಹಿಂತಿರುಗಿ SBI_EIO;
+	ಸ್ಥಿತಿ RPMI_ERR_NO_ದತ್ತಾಂಶ:
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಹಿಂತಿರುಗಿ SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+ಪೂರ್ಣಾಂಕ rpmi_ಸಾಮಾನ್ಯ_request_with_ಸ್ಥಿತಿ(
+			ರಚನೆ mbox_chan *chan, u32 service_id,
+			ಶೂನ್ಯ *req, u32 req_ಪದಗಳು, u32 req_endian_ಪದಗಳು,
+			ಶೂನ್ಯ *resp, u32 resp_ಪದಗಳು, u32 resp_endian_ಪದಗಳು)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	ಪೂರ್ಣಾಂಕ ret;
+	ರಚನೆ mbox_xfer xfer;
+	ರಚನೆ rpmi_ಸಂದೇಶ_ವಾದಗಳು ವಾದಗಳು = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
-	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
-	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+	ವಾದಗಳು.type = RPMI_ಸಂದೇಶ_ಸಾಮಾನ್ಯ_REQUEST;
+	ವಾದಗಳು.service_id = service_id;
+	ವಾದಗಳು.tx_endian_ಪದಗಳು = req_endian_ಪದಗಳು;
+	ವಾದಗಳು.rx_endian_ಪದಗಳು = resp_endian_ಪದಗಳು;
+	mbox_xfer_init_txrx(&xfer, &ವಾದಗಳು,
+			req, ಗಾತ್ರ(u32) * req_ಪದಗಳು, RPMI_DEF_TX_TIMEOUT,
+			resp, ಗಾತ್ರ(u32) * resp_ಪದಗಳು, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	ಆದರೆ (ret)
+		ಹಿಂತಿರುಗಿ ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	ಹಿಂತಿರುಗಿ rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+ಪೂರ್ಣಾಂಕ rpmi_posted_request(
+		ರಚನೆ mbox_chan *chan, u32 service_id,
+		ಶೂನ್ಯ *req, u32 req_ಪದಗಳು, u32 req_endian_ಪದಗಳು)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	ರಚನೆ mbox_xfer xfer;
+	ರಚನೆ rpmi_ಸಂದೇಶ_ವಾದಗಳು ವಾದಗಳು = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
-	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+	ವಾದಗಳು.type = RPMI_ಸಂದೇಶ_POSTED_REQUEST;
+	ವಾದಗಳು.flags = RPMI_ಸಂದೇಶ_FLAGS_NO_RX;
+	ವಾದಗಳು.service_id = service_id;
+	ವಾದಗಳು.tx_endian_ಪದಗಳು = req_endian_ಪದಗಳು;
+	mbox_xfer_init_tx(&xfer, &ವಾದಗಳು,
+			  req, ಗಾತ್ರ(u32) * req_ಪದಗಳು, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	ಹಿಂತಿರುಗಿ mbox_chan_xfer(chan, &xfer);
 }

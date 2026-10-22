@@ -4,22 +4,22 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __SYS_TYPES_H__
-#define __SYS_TYPES_H__
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ __SYS_TYPES_H__
+#ವ್ಯಾಖ್ಯಾನಿಸು __SYS_TYPES_H__
 
-#include <sbi/sbi_types.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_types.h>
 
-typedef unsigned long u_long;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ u_long;
 
-typedef int64_t quad_t;
-typedef uint64_t u_quad_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ int64_t quad_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ uint64_t u_quad_t;
 
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define _QUAD_LOWWORD 1
-#define _QUAD_HIGHWORD 0
-#else
-#define _QUAD_LOWWORD 0
-#define _QUAD_HIGHWORD 1
-#endif
+#ಆದರೆ __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#ವ್ಯಾಖ್ಯಾನಿಸು _QUAD_LOWWORD 1
+#ವ್ಯಾಖ್ಯಾನಿಸು _QUAD_HIGHWORD 0
+#ಇಲ್ಲದಿದ್ದರೆ
+#ವ್ಯಾಖ್ಯಾನಿಸು _QUAD_LOWWORD 0
+#ವ್ಯಾಖ್ಯಾನಿಸು _QUAD_HIGHWORD 1
+#ಆದರೆ_ಅಂತ್ಯ
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

@@ -7,22 +7,22 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_emulate_csr.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_illegal_atomic.h>
-#include <sbi/sbi_illegal_insn.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_unpriv.h>
-#include <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_barrier.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_bitops.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_emulate_csr.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_illegal_atomic.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_illegal_insn.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmu.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_unpriv.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
 
-int truly_illegal_insn(ulong insn, struct sbi_trap_regs *regs)
+ಪೂರ್ಣಾಂಕ truly_illegal_insn(ulong insn, ರಚನೆ sbi_trap_regs *regs)
 {
-	struct sbi_trap_info trap;
+	ರಚನೆ sbi_trap_info trap;
 
 	trap.cause = CAUSE_ILLEGAL_INSTRUCTION;
 	trap.tval = insn;
@@ -30,87 +30,87 @@ int truly_illegal_insn(ulong insn, struct sbi_trap_regs *regs)
 	trap.tinst = 0;
 	trap.gva   = 0;
 
-	return sbi_trap_redirect(regs, &trap);
+	ಹಿಂತಿರುಗಿ sbi_trap_redirect(regs, &trap);
 }
 
-static int misc_mem_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ misc_mem_opcode_insn(ulong insn, ರಚನೆ sbi_trap_regs *regs)
 {
 	/* Errata workaround: emulate `fence.tso` as `fence rw, rw`. */
-	if ((insn & INSN_MASK_FENCE_TSO) == INSN_MATCH_FENCE_TSO) {
+	ಆದರೆ ((insn & INSN_ಮುಖವಾಡ_FENCE_TSO) == INSN_ಹೊಂದಿಕೆ_FENCE_TSO) {
 		smp_mb();
 		regs->mepc += 4;
-		return 0;
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	return truly_illegal_insn(insn, regs);
+	ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 }
 
-static int system_opcode_insn(ulong insn, struct sbi_trap_regs *regs)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ system_opcode_insn(ulong insn, ರಚನೆ sbi_trap_regs *regs)
 {
 	bool do_write	= false;
-	int rs1_num	= GET_RS1_NUM(insn);
+	ಪೂರ್ಣಾಂಕ rs1_ಅಂಕೆ	= GET_RS1_ಅಂಕೆ(insn);
 	ulong rs1_val	= GET_RS1(insn, regs);
-	int csr_num	= GET_CSR_NUM((u32)insn);
-	ulong prev_mode = sbi_mstatus_prev_mode(regs->mstatus);
+	ಪೂರ್ಣಾಂಕ csr_ಅಂಕೆ	= GET_CSR_ಅಂಕೆ((u32)insn);
+	ulong prev_ಬಹುಲಕ = sbi_mstatus_prev_ಬಹುಲಕ(regs->mstatus);
 	ulong csr_val, new_csr_val;
 
-	if (prev_mode == PRV_M) {
+	ಆದರೆ (prev_ಬಹುಲಕ == PRV_M) {
 		sbi_printf("%s: Failed to access CSR %#x from M-mode",
-			__func__, csr_num);
-		return SBI_EFAIL;
+			__func__, csr_ಅಂಕೆ);
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 	}
 
 	/* Ensure that we got CSR read/write instruction */
-	int funct3 = GET_RM(insn);
-	if (funct3 == 0 || funct3 == 4) {
+	ಪೂರ್ಣಾಂಕ funct3 = GET_RM(insn);
+	ಆದರೆ (funct3 == 0 || funct3 == 4) {
 		sbi_printf("%s: Invalid opcode for CSR read/write instruction",
 			   __func__);
-		return truly_illegal_insn(insn, regs);
+		ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 	}
 
-	if (sbi_emulate_csr_read(csr_num, regs, &csr_val))
-		return truly_illegal_insn(insn, regs);
+	ಆದರೆ (sbi_emulate_csr_read(csr_ಅಂಕೆ, regs, &csr_val))
+		ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 
-	switch (funct3) {
-	case CSRRW:
+	ಆಯ್ಕೆ (funct3) {
+	ಸ್ಥಿತಿ CSRRW:
 		new_csr_val = rs1_val;
 		do_write    = true;
-		break;
-	case CSRRS:
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CSRRS:
 		new_csr_val = csr_val | rs1_val;
-		do_write    = (rs1_num != 0);
-		break;
-	case CSRRC:
+		do_write    = (rs1_ಅಂಕೆ != 0);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CSRRC:
 		new_csr_val = csr_val & ~rs1_val;
-		do_write    = (rs1_num != 0);
-		break;
-	case CSRRWI:
-		new_csr_val = rs1_num;
+		do_write    = (rs1_ಅಂಕೆ != 0);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CSRRWI:
+		new_csr_val = rs1_ಅಂಕೆ;
 		do_write    = true;
-		break;
-	case CSRRSI:
-		new_csr_val = csr_val | rs1_num;
-		do_write    = (rs1_num != 0);
-		break;
-	case CSRRCI:
-		new_csr_val = csr_val & ~rs1_num;
-		do_write    = (rs1_num != 0);
-		break;
-	default:
-		return truly_illegal_insn(insn, regs);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CSRRSI:
+		new_csr_val = csr_val | rs1_ಅಂಕೆ;
+		do_write    = (rs1_ಅಂಕೆ != 0);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ CSRRCI:
+		new_csr_val = csr_val & ~rs1_ಅಂಕೆ;
+		do_write    = (rs1_ಅಂಕೆ != 0);
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 	}
 
-	if (do_write && sbi_emulate_csr_write(csr_num, regs, new_csr_val))
-		return truly_illegal_insn(insn, regs);
+	ಆದರೆ (do_write && sbi_emulate_csr_write(csr_ಅಂಕೆ, regs, new_csr_val))
+		ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 
-	SET_RD(insn, regs, csr_val);
+	ಗಣ_RD(insn, regs, csr_val);
 
 	regs->mepc += 4;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static const illegal_insn_func illegal_insn_table[32] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ illegal_insn_func illegal_insn_ಕೋಷ್ಟಕ[32] = {
 	truly_illegal_insn, /* 0 */
 	truly_illegal_insn, /* 1 */
 	truly_illegal_insn, /* 2 */
@@ -145,11 +145,11 @@ static const illegal_insn_func illegal_insn_table[32] = {
 	truly_illegal_insn  /* 31 */
 };
 
-int sbi_illegal_insn_handler(struct sbi_trap_context *tcntx)
+ಪೂರ್ಣಾಂಕ sbi_illegal_insn_handler(ರಚನೆ sbi_trap_context *tcntx)
 {
-	struct sbi_trap_regs *regs = &tcntx->regs;
+	ರಚನೆ sbi_trap_regs *regs = &tcntx->regs;
 	ulong insn = tcntx->trap.tval;
-	struct sbi_trap_info uptrap;
+	ರಚನೆ sbi_trap_info uptrap;
 
 	/*
 	 * We only deal with 32-bit (or longer) illegal instructions. If we
@@ -163,13 +163,13 @@ int sbi_illegal_insn_handler(struct sbi_trap_context *tcntx)
 	 */
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ILLEGAL_INSN);
-	if (unlikely((insn & 3) != 3)) {
+	ಆದರೆ (unlikely((insn & 3) != 3)) {
 		insn = sbi_get_insn(regs->mepc, &uptrap);
-		if (uptrap.cause)
-			return sbi_trap_redirect(regs, &uptrap);
-		if ((insn & 3) != 3)
-			return truly_illegal_insn(insn, regs);
+		ಆದರೆ (uptrap.cause)
+			ಹಿಂತಿರುಗಿ sbi_trap_redirect(regs, &uptrap);
+		ಆದರೆ ((insn & 3) != 3)
+			ಹಿಂತಿರುಗಿ truly_illegal_insn(insn, regs);
 	}
 
-	return illegal_insn_table[(insn & 0x7c) >> 2](insn, regs);
+	ಹಿಂತಿರುಗಿ illegal_insn_ಕೋಷ್ಟಕ[(insn & 0x7c) >> 2](insn, regs);
 }

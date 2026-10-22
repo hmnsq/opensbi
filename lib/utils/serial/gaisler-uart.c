@@ -7,80 +7,80 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/gaisler-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_DATA		0
-#define UART_REG_STATUS		1
-#define UART_REG_CTRL		2
-#define UART_REG_SCALER		3
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_ದತ್ತಾಂಶ		0
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_ಸ್ಥಿತಿ		1
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_CTRL		2
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_REG_SCALER		3
 
-#define UART_DATA_DATA		0x000000ff
-#define UART_STATUS_FIFOFULL	0x00000200
-#define UART_STATUS_DATAREADY	0x00000001
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_ದತ್ತಾಂಶ_ದತ್ತಾಂಶ		0x000000ff
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_ಸ್ಥಿತಿ_FIFOFULL	0x00000200
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_ಸ್ಥಿತಿ_DATAREADY	0x00000001
 
-#define UART_CTRL_DB		(1<<11)
-#define UART_CTRL_FL		(1<<6)
-#define UART_CTRL_TE		(1<<1)
-#define UART_CTRL_RE		(1<<0)
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_DB		(1<<11)
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_FL		(1<<6)
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_TE		(1<<1)
+#ವ್ಯಾಖ್ಯಾನಿಸು UART_CTRL_RE		(1<<0)
 
 /* clang-format on */
 
-static volatile char *uart_base;
+ಸ್ಥಿರ ಅಸ್ಥಿರ ಅಕ್ಷರ *uart_ತಳ;
 
-static u32 get_reg(u32 num)
+ಸ್ಥಿರ u32 get_reg(u32 ಅಂಕೆ)
 {
-	return readl(uart_base + (num * 0x4));
+	ಹಿಂತಿರುಗಿ readl(uart_ತಳ + (ಅಂಕೆ * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ಸ್ಥಿರ ಶೂನ್ಯ ಗಣ_reg(u32 ಅಂಕೆ, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_ತಳ + (ಅಂಕೆ * 0x4));
 }
 
-static void gaisler_uart_putc(char ch)
+ಸ್ಥಿರ ಶೂನ್ಯ gaisler_uart_putc(ಅಕ್ಷರ ch)
 {
-	while (get_reg(UART_REG_STATUS) & UART_STATUS_FIFOFULL)
+	ಆಗ (get_reg(UART_REG_ಸ್ಥಿತಿ) & UART_ಸ್ಥಿತಿ_FIFOFULL)
 		;
 
-	set_reg(UART_REG_DATA, ch);
+	ಗಣ_reg(UART_REG_ದತ್ತಾಂಶ, ch);
 }
 
-static int gaisler_uart_getc(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ gaisler_uart_getc(ಶೂನ್ಯ)
 {
-	u32 ret = get_reg(UART_REG_STATUS);
-	if (!(ret & UART_STATUS_DATAREADY))
-		return -1;
-	return get_reg(UART_REG_DATA) & UART_DATA_DATA;
+	u32 ret = get_reg(UART_REG_ಸ್ಥಿತಿ);
+	ಆದರೆ (!(ret & UART_ಸ್ಥಿತಿ_DATAREADY))
+		ಹಿಂತಿರುಗಿ -1;
+	ಹಿಂತಿರುಗಿ get_reg(UART_REG_ದತ್ತಾಂಶ) & UART_ದತ್ತಾಂಶ_ದತ್ತಾಂಶ;
 }
 
-static struct sbi_console_device gaisler_console = {
+ಸ್ಥಿರ ರಚನೆ sbi_console_device gaisler_console = {
 	.name	      = "gaisler_uart",
 	.console_putc = gaisler_uart_putc,
 	.console_getc = gaisler_uart_getc
 };
 
-int gaisler_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ಪೂರ್ಣಾಂಕ gaisler_uart_init(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2, u32 ಒಳ_freq, u32 baudrate)
 {
 	u32 ctrl;
 
-	uart_base = (volatile char *)base;
+	uart_ತಳ = (ಅಸ್ಥಿರ ಅಕ್ಷರ *)ತಳ_2;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_SCALER, in_freq / (baudrate * 8 + 7));
+	ಆದರೆ (ಒಳ_freq && baudrate)
+		ಗಣ_reg(UART_REG_SCALER, ಒಳ_freq / (baudrate * 8 + 7));
 
 	ctrl = get_reg(UART_REG_CTRL);
 	/* Preserve debug mode and flow control */
 	ctrl &= (UART_CTRL_DB | UART_CTRL_FL);
 	/* Enable TX and RX */
 	ctrl |= UART_CTRL_TE | UART_CTRL_RE;
-	set_reg(UART_REG_CTRL, ctrl);
+	ಗಣ_reg(UART_REG_CTRL, ctrl);
 
-	sbi_console_set_device(&gaisler_console);
+	sbi_console_ಗಣ_device(&gaisler_console);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

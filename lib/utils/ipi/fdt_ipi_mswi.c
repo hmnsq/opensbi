@@ -7,62 +7,62 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/ipi/aclint_mswi.h>
 
-static int ipi_mswi_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ ipi_mswi_cold_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			      ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
-	unsigned long offset;
-	struct aclint_mswi_data *ms;
+	ಪೂರ್ಣಾಂಕ rc;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಸ್ಥಾನಾಂತರ;
+	ರಚನೆ aclint_mswi_ದತ್ತಾಂಶ *ms;
 
-	ms = sbi_zalloc(sizeof(*ms));
-	if (!ms)
-		return SBI_ENOMEM;
+	ms = sbi_zalloc(ಗಾತ್ರ(*ms));
+	ಆದರೆ (!ms)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
-	rc = fdt_parse_aclint_node(fdt, nodeoff, false, false,
-				   &ms->addr, &ms->size, NULL, NULL,
-				   &ms->first_hartid, &ms->hart_count);
-	if (rc) {
+	rc = fdt_parse_aclint_ಗಂಟು(fdt, nodeoff, false, false,
+				   &ms->addr, &ms->ಗಾತ್ರ_2, ಖಾಲಿ, ಖಾಲಿ,
+				   &ms->ಮೊದಲ_hartid, &ms->hart_ಎಣಿಕೆ);
+	ಆದರೆ (rc) {
 		sbi_free(ms);
-		return rc;
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	if (match->data) {
+	ಆದರೆ (ಹೊಂದಿಕೆ->ದತ್ತಾಂಶ) {
 		/* Adjust MSWI address and size for CLINT device */
-		offset = *((unsigned long *)match->data);
-		ms->addr += offset;
-		if ((ms->size - offset) < ACLINT_MSWI_SIZE)
-			return SBI_EINVAL;
-		ms->size = ACLINT_MSWI_SIZE;
+		ಸ್ಥಾನಾಂತರ = *((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *)ಹೊಂದಿಕೆ->ದತ್ತಾಂಶ);
+		ms->addr += ಸ್ಥಾನಾಂತರ;
+		ಆದರೆ ((ms->ಗಾತ್ರ_2 - ಸ್ಥಾನಾಂತರ) < ACLINT_MSWI_ಗಾತ್ರ)
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
+		ms->ಗಾತ್ರ_2 = ACLINT_MSWI_ಗಾತ್ರ;
 	}
 
 	rc = aclint_mswi_cold_init(ms);
-	if (rc) {
+	ಆದರೆ (rc) {
 		sbi_free(ms);
-		return rc;
+		ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static const unsigned long clint_offset = CLINT_MSWI_OFFSET;
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ clint_ಸ್ಥಾನಾಂತರ = CLINT_MSWI_ಸ್ಥಾನಾಂತರ;
 
-static const struct fdt_match ipi_mswi_match[] = {
-	{ .compatible = "riscv,clint0", .data = &clint_offset },
-	{ .compatible = "sifive,clint0", .data = &clint_offset },
-	{ .compatible = "thead,c900-clint", .data = &clint_offset },
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ ipi_mswi_ಹೊಂದಿಕೆ[] = {
+	{ .compatible = "riscv,clint0", .ದತ್ತಾಂಶ = &clint_ಸ್ಥಾನಾಂತರ },
+	{ .compatible = "sifive,clint0", .ದತ್ತಾಂಶ = &clint_ಸ್ಥಾನಾಂತರ },
+	{ .compatible = "thead,c900-clint", .ದತ್ತಾಂಶ = &clint_ಸ್ಥಾನಾಂತರ },
 	{ .compatible = "thead,c900-aclint-mswi" },
 	{ .compatible = "mips,p8700-aclint-mswi" },
 	{ .compatible = "riscv,aclint-mswi" },
 	{ },
 };
 
-const struct fdt_driver fdt_ipi_mswi = {
-	.match_table = ipi_mswi_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_ipi_mswi = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = ipi_mswi_ಹೊಂದಿಕೆ,
 	.init = ipi_mswi_cold_init,
 };

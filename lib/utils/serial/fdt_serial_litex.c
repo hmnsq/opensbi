@@ -7,33 +7,33 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/litex-uart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/fdt_serial.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ serial_litex_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			     ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_ಗಾತ್ರ;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	ಆದರೆ (nodeoff < 0 || !fdt)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoff, 0, &reg_addr, &reg_ಗಾತ್ರ);
+	ಆದರೆ (rc < 0 || !reg_addr || !reg_ಗಾತ್ರ)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	ಹಿಂತಿರುಗಿ litex_uart_init(reg_addr);
 }
 
-static const struct fdt_match serial_litex_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ serial_litex_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "litex,liteuart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_litex = {
-	.match_table = serial_litex_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_serial_litex = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = serial_litex_ಹೊಂದಿಕೆ,
 	.init = serial_litex_init
 };

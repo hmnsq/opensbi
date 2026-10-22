@@ -8,122 +8,122 @@
  *	Atish Patra <atish.patra@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/fdt/fdt_pmu.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmu.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_pmu.h>
 
-static struct fdt_pmu_hw_event_select_map *fdt_pmu_evt_select;
-static uint32_t hw_event_count;
+ಸ್ಥಿರ ರಚನೆ fdt_pmu_hw_event_select_map *fdt_pmu_evt_select;
+ಸ್ಥಿರ uint32_t hw_event_ಎಣಿಕೆ;
 
-uint64_t fdt_pmu_get_select_value(uint32_t event_idx)
+uint64_t fdt_pmu_get_select_ಮೌಲ್ಯ(uint32_t event_idx)
 {
-	int i;
-	struct fdt_pmu_hw_event_select_map *event;
+	ಪೂರ್ಣಾಂಕ i;
+	ರಚನೆ fdt_pmu_hw_event_select_map *event;
 
-	for (i = 0; i < hw_event_count; i++) {
+	ಗಾಗಿ (i = 0; i < hw_event_ಎಣಿಕೆ; i++) {
 		event = &fdt_pmu_evt_select[i];
-		if (event->eidx == event_idx)
-			return event->select;
+		ಆದರೆ (event->eidx == event_idx)
+			ಹಿಂತಿರುಗಿ event->select;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_pmu_fixup(void *fdt)
+ಪೂರ್ಣಾಂಕ fdt_pmu_fixup(ಶೂನ್ಯ *fdt)
 {
-	int pmu_offset;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ಪೂರ್ಣಾಂಕ pmu_ಸ್ಥಾನಾಂತರ;
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (!fdt)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	pmu_offset = fdt_node_offset_by_compatible(fdt, -1, "riscv,pmu");
-	if (pmu_offset < 0)
-		return SBI_EFAIL;
+	pmu_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, -1, "riscv,pmu");
+	ಆದರೆ (pmu_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
-	fdt_delprop(fdt, pmu_offset, "riscv,event-to-mhpmcounters");
-	fdt_delprop(fdt, pmu_offset, "riscv,event-to-mhpmevent");
-	fdt_delprop(fdt, pmu_offset, "riscv,raw-event-to-mhpmcounters");
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-		fdt_delprop(fdt, pmu_offset, "interrupts-extended");
+	fdt_delprop(fdt, pmu_ಸ್ಥಾನಾಂತರ, "riscv,event-to-mhpmcounters");
+	fdt_delprop(fdt, pmu_ಸ್ಥಾನಾಂತರ, "riscv,event-to-mhpmevent");
+	fdt_delprop(fdt, pmu_ಸ್ಥಾನಾಂತರ, "riscv,raw-event-to-mhpmcounters");
+	ಆದರೆ (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+		fdt_delprop(fdt, pmu_ಸ್ಥಾನಾಂತರ, "interrupts-extended");
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int fdt_pmu_setup(const void *fdt)
+ಪೂರ್ಣಾಂಕ fdt_pmu_ಸಿದ್ಧತೆ(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt)
 {
-	int i, pmu_offset, len, result;
-	const u32 *event_val;
-	const u32 *event_ctr_map;
-	struct fdt_pmu_hw_event_select_map *event;
-	uint64_t raw_selector, select_mask;
-	u32 event_idx_start, event_idx_end, ctr_map;
+	ಪೂರ್ಣಾಂಕ i, pmu_ಸ್ಥಾನಾಂತರ, len, ಫಲಿತಾಂಶ;
+	ಸ್ಥಿರಾಂಕ u32 *event_val;
+	ಸ್ಥಿರಾಂಕ u32 *event_ctr_map;
+	ರಚನೆ fdt_pmu_hw_event_select_map *event;
+	uint64_t raw_selector, select_ಮುಖವಾಡ;
+	u32 event_idx_ಆರಂಭ, event_idx_ಕೊನೆ, ctr_map;
 
-	if (!fdt)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	pmu_offset = fdt_node_offset_by_compatible(fdt, -1, "riscv,pmu");
-	if (pmu_offset < 0)
-		return SBI_ENOENT;
+	pmu_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, -1, "riscv,pmu");
+	ಆದರೆ (pmu_ಸ್ಥಾನಾಂತರ < 0)
+		ಹಿಂತಿರುಗಿ SBI_ENOENT;
 
-	event_ctr_map = fdt_getprop(fdt, pmu_offset,
+	event_ctr_map = fdt_getprop(fdt, pmu_ಸ್ಥಾನಾಂತರ,
 				    "riscv,event-to-mhpmcounters", &len);
-	if (event_ctr_map) {
-		len = len / (sizeof(u32) * 3);
-		for (i = 0; i < len; i++) {
-			event_idx_start = fdt32_to_cpu(event_ctr_map[3 * i]);
-			event_idx_end = fdt32_to_cpu(event_ctr_map[3 * i + 1]);
-			ctr_map = fdt32_to_cpu(event_ctr_map[3 * i + 2]);
-			result = sbi_pmu_add_hw_event_counter_map(
-				event_idx_start, event_idx_end, ctr_map);
-			if (result)
-				return result;
+	ಆದರೆ (event_ctr_map) {
+		len = len / (ಗಾತ್ರ(u32) * 3);
+		ಗಾಗಿ (i = 0; i < len; i++) {
+			event_idx_ಆರಂಭ = fdt32_ಗಮ್ಯ_cpu(event_ctr_map[3 * i]);
+			event_idx_ಕೊನೆ = fdt32_ಗಮ್ಯ_cpu(event_ctr_map[3 * i + 1]);
+			ctr_map = fdt32_ಗಮ್ಯ_cpu(event_ctr_map[3 * i + 2]);
+			ಫಲಿತಾಂಶ = sbi_pmu_ಕೂಡಿಸು_hw_event_counter_map(
+				event_idx_ಆರಂಭ, event_idx_ಕೊನೆ, ctr_map);
+			ಆದರೆ (ಫಲಿತಾಂಶ)
+				ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 		}
 	}
 
-	event_val = fdt_getprop(fdt, pmu_offset,
+	event_val = fdt_getprop(fdt, pmu_ಸ್ಥಾನಾಂತರ,
 				"riscv,event-to-mhpmevent", &len);
-	if (event_val) {
-		len = len / (sizeof(u32) * 3);
+	ಆದರೆ (event_val) {
+		len = len / (ಗಾತ್ರ(u32) * 3);
 
-		hw_event_count = len;
-		fdt_pmu_evt_select = sbi_calloc(hw_event_count,
-						sizeof(*fdt_pmu_evt_select));
-		if (!fdt_pmu_evt_select)
-			return SBI_ENOMEM;
+		hw_event_ಎಣಿಕೆ = len;
+		fdt_pmu_evt_select = sbi_calloc(hw_event_ಎಣಿಕೆ,
+						ಗಾತ್ರ(*fdt_pmu_evt_select));
+		ಆದರೆ (!fdt_pmu_evt_select)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
-		for (i = 0; i < len; i++) {
+		ಗಾಗಿ (i = 0; i < len; i++) {
 			event = &fdt_pmu_evt_select[i];
-			event->eidx = fdt32_to_cpu(event_val[3 * i]);
-			event->select = fdt32_to_cpu(event_val[3 * i + 1]);
+			event->eidx = fdt32_ಗಮ್ಯ_cpu(event_val[3 * i]);
+			event->select = fdt32_ಗಮ್ಯ_cpu(event_val[3 * i + 1]);
 			event->select = (event->select << 32) |
-					fdt32_to_cpu(event_val[3 * i + 2]);
+					fdt32_ಗಮ್ಯ_cpu(event_val[3 * i + 2]);
 		}
 	}
 
-	event_val = fdt_getprop(fdt, pmu_offset,
+	event_val = fdt_getprop(fdt, pmu_ಸ್ಥಾನಾಂತರ,
 				"riscv,raw-event-to-mhpmcounters", &len);
-	if (event_val) {
-		len = len / (sizeof(u32) * 5);
-		for (i = 0; i < len; i++) {
-			raw_selector = fdt32_to_cpu(event_val[5 * i]);
+	ಆದರೆ (event_val) {
+		len = len / (ಗಾತ್ರ(u32) * 5);
+		ಗಾಗಿ (i = 0; i < len; i++) {
+			raw_selector = fdt32_ಗಮ್ಯ_cpu(event_val[5 * i]);
 			raw_selector = (raw_selector << 32) |
-					fdt32_to_cpu(event_val[5 * i + 1]);
-			select_mask = fdt32_to_cpu(event_val[5 * i + 2]);
-			select_mask = (select_mask  << 32) |
-					fdt32_to_cpu(event_val[5 * i + 3]);
-			ctr_map = fdt32_to_cpu(event_val[5 * i + 4]);
-			result = sbi_pmu_add_raw_event_counter_map(
-					raw_selector, select_mask, ctr_map);
-			if (result)
-				return result;
+					fdt32_ಗಮ್ಯ_cpu(event_val[5 * i + 1]);
+			select_ಮುಖವಾಡ = fdt32_ಗಮ್ಯ_cpu(event_val[5 * i + 2]);
+			select_ಮುಖವಾಡ = (select_ಮುಖವಾಡ  << 32) |
+					fdt32_ಗಮ್ಯ_cpu(event_val[5 * i + 3]);
+			ctr_map = fdt32_ಗಮ್ಯ_cpu(event_val[5 * i + 4]);
+			ಫಲಿತಾಂಶ = sbi_pmu_ಕೂಡಿಸು_raw_event_counter_map(
+					raw_selector, select_ಮುಖವಾಡ, ctr_map);
+			ಆದರೆ (ಫಲಿತಾಂಶ)
+				ಹಿಂತಿರುಗಿ ಫಲಿತಾಂಶ;
 		}
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }

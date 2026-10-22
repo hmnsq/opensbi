@@ -8,46 +8,46 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_system.h>
 
-static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_srst_handler(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ extid, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ funcid,
+				  ರಚನೆ sbi_trap_regs *regs,
+				  ರಚನೆ sbi_ecall_return *ಹೊರಹೋಗು)
 {
-	if (funcid == SBI_EXT_SRST_RESET) {
-		if ((((u32)-1U) <= ((u64)regs->a0)) ||
+	ಆದರೆ (funcid == SBI_EXT_SRST_RESET) {
+		ಆದರೆ ((((u32)-1U) <= ((u64)regs->a0)) ||
 		    (((u32)-1U) <= ((u64)regs->a1)))
-			return SBI_EINVAL;
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-		switch (regs->a0) {
-		case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-			break;
-		default:
-			return SBI_EINVAL;
+		ಆಯ್ಕೆ (regs->a0) {
+		ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_SHUTDOWN:
+		ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ:
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 		}
 
-		switch (regs->a1) {
-		case SBI_SRST_RESET_REASON_NONE:
-		case SBI_SRST_RESET_REASON_SYSFAIL:
-			break;
-		default:
-			return SBI_EINVAL;
+		ಆಯ್ಕೆ (regs->a1) {
+		ಸ್ಥಿತಿ SBI_SRST_RESET_REASON_NONE:
+		ಸ್ಥಿತಿ SBI_SRST_RESET_REASON_SYSFAIL:
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ:
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 		}
 
-		if (sbi_system_reset_supported(regs->a0, regs->a1))
+		ಆದರೆ (sbi_system_reset_supported(regs->a0, regs->a1))
 			sbi_system_reset(regs->a0, regs->a1);
 	}
 
-	return SBI_ENOTSUPP;
+	ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 }
 
-static bool srst_available(void)
+ಸ್ಥಿರ bool srst_ಲಭ್ಯ(ಶೂನ್ಯ)
 {
 	u32 type;
 
@@ -55,29 +55,29 @@ static bool srst_available(void)
 	 * At least one standard reset types should be supported by
 	 * the platform for SBI SRST extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
-		if (sbi_system_reset_supported(type,
+	ಗಾಗಿ (type = 0; type <= SBI_SRST_RESET_TYPE_ಕೊನೆಯ; type++) {
+		ಆದರೆ (sbi_system_reset_supported(type,
 					SBI_SRST_RESET_REASON_NONE))
-			return true;
+			ಹಿಂತಿರುಗಿ true;
 	}
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-struct sbi_ecall_extension ecall_srst;
+ರಚನೆ sbi_ecall_extension ecall_srst;
 
-static int sbi_ecall_srst_register_extensions(void)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ sbi_ecall_srst_ರಿಜಿಸ್ಟರ್_extensions(ಶೂನ್ಯ)
 {
-	if (!srst_available())
-		return 0;
+	ಆದರೆ (!srst_ಲಭ್ಯ())
+		ಹಿಂತಿರುಗಿ 0;
 
-	return sbi_ecall_register_extension(&ecall_srst);
+	ಹಿಂತಿರುಗಿ sbi_ecall_ರಿಜಿಸ್ಟರ್_extension(&ecall_srst);
 }
 
-struct sbi_ecall_extension ecall_srst = {
+ರಚನೆ sbi_ecall_extension ecall_srst = {
 	.name			= "srst",
-	.extid_start		= SBI_EXT_SRST,
-	.extid_end		= SBI_EXT_SRST,
-	.register_extensions	= sbi_ecall_srst_register_extensions,
+	.extid_ಆರಂಭ		= SBI_EXT_SRST,
+	.extid_ಕೊನೆ		= SBI_EXT_SRST,
+	.ರಿಜಿಸ್ಟರ್_extensions	= sbi_ecall_srst_ರಿಜಿಸ್ಟರ್_extensions,
 	.handle			= sbi_ecall_srst_handler,
 };

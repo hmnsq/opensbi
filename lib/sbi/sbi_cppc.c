@@ -5,106 +5,106 @@
  *
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_cppc.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_cppc.h>
 
-static const struct sbi_cppc_device *cppc_dev = NULL;
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_cppc_device *cppc_dev = ಖಾಲಿ;
 
-const struct sbi_cppc_device *sbi_cppc_get_device(void)
+ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_cppc_device *sbi_cppc_get_device(ಶೂನ್ಯ)
 {
-	return cppc_dev;
+	ಹಿಂತಿರುಗಿ cppc_dev;
 }
 
-void sbi_cppc_set_device(const struct sbi_cppc_device *dev)
+ಶೂನ್ಯ sbi_cppc_ಗಣ_device(ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_cppc_device *dev)
 {
-	if (!dev || cppc_dev)
-		return;
+	ಆದರೆ (!dev || cppc_dev)
+		ಹಿಂತಿರುಗಿ;
 
 	cppc_dev = dev;
 }
 
-static bool sbi_cppc_is_reserved(unsigned long reg)
+ಸ್ಥಿರ bool sbi_cppc_is_reserved(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg)
 {
-	if ((reg > SBI_CPPC_ACPI_LAST && reg < SBI_CPPC_TRANSITION_LATENCY) ||
-	    reg > SBI_CPPC_NON_ACPI_LAST)
-		return true;
+	ಆದರೆ ((reg > SBI_CPPC_ACPI_ಕೊನೆಯ && reg < SBI_CPPC_TRANSITION_LATENCY) ||
+	    reg > SBI_CPPC_NON_ACPI_ಕೊನೆಯ)
+		ಹಿಂತಿರುಗಿ true;
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
-static bool sbi_cppc_readable(unsigned long reg)
+ಸ್ಥಿರ bool sbi_cppc_readable(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg)
 {
 	/* there are no write-only cppc registers currently */
-	return true;
+	ಹಿಂತಿರುಗಿ true;
 }
 
-static bool sbi_cppc_writable(unsigned long reg)
+ಸ್ಥಿರ bool sbi_cppc_writable(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg)
 {
-	switch (reg) {
-	case SBI_CPPC_HIGHEST_PERF:
-	case SBI_CPPC_NOMINAL_PERF:
-	case SBI_CPPC_LOW_NON_LINEAR_PERF:
-	case SBI_CPPC_LOWEST_PERF:
-	case SBI_CPPC_GUARANTEED_PERF:
-	case SBI_CPPC_CTR_WRAP_TIME:
-	case SBI_CPPC_REFERENCE_CTR:
-	case SBI_CPPC_DELIVERED_CTR:
-	case SBI_CPPC_REFERENCE_PERF:
-	case SBI_CPPC_LOWEST_FREQ:
-	case SBI_CPPC_NOMINAL_FREQ:
-	case SBI_CPPC_TRANSITION_LATENCY:
-		return false;
+	ಆಯ್ಕೆ (reg) {
+	ಸ್ಥಿತಿ SBI_CPPC_HIGHEST_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_NOMINAL_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_ಕೆಳಗಿನ_NON_ರೇಖೀಯ_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_ಅತಿಕಡಿಮೆ_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_GUARANTEED_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_CTR_WRAP_ಸಮಯ:
+	ಸ್ಥಿತಿ SBI_CPPC_REFERENCE_CTR:
+	ಸ್ಥಿತಿ SBI_CPPC_DELIVERED_CTR:
+	ಸ್ಥಿತಿ SBI_CPPC_REFERENCE_PERF:
+	ಸ್ಥಿತಿ SBI_CPPC_ಅತಿಕಡಿಮೆ_FREQ:
+	ಸ್ಥಿತಿ SBI_CPPC_NOMINAL_FREQ:
+	ಸ್ಥಿತಿ SBI_CPPC_TRANSITION_LATENCY:
+		ಹಿಂತಿರುಗಿ false;
 	}
 
-	return true;
+	ಹಿಂತಿರುಗಿ true;
 }
 
-int sbi_cppc_probe(unsigned long reg)
+ಪೂರ್ಣಾಂಕ sbi_cppc_probe(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg)
 {
-	if (!cppc_dev || !cppc_dev->cppc_probe)
-		return SBI_EFAIL;
+	ಆದರೆ (!cppc_dev || !cppc_dev->cppc_probe)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 	/* Check whether register is reserved */
-	if (sbi_cppc_is_reserved(reg))
-		return SBI_ERR_INVALID_PARAM;
+	ಆದರೆ (sbi_cppc_is_reserved(reg))
+		ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_PARAM;
 
-	return cppc_dev->cppc_probe(reg);
+	ಹಿಂತಿರುಗಿ cppc_dev->cppc_probe(reg);
 }
 
-int sbi_cppc_read(unsigned long reg, uint64_t *val)
+ಪೂರ್ಣಾಂಕ sbi_cppc_read(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg, uint64_t *val)
 {
-	int ret;
+	ಪೂರ್ಣಾಂಕ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_read)
-		return SBI_EFAIL;
+	ಆದರೆ (!cppc_dev || !cppc_dev->cppc_read)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ಆದರೆ (ret <= 0)
+		ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is write-only */
-	if (!sbi_cppc_readable(reg))
-		return SBI_ERR_DENIED;
+	ಆದರೆ (!sbi_cppc_readable(reg))
+		ಹಿಂತಿರುಗಿ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_read(reg, val);
+	ಹಿಂತಿರುಗಿ cppc_dev->cppc_read(reg, val);
 }
 
-int sbi_cppc_write(unsigned long reg, uint64_t val)
+ಪೂರ್ಣಾಂಕ sbi_cppc_write(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ reg, uint64_t val)
 {
-	int ret;
+	ಪೂರ್ಣಾಂಕ ret;
 
-	if (!cppc_dev || !cppc_dev->cppc_write)
-		return SBI_EFAIL;
+	ಆದರೆ (!cppc_dev || !cppc_dev->cppc_write)
+		ಹಿಂತಿರುಗಿ SBI_EFAIL;
 
 	/* Check whether register is implemented */
 	ret = sbi_cppc_probe(reg);
-	if (ret <= 0)
-		return SBI_ERR_NOT_SUPPORTED;
+	ಆದರೆ (ret <= 0)
+		ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 
 	/* Check whether the register is read-only */
-	if (!sbi_cppc_writable(reg))
-		return SBI_ERR_DENIED;
+	ಆದರೆ (!sbi_cppc_writable(reg))
+		ಹಿಂತಿರುಗಿ SBI_ERR_DENIED;
 
-	return cppc_dev->cppc_write(reg, val);
+	ಹಿಂತಿರುಗಿ cppc_dev->cppc_write(reg, val);
 }

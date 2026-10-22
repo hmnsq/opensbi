@@ -7,35 +7,35 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_pmp.h>
 
 /* determine CPU extension, return non-zero support */
-int misa_extension_imp(char ext)
+ಪೂರ್ಣಾಂಕ misa_extension_imp(ಅಕ್ಷರ ext)
 {
-	unsigned long misa = csr_read(CSR_MISA);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ misa = csr_read(CSR_MISA);
 
-	if (misa) {
-		if ('A' <= ext && ext <= 'Z')
-			return misa & (1 << (ext - 'A'));
-		if ('a' <= ext && ext <= 'z')
-			return misa & (1 << (ext - 'a'));
-		return 0;
+	ಆದರೆ (misa) {
+		ಆದರೆ ('A' <= ext && ext <= 'Z')
+			ಹಿಂತಿರುಗಿ misa & (1 << (ext - 'A'));
+		ಆದರೆ ('a' <= ext && ext <= 'z')
+			ಹಿಂತಿರುಗಿ misa & (1 << (ext - 'a'));
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-	return sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
+	ಹಿಂತಿರುಗಿ sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
 }
 
-int misa_xlen(void)
+ಪೂರ್ಣಾಂಕ misa_xlen(ಶೂನ್ಯ)
 {
-	long r;
+	ದೀರ್ಘ r;
 
-	if (csr_read(CSR_MISA) == 0)
-		return sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
+	ಆದರೆ (csr_read(CSR_MISA) == 0)
+		ಹಿಂತಿರುಗಿ sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
 
 	__asm__ __volatile__(
 		"csrr   t0, misa\n\t"
@@ -48,81 +48,81 @@ int misa_xlen(void)
 		:
 		: "t0", "t1");
 
-	return r ? r : -1;
+	ಹಿಂತಿರುಗಿ r ? r : -1;
 }
 
-void misa_string(int xlen, char *out, unsigned int out_sz)
+ಶೂನ್ಯ misa_string(ಪೂರ್ಣಾಂಕ xlen, ಅಕ್ಷರ *ಹೊರಹೋಗು, ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ ಹೊರಹೋಗು_sz)
 {
-	unsigned int i, pos = 0;
-	const char valid_isa_order[] = "iemafdqclbjtpvnhkorwxyzg";
+	ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ i, pos = 0;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ valid_isa_ಕ್ರಮ[] = "iemafdqclbjtpvnhkorwxyzg";
 
-	if (!out)
-		return;
+	ಆದರೆ (!ಹೊರಹೋಗು)
+		ಹಿಂತಿರುಗಿ;
 
-	if (5 <= (out_sz - pos)) {
-		out[pos++] = 'r';
-		out[pos++] = 'v';
-		switch (xlen) {
-		case 1:
-			out[pos++] = '3';
-			out[pos++] = '2';
-			break;
-		case 2:
-			out[pos++] = '6';
-			out[pos++] = '4';
-			break;
-		case 3:
-			out[pos++] = '1';
-			out[pos++] = '2';
-			out[pos++] = '8';
-			break;
-		default:
+	ಆದರೆ (5 <= (ಹೊರಹೋಗು_sz - pos)) {
+		ಹೊರಹೋಗು[pos++] = 'r';
+		ಹೊರಹೋಗು[pos++] = 'v';
+		ಆಯ್ಕೆ (xlen) {
+		ಸ್ಥಿತಿ 1:
+			ಹೊರಹೋಗು[pos++] = '3';
+			ಹೊರಹೋಗು[pos++] = '2';
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ 2:
+			ಹೊರಹೋಗು[pos++] = '6';
+			ಹೊರಹೋಗು[pos++] = '4';
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ 3:
+			ಹೊರಹೋಗು[pos++] = '1';
+			ಹೊರಹೋಗು[pos++] = '2';
+			ಹೊರಹೋಗು[pos++] = '8';
+			ನಿಲ್ಲಿಸು;
+		ಪೂರ್ವನಿಯೋಜಿತ:
 			sbi_panic("%s: Unknown misa.MXL encoding %d",
 				   __func__, xlen);
-			return;
+			ಹಿಂತಿರುಗಿ;
 		}
 	}
 
-	for (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
-		if (misa_extension_imp(valid_isa_order[i]))
-			out[pos++] = valid_isa_order[i];
+	ಗಾಗಿ (i = 0; i < array_ಗಾತ್ರ(valid_isa_ಕ್ರಮ) && (pos < ಹೊರಹೋಗು_sz); i++) {
+		ಆದರೆ (misa_extension_imp(valid_isa_ಕ್ರಮ[i]))
+			ಹೊರಹೋಗು[pos++] = valid_isa_ಕ್ರಮ[i];
 	}
 
-	if (pos < out_sz)
-		out[pos++] = '\0';
+	ಆದರೆ (pos < ಹೊರಹೋಗು_sz)
+		ಹೊರಹೋಗು[pos++] = '\0';
 }
 
-unsigned long csr_read_num(int csr_num)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ csr_read_ಅಂಕೆ(ಪೂರ್ಣಾಂಕ csr_ಅಂಕೆ)
 {
-#define switchcase_csr_read(__csr_num)			\
-	case __csr_num:					\
-		return csr_read(__csr_num);
-#define switchcase_csr_read_2(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read(__csr_num)			\
+	ಸ್ಥಿತಿ __csr_num:					\
+		ಹಿಂತಿರುಗಿ csr_read(__csr_num);
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_2(__csr_num)		\
 	switchcase_csr_read(__csr_num + 0)		\
 	switchcase_csr_read(__csr_num + 1)
-#define switchcase_csr_read_4(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_4(__csr_num)		\
 	switchcase_csr_read_2(__csr_num + 0)		\
 	switchcase_csr_read_2(__csr_num + 2)
-#define switchcase_csr_read_8(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_8(__csr_num)		\
 	switchcase_csr_read_4(__csr_num + 0)		\
 	switchcase_csr_read_4(__csr_num + 4)
-#define switchcase_csr_read_16(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_16(__csr_num)		\
 	switchcase_csr_read_8(__csr_num + 0)		\
 	switchcase_csr_read_8(__csr_num + 8)
-#define switchcase_csr_read_32(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_32(__csr_num)		\
 	switchcase_csr_read_16(__csr_num + 0)		\
 	switchcase_csr_read_16(__csr_num + 16)
-#define switchcase_csr_read_64(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_64(__csr_num)		\
 	switchcase_csr_read_32(__csr_num + 0)		\
 	switchcase_csr_read_32(__csr_num + 32)
-#define switchcase_csr_read_128(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_128(__csr_num)		\
 	switchcase_csr_read_64(__csr_num + 0)		\
 	switchcase_csr_read_64(__csr_num + 64)
-#define switchcase_csr_read_256(__csr_num)		\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_read_256(__csr_num)		\
 	switchcase_csr_read_128(__csr_num + 0)		\
 	switchcase_csr_read_128(__csr_num + 128)
 
-	switch (csr_num) {
+	ಆಯ್ಕೆ (csr_ಅಂಕೆ) {
 	switchcase_csr_read_16(CSR_PMPCFG0)
 	switchcase_csr_read_64(CSR_PMPADDR0)
 	switchcase_csr_read(CSR_MCYCLE)
@@ -138,7 +138,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4)
 	switchcase_csr_read_8(CSR_MHPMEVENT8)
 	switchcase_csr_read_16(CSR_MHPMEVENT16)
-#if __riscv_xlen == 32
+#ಆದರೆ __riscv_xlen == 32
 	switchcase_csr_read(CSR_MCYCLEH)
 	switchcase_csr_read(CSR_MINSTRETH)
 	switchcase_csr_read(CSR_MHPMCOUNTER3H)
@@ -159,67 +159,67 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4H)
 	switchcase_csr_read_8(CSR_MHPMEVENT8H)
 	switchcase_csr_read_16(CSR_MHPMEVENT16H)
-#endif
-	switchcase_csr_read_256(CSR_CUSTOM0_U_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM1_U_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM2_S_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM3_S_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM4_S_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM5_HS_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM6_HS_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM7_HS_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM8_M_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM9_M_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_BASE)
+#ಆದರೆ_ಅಂತ್ಯ
+	switchcase_csr_read_256(CSR_CUSTOM0_U_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM1_U_RO_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM2_S_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM3_S_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM4_S_RO_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM5_HS_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM6_HS_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM7_HS_RO_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM8_M_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM9_M_RW_ತಳ)
+	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_ತಳ)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		return 0;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_ಅಂಕೆ);
+		ಹಿಂತಿರುಗಿ 0;
 	}
 
-#undef switchcase_csr_read_256
-#undef switchcase_csr_read_128
-#undef switchcase_csr_read_64
-#undef switchcase_csr_read_32
-#undef switchcase_csr_read_16
-#undef switchcase_csr_read_8
-#undef switchcase_csr_read_4
-#undef switchcase_csr_read_2
-#undef switchcase_csr_read
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_256
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_128
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_64
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_32
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_16
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_8
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_4
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read_2
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_read
 }
 
-void csr_write_num(int csr_num, unsigned long val)
+ಶೂನ್ಯ csr_write_ಅಂಕೆ(ಪೂರ್ಣಾಂಕ csr_ಅಂಕೆ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val)
 {
-#define switchcase_csr_write(__csr_num, __val)		\
-	case __csr_num:					\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write(__csr_num, __val)		\
+	ಸ್ಥಿತಿ __csr_num:					\
 		csr_write(__csr_num, __val);		\
-		break;
-#define switchcase_csr_write_2(__csr_num, __val)	\
+		ನಿಲ್ಲಿಸು;
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_2(__csr_num, __val)	\
 	switchcase_csr_write(__csr_num + 0, __val)	\
 	switchcase_csr_write(__csr_num + 1, __val)
-#define switchcase_csr_write_4(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_4(__csr_num, __val)	\
 	switchcase_csr_write_2(__csr_num + 0, __val)	\
 	switchcase_csr_write_2(__csr_num + 2, __val)
-#define switchcase_csr_write_8(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_8(__csr_num, __val)	\
 	switchcase_csr_write_4(__csr_num + 0, __val)	\
 	switchcase_csr_write_4(__csr_num + 4, __val)
-#define switchcase_csr_write_16(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_16(__csr_num, __val)	\
 	switchcase_csr_write_8(__csr_num + 0, __val)	\
 	switchcase_csr_write_8(__csr_num + 8, __val)
-#define switchcase_csr_write_32(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_32(__csr_num, __val)	\
 	switchcase_csr_write_16(__csr_num + 0, __val)	\
 	switchcase_csr_write_16(__csr_num + 16, __val)
-#define switchcase_csr_write_64(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_64(__csr_num, __val)	\
 	switchcase_csr_write_32(__csr_num + 0, __val)	\
 	switchcase_csr_write_32(__csr_num + 32, __val)
-#define switchcase_csr_write_128(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_128(__csr_num, __val)	\
 	switchcase_csr_write_64(__csr_num + 0, __val)	\
 	switchcase_csr_write_64(__csr_num + 64, __val)
-#define switchcase_csr_write_256(__csr_num, __val)	\
+#ವ್ಯಾಖ್ಯಾನಿಸು switchcase_csr_write_256(__csr_num, __val)	\
 	switchcase_csr_write_128(__csr_num + 0, __val)	\
 	switchcase_csr_write_128(__csr_num + 128, __val)
 
-	switch (csr_num) {
+	ಆಯ್ಕೆ (csr_ಅಂಕೆ) {
 	switchcase_csr_write_16(CSR_PMPCFG0, val)
 	switchcase_csr_write_64(CSR_PMPADDR0, val)
 	switchcase_csr_write(CSR_MCYCLE, val)
@@ -228,7 +228,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMCOUNTER4, val)
 	switchcase_csr_write_8(CSR_MHPMCOUNTER8, val)
 	switchcase_csr_write_16(CSR_MHPMCOUNTER16, val)
-#if __riscv_xlen == 32
+#ಆದರೆ __riscv_xlen == 32
 	switchcase_csr_write(CSR_MCYCLEH, val)
 	switchcase_csr_write(CSR_MINSTRETH, val)
 	switchcase_csr_write(CSR_MHPMCOUNTER3H, val)
@@ -241,7 +241,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMEVENT4H, val)
 	switchcase_csr_write_8(CSR_MHPMEVENT8H, val)
 	switchcase_csr_write_16(CSR_MHPMEVENT16H, val)
-#endif
+#ಆದರೆ_ಅಂತ್ಯ
 	switchcase_csr_write(CSR_MCOUNTINHIBIT, val)
 	switchcase_csr_write(CSR_MCYCLECFG, val)
 	switchcase_csr_write(CSR_MINSTRETCFG, val)
@@ -249,26 +249,26 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMEVENT4, val)
 	switchcase_csr_write_8(CSR_MHPMEVENT8, val)
 	switchcase_csr_write_16(CSR_MHPMEVENT16, val)
-	switchcase_csr_write_256(CSR_CUSTOM0_U_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM2_S_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM3_S_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM5_HS_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM6_HS_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM8_M_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_BASE, val)
+	switchcase_csr_write_256(CSR_CUSTOM0_U_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM2_S_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM3_S_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM5_HS_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM6_HS_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM8_M_RW_ತಳ, val)
+	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_ತಳ, val)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		break;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_ಅಂಕೆ);
+		ನಿಲ್ಲಿಸು;
 	}
 
-#undef switchcase_csr_write_256
-#undef switchcase_csr_write_128
-#undef switchcase_csr_write_64
-#undef switchcase_csr_write_32
-#undef switchcase_csr_write_16
-#undef switchcase_csr_write_8
-#undef switchcase_csr_write_4
-#undef switchcase_csr_write_2
-#undef switchcase_csr_write
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_256
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_128
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_64
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_32
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_16
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_8
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_4
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write_2
+#ವ್ಯಾಖ್ಯಾನ_ರದ್ದು switchcase_csr_write
 }

@@ -8,241 +8,241 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <libfdt_env.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_domain.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <libfdt_env.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hartmask.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_scratch.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_iterate_each_domain(void *fdt, void *opaque,
-			    int (*fn)(void *fdt, int domain_offset,
-				       void *opaque))
+ಪೂರ್ಣಾಂಕ fdt_iterate_each_domain(ಶೂನ್ಯ *fdt, ಶೂನ್ಯ *opaque,
+			    ಪೂರ್ಣಾಂಕ (*fn)(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ,
+				       ಶೂನ್ಯ *opaque))
 {
-	int rc, doffset, poffset;
+	ಪೂರ್ಣಾಂಕ rc, doffset, poffset;
 
-	if (!fdt || !fn)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || !fn)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return 0;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_ಮಾರ್ಗ_ಸ್ಥಾನಾಂತರ(fdt, "/chosen");
+	ಆದರೆ (poffset < 0)
+		ಹಿಂತಿರುಗಿ 0;
+	poffset = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return 0;
+	ಆದರೆ (poffset < 0)
+		ಹಿಂತಿರುಗಿ 0;
 
 	fdt_for_each_subnode(doffset, fdt, poffset) {
-		if (fdt_node_check_compatible(fdt, doffset,
+		ಆದರೆ (fdt_ಗಂಟು_check_compatible(fdt, doffset,
 					      "opensbi,domain,instance"))
-			continue;
+			ಮುಂದುವರಿ;
 
 		rc = fn(fdt, doffset, opaque);
-		if (rc)
-			return rc;
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int fdt_iterate_each_domain_ro(const void *fdt, void *opaque,
-				      int (*fn)(const void *fdt, int domain_offset,
-						void *opaque))
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_iterate_each_domain_ro(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಶೂನ್ಯ *opaque,
+				      ಪೂರ್ಣಾಂಕ (*fn)(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ,
+						ಶೂನ್ಯ *opaque))
 {
-	return fdt_iterate_each_domain((void *)fdt, opaque,
-				       (int (*)(void *, int,  void *))fn);
+	ಹಿಂತಿರುಗಿ fdt_iterate_each_domain((ಶೂನ್ಯ *)fdt, opaque,
+				       (ಪೂರ್ಣಾಂಕ (*)(ಶೂನ್ಯ *, ಪೂರ್ಣಾಂಕ,  ಶೂನ್ಯ *))fn);
 }
 
-int fdt_iterate_each_memregion(void *fdt, int domain_offset, void *opaque,
-			       int (*fn)(void *fdt, int domain_offset,
-					 int region_offset, u32 region_access,
-					 void *opaque))
+ಪೂರ್ಣಾಂಕ fdt_iterate_each_memregion(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ, ಶೂನ್ಯ *opaque,
+			       ಪೂರ್ಣಾಂಕ (*fn)(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ,
+					 ಪೂರ್ಣಾಂಕ region_ಸ್ಥಾನಾಂತರ, u32 region_access,
+					 ಶೂನ್ಯ *opaque))
 {
 	u32 i, rcount;
-	int rc, len, region_offset;
-	const u32 *regions;
+	ಪೂರ್ಣಾಂಕ rc, len, region_ಸ್ಥಾನಾಂತರ;
+	ಸ್ಥಿರಾಂಕ u32 *regions;
 
-	if (!fdt || (domain_offset < 0) || !fn)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt || (domain_ಸ್ಥಾನಾಂತರ < 0) || !fn)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (fdt_node_check_compatible(fdt, domain_offset,
+	ಆದರೆ (fdt_ಗಂಟು_check_compatible(fdt, domain_ಸ್ಥಾನಾಂತರ,
 				      "opensbi,domain,instance"))
-		return SBI_EINVAL;
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	regions = fdt_getprop(fdt, domain_offset, "regions", &len);
-	if (!regions)
-		return 0;
+	regions = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "regions", &len);
+	ಆದರೆ (!regions)
+		ಹಿಂತಿರುಗಿ 0;
 
-	rcount = (u32)len / (sizeof(u32) * 2);
-	for (i = 0; i < rcount; i++) {
-		region_offset = fdt_node_offset_by_phandle(fdt,
-						fdt32_to_cpu(regions[2 * i]));
-		if (region_offset < 0)
-			return region_offset;
+	rcount = (u32)len / (ಗಾತ್ರ(u32) * 2);
+	ಗಾಗಿ (i = 0; i < rcount; i++) {
+		region_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt,
+						fdt32_ಗಮ್ಯ_cpu(regions[2 * i]));
+		ಆದರೆ (region_ಸ್ಥಾನಾಂತರ < 0)
+			ಹಿಂತಿರುಗಿ region_ಸ್ಥಾನಾಂತರ;
 
-		if (fdt_node_check_compatible(fdt, region_offset,
+		ಆದರೆ (fdt_ಗಂಟು_check_compatible(fdt, region_ಸ್ಥಾನಾಂತರ,
 					      "opensbi,domain,memregion"))
-			return SBI_EINVAL;
+			ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-		rc = fn(fdt, domain_offset, region_offset,
-			fdt32_to_cpu(regions[(2 * i) + 1]), opaque);
-		if (rc)
-			return rc;
+		rc = fn(fdt, domain_ಸ್ಥಾನಾಂತರ, region_ಸ್ಥಾನಾಂತರ,
+			fdt32_ಗಮ್ಯ_cpu(regions[(2 * i) + 1]), opaque);
+		ಆದರೆ (rc)
+			ಹಿಂತಿರುಗಿ rc;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int fdt_iterate_each_memregion_ro(const void *fdt, int domain_offset, void *opaque,
-					 int (*fn)(const void *fdt, int domain_offset,
-						   int region_offset, u32 region_access,
-						   void *opaque))
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ fdt_iterate_each_memregion_ro(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ, ಶೂನ್ಯ *opaque,
+					 ಪೂರ್ಣಾಂಕ (*fn)(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ,
+						   ಪೂರ್ಣಾಂಕ region_ಸ್ಥಾನಾಂತರ, u32 region_access,
+						   ಶೂನ್ಯ *opaque))
 {
-	return fdt_iterate_each_memregion((void *)fdt, domain_offset, opaque,
-					  (int (*)(void *, int, int, u32, void *))fn);
+	ಹಿಂತಿರುಗಿ fdt_iterate_each_memregion((ಶೂನ್ಯ *)fdt, domain_ಸ್ಥಾನಾಂತರ, opaque,
+					  (ಪೂರ್ಣಾಂಕ (*)(ಶೂನ್ಯ *, ಪೂರ್ಣಾಂಕ, ಪೂರ್ಣಾಂಕ, u32, ಶೂನ್ಯ *))fn);
 }
 
-struct __fixup_find_domain_offset_info {
-	const char *name;
-	int *doffset;
+ರಚನೆ __fixup_find_domain_offset_info {
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *name;
+	ಪೂರ್ಣಾಂಕ *doffset;
 };
 
-static int __fixup_find_domain_offset(void *fdt, int doff, void *p)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __fixup_find_domain_offset(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ doff, ಶೂನ್ಯ *p)
 {
-	struct __fixup_find_domain_offset_info *fdo = p;
+	ರಚನೆ __fixup_find_domain_offset_info *fdo = p;
 
-	if (!strncmp(fdo->name, fdt_get_name(fdt, doff, NULL), strlen(fdo->name)))
+	ಆದರೆ (!ಅಕ್ಷರಸರಣಿ_ಹೋಲಿಕೆ(fdo->name, fdt_get_name(fdt, doff, ಖಾಲಿ), ಅಕ್ಷರಸರಣಿ_ಉದ್ದ(fdo->name)))
 		*fdo->doffset = doff;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-#define DISABLE_DEVICES_MASK	(SBI_DOMAIN_MEMREGION_READABLE | \
+#ವ್ಯಾಖ್ಯಾನಿಸು DISABLE_DEVICES_ಮುಖವಾಡ	(SBI_DOMAIN_MEMREGION_READABLE | \
 				 SBI_DOMAIN_MEMREGION_WRITEABLE | \
 				 SBI_DOMAIN_MEMREGION_EXECUTABLE)
 
-static int __fixup_count_disable_devices(void *fdt, int doff, int roff,
-					 u32 perm, void *p)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __fixup_count_disable_devices(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ doff, ಪೂರ್ಣಾಂಕ roff,
+					 u32 perm, ಶೂನ್ಯ *p)
 {
-	int len;
+	ಪೂರ್ಣಾಂಕ len;
 	u32 *dcount = p;
 
-	if (perm & DISABLE_DEVICES_MASK)
-		return 0;
+	ಆದರೆ (perm & DISABLE_DEVICES_ಮುಖವಾಡ)
+		ಹಿಂತಿರುಗಿ 0;
 
 	len = 0;
-	if (fdt_getprop(fdt, roff, "devices", &len))
-		*dcount += len / sizeof(u32);
+	ಆದರೆ (fdt_getprop(fdt, roff, "devices", &len))
+		*dcount += len / ಗಾತ್ರ(u32);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int __fixup_disable_devices(void *fdt, int doff, int roff,
-				   u32 raccess, void *p)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __fixup_disable_devices(ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ doff, ಪೂರ್ಣಾಂಕ roff,
+				   u32 raccess, ಶೂನ್ಯ *p)
 {
-	int i, len, coff;
-	const u32 *devices;
+	ಪೂರ್ಣಾಂಕ i, len, coff;
+	ಸ್ಥಿರಾಂಕ u32 *devices;
 
-	if (raccess & DISABLE_DEVICES_MASK)
-		return 0;
+	ಆದರೆ (raccess & DISABLE_DEVICES_ಮುಖವಾಡ)
+		ಹಿಂತಿರುಗಿ 0;
 
 	len = 0;
 	devices = fdt_getprop(fdt, roff, "devices", &len);
-	if (!devices)
-		return 0;
-	len = len / sizeof(u32);
+	ಆದರೆ (!devices)
+		ಹಿಂತಿರುಗಿ 0;
+	len = len / ಗಾತ್ರ(u32);
 
-	for (i = 0; i < len; i++) {
-		coff = fdt_node_offset_by_phandle(fdt,
-					fdt32_to_cpu(devices[i]));
-		if (coff < 0)
-			return coff;
+	ಗಾಗಿ (i = 0; i < len; i++) {
+		coff = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt,
+					fdt32_ಗಮ್ಯ_cpu(devices[i]));
+		ಆದರೆ (coff < 0)
+			ಹಿಂತಿರುಗಿ coff;
 
 		fdt_setprop_string(fdt, coff, "status", "disabled");
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void fdt_domain_fixup(void *fdt)
+ಶೂನ್ಯ fdt_domain_fixup(ಶೂನ್ಯ *fdt)
 {
 	u32 dcount;
-	int err, poffset, doffset;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct __fixup_find_domain_offset_info fdo;
+	ಪೂರ್ಣಾಂಕ err, poffset, doffset;
+	ರಚನೆ sbi_domain *dom = sbi_domain_thishart_ptr();
+	ರಚನೆ __fixup_find_domain_offset_info fdo;
 
 	/* Skip device disable for root domain */
-	if (!dom->index)
-		goto skip_device_disable;
+	ಆದರೆ (!dom->ಸೂಚ್ಯಂಕ_2)
+		ಹೋಗು skip_device_disable;
 
 	/* Find current domain DT node */
 	doffset = -1;
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
-		goto skip_device_disable;
+	ಆದರೆ (doffset < 0)
+		ಹೋಗು skip_device_disable;
 
 	/* Count current domain device DT nodes to be disabled */
 	dcount = 0;
 	fdt_iterate_each_memregion(fdt, doffset, &dcount,
 				   __fixup_count_disable_devices);
-	if (!dcount)
-		goto skip_device_disable;
+	ಆದರೆ (!dcount)
+		ಹೋಗು skip_device_disable;
 
 	/* Expand FDT based on device DT nodes to be disabled */
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + dcount * 32);
-	if (err < 0)
-		return;
+	ಆದರೆ (err < 0)
+		ಹಿಂತಿರುಗಿ;
 
 	/* Again find current domain DT node */
 	doffset = -1;
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
-		goto skip_device_disable;
+	ಆದರೆ (doffset < 0)
+		ಹೋಗು skip_device_disable;
 
 	/* Disable device DT nodes for current domain */
-	fdt_iterate_each_memregion(fdt, doffset, NULL,
+	fdt_iterate_each_memregion(fdt, doffset, ಖಾಲಿ,
 				   __fixup_disable_devices);
 skip_device_disable:
 
 	/* Remove the OpenSBI domain config DT node */
-	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return;
-	poffset = fdt_node_offset_by_compatible(fdt, poffset,
+	poffset = fdt_ಮಾರ್ಗ_ಸ್ಥಾನಾಂತರ(fdt, "/chosen");
+	ಆದರೆ (poffset < 0)
+		ಹಿಂತಿರುಗಿ;
+	poffset = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return;
-	fdt_nop_node(fdt, poffset);
+	ಆದರೆ (poffset < 0)
+		ಹಿಂತಿರುಗಿ;
+	fdt_nop_ಗಂಟು(fdt, poffset);
 }
 
-#define FDT_DOMAIN_REGION_MAX_COUNT		16
-#define FDT_ROOT_REGION_INHERIT_M_ONLY		0
-#define FDT_ROOT_REGION_INHERIT_ALL		1
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_DOMAIN_REGION_MAX_ಎಣಿಕೆ		16
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_ಬೇರು_REGION_INHERIT_M_ONLY		0
+#ವ್ಯಾಖ್ಯಾನಿಸು FDT_ಬೇರು_REGION_INHERIT_ALL		1
 
-struct parse_region_data {
-	struct sbi_domain *dom;
-	u32 region_count;
+ರಚನೆ parse_region_ದತ್ತಾಂಶ {
+	ರಚನೆ sbi_domain *dom;
+	u32 region_ಎಣಿಕೆ;
 	u32 max_regions;
 };
 
-static int __fdt_parse_region(const void *fdt, int domain_offset,
-			      int region_offset, u32 region_access,
-			      void *opaque)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __fdt_parse_region(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ,
+			      ಪೂರ್ಣಾಂಕ region_ಸ್ಥಾನಾಂತರ, u32 region_access,
+			      ಶೂನ್ಯ *opaque)
 {
-	int len;
+	ಪೂರ್ಣಾಂಕ len;
 	u32 val32;
 	u64 val64;
-	const u32 *val;
-	unsigned long base, order, flags;
-	struct parse_region_data *preg = opaque;
+	ಸ್ಥಿರಾಂಕ u32 *val;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ತಳ_2, ಕ್ರಮ, flags;
+	ರಚನೆ parse_region_ದತ್ತಾಂಶ *preg = opaque;
 
 	/*
 	 * Non-root domains cannot add a region with only M-mode
@@ -252,248 +252,248 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 	 * SU permission bits can't be all zeroes when M-mode permission
 	 * bits have at least one bit set.
 	 */
-	if (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_MASK)
-	    && (region_access & SBI_DOMAIN_MEMREGION_M_ACCESS_MASK))
-		return SBI_EINVAL;
+	ಆದರೆ (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_ಮುಖವಾಡ)
+	    && (region_access & SBI_DOMAIN_MEMREGION_M_ACCESS_ಮುಖವಾಡ))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* Find next region of the domain */
-	if (preg->max_regions <= preg->region_count)
-		return SBI_ENOSPC;
+	ಆದರೆ (preg->max_regions <= preg->region_ಎಣಿಕೆ)
+		ಹಿಂತಿರುಗಿ SBI_ENOSPC;
 
 	/* Read "base" DT property */
-	val = fdt_getprop(fdt, region_offset, "base", &len);
-	if (!val || len != 8)
-		return SBI_EINVAL;
-	val64 = fdt32_to_cpu(val[0]);
-	val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	base = val64;
+	val = fdt_getprop(fdt, region_ಸ್ಥಾನಾಂತರ, "base", &len);
+	ಆದರೆ (!val || len != 8)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	val64 = fdt32_ಗಮ್ಯ_cpu(val[0]);
+	val64 = (val64 << 32) | fdt32_ಗಮ್ಯ_cpu(val[1]);
+	ತಳ_2 = val64;
 
 	/* Read "order" DT property */
-	val = fdt_getprop(fdt, region_offset, "order", &len);
-	if (!val || len != 4)
-		return SBI_EINVAL;
-	val32 = fdt32_to_cpu(*val);
-	if (val32 < 3 || __riscv_xlen < val32)
-		return SBI_EINVAL;
-	order = val32;
+	val = fdt_getprop(fdt, region_ಸ್ಥಾನಾಂತರ, "order", &len);
+	ಆದರೆ (!val || len != 4)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	val32 = fdt32_ಗಮ್ಯ_cpu(*val);
+	ಆದರೆ (val32 < 3 || __riscv_xlen < val32)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಕ್ರಮ = val32;
 
-	flags = region_access & (SBI_DOMAIN_MEMREGION_ACCESS_MASK
+	flags = region_access & (SBI_DOMAIN_MEMREGION_ACCESS_ಮುಖವಾಡ
 				| SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS);
 
 	/* Read "mmio" DT property */
-	if (fdt_get_property(fdt, region_offset, "mmio", NULL))
+	ಆದರೆ (fdt_get_property(fdt, region_ಸ್ಥಾನಾಂತರ, "mmio", ಖಾಲಿ))
 		flags |= SBI_DOMAIN_MEMREGION_MMIO;
 
-	sbi_domain_memregion_init(base, (order == __riscv_xlen) ? ~0UL : BIT(order),
-				  flags, &preg->dom->regions[preg->region_count]);
+	sbi_domain_memregion_init(ತಳ_2, (ಕ್ರಮ == __riscv_xlen) ? ~0UL : ಬಿಟ್(ಕ್ರಮ),
+				  flags, &preg->dom->regions[preg->region_ಎಣಿಕೆ]);
 
-	preg->region_count++;
+	preg->region_ಎಣಿಕೆ++;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ __fdt_parse_domain(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ domain_ಸ್ಥಾನಾಂತರ, ಶೂನ್ಯ *opaque)
 {
 	u32 val32;
 	u64 val64;
-	const u32 *val;
-	const char *inherit;
-	struct sbi_domain *dom;
-	struct sbi_hartmask *mask;
-	struct parse_region_data preg;
-	struct sbi_domain_memregion *reg;
-	int inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-	int i, err = 0, len, cpu_offset;
+	ಸ್ಥಿರಾಂಕ u32 *val;
+	ಸ್ಥಿರಾಂಕ ಅಕ್ಷರ *inherit;
+	ರಚನೆ sbi_domain *dom;
+	ರಚನೆ sbi_hartmask *ಮುಖವಾಡ;
+	ರಚನೆ parse_region_ದತ್ತಾಂಶ preg;
+	ರಚನೆ sbi_domain_memregion *reg;
+	ಪೂರ್ಣಾಂಕ inheritance_ಬಹುಲಕ = FDT_ಬೇರು_REGION_INHERIT_M_ONLY;
+	ಪೂರ್ಣಾಂಕ i, err = 0, len, cpu_ಸ್ಥಾನಾಂತರ;
 
-	dom = sbi_zalloc(sizeof(*dom));
-	if (!dom)
-		return SBI_ENOMEM;
+	dom = sbi_zalloc(ಗಾತ್ರ(*dom));
+	ಆದರೆ (!dom)
+		ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 
-	dom->regions = sbi_calloc(sizeof(*dom->regions),
-				  FDT_DOMAIN_REGION_MAX_COUNT + 1);
-	if (!dom->regions) {
+	dom->regions = sbi_calloc(ಗಾತ್ರ(*dom->regions),
+				  FDT_DOMAIN_REGION_MAX_ಎಣಿಕೆ + 1);
+	ಆದರೆ (!dom->regions) {
 		err = SBI_ENOMEM;
-		goto fail_free_domain;
+		ಹೋಗು fail_free_domain;
 	}
 	preg.dom = dom;
-	preg.region_count = 0;
-	preg.max_regions = FDT_DOMAIN_REGION_MAX_COUNT;
+	preg.region_ಎಣಿಕೆ = 0;
+	preg.max_regions = FDT_DOMAIN_REGION_MAX_ಎಣಿಕೆ;
 
-	mask = sbi_zalloc(sizeof(*mask));
-	if (!mask) {
+	ಮುಖವಾಡ = sbi_zalloc(ಗಾತ್ರ(*ಮುಖವಾಡ));
+	ಆದರೆ (!ಮುಖವಾಡ) {
 		err = SBI_ENOMEM;
-		goto fail_free_regions;
+		ಹೋಗು fail_free_regions;
 	}
 
 	/* Read DT node name */
-	strncpy(dom->name, fdt_get_name(fdt, domain_offset, NULL),
-		    sizeof(dom->name));
-	dom->name[sizeof(dom->name) - 1] = '\0';
+	strncpy(dom->name, fdt_get_name(fdt, domain_ಸ್ಥಾನಾಂತರ, ಖಾಲಿ),
+		    ಗಾತ್ರ(dom->name));
+	dom->name[ಗಾತ್ರ(dom->name) - 1] = '\0';
 
 	/* Read initalization order */
-	val = fdt_getprop(fdt, domain_offset, "init-order", &len);
-	len = len / sizeof(u32);
-	if (val && len)
-		dom->init_order = fdt32_to_cpu(val[0]);
-	else
-		dom->init_order = (u32)domain_offset;
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "init-order", &len);
+	len = len / ಗಾತ್ರ(u32);
+	ಆದರೆ (val && len)
+		dom->init_ಕ್ರಮ = fdt32_ಗಮ್ಯ_cpu(val[0]);
+	ಇಲ್ಲದಿದ್ದರೆ
+		dom->init_ಕ್ರಮ = (u32)domain_ಸ್ಥಾನಾಂತರ;
 
 	/* Setup possible HARTs mask */
-	SBI_HARTMASK_INIT(mask);
-	dom->possible_harts = mask;
-	val = fdt_getprop(fdt, domain_offset, "possible-harts", &len);
-	len = len / sizeof(u32);
-	if (val && len) {
-		for (i = 0; i < len; i++) {
-			cpu_offset = fdt_node_offset_by_phandle(fdt,
-							fdt32_to_cpu(val[i]));
-			if (cpu_offset < 0) {
-				err = cpu_offset;
-				goto fail_free_all;
+	SBI_HARTMASK_INIT(ಮುಖವಾಡ);
+	dom->possible_harts = ಮುಖವಾಡ;
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "possible-harts", &len);
+	len = len / ಗಾತ್ರ(u32);
+	ಆದರೆ (val && len) {
+		ಗಾಗಿ (i = 0; i < len; i++) {
+			cpu_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt,
+							fdt32_ಗಮ್ಯ_cpu(val[i]));
+			ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ < 0) {
+				err = cpu_ಸ್ಥಾನಾಂತರ;
+				ಹೋಗು fail_free_all;
 			}
 
-			err = fdt_parse_hart_id(fdt, cpu_offset, &val32);
-			if (err)
-				goto fail_free_all;
+			err = fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &val32);
+			ಆದರೆ (err)
+				ಹೋಗು fail_free_all;
 
-			if (!fdt_node_is_enabled(fdt, cpu_offset))
-				continue;
+			ಆದರೆ (!fdt_ಗಂಟು_is_enabled(fdt, cpu_ಸ್ಥಾನಾಂತರ))
+				ಮುಂದುವರಿ;
 
-			sbi_hartmask_set_hartid(val32, mask);
+			sbi_hartmask_ಗಣ_hartid(val32, ಮುಖವಾಡ);
 		}
 	}
 
 	/* Setup memregions from DT */
-	err = fdt_iterate_each_memregion_ro(fdt, domain_offset, &preg,
+	err = fdt_iterate_each_memregion_ro(fdt, domain_ಸ್ಥಾನಾಂತರ, &preg,
 					    __fdt_parse_region);
-	if (err)
-		goto fail_free_all;
+	ಆದರೆ (err)
+		ಹೋಗು fail_free_all;
 
 	/* Determine root domain regions inheritance behavior. */
-	inherit = fdt_getprop(fdt, domain_offset,
+	inherit = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ,
 			       "root-regions-inheritance", &len);
-	if (inherit && len > 0) {
-		if (!strcmp(inherit, "all"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_ALL;
-		else if (!strcmp(inherit, "m-only"))
-			inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-		else {
+	ಆದರೆ (inherit && len > 0) {
+		ಆದರೆ (!strcmp(inherit, "all"))
+			inheritance_ಬಹುಲಕ = FDT_ಬೇರು_REGION_INHERIT_ALL;
+		ಇಲ್ಲದಿದ್ದರೆ ಆದರೆ (!strcmp(inherit, "m-only"))
+			inheritance_ಬಹುಲಕ = FDT_ಬೇರು_REGION_INHERIT_M_ONLY;
+		ಇಲ್ಲದಿದ್ದರೆ {
 			sbi_printf("%s: domain \"%s\" has unsupported "
 				   "root-regions-inheritance=\"%s\"\n",
 				   __func__, dom->name, inherit);
 			err = SBI_EINVAL;
-			goto fail_free_all;
+			ಹೋಗು fail_free_all;
 		}
 	}
 
 	/* Copy over root domain memregions according to inheritance_mode. */
-	sbi_domain_for_each_memregion(&root, reg) {
+	sbi_domain_for_each_memregion(&ಬೇರು, reg) {
 		bool copy = false;
 
-		switch (inheritance_mode) {
-		case FDT_ROOT_REGION_INHERIT_ALL:
+		ಆಯ್ಕೆ (inheritance_ಬಹುಲಕ) {
+		ಸ್ಥಿತಿ FDT_ಬೇರು_REGION_INHERIT_ALL:
 			copy = true;
-			break;
-		case FDT_ROOT_REGION_INHERIT_M_ONLY:
-			if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
+			ನಿಲ್ಲಿಸು;
+		ಸ್ಥಿತಿ FDT_ಬೇರು_REGION_INHERIT_M_ONLY:
+			ಆದರೆ (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
 			    SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 				copy = true;
 			}
-			break;
+			ನಿಲ್ಲಿಸು;
 		}
 
-		if (!copy)
-			continue;
+		ಆದರೆ (!copy)
+			ಮುಂದುವರಿ;
 
-		if (preg.max_regions <= preg.region_count) {
+		ಆದರೆ (preg.max_regions <= preg.region_ಎಣಿಕೆ) {
 			err = SBI_EINVAL;
-			goto fail_free_all;
+			ಹೋಗು fail_free_all;
 		}
-		memcpy(&dom->regions[preg.region_count++], reg, sizeof(*reg));
+		ಸ್ಮರಣೆ_ನಕಲು(&dom->regions[preg.region_ಎಣಿಕೆ++], reg, ಗಾತ್ರ(*reg));
 	}
-	dom->fw_region_inited = root.fw_region_inited;
+	dom->fw_region_inited = ಬೇರು.fw_region_inited;
 
 	/* Read "boot-hart" DT property */
 	val32 = current_hartid();
-	val = fdt_getprop(fdt, domain_offset, "boot-hart", &len);
-	if (val && len >= 4) {
-		cpu_offset = fdt_node_offset_by_phandle(fdt,
-							 fdt32_to_cpu(*val));
-		if (cpu_offset >= 0 && fdt_node_is_enabled(fdt, cpu_offset))
-			fdt_parse_hart_id(fdt, cpu_offset, &val32);
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "boot-hart", &len);
+	ಆದರೆ (val && len >= 4) {
+		cpu_ಸ್ಥಾನಾಂತರ = fdt_ಗಂಟು_ಸ್ಥಾನಾಂತರ_by_phandle(fdt,
+							 fdt32_ಗಮ್ಯ_cpu(*val));
+		ಆದರೆ (cpu_ಸ್ಥಾನಾಂತರ >= 0 && fdt_ಗಂಟು_is_enabled(fdt, cpu_ಸ್ಥಾನಾಂತರ))
+			fdt_parse_hart_id(fdt, cpu_ಸ್ಥಾನಾಂತರ, &val32);
 	}
 	dom->boot_hartid = val32;
 
 	/* Read "next-arg1" DT property */
 	val64 = 0;
-	val = fdt_getprop(fdt, domain_offset, "next-arg1", &len);
-	if (val && len >= 8) {
-		val64 = fdt32_to_cpu(val[0]);
-		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
-		val64 = root.next_arg1;
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "next-arg1", &len);
+	ಆದರೆ (val && len >= 8) {
+		val64 = fdt32_ಗಮ್ಯ_cpu(val[0]);
+		val64 = (val64 << 32) | fdt32_ಗಮ್ಯ_cpu(val[1]);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		val64 = ಬೇರು.ಮುಂದಿನ_arg1;
 	}
-	dom->next_arg1 = val64;
+	dom->ಮುಂದಿನ_arg1 = val64;
 
 	/* Read "next-addr" DT property */
 	val64 = 0;
-	val = fdt_getprop(fdt, domain_offset, "next-addr", &len);
-	if (val && len >= 8) {
-		val64 = fdt32_to_cpu(val[0]);
-		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
-		val64 = root.next_addr;
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "next-addr", &len);
+	ಆದರೆ (val && len >= 8) {
+		val64 = fdt32_ಗಮ್ಯ_cpu(val[0]);
+		val64 = (val64 << 32) | fdt32_ಗಮ್ಯ_cpu(val[1]);
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		val64 = ಬೇರು.ಮುಂದಿನ_addr;
 	}
-	dom->next_addr = val64;
+	dom->ಮುಂದಿನ_addr = val64;
 
 	/* Read "next-mode" DT property */
 	val32 = 0x1;
-	val = fdt_getprop(fdt, domain_offset, "next-mode", &len);
-	if (val && len >= 4) {
-		val32 = fdt32_to_cpu(val[0]);
-		if (val32 != 0x0 && val32 != 0x1)
+	val = fdt_getprop(fdt, domain_ಸ್ಥಾನಾಂತರ, "next-mode", &len);
+	ಆದರೆ (val && len >= 4) {
+		val32 = fdt32_ಗಮ್ಯ_cpu(val[0]);
+		ಆದರೆ (val32 != 0x0 && val32 != 0x1)
 			val32 = 0x1;
-	} else {
-		val32 = root.next_mode;
+	} ಇಲ್ಲದಿದ್ದರೆ {
+		val32 = ಬೇರು.ಮುಂದಿನ_ಬಹುಲಕ;
 	}
-	dom->next_mode = val32;
+	dom->ಮುಂದಿನ_ಬಹುಲಕ = val32;
 
 	/* Read "system-reset-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
-			     "system-reset-allowed", NULL))
+	ಆದರೆ (fdt_get_property(fdt, domain_ಸ್ಥಾನಾಂತರ,
+			     "system-reset-allowed", ಖಾಲಿ))
 		dom->system_reset_allowed = true;
-	else
+	ಇಲ್ಲದಿದ್ದರೆ
 		dom->system_reset_allowed = false;
 
 	/* Read "system-suspend-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
-			     "system-suspend-allowed", NULL))
+	ಆದರೆ (fdt_get_property(fdt, domain_ಸ್ಥಾನಾಂತರ,
+			     "system-suspend-allowed", ಖಾಲಿ))
 		dom->system_suspend_allowed = true;
-	else
+	ಇಲ್ಲದಿದ್ದರೆ
 		dom->system_suspend_allowed = false;
 
 	/* Register the domain */
-	err = sbi_domain_register(dom);
-	if (err)
-		goto fail_free_all;
+	err = sbi_domain_ರಿಜಿಸ್ಟರ್(dom);
+	ಆದರೆ (err)
+		ಹೋಗು fail_free_all;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 
 fail_free_all:
-	sbi_free(mask);
+	sbi_free(ಮುಖವಾಡ);
 fail_free_regions:
 	sbi_free(dom->regions);
 fail_free_domain:
 	sbi_free(dom);
-	return err;
+	ಹಿಂತಿರುಗಿ err;
 }
 
-int fdt_domains_populate(const void *fdt)
+ಪೂರ್ಣಾಂಕ fdt_domains_populate(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt)
 {
 	/* Sanity checks */
-	if (!fdt)
-		return SBI_EINVAL;
+	ಆದರೆ (!fdt)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
 	/* Iterate over each domain in FDT and populate details */
-	return fdt_iterate_each_domain_ro(fdt, NULL, __fdt_parse_domain);
+	ಹಿಂತಿರುಗಿ fdt_iterate_each_domain_ro(fdt, ಖಾಲಿ, __fdt_parse_domain);
 }

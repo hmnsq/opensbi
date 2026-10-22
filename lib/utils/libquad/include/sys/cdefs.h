@@ -4,9 +4,9 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __SYS_CDEFS_H__
-#define __SYS_CDEFS_H__
+#ವ್ಯಾಖ್ಯಾನಿತವಾಗದಿದ್ದರೆ __SYS_CDEFS_H__
+#ವ್ಯಾಖ್ಯಾನಿಸು __SYS_CDEFS_H__
 
-#define __FBSDID(s) struct __hack
+#ವ್ಯಾಖ್ಯಾನಿಸು __FBSDID(s) ರಚನೆ __hack
 
-#endif
+#ಆದರೆ_ಅಂತ್ಯ

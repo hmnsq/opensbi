@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+ಬಾಹ್ಯ ರಚನೆ plicsw_ದತ್ತಾಂಶ plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ಪೂರ್ಣಾಂಕ fdt_plicsw_cold_ipi_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			     ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_ಗಂಟು(fdt, nodeoff, &plicsw.addr, &plicsw.ಗಾತ್ರ_2,
+				   &plicsw.hart_ಎಣಿಕೆ);
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	ಆದರೆ (rc)
+		ಹಿಂತಿರುಗಿ rc;
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ ipi_plicsw_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_ipi_plicsw = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = ipi_plicsw_ಹೊಂದಿಕೆ,
 	.init = fdt_plicsw_cold_ipi_init,
 };

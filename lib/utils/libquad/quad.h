@@ -52,34 +52,34 @@
  * with 48-bit longs.
  */
 
-#include <sys/types.h>
-#include <limits.h>
+#ಅನ್ತರ್ಭಾವ <sys/types.h>
+#ಅನ್ತರ್ಭಾವ <limits.h>
 
 /*
  * Depending on the desired operation, we view a `long long' (aka quad_t) in
  * one or more of the following formats.
  */
-union uu {
+ಒಕ್ಕೂಟ uu {
 	quad_t	q;		/* as a (signed) quad */
 	quad_t	uq;		/* as an unsigned quad */
-	long	sl[2];		/* as two signed longs */
+	ದೀರ್ಘ	sl[2];		/* as two signed longs */
 	u_long	ul[2];		/* as two unsigned longs */
 };
 
 /*
  * Define high and low longwords.
  */
-#define	H		_QUAD_HIGHWORD
-#define	L		_QUAD_LOWWORD
+#ವ್ಯಾಖ್ಯಾನಿಸು	H		_QUAD_HIGHWORD
+#ವ್ಯಾಖ್ಯಾನಿಸು	L		_QUAD_LOWWORD
 
 /*
  * Total number of bits in a quad_t and in the pieces that make it up.
  * These are used for shifting, and also below for halfword extraction
  * and assembly.
  */
-#define	QUAD_BITS	(sizeof(quad_t) * CHAR_BIT)
-#define	LONG_BITS	(sizeof(long) * CHAR_BIT)
-#define	HALF_BITS	(sizeof(long) * CHAR_BIT / 2)
+#ವ್ಯಾಖ್ಯಾನಿಸು	QUAD_ಬಿಟ್ಟುಗಳು	(ಗಾತ್ರ(quad_t) * CHAR_BIT)
+#ವ್ಯಾಖ್ಯಾನಿಸು	LONG_ಬಿಟ್ಟುಗಳು	(ಗಾತ್ರ(ದೀರ್ಘ) * CHAR_BIT)
+#ವ್ಯಾಖ್ಯಾನಿಸು	HALF_ಬಿಟ್ಟುಗಳು	(ಗಾತ್ರ(ದೀರ್ಘ) * CHAR_BIT / 2)
 
 /*
  * Extract high and low shortwords from longword, and move low shortword of
@@ -90,16 +90,16 @@ union uu {
  * and lower halves, and to reassemble a product as a quad_t, shifted left
  * (sizeof(long)*CHAR_BIT/2).
  */
-#define	HHALF(x)	((x) >> HALF_BITS)
-#define	LHALF(x)	((x) & ((1L << HALF_BITS) - 1))
-#define	LHUP(x)		((x) << HALF_BITS)
+#ವ್ಯಾಖ್ಯಾನಿಸು	HHALF(x)	((x) >> HALF_ಬಿಟ್ಟುಗಳು)
+#ವ್ಯಾಖ್ಯಾನಿಸು	LHALF(x)	((x) & ((1L << HALF_ಬಿಟ್ಟುಗಳು) - 1))
+#ವ್ಯಾಖ್ಯಾನಿಸು	LHUP(x)		((x) << HALF_ಬಿಟ್ಟುಗಳು)
 
-int		__cmpdi2(quad_t a, quad_t b);
+ಪೂರ್ಣಾಂಕ		__cmpdi2(quad_t a, quad_t b);
 quad_t		__divdi3(quad_t a, quad_t b);
 quad_t		__moddi3(quad_t a, quad_t b);
 u_quad_t	__qdivrem(u_quad_t u, u_quad_t v, u_quad_t *rem);
-int		__ucmpdi2(u_quad_t a, u_quad_t b);
+ಪೂರ್ಣಾಂಕ		__ucmpdi2(u_quad_t a, u_quad_t b);
 u_quad_t	__udivdi3(u_quad_t a, u_quad_t b);
 u_quad_t	__umoddi3(u_quad_t a, u_quad_t b);
 
-typedef unsigned int	qshift_t;
+ಪ್ರಕಾರವ್ಯಾಖ್ಯೆ ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ	qshift_t;

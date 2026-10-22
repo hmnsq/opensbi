@@ -4,63 +4,63 @@
  * Copyright (c) 2026 Inochi Amaoto <inochiama@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ಅನ್ತರ್ಭಾವ <libfdt.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_io.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_system.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_driver.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/fdt/fdt_helper.h>
 
-#define RESET_CTRL			0x0
+#ವ್ಯಾಖ್ಯಾನಿಸು RESET_CTRL			0x0
 
-static volatile u32 *litex_soc_base;
+ಸ್ಥಿರ ಅಸ್ಥಿರ u32 *litex_soc_ತಳ;
 
-static int litex_reset_check(u32 type, u32 reason)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ litex_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	ಆಯ್ಕೆ (type) {
+	ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	ಸ್ಥಿತಿ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ಹಿಂತಿರುಗಿ 255;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static void litex_do_reset(u32 type, u32 reason)
+ಸ್ಥಿರ ಶೂನ್ಯ litex_do_reset(u32 type, u32 reason)
 {
-	writel_relaxed(0x1, litex_soc_base + RESET_CTRL);
+	writel_relaxed(0x1, litex_soc_ತಳ + RESET_CTRL);
 }
 
-static struct sbi_system_reset_device litex_reset = {
+ಸ್ಥಿರ ರಚನೆ sbi_system_reset_device litex_reset = {
 	.name = "litex-reset",
 	.system_reset_check = litex_reset_check,
 	.system_reset = litex_do_reset
 };
 
-static int litex_reset_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ litex_reset_init(ಸ್ಥಿರಾಂಕ ಶೂನ್ಯ *fdt, ಪೂರ್ಣಾಂಕ nodeoff,
+			    ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ *ಹೊಂದಿಕೆ)
 {
 	uint64_t reg_addr;
-	int rc;
+	ಪೂರ್ಣಾಂಕ rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ಗಂಟು_addr_ಗಾತ್ರ(fdt, nodeoff, 0, &reg_addr, ಖಾಲಿ);
+	ಆದರೆ (rc < 0 || !reg_addr)
+		ಹಿಂತಿರುಗಿ SBI_ENODEV;
 
 
-	litex_soc_base = (volatile u32 *)(unsigned long)reg_addr;
+	litex_soc_ತಳ = (ಅಸ್ಥಿರ u32 *)(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)reg_addr;
 
-	sbi_system_reset_add_device(&litex_reset);
+	sbi_system_reset_ಕೂಡಿಸು_device(&litex_reset);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static const struct fdt_match litex_reset_match[] = {
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_ಹೊಂದಿಕೆ litex_reset_ಹೊಂದಿಕೆ[] = {
 	{ .compatible = "litex,soc-controller" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_litex = {
-	.match_table = litex_reset_match,
+ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver fdt_reset_litex = {
+	.ಹೊಂದಿಕೆ_ಕೋಷ್ಟಕ = litex_reset_ಹೊಂದಿಕೆ,
 	.init = litex_reset_init,
 };

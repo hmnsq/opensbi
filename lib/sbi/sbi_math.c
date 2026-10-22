@@ -9,15 +9,15 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-unsigned long log2roundup(unsigned long x)
+ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ log2roundup(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ x)
 {
-	unsigned long ret = 0;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ret = 0;
 
-	while (ret < __riscv_xlen) {
-		if (x <= (1UL << ret))
-			break;
+	ಆಗ (ret < __riscv_xlen) {
+		ಆದರೆ (x <= (1UL << ret))
+			ನಿಲ್ಲಿಸು;
 		ret++;
 	}
 
-	return ret;
+	ಹಿಂತಿರುಗಿ ret;
 }

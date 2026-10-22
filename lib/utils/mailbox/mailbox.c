@@ -7,130 +7,130 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_string.h>
-#include <sbi_utils/mailbox/mailbox.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_string.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/mailbox/mailbox.h>
 
-static SBI_LIST_HEAD(mbox_list);
+ಸ್ಥಿರ SBI_LIST_ತಲೆ(mbox_list);
 
-struct mbox_controller *mbox_controller_find(unsigned int id)
+ರಚನೆ mbox_controller *mbox_controller_ಕಂಡುಹಿಡಿ(ಚಿಹ್ನೆರಹಿತ ಪೂರ್ಣಾಂಕ id)
 {
-	struct sbi_dlist *pos;
+	ರಚನೆ sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &mbox_list) {
-		struct mbox_controller *mbox = to_mbox_controller(pos);
+		ರಚನೆ mbox_controller *mbox = ಗಮ್ಯ_mbox_controller(pos);
 
-		if (mbox->id == id)
-			return mbox;
+		ಆದರೆ (mbox->id == id)
+			ಹಿಂತಿರುಗಿ mbox;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int mbox_controller_add(struct mbox_controller *mbox)
+ಪೂರ್ಣಾಂಕ mbox_controller_ಕೂಡಿಸು(ರಚನೆ mbox_controller *mbox)
 {
-	if (!mbox || !mbox->max_xfer_len)
-		return SBI_EINVAL;
-	if (mbox_controller_find(mbox->id))
-		return SBI_EALREADY;
+	ಆದರೆ (!mbox || !mbox->max_xfer_len)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (mbox_controller_ಕಂಡುಹಿಡಿ(mbox->id))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	ATOMIC_INIT(&mbox->xfer_next_seq, 0);
-	SBI_INIT_LIST_HEAD(&mbox->chan_list);
-	sbi_list_add(&mbox->node, &mbox_list);
+	ATOMIC_INIT(&mbox->xfer_ಮುಂದಿನ_seq, 0);
+	SBI_INIT_LIST_ತಲೆ(&mbox->chan_list);
+	sbi_list_ಕೂಡಿಸು(&mbox->ಗಂಟು, &mbox_list);
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void mbox_controller_remove(struct mbox_controller *mbox)
+ಶೂನ್ಯ mbox_controller_remove(ರಚನೆ mbox_controller *mbox)
 {
-	struct mbox_chan *chan;
+	ರಚನೆ mbox_chan *chan;
 
-	if (!mbox)
-		return;
+	ಆದರೆ (!mbox)
+		ಹಿಂತಿರುಗಿ;
 
-	while (!sbi_list_empty(&mbox->chan_list)) {
-		chan = sbi_list_first_entry(&mbox->chan_list,
-					    struct mbox_chan, node);
-		if (mbox->free_chan)
+	ಆಗ (!sbi_list_ಖಾಲಿಗಳು(&mbox->chan_list)) {
+		chan = sbi_list_ಮೊದಲ_ನಮೂದು(&mbox->chan_list,
+					    ರಚನೆ mbox_chan, ಗಂಟು);
+		ಆದರೆ (mbox->free_chan)
 			mbox->free_chan(mbox, chan);
-		sbi_list_del(&chan->node);
+		sbi_list_del(&chan->ಗಂಟು);
 	}
 
-	sbi_list_del(&mbox->node);
+	sbi_list_del(&mbox->ಗಂಟು);
 }
 
-struct mbox_chan *mbox_controller_request_chan(struct mbox_controller *mbox,
-					       u32 *chan_args)
+ರಚನೆ mbox_chan *mbox_controller_request_chan(ರಚನೆ mbox_controller *mbox,
+					       u32 *chan_ವಾದಗಳು)
 {
-	struct mbox_chan *ret;
-	struct sbi_dlist *pos;
+	ರಚನೆ mbox_chan *ret;
+	ರಚನೆ sbi_dlist *pos;
 
-	if (!chan_args || !mbox || !mbox->request_chan)
-		return NULL;
+	ಆದರೆ (!chan_ವಾದಗಳು || !mbox || !mbox->request_chan)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
 	sbi_list_for_each(pos, &mbox->chan_list) {
-		ret = to_mbox_chan(pos);
-		if (!sbi_memcmp(ret->chan_args, chan_args,
-				sizeof(ret->chan_args)))
-			return ret;
+		ret = ಗಮ್ಯ_mbox_chan(pos);
+		ಆದರೆ (!sbi_memcmp(ret->chan_ವಾದಗಳು, chan_ವಾದಗಳು,
+				ಗಾತ್ರ(ret->chan_ವಾದಗಳು)))
+			ಹಿಂತಿರುಗಿ ret;
 	}
 
-	ret = mbox->request_chan(mbox, chan_args);
-	if (!ret)
-		return NULL;
+	ret = mbox->request_chan(mbox, chan_ವಾದಗಳು);
+	ಆದರೆ (!ret)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
 	ret->mbox = mbox;
-	sbi_memcpy(ret->chan_args, chan_args, sizeof(ret->chan_args));
-	sbi_list_add(&ret->node, &mbox->chan_list);
-	return ret;
+	sbi_memcpy(ret->chan_ವಾದಗಳು, chan_ವಾದಗಳು, ಗಾತ್ರ(ret->chan_ವಾದಗಳು));
+	sbi_list_ಕೂಡಿಸು(&ret->ಗಂಟು, &mbox->chan_list);
+	ಹಿಂತಿರುಗಿ ret;
 }
 
-void mbox_controller_free_chan(struct mbox_chan *chan)
+ಶೂನ್ಯ mbox_controller_free_chan(ರಚನೆ mbox_chan *chan)
 {
-	if (!chan || !chan->mbox)
-		return;
+	ಆದರೆ (!chan || !chan->mbox)
+		ಹಿಂತಿರುಗಿ;
 
-	if (chan->mbox->free_chan)
+	ಆದರೆ (chan->mbox->free_chan)
 		chan->mbox->free_chan(chan->mbox, chan);
-	sbi_list_del(&chan->node);
+	sbi_list_del(&chan->ಗಂಟು);
 }
 
-int mbox_chan_xfer(struct mbox_chan *chan, struct mbox_xfer *xfer)
+ಪೂರ್ಣಾಂಕ mbox_chan_xfer(ರಚನೆ mbox_chan *chan, ರಚನೆ mbox_xfer *xfer)
 {
-	if (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
-		return SBI_EINVAL;
+	ಆದರೆ (!xfer || !chan || !chan->mbox || !chan->mbox->xfer)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	ಆದರೆ (xfer->tx && (xfer->tx_len > chan->mbox->max_xfer_len))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
-		return SBI_EINVAL;
+	ಆದರೆ (xfer->rx && (xfer->rx_len > chan->mbox->max_xfer_len))
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (!(xfer->flags & MBOX_XFER_SEQ))
-		mbox_xfer_set_sequence(xfer,
-			atomic_add_return(&chan->mbox->xfer_next_seq, 1));
+	ಆದರೆ (!(xfer->flags & MBOX_XFER_SEQ))
+		mbox_xfer_ಗಣ_sequence(xfer,
+			atomic_ಕೂಡಿಸು_return(&chan->mbox->xfer_ಮುಂದಿನ_seq, 1));
 
-	return chan->mbox->xfer(chan, xfer);
+	ಹಿಂತಿರುಗಿ chan->mbox->xfer(chan, xfer);
 }
 
-int mbox_chan_get_attribute(struct mbox_chan *chan, int attr_id, void *out_value)
+ಪೂರ್ಣಾಂಕ mbox_chan_get_attribute(ರಚನೆ mbox_chan *chan, ಪೂರ್ಣಾಂಕ attr_id, ಶೂನ್ಯ *ಹೊರಹೋಗು_ಮೌಲ್ಯ)
 {
-	if (!chan || !chan->mbox || !out_value)
-		return SBI_EINVAL;
+	ಆದರೆ (!chan || !chan->mbox || !ಹೊರಹೋಗು_ಮೌಲ್ಯ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (!chan->mbox->get_attribute)
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!chan->mbox->get_attribute)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	return chan->mbox->get_attribute(chan, attr_id, out_value);
+	ಹಿಂತಿರುಗಿ chan->mbox->get_attribute(chan, attr_id, ಹೊರಹೋಗು_ಮೌಲ್ಯ);
 }
 
-int mbox_chan_set_attribute(struct mbox_chan *chan, int attr_id, void *new_value)
+ಪೂರ್ಣಾಂಕ mbox_chan_ಗಣ_attribute(ರಚನೆ mbox_chan *chan, ಪೂರ್ಣಾಂಕ attr_id, ಶೂನ್ಯ *new_ಮೌಲ್ಯ)
 {
-	if (!chan || !chan->mbox || !new_value)
-		return SBI_EINVAL;
+	ಆದರೆ (!chan || !chan->mbox || !new_ಮೌಲ್ಯ)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (!chan->mbox->set_attribute)
-		return SBI_ENOTSUPP;
+	ಆದರೆ (!chan->mbox->ಗಣ_attribute)
+		ಹಿಂತಿರುಗಿ SBI_ENOTSUPP;
 
-	return chan->mbox->set_attribute(chan, attr_id, new_value);
+	ಹಿಂತಿರುಗಿ chan->mbox->ಗಣ_attribute(chan, attr_id, new_ಮೌಲ್ಯ);
 }

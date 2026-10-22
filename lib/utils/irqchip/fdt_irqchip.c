@@ -7,12 +7,12 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/irqchip/fdt_irqchip.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/irqchip/fdt_irqchip.h>
 
 /* List of FDT irqchip drivers generated at compile time */
-extern const struct fdt_driver *const fdt_irqchip_drivers[];
+ಬಾಹ್ಯ ಸ್ಥಿರಾಂಕ ರಚನೆ fdt_driver *ಸ್ಥಿರಾಂಕ fdt_irqchip_drivers[];
 
-int fdt_irqchip_init(void)
+ಪೂರ್ಣಾಂಕ fdt_irqchip_init(ಶೂನ್ಯ)
 {
-	return fdt_driver_init_all(fdt_get_address(), fdt_irqchip_drivers);
+	ಹಿಂತಿರುಗಿ fdt_driver_init_all(fdt_get_ವಿಳಾಸ(), fdt_irqchip_drivers);
 }

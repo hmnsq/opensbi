@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_error.h>
+#ಅನ್ತರ್ಭಾವ <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+ಸ್ಥಿರ SBI_LIST_ತಲೆ(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+ರಚನೆ i2c_adapter *i2c_adapter_ಕಂಡುಹಿಡಿ(ಪೂರ್ಣಾಂಕ id)
 {
-	struct sbi_dlist *pos;
+	ರಚನೆ sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		ರಚನೆ i2c_adapter *adap = ಗಮ್ಯ_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ಆದರೆ (adap->id == id)
+			ಹಿಂತಿರುಗಿ adap;
 	}
 
-	return NULL;
+	ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+ಪೂರ್ಣಾಂಕ i2c_adapter_ಕೂಡಿಸು(ರಚನೆ i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ಆದರೆ (!ia)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ಆದರೆ (i2c_adapter_ಕಂಡುಹಿಡಿ(ia->id))
+		ಹಿಂತಿರುಗಿ SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_ಕೂಡಿಸು(&(ia->ಗಂಟು), &(i2c_adapters_list));
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+ಶೂನ್ಯ i2c_adapter_remove(ರಚನೆ i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ಆದರೆ (!ia)
+		ಹಿಂತಿರುಗಿ;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->ಗಂಟು));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ಪೂರ್ಣಾಂಕ i2c_adapter_write(ರಚನೆ i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *ಬಫರ್, ಪೂರ್ಣಾಂಕ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ಆದರೆ (!ia)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (!ia->ಲಿಖ)
+		ಹಿಂತಿರುಗಿ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	ಹಿಂತಿರುಗಿ ia->ಲಿಖ(ia, addr, reg, ಬಫರ್, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ಪೂರ್ಣಾಂಕ i2c_adapter_read(ರಚನೆ i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *ಬಫರ್, ಪೂರ್ಣಾಂಕ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ಆದರೆ (!ia)
+		ಹಿಂತಿರುಗಿ SBI_EINVAL;
+	ಆದರೆ (!ia->ಪಠ)
+		ಹಿಂತಿರುಗಿ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	ಹಿಂತಿರುಗಿ ia->ಪಠ(ia, addr, reg, ಬಫರ್, len);
 }

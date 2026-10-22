@@ -7,149 +7,149 @@
  *   Himanshu Chauhan <hchauhan@ventanamicro.com>
  */
 
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_byteorder.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_dbtr.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_asm.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_ecall_interface.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_csr_detect.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_platform.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_byteorder.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_console.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_domain.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_trap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_dbtr.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_heap.h>
+#ಅನ್ತರ್ಭಾವ <sbi/sbi_hart_protection.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_encoding.h>
+#ಅನ್ತರ್ಭಾವ <sbi/riscv_asm.h>
 
 
 /** Offset of pointer to HART's debug triggers info in scratch space */
-static unsigned long hart_state_ptr_offset;
+ಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ hart_state_ptr_ಸ್ಥಾನಾಂತರ;
 
 /** Device specific debug trigger operations */
-static const struct sbi_dbtr_device *dbtr_dev = NULL;
+ಸ್ಥಿರ ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_dbtr_device *dbtr_dev = ಖಾಲಿ;
 
-const struct sbi_dbtr_device *sbi_dbtr_get_device(void)
+ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_dbtr_device *sbi_dbtr_get_device(ಶೂನ್ಯ)
 {
-	return dbtr_dev;
+	ಹಿಂತಿರುಗಿ dbtr_dev;
 }
 
-void sbi_dbtr_set_device(const struct sbi_dbtr_device *dev)
+ಶೂನ್ಯ sbi_dbtr_ಗಣ_device(ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_dbtr_device *dev)
 {
-	if (!dev || dbtr_dev)
-		return;
+	ಆದರೆ (!dev || dbtr_dev)
+		ಹಿಂತಿರುಗಿ;
 
 	dbtr_dev = dev;
 }
 
-#define dbtr_get_hart_state_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, hart_state_ptr_offset)
+#ವ್ಯಾಖ್ಯಾನಿಸು dbtr_get_hart_state_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), ಶೂನ್ಯ *, hart_state_ptr_ಸ್ಥಾನಾಂತರ)
 
-#define dbtr_thishart_state_ptr()				\
+#ವ್ಯಾಖ್ಯಾನಿಸು dbtr_thishart_state_ptr()				\
 	dbtr_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define dbtr_set_hart_state_ptr(__scratch, __hart_state)		\
-	sbi_scratch_write_type((__scratch), void *, hart_state_ptr_offset, \
+#ವ್ಯಾಖ್ಯಾನಿಸು dbtr_ಗಣ_hart_state_ptr(__scratch, __hart_state)		\
+	sbi_scratch_write_type((__scratch), ಶೂನ್ಯ *, hart_state_ptr_ಸ್ಥಾನಾಂತರ, \
 			       (__hart_state))
 
-#define tdata_read_safe(__csr)						\
+#ವ್ಯಾಖ್ಯಾನಿಸು tdata_read_ಸುರಕ್ಷಿತ(__csr)						\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		ರಚನೆ sbi_trap_info __trap = {0};			\
 		csr_read_allowed((__csr), &__trap);			\
 	})
 
-#define tdata_write_safe(__csr, __value)				\
+#ವ್ಯಾಖ್ಯಾನಿಸು tdata_write_ಸುರಕ್ಷಿತ(__csr, __value)				\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		ರಚನೆ sbi_trap_info __trap = {0};			\
 		csr_write_allowed((__csr), &__trap, (__value));		\
 	})
 
-#define tdata_implemented(__csr)					\
+#ವ್ಯಾಖ್ಯಾನಿಸು tdata_implemented(__csr)					\
 	({								\
-		struct sbi_trap_info __trap = {0};			\
+		ರಚನೆ sbi_trap_info __trap = {0};			\
 		csr_read_allowed((__csr), &__trap);			\
 		!__trap.cause;						\
 	})
 
-#define INDEX_TO_TRIGGER(_index)					\
+#ವ್ಯಾಖ್ಯಾನಿಸು ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(ಸೂಚ್ಯಂಕ)					\
 	({								\
-		struct sbi_dbtr_trigger *__trg = NULL;			\
-		struct sbi_dbtr_hart_triggers_state *__hs = NULL;	\
+		ರಚನೆ sbi_dbtr_trigger *__trg = ಖಾಲಿ;			\
+		ರಚನೆ sbi_dbtr_hart_triggers_state *__hs = ಖಾಲಿ;	\
 		__hs = dbtr_get_hart_state_ptr(sbi_scratch_thishart_ptr()); \
-		__trg = &__hs->triggers[_index];			\
+		__trg = &__hs->triggers[ಸೂಚ್ಯಂಕ];			\
 		(__trg);						\
 	})
 
-#define for_each_trig_entry(_base, _max, _etype, _entry)		\
-	for (int _idx = 0; _entry = ((_etype *)_base + _idx),		\
+#ವ್ಯಾಖ್ಯಾನಿಸು for_each_trig_ನಮೂದು(ತಳ, _max, _etype, ನಮೂದು)		\
+	ಗಾಗಿ (ಪೂರ್ಣಾಂಕ _idx = 0; ನಮೂದು = ((_etype *)ತಳ + _idx),		\
 	     _idx < _max;						\
-	     _idx++, _entry = ((_etype *)_base + _idx))
+	     _idx++, ನಮೂದು = ((_etype *)ತಳ + _idx))
 
-#define DBTR_SHMEM_MAKE_PHYS(_p_hi, _p_lo) (_p_lo)
+#ವ್ಯಾಖ್ಯಾನಿಸು DBTR_SHMEM_MAKE_PHYS(_p_hi, _p_lo) (_p_lo)
 
 /* must call with hs != NULL */
-static inline bool sbi_dbtr_shmem_disabled(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ bool sbi_dbtr_shmem_disabled(
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs)
 {
-	return (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
+	ಹಿಂತಿರುಗಿ (hs->shmem.phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR &&
 		hs->shmem.phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR
 		? true : false);
 }
 
 /* must call with hs != NULL */
-static inline void sbi_dbtr_disable_shmem(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ sbi_dbtr_disable_shmem(
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs)
 {
 	hs->shmem.phys_lo = SBI_DBTR_SHMEM_INVALID_ADDR;
 	hs->shmem.phys_hi = SBI_DBTR_SHMEM_INVALID_ADDR;
 }
 
 /* must call with hs which is not disabled */
-static inline void *hart_shmem_base(
-	struct sbi_dbtr_hart_triggers_state *hs)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ *hart_shmem_ತಳ(
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs)
 {
-	return ((void *)(unsigned long)DBTR_SHMEM_MAKE_PHYS(
+	ಹಿಂತಿರುಗಿ ((ಶೂನ್ಯ *)(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)DBTR_SHMEM_MAKE_PHYS(
 			hs->shmem.phys_hi, hs->shmem.phys_lo));
 }
 
-static void sbi_trigger_init(struct sbi_dbtr_trigger *trig,
-			     unsigned long type_mask, unsigned long idx)
+ಸ್ಥಿರ ಶೂನ್ಯ sbi_trigger_init(ರಚನೆ sbi_dbtr_trigger *trig,
+			     ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type_ಮುಖವಾಡ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ idx)
 {
-	trig->type_mask = type_mask;
+	trig->type_ಮುಖವಾಡ = type_ಮುಖವಾಡ;
 	trig->state = 0;
 	trig->tdata1 = 0;
 	trig->tdata2 = 0;
 	trig->tdata3 = 0;
-	trig->index = idx;
+	trig->ಸೂಚ್ಯಂಕ_2 = idx;
 }
 
-static bool dbtr_trigger_hw_supported(unsigned long idx, unsigned long tdata1,
-				      unsigned long tdata2,
-				      unsigned long tdata3)
+ಸ್ಥಿರ bool dbtr_trigger_hw_supported(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ idx, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1,
+				      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata2,
+				      ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata3)
 {
-	if (dbtr_dev && dbtr_dev->trigger_supported)
-		return dbtr_dev->trigger_supported(idx, tdata1, tdata2,
+	ಆದರೆ (dbtr_dev && dbtr_dev->trigger_supported)
+		ಹಿಂತಿರುಗಿ dbtr_dev->trigger_supported(idx, tdata1, tdata2,
 						   tdata3);
 
-	return true;
+	ಹಿಂತಿರುಗಿ true;
 }
 
-static bool dbtr_trigger_any_hw_supported(
-			struct sbi_dbtr_hart_triggers_state *hs,
-			unsigned long tdata1, unsigned long tdata2,
-			unsigned long tdata3)
+ಸ್ಥಿರ bool dbtr_trigger_any_hw_supported(
+			ರಚನೆ sbi_dbtr_hart_triggers_state *hs,
+			ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata2,
+			ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata3)
 {
-	unsigned long type = TDATA1_GET_TYPE(tdata1);
-	struct sbi_dbtr_trigger *trig;
-	int i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type = TDATA1_GET_TYPE(tdata1);
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ಪೂರ್ಣಾಂಕ i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
-		if (__test_bit(type, &trig->type_mask) &&
-		    dbtr_trigger_hw_supported(trig->index, tdata1, tdata2,
+	ಗಾಗಿ (i = 0; i < hs->ಒಟ್ಟು_trigs; i++) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i);
+		ಆದರೆ (__test_bit(type, &trig->type_ಮುಖವಾಡ) &&
+		    dbtr_trigger_hw_supported(trig->ಸೂಚ್ಯಂಕ_2, tdata1, tdata2,
 					      tdata3))
-			return true;
+			ಹಿಂತಿರುಗಿ true;
 	}
 
-	return false;
+	ಹಿಂತಿರುಗಿ false;
 }
 
 /*
@@ -158,128 +158,128 @@ static bool dbtr_trigger_any_hw_supported(
  * to track slot availability. A 32-bit mask covers RV_MAX_TRIGGERS (32);
  * for a larger number of triggers, this function needs to be updated.
  */
-static int dbtr_find_free_slot(struct sbi_dbtr_hart_triggers_state *hs,
-			       u32 claimed_mask,
-			       unsigned long tdata1, unsigned long tdata2,
-			       unsigned long tdata3)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ dbtr_ಕಂಡುಹಿಡಿ_free_ಸ್ಥಾನ(ರಚನೆ sbi_dbtr_hart_triggers_state *hs,
+			       u32 claimed_ಮುಖವಾಡ,
+			       ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata2,
+			       ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata3)
 {
-	unsigned long type = TDATA1_GET_TYPE(tdata1);
-	struct sbi_dbtr_trigger *trig;
-	int i;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type = TDATA1_GET_TYPE(tdata1);
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ಪೂರ್ಣಾಂಕ i;
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
-		if (trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))
-			continue;
-		if (claimed_mask & BIT(i))
-			continue;
-		if (!__test_bit(type, &trig->type_mask))
-			continue;
-		if (!dbtr_trigger_hw_supported(trig->index, tdata1,
+	ಗಾಗಿ (i = 0; i < hs->ಒಟ್ಟು_trigs; i++) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i);
+		ಆದರೆ (trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED))
+			ಮುಂದುವರಿ;
+		ಆದರೆ (claimed_ಮುಖವಾಡ & ಬಿಟ್(i))
+			ಮುಂದುವರಿ;
+		ಆದರೆ (!__test_bit(type, &trig->type_ಮುಖವಾಡ))
+			ಮುಂದುವರಿ;
+		ಆದರೆ (!dbtr_trigger_hw_supported(trig->ಸೂಚ್ಯಂಕ_2, tdata1,
 					       tdata2, tdata3))
-			continue;
-		return i;
+			ಮುಂದುವರಿ;
+		ಹಿಂತಿರುಗಿ i;
 	}
 
-	return SBI_ENOENT;
+	ಹಿಂತಿರುಗಿ SBI_ENOENT;
 }
 
-static inline struct sbi_dbtr_trigger *sbi_alloc_trigger(unsigned long tdata1,
-							 unsigned long tdata2,
-							 unsigned long tdata3)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ರಚನೆ sbi_dbtr_trigger *sbi_alloc_trigger(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1,
+							 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata2,
+							 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata3)
 {
-	int i;
-	struct sbi_dbtr_trigger *f_trig;
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	ಪೂರ್ಣಾಂಕ i;
+	ರಚನೆ sbi_dbtr_trigger *f_trig;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hart_state;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return NULL;
+	ಆದರೆ (!hart_state)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	if (hart_state->available_trigs <= 0)
-		return NULL;
+	ಆದರೆ (hart_state->ಲಭ್ಯ_trigs <= 0)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	i = dbtr_find_free_slot(hart_state, 0, tdata1, tdata2, tdata3);
-	if (i < 0)
-		return NULL;
+	i = dbtr_ಕಂಡುಹಿಡಿ_free_ಸ್ಥಾನ(hart_state, 0, tdata1, tdata2, tdata3);
+	ಆದರೆ (i < 0)
+		ಹಿಂತಿರುಗಿ ಖಾಲಿ;
 
-	f_trig = INDEX_TO_TRIGGER(i);
-	hart_state->available_trigs--;
-	__set_bit(RV_DBTR_BIT(TS, MAPPED), &f_trig->state);
+	f_trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i);
+	hart_state->ಲಭ್ಯ_trigs--;
+	__set_bit(RV_DBTR_ಬಿಟ್(TS, MAPPED), &f_trig->state);
 
-	return f_trig;
+	ಹಿಂತಿರುಗಿ f_trig;
 }
 
-static inline void sbi_free_trigger(struct sbi_dbtr_trigger *trig)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ sbi_free_trigger(ರಚನೆ sbi_dbtr_trigger *trig)
 {
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (trig == NULL)
-		return;
+	ಆದರೆ (trig == ಖಾಲಿ)
+		ಹಿಂತಿರುಗಿ;
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return;
+	ಆದರೆ (!hart_state)
+		ಹಿಂತಿರುಗಿ;
 
 	trig->state = 0;
 	trig->tdata1 = 0;
 	trig->tdata2 = 0;
 	trig->tdata3 = 0;
 
-	hart_state->available_trigs++;
+	hart_state->ಲಭ್ಯ_trigs++;
 }
 
-int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_init(ರಚನೆ sbi_scratch *scratch, bool coldboot)
 {
-	struct sbi_trap_info trap = {0};
-	unsigned long tdata1;
-	unsigned long val;
-	int i;
-	struct sbi_dbtr_hart_triggers_state *hart_state = NULL;
+	ರಚನೆ sbi_trap_info trap = {0};
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ val;
+	ಪೂರ್ಣಾಂಕ i;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hart_state = ಖಾಲಿ;
 
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return SBI_SUCCESS;
+	ಆದರೆ (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 
-	if (coldboot) {
-		hart_state_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!hart_state_ptr_offset)
-			return SBI_ENOMEM;
+	ಆದರೆ (coldboot) {
+		hart_state_ptr_ಸ್ಥಾನಾಂತರ = sbi_scratch_alloc_type_ಸ್ಥಾನಾಂತರ(ಶೂನ್ಯ *);
+		ಆದರೆ (!hart_state_ptr_ಸ್ಥಾನಾಂತರ)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 	}
 
 	hart_state = dbtr_get_hart_state_ptr(scratch);
-	if (!hart_state) {
-		hart_state = sbi_zalloc(sizeof(*hart_state));
-		if (!hart_state)
-			return SBI_ENOMEM;
+	ಆದರೆ (!hart_state) {
+		hart_state = sbi_zalloc(ಗಾತ್ರ(*hart_state));
+		ಆದರೆ (!hart_state)
+			ಹಿಂತಿರುಗಿ SBI_ENOMEM;
 		hart_state->hartid = current_hartid();
-		dbtr_set_hart_state_ptr(scratch, hart_state);
+		dbtr_ಗಣ_hart_state_ptr(scratch, hart_state);
 	}
 
 	/* disable the shared memory */
 	sbi_dbtr_disable_shmem(hart_state);
 
 	/* Skip probing triggers if already probed */
-	if (hart_state->probed)
-		goto _probed;
+	ಆದರೆ (hart_state->probed)
+		ಹೋಗು _probed;
 
-	for (i = 0; i < RV_MAX_TRIGGERS; i++) {
+	ಗಾಗಿ (i = 0; i < RV_MAX_TRIGGERS; i++) {
 		csr_write_allowed(CSR_TSELECT, &trap, i);
-		if (trap.cause)
-			break;
+		ಆದರೆ (trap.cause)
+			ನಿಲ್ಲಿಸು;
 
 		val = csr_read_allowed(CSR_TSELECT, &trap);
-		if (trap.cause)
-			break;
+		ಆದರೆ (trap.cause)
+			ನಿಲ್ಲಿಸು;
 
 		/*
 		 * Read back tselect and check that it contains the
 		 * written value
 		 */
-		if (val != i)
-			break;
+		ಆದರೆ (val != i)
+			ನಿಲ್ಲಿಸು;
 
 		val = csr_read_allowed(CSR_TINFO, &trap);
-		if (trap.cause) {
+		ಆದರೆ (trap.cause) {
 			/*
 			 * If reading tinfo caused an exception, the
 			 * debugger must read tdata1 to discover the
@@ -287,37 +287,37 @@ int sbi_dbtr_init(struct sbi_scratch *scratch, bool coldboot)
 			 */
 			tdata1 = csr_read_allowed(CSR_TDATA1,
 						  &trap);
-			if (trap.cause)
-				break;
+			ಆದರೆ (trap.cause)
+				ನಿಲ್ಲಿಸು;
 
-			if (TDATA1_GET_TYPE(tdata1) == 0)
-				break;
+			ಆದರೆ (TDATA1_GET_TYPE(tdata1) == 0)
+				ನಿಲ್ಲಿಸು;
 
-			sbi_trigger_init(INDEX_TO_TRIGGER(i),
-					 BIT(TDATA1_GET_TYPE(tdata1)),
+			sbi_trigger_init(ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i),
+					 ಬಿಟ್(TDATA1_GET_TYPE(tdata1)),
 					 i);
-			hart_state->total_trigs++;
-		} else {
-			if (val == 1)
-				break;
+			hart_state->ಒಟ್ಟು_trigs++;
+		} ಇಲ್ಲದಿದ್ದರೆ {
+			ಆದರೆ (val == 1)
+				ನಿಲ್ಲಿಸು;
 
-			sbi_trigger_init(INDEX_TO_TRIGGER(i), val, i);
-			hart_state->total_trigs++;
+			sbi_trigger_init(ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i), val, i);
+			hart_state->ಒಟ್ಟು_trigs++;
 		}
 	}
 
 	hart_state->probed = 1;
 
  _probed:
-	hart_state->available_trigs = hart_state->total_trigs;
+	hart_state->ಲಭ್ಯ_trigs = hart_state->ಒಟ್ಟು_trigs;
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_get_total_triggers(void)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_get_ಒಟ್ಟು_triggers(ಶೂನ್ಯ)
 {
-	struct sbi_dbtr_hart_triggers_state *hs;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs;
+	ರಚನೆ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	/*
 	 * This function may be used during ecall registration.
@@ -325,46 +325,46 @@ int sbi_dbtr_get_total_triggers(void)
 	 * initialized. If the extension is not supported, report
 	 * number of triggers as 0.
 	 */
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
-		return 0;
+	ಆದರೆ (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SDTRIG))
+		ಹಿಂತಿರುಗಿ 0;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return 0;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ 0;
 
-	return hs->total_trigs;
+	ಹಿಂತಿರುಗಿ hs->ಒಟ್ಟು_trigs;
 }
 
-int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
-			 unsigned long shmem_phys_lo,
-			 unsigned long shmem_phys_hi)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_ಸಿದ್ಧತೆ_shmem(ಸ್ಥಿರಾಂಕ ರಚನೆ sbi_domain *dom, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ smode,
+			 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ shmem_phys_lo,
+			 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ shmem_phys_hi)
 {
-	struct sbi_dbtr_hart_triggers_state *hart_state;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hart_state;
 
-	if (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
+	ಆದರೆ (dom && !sbi_domain_is_assigned_hart(dom, current_hartindex())) {
 		sbi_dprintf("%s: calling hart not assigned to this domain\n",
 			   __func__);
-		return SBI_ERR_DENIED;
+		ಹಿಂತಿರುಗಿ SBI_ERR_DENIED;
 	}
 
 	hart_state = dbtr_thishart_state_ptr();
-	if (!hart_state)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hart_state)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
 	/* call is to disable shared memory */
-	if (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
+	ಆದರೆ (shmem_phys_lo == SBI_DBTR_SHMEM_INVALID_ADDR
 	    && shmem_phys_hi == SBI_DBTR_SHMEM_INVALID_ADDR) {
 		sbi_dbtr_disable_shmem(hart_state);
-		return SBI_SUCCESS;
+		ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 	}
 
 	/* the shared memory must be disabled on this hart */
-	if (!sbi_dbtr_shmem_disabled(hart_state))
-		return SBI_ERR_ALREADY_AVAILABLE;
+	ಆದರೆ (!sbi_dbtr_shmem_disabled(hart_state))
+		ಹಿಂತಿರುಗಿ SBI_ERR_ALREADY_ಲಭ್ಯ;
 
 	/* lower physical address must be XLEN/8 bytes aligned */
-	if (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	ಆದರೆ (shmem_phys_lo & SBI_DBTR_SHMEM_ALIGN_ಮುಖವಾಡ)
+		ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_PARAM;
 
 	/*
 	* On RV32, the M-mode can only access the first 4GB of
@@ -377,129 +377,129 @@ int sbi_dbtr_setup_shmem(const struct sbi_domain *dom, unsigned long smode,
 	* So fail if the upper 64bit of the physical address
 	* is non-zero on RV64.
 	*/
-	if (shmem_phys_hi)
-		return SBI_EINVALID_ADDR;
+	ಆದರೆ (shmem_phys_hi)
+		ಹಿಂತಿರುಗಿ SBI_EINVALID_ADDR;
 
-	if (dom && !sbi_domain_check_addr(dom,
+	ಆದರೆ (dom && !sbi_domain_check_addr(dom,
 		  DBTR_SHMEM_MAKE_PHYS(shmem_phys_hi, shmem_phys_lo), smode,
 		  SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_ವಿಳಾಸ;
 
 	hart_state->shmem.phys_lo = shmem_phys_lo;
 	hart_state->shmem.phys_hi = shmem_phys_hi;
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-static void dbtr_trigger_setup(struct sbi_dbtr_trigger *trig,
-			       struct sbi_dbtr_data_msg *recv)
+ಸ್ಥಿರ ಶೂನ್ಯ dbtr_trigger_ಸಿದ್ಧತೆ(ರಚನೆ sbi_dbtr_trigger *trig,
+			       ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *recv)
 {
-	unsigned long tdata1;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1;
 
-	if (!trig)
-		return;
+	ಆದರೆ (!trig)
+		ಹಿಂತಿರುಗಿ;
 
-	trig->tdata1 = lle_to_cpu(recv->tdata1);
-	trig->tdata2 = lle_to_cpu(recv->tdata2);
-	trig->tdata3 = lle_to_cpu(recv->tdata3);
+	trig->tdata1 = lle_ಗಮ್ಯ_cpu(recv->tdata1);
+	trig->tdata2 = lle_ಗಮ್ಯ_cpu(recv->tdata2);
+	trig->tdata3 = lle_ಗಮ್ಯ_cpu(recv->tdata3);
 
-	tdata1 = lle_to_cpu(recv->tdata1);
+	tdata1 = lle_ಗಮ್ಯ_cpu(recv->tdata1);
 
 	trig->state = 0;
 
-	__set_bit(RV_DBTR_BIT(TS, MAPPED), &trig->state);
+	__set_bit(RV_DBTR_ಬಿಟ್(TS, MAPPED), &trig->state);
 
-	SET_TRIG_HW_INDEX(trig->state, trig->index);
+	ಗಣ_TRIG_HW_ಸೂಚ್ಯಂಕ(trig->state, trig->ಸೂಚ್ಯಂಕ_2);
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		if (__test_bit(RV_DBTR_BIT(MC, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+	ಆಯ್ಕೆ (TDATA1_GET_TYPE(tdata1)) {
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL:
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC, U), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (__test_bit(RV_DBTR_BIT(MC6, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC, S), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, S), &trig->state);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL6:
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC6, U), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC6, S), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VU), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC6, VU), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(MC6, VS), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, U), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, U), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(MC6, VS), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, VS), &trig->state);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_ICOUNT:
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(ICOUNT, U), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, U), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, S), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, S), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(ICOUNT, S), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, S), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VU), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VU), &trig->state);
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(ICOUNT, VU), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, VU), &trig->state);
 
-		if (__test_bit(RV_DBTR_BIT(ICOUNT, VS), &tdata1))
-			__set_bit(RV_DBTR_BIT(TS, VS), &trig->state);
-		break;
-	default:
+		ಆದರೆ (__test_bit(RV_DBTR_ಬಿಟ್(ICOUNT, VS), &tdata1))
+			__set_bit(RV_DBTR_ಬಿಟ್(TS, VS), &trig->state);
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
 		sbi_dprintf("%s: Unknown type (tdata1: 0x%lx Type: %ld)\n",
 			    __func__, tdata1, TDATA1_GET_TYPE(tdata1));
-		break;
+		ನಿಲ್ಲಿಸು;
 	}
 }
 
-static inline void update_bit(unsigned long new, int nr, volatile unsigned long *addr)
+ಸ್ಥಿರ ಸಾಲೊಳಗೆ ಶೂನ್ಯ update_ಬಿಟ್(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ new, ಪೂರ್ಣಾಂಕ nr, ಅಸ್ಥಿರ ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *addr)
 {
-	if (new)
+	ಆದರೆ (new)
 		__set_bit(nr, addr);
-	else
+	ಇಲ್ಲದಿದ್ದರೆ
 		__clear_bit(nr, addr);
 }
 
-static void dbtr_trigger_enable(struct sbi_dbtr_trigger *trig)
+ಸ್ಥಿರ ಶೂನ್ಯ dbtr_trigger_enable(ರಚನೆ sbi_dbtr_trigger *trig)
 {
-	unsigned long state;
-	unsigned long tdata1;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ state;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	ಆದರೆ (!trig || !(trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED)))
+		ಹಿಂತಿರುಗಿ;
 
 	state = trig->state;
 	tdata1 = trig->tdata1;
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(MC, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(MC, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VU),
-			   RV_DBTR_BIT(MC6, VU), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VS),
-			   RV_DBTR_BIT(MC6, VS), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(MC6, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(MC6, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VU),
-			   RV_DBTR_BIT(ICOUNT, VU), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, VS),
-			   RV_DBTR_BIT(ICOUNT, VS), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, U),
-			   RV_DBTR_BIT(ICOUNT, U), &trig->tdata1);
-		update_bit(state & RV_DBTR_BIT_MASK(TS, S),
-			   RV_DBTR_BIT(ICOUNT, S), &trig->tdata1);
-		break;
-	default:
-		break;
+	ಆಯ್ಕೆ (TDATA1_GET_TYPE(tdata1)) {
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL:
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, U),
+			   RV_DBTR_ಬಿಟ್(MC, U), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, S),
+			   RV_DBTR_ಬಿಟ್(MC, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL6:
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, VU),
+			   RV_DBTR_ಬಿಟ್(MC6, VU), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, VS),
+			   RV_DBTR_ಬಿಟ್(MC6, VS), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, U),
+			   RV_DBTR_ಬಿಟ್(MC6, U), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, S),
+			   RV_DBTR_ಬಿಟ್(MC6, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_ICOUNT:
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, VU),
+			   RV_DBTR_ಬಿಟ್(ICOUNT, VU), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, VS),
+			   RV_DBTR_ಬಿಟ್(ICOUNT, VS), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, U),
+			   RV_DBTR_ಬಿಟ್(ICOUNT, U), &trig->tdata1);
+		update_ಬಿಟ್(state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, S),
+			   RV_DBTR_ಬಿಟ್(ICOUNT, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ನಿಲ್ಲಿಸು;
 	}
 
 	/*
@@ -511,196 +511,196 @@ static void dbtr_trigger_enable(struct sbi_dbtr_trigger *trig)
 	 * where tdata2 and tdata3 can be written with any value that makes
 	 * sense for any trigger type supported by this trigger.
 	 */
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->ಸೂಚ್ಯಂಕ_2);
 	csr_write(CSR_TDATA1, 0x0);
-	tdata_write_safe(CSR_TDATA2, trig->tdata2);
-	tdata_write_safe(CSR_TDATA3, trig->tdata3);
+	tdata_write_ಸುರಕ್ಷಿತ(CSR_TDATA2, trig->tdata2);
+	tdata_write_ಸುರಕ್ಷಿತ(CSR_TDATA3, trig->tdata3);
 	csr_write(CSR_TDATA1, trig->tdata1);
 }
 
-static void dbtr_trigger_disable(struct sbi_dbtr_trigger *trig)
+ಸ್ಥಿರ ಶೂನ್ಯ dbtr_trigger_disable(ರಚನೆ sbi_dbtr_trigger *trig)
 {
-	unsigned long tdata1;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata1;
 
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	ಆದರೆ (!trig || !(trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED)))
+		ಹಿಂತಿರುಗಿ;
 
 	tdata1 = trig->tdata1;
 
-	switch (TDATA1_GET_TYPE(tdata1)) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		__clear_bit(RV_DBTR_BIT(MC, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		__clear_bit(RV_DBTR_BIT(MC6, VU), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, VS), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(MC6, S), &trig->tdata1);
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		__clear_bit(RV_DBTR_BIT(ICOUNT, VU), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, VS), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, U), &trig->tdata1);
-		__clear_bit(RV_DBTR_BIT(ICOUNT, S), &trig->tdata1);
-		break;
-	default:
-		break;
+	ಆಯ್ಕೆ (TDATA1_GET_TYPE(tdata1)) {
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL:
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL6:
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC6, VU), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC6, VS), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC6, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(MC6, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_ICOUNT:
+		__clear_bit(RV_DBTR_ಬಿಟ್(ICOUNT, VU), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(ICOUNT, VS), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(ICOUNT, U), &trig->tdata1);
+		__clear_bit(RV_DBTR_ಬಿಟ್(ICOUNT, S), &trig->tdata1);
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ನಿಲ್ಲಿಸು;
 	}
 
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->ಸೂಚ್ಯಂಕ_2);
 	csr_write(CSR_TDATA1, trig->tdata1);
 }
 
-static void dbtr_trigger_clear(struct sbi_dbtr_trigger *trig)
+ಸ್ಥಿರ ಶೂನ್ಯ dbtr_trigger_clear(ರಚನೆ sbi_dbtr_trigger *trig)
 {
-	if (!trig || !(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-		return;
+	ಆದರೆ (!trig || !(trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED)))
+		ಹಿಂತಿರುಗಿ;
 
-	csr_write(CSR_TSELECT, trig->index);
+	csr_write(CSR_TSELECT, trig->ಸೂಚ್ಯಂಕ_2);
 	csr_write(CSR_TDATA1, 0x0);
-	tdata_write_safe(CSR_TDATA2, 0x0);
-	tdata_write_safe(CSR_TDATA3, 0x0);
+	tdata_write_ಸುರಕ್ಷಿತ(CSR_TDATA2, 0x0);
+	tdata_write_ಸುರಕ್ಷಿತ(CSR_TDATA3, 0x0);
 }
 
-static int dbtr_trigger_supported(unsigned long type)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ dbtr_trigger_supported(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type)
 {
-	switch (type) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-	case RISCV_DBTR_TRIG_MCONTROL6:
-	case RISCV_DBTR_TRIG_ICOUNT:
-		return 1;
-	default:
-		break;
+	ಆಯ್ಕೆ (type) {
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL:
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL6:
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_ICOUNT:
+		ಹಿಂತಿರುಗಿ 1;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ನಿಲ್ಲಿಸು;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-static int dbtr_trigger_valid(unsigned long type, unsigned long tdata)
+ಸ್ಥಿರ ಪೂರ್ಣಾಂಕ dbtr_trigger_valid(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ tdata)
 {
-	switch (type) {
-	case RISCV_DBTR_TRIG_MCONTROL:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(MC, M)))
-			return 1;
-		break;
-	case RISCV_DBTR_TRIG_MCONTROL6:
-		if (!(tdata & RV_DBTR_BIT_MASK(MC6, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(MC6, M)))
-			return 1;
-		break;
-	case RISCV_DBTR_TRIG_ICOUNT:
-		if (!(tdata & RV_DBTR_BIT_MASK(ICOUNT, DMODE)) &&
-		    !(tdata & RV_DBTR_BIT_MASK(ICOUNT, M)))
-			return 1;
-		break;
-	default:
-		break;
+	ಆಯ್ಕೆ (type) {
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL:
+		ಆದರೆ (!(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(MC, DMODE)) &&
+		    !(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(MC, M)))
+			ಹಿಂತಿರುಗಿ 1;
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_MCONTROL6:
+		ಆದರೆ (!(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(MC6, DMODE)) &&
+		    !(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(MC6, M)))
+			ಹಿಂತಿರುಗಿ 1;
+		ನಿಲ್ಲಿಸು;
+	ಸ್ಥಿತಿ RISCV_DBTR_TRIG_ICOUNT:
+		ಆದರೆ (!(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(ICOUNT, DMODE)) &&
+		    !(tdata & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(ICOUNT, M)))
+			ಹಿಂತಿರುಗಿ 1;
+		ನಿಲ್ಲಿಸು;
+	ಪೂರ್ವನಿಯೋಜಿತ:
+		ನಿಲ್ಲಿಸು;
 	}
 
-	return 0;
+	ಹಿಂತಿರುಗಿ 0;
 }
 
-int sbi_dbtr_num_trig(unsigned long data, unsigned long *out)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_ಅಂಕೆ_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ದತ್ತಾಂಶ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು)
 {
-	unsigned long type = TDATA1_GET_TYPE(data);
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ type = TDATA1_GET_TYPE(ದತ್ತಾಂಶ);
 	u32 hartid = current_hartid();
-	unsigned long total = 0;
-	struct sbi_dbtr_trigger *trig;
-	int i;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ಒಟ್ಟು = 0;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ಪೂರ್ಣಾಂಕ i;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	if (data == 0) {
-		*out = hs->total_trigs;
-		return SBI_SUCCESS;
+	ಆದರೆ (ದತ್ತಾಂಶ == 0) {
+		*ಹೊರಹೋಗು = hs->ಒಟ್ಟು_trigs;
+		ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 	}
 
-	for (i = 0; i < hs->total_trigs; i++) {
-		trig = INDEX_TO_TRIGGER(i);
+	ಗಾಗಿ (i = 0; i < hs->ಒಟ್ಟು_trigs; i++) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(i);
 
-		if (__test_bit(type, &trig->type_mask) &&
-		    dbtr_trigger_hw_supported(trig->index, data, 0, 0))
-			total++;
+		ಆದರೆ (__test_bit(type, &trig->type_ಮುಖವಾಡ) &&
+		    dbtr_trigger_hw_supported(trig->ಸೂಚ್ಯಂಕ_2, ದತ್ತಾಂಶ, 0, 0))
+			ಒಟ್ಟು++;
 	}
 
 	sbi_dprintf("%s: hart%d: total triggers of type %lu: %lu\n",
-		    __func__, hartid, type, total);
+		    __func__, hartid, type, ಒಟ್ಟು);
 
-	*out = total;
-	return SBI_SUCCESS;
+	*ಹೊರಹೋಗು = ಒಟ್ಟು;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_read_trig(unsigned long smode,
-		       unsigned long trig_idx_base, unsigned long trig_count)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_read_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ smode,
+		       ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ತಳ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಎಣಿಕೆ)
 {
-	struct sbi_dbtr_data_msg *xmit;
-	struct sbi_dbtr_trigger *trig;
-	union sbi_dbtr_shmem_entry *entry;
-	void *shmem_base = NULL;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *xmit;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ಒಕ್ಕೂಟ sbi_dbtr_shmem_ನಮೂದು *ನಮೂದು_2;
+	ಶೂನ್ಯ *shmem_ತಳ = ಖಾಲಿ;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs = ಖಾಲಿ;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	if (trig_idx_base >= hs->total_trigs ||
-	    trig_idx_base + trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+	ಆದರೆ (trig_idx_ತಳ >= hs->ಒಟ್ಟು_trigs ||
+	    trig_idx_ತಳ + trig_ಎಣಿಕೆ >= hs->ಒಟ್ಟು_trigs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_BAD_RANGE;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	ಆದರೆ (sbi_dbtr_shmem_disabled(hs))
+		ಹಿಂತಿರುಗಿ SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
+	shmem_ತಳ = hart_shmem_ತಳ(hs);
 
-	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		xmit = &entry->data;
-		trig = INDEX_TO_TRIGGER((_idx + trig_idx_base));
-		csr_write(CSR_TSELECT, trig->index);
+	sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_map_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+					   trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+	for_each_trig_ನಮೂದು(shmem_ತಳ, trig_ಎಣಿಕೆ, typeof(*ನಮೂದು_2), ನಮೂದು_2) {
+		xmit = &ನಮೂದು_2->ದತ್ತಾಂಶ;
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER((_idx + trig_idx_ತಳ));
+		csr_write(CSR_TSELECT, trig->ಸೂಚ್ಯಂಕ_2);
 		trig->tdata1 = csr_read(CSR_TDATA1);
-		trig->tdata2 = tdata_read_safe(CSR_TDATA2);
-		trig->tdata3 = tdata_read_safe(CSR_TDATA3);
-		xmit->tstate = cpu_to_lle(trig->state);
-		xmit->tdata1 = cpu_to_lle(trig->tdata1);
-		xmit->tdata2 = cpu_to_lle(trig->tdata2);
-		xmit->tdata3 = cpu_to_lle(trig->tdata3);
+		trig->tdata2 = tdata_read_ಸುರಕ್ಷಿತ(CSR_TDATA2);
+		trig->tdata3 = tdata_read_ಸುರಕ್ಷಿತ(CSR_TDATA3);
+		xmit->tstate = cpu_ಗಮ್ಯ_lle(trig->state);
+		xmit->tdata1 = cpu_ಗಮ್ಯ_lle(trig->tdata1);
+		xmit->tdata2 = cpu_ಗಮ್ಯ_lle(trig->tdata2);
+		xmit->tdata3 = cpu_ಗಮ್ಯ_lle(trig->tdata3);
 	}
-	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+	sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+					     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_install_trig(unsigned long smode,
-			  unsigned long trig_count, unsigned long *out)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_install_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ smode,
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಎಣಿಕೆ, ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ *ಹೊರಹೋಗು)
 {
-	void *shmem_base = NULL;
-	union sbi_dbtr_shmem_entry *entry;
-	struct sbi_dbtr_data_msg *recv;
-	struct sbi_dbtr_id_msg *xmit;
-	unsigned long ctrl;
+	ಶೂನ್ಯ *shmem_ತಳ = ಖಾಲಿ;
+	ಒಕ್ಕೂಟ sbi_dbtr_shmem_ನಮೂದು *ನಮೂದು_2;
+	ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *recv;
+	ರಚನೆ sbi_dbtr_id_ಸಂದೇಶ *xmit;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ ctrl;
 	u32 claimed = 0;
-	int slot;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	ಪೂರ್ಣಾಂಕ ಸ್ಥಾನ;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs = ಖಾಲಿ;
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	ಆದರೆ (sbi_dbtr_shmem_disabled(hs))
+		ಹಿಂತಿರುಗಿ SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
-	sbi_hart_protection_temp_map_range((unsigned long)shmem_base,
-					   trig_count * sizeof(*entry));
+	shmem_ತಳ = hart_shmem_ತಳ(hs);
+	sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_map_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+					   trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
 
 	/*
 	 * SBI v3.0 sec 19.4 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -714,48 +714,48 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
 	/* Check requested triggers configuration */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
+	for_each_trig_ನಮೂದು(shmem_ತಳ, trig_ಎಣಿಕೆ, typeof(*ನಮೂದು_2), ನಮೂದು_2) {
+		recv = (ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *)(&ನಮೂದು_2->ದತ್ತಾಂಶ);
 		ctrl = recv->tdata1;
 
-		if (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+		ಆದರೆ (!dbtr_trigger_supported(TDATA1_GET_TYPE(ctrl))) {
+			*ಹೊರಹೋಗು = _idx;
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+							     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 		}
 
-		if (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+		ಆದರೆ (!dbtr_trigger_valid(TDATA1_GET_TYPE(ctrl), ctrl)) {
+			*ಹೊರಹೋಗು = _idx;
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+							     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_PARAM;
 		}
 
-		if ((recv->tdata2 && !tdata2_impl) ||
+		ಆದರೆ ((recv->tdata2 && !tdata2_impl) ||
 		    (recv->tdata3 && !tdata3_impl)) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+			*ಹೊರಹೋಗು = _idx;
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+							     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_any_hw_supported(hs,
-						   lle_to_cpu(recv->tdata1),
-						   lle_to_cpu(recv->tdata2),
-						   lle_to_cpu(recv->tdata3))) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		ಆದರೆ (!dbtr_trigger_any_hw_supported(hs,
+						   lle_ಗಮ್ಯ_cpu(recv->tdata1),
+						   lle_ಗಮ್ಯ_cpu(recv->tdata2),
+						   lle_ಗಮ್ಯ_cpu(recv->tdata3))) {
+			*ಹೊರಹೋಗು = _idx;
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+							     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 		}
 	}
 
-	if (hs->available_trigs < trig_count) {
-		*out = hs->available_trigs;
-		sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-						     trig_count * sizeof(*entry));
-		return SBI_ERR_FAILED;
+	ಆದರೆ (hs->ಲಭ್ಯ_trigs < trig_ಎಣಿಕೆ) {
+		*ಹೊರಹೋಗು = hs->ಲಭ್ಯ_trigs;
+		sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+						     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 	}
 
 	/*
@@ -763,114 +763,114 @@ int sbi_dbtr_install_trig(unsigned long smode,
 	 * is installed if any of the requested configurations cannot be
 	 * matched to a free hardware trigger slot.
 	 */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
-		slot = dbtr_find_free_slot(hs, claimed,
-					   lle_to_cpu(recv->tdata1),
-					   lle_to_cpu(recv->tdata2),
-					   lle_to_cpu(recv->tdata3));
-		if (slot < 0) {
-			*out = _idx;
-			sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-							     trig_count * sizeof(*entry));
-			return SBI_ERR_FAILED;
+	for_each_trig_ನಮೂದು(shmem_ತಳ, trig_ಎಣಿಕೆ, typeof(*ನಮೂದು_2), ನಮೂದು_2) {
+		recv = (ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *)(&ನಮೂದು_2->ದತ್ತಾಂಶ);
+		ಸ್ಥಾನ = dbtr_ಕಂಡುಹಿಡಿ_free_ಸ್ಥಾನ(hs, claimed,
+					   lle_ಗಮ್ಯ_cpu(recv->tdata1),
+					   lle_ಗಮ್ಯ_cpu(recv->tdata2),
+					   lle_ಗಮ್ಯ_cpu(recv->tdata3));
+		ಆದರೆ (ಸ್ಥಾನ < 0) {
+			*ಹೊರಹೋಗು = _idx;
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+							     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 		}
-		claimed |= BIT(slot);
+		claimed |= ಬಿಟ್(ಸ್ಥಾನ);
 	}
 
 	/* Install triggers */
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		recv = (struct sbi_dbtr_data_msg *)(&entry->data);
-		xmit = (struct sbi_dbtr_id_msg *)(&entry->id);
+	for_each_trig_ನಮೂದು(shmem_ತಳ, trig_ಎಣಿಕೆ, typeof(*ನಮೂದು_2), ನಮೂದು_2) {
+		recv = (ರಚನೆ sbi_dbtr_ದತ್ತಾಂಶ_ಸಂದೇಶ *)(&ನಮೂದು_2->ದತ್ತಾಂಶ);
+		xmit = (ರಚನೆ sbi_dbtr_id_ಸಂದೇಶ *)(&ನಮೂದು_2->id);
 
 		/*
 		 * The dry-run above matched every requested configuration
 		 * to a free hardware trigger slot, so allocation must
 		 * succeed.
 		 */
-		trig = sbi_alloc_trigger(lle_to_cpu(recv->tdata1),
-					 lle_to_cpu(recv->tdata2),
-					 lle_to_cpu(recv->tdata3));
+		trig = sbi_alloc_trigger(lle_ಗಮ್ಯ_cpu(recv->tdata1),
+					 lle_ಗಮ್ಯ_cpu(recv->tdata2),
+					 lle_ಗಮ್ಯ_cpu(recv->tdata3));
 
-		dbtr_trigger_setup(trig,  recv);
+		dbtr_trigger_ಸಿದ್ಧತೆ(trig,  recv);
 		dbtr_trigger_enable(trig);
-		xmit->idx = cpu_to_lle(trig->index);
+		xmit->idx = cpu_ಗಮ್ಯ_lle(trig->ಸೂಚ್ಯಂಕ_2);
 
 	}
 
-	sbi_hart_protection_temp_unmap_range((unsigned long)shmem_base,
-					     trig_count * sizeof(*entry));
+	sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)shmem_ತಳ,
+					     trig_ಎಣಿಕೆ * ಗಾತ್ರ(*ನಮೂದು_2));
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_uninstall_trig(unsigned long trig_idx_base,
-			    unsigned long trig_idx_mask)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_uninstall_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ತಳ,
+			    ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ಮುಖವಾಡ)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಮುಖವಾಡ = trig_idx_ಮುಖವಾಡ << trig_idx_ತಳ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ idx = trig_idx_ತಳ;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED)))
-			return SBI_ERR_INVALID_PARAM;
+	for_each_ಗಣ_ಬಿಟ್_from(idx, &trig_ಮುಖವಾಡ, hs->ಒಟ್ಟು_trigs) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(idx);
+		ಆದರೆ (!(trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED)))
+			ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_PARAM;
 
 		dbtr_trigger_clear(trig);
 
 		sbi_free_trigger(trig);
 	}
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_enable_trig(unsigned long trig_idx_base,
-			 unsigned long trig_idx_mask)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_enable_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ತಳ,
+			 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ಮುಖವಾಡ)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಮುಖವಾಡ = trig_idx_ಮುಖವಾಡ << trig_idx_ತಳ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ idx = trig_idx_ತಳ;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
+	for_each_ಗಣ_ಬಿಟ್_from(idx, &trig_ಮುಖವಾಡ, hs->ಒಟ್ಟು_trigs) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(idx);
 		sbi_dprintf("%s: enable trigger %lu\n", __func__, idx);
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_update_trig(unsigned long smode,
-			 unsigned long trig_count)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_update_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ smode,
+			 ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಎಣಿಕೆ)
 {
-	unsigned long trig_idx;
-	struct sbi_dbtr_trigger *trig;
-	union sbi_dbtr_shmem_entry *entry;
-	void *shmem_base = NULL;
-	struct sbi_dbtr_hart_triggers_state *hs = NULL;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ಒಕ್ಕೂಟ sbi_dbtr_shmem_ನಮೂದು *ನಮೂದು_2;
+	ಶೂನ್ಯ *shmem_ತಳ = ಖಾಲಿ;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs = ಖಾಲಿ;
 	bool tdata2_impl, tdata3_impl;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	if (sbi_dbtr_shmem_disabled(hs))
-		return SBI_ERR_NO_SHMEM;
+	ಆದರೆ (sbi_dbtr_shmem_disabled(hs))
+		ಹಿಂತಿರುಗಿ SBI_ERR_NO_SHMEM;
 
-	shmem_base = hart_shmem_base(hs);
+	shmem_ತಳ = hart_shmem_ತಳ(hs);
 
-	if (trig_count >= hs->total_trigs)
-		return SBI_ERR_BAD_RANGE;
+	ಆದರೆ (trig_ಎಣಿಕೆ >= hs->ಒಟ್ಟು_trigs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_BAD_RANGE;
 
 	/*
 	 * SBI v3.0 sec 19.5 requires SBI_ERR_NOT_SUPPORTED when a trigger
@@ -881,60 +881,60 @@ int sbi_dbtr_update_trig(unsigned long smode,
 	tdata2_impl = tdata_implemented(CSR_TDATA2);
 	tdata3_impl = tdata_implemented(CSR_TDATA3);
 
-	for_each_trig_entry(shmem_base, trig_count, typeof(*entry), entry) {
-		sbi_hart_protection_temp_map_range((unsigned long)entry, sizeof(*entry));
-		trig_idx = entry->id.idx;
+	for_each_trig_ನಮೂದು(shmem_ತಳ, trig_ಎಣಿಕೆ, typeof(*ನಮೂದು_2), ನಮೂದು_2) {
+		sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_map_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
+		trig_idx = ನಮೂದು_2->id.idx;
 
-		if (trig_idx >= hs->total_trigs) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_INVALID_PARAM;
+		ಆದರೆ (trig_idx >= hs->ಒಟ್ಟು_trigs) {
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_INVALID_PARAM;
 		}
 
-		trig = INDEX_TO_TRIGGER(trig_idx);
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(trig_idx);
 
-		if (!(trig->state & RV_DBTR_BIT_MASK(TS, MAPPED))) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_FAILED;
+		ಆದರೆ (!(trig->state & RV_DBTR_ಬಿಟ್_ಮುಖವಾಡ(TS, MAPPED))) {
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 		}
 
-		if ((entry->data.tdata2 && !tdata2_impl) ||
-		    (entry->data.tdata3 && !tdata3_impl)) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		ಆದರೆ ((ನಮೂದು_2->ದತ್ತಾಂಶ.tdata2 && !tdata2_impl) ||
+		    (ನಮೂದು_2->ದತ್ತಾಂಶ.tdata3 && !tdata3_impl)) {
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 		}
 
-		if (!dbtr_trigger_hw_supported(trig->index,
-					       lle_to_cpu(entry->data.tdata1),
-					       lle_to_cpu(entry->data.tdata2),
-					       lle_to_cpu(entry->data.tdata3))) {
-			sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
-			return SBI_ERR_NOT_SUPPORTED;
+		ಆದರೆ (!dbtr_trigger_hw_supported(trig->ಸೂಚ್ಯಂಕ_2,
+					       lle_ಗಮ್ಯ_cpu(ನಮೂದು_2->ದತ್ತಾಂಶ.tdata1),
+					       lle_ಗಮ್ಯ_cpu(ನಮೂದು_2->ದತ್ತಾಂಶ.tdata2),
+					       lle_ಗಮ್ಯ_cpu(ನಮೂದು_2->ದತ್ತಾಂಶ.tdata3))) {
+			sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
+			ಹಿಂತಿರುಗಿ SBI_ERR_NOT_SUPPORTED;
 		}
 
-		dbtr_trigger_setup(trig, &entry->data);
-		sbi_hart_protection_temp_unmap_range((unsigned long)entry, sizeof(*entry));
+		dbtr_trigger_ಸಿದ್ಧತೆ(trig, &ನಮೂದು_2->ದತ್ತಾಂಶ);
+		sbi_hart_protection_ತಾತ್ಕಾಲಿಕ_unmap_range((ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ)ನಮೂದು_2, ಗಾತ್ರ(*ನಮೂದು_2));
 		dbtr_trigger_enable(trig);
 	}
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
 
-int sbi_dbtr_disable_trig(unsigned long trig_idx_base,
-			  unsigned long trig_idx_mask)
+ಪೂರ್ಣಾಂಕ sbi_dbtr_disable_trig(ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ತಳ,
+			  ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_idx_ಮುಖವಾಡ)
 {
-	unsigned long trig_mask = trig_idx_mask << trig_idx_base;
-	unsigned long idx = trig_idx_base;
-	struct sbi_dbtr_trigger *trig;
-	struct sbi_dbtr_hart_triggers_state *hs;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ trig_ಮುಖವಾಡ = trig_idx_ಮುಖವಾಡ << trig_idx_ತಳ;
+	ಚಿಹ್ನೆರಹಿತ ದೀರ್ಘ idx = trig_idx_ತಳ;
+	ರಚನೆ sbi_dbtr_trigger *trig;
+	ರಚನೆ sbi_dbtr_hart_triggers_state *hs;
 
 	hs = dbtr_thishart_state_ptr();
-	if (!hs)
-		return SBI_ERR_FAILED;
+	ಆದರೆ (!hs)
+		ಹಿಂತಿರುಗಿ SBI_ERR_FAILED;
 
-	for_each_set_bit_from(idx, &trig_mask, hs->total_trigs) {
-		trig = INDEX_TO_TRIGGER(idx);
+	for_each_ಗಣ_ಬಿಟ್_from(idx, &trig_ಮುಖವಾಡ, hs->ಒಟ್ಟು_trigs) {
+		trig = ಸೂಚ್ಯಂಕ_ಗಮ್ಯ_TRIGGER(idx);
 		dbtr_trigger_disable(trig);
 	}
 
-	return SBI_SUCCESS;
+	ಹಿಂತಿರುಗಿ SBI_SUCCESS;
 }
