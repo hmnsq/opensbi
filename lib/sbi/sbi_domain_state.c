@@ -12,104 +12,104 @@
 static SBI_LIST_HEAD(state_list);
 static DECLARE_BITMAP(state_idx_bmap, SBI_DOMAIN_MAX_STATE_PTRS);
 
-void *sbi_domain_state_ptr(struct sbi_domain *dom, struct sbi_domain_state *state)
+void *sbi_domain_state_ptr(sa_nracanaa sbi_domain *dom, sa_nracanaa sbi_domain_state *state)
 {
-	if (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
-		return dom->state_priv.idx_to_state_ptr[state->state_idx];
+	ꦪꦼꦤ꧀ (dom && state && state->state_idx < SBI_DOMAIN_MAX_STATE_PTRS)
+		ꦮꦭꦶ dom->state_priv.idx_to_state_ptr[state->state_idx];
 
-	return NULL;
+	ꦮꦭꦶ NULL;
 }
 
-static int domain_setup_state_one(struct sbi_domain *dom,
-				 struct sbi_domain_state *state)
+static puur_naa_nka domain_setup_state_one(sa_nracanaa sbi_domain *dom,
+				 sa_nracanaa sbi_domain_state *state)
 {
-	struct sbi_domain_state_priv *priv = &dom->state_priv;
+	sa_nracanaa sbi_domain_state_priv *priv = &dom->state_priv;
 	void *state_ptr;
-	int rc;
+	puur_naa_nka rc;
 
-	if (priv->idx_to_state_ptr[state->state_idx])
-		return SBI_EALREADY;
+	ꦪꦼꦤ꧀ (priv->idx_to_state_ptr[state->state_idx])
+		ꦮꦭꦶ SBI_EALREADY;
 
 	state_ptr = sbi_zalloc(state->state_size);
-	if (!state_ptr) {
+	ꦪꦼꦤ꧀ (!state_ptr) {
 		sbi_domain_cleanup_state(dom);
-		return SBI_ENOMEM;
+		ꦮꦭꦶ SBI_ENOMEM;
 	}
 
-	if (state->state_setup) {
+	ꦪꦼꦤ꧀ (state->state_setup) {
 		rc = state->state_setup(dom, state, state_ptr);
-		if (rc) {
+		ꦪꦼꦤ꧀ (rc) {
 			sbi_free(state_ptr);
-			return rc;
+			ꦮꦭꦶ rc;
 		}
 	}
 
 	priv->idx_to_state_ptr[state->state_idx] = state_ptr;
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-static void domain_cleanup_state_one(struct sbi_domain *dom,
-				    struct sbi_domain_state *state)
+static void domain_cleanup_state_one(sa_nracanaa sbi_domain *dom,
+				    sa_nracanaa sbi_domain_state *state)
 {
-	struct sbi_domain_state_priv *priv = &dom->state_priv;
+	sa_nracanaa sbi_domain_state_priv *priv = &dom->state_priv;
 	void *state_ptr;
 
 	state_ptr = priv->idx_to_state_ptr[state->state_idx];
-	if (!state_ptr)
-		return;
+	ꦪꦼꦤ꧀ (!state_ptr)
+		ꦮꦭꦶ;
 
-	if (state->state_cleanup)
+	ꦪꦼꦤ꧀ (state->state_cleanup)
 		state->state_cleanup(dom, state, state_ptr);
 
 	sbi_free(state_ptr);
 	priv->idx_to_state_ptr[state->state_idx] = NULL;
 }
 
-int sbi_domain_setup_state(struct sbi_domain *dom)
+puur_naa_nka sbi_domain_setup_state(sa_nracanaa sbi_domain *dom)
 {
-	struct sbi_domain_state *state;
-	int rc;
+	sa_nracanaa sbi_domain_state *state;
+	puur_naa_nka rc;
 
-	if (!dom)
-		return SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!dom)
+		ꦮꦭꦶ SBI_EINVAL;
 
 	sbi_list_for_each_entry(state, &state_list, head) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		ꦪꦼꦤ꧀ (rc) {
 			sbi_domain_cleanup_state(dom);
-			return rc;
+			ꦮꦭꦶ rc;
 		}
 	}
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-void sbi_domain_cleanup_state(struct sbi_domain *dom)
+void sbi_domain_cleanup_state(sa_nracanaa sbi_domain *dom)
 {
-	struct sbi_domain_state *state;
+	sa_nracanaa sbi_domain_state *state;
 
-	if (!dom)
-		return;
+	ꦪꦼꦤ꧀ (!dom)
+		ꦮꦭꦶ;
 
 	sbi_list_for_each_entry(state, &state_list, head)
 		domain_cleanup_state_one(dom, state);
 }
 
-int sbi_domain_register_state(struct sbi_domain_state *state)
+puur_naa_nka sbi_domain_register_state(sa_nracanaa sbi_domain_state *state)
 {
-	struct sbi_domain *dom;
+	sa_nracanaa sbi_domain *dom;
 	u32 state_idx;
-	int rc;
+	puur_naa_nka rc;
 
-	if (!state || !state->state_size)
-		return SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!state || !state->state_size)
+		ꦮꦭꦶ SBI_EINVAL;
 
-	for (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
-		if (!bitmap_test(state_idx_bmap, state_idx))
-			break;
+	ꦏꦁꦒꦺꦴ (state_idx = 0; state_idx < SBI_DOMAIN_MAX_STATE_PTRS; state_idx++) {
+		ꦪꦼꦤ꧀ (!bitmap_test(state_idx_bmap, state_idx))
+			bha_nga;
 	}
-	if (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
-		return SBI_ENOSPC;
+	ꦪꦼꦤ꧀ (SBI_DOMAIN_MAX_STATE_PTRS <= state_idx)
+		ꦮꦭꦶ SBI_ENOSPC;
 	bitmap_set(state_idx_bmap, state_idx, 1);
 
 	state->state_idx = state_idx;
@@ -117,18 +117,18 @@ int sbi_domain_register_state(struct sbi_domain_state *state)
 
 	sbi_domain_for_each(dom) {
 		rc = domain_setup_state_one(dom, state);
-		if (rc) {
+		ꦪꦼꦤ꧀ (rc) {
 			sbi_domain_unregister_state(state);
-			return rc;
+			ꦮꦭꦶ rc;
 		}
 	}
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-void sbi_domain_unregister_state(struct sbi_domain_state *state)
+void sbi_domain_unregister_state(sa_nracanaa sbi_domain_state *state)
 {
-	struct sbi_domain *dom;
+	sa_nracanaa sbi_domain *dom;
 
 	sbi_domain_for_each(dom)
 		domain_cleanup_state_one(dom, state);

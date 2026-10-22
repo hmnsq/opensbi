@@ -33,8 +33,8 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)umoddi3.c	8.1 (Berkeley) 6/4/93";
+#ꦪꦼꦤ꧀ defined(LIBC_SCCS) && !defined(lint)
+static var_na sccsid[] = "@(#)umoddi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
@@ -50,5 +50,5 @@ __umoddi3(u_quad_t a, u_quad_t b)
 	u_quad_t r;
 
 	(void)__qdivrem(a, b, &r);
-	return (r);
+	ꦮꦭꦶ (r);
 }

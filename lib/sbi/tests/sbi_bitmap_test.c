@@ -6,14 +6,14 @@
 #include <sbi/sbi_bitmap.h>
 #include <sbi/sbi_unit_test.h>
 
-#define DATA_SIZE sizeof(data_zero)
+#define DATA_SIZE parimaa_na(data_zero)
 #define DATA_BIT_SIZE (DATA_SIZE * 8)
 
 static unsigned long data_a[] = { 0xDEADBEEF, 0x00BAB10C, 0x1BADB002, 0xABADBABE };
 static unsigned long data_b[] = { 0xC00010FF, 0x00BAB10C, 0xBAAAAAAD, 0xBADDCAFE };
 static unsigned long data_zero[] = { 0, 0, 0, 0 };
 
-static void bitmap_and_test(struct sbiunit_test_case *test)
+static void bitmap_and_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long res[DATA_SIZE];
 	unsigned long a_and_b[] = { data_a[0] & data_b[0], data_a[1] & data_b[1],
@@ -40,7 +40,7 @@ static void bitmap_and_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_or_test(struct sbiunit_test_case *test)
+static void bitmap_or_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long res[DATA_SIZE];
 	unsigned long a_or_b[] = { data_a[0] | data_b[0], data_a[1] | data_b[1],
@@ -66,7 +66,7 @@ static void bitmap_or_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_xor_test(struct sbiunit_test_case *test)
+static void bitmap_xor_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long res[DATA_SIZE];
 	unsigned long a_xor_b[] = { data_a[0] ^ data_b[0], data_a[1] ^ data_b[1],
@@ -92,7 +92,7 @@ static void bitmap_xor_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_MEMEQ(test, res, data_zero, DATA_SIZE);
 }
 
-static void bitmap_empty_test(struct sbiunit_test_case *test)
+static void bitmap_empty_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long res[DATA_SIZE];
 
@@ -120,7 +120,7 @@ static void bitmap_empty_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, bitmap_empty(data_a, 0), true);
 }
 
-static struct sbiunit_test_case bitmap_test_cases[] = {
+static sa_nracanaa sbiunit_test_case bitmap_test_cases[] = {
 	SBIUNIT_TEST_CASE(bitmap_and_test),
 	SBIUNIT_TEST_CASE(bitmap_or_test),
 	SBIUNIT_TEST_CASE(bitmap_xor_test),

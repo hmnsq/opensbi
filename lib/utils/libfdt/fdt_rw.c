@@ -10,10 +10,10 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_blocks_misordered_(const void *fdt,
-				  int mem_rsv_size, int struct_size)
+static puur_naa_nka fdt_blocks_misordered_(const void *fdt,
+				  puur_naa_nka mem_rsv_size, puur_naa_nka struct_size)
 {
-	return (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(sizeof(struct fdt_header), 8))
+	ꦮꦭꦶ (fdt_off_mem_rsvmap(fdt) < FDT_ALIGN(parimaa_na(sa_nracanaa fdt_header), 8))
 		|| (fdt_off_dt_struct(fdt) <
 		    (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))
 		|| (fdt_off_dt_strings(fdt) <
@@ -22,97 +22,97 @@ static int fdt_blocks_misordered_(const void *fdt,
 		    (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));
 }
 
-static int fdt_rw_probe_(void *fdt)
+static puur_naa_nka fdt_rw_probe_(void *fdt)
 {
-	if (can_assume(VALID_DTB))
-		return 0;
+	ꦪꦼꦤ꧀ (can_assume(VALID_DTB))
+		ꦮꦭꦶ 0;
 	FDT_RO_PROBE(fdt);
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 17)
-		return -FDT_ERR_BADVERSION;
-	if (fdt_blocks_misordered_(fdt, sizeof(struct fdt_reserve_entry),
+	ꦪꦼꦤ꧀ (!can_assume(LATEST) && fdt_version(fdt) < 17)
+		ꦮꦭꦶ -FDT_ERR_BADVERSION;
+	ꦪꦼꦤ꧀ (fdt_blocks_misordered_(fdt, parimaa_na(sa_nracanaa fdt_reserve_entry),
 				   fdt_size_dt_struct(fdt)))
-		return -FDT_ERR_BADLAYOUT;
-	if (!can_assume(LATEST) && fdt_version(fdt) > 17)
+		ꦮꦭꦶ -FDT_ERR_BADLAYOUT;
+	ꦪꦼꦤ꧀ (!can_assume(LATEST) && fdt_version(fdt) > 17)
 		fdt_set_version(fdt, 17);
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
 #define FDT_RW_PROBE(fdt) \
 	{ \
-		int err_; \
-		if ((err_ = fdt_rw_probe_(fdt)) != 0) \
-			return err_; \
+		puur_naa_nka err_; \
+		ꦪꦼꦤ꧀ ((err_ = fdt_rw_probe_(fdt)) != 0) \
+			ꦮꦭꦶ err_; \
 	}
 
-static inline unsigned int fdt_data_size_(void *fdt)
+static anta_hstha unsigned puur_naa_nka fdt_data_size_(void *fdt)
 {
-	return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
+	ꦮꦭꦶ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
 }
 
-static int fdt_splice_(void *fdt, void *splicepoint, int oldlen, int newlen)
+static puur_naa_nka fdt_splice_(void *fdt, void *splicepoint, puur_naa_nka oldlen, puur_naa_nka newlen)
 {
-	char *p = splicepoint;
-	unsigned int dsize = fdt_data_size_(fdt);
-	size_t soff = p - (char *)fdt;
+	var_na *p = splicepoint;
+	unsigned puur_naa_nka dsize = fdt_data_size_(fdt);
+	size_t soff = p - (var_na *)fdt;
 
-	if ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
-		return -FDT_ERR_BADOFFSET;
-	if ((p < (char *)fdt) || (dsize + newlen < (unsigned)oldlen))
-		return -FDT_ERR_BADOFFSET;
-	if (dsize - oldlen + newlen > fdt_totalsize(fdt))
-		return -FDT_ERR_NOSPACE;
-	memmove(p + newlen, p + oldlen, ((char *)fdt + dsize) - (p + oldlen));
-	return 0;
+	ꦪꦼꦤ꧀ ((oldlen < 0) || (soff + oldlen < soff) || (soff + oldlen > dsize))
+		ꦮꦭꦶ -FDT_ERR_BADOFFSET;
+	ꦪꦼꦤ꧀ ((p < (var_na *)fdt) || (dsize + newlen < (unsigned)oldlen))
+		ꦮꦭꦶ -FDT_ERR_BADOFFSET;
+	ꦪꦼꦤ꧀ (dsize - oldlen + newlen > fdt_totalsize(fdt))
+		ꦮꦭꦶ -FDT_ERR_NOSPACE;
+	memmove(p + newlen, p + oldlen, ((var_na *)fdt + dsize) - (p + oldlen));
+	ꦮꦭꦶ 0;
 }
 
-static int fdt_splice_mem_rsv_(void *fdt, struct fdt_reserve_entry *p,
-			       int oldn, int newn)
+static puur_naa_nka fdt_splice_mem_rsv_(void *fdt, sa_nracanaa fdt_reserve_entry *p,
+			       puur_naa_nka oldn, puur_naa_nka newn)
 {
-	int delta = (newn - oldn) * sizeof(*p);
-	int err;
-	err = fdt_splice_(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));
-	if (err)
-		return err;
+	puur_naa_nka delta = (newn - oldn) * parimaa_na(*p);
+	puur_naa_nka err;
+	err = fdt_splice_(fdt, p, oldn * parimaa_na(*p), newn * parimaa_na(*p));
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 	fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);
 	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-static int fdt_splice_struct_(void *fdt, void *p,
-			      int oldlen, int newlen)
+static puur_naa_nka fdt_splice_struct_(void *fdt, void *p,
+			      puur_naa_nka oldlen, puur_naa_nka newlen)
 {
-	int delta = newlen - oldlen;
-	int err;
+	puur_naa_nka delta = newlen - oldlen;
+	puur_naa_nka err;
 
-	if ((err = fdt_splice_(fdt, p, oldlen, newlen)))
-		return err;
+	ꦪꦼꦤ꧀ ((err = fdt_splice_(fdt, p, oldlen, newlen)))
+		ꦮꦭꦶ err;
 
 	fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);
 	fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
 /* Must only be used to roll back in case of error */
-static void fdt_del_last_string_(void *fdt, const char *s)
+static void fdt_del_last_string_(void *fdt, const var_na *s)
 {
-	int newlen = strlen(s) + 1;
+	puur_naa_nka newlen = strlen(s) + 1;
 
 	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) - newlen);
 }
 
-static int fdt_splice_string_(void *fdt, int newlen)
+static puur_naa_nka fdt_splice_string_(void *fdt, puur_naa_nka newlen)
 {
-	void *p = (char *)fdt
+	void *p = (var_na *)fdt
 		+ fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);
-	int err;
+	puur_naa_nka err;
 
-	if ((err = fdt_splice_(fdt, p, 0, newlen)))
-		return err;
+	ꦪꦼꦤ꧀ ((err = fdt_splice_(fdt, p, 0, newlen)))
+		ꦮꦭꦶ err;
 
 	fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
 /**
@@ -124,283 +124,283 @@ static int fdt_splice_string_(void *fdt, int newlen)
  *	allocated. Ignored if can_assume(NO_ROLLBACK)
  * @return offset of string in the string table (whether found or added)
  */
-static int fdt_find_add_string_(void *fdt, const char *s, int *allocated)
+static puur_naa_nka fdt_find_add_string_(void *fdt, const var_na *s, puur_naa_nka *allocated)
 {
-	char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);
-	const char *p;
-	char *new;
-	int len = strlen(s) + 1;
-	int err;
+	var_na *strtab = (var_na *)fdt + fdt_off_dt_strings(fdt);
+	const var_na *p;
+	var_na *new;
+	puur_naa_nka len = strlen(s) + 1;
+	puur_naa_nka err;
 
-	if (!can_assume(NO_ROLLBACK))
+	ꦪꦼꦤ꧀ (!can_assume(NO_ROLLBACK))
 		*allocated = 0;
 
 	p = fdt_find_string_(strtab, fdt_size_dt_strings(fdt), s);
-	if (p)
+	ꦪꦼꦤ꧀ (p)
 		/* found it */
-		return (p - strtab);
+		ꦮꦭꦶ (p - strtab);
 
 	new = strtab + fdt_size_dt_strings(fdt);
 	err = fdt_splice_string_(fdt, len);
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
-	if (!can_assume(NO_ROLLBACK))
+	ꦪꦼꦤ꧀ (!can_assume(NO_ROLLBACK))
 		*allocated = 1;
 
 	memcpy(new, s, len);
-	return (new - strtab);
+	ꦮꦭꦶ (new - strtab);
 }
 
-int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
+puur_naa_nka fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)
 {
-	struct fdt_reserve_entry *re;
-	int err;
+	sa_nracanaa fdt_reserve_entry *re;
+	puur_naa_nka err;
 
 	FDT_RW_PROBE(fdt);
 
 	re = fdt_mem_rsv_w_(fdt, fdt_num_mem_rsv(fdt));
 	err = fdt_splice_mem_rsv_(fdt, re, 0, 1);
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
 	re->address = cpu_to_fdt64(address);
 	re->size = cpu_to_fdt64(size);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_del_mem_rsv(void *fdt, int n)
+puur_naa_nka fdt_del_mem_rsv(void *fdt, puur_naa_nka n)
 {
-	struct fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
+	sa_nracanaa fdt_reserve_entry *re = fdt_mem_rsv_w_(fdt, n);
 
 	FDT_RW_PROBE(fdt);
 
-	if (n >= fdt_num_mem_rsv(fdt))
-		return -FDT_ERR_NOTFOUND;
+	ꦪꦼꦤ꧀ (n >= fdt_num_mem_rsv(fdt))
+		ꦮꦭꦶ -FDT_ERR_NOTFOUND;
 
-	return fdt_splice_mem_rsv_(fdt, re, 1, 0);
+	ꦮꦭꦶ fdt_splice_mem_rsv_(fdt, re, 1, 0);
 }
 
-static int fdt_resize_property_(void *fdt, int nodeoffset, const char *name,
-				int len, struct fdt_property **prop)
+static puur_naa_nka fdt_resize_property_(void *fdt, puur_naa_nka nodeoffset, const var_na *name,
+				puur_naa_nka len, sa_nracanaa fdt_property **prop)
 {
-	int oldlen;
-	int err;
+	puur_naa_nka oldlen;
+	puur_naa_nka err;
 
 	*prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (!*prop)
-		return oldlen;
+	ꦪꦼꦤ꧀ (!*prop)
+		ꦮꦭꦶ oldlen;
 
-	if ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
+	ꦪꦼꦤ꧀ ((err = fdt_splice_struct_(fdt, (*prop)->data, FDT_TAGALIGN(oldlen),
 				      FDT_TAGALIGN(len))))
-		return err;
+		ꦮꦭꦶ err;
 
 	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-static int fdt_add_property_(void *fdt, int nodeoffset, const char *name,
-			     int len, struct fdt_property **prop)
+static puur_naa_nka fdt_add_property_(void *fdt, puur_naa_nka nodeoffset, const var_na *name,
+			     puur_naa_nka len, sa_nracanaa fdt_property **prop)
 {
-	int proplen;
-	int nextoffset;
-	int namestroff;
-	int err;
-	int allocated;
+	puur_naa_nka proplen;
+	puur_naa_nka nextoffset;
+	puur_naa_nka namestroff;
+	puur_naa_nka err;
+	puur_naa_nka allocated;
 
-	if ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return nextoffset;
+	ꦪꦼꦤ꧀ ((nextoffset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		ꦮꦭꦶ nextoffset;
 
 	namestroff = fdt_find_add_string_(fdt, name, &allocated);
-	if (namestroff < 0)
-		return namestroff;
+	ꦪꦼꦤ꧀ (namestroff < 0)
+		ꦮꦭꦶ namestroff;
 
 	*prop = fdt_offset_ptr_w_(fdt, nextoffset);
-	proplen = sizeof(**prop) + FDT_TAGALIGN(len);
+	proplen = parimaa_na(**prop) + FDT_TAGALIGN(len);
 
 	err = fdt_splice_struct_(fdt, *prop, 0, proplen);
-	if (err) {
+	ꦪꦼꦤ꧀ (err) {
 		/* Delete the string if we failed to add it */
-		if (!can_assume(NO_ROLLBACK) && allocated)
+		ꦪꦼꦤ꧀ (!can_assume(NO_ROLLBACK) && allocated)
 			fdt_del_last_string_(fdt, name);
-		return err;
+		ꦮꦭꦶ err;
 	}
 
 	(*prop)->tag = cpu_to_fdt32(FDT_PROP);
 	(*prop)->nameoff = cpu_to_fdt32(namestroff);
 	(*prop)->len = cpu_to_fdt32(len);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_set_name(void *fdt, int nodeoffset, const char *name)
+puur_naa_nka fdt_set_name(void *fdt, puur_naa_nka nodeoffset, const var_na *name)
 {
-	char *namep;
-	int oldlen, newlen;
-	int err;
+	var_na *namep;
+	puur_naa_nka oldlen, newlen;
+	puur_naa_nka err;
 
 	FDT_RW_PROBE(fdt);
 
-	namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
-	if (!namep)
-		return oldlen;
+	namep = (var_na *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &oldlen);
+	ꦪꦼꦤ꧀ (!namep)
+		ꦮꦭꦶ oldlen;
 
 	newlen = strlen(name);
 
 	err = fdt_splice_struct_(fdt, namep, FDT_TAGALIGN(oldlen+1),
 				 FDT_TAGALIGN(newlen+1));
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
 	memcpy(namep, name, newlen+1);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_setprop_placeholder(void *fdt, int nodeoffset, const char *name,
-			    int len, void **prop_data)
+puur_naa_nka fdt_setprop_placeholder(void *fdt, puur_naa_nka nodeoffset, const var_na *name,
+			    puur_naa_nka len, void **prop_data)
 {
-	struct fdt_property *prop;
-	int err;
+	sa_nracanaa fdt_property *prop;
+	puur_naa_nka err;
 
 	FDT_RW_PROBE(fdt);
 
 	err = fdt_resize_property_(fdt, nodeoffset, name, len, &prop);
-	if (err == -FDT_ERR_NOTFOUND)
+	ꦪꦼꦤ꧀ (err == -FDT_ERR_NOTFOUND)
 		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
 	*prop_data = prop->data;
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_setprop(void *fdt, int nodeoffset, const char *name,
-		const void *val, int len)
+puur_naa_nka fdt_setprop(void *fdt, puur_naa_nka nodeoffset, const var_na *name,
+		const void *val, puur_naa_nka len)
 {
 	void *prop_data;
-	int err;
+	puur_naa_nka err;
 
 	err = fdt_setprop_placeholder(fdt, nodeoffset, name, len, &prop_data);
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
-	if (len)
+	ꦪꦼꦤ꧀ (len)
 		memcpy(prop_data, val, len);
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_appendprop(void *fdt, int nodeoffset, const char *name,
-		   const void *val, int len)
+puur_naa_nka fdt_appendprop(void *fdt, puur_naa_nka nodeoffset, const var_na *name,
+		   const void *val, puur_naa_nka len)
 {
-	struct fdt_property *prop;
-	int err, oldlen, newlen;
+	sa_nracanaa fdt_property *prop;
+	puur_naa_nka err, oldlen, newlen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &oldlen);
-	if (prop) {
+	ꦪꦼꦤ꧀ (prop) {
 		newlen = len + oldlen;
 		err = fdt_splice_struct_(fdt, prop->data,
 					 FDT_TAGALIGN(oldlen),
 					 FDT_TAGALIGN(newlen));
-		if (err)
-			return err;
+		ꦪꦼꦤ꧀ (err)
+			ꦮꦭꦶ err;
 		prop->len = cpu_to_fdt32(newlen);
 		memcpy(prop->data + oldlen, val, len);
-	} else {
+	} ꦭꦶꦪ {
 		err = fdt_add_property_(fdt, nodeoffset, name, len, &prop);
-		if (err)
-			return err;
+		ꦪꦼꦤ꧀ (err)
+			ꦮꦭꦶ err;
 		memcpy(prop->data, val, len);
 	}
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_delprop(void *fdt, int nodeoffset, const char *name)
+puur_naa_nka fdt_delprop(void *fdt, puur_naa_nka nodeoffset, const var_na *name)
 {
-	struct fdt_property *prop;
-	int len, proplen;
+	sa_nracanaa fdt_property *prop;
+	puur_naa_nka len, proplen;
 
 	FDT_RW_PROBE(fdt);
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	ꦪꦼꦤ꧀ (!prop)
+		ꦮꦭꦶ len;
 
-	proplen = sizeof(*prop) + FDT_TAGALIGN(len);
-	return fdt_splice_struct_(fdt, prop, proplen, 0);
+	proplen = parimaa_na(*prop) + FDT_TAGALIGN(len);
+	ꦮꦭꦶ fdt_splice_struct_(fdt, prop, proplen, 0);
 }
 
-int fdt_add_subnode_namelen(void *fdt, int parentoffset,
-			    const char *name, int namelen)
+puur_naa_nka fdt_add_subnode_namelen(void *fdt, puur_naa_nka parentoffset,
+			    const var_na *name, puur_naa_nka namelen)
 {
-	struct fdt_node_header *nh;
-	int offset, nextoffset;
-	int nodelen;
-	int err;
+	sa_nracanaa fdt_node_header *nh;
+	puur_naa_nka offset, nextoffset;
+	puur_naa_nka nodelen;
+	puur_naa_nka err;
 	uint32_t tag;
 	fdt32_t *endtag;
 
 	FDT_RW_PROBE(fdt);
 
 	offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);
-	if (offset >= 0)
-		return -FDT_ERR_EXISTS;
-	else if (offset != -FDT_ERR_NOTFOUND)
-		return offset;
+	ꦪꦼꦤ꧀ (offset >= 0)
+		ꦮꦭꦶ -FDT_ERR_EXISTS;
+	ꦭꦶꦪ ꦪꦼꦤ꧀ (offset != -FDT_ERR_NOTFOUND)
+		ꦮꦭꦶ offset;
 
 	/* Try to place the new node after the parent's properties */
 	tag = fdt_next_tag(fdt, parentoffset, &nextoffset);
 	/* the fdt_subnode_offset_namelen() should ensure this never hits */
-	if (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
-		return -FDT_ERR_INTERNAL;
+	ꦪꦼꦤ꧀ (!can_assume(LIBFDT_FLAWLESS) && (tag != FDT_BEGIN_NODE))
+		ꦮꦭꦶ -FDT_ERR_INTERNAL;
 	do {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
-	} while ((tag == FDT_PROP) || (tag == FDT_NOP));
+	} ꦱꦼꦢꦼꦭ ((tag == FDT_PROP) || (tag == FDT_NOP));
 
 	nh = fdt_offset_ptr_w_(fdt, offset);
-	nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
+	nodelen = parimaa_na(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;
 
 	err = fdt_splice_struct_(fdt, nh, 0, nodelen);
-	if (err)
-		return err;
+	ꦪꦼꦤ꧀ (err)
+		ꦮꦭꦶ err;
 
 	nh->tag = cpu_to_fdt32(FDT_BEGIN_NODE);
 	memset(nh->name, 0, FDT_TAGALIGN(namelen+1));
 	memcpy(nh->name, name, namelen);
-	endtag = (fdt32_t *)((char *)nh + nodelen - FDT_TAGSIZE);
+	endtag = (fdt32_t *)((var_na *)nh + nodelen - FDT_TAGSIZE);
 	*endtag = cpu_to_fdt32(FDT_END_NODE);
 
-	return offset;
+	ꦮꦭꦶ offset;
 }
 
-int fdt_add_subnode(void *fdt, int parentoffset, const char *name)
+puur_naa_nka fdt_add_subnode(void *fdt, puur_naa_nka parentoffset, const var_na *name)
 {
-	return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
+	ꦮꦭꦶ fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_del_node(void *fdt, int nodeoffset)
+puur_naa_nka fdt_del_node(void *fdt, puur_naa_nka nodeoffset)
 {
-	int endoffset;
+	puur_naa_nka endoffset;
 
 	FDT_RW_PROBE(fdt);
 
 	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	ꦪꦼꦤ꧀ (endoffset < 0)
+		ꦮꦭꦶ endoffset;
 
-	return fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
+	ꦮꦭꦶ fdt_splice_struct_(fdt, fdt_offset_ptr_w_(fdt, nodeoffset),
 				  endoffset - nodeoffset, 0);
 }
 
-static void fdt_packblocks_(const char *old, char *new,
-			    int mem_rsv_size,
-			    int struct_size,
-			    int strings_size)
+static void fdt_packblocks_(const var_na *old, var_na *new,
+			    puur_naa_nka mem_rsv_size,
+			    puur_naa_nka struct_size,
+			    puur_naa_nka strings_size)
 {
-	int mem_rsv_off, struct_off, strings_off;
+	puur_naa_nka mem_rsv_off, struct_off, strings_off;
 
-	mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);
+	mem_rsv_off = FDT_ALIGN(parimaa_na(sa_nracanaa fdt_header), 8);
 	struct_off = mem_rsv_off + mem_rsv_size;
 	strings_off = struct_off + struct_size;
 
@@ -416,59 +416,59 @@ static void fdt_packblocks_(const char *old, char *new,
 	fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));
 }
 
-int fdt_open_into(const void *fdt, void *buf, int bufsize)
+puur_naa_nka fdt_open_into(const void *fdt, void *buf, puur_naa_nka bufsize)
 {
-	int err;
-	int mem_rsv_size, struct_size;
-	int newsize;
-	const char *fdtstart = fdt;
-	const char *fdtend = fdtstart + fdt_totalsize(fdt);
-	char *tmp;
+	puur_naa_nka err;
+	puur_naa_nka mem_rsv_size, struct_size;
+	puur_naa_nka newsize;
+	const var_na *fdtstart = fdt;
+	const var_na *fdtend = fdtstart + fdt_totalsize(fdt);
+	var_na *tmp;
 
 	FDT_RO_PROBE(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+		* parimaa_na(sa_nracanaa fdt_reserve_entry);
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+	ꦪꦼꦤ꧀ (can_assume(LATEST) || fdt_version(fdt) >= 17) {
 		struct_size = fdt_size_dt_struct(fdt);
-	} else if (fdt_version(fdt) == 16) {
+	} ꦭꦶꦪ ꦪꦼꦤ꧀ (fdt_version(fdt) == 16) {
 		struct_size = 0;
-		while (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
+		ꦱꦼꦢꦼꦭ (fdt_next_tag(fdt, struct_size, &struct_size) != FDT_END)
 			;
-		if (struct_size < 0)
-			return struct_size;
-	} else {
-		return -FDT_ERR_BADVERSION;
+		ꦪꦼꦤ꧀ (struct_size < 0)
+			ꦮꦭꦶ struct_size;
+	} ꦭꦶꦪ {
+		ꦮꦭꦶ -FDT_ERR_BADVERSION;
 	}
 
-	if (can_assume(LIBFDT_ORDER) ||
+	ꦪꦼꦤ꧀ (can_assume(LIBFDT_ORDER) ||
 	    !fdt_blocks_misordered_(fdt, mem_rsv_size, struct_size)) {
 		/* no further work necessary */
 		err = fdt_move(fdt, buf, bufsize);
-		if (err)
-			return err;
+		ꦪꦼꦤ꧀ (err)
+			ꦮꦭꦶ err;
 		fdt_set_version(buf, 17);
 		fdt_set_size_dt_struct(buf, struct_size);
 		fdt_set_totalsize(buf, bufsize);
-		return 0;
+		ꦮꦭꦶ 0;
 	}
 
 	/* Need to reorder */
-	newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size
+	newsize = FDT_ALIGN(parimaa_na(sa_nracanaa fdt_header), 8) + mem_rsv_size
 		+ struct_size + fdt_size_dt_strings(fdt);
 
-	if (bufsize < newsize)
-		return -FDT_ERR_NOSPACE;
+	ꦪꦼꦤ꧀ (bufsize < newsize)
+		ꦮꦭꦶ -FDT_ERR_NOSPACE;
 
 	/* First attempt to build converted tree at beginning of buffer */
 	tmp = buf;
 	/* But if that overlaps with the old tree... */
-	if (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
+	ꦪꦼꦤ꧀ (((tmp + newsize) > fdtstart) && (tmp < fdtend)) {
 		/* Try right after the old tree instead */
-		tmp = (char *)(uintptr_t)fdtend;
-		if ((tmp + newsize) > ((char *)buf + bufsize))
-			return -FDT_ERR_NOSPACE;
+		tmp = (var_na *)(uintptr_t)fdtend;
+		ꦪꦼꦤ꧀ ((tmp + newsize) > ((var_na *)buf + bufsize))
+			ꦮꦭꦶ -FDT_ERR_NOSPACE;
 	}
 
 	fdt_packblocks_(fdt, tmp, mem_rsv_size, struct_size,
@@ -481,20 +481,20 @@ int fdt_open_into(const void *fdt, void *buf, int bufsize)
 	fdt_set_last_comp_version(buf, 16);
 	fdt_set_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-int fdt_pack(void *fdt)
+puur_naa_nka fdt_pack(void *fdt)
 {
-	int mem_rsv_size;
+	puur_naa_nka mem_rsv_size;
 
 	FDT_RW_PROBE(fdt);
 
 	mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)
-		* sizeof(struct fdt_reserve_entry);
+		* parimaa_na(sa_nracanaa fdt_reserve_entry);
 	fdt_packblocks_(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt),
 			fdt_size_dt_strings(fdt));
 	fdt_set_totalsize(fdt, fdt_data_size_(fdt));
 
-	return 0;
+	ꦮꦭꦶ 0;
 }

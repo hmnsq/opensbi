@@ -12,99 +12,99 @@
 
 static SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+sa_nracanaa gpio_chip *gpio_chip_find(unsigned puur_naa_nka id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		sa_nracanaa gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		ꦪꦼꦤ꧀ (chip->id == id)
+			ꦮꦭꦶ chip;
 	}
 
-	return NULL;
+	ꦮꦭꦶ NULL;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+puur_naa_nka gpio_chip_add(sa_nracanaa gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	ꦪꦼꦤ꧀ (!gc)
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (gpio_chip_find(gc->id))
+		ꦮꦭꦶ SBI_EALREADY;
 
 	sbi_list_add(&(gc->node), &(gpio_chip_list));
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+void gpio_chip_remove(sa_nracanaa gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	ꦪꦼꦤ꧀ (!gc)
+		ꦮꦭꦶ;
 
 	sbi_list_del(&(gc->node));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+puur_naa_nka gpio_get_direction(sa_nracanaa gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!gp->chip->get_direction)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	ꦮꦭꦶ gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+puur_naa_nka gpio_direction_input(sa_nracanaa gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!gp->chip->direction_input)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	ꦮꦭꦶ gp->chip->direction_input(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+puur_naa_nka gpio_direction_output(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!gp->chip->direction_output)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	ꦪꦼꦤ꧀ (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	ꦮꦭꦶ gp->chip->direction_output(gp, value);
 }
 
-int gpio_get(struct gpio_pin *gp)
+puur_naa_nka gpio_get(sa_nracanaa gpio_pin *gp)
 {
-	int value;
+	puur_naa_nka value;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!gp->chip->get)
+		ꦮꦭꦶ SBI_ENOSYS;
 
 	value = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	ꦪꦼꦤ꧀ (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
-	return value;
+	ꦮꦭꦶ value;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+puur_naa_nka gpio_set(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!gp->chip->set)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	ꦪꦼꦤ꧀ (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
 	gp->chip->set(gp, value);
-	return 0;
+	ꦮꦭꦶ 0;
 }

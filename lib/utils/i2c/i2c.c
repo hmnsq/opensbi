@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+sa_nracanaa i2c_adapter *i2c_adapter_find(puur_naa_nka id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		sa_nracanaa i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ꦪꦼꦤ꧀ (adap->id == id)
+			ꦮꦭꦶ adap;
 	}
 
-	return NULL;
+	ꦮꦭꦶ NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+puur_naa_nka i2c_adapter_add(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!ia)
+		ꦮꦭꦶ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ꦪꦼꦤ꧀ (i2c_adapter_find(ia->id))
+		ꦮꦭꦶ SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	ꦮꦭꦶ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+void i2c_adapter_remove(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ꦪꦼꦤ꧀ (!ia)
+		ꦮꦭꦶ;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+puur_naa_nka i2c_adapter_write(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, puur_naa_nka len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!ia)
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!ia->write)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	ꦮꦭꦶ ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+puur_naa_nka i2c_adapter_read(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, puur_naa_nka len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ꦪꦼꦤ꧀ (!ia)
+		ꦮꦭꦶ SBI_EINVAL;
+	ꦪꦼꦤ꧀ (!ia->read)
+		ꦮꦭꦶ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	ꦮꦭꦶ ia->read(ia, addr, reg, buffer, len);
 }

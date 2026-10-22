@@ -14,28 +14,28 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_ipi.h>
 
-static int sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+static puur_naa_nka sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
+				 sa_nracanaa sbi_trap_regs *regs,
+				 sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = 0;
+	puur_naa_nka ret = 0;
 
-	if (funcid == SBI_EXT_IPI_SEND_IPI)
+	ꦪꦼꦤ꧀ (funcid == SBI_EXT_IPI_SEND_IPI)
 		ret = sbi_ipi_send_smode(regs->a0, regs->a1);
-	else
+	ꦭꦶꦪ
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	ꦮꦭꦶ ret;
 }
 
-struct sbi_ecall_extension ecall_ipi;
+sa_nracanaa sbi_ecall_extension ecall_ipi;
 
-static int sbi_ecall_ipi_register_extensions(void)
+static puur_naa_nka sbi_ecall_ipi_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_ipi);
+	ꦮꦭꦶ sbi_ecall_register_extension(&ecall_ipi);
 }
 
-struct sbi_ecall_extension ecall_ipi = {
+sa_nracanaa sbi_ecall_extension ecall_ipi = {
 	.name			= "ipi",
 	.extid_start		= SBI_EXT_IPI,
 	.extid_end		= SBI_EXT_IPI,

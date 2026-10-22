@@ -18,173 +18,173 @@
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+puur_naa_nka sbi_strcmp(const var_na *a, const var_na *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	ꦏꦁꦒꦺꦴ (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	ꦮꦭꦶ *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+puur_naa_nka sbi_strncmp(const var_na *a, const var_na *b, size_t count)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	ꦏꦁꦒꦺꦴ (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	ꦪꦼꦤ꧀ (!count)
+		ꦮꦭꦶ 0;
 
-	return *a - *b;
+	ꦮꦭꦶ *a - *b;
 }
 
-size_t sbi_strlen(const char *str)
+size_t sbi_strlen(const var_na *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	ꦱꦼꦢꦼꦭ (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ꦮꦭꦶ ret;
 }
 
-size_t sbi_strnlen(const char *str, size_t count)
+size_t sbi_strnlen(const var_na *str, size_t count)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	ꦱꦼꦢꦼꦭ (*str != '\0' && ret < count) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	ꦮꦭꦶ ret;
 }
 
-char *sbi_strcpy(char *dest, const char *src)
+var_na *sbi_strcpy(var_na *dest, const var_na *src)
 {
-	char *ret = dest;
+	var_na *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	ꦱꦼꦢꦼꦭ ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	ꦮꦭꦶ ret;
 }
 
-char *sbi_strncpy(char *dest, const char *src, size_t count)
+var_na *sbi_strncpy(var_na *dest, const var_na *src, size_t count)
 {
-	char *tmp = dest;
+	var_na *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	ꦱꦼꦢꦼꦭ (count) {
+		ꦪꦼꦤ꧀ ((*tmp = *src) != 0)
 			src++;
 		tmp++;
 		count--;
 	}
-	return dest;
+	ꦮꦭꦶ dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+var_na *sbi_strchr(const var_na *s, puur_naa_nka c)
 {
 	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+		ꦪꦼꦤ꧀ (*s == (var_na)c)
+			ꦮꦭꦶ (var_na *)s;
+	} ꦱꦼꦢꦼꦭ (*s++ != '\0');
 
-	return NULL;
+	ꦮꦭꦶ NULL;
 }
 
-char *sbi_strrchr(const char *s, int c)
+var_na *sbi_strrchr(const var_na *s, puur_naa_nka c)
 {
-	const char *last = s + sbi_strlen(s);
+	const var_na *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	ꦱꦼꦢꦼꦭ (last > s && *last != (var_na)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	ꦪꦼꦤ꧀ (*last != (var_na)c)
+		ꦮꦭꦶ NULL;
+	ꦭꦶꦪ
+		ꦮꦭꦶ (var_na *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+void *sbi_memset(void *s, puur_naa_nka c, size_t count)
 {
-	char *temp = s;
+	var_na *temp = s;
 
-	while (count > 0) {
+	ꦱꦼꦢꦼꦭ (count > 0) {
 		count--;
 		*temp++ = c;
 	}
 
-	return s;
+	ꦮꦭꦶ s;
 }
 
 void *sbi_memcpy(void *dest, const void *src, size_t count)
 {
-	char *temp1	  = dest;
-	const char *temp2 = src;
+	var_na *temp1	  = dest;
+	const var_na *temp2 = src;
 
-	while (count > 0) {
+	ꦱꦼꦢꦼꦭ (count > 0) {
 		*temp1++ = *temp2++;
 		count--;
 	}
 
-	return dest;
+	ꦮꦭꦶ dest;
 }
 
 void *sbi_memmove(void *dest, const void *src, size_t count)
 {
-	char *temp1	  = (char *)dest;
-	const char *temp2 = (char *)src;
+	var_na *temp1	  = (var_na *)dest;
+	const var_na *temp2 = (var_na *)src;
 
-	if (src == dest)
-		return dest;
+	ꦪꦼꦤ꧀ (src == dest)
+		ꦮꦭꦶ dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	ꦪꦼꦤ꧀ (dest < src) {
+		ꦱꦼꦢꦼꦭ (count > 0) {
 			*temp1++ = *temp2++;
 			count--;
 		}
-	} else {
-		temp1 = (char *)dest + count - 1;
-		temp2 = (char *)src + count - 1;
+	} ꦭꦶꦪ {
+		temp1 = (var_na *)dest + count - 1;
+		temp2 = (var_na *)src + count - 1;
 
-		while (count > 0) {
+		ꦱꦼꦢꦼꦭ (count > 0) {
 			*temp1-- = *temp2--;
 			count--;
 		}
 	}
 
-	return dest;
+	ꦮꦭꦶ dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+puur_naa_nka sbi_memcmp(const void *s1, const void *s2, size_t count)
 {
-	const char *temp1 = s1;
-	const char *temp2 = s2;
+	const var_na *temp1 = s1;
+	const var_na *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	ꦏꦁꦒꦺꦴ (; count > 0 && (*temp1 == *temp2); count--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	ꦪꦼꦤ꧀ (count > 0)
+		ꦮꦭꦶ *(unsigned var_na *)temp1 - *(unsigned var_na *)temp2;
+	ꦭꦶꦪ
+		ꦮꦭꦶ 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+void *sbi_memchr(const void *s, puur_naa_nka c, size_t count)
 {
-	const unsigned char *temp = s;
+	const unsigned var_na *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	ꦱꦼꦢꦼꦭ (count > 0) {
+		ꦪꦼꦤ꧀ ((unsigned var_na)c == *temp++) {
+			ꦮꦭꦶ (void *)(temp - 1);
 		}
 		count--;
 	}
 
-	return NULL;
+	ꦮꦭꦶ NULL;
 }
