@@ -7,68 +7,68 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/altr-juart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/altr-juart.h>
 
 /* clang-format off */
 
-#define JUART_DATA_OFFSET		0x00
-# define JUART_DATA_DATA_MASK		0x000000ff
-# define JUART_DATA_RVALID		(1 << 15)
-# define JUART_DATA_RAVAIL_MASK		0xffff0000
-# define JUART_DATA_RAVAIL_SHIFT	16
-#define JUART_CTRL_OFFSET		0x04
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ JUART_ਅੰਕੜੇ_ਵਿੱਥ		0x00
+# define JUART_ਅੰਕੜੇ_ਅੰਕੜੇ_ਨਕਾਬ		0x000000ff
+# define JUART_ਅੰਕੜੇ_RVALID		(1 << 15)
+# define JUART_ਅੰਕੜੇ_RAVAIL_ਨਕਾਬ		0xffff0000
+# define JUART_ਅੰਕੜੇ_RAVAIL_ਖਿਸਕਾਓ	16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ JUART_CTRL_ਵਿੱਥ		0x04
 # define JUART_CTRL_RE			(1 << 0)
 # define JUART_CTRL_WE			(1 << 1)
 # define JUART_CTRL_RI			(1 << 8)
 # define JUART_CTRL_WI			(1 << 9)
 # define JUART_CTRL_AC			(1 << 10)
-# define JUART_CTRL_WSPACE_MASK		0xffff0000
-# define JUART_CTRL_WSPACE_SHIFT	16
+# define JUART_CTRL_WSPACE_ਨਕਾਬ		0xffff0000
+# define JUART_CTRL_WSPACE_ਖਿਸਕਾਓ	16
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+ਸਥਿਰ ਅਸਥਿਰ ਅੱਖਰ *altr_juart_ਅਧਾਰ;
 
-static u32 get_reg(u32 offset)
+ਸਥਿਰ u32 get_reg(u32 ਵਿੱਥ)
 {
-	return readl(altr_juart_base + offset);
+	ਵਾਪਸ readl(altr_juart_ਅਧਾਰ + ਵਿੱਥ);
 }
 
-static void set_reg(u32 offset, u32 val)
+ਸਥਿਰ ਖਾਲੀ ਸੈੱਟ_reg(u32 ਵਿੱਥ, u32 val)
 {
-	writel(val, altr_juart_base + offset);
+	writel(val, altr_juart_ਅਧਾਰ + ਵਿੱਥ);
 }
 
-static void altr_juart_putc(char ch)
+ਸਥਿਰ ਖਾਲੀ altr_juart_putc(ਅੱਖਰ ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	ਜਦੋਂ(!(get_reg(JUART_CTRL_ਵਿੱਥ) & JUART_CTRL_WSPACE_ਨਕਾਬ))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	ਸੈੱਟ_reg(JUART_ਅੰਕੜੇ_ਵਿੱਥ, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ)ch);
 }
 
-static int altr_juart_getc(void)
+ਸਥਿਰ ਪੂਰਨ altr_juart_getc(ਖਾਲੀ)
 {
-	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	u32 reg = get_reg(JUART_ਅੰਕੜੇ_ਵਿੱਥ);
+	ਜੇ (reg & JUART_ਅੰਕੜੇ_RVALID)
+		ਵਾਪਸ reg & JUART_ਅੰਕੜੇ_ਅੰਕੜੇ_ਨਕਾਬ;
 
-	return -1;
+	ਵਾਪਸ -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+ਸਥਿਰ ਬਣਤਰ sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+ਪੂਰਨ altr_juart_init(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਧਾਰ_2)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_ਅਧਾਰ = (ਅਸਥਿਰ ਅੱਖਰ *)ਅਧਾਰ_2;
 
-	sbi_console_set_device(&altr_juart_console);
+	sbi_console_ਸੈੱਟ_device(&altr_juart_console);
 
-	return 0;
+	ਵਾਪਸ 0;
 }

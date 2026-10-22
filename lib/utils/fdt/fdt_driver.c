@@ -4,85 +4,85 @@
  * Copyright (c) 2024 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libfdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_driver.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+ਪੂਰਨ fdt_driver_init_by_ਵਿੱਥ(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+			      ਅਚਲ ਬਣਤਰ fdt_driver *ਅਚਲ *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	ਅਚਲ ਬਣਤਰ fdt_driver *driver;
+	ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ;
+	ਪੂਰਨ compat_len, prop_len, rc;
+	ਅਚਲ ਅੱਖਰ *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	ਜੇ (!fdt_ਗੰਢ_is_enabled(fdt, nodeoff))
+		ਵਾਪਸ SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	ਜੇ (!compat_str)
+		ਵਾਪਸ SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
-					goto found;
+	ਜਦੋਂ ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		ਲਈ (ਪੂਰਨ i = 0; (driver = drivers[i]); i++)
+			ਲਈ (ਮੇਲ = driver->ਮੇਲ_ਸਾਰਣੀ; ਮੇਲ->compatible; ਮੇਲ++)
+				ਜੇ (!memcmp(ਮੇਲ->compatible, compat_str, compat_len))
+					ਜਾਓ ਮਿਲਿਆ;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	ਵਾਪਸ SBI_ENODEV;
 
-found:
-	if (driver->experimental)
+ਮਿਲਿਆ:
+	ਜੇ (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
-			   match->compatible);
+			   ਮੇਲ->compatible);
 
-	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	rc = driver->init(fdt, nodeoff, ਮੇਲ);
+	ਜੇ (rc < 0) {
+		ਅਚਲ ਅੱਖਰ *name;
 
-		name = fdt_get_name(fdt, nodeoff, NULL);
+		name = fdt_get_name(fdt, nodeoff, ਨਿਰਾ);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
-			   __func__, name, match->compatible, rc);
+			   __func__, name, ਮੇਲ->compatible, rc);
 	}
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+ਸਥਿਰ ਪੂਰਨ fdt_driver_init_ਜਾਂਚ(ਅਚਲ ਖਾਲੀ *fdt,
+				ਅਚਲ ਬਣਤਰ fdt_driver *ਅਚਲ *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	ਪੂਰਨ nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	ਲਈ (nodeoff = fdt_ਅਗਲਾ_ਗੰਢ(fdt, -1, ਨਿਰਾ);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
-		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
-			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+	     nodeoff = fdt_ਅਗਲਾ_ਗੰਢ(fdt, nodeoff, ਨਿਰਾ)) {
+		rc = fdt_driver_init_by_ਵਿੱਥ(fdt, nodeoff, drivers);
+		ਜੇ (rc == SBI_ENODEV)
+			ਜਾਰੀ;
+		ਜੇ (rc < 0)
+			ਵਾਪਸ rc;
+		ਜੇ (one)
+			ਵਾਪਸ 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	ਵਾਪਸ one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+ਪੂਰਨ fdt_driver_init_all(ਅਚਲ ਖਾਲੀ *fdt,
+			ਅਚਲ ਬਣਤਰ fdt_driver *ਅਚਲ *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	ਵਾਪਸ fdt_driver_init_ਜਾਂਚ(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+ਪੂਰਨ fdt_driver_init_one(ਅਚਲ ਖਾਲੀ *fdt,
+			ਅਚਲ ਬਣਤਰ fdt_driver *ਅਚਲ *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	ਵਾਪਸ fdt_driver_init_ਜਾਂਚ(fdt, drivers, true);
 }

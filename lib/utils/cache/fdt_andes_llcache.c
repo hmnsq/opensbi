@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/cache/fdt_cache.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_driver.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define LLCACHE_REG_CFG_OFFSET		0x0
-#define LLCACHE_REG_CTRL_OFFSET		0x8
-#define LLCACHE_REG_CCTL_CMD_OFFSET	0x40
-#define LLCACHE_REG_CCTL_STATUS_OFFSET	0x80
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CFG_ਵਿੱਥ		0x0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CTRL_ਵਿੱਥ		0x8
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CCTL_CMD_ਵਿੱਥ	0x40
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CCTL_ਸਥਿਤੀ_ਵਿੱਥ	0x80
 
-#define LLCACHE_REG_CFG_MAP_MASK	BIT(20)
-#define LLCACHE_REG_CTRL_EN_MASK	BIT(0)
-#define LLCACHE_REG_CTRL_INIT_MASK	BIT(14)
-#define LLCACHE_REG_CCTL_STATUS_MASK	GENMASK(3, 0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CFG_MAP_ਨਕਾਬ	ਦੋਆਧਾਰੀ_ਅੰਕ(20)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CTRL_EN_ਨਕਾਬ	ਦੋਆਧਾਰੀ_ਅੰਕ(0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CTRL_INIT_ਨਕਾਬ	ਦੋਆਧਾਰੀ_ਅੰਕ(14)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_REG_CCTL_ਸਥਿਤੀ_ਨਕਾਬ	GENMASK(3, 0)
 
-#define LLCACHE_WBINVAL_ALL		0x12
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ LLCACHE_WBINVAL_ALL		0x12
 
-struct andes_llcache {
-	struct cache_device dev;
-	void *base;
+ਬਣਤਰ andes_llcache {
+	ਬਣਤਰ cache_device dev;
+	ਖਾਲੀ *ਅਧਾਰ_2;
 	uint32_t cmd_stride;
-	uint32_t status_stride;
-	uint32_t status_core_stride;
+	uint32_t ਸਥਿਤੀ_stride;
+	uint32_t ਸਥਿਤੀ_core_stride;
 };
 
-#define to_llcache(_dev) container_of(_dev, struct andes_llcache, dev)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਮੰਜ਼ਿਲ_llcache(_dev) container_ਦਾ(_dev, ਬਣਤਰ andes_llcache, dev)
 
-static bool andes_llcache_init_done(struct andes_llcache *llcache)
+ਸਥਿਰ bool andes_llcache_init_ਪੂਰਾ(ਬਣਤਰ andes_llcache *llcache)
 {
 	uint32_t llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	ਖਾਲੀ *ctrl_addr = (ਅੱਖਰ *)llcache->ਅਧਾਰ_2 + LLCACHE_REG_CTRL_ਵਿੱਥ;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	ਵਾਪਸ !ਕੱਢੋ_ਖੇਤਰ(llcache_ctrl, LLCACHE_REG_CTRL_INIT_ਨਕਾਬ);
 }
 
-static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
+ਸਥਿਰ bool andes_llcache_cctl_ਪੂਰਾ(ਬਣਤਰ andes_llcache *llcache, uint32_t hartid)
 {
-	uint32_t llcache_cctl_status;
-	void *cctl_status_addr = (char *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
-				 hartid * llcache->status_stride;
+	uint32_t llcache_cctl_ਸਥਿਤੀ;
+	ਖਾਲੀ *cctl_ਸਥਿਤੀ_addr = (ਅੱਖਰ *)llcache->ਅਧਾਰ_2 + LLCACHE_REG_CCTL_ਸਥਿਤੀ_ਵਿੱਥ +
+				 hartid * llcache->ਸਥਿਤੀ_stride;
 
-	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
-			      LLCACHE_REG_CCTL_STATUS_MASK <<
-			      hartid * llcache->status_core_stride);
+	llcache_cctl_ਸਥਿਤੀ = readl_relaxed(cctl_ਸਥਿਤੀ_addr);
+	ਵਾਪਸ !ਕੱਢੋ_ਖੇਤਰ(llcache_cctl_ਸਥਿਤੀ,
+			      LLCACHE_REG_CCTL_ਸਥਿਤੀ_ਨਕਾਬ <<
+			      hartid * llcache->ਸਥਿਤੀ_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+ਸਥਿਰ ਪੂਰਨ andes_llcache_flush_all(ਬਣਤਰ cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
-	struct andes_llcache *llcache = to_llcache(dev);
-	void *cctl_cmd_addr = (char *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
+	ਬਣਤਰ andes_llcache *llcache = ਮੰਜ਼ਿਲ_llcache(dev);
+	ਖਾਲੀ *cctl_cmd_addr = (ਅੱਖਰ *)llcache->ਅਧਾਰ_2 + LLCACHE_REG_CCTL_CMD_ਵਿੱਥ +
 			      hartid * llcache->cmd_stride;
 
 	/*
@@ -71,17 +71,17 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	ਜਦੋਂ (!andes_llcache_cctl_ਪੂਰਾ(llcache, hartid))
 		;
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+ਸਥਿਰ ਪੂਰਨ andes_llcache_enable(ਬਣਤਰ cache_device *dev, bool enable)
 {
-	struct andes_llcache *llcache = to_llcache(dev);
+	ਬਣਤਰ andes_llcache *llcache = ਮੰਜ਼ਿਲ_llcache(dev);
 	u32 llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	ਖਾਲੀ *ctrl_addr = (ਅੱਖਰ *)llcache->ਅਧਾਰ_2 + LLCACHE_REG_CTRL_ਵਿੱਥ;
 
 	/*
 	 * To properly enable the last level cache to cache both instructions
@@ -94,88 +94,88 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	ਜੇ (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
-		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_ਨਕਾਬ, ctrl_addr);
+	} ਨਹੀਂਤਾਂ {
 		llcache_ctrl = readl(ctrl_addr);
-		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
-		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
+		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_ਨਕਾਬ);
+		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_ਨਕਾਬ, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	ਜੇ (enable != ਕੱਢੋ_ਖੇਤਰ(llcache_ctrl, LLCACHE_REG_CTRL_EN_ਨਕਾਬ))
+		ਵਾਪਸ SBI_EFAIL;
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }
 
-static struct cache_ops andes_llcache_ops = {
+ਸਥਿਰ ਬਣਤਰ cache_ops andes_llcache_ops = {
 	.cache_flush_all = andes_llcache_flush_all,
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ andes_llcache_probe(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff, ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
-	u64 llcache_base = 0, size;
-	struct andes_llcache *llcache;
-	struct cache_device *dev;
+	ਪੂਰਨ rc;
+	u64 llcache_ਅਧਾਰ = 0, ਮਾਪ;
+	ਬਣਤਰ andes_llcache *llcache;
+	ਬਣਤਰ cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &llcache_ਅਧਾਰ, &ਮਾਪ);
+	ਜੇ (rc < 0 || !llcache_ਅਧਾਰ || !ਮਾਪ)
+		ਵਾਪਸ SBI_ENODEV;
 
-	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	llcache = sbi_zalloc(ਆਕਾਰ(*llcache));
+	ਜੇ (!llcache)
+		ਵਾਪਸ SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	rc = fdt_cache_ਜੋੜੋ(fdt, nodeoff, dev);
+	ਜੇ (rc) {
 		sbi_free(llcache);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	llcache->base = (void *)(ulong)llcache_base;
-	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
+	llcache->ਅਧਾਰ_2 = (ਖਾਲੀ *)(ulong)llcache_ਅਧਾਰ;
+	llcache_cfg = readl_relaxed((ਅੱਖਰ *)llcache->ਅਧਾਰ_2 + LLCACHE_REG_CFG_ਵਿੱਥ);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	ਜੇ (ਕੱਢੋ_ਖੇਤਰ(llcache_cfg, LLCACHE_REG_CFG_MAP_ਨਕਾਬ)) {
 		llcache->cmd_stride = 0x1000;
-		llcache->status_stride = 0x1000;
-		llcache->status_core_stride = 0;
-	} else {
+		llcache->ਸਥਿਤੀ_stride = 0x1000;
+		llcache->ਸਥਿਤੀ_core_stride = 0;
+	} ਨਹੀਂਤਾਂ {
 		llcache->cmd_stride = 0x10;
-		llcache->status_stride = 0x0;
-		llcache->status_core_stride = 4;
+		llcache->ਸਥਿਤੀ_stride = 0x0;
+		llcache->ਸਥਿਤੀ_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
+	ਜੇ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_ਜੜ੍ਹ_ਜੋੜੋ_memrange(
+			(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)llcache->ਅਧਾਰ_2, (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)ਮਾਪ, ਪੰਨਾ_ਮਾਪ,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	ਜਦੋਂ (!andes_llcache_init_ਪੂਰਾ(llcache))
 		;
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }
 
-static const struct fdt_match andes_llcache_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ andes_llcache_ਮੇਲ[] = {
 	{ .compatible = "andestech,llcache" },
 	{},
 };
 
-const struct fdt_driver fdt_andes_llcache = {
-	.match_table = andes_llcache_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_andes_llcache = {
+	.ਮੇਲ_ਸਾਰਣੀ = andes_llcache_ਮੇਲ,
 	.init = andes_llcache_probe,
 };

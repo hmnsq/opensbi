@@ -4,134 +4,134 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libfdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/cache/fdt_cache.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/cache/fdt_cmo_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
 
-static unsigned long flc_offset;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flc_ਵਿੱਥ;
 
-#define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
-#define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ get_hart_flc(_s) \
+	sbi_scratch_read_type(_s, ਬਣਤਰ cache_device *, flc_ਵਿੱਥ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਸੈੱਟ_hart_flc(_s, _p) \
+	sbi_scratch_write_type(_s, ਬਣਤਰ cache_device *, flc_ਵਿੱਥ, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+ਪੂਰਨ fdt_cmo_ਨਿੱਜੀ_flc_flush_all(ਖਾਲੀ)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ਬਣਤਰ cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ਜੇ (!flc || !flc->cpu_ਨਿੱਜੀ)
+		ਵਾਪਸ SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	ਵਾਪਸ cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+ਪੂਰਨ fdt_cmo_llc_flush_all(ਖਾਲੀ)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ਬਣਤਰ cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ਜੇ (!llc)
+		ਵਾਪਸ SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	ਜਦੋਂ (llc->ਅਗਲਾ)
+		llc = llc->ਅਗਲਾ;
 
-	return cache_flush_all(llc);
+	ਵਾਪਸ cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+ਪੂਰਨ fdt_cmo_ਨਿੱਜੀ_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ਬਣਤਰ cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	ਜੇ (!flc || !flc->cpu_ਨਿੱਜੀ)
+		ਵਾਪਸ SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	ਵਾਪਸ cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+ਪੂਰਨ fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	ਬਣਤਰ cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	ਜੇ (!llc)
+		ਵਾਪਸ SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	ਜਦੋਂ (llc->ਅਗਲਾ)
+		llc = llc->ਅਗਲਾ;
 
-	return cache_enable(llc, enable);
+	ਵਾਪਸ cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+ਸਥਿਰ ਪੂਰਨ fdt_cmo_cold_init(ਅਚਲ ਖਾਲੀ *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	ਬਣਤਰ sbi_scratch *scratch;
+	ਬਣਤਰ cache_device *dev;
+	ਪੂਰਨ cpu_ਵਿੱਥ, cpus_ਵਿੱਥ, rc;
 	u32 hartid;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	cpus_ਵਿੱਥ = fdt_ਰਸਤਾ_ਵਿੱਥ(fdt, "/cpus");
+	ਜੇ (cpus_ਵਿੱਥ < 0)
+		ਵਾਪਸ SBI_EINVAL;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+	fdt_for_each_subnode(cpu_ਵਿੱਥ, fdt, cpus_ਵਿੱਥ) {
+		rc = fdt_parse_hart_id(fdt, cpu_ਵਿੱਥ, &hartid);
+		ਜੇ (rc)
+			ਜਾਰੀ;
 
-		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		scratch = sbi_hartid_ਮੰਜ਼ਿਲ_scratch(hartid);
+		ਜੇ (!scratch)
+			ਜਾਰੀ;
 
-		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
-			dev = NULL;
+		rc = fdt_ਅਗਲਾ_cache_get(fdt, cpu_ਵਿੱਥ, &dev);
+		ਜੇ (rc && rc != SBI_ENOENT)
+			ਵਾਪਸ rc;
+		ਜੇ (rc == SBI_ENOENT)
+			dev = ਨਿਰਾ;
 
-		set_hart_flc(scratch, dev);
+		ਸੈੱਟ_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+ਸਥਿਰ ਪੂਰਨ fdt_cmo_warm_init(ਖਾਲੀ)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	ਬਣਤਰ cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	ਪੂਰਨ rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	ਜਦੋਂ (cur) {
+		ਜੇ (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			ਜੇ (rc)
+				ਵਾਪਸ rc;
 		}
 
-		cur = cur->next;
+		cur = cur->ਅਗਲਾ;
 	}
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+ਪੂਰਨ fdt_cmo_init(bool cold_boot)
 {
-	const void *fdt = fdt_get_address();
-	int rc;
+	ਅਚਲ ਖਾਲੀ *fdt = fdt_get_ਪਤਾ();
+	ਪੂਰਨ rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	ਜੇ (cold_boot) {
+		flc_ਵਿੱਥ = sbi_scratch_alloc_type_ਵਿੱਥ(ਬਣਤਰ cache_device *);
+		ਜੇ (!flc_ਵਿੱਥ)
+			ਵਾਪਸ SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }

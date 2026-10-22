@@ -8,80 +8,80 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall_interface.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_trap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_version.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+ਸਥਿਰ ਪੂਰਨ sbi_ecall_ਅਧਾਰ_probe(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ extid, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ *ਬਾਹਰਲਾ_val)
 {
-	struct sbi_ecall_extension *ext;
+	ਬਣਤਰ sbi_ecall_extension *ext;
 
-	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
-		*out_val = 0;
-		return 0;
+	ext = sbi_ecall_ਲੱਭੋ_extension(extid);
+	ਜੇ (!ext) {
+		*ਬਾਹਰਲਾ_val = 0;
+		ਵਾਪਸ 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	ਜੇ (ext->probe)
+		ਵਾਪਸ ext->probe(extid, ਬਾਹਰਲਾ_val);
 
-	*out_val = 1;
-	return 0;
+	*ਬਾਹਰਲਾ_val = 1;
+	ਵਾਪਸ 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+ਸਥਿਰ ਪੂਰਨ sbi_ecall_ਅਧਾਰ_handler(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ extid, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ funcid,
+				  ਬਣਤਰ sbi_trap_regs *regs,
+				  ਬਣਤਰ sbi_ecall_return *ਬਾਹਰਲਾ)
 {
-	int ret = 0;
+	ਪੂਰਨ ret = 0;
 
-	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
-		out->value = (SBI_ECALL_VERSION_MAJOR <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
-			     (SBI_SPEC_VERSION_MAJOR_MASK <<
-			      SBI_SPEC_VERSION_MAJOR_OFFSET);
-		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
-		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
-		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
-		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
-		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
-		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
-		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
-	default:
+	ਚੋਣ (funcid) {
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_SPEC_ਸੰਸਕਰਣ:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = (SBI_ECALL_ਸੰਸਕਰਣ_MAJOR <<
+			      SBI_SPEC_ਸੰਸਕਰਣ_MAJOR_ਵਿੱਥ) &
+			     (SBI_SPEC_ਸੰਸਕਰਣ_MAJOR_ਨਕਾਬ <<
+			      SBI_SPEC_ਸੰਸਕਰਣ_MAJOR_ਵਿੱਥ);
+		ਬਾਹਰਲਾ->ਮੁੱਲ = ਬਾਹਰਲਾ->ਮੁੱਲ | SBI_ECALL_ਸੰਸਕਰਣ_MINOR;
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_IMP_ID:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = sbi_ecall_get_impid();
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_IMP_ਸੰਸਕਰਣ:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = OPENSBI_ਸੰਸਕਰਣ;
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_MVENDORID:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = csr_read(CSR_MVENDORID);
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_MARCHID:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = csr_read(CSR_MARCHID);
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_GET_MIMPID:
+		ਬਾਹਰਲਾ->ਮੁੱਲ = csr_read(CSR_MIMPID);
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_EXT_ਅਧਾਰ_PROBE_EXT:
+		ret = sbi_ecall_ਅਧਾਰ_probe(regs->a0, &ਬਾਹਰਲਾ->ਮੁੱਲ);
+		ਰੋਕੋ;
+	ਮੂਲ:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ਵਾਪਸ ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+ਬਣਤਰ sbi_ecall_extension ecall_ਅਧਾਰ;
 
-static int sbi_ecall_base_register_extensions(void)
+ਸਥਿਰ ਪੂਰਨ sbi_ecall_ਅਧਾਰ_ਰਜਿਸਟਰ_extensions(ਖਾਲੀ)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	ਵਾਪਸ sbi_ecall_ਰਜਿਸਟਰ_extension(&ecall_ਅਧਾਰ);
 }
 
-struct sbi_ecall_extension ecall_base = {
+ਬਣਤਰ sbi_ecall_extension ecall_ਅਧਾਰ = {
 	.name			= "base",
-	.extid_start		= SBI_EXT_BASE,
-	.extid_end		= SBI_EXT_BASE,
-	.register_extensions	= sbi_ecall_base_register_extensions,
-	.handle			= sbi_ecall_base_handler,
+	.extid_ਸ਼ੁਰੂ		= SBI_EXT_ਅਧਾਰ,
+	.extid_ਸਿਰਾ		= SBI_EXT_ਅਧਾਰ,
+	.ਰਜਿਸਟਰ_extensions	= sbi_ecall_ਅਧਾਰ_ਰਜਿਸਟਰ_extensions,
+	.handle			= sbi_ecall_ਅਧਾਰ_handler,
 };

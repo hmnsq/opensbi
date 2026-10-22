@@ -7,214 +7,214 @@
  *   Aurelien Jarno <aurelien@aurel32.net>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/i2c/fdt_i2c.h>
 
 /* Controller registers */
-#define ICR_OFFSET	0x00		/* I2C control register */
-#define IDBR_OFFSET	0x0c		/* I2C data buffer register */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_ਵਿੱਥ	0x00		/* I2C control register */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ IDBR_ਵਿੱਥ	0x0c		/* I2C data buffer register */
 
 /* Control register bits */
-#define ICR_START	BIT(0)		/* start */
-#define ICR_STOP	BIT(1)		/* stop */
-#define ICR_ACKNAK	BIT(2)		/* ACK(0) or NAK(1) */
-#define ICR_TB		BIT(3)		/* transfer byte */
-#define ICR_UR		BIT(10)		/* unit reset */
-#define ICR_SCLE	BIT(13)		/* SCL enable  */
-#define ICR_IUE		BIT(14)		/* unit enable */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_ਸ਼ੁਰੂ	ਦੋਆਧਾਰੀ_ਅੰਕ(0)		/*ਸ਼ੁਰੂ*/
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_STOP	ਦੋਆਧਾਰੀ_ਅੰਕ(1)		/* stop */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_ACKNAK	ਦੋਆਧਾਰੀ_ਅੰਕ(2)		/* ACK(0) or NAK(1) */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_TB		ਦੋਆਧਾਰੀ_ਅੰਕ(3)		/* transfer byte */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_UR		ਦੋਆਧਾਰੀ_ਅੰਕ(10)		/* unit reset */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_SCLE	ਦੋਆਧਾਰੀ_ਅੰਕ(13)		/* SCL enable  */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ICR_IUE		ਦੋਆਧਾਰੀ_ਅੰਕ(14)		/* unit enable */
 
 /* Timing */
-#define I2C_RESET_US	10
-#define I2C_TIMEOUT_US	1000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ I2C_RESET_US	10
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ I2C_TIMEOUT_US	1000
 
-struct spacemit_i2c_adapter {
-	unsigned long base;
-	struct i2c_adapter adapter;
+ਬਣਤਰ spacemit_i2c_adapter {
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਧਾਰ_2;
+	ਬਣਤਰ i2c_adapter adapter;
 };
 
-static inline void spacemit_i2c_set_reg(struct spacemit_i2c_adapter *adap,
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ spacemit_i2c_ਸੈੱਟ_reg(ਬਣਤਰ spacemit_i2c_adapter *adap,
 					uint8_t reg, uint32_t val)
 {
-	writel(val, (void *)adap->base + reg);
+	writel(val, (ਖਾਲੀ *)adap->ਅਧਾਰ_2 + reg);
 }
 
-static inline uint32_t spacemit_i2c_get_reg(struct spacemit_i2c_adapter *adap,
+ਸਥਿਰ ਸਤਰਅੰਦਰ uint32_t spacemit_i2c_get_reg(ਬਣਤਰ spacemit_i2c_adapter *adap,
 					    uint32_t reg)
 {
-	return readl((void *)adap->base + reg);
+	ਵਾਪਸ readl((ਖਾਲੀ *)adap->ਅਧਾਰ_2 + reg);
 }
 
-static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
+ਸਥਿਰ ਖਾਲੀ spacemit_i2c_reset(ਬਣਤਰ spacemit_i2c_adapter *adap)
 {
 	/* disable unit */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, 0);
+	spacemit_i2c_ਸੈੱਟ_reg(adap, ICR_ਵਿੱਥ, 0);
 	sbi_timer_udelay(I2C_RESET_US);
 
 	/* reset unit */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_UR);
+	spacemit_i2c_ਸੈੱਟ_reg(adap, ICR_ਵਿੱਥ, ICR_UR);
 	sbi_timer_udelay(I2C_RESET_US);
 
 	/* clear reset and enable unit and SCL */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_IUE | ICR_SCLE);
+	spacemit_i2c_ਸੈੱਟ_reg(adap, ICR_ਵਿੱਥ, ICR_IUE | ICR_SCLE);
 }
 
-static int spacemit_i2c_wait_xfer_done(struct spacemit_i2c_adapter *adap)
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_wait_xfer_ਪੂਰਾ(ਬਣਤਰ spacemit_i2c_adapter *adap)
 {
-	for (int i = 0; i < I2C_TIMEOUT_US; i++) {
-		uint32_t val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
+	ਲਈ (ਪੂਰਨ i = 0; i < I2C_TIMEOUT_US; i++) {
+		uint32_t val = spacemit_i2c_get_reg(adap, ICR_ਵਿੱਥ);
 
-		if (!(val & ICR_TB))
-			return 0;
+		ਜੇ (!(val & ICR_TB))
+			ਵਾਪਸ 0;
 
 		sbi_timer_udelay(1);
 	};
 
-	return SBI_ETIMEDOUT;
+	ਵਾਪਸ SBI_ETIMEDOUT;
 }
 
-static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
+ਸਥਿਰ ਖਾਲੀ spacemit_i2c_ਸ਼ੁਰੂ_xfer(ਬਣਤਰ spacemit_i2c_adapter *adap,
 				    uint32_t ctrl)
 {
-	const uint32_t ctrl_mask = ICR_START | ICR_STOP | ICR_ACKNAK;
+	ਅਚਲ uint32_t ctrl_ਨਕਾਬ = ICR_ਸ਼ੁਰੂ | ICR_STOP | ICR_ACKNAK;
 	uint32_t val;
 
-	val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
-	val &= ~ctrl_mask;
-	val |= (ctrl & ctrl_mask);
+	val = spacemit_i2c_get_reg(adap, ICR_ਵਿੱਥ);
+	val &= ~ctrl_ਨਕਾਬ;
+	val |= (ctrl & ctrl_ਨਕਾਬ);
 	val |= ICR_TB;
 
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, val);
+	spacemit_i2c_ਸੈੱਟ_reg(adap, ICR_ਵਿੱਥ, val);
 }
 
-static int spacemit_i2c_xfer_write(struct spacemit_i2c_adapter *adap,
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_xfer_write(ਬਣਤਰ spacemit_i2c_adapter *adap,
 				   uint8_t byte, uint32_t ctrl)
 {
-	spacemit_i2c_set_reg(adap, IDBR_OFFSET, byte);
-	spacemit_i2c_start_xfer(adap, ctrl);
+	spacemit_i2c_ਸੈੱਟ_reg(adap, IDBR_ਵਿੱਥ, byte);
+	spacemit_i2c_ਸ਼ੁਰੂ_xfer(adap, ctrl);
 
-	return spacemit_i2c_wait_xfer_done(adap);
+	ਵਾਪਸ spacemit_i2c_wait_xfer_ਪੂਰਾ(adap);
 }
 
-static int spacemit_i2c_xfer_read(struct spacemit_i2c_adapter *adap,
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_xfer_read(ਬਣਤਰ spacemit_i2c_adapter *adap,
 				  uint8_t *byte, uint32_t ctrl)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	spacemit_i2c_start_xfer(adap, ctrl);
+	spacemit_i2c_ਸ਼ੁਰੂ_xfer(adap, ctrl);
 
-	rc = spacemit_i2c_wait_xfer_done(adap);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_wait_xfer_ਪੂਰਾ(adap);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	*byte = spacemit_i2c_get_reg(adap, IDBR_OFFSET);
-	return 0;
+	*byte = spacemit_i2c_get_reg(adap, IDBR_ਵਿੱਥ);
+	ਵਾਪਸ 0;
 }
 
-static int spacemit_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				      uint8_t reg, uint8_t *buffer, int len)
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_adapter_write(ਬਣਤਰ i2c_adapter *ia, uint8_t addr,
+				      uint8_t reg, uint8_t *ਬਫਰ, ਪੂਰਨ len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	ਬਣਤਰ spacemit_i2c_adapter *adap =
+		container_ਦਾ(ia, ਬਣਤਰ spacemit_i2c_adapter, adapter);
+	ਪੂਰਨ rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
-	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_ਸ਼ੁਰੂ);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	/* send register + data bytes */
-	for (int i = 0; i < len + 1; i++) {
+	ਲਈ (ਪੂਰਨ i = 0; i < len + 1; i++) {
 		uint32_t ctrl = (i == len) ? ICR_STOP : 0;
-		uint8_t byte = (i == 0) ? reg : buffer[i - 1];
+		uint8_t byte = (i == 0) ? reg : ਬਫਰ[i - 1];
 
 		rc = spacemit_i2c_xfer_write(adap, byte, ctrl);
-		if (rc)
-			return rc;
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int spacemit_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				     uint8_t reg, uint8_t *buffer, int len)
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_adapter_read(ਬਣਤਰ i2c_adapter *ia, uint8_t addr,
+				     uint8_t reg, uint8_t *ਬਫਰ, ਪੂਰਨ len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	ਬਣਤਰ spacemit_i2c_adapter *adap =
+		container_ਦਾ(ia, ਬਣਤਰ spacemit_i2c_adapter, adapter);
+	ਪੂਰਨ rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
-	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_ਸ਼ੁਰੂ);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	/* send register */
 	rc = spacemit_i2c_xfer_write(adap, reg, 0);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	/* repeated start and send device address (in read mode) */
-	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_ਸ਼ੁਰੂ);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	/* read data bytes */
-	for (int i = 0; i < len; i++) {
+	ਲਈ (ਪੂਰਨ i = 0; i < len; i++) {
 		uint32_t ctrl = (i == len - 1) ? (ICR_ACKNAK | ICR_STOP) : 0;
 
-		rc = spacemit_i2c_xfer_read(adap, &buffer[i], ctrl);
-		if (rc)
-			return rc;
+		rc = spacemit_i2c_xfer_read(adap, &ਬਫਰ[i], ctrl);
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int spacemit_i2c_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ spacemit_i2c_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+			     ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	struct spacemit_i2c_adapter *adapter;
-	uint64_t base;
-	int rc;
+	ਬਣਤਰ spacemit_i2c_adapter *adapter;
+	uint64_t ਅਧਾਰ_2;
+	ਪੂਰਨ rc;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(ਆਕਾਰ(*adapter));
+	ਜੇ (!adapter)
+		ਵਾਪਸ SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &base, NULL);
-	if (rc) {
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &ਅਧਾਰ_2, ਨਿਰਾ);
+	ਜੇ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	adapter->base = base;
+	adapter->ਅਧਾਰ_2 = ਅਧਾਰ_2;
 	adapter->adapter.id = nodeoff;
-	adapter->adapter.write = spacemit_i2c_adapter_write;
-	adapter->adapter.read = spacemit_i2c_adapter_read;
-	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	adapter->adapter.ਲਿਖ = spacemit_i2c_adapter_write;
+	adapter->adapter.ਪਠ = spacemit_i2c_adapter_read;
+	rc = i2c_adapter_ਜੋੜੋ(&adapter->adapter);
+	ਜੇ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match spacemit_i2c_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ spacemit_i2c_ਮੇਲ[] = {
 	{ .compatible = "spacemit,k1-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_spacemit = {
-	.match_table = spacemit_i2c_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_i2c_adapter_spacemit = {
+	.ਮੇਲ_ਸਾਰਣੀ = spacemit_i2c_ਮੇਲ,
 	.init = spacemit_i2c_init,
 };

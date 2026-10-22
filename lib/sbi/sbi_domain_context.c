@@ -4,94 +4,94 @@
  * Copyright (c) IPADS@SJTU 2023. All rights reserved.
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_domain_context.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_vector.h>
-#include <sbi/sbi_fp.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_locks.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hsm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart_protection.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain_context.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_platform.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_trap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_vector.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_fp.h>
 
 /** Context representation for a hart within a domain */
-struct hart_context {
+ਬਣਤਰ hart_context {
 	/** Trap-related states such as GPRs, mepc, and mstatus */
-	struct sbi_trap_context trap_ctx;
+	ਬਣਤਰ sbi_trap_context trap_ctx;
 
 	/** Supervisor status register */
-	unsigned long sstatus;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sstatus;
 	/** Supervisor interrupt enable register */
-	unsigned long sie;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sie;
 	/** Supervisor trap vector base address register */
-	unsigned long stvec;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ stvec;
 	/** Supervisor scratch register for temporary storage */
-	unsigned long sscratch;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sscratch;
 	/** Supervisor exception program counter register */
-	unsigned long sepc;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sepc;
 	/** Supervisor cause register */
-	unsigned long scause;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ scause;
 	/** Supervisor trap value register */
-	unsigned long stval;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ stval;
 	/** Supervisor interrupt pending register */
-	unsigned long sip;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sip;
 	/** Supervisor address translation and protection register */
-	unsigned long satp;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ satp;
 	/** Counter-enable register */
-	unsigned long scounteren;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ scounteren;
 	/** Supervisor environment configuration register */
-	unsigned long senvcfg;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ senvcfg;
 	/** Supervisor resource management configuration register */
-	unsigned long srmcfg;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ srmcfg;
 
 	/** Float context state */
-	struct sbi_fp_context fp_ctx;
+	ਬਣਤਰ sbi_fp_context fp_ctx;
 	/** Vector context state */
-	struct sbi_vector_context *vec_ctx;
+	ਬਣਤਰ sbi_ਸਦਿਸ਼_context *vec_ctx;
 
 	/** Reference to the owning domain */
-	struct sbi_domain *dom;
+	ਬਣਤਰ sbi_domain *dom;
 	/** Previous context (caller) to jump to during context exits */
-	struct hart_context *prev_ctx;
+	ਬਣਤਰ hart_context *prev_ctx;
 	/** Is context initialized and runnable */
 	bool initialized;
 };
 
-static struct sbi_domain_state dcstate;
+ਸਥਿਰ ਬਣਤਰ sbi_domain_state dcstate;
 
-static inline struct hart_context *hart_context_get(struct sbi_domain *dom,
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਣਤਰ hart_context *hart_context_get(ਬਣਤਰ sbi_domain *dom,
 						    u32 hartindex)
 {
-	struct hart_context **dom_hartindex_to_context_table;
+	ਬਣਤਰ hart_context **dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ;
 
-	dom_hartindex_to_context_table = sbi_domain_state_ptr(dom, &dcstate);
-	if (!dom_hartindex_to_context_table || !sbi_hartindex_valid(hartindex))
-		return NULL;
+	dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ = sbi_domain_state_ptr(dom, &dcstate);
+	ਜੇ (!dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ || !sbi_hartindex_valid(hartindex))
+		ਵਾਪਸ ਨਿਰਾ;
 
-	return dom_hartindex_to_context_table[hartindex];
+	ਵਾਪਸ dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ[hartindex];
 }
 
-static void hart_context_set(struct sbi_domain *dom, u32 hartindex,
-			     struct hart_context *hc)
+ਸਥਿਰ ਖਾਲੀ hart_context_ਸੈੱਟ(ਬਣਤਰ sbi_domain *dom, u32 hartindex,
+			     ਬਣਤਰ hart_context *hc)
 {
-	struct hart_context **dom_hartindex_to_context_table;
+	ਬਣਤਰ hart_context **dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ;
 
-	dom_hartindex_to_context_table = sbi_domain_state_ptr(dom, &dcstate);
-	if (!dom_hartindex_to_context_table || !sbi_hartindex_valid(hartindex))
-		return;
+	dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ = sbi_domain_state_ptr(dom, &dcstate);
+	ਜੇ (!dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ || !sbi_hartindex_valid(hartindex))
+		ਵਾਪਸ;
 
-	dom_hartindex_to_context_table[hartindex] = hc;
+	dom_hartindex_ਮੰਜ਼ਿਲ_context_ਸਾਰਣੀ[hartindex] = hc;
 }
 
 /** Macro to obtain the current hart's context pointer */
-#define hart_context_thishart_get()					\
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ hart_context_thishart_get()					\
 	hart_context_get(sbi_domain_thishart_ptr(),			\
 			 current_hartindex())
 
@@ -105,66 +105,66 @@ static void hart_context_set(struct sbi_domain *dom, u32 hartindex,
  *
  * @return 0 on success and negative error code on failure
  */
-static int switch_to_next_domain_context(struct hart_context *ctx,
-					  struct hart_context *dom_ctx)
-	MUST_NOT_HOLD(&ctx->dom->assigned_harts_lock)
-	MUST_NOT_HOLD(&dom_ctx->dom->assigned_harts_lock)
+ਸਥਿਰ ਪੂਰਨ switch_ਮੰਜ਼ਿਲ_ਅਗਲਾ_domain_context(ਬਣਤਰ hart_context *ctx,
+					  ਬਣਤਰ hart_context *dom_ctx)
+	MUST_NOT_HOLD(&ctx->dom->assigned_harts_ਤਾਲਾ)
+	MUST_NOT_HOLD(&dom_ctx->dom->assigned_harts_ਤਾਲਾ)
 {
 	u32 hartindex = current_hartindex();
-	struct sbi_trap_context *trap_ctx;
-	struct sbi_domain *current_dom, *target_dom;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਣਤਰ sbi_trap_context *trap_ctx;
+	ਬਣਤਰ sbi_domain *current_dom, *ਨਿਸ਼ਾਨਾ_dom;
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (!ctx || !dom_ctx || ctx == dom_ctx)
-		return SBI_EINVAL;
+	ਜੇ (!ctx || !dom_ctx || ctx == dom_ctx)
+		ਵਾਪਸ SBI_EINVAL;
 
 	current_dom = ctx->dom;
-	target_dom = dom_ctx->dom;
+	ਨਿਸ਼ਾਨਾ_dom = dom_ctx->dom;
 	/* Assign current hart to target domain */
-	spin_lock(&current_dom->assigned_harts_lock);
+	spin_ਤਾਲਾ(&current_dom->assigned_harts_ਤਾਲਾ);
 	sbi_hartmask_clear_hartindex(hartindex, &current_dom->assigned_harts);
-	spin_unlock(&current_dom->assigned_harts_lock);
+	spin_unlock(&current_dom->assigned_harts_ਤਾਲਾ);
 
-	sbi_update_hartindex_to_domain(hartindex, target_dom);
+	sbi_update_hartindex_ਮੰਜ਼ਿਲ_domain(hartindex, ਨਿਸ਼ਾਨਾ_dom);
 
-	spin_lock(&target_dom->assigned_harts_lock);
-	sbi_hartmask_set_hartindex(hartindex, &target_dom->assigned_harts);
-	spin_unlock(&target_dom->assigned_harts_lock);
+	spin_ਤਾਲਾ(&ਨਿਸ਼ਾਨਾ_dom->assigned_harts_ਤਾਲਾ);
+	sbi_hartmask_ਸੈੱਟ_hartindex(hartindex, &ਨਿਸ਼ਾਨਾ_dom->assigned_harts);
+	spin_unlock(&ਨਿਸ਼ਾਨਾ_dom->assigned_harts_ਤਾਲਾ);
 
 	/* Save current CSR context and restore target domain's CSR context */
-	ctx->sstatus	= csr_swap(CSR_SSTATUS, dom_ctx->sstatus);
-	ctx->sie	= csr_swap(CSR_SIE, dom_ctx->sie);
-	ctx->stvec	= csr_swap(CSR_STVEC, dom_ctx->stvec);
-	ctx->sscratch	= csr_swap(CSR_SSCRATCH, dom_ctx->sscratch);
-	ctx->sepc	= csr_swap(CSR_SEPC, dom_ctx->sepc);
-	ctx->scause	= csr_swap(CSR_SCAUSE, dom_ctx->scause);
-	ctx->stval	= csr_swap(CSR_STVAL, dom_ctx->stval);
-	ctx->sip	= csr_swap(CSR_SIP, dom_ctx->sip);
-	ctx->satp	= csr_swap(CSR_SATP, dom_ctx->satp);
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
-		ctx->scounteren = csr_swap(CSR_SCOUNTEREN, dom_ctx->scounteren);
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12)
-		ctx->senvcfg	= csr_swap(CSR_SENVCFG, dom_ctx->senvcfg);
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
-		ctx->srmcfg	= csr_swap(CSR_SRMCFG, dom_ctx->srmcfg);
+	ctx->sstatus	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SSTATUS, dom_ctx->sstatus);
+	ctx->sie	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SIE, dom_ctx->sie);
+	ctx->stvec	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_STVEC, dom_ctx->stvec);
+	ctx->sscratch	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SSCRATCH, dom_ctx->sscratch);
+	ctx->sepc	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SEPC, dom_ctx->sepc);
+	ctx->scause	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SCAUSE, dom_ctx->scause);
+	ctx->stval	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_STVAL, dom_ctx->stval);
+	ctx->sip	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SIP, dom_ctx->sip);
+	ctx->satp	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SATP, dom_ctx->satp);
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_10)
+		ctx->scounteren = csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SCOUNTEREN, dom_ctx->scounteren);
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_12)
+		ctx->senvcfg	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SENVCFG, dom_ctx->senvcfg);
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSQOSID))
+		ctx->srmcfg	= csr_ਅਦਲਾ_ਬਦਲੀ(CSR_SRMCFG, dom_ctx->srmcfg);
 
 	/* Eager context switch for float */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_F) ||
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_F) ||
 	    sbi_hart_has_extension(scratch, SBI_HART_EXT_D)) {
 		sbi_fp_save(&ctx->fp_ctx);
 		sbi_fp_restore(&dom_ctx->fp_ctx);
 	}
 
 	/* Eager context switch for vector */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_V)) {
-		sbi_vector_save(ctx->vec_ctx);
-		sbi_vector_restore(dom_ctx->vec_ctx);
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_V)) {
+		sbi_ਸਦਿਸ਼_save(ctx->vec_ctx);
+		sbi_ਸਦਿਸ਼_restore(dom_ctx->vec_ctx);
 	}
 
 	/* Save current trap state and restore target domain's trap state */
 	trap_ctx = sbi_trap_get_context(scratch);
-	sbi_memcpy(&ctx->trap_ctx, trap_ctx, sizeof(*trap_ctx));
-	sbi_memcpy(trap_ctx, &dom_ctx->trap_ctx, sizeof(*trap_ctx));
+	sbi_memcpy(&ctx->trap_ctx, trap_ctx, ਆਕਾਰ(*trap_ctx));
+	sbi_memcpy(trap_ctx, &dom_ctx->trap_ctx, ਆਕਾਰ(*trap_ctx));
 
 	/*
 	 * Re-configure PMP settings for the new domain
@@ -173,154 +173,154 @@ static int switch_to_next_domain_context(struct hart_context *ctx,
 	 * is also required for some of the above CSR updates (such
 	 * as satp CSR).
 	 */
-	sbi_hart_protection_reconfigure(scratch, current_dom, target_dom);
+	sbi_hart_protection_reconfigure(scratch, current_dom, ਨਿਸ਼ਾਨਾ_dom);
 
 	/* Mark current context structure initialized because context saved */
 	ctx->initialized = true;
 
 	/* If target domain context is not initialized or runnable */
-	if (!dom_ctx->initialized) {
+	ਜੇ (!dom_ctx->initialized) {
 		/* Startup boot HART of target domain */
-		if (current_hartid() == target_dom->boot_hartid)
-			sbi_hart_switch_mode(target_dom->boot_hartid,
-					     target_dom->next_arg1,
-					     target_dom->next_addr,
-					     target_dom->next_mode,
+		ਜੇ (current_hartid() == ਨਿਸ਼ਾਨਾ_dom->boot_hartid)
+			sbi_hart_switch_ਬਹੁਲਕ(ਨਿਸ਼ਾਨਾ_dom->boot_hartid,
+					     ਨਿਸ਼ਾਨਾ_dom->ਅਗਲਾ_arg1,
+					     ਨਿਸ਼ਾਨਾ_dom->ਅਗਲਾ_addr,
+					     ਨਿਸ਼ਾਨਾ_dom->ਅਗਲਾ_ਬਹੁਲਕ,
 					     false);
-		else
+		ਨਹੀਂਤਾਂ
 			sbi_hsm_hart_stop(scratch, true);
 	}
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int hart_context_init(u32 hartindex)
+ਸਥਿਰ ਪੂਰਨ hart_context_init(u32 hartindex)
 {
-	size_t vec_size;
-	struct hart_context *ctx;
-	struct sbi_domain *dom;
+	size_t vec_ਮਾਪ;
+	ਬਣਤਰ hart_context *ctx;
+	ਬਣਤਰ sbi_domain *dom;
 
 	sbi_domain_for_each(dom) {
-		if (!sbi_hartmask_test_hartindex(hartindex,
+		ਜੇ (!sbi_hartmask_test_hartindex(hartindex,
 						 dom->possible_harts))
-			continue;
+			ਜਾਰੀ;
 
-		ctx = sbi_zalloc(sizeof(struct hart_context));
-		if (!ctx)
-			return SBI_ENOMEM;
+		ctx = sbi_zalloc(ਆਕਾਰ(ਬਣਤਰ hart_context));
+		ਜੇ (!ctx)
+			ਵਾਪਸ SBI_ENOMEM;
 
-		if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+		ਜੇ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 					   SBI_HART_EXT_V)) {
-			vec_size = sbi_vector_context_size();
+			vec_ਮਾਪ = sbi_ਸਦਿਸ਼_context_ਮਾਪ();
 
 			/* Allocate the vector context pointer */
-			ctx->vec_ctx = sbi_zalloc(vec_size);
-			if (!ctx->vec_ctx) {
+			ctx->vec_ctx = sbi_zalloc(vec_ਮਾਪ);
+			ਜੇ (!ctx->vec_ctx) {
 				sbi_free(ctx);
-				return SBI_ENOMEM;
+				ਵਾਪਸ SBI_ENOMEM;
 			}
 		}
 
 		/* Bind context and domain */
 		ctx->dom = dom;
-		hart_context_set(dom, hartindex, ctx);
+		hart_context_ਸੈੱਟ(dom, hartindex, ctx);
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-int sbi_domain_context_enter(struct sbi_domain *dom)
+ਪੂਰਨ sbi_domain_context_enter(ਬਣਤਰ sbi_domain *dom)
 {
-	int rc;
-	struct hart_context *dom_ctx;
-	struct hart_context *ctx = hart_context_thishart_get();
+	ਪੂਰਨ rc;
+	ਬਣਤਰ hart_context *dom_ctx;
+	ਬਣਤਰ hart_context *ctx = hart_context_thishart_get();
 	u32 hartindex = current_hartindex();
 
 	/* Target domain must not be same as the current domain */
-	if (!dom || dom == sbi_domain_thishart_ptr())
-		return SBI_EINVAL;
+	ਜੇ (!dom || dom == sbi_domain_thishart_ptr())
+		ਵਾਪਸ SBI_EINVAL;
 
 	/* Target domain must have current hart as a possible harts */
-	if (!sbi_hartmask_test_hartindex(hartindex, dom->possible_harts))
-		return SBI_EINVAL;
+	ਜੇ (!sbi_hartmask_test_hartindex(hartindex, dom->possible_harts))
+		ਵਾਪਸ SBI_EINVAL;
 
 	/*
 	 * If it's first time to call `enter` on the current hart, no
 	 * context allocated before. Allocate context for each valid
 	 * domain on the current hart.
 	 */
-	if (!ctx) {
+	ਜੇ (!ctx) {
 		rc = hart_context_init(hartindex);
-		if (rc)
-			return rc;
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 
 		ctx = hart_context_thishart_get();
-		if (!ctx)
-			return SBI_EINVAL;
+		ਜੇ (!ctx)
+			ਵਾਪਸ SBI_EINVAL;
 	}
 
 	dom_ctx = hart_context_get(dom, hartindex);
 	/* Validate the domain context existence */
-	if (!dom_ctx)
-		return SBI_EINVAL;
+	ਜੇ (!dom_ctx)
+		ਵਾਪਸ SBI_EINVAL;
 
 	/* Update target context's previous context to indicate the caller */
 	dom_ctx->prev_ctx = ctx;
 
-	return switch_to_next_domain_context(ctx, dom_ctx);
+	ਵਾਪਸ switch_ਮੰਜ਼ਿਲ_ਅਗਲਾ_domain_context(ctx, dom_ctx);
 }
 
-int sbi_domain_context_exit(void)
+ਪੂਰਨ sbi_domain_context_exit(ਖਾਲੀ)
 {
-	int rc;
+	ਪੂਰਨ rc;
 	u32 hartindex = current_hartindex();
-	struct sbi_domain *dom;
-	struct hart_context *ctx = hart_context_thishart_get();
-	struct hart_context *dom_ctx, *tmp;
+	ਬਣਤਰ sbi_domain *dom;
+	ਬਣਤਰ hart_context *ctx = hart_context_thishart_get();
+	ਬਣਤਰ hart_context *dom_ctx, *tmp;
 
 	/*
 	 * If it's first time to call `exit` on the current hart, no
 	 * context allocated before. Loop through each domain to allocate
 	 * its context on the current hart if valid.
 	 */
-	if (!ctx) {
+	ਜੇ (!ctx) {
 		rc = hart_context_init(hartindex);
-		if (rc)
-			return rc;
+		ਜੇ (rc)
+			ਵਾਪਸ rc;
 
 		ctx = hart_context_thishart_get();
-		if (!ctx)
-			return SBI_EINVAL;
+		ਜੇ (!ctx)
+			ਵਾਪਸ SBI_EINVAL;
 	}
 
 	dom_ctx = ctx->prev_ctx;
-	ctx->prev_ctx = NULL;
+	ctx->prev_ctx = ਨਿਰਾ;
 
 	/* If no previous caller context */
-	if (!dom_ctx) {
+	ਜੇ (!dom_ctx) {
 		/* Try to find next uninitialized domain with least initialization order */
-		dom_ctx = NULL;
+		dom_ctx = ਨਿਰਾ;
 		sbi_domain_for_each(dom) {
-			if (dom == sbi_domain_thishart_ptr())
-				continue;
+			ਜੇ (dom == sbi_domain_thishart_ptr())
+				ਜਾਰੀ;
 
-			if (!sbi_hartmask_test_hartindex(hartindex, dom->possible_harts))
-				continue;
+			ਜੇ (!sbi_hartmask_test_hartindex(hartindex, dom->possible_harts))
+				ਜਾਰੀ;
 
 			tmp = hart_context_get(dom, hartindex);
-			if (tmp && tmp->initialized)
-				continue;
+			ਜੇ (tmp && tmp->initialized)
+				ਜਾਰੀ;
 
-			if (!dom_ctx || tmp->dom->init_order < dom_ctx->dom->init_order)
+			ਜੇ (!dom_ctx || tmp->dom->init_ਕ੍ਰਮ < dom_ctx->dom->init_ਕ੍ਰਮ)
 				dom_ctx = tmp;
 		}
 	}
-	if (!dom_ctx)
-		return SBI_ENOENT;
+	ਜੇ (!dom_ctx)
+		ਵਾਪਸ SBI_ENOENT;
 
-	return switch_to_next_domain_context(ctx, dom_ctx);
+	ਵਾਪਸ switch_ਮੰਜ਼ਿਲ_ਅਗਲਾ_domain_context(ctx, dom_ctx);
 }
 
-int sbi_domain_context_init(void)
+ਪੂਰਨ sbi_domain_context_init(ਖਾਲੀ)
 {
 	/**
 	 * Allocate per-domain and per-hart context data.
@@ -328,12 +328,12 @@ int sbi_domain_context_init(void)
 	 * dynamically allocated by domain_setup_state_one(). Calculate needed
 	 * size of memory space here.
 	 */
-	dcstate.state_size = sizeof(struct hart_context *) * sbi_hart_count();
+	dcstate.state_ਮਾਪ = ਆਕਾਰ(ਬਣਤਰ hart_context *) * sbi_hart_ਗਿਣਤੀ();
 
-	return sbi_domain_register_state(&dcstate);
+	ਵਾਪਸ sbi_domain_ਰਜਿਸਟਰ_state(&dcstate);
 }
 
-void sbi_domain_context_deinit(void)
+ਖਾਲੀ sbi_domain_context_deinit(ਖਾਲੀ)
 {
 	sbi_domain_unregister_state(&dcstate);
 }

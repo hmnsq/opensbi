@@ -7,85 +7,85 @@
  *   Minda.chen <Minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/gpio/fdt_gpio.h>
 
-#define STARFIVE_GPIO_PINS_DEF		64
-#define STARFIVE_GPIO_OUTVAL		0x40
-#define STARFIVE_GPIO_MASK		0xff
-#define STARFIVE_GPIO_REG_SHIFT_MASK	0x3
-#define STARFIVE_GPIO_SHIFT_BITS	0x3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ STARFIVE_GPIO_PINS_DEF		64
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ STARFIVE_GPIO_OUTVAL		0x40
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ STARFIVE_GPIO_ਨਕਾਬ		0xff
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ STARFIVE_GPIO_REG_ਖਿਸਕਾਓ_ਨਕਾਬ	0x3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ STARFIVE_GPIO_ਖਿਸਕਾਓ_ਬਿੱਟ	0x3
 
-struct starfive_gpio_chip {
-	unsigned long addr;
-	struct gpio_chip chip;
+ਬਣਤਰ starfive_gpio_chip {
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ addr;
+	ਬਣਤਰ gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+ਸਥਿਰ ਪੂਰਨ starfive_gpio_direction_output(ਬਣਤਰ gpio_pin *gp, ਪੂਰਨ ਮੁੱਲ)
 {
 	u32 val;
-	unsigned long reg_addr;
-	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ reg_addr;
+	u32 ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2, ਖਿਸਕਾਓ_ਬਿੱਟ;
+	ਬਣਤਰ starfive_gpio_chip *chip =
+		container_ਦਾ(gp->chip, ਬਣਤਰ starfive_gpio_chip, chip);
 
 	/* set out en*/
-	reg_addr = chip->addr + gp->offset;
-	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
+	reg_addr = chip->addr + gp->ਵਿੱਥ;
+	reg_addr &= ~(STARFIVE_GPIO_REG_ਖਿਸਕਾਓ_ਨਕਾਬ);
 
-	shift_bits = (gp->offset & STARFIVE_GPIO_REG_SHIFT_MASK)
-		<< STARFIVE_GPIO_SHIFT_BITS;
-	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
+	ਖਿਸਕਾਓ_ਬਿੱਟ = (gp->ਵਿੱਥ & STARFIVE_GPIO_REG_ਖਿਸਕਾਓ_ਨਕਾਬ)
+		<< STARFIVE_GPIO_ਖਿਸਕਾਓ_ਬਿੱਟ;
+	ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2 = STARFIVE_GPIO_ਨਕਾਬ << ਖਿਸਕਾਓ_ਬਿੱਟ;
 
-	val = readl((void *)reg_addr);
-	val &= ~bit_mask;
-	writel(val, (void *)reg_addr);
+	val = readl((ਖਾਲੀ *)reg_addr);
+	val &= ~ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2;
+	writel(val, (ਖਾਲੀ *)reg_addr);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+ਸਥਿਰ ਖਾਲੀ starfive_gpio_ਸੈੱਟ(ਬਣਤਰ gpio_pin *gp, ਪੂਰਨ ਮੁੱਲ)
 {
 	u32 val;
-	unsigned long reg_addr;
-	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ reg_addr;
+	u32 ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2, ਖਿਸਕਾਓ_ਬਿੱਟ;
+	ਬਣਤਰ starfive_gpio_chip *chip =
+		container_ਦਾ(gp->chip, ਬਣਤਰ starfive_gpio_chip, chip);
 
-	reg_addr = chip->addr + gp->offset;
-	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
+	reg_addr = chip->addr + gp->ਵਿੱਥ;
+	reg_addr &= ~(STARFIVE_GPIO_REG_ਖਿਸਕਾਓ_ਨਕਾਬ);
 
-	shift_bits = (gp->offset & STARFIVE_GPIO_REG_SHIFT_MASK)
-		<< STARFIVE_GPIO_SHIFT_BITS;
-	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
+	ਖਿਸਕਾਓ_ਬਿੱਟ = (gp->ਵਿੱਥ & STARFIVE_GPIO_REG_ਖਿਸਕਾਓ_ਨਕਾਬ)
+		<< STARFIVE_GPIO_ਖਿਸਕਾਓ_ਬਿੱਟ;
+	ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2 = STARFIVE_GPIO_ਨਕਾਬ << ਖਿਸਕਾਓ_ਬਿੱਟ;
 	/* set output value */
-	val = readl((void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
-	val &= ~bit_mask;
-	val |= value << shift_bits;
-	writel(val, (void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val = readl((ਖਾਲੀ *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val &= ~ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ_2;
+	val |= ਮੁੱਲ << ਖਿਸਕਾਓ_ਬਿੱਟ;
+	writel(val, (ਖਾਲੀ *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_starfive;
+ਅਚਲ ਬਣਤਰ fdt_gpio fdt_gpio_starfive;
 
-static int starfive_gpio_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ starfive_gpio_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+			      ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
-	struct starfive_gpio_chip *chip;
+	ਪੂਰਨ rc;
+	ਬਣਤਰ starfive_gpio_chip *chip;
 	u64 addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(ਆਕਾਰ(*chip));
+	ਜੇ (!chip)
+		ਵਾਪਸ SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &addr, ਨਿਰਾ);
+	ਜੇ (rc) {
 		sbi_free(chip);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
 	chip->addr = addr;
@@ -93,25 +93,25 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = STARFIVE_GPIO_PINS_DEF;
 	chip->chip.direction_output = starfive_gpio_direction_output;
-	chip->chip.set = starfive_gpio_set;
-	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	chip->chip.ਸੈੱਟ = starfive_gpio_ਸੈੱਟ;
+	rc = gpio_chip_ਜੋੜੋ(&chip->chip);
+	ਜੇ (rc) {
 		sbi_free(chip);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match starfive_gpio_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ starfive_gpio_ਮੇਲ[] = {
 	{ .compatible = "starfive,jh7110-sys-pinctrl" },
 	{ .compatible = "starfive,iomux-pinctrl" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_starfive = {
+ਅਚਲ ਬਣਤਰ fdt_gpio fdt_gpio_starfive = {
 	.driver = {
-		.match_table = starfive_gpio_match,
+		.ਮੇਲ_ਸਾਰਣੀ = starfive_gpio_ਮੇਲ,
 		.init = starfive_gpio_init,
 	},
 	.xlate = fdt_gpio_simple_xlate,

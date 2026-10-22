@@ -7,63 +7,63 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/litex-uart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/litex-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_RXTX		0
-#define UART_REG_TXFULL		1
-#define UART_REG_RXEMPTY	2
-#define UART_REG_EV_STATUS	3
-#define UART_REG_EV_PENDING	4
-#define UART_REG_EV_ENABLE	5
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_RXTX		0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_TXFULL		1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_RXEMPTY	2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_EV_ਸਥਿਤੀ	3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_EV_PENDING	4
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_EV_ENABLE	5
 
-#define UART_EV_RX		0x2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_EV_RX		0x2
 
 /* clang-format on */
 
-static volatile u32 *uart_base;
+ਸਥਿਰ ਅਸਥਿਰ u32 *uart_ਅਧਾਰ;
 
-static u8 get_reg(u8 reg)
+ਸਥਿਰ u8 get_reg(u8 reg)
 {
-	return readb(uart_base + reg);
+	ਵਾਪਸ readb(uart_ਅਧਾਰ + reg);
 }
 
-static void set_reg(u8 reg, u8 val)
+ਸਥਿਰ ਖਾਲੀ ਸੈੱਟ_reg(u8 reg, u8 val)
 {
-	writeb(val, uart_base + reg);
+	writeb(val, uart_ਅਧਾਰ + reg);
 }
 
-static void litex_uart_putc(char ch)
+ਸਥਿਰ ਖਾਲੀ litex_uart_putc(ਅੱਖਰ ch)
 {
-	while (get_reg(UART_REG_TXFULL));
-	set_reg(UART_REG_RXTX, ch);
+	ਜਦੋਂ (get_reg(UART_REG_TXFULL));
+	ਸੈੱਟ_reg(UART_REG_RXTX, ch);
 }
 
-static int litex_uart_getc(void)
+ਸਥਿਰ ਪੂਰਨ litex_uart_getc(ਖਾਲੀ)
 {
-	int ret;
+	ਪੂਰਨ ret;
 
-	if (get_reg(UART_REG_RXEMPTY))
-		return -1;
+	ਜੇ (get_reg(UART_REG_RXEMPTY))
+		ਵਾਪਸ -1;
 
 	ret = get_reg(UART_REG_RXTX);
-	set_reg(UART_REG_EV_PENDING, UART_EV_RX); /* ack. char read */
-	return ret;
+	ਸੈੱਟ_reg(UART_REG_EV_PENDING, UART_EV_RX); /* ack. char read */
+	ਵਾਪਸ ret;
 }
 
-static struct sbi_console_device litex_console = {
+ਸਥਿਰ ਬਣਤਰ sbi_console_device litex_console = {
 	.name = "litex_uart",
 	.console_putc = litex_uart_putc,
 	.console_getc = litex_uart_getc
 };
 
-int litex_uart_init(unsigned long base)
+ਪੂਰਨ litex_uart_init(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਧਾਰ_2)
 {
-	uart_base = (volatile u32 *)base;
-	set_reg(UART_REG_EV_ENABLE, 0); /* UART in polling mode: disable IRQ */
-	sbi_console_set_device(&litex_console);
-	return 0;
+	uart_ਅਧਾਰ = (ਅਸਥਿਰ u32 *)ਅਧਾਰ_2;
+	ਸੈੱਟ_reg(UART_REG_EV_ENABLE, 0); /* UART in polling mode: disable IRQ */
+	sbi_console_ਸੈੱਟ_device(&litex_console);
+	ਵਾਪਸ 0;
 }

@@ -33,10 +33,10 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)qdivrem.c	8.1 (Berkeley) 6/4/93";
-#endif /* LIBC_SCCS and not lint */
-#include <sys/cdefs.h>
+#ਜੇ defined(LIBC_SCCS) && !defined(lint)
+ਸਥਿਰ ਅੱਖਰ sccsid[] = "@(#)qdivrem.c	8.1 (Berkeley) 6/4/93";
+#ਜੇ_ਅੰਤ /* LIBC_SCCS and not lint */
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
 /*
@@ -44,32 +44,32 @@ __FBSDID("$FreeBSD$");
  * section 4.3.1, pp. 257--259.
  */
 
-#include "quad.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "quad.h"
 
-#define	B	(1L << HALF_BITS)	/* digit base */
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ	B	(1L << HALF_ਬਿੱਟ)	/* digit base */
 
 /* Combine two `digits' to make a single two-digit number. */
-#define	COMBINE(a, b) (((u_long)(a) << HALF_BITS) | (b))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ	COMBINE(a, b) (((u_long)(a) << HALF_ਬਿੱਟ) | (b))
 
 /* select a type for digits in base B: use unsigned short if they fit */
-#if ULONG_MAX == 0xffffffff && USHRT_MAX >= 0xffff
-typedef unsigned short digit;
-#else
-typedef u_long digit;
-#endif
+#ਜੇ ULONG_MAX == 0xffffffff && USHRT_MAX >= 0xffff
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ ਬਿਨਾਨਿਸ਼ਾਨੀ ਛੋਟਾ digit;
+#ਨਹੀਂਤਾਂ
+ਕਿਸਮਪਰਿਭਾਸ਼ਾ u_long digit;
+#ਜੇ_ਅੰਤ
 
 /*
  * Shift p[0]..p[len] left `sh' bits, ignoring any bits that
  * `fall out' the left (there never will be any such anyway).
  * We may assume len >= 0.  NOTE THAT THIS WRITES len+1 DIGITS.
  */
-static void
-shl(digit *p, int len, int sh)
+ਸਥਿਰ ਖਾਲੀ
+shl(digit *p, ਪੂਰਨ len, ਪੂਰਨ sh)
 {
-	int i;
+	ਪੂਰਨ i;
 
-	for (i = 0; i < len; i++)
-		p[i] = LHALF(p[i] << sh) | (p[i + 1] >> (HALF_BITS - sh));
+	ਲਈ (i = 0; i < len; i++)
+		p[i] = LHALF(p[i] << sh) | (p[i + 1] >> (HALF_ਬਿੱਟ - sh));
 	p[i] = LHALF(p[i] << sh);
 }
 
@@ -84,29 +84,29 @@ shl(digit *p, int len, int sh)
 u_quad_t
 __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 {
-	union uu tmp;
+	ਸੰਘ uu tmp;
 	digit *u, *v, *q;
 	digit v1, v2;
 	u_long qhat, rhat, t;
-	int m, n, d, j, i;
+	ਪੂਰਨ m, n, d, j, i;
 	digit uspace[5], vspace[5], qspace[5];
 
 	/*
 	 * Take care of special cases: divide by zero, and u < v.
 	 */
-	if (vq == 0) {
+	ਜੇ (vq == 0) {
 		/* divide by zero. */
-		static volatile const unsigned int zero = 0;
+		ਸਥਿਰ ਅਸਥਿਰ ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ zero = 0;
 
 		tmp.ul[H] = tmp.ul[L] = 1 / zero;
-		if (arq)
+		ਜੇ (arq)
 			*arq = uq;
-		return (tmp.q);
+		ਵਾਪਸ (tmp.q);
 	}
-	if (uq < vq) {
-		if (arq)
+	ਜੇ (uq < vq) {
+		ਜੇ (arq)
 			*arq = uq;
-		return (0);
+		ਵਾਪਸ (0);
 	}
 	u = &uspace[0];
 	v = &vspace[0];
@@ -136,8 +136,8 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	v[2] = LHALF(tmp.ul[H]);
 	v[3] = HHALF(tmp.ul[L]);
 	v[4] = LHALF(tmp.ul[L]);
-	for (n = 4; v[1] == 0; v++) {
-		if (--n == 1) {
+	ਲਈ (n = 4; v[1] == 0; v++) {
+		ਜੇ (--n == 1) {
 			u_long rbj;	/* r*B+u[j] (not root boy jim) */
 			digit q1, q2, q3, q4;
 
@@ -157,11 +157,11 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 			q3 = rbj / t;
 			rbj = COMBINE(rbj % t, u[4]);
 			q4 = rbj / t;
-			if (arq)
+			ਜੇ (arq)
 				*arq = rbj % t;
 			tmp.ul[H] = COMBINE(q1, q2);
 			tmp.ul[L] = COMBINE(q3, q4);
-			return (tmp.q);
+			ਵਾਪਸ (tmp.q);
 		}
 	}
 
@@ -170,9 +170,9 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	 * there is a complete four-digit quotient at &qspace[1] when
 	 * we finally stop.
 	 */
-	for (m = 4 - n; u[1] == 0; u++)
+	ਲਈ (m = 4 - n; u[1] == 0; u++)
 		m--;
-	for (i = 4 - m; --i >= 0;)
+	ਲਈ (i = 4 - m; --i >= 0;)
 		q[i] = 0;
 	q += 4 - m;
 
@@ -183,9 +183,9 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	 * D1: choose multiplier 1 << d to ensure v[1] >= B/2.
 	 */
 	d = 0;
-	for (t = v[1]; t < B / 2; t <<= 1)
+	ਲਈ (t = v[1]; t < B / 2; t <<= 1)
 		d++;
-	if (d > 0) {
+	ਜੇ (d > 0) {
 		shl(&u[0], m + n, d);		/* u <<= d */
 		shl(&v[1], n - 1, d);		/* v <<= d */
 	}
@@ -195,7 +195,7 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 	j = 0;
 	v1 = v[1];	/* for D3 -- note that v[1..n] are constant */
 	v2 = v[2];	/* for D3 */
-	do {
+	ਕਰੋ {
 		digit uj0, uj1, uj2;
 
 		/*
@@ -209,20 +209,20 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		uj0 = u[j + 0];	/* for D3 only -- note that u[j+...] change */
 		uj1 = u[j + 1];	/* for D3 only */
 		uj2 = u[j + 2];	/* for D3 only */
-		if (uj0 == v1) {
+		ਜੇ (uj0 == v1) {
 			qhat = B;
 			rhat = uj1;
-			goto qhat_too_big;
-		} else {
+			ਜਾਓ qhat_too_big;
+		} ਨਹੀਂਤਾਂ {
 			u_long n = COMBINE(uj0, uj1);
 			qhat = n / v1;
 			rhat = n % v1;
 		}
-		while (v2 * qhat > COMBINE(rhat, uj2)) {
+		ਜਦੋਂ (v2 * qhat > COMBINE(rhat, uj2)) {
 	qhat_too_big:
 			qhat--;
-			if ((rhat += v1) >= B)
-				break;
+			ਜੇ ((rhat += v1) >= B)
+				ਰੋਕੋ;
 		}
 		/*
 		 * D4: Multiply and subtract.
@@ -230,7 +230,7 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		 * We split this up so that we do not require v[0] = 0,
 		 * and to eliminate a final special case.
 		 */
-		for (t = 0, i = n; i > 0; i--) {
+		ਲਈ (t = 0, i = n; i > 0; i--) {
 			t = u[i + j] - v[i] * qhat - t;
 			u[i + j] = LHALF(t);
 			t = (B - HHALF(t)) & (B - 1);
@@ -243,9 +243,9 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 		 * in that (rare) case, qhat was too large (by exactly 1).
 		 * Fix it by adding v[1..n] to u[j..j+n].
 		 */
-		if (HHALF(t)) {
+		ਜੇ (HHALF(t)) {
 			qhat--;
-			for (t = 0, i = n; i > 0; i--) { /* D6: add back. */
+			ਲਈ (t = 0, i = n; i > 0; i--) { /* D6: add back. */
 				t += u[i + j] + v[i];
 				u[i + j] = LHALF(t);
 				t = HHALF(t);
@@ -253,18 +253,18 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 			u[j] = LHALF(u[j] + t);
 		}
 		q[j] = qhat;
-	} while (++j <= m);		/* D7: loop on j. */
+	} ਜਦੋਂ (++j <= m);		/* D7: loop on j. */
 
 	/*
 	 * If caller wants the remainder, we have to calculate it as
 	 * u[m..m+n] >> d (this is at most n digits and thus fits in
 	 * u[m+1..m+n], but we may need more source digits).
 	 */
-	if (arq) {
-		if (d) {
-			for (i = m + n; i > m; --i)
+	ਜੇ (arq) {
+		ਜੇ (d) {
+			ਲਈ (i = m + n; i > m; --i)
 				u[i] = (u[i] >> d) |
-				    LHALF(u[i - 1] << (HALF_BITS - d));
+				    LHALF(u[i - 1] << (HALF_ਬਿੱਟ - d));
 			u[i] = 0;
 		}
 		tmp.ul[H] = COMBINE(uspace[1], uspace[2]);
@@ -274,5 +274,5 @@ __qdivrem(u_quad_t uq, u_quad_t vq, u_quad_t *arq)
 
 	tmp.ul[H] = COMBINE(qspace[1], qspace[2]);
 	tmp.ul[L] = COMBINE(qspace[3], qspace[4]);
-	return (tmp.q);
+	ਵਾਪਸ (tmp.q);
 }

@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/fdt_serial.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ serial_altr_juart_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+				  ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_ਮਾਪ;
+	ਪੂਰਨ rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	ਜੇ (nodeoff < 0 || !fdt)
+		ਵਾਪਸ SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &reg_addr, &reg_ਮਾਪ);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	ਜੇ (rc < 0 || !reg_addr || !reg_ਮਾਪ || reg_ਮਾਪ < 0x8)
+		ਵਾਪਸ SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	ਵਾਪਸ altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ serial_altr_juart_ਮੇਲ[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
-	.match_table = serial_altr_juart_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_serial_altr_juart = {
+	.ਮੇਲ_ਸਾਰਣੀ = serial_altr_juart_ਮੇਲ,
 	.init = serial_altr_juart_init,
 };

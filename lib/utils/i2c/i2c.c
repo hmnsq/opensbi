@@ -11,65 +11,65 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/i2c.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/i2c/i2c.h>
 
-static SBI_LIST_HEAD(i2c_adapters_list);
+ਸਥਿਰ SBI_LIST_ਸਿਰ(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+ਬਣਤਰ i2c_adapter *i2c_adapter_ਲੱਭੋ(ਪੂਰਨ id)
 {
-	struct sbi_dlist *pos;
+	ਬਣਤਰ sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		ਬਣਤਰ i2c_adapter *adap = ਮੰਜ਼ਿਲ_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ਜੇ (adap->id == id)
+			ਵਾਪਸ adap;
 	}
 
-	return NULL;
+	ਵਾਪਸ ਨਿਰਾ;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+ਪੂਰਨ i2c_adapter_ਜੋੜੋ(ਬਣਤਰ i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ਜੇ (!ia)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ਜੇ (i2c_adapter_ਲੱਭੋ(ia->id))
+		ਵਾਪਸ SBI_EALREADY;
 
-	sbi_list_add(&(ia->node), &(i2c_adapters_list));
+	sbi_list_ਜੋੜੋ(&(ia->ਗੰਢ), &(i2c_adapters_list));
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+ਖਾਲੀ i2c_adapter_remove(ਬਣਤਰ i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ਜੇ (!ia)
+		ਵਾਪਸ;
 
-	sbi_list_del(&(ia->node));
+	sbi_list_del(&(ia->ਗੰਢ));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ਪੂਰਨ i2c_adapter_write(ਬਣਤਰ i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *ਬਫਰ, ਪੂਰਨ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ਜੇ (!ia)
+		ਵਾਪਸ SBI_EINVAL;
+	ਜੇ (!ia->ਲਿਖ)
+		ਵਾਪਸ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	ਵਾਪਸ ia->ਲਿਖ(ia, addr, reg, ਬਫਰ, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ਪੂਰਨ i2c_adapter_read(ਬਣਤਰ i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *ਬਫਰ, ਪੂਰਨ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ਜੇ (!ia)
+		ਵਾਪਸ SBI_EINVAL;
+	ਜੇ (!ia->ਪਠ)
+		ਵਾਪਸ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	ਵਾਪਸ ia->ਪਠ(ia, addr, reg, ਬਫਰ, len);
 }

@@ -5,14 +5,14 @@
  *
  * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
  */
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_unit_test.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_math.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+ਸਥਿਰ ਖਾਲੀ log2roundup_test(ਬਣਤਰ sbiunit_test_case *test)
 {
-    struct {
-        unsigned long input;
-        unsigned long expected;
+    ਬਣਤਰ {
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਨਿਵੇਸ਼;
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ expected;
     } cases[] = {
         {1, 0},
         {2, 1},
@@ -32,15 +32,15 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
-        unsigned long result = log2roundup(cases[i].input);
-        SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
+    ਲਈ (ਪੂਰਨ i = 0; i < ਆਕਾਰ(cases)/ਆਕਾਰ(cases[0]); i++) {
+        ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਨਤੀਜਾ = log2roundup(cases[i].ਨਿਵੇਸ਼);
+        SBIUNIT_EXPECT_EQ(test, ਨਤੀਜਾ, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+ਸਥਿਰ ਬਣਤਰ sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
-    SBIUNIT_END_CASE,
+    SBIUNIT_ਸਿਰਾ_CASE,
 };
 
 SBIUNIT_TEST_SUITE(math_test_suite, math_test_cases);

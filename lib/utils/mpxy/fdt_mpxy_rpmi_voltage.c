@@ -1,77 +1,77 @@
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
 
-static struct mpxy_rpmi_service_data voltage_services[] = {
+ਸਥਿਰ ਬਣਤਰ mpxy_rpmi_service_ਅੰਕੜੇ voltage_services[] = {
 {
 	.id = RPMI_VOLTAGE_SRV_ENABLE_NOTIFICATION,
-	.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_VOLTAGE_SRV_GET_NUM_DOMAINS,
+	.id = RPMI_VOLTAGE_SRV_GET_ਅੰਕ_DOMAINS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_voltage_get_num_domains_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_get_num_domains_resp),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਅੰਕ_domains_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਅੰਕ_domains_resp),
 },
 {
-	.id = RPMI_VOLTAGE_SRV_GET_ATTRIBUTES,
-	.min_tx_len = sizeof(struct rpmi_voltage_get_attributes_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_get_attributes_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_get_attributes_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_get_attributes_resp),
+	.id = RPMI_VOLTAGE_SRV_GET_ਗੁਣ,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਗੁਣ_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਗੁਣ_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਗੁਣ_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_ਗੁਣ_resp),
 },
 {
-	.id = RPMI_VOLTAGE_SRV_GET_SUPPORTED_LEVELS,
-	.min_tx_len = sizeof(struct rpmi_voltage_get_supported_rate_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_get_supported_rate_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_get_supported_rate_resp),
+	.id = RPMI_VOLTAGE_SRV_GET_SUPPORTED_ਪੱਧਰ,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_supported_ਦਰ_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_supported_ਦਰ_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_supported_ਦਰ_resp),
 	.max_rx_len = -1U,
 },
 {
-	.id = RPMI_VOLTAGE_SRV_SET_CONFIG,
-	.min_tx_len = sizeof(struct rpmi_voltage_set_config_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_set_config_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_set_config_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_set_config_resp),
+	.id = RPMI_VOLTAGE_SRV_ਸੈੱਟ_CONFIG,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_config_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_config_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_config_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_config_resp),
 },
 {
 	.id = RPMI_VOLTAGE_SRV_GET_CONFIG,
-	.min_tx_len = sizeof(struct rpmi_voltage_get_config_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_get_config_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_get_config_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_get_config_resp),
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_config_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_config_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_config_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_config_resp),
 },
 {
-	.id = RPMI_VOLTAGE_SRV_SET_LEVEL,
-	.min_tx_len = sizeof(struct rpmi_voltage_set_level_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_set_level_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_set_level_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_set_level_resp),
+	.id = RPMI_VOLTAGE_SRV_ਸੈੱਟ_LEVEL,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_level_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_level_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_level_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_ਸੈੱਟ_level_resp),
 },
 {
 	.id = RPMI_VOLTAGE_SRV_GET_LEVEL,
-	.min_tx_len = sizeof(struct rpmi_voltage_get_level_req),
-	.max_tx_len = sizeof(struct rpmi_voltage_get_level_req),
-	.min_rx_len = sizeof(struct rpmi_voltage_get_level_resp),
-	.max_rx_len = sizeof(struct rpmi_voltage_get_level_resp),
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_level_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_level_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_level_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_voltage_get_level_resp),
 },
 };
 
-static const struct mpxy_rpmi_mbox_data voltage_data = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ mpxy_rpmi_mbox_ਅੰਕੜੇ voltage_ਅੰਕੜੇ = {
 	.servicegrp_id = RPMI_SRVGRP_VOLTAGE,
-	.num_services = RPMI_VOLTAGE_SRV_MAX_COUNT,
-	.service_data = voltage_services,
+	.ਅੰਕ_services = RPMI_VOLTAGE_SRV_MAX_ਗਿਣਤੀ,
+	.service_ਅੰਕੜੇ = voltage_services,
 };
 
-static const struct fdt_match voltage_match[] = {
-	{ .compatible = "riscv,rpmi-mpxy-voltage", .data = &voltage_data },
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ voltage_ਮੇਲ[] = {
+	{ .compatible = "riscv,rpmi-mpxy-voltage", .ਅੰਕੜੇ = &voltage_ਅੰਕੜੇ },
 	{ },
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_voltage = {
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_mpxy_rpmi_voltage = {
 	.experimental = true,
-	.match_table = voltage_match,
+	.ਮੇਲ_ਸਾਰਣੀ = voltage_ਮੇਲ,
 	.init = mpxy_rpmi_mbox_init,
 };

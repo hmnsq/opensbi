@@ -7,76 +7,76 @@
  *   Green Wan <green.wan@sifive.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/gpio/fdt_gpio.h>
 
-#define SIFIVE_GPIO_PINS_MIN	1
-#define SIFIVE_GPIO_PINS_MAX	32
-#define SIFIVE_GPIO_PINS_DEF	16
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_PINS_MIN	1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_PINS_MAX	32
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_PINS_DEF	16
 
-#define SIFIVE_GPIO_OUTEN	0x8
-#define SIFIVE_GPIO_OUTVAL	0xc
-#define SIFIVE_GPIO_BIT(b)	(1U << (b))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_OUTEN	0x8
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_OUTVAL	0xc
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(b)	(1U << (b))
 
-struct sifive_gpio_chip {
-	unsigned long addr;
-	struct gpio_chip chip;
+ਬਣਤਰ sifive_gpio_chip {
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ addr;
+	ਬਣਤਰ gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+ਸਥਿਰ ਪੂਰਨ sifive_gpio_direction_output(ਬਣਤਰ gpio_pin *gp, ਪੂਰਨ ਮੁੱਲ)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ v;
+	ਬਣਤਰ sifive_gpio_chip *chip =
+		container_ਦਾ(gp->chip, ਬਣਤਰ sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
-	v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v = readl((ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v |= SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(gp->ਵਿੱਥ);
+	writel(v, (ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
-		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
-		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	v = readl((ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	ਜੇ (!ਮੁੱਲ)
+		v &= ~SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(gp->ਵਿੱਥ);
+	ਨਹੀਂਤਾਂ
+		v |= SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(gp->ਵਿੱਥ);
+	writel(v, (ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+ਸਥਿਰ ਖਾਲੀ sifive_gpio_ਸੈੱਟ(ਬਣਤਰ gpio_pin *gp, ਪੂਰਨ ਮੁੱਲ)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ v;
+	ਬਣਤਰ sifive_gpio_chip *chip =
+		container_ਦਾ(gp->chip, ਬਣਤਰ sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
-		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
-		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	v = readl((ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	ਜੇ (!ਮੁੱਲ)
+		v &= ~SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(gp->ਵਿੱਥ);
+	ਨਹੀਂਤਾਂ
+		v |= SIFIVE_GPIO_ਦੋਆਧਾਰੀ_ਅੰਕ(gp->ਵਿੱਥ);
+	writel(v, (ਅਸਥਿਰ ਖਾਲੀ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_sifive;
+ਅਚਲ ਬਣਤਰ fdt_gpio fdt_gpio_sifive;
 
-static int sifive_gpio_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ sifive_gpio_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+			    ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
-	struct sifive_gpio_chip *chip;
+	ਪੂਰਨ rc;
+	ਬਣਤਰ sifive_gpio_chip *chip;
 	uint64_t addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(ਆਕਾਰ(*chip));
+	ਜੇ (!chip)
+		ਵਾਪਸ SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &addr, ਨਿਰਾ);
+	ਜੇ (rc) {
 		sbi_free(chip);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
 	chip->addr = addr;
@@ -84,24 +84,24 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = SIFIVE_GPIO_PINS_DEF;
 	chip->chip.direction_output = sifive_gpio_direction_output;
-	chip->chip.set = sifive_gpio_set;
-	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	chip->chip.ਸੈੱਟ = sifive_gpio_ਸੈੱਟ;
+	rc = gpio_chip_ਜੋੜੋ(&chip->chip);
+	ਜੇ (rc) {
 		sbi_free(chip);
-		return rc;
+		ਵਾਪਸ rc;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match sifive_gpio_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ sifive_gpio_ਮੇਲ[] = {
 	{ .compatible = "sifive,gpio0" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_sifive = {
+ਅਚਲ ਬਣਤਰ fdt_gpio fdt_gpio_sifive = {
 	.driver = {
-		.match_table = sifive_gpio_match,
+		.ਮੇਲ_ਸਾਰਣੀ = sifive_gpio_ਮੇਲ,
 		.init = sifive_gpio_init,
 	},
 	.xlate = fdt_gpio_simple_xlate,

@@ -1,56 +1,56 @@
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
 
-static struct mpxy_rpmi_service_data dpwr_services[] = {
+ਸਥਿਰ ਬਣਤਰ mpxy_rpmi_service_ਅੰਕੜੇ dpwr_services[] = {
 {
 	.id = RPMI_DPWR_SRV_ENABLE_NOTIFICATION,
-	.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_DPWR_SRV_GET_NUM_DOMAINS,
+	.id = RPMI_DPWR_SRV_GET_ਅੰਕ_DOMAINS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_dpwr_get_num_domain_resp),
-	.max_rx_len = sizeof(struct rpmi_dpwr_get_num_domain_resp),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_ਅੰਕ_domain_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_ਅੰਕ_domain_resp),
 },
 {
-	.id = RPMI_DPWR_SRV_GET_ATTRIBUTES,
-	.min_tx_len = sizeof(struct rpmi_dpwr_get_attrs_req),
-	.max_tx_len = sizeof(struct rpmi_dpwr_get_attrs_req),
-	.min_rx_len = sizeof(struct rpmi_dpwr_get_attrs_resp),
-	.max_rx_len = sizeof(struct rpmi_dpwr_get_attrs_resp),
+	.id = RPMI_DPWR_SRV_GET_ਗੁਣ,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_attrs_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_attrs_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_attrs_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_attrs_resp),
 },
 {
-	.id = RPMI_DPWR_SRV_SET_STATE,
-	.min_tx_len = sizeof(struct rpmi_dpwr_set_state_req),
-	.max_tx_len = sizeof(struct rpmi_dpwr_set_state_req),
-	.min_rx_len = sizeof(struct rpmi_dpwr_set_state_resp),
-	.max_rx_len = sizeof(struct rpmi_dpwr_set_state_resp),
+	.id = RPMI_DPWR_SRV_ਸੈੱਟ_STATE,
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_ਸੈੱਟ_state_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_ਸੈੱਟ_state_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_ਸੈੱਟ_state_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_ਸੈੱਟ_state_resp),
 },
 {
 	.id = RPMI_DPWR_SRV_GET_STATE,
-	.min_tx_len = sizeof(struct rpmi_dpwr_get_state_req),
-	.max_tx_len = sizeof(struct rpmi_dpwr_get_state_req),
-	.min_rx_len = sizeof(struct rpmi_dpwr_get_state_resp),
-	.max_rx_len = sizeof(struct rpmi_dpwr_get_state_resp),
+	.min_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_state_req),
+	.max_tx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_state_req),
+	.min_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_state_resp),
+	.max_rx_len = ਆਕਾਰ(ਬਣਤਰ rpmi_dpwr_get_state_resp),
 },
 };
 
-static const struct mpxy_rpmi_mbox_data dpwr_data = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ mpxy_rpmi_mbox_ਅੰਕੜੇ dpwr_ਅੰਕੜੇ = {
 	.servicegrp_id = RPMI_SRVGRP_DEVICE_POWER,
-	.num_services = RPMI_DPWR_SRV_MAX_COUNT,
-	.service_data = dpwr_services,
+	.ਅੰਕ_services = RPMI_DPWR_SRV_MAX_ਗਿਣਤੀ,
+	.service_ਅੰਕੜੇ = dpwr_services,
 };
 
-static const struct fdt_match dpwr_match[] = {
-	{ .compatible = "riscv,rpmi-mpxy-device-power", .data = &dpwr_data },
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ dpwr_ਮੇਲ[] = {
+	{ .compatible = "riscv,rpmi-mpxy-device-power", .ਅੰਕੜੇ = &dpwr_ਅੰਕੜੇ },
 	{ },
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_device_power = {
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_mpxy_rpmi_device_power = {
 	.experimental = true,
-	.match_table = dpwr_match,
+	.ਮੇਲ_ਸਾਰਣੀ = dpwr_ਮੇਲ,
 	.init = mpxy_rpmi_mbox_init,
 };

@@ -4,98 +4,98 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <andes/andes.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <andes/andes.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall_interface.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_system.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/cache/fdt_cmo_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_driver.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define HART_SLEEP_TIMEOUT_MS 1000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HART_SLEEP_TIMEOUT_MS 1000
 
-static int wait_secondary_harts_sleep(u32 hartid, bool deep_sleep)
+ਸਥਿਰ ਪੂਰਨ wait_secondary_harts_sleep(u32 hartid, bool deep_sleep)
 {
-	const struct sbi_domain *dom = &root;
-	unsigned long i;
-	u32 target;
-	struct atcsmu_sleep_arg arg;
+	ਅਚਲ ਬਣਤਰ sbi_domain *dom = &ਜੜ੍ਹ;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ i;
+	u32 ਨਿਸ਼ਾਨਾ;
+	ਬਣਤਰ atcsmu_sleep_arg arg;
 
 	arg.deep_sleep = deep_sleep;
 
 	/* Wait for the secondary harts entering the corresponding sleep state */
 	sbi_hartmask_for_each_hartindex(i, dom->possible_harts) {
-		target = sbi_hartindex_to_hartid(i);
-		if (target == hartid)
-			continue;
+		ਨਿਸ਼ਾਨਾ = sbi_hartindex_ਮੰਜ਼ਿਲ_hartid(i);
+		ਜੇ (ਨਿਸ਼ਾਨਾ == hartid)
+			ਜਾਰੀ;
 
-		arg.hartid = target;
-		if (!sbi_timer_waitms_until(atcsmu_hart_is_sleep, &arg,
+		arg.hartid = ਨਿਸ਼ਾਨਾ;
+		ਜੇ (!sbi_timer_waitms_until(atcsmu_hart_is_sleep, &arg,
 					    HART_SLEEP_TIMEOUT_MS)) {
 			sbi_printf("ATCSMU: hart%u (PCS%u): timed out waiting for %s sleep\n",
-				   target, target + 3,
+				   ਨਿਸ਼ਾਨਾ, ਨਿਸ਼ਾਨਾ + 3,
 				   deep_sleep ? "deep" : "light");
-			return SBI_ETIMEOUT;
+			ਵਾਪਸ SBI_ETIMEOUT;
 		}
 	}
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 }
 
-static int ae350_system_suspend_check(u32 sleep_type)
+ਸਥਿਰ ਪੂਰਨ ae350_system_suspend_check(u32 sleep_type)
 {
-	return (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ||
+	ਵਾਪਸ (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND ||
 		sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) ? SBI_OK : SBI_EINVAL;
 }
 
-static int ae350_system_suspend(u32 sleep_type, unsigned long addr)
+ਸਥਿਰ ਪੂਰਨ ae350_system_suspend(u32 sleep_type, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ addr)
 {
 	u32 hartid = current_hartid();
-	unsigned long saved_mie;
-	int rc;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_mie;
+	ਪੂਰਨ rc;
 
 	/* Prevent the core leaving the WFI mode unexpectedly */
 	saved_mie = csr_read(CSR_MIE);
 	csr_write(CSR_MIE, 0);
 
 	/* SMU wakes the primary hart on RTC alarm / UART2 */
-	atcsmu_set_wakeup_events(PCS_WAKEUP_RTC_ALARM_MASK | PCS_WAKEUP_UART2_MASK, hartid);
+	atcsmu_ਸੈੱਟ_wakeup_events(PCS_WAKEUP_RTC_ALARM_ਨਕਾਬ | PCS_WAKEUP_UART2_ਨਕਾਬ, hartid);
 
-	if (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
+	ਜੇ (sleep_type == SBI_SUSP_AE350_LIGHT_SLEEP) {
 		rc = wait_secondary_harts_sleep(hartid, false);
-		if (rc)
-			goto err_restore_mie;
+		ਜੇ (rc)
+			ਜਾਓ err_restore_mie;
 
 		/* Clock-gated only: enable SEI to resume past the WFI */
-		csr_set(CSR_MIE, MIP_SEIP);
-		atcsmu_set_command(LIGHT_SLEEP_CMD, hartid);
-	} else if (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
+		csr_ਸੈੱਟ(CSR_MIE, MIP_SEIP);
+		atcsmu_ਸੈੱਟ_command(LIGHT_SLEEP_CMD, hartid);
+	} ਨਹੀਂਤਾਂ ਜੇ (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
 		rc = wait_secondary_harts_sleep(hartid, true);
-		if (rc)
-			goto err_restore_mie;
+		ਜੇ (rc)
+			ਜਾਓ err_restore_mie;
 
-		rc = atcsmu_set_reset_vector((ulong)ae350_enable_coherency_warmboot, hartid);
-		if (rc)
-			goto err_restore_mie;
+		rc = atcsmu_ਸੈੱਟ_reset_ਸਦਿਸ਼((ulong)ae350_enable_coherency_warmboot, hartid);
+		ਜੇ (rc)
+			ਜਾਓ err_restore_mie;
 
 		ae350_non_ret_save(sbi_scratch_thishart_ptr());
 
 		/* No LLC is fine; only fail on real errors */
 		rc = fdt_cmo_llc_enable(false);
-		if (rc && rc != SBI_ENODEV)
-			goto err_discard_save;
+		ਜੇ (rc && rc != SBI_ENODEV)
+			ਜਾਓ err_discard_save;
 
 		rc = fdt_cmo_llc_flush_all();
-		if (rc && rc != SBI_ENODEV)
-			goto err_enable_llc;
+		ਜੇ (rc && rc != SBI_ENODEV)
+			ਜਾਓ err_enable_llc;
 
-		atcsmu_set_command(DEEP_SLEEP_CMD, hartid);
+		atcsmu_ਸੈੱਟ_command(DEEP_SLEEP_CMD, hartid);
 	}
 
 	ae350_disable_coherency();
@@ -104,7 +104,7 @@ static int ae350_system_suspend(u32 sleep_type, unsigned long addr)
 	/* Light sleep resumes here */
 	ae350_enable_coherency();
 
-	return SBI_OK;
+	ਵਾਪਸ SBI_OK;
 
 err_enable_llc:
 	fdt_cmo_llc_enable(true);
@@ -113,39 +113,39 @@ err_discard_save:
 err_restore_mie:
 	csr_write(CSR_MIE, saved_mie);
 
-	return rc;
+	ਵਾਪਸ rc;
 }
 
-static void ae350_system_resume(void)
+ਸਥਿਰ ਖਾਲੀ ae350_system_resume(ਖਾਲੀ)
 {
 	u32 hartid = current_hartid();
 	u32 sleep_type = atcsmu_get_sleep_type(hartid);
 
-	if (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
+	ਜੇ (sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) {
 		fdt_cmo_llc_enable(true);
 		ae350_non_ret_restore(sbi_scratch_thishart_ptr());
 	}
 }
 
-static struct sbi_system_suspend_device suspend_andes_atcsmu = {
+ਸਥਿਰ ਬਣਤਰ sbi_system_suspend_device suspend_andes_atcsmu = {
 	.name = "andes_atcsmu",
 	.system_suspend_check = ae350_system_suspend_check,
 	.system_suspend = ae350_system_suspend,
 	.system_resume = ae350_system_resume,
 };
 
-static int suspend_andes_atcsmu_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ suspend_andes_atcsmu_probe(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff, ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	sbi_system_suspend_set_device(&suspend_andes_atcsmu);
-	return 0;
+	sbi_system_suspend_ਸੈੱਟ_device(&suspend_andes_atcsmu);
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match suspend_andes_atcsmu_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ suspend_andes_atcsmu_ਮੇਲ[] = {
 	{ .compatible = "andestech,atcsmu-sys" },
 	{ },
 };
 
-const struct fdt_driver fdt_suspend_andes_atcsmu = {
-	.match_table = suspend_andes_atcsmu_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_suspend_andes_atcsmu = {
+	.ਮੇਲ_ਸਾਰਣੀ = suspend_andes_atcsmu_ਮੇਲ,
 	.init = suspend_andes_atcsmu_probe,
 };

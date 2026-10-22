@@ -10,21 +10,21 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ipi.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/ipi/andes_plicsw.h>
 
-struct plicsw_data plicsw;
+ਬਣਤਰ plicsw_ਅੰਕੜੇ plicsw;
 
-static void plicsw_ipi_send(u32 hart_index)
+ਸਥਿਰ ਖਾਲੀ plicsw_ipi_send(u32 hart_ਸੂਚਕਾਂਕ)
 {
 	ulong pending_reg;
-	u32 interrupt_id, word_index, pending_bit;
-	u32 target_hart = sbi_hartindex_to_hartid(hart_index);
+	u32 ਰੁਕਾਵਟ_id, ਸ਼ਬਦ_ਸੂਚਕਾਂਕ, pending_ਦੋਆਧਾਰੀ_ਅੰਕ;
+	u32 ਨਿਸ਼ਾਨਾ_hart = sbi_hartindex_ਮੰਜ਼ਿਲ_hartid(hart_ਸੂਚਕਾਂਕ);
 
-	if (plicsw.hart_count <= target_hart)
+	ਜੇ (plicsw.hart_ਗਿਣਤੀ <= ਨਿਸ਼ਾਨਾ_hart)
 		ebreak();
 
 	/*
@@ -32,75 +32,75 @@ static void plicsw_ipi_send(u32 hart_index)
 	 * Bit 0 is hardwired to 0, thus unavailable.
 	 * Bit(X+1) indicates that IPI is sent to hartX.
 	 */
-	interrupt_id = target_hart + 1;
-	word_index   = interrupt_id / 32;
-	pending_bit  = interrupt_id % 32;
-	pending_reg  = plicsw.addr + PLICSW_PENDING_BASE + word_index * 4;
+	ਰੁਕਾਵਟ_id = ਨਿਸ਼ਾਨਾ_hart + 1;
+	ਸ਼ਬਦ_ਸੂਚਕਾਂਕ   = ਰੁਕਾਵਟ_id / 32;
+	pending_ਦੋਆਧਾਰੀ_ਅੰਕ  = ਰੁਕਾਵਟ_id % 32;
+	pending_reg  = plicsw.addr + PLICSW_PENDING_ਅਧਾਰ + ਸ਼ਬਦ_ਸੂਚਕਾਂਕ * 4;
 
 	/* Set target hart's mip.MSIP */
-	writel_relaxed(BIT(pending_bit), (void *)pending_reg);
+	writel_relaxed(ਦੋਆਧਾਰੀ_ਅੰਕ(pending_ਦੋਆਧਾਰੀ_ਅੰਕ), (ਖਾਲੀ *)pending_reg);
 }
 
-static void plicsw_ipi_clear(void)
+ਸਥਿਰ ਖਾਲੀ plicsw_ipi_clear(ਖਾਲੀ)
 {
-	u32 target_hart = current_hartid();
-	ulong reg = plicsw.addr + PLICSW_CONTEXT_BASE + PLICSW_CONTEXT_CLAIM +
-		    PLICSW_CONTEXT_STRIDE * target_hart;
+	u32 ਨਿਸ਼ਾਨਾ_hart = current_hartid();
+	ulong reg = plicsw.addr + PLICSW_CONTEXT_ਅਧਾਰ + PLICSW_CONTEXT_CLAIM +
+		    PLICSW_CONTEXT_STRIDE * ਨਿਸ਼ਾਨਾ_hart;
 
-	if (plicsw.hart_count <= target_hart)
+	ਜੇ (plicsw.hart_ਗਿਣਤੀ <= ਨਿਸ਼ਾਨਾ_hart)
 		ebreak();
 
 	/* Claim */
-	u32 source = readl((void *)reg);
+	u32 ਸਰੋਤ = readl((ਖਾਲੀ *)reg);
 
 	/* A successful claim will clear mip.MSIP */
 
 	/* Complete */
-	writel(source, (void *)reg);
+	writel(ਸਰੋਤ, (ਖਾਲੀ *)reg);
 }
 
-static struct sbi_ipi_device plicsw_ipi = {
+ਸਥਿਰ ਬਣਤਰ sbi_ipi_device plicsw_ipi = {
 	.name      = "andes_plicsw",
 	.rating    = 200,
 	.ipi_send  = plicsw_ipi_send,
 	.ipi_clear = plicsw_ipi_clear
 };
 
-int plicsw_cold_ipi_init(struct plicsw_data *plicsw)
+ਪੂਰਨ plicsw_cold_ipi_init(ਬਣਤਰ plicsw_ਅੰਕੜੇ *plicsw)
 {
-	int rc;
-	u32 interrupt_id, word_index, enable_bit;
-	ulong enable_reg, priority_reg;
+	ਪੂਰਨ rc;
+	u32 ਰੁਕਾਵਟ_id, ਸ਼ਬਦ_ਸੂਚਕਾਂਕ, enable_ਦੋਆਧਾਰੀ_ਅੰਕ;
+	ulong enable_reg, ਤਰਜੀਹ_reg;
 
 	/* Setup source priority */
-	for (int i = 0; i < plicsw->hart_count; i++) {
-		priority_reg = plicsw->addr + PLICSW_PRIORITY_BASE + i * 4;
-		writel(1, (void *)priority_reg);
+	ਲਈ (ਪੂਰਨ i = 0; i < plicsw->hart_ਗਿਣਤੀ; i++) {
+		ਤਰਜੀਹ_reg = plicsw->addr + PLICSW_ਤਰਜੀਹ_ਅਧਾਰ + i * 4;
+		writel(1, (ਖਾਲੀ *)ਤਰਜੀਹ_reg);
 	}
 
 	/*
 	 * Setup enable for each hart, skip non-existent interrupt ID 0
 	 * which is hardwired to 0.
 	 */
-	for (int i = 0; i < plicsw->hart_count; i++) {
-		interrupt_id = i + 1;
-		word_index   = interrupt_id / 32;
-		enable_bit   = interrupt_id % 32;
-		enable_reg   = plicsw->addr + PLICSW_ENABLE_BASE +
-			       PLICSW_ENABLE_STRIDE * i + 4 * word_index;
-		writel(BIT(enable_bit), (void *)enable_reg);
+	ਲਈ (ਪੂਰਨ i = 0; i < plicsw->hart_ਗਿਣਤੀ; i++) {
+		ਰੁਕਾਵਟ_id = i + 1;
+		ਸ਼ਬਦ_ਸੂਚਕਾਂਕ   = ਰੁਕਾਵਟ_id / 32;
+		enable_ਦੋਆਧਾਰੀ_ਅੰਕ   = ਰੁਕਾਵਟ_id % 32;
+		enable_reg   = plicsw->addr + PLICSW_ENABLE_ਅਧਾਰ +
+			       PLICSW_ENABLE_STRIDE * i + 4 * ਸ਼ਬਦ_ਸੂਚਕਾਂਕ;
+		writel(ਦੋਆਧਾਰੀ_ਅੰਕ(enable_ਦੋਆਧਾਰੀ_ਅੰਕ), (ਖਾਲੀ *)enable_reg);
 	}
 
 	/* Add PLICSW region to the root domain */
-	rc = sbi_domain_root_add_memrange(plicsw->addr, plicsw->size,
+	rc = sbi_domain_ਜੜ੍ਹ_ਜੋੜੋ_memrange(plicsw->addr, plicsw->ਮਾਪ,
 					  PLICSW_REGION_ALIGN,
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	sbi_ipi_add_device(&plicsw_ipi);
+	sbi_ipi_ਜੋੜੋ_device(&plicsw_ipi);
 
-	return 0;
+	ਵਾਪਸ 0;
 }

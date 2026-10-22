@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_driver.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+ਬਾਹਰੀ ਬਣਤਰ plicsw_ਅੰਕੜੇ plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ਪੂਰਨ fdt_plicsw_cold_ipi_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+			     ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_ਗੰਢ(fdt, nodeoff, &plicsw.addr, &plicsw.ਮਾਪ,
+				   &plicsw.hart_ਗਿਣਤੀ);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ ipi_plicsw_ਮੇਲ[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_ipi_plicsw = {
+	.ਮੇਲ_ਸਾਰਣੀ = ipi_plicsw_ਮੇਲ,
 	.init = fdt_plicsw_cold_ipi_init,
 };

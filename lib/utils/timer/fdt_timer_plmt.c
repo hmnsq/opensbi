@@ -7,43 +7,43 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/timer/fdt_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/timer/andes_plmt.h>
 
-extern struct plmt_data plmt;
+ਬਾਹਰੀ ਬਣਤਰ plmt_ਅੰਕੜੇ plmt;
 
-static int fdt_plmt_cold_timer_init(const void *fdt, int nodeoff,
-				    const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ fdt_plmt_cold_timer_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+				    ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
-	unsigned long plmt_base;
+	ਪੂਰਨ rc;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ plmt_ਅਧਾਰ;
 
-	rc = fdt_parse_plmt_node(fdt, nodeoff, &plmt_base, &plmt.size,
-				 &plmt.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plmt_ਗੰਢ(fdt, nodeoff, &plmt_ਅਧਾਰ, &plmt.ਮਾਪ,
+				 &plmt.hart_ਗਿਣਤੀ);
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	plmt.time_val = (u64 *)plmt_base;
-	plmt.time_cmp = (u64 *)(plmt_base + 0x8);
+	plmt.ਸਮਾਂ_val = (u64 *)plmt_ਅਧਾਰ;
+	plmt.ਸਮਾਂ_cmp = (u64 *)(plmt_ਅਧਾਰ + 0x8);
 
 	rc = fdt_parse_timebase_frequency(fdt, &plmt.timer_freq);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	rc = plmt_cold_timer_init(&plmt);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match timer_plmt_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ timer_plmt_ਮੇਲ[] = {
 	{ .compatible = "andestech,plmt0" },
 	{},
 };
 
-const struct fdt_driver fdt_timer_plmt = {
-	.match_table = timer_plmt_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_timer_plmt = {
+	.ਮੇਲ_ਸਾਰਣੀ = timer_plmt_ਮੇਲ,
 	.init = fdt_plmt_cold_timer_init,
 };

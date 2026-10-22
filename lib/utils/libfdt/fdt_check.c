@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libfdt.h>
 
-#include "libfdt_internal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+ਪੂਰਨ fdt_check_ਭਰਿਆ(ਅਚਲ ਖਾਲੀ *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
-	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
-	bool expect_end = false;
+	ਪੂਰਨ err;
+	ਪੂਰਨ ਅੰਕ_memrsv;
+	ਪੂਰਨ ਵਿੱਥ, nextoffset = 0;
+	uint32_t ਟੈਗ;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ ਡੂੰਘਾਈ = 0;
+	ਅਚਲ ਖਾਲੀ *prop;
+	ਅਚਲ ਅੱਖਰ *propname;
+	bool expect_ਸਿਰਾ = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
-	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	ਜੇ (bufsize < FDT_V1_ਮਾਪ)
+		ਵਾਪਸ -FDT_ERR_TRUNCATED;
+	ਜੇ (bufsize < fdt_ਸਿਰਲੇਖ_ਮਾਪ_2(fdt))
+		ਵਾਪਸ -FDT_ERR_TRUNCATED;
+	err = fdt_check_ਸਿਰਲੇਖ(fdt);
+	ਜੇ (err != 0)
+		ਵਾਪਸ err;
+	ਜੇ (bufsize < fdt_totalsize(fdt))
+		ਵਾਪਸ -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	ਅੰਕ_memrsv = fdt_ਅੰਕ_mem_rsv(fdt);
+	ਜੇ (ਅੰਕ_memrsv < 0)
+		ਵਾਪਸ ਅੰਕ_memrsv;
 
-	while (1) {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+	ਜਦੋਂ (1) {
+		ਵਿੱਥ = nextoffset;
+		ਟੈਗ = fdt_ਅਗਲਾ_ਟੈਗ(fdt, ਵਿੱਥ, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		ਜੇ (nextoffset < 0)
+			ਵਾਪਸ nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		ਜੇ (expect_ਸਿਰਾ && ਟੈਗ != FDT_ਸਿਰਾ)
+			ਵਾਪਸ -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		ਚੋਣ (ਟੈਗ) {
+		ਹਾਲਤ FDT_NOP:
+			ਰੋਕੋ;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		ਹਾਲਤ FDT_ਸਿਰਾ:
+			ਜੇ (ਡੂੰਘਾਈ != 0)
+				ਵਾਪਸ -FDT_ERR_BADSTRUCTURE;
+			ਵਾਪਸ 0;
 
-		case FDT_BEGIN_NODE:
-			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+		ਹਾਲਤ FDT_BEGIN_ਗੰਢ:
+			ਡੂੰਘਾਈ++;
+			ਜੇ (ਡੂੰਘਾਈ > ਵੱਧ_ਤੋਂ_ਵੱਧ_ਅੰਕ)
+				ਵਾਪਸ -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			ਜੇ (ਡੂੰਘਾਈ == 1) {
+				ਅਚਲ ਅੱਖਰ *name;
+				ਪੂਰਨ len;
 
-				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				name = fdt_get_name(fdt, ਵਿੱਥ, &len);
+				ਜੇ (*name || len)
+					ਵਾਪਸ -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			ਰੋਕੋ;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			depth--;
-			if (depth == 0)
-				expect_end = true;
-			break;
+		ਹਾਲਤ FDT_ਸਿਰਾ_ਗੰਢ:
+			ਜੇ (ਡੂੰਘਾਈ == 0)
+				ਵਾਪਸ -FDT_ERR_BADSTRUCTURE;
+			ਡੂੰਘਾਈ--;
+			ਜੇ (ਡੂੰਘਾਈ == 0)
+				expect_ਸਿਰਾ = true;
+			ਰੋਕੋ;
 
-		case FDT_PROP:
-			prop = fdt_getprop_by_offset(fdt, offset, &propname,
+		ਹਾਲਤ FDT_PROP:
+			prop = fdt_getprop_by_ਵਿੱਥ(fdt, ਵਿੱਥ, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			ਜੇ (!prop)
+				ਵਾਪਸ err;
+			ਰੋਕੋ;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		ਮੂਲ:
+			ਵਾਪਸ -FDT_ERR_ਅੰਦਰੂਨੀ;
 		}
 	}
 }

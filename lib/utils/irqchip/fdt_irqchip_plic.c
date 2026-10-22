@@ -7,107 +7,107 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/fdt_irqchip.h>
-#include <sbi_utils/irqchip/plic.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libfdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/irqchip/fdt_irqchip.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/irqchip/plic.h>
 
-static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
-					   struct plic_data *pd)
+ਸਥਿਰ ਪੂਰਨ irqchip_plic_update_context_map(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+					   ਬਣਤਰ plic_ਅੰਕੜੇ *pd)
 {
-	const fdt32_t *val;
+	ਅਚਲ fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	ਪੂਰਨ i, err, ਗਿਣਤੀ_2, cpu_ਵਿੱਥ, cpu_intc_ਵਿੱਥ;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	ਲਈ (i = 0; i < sbi_hart_ਗਿਣਤੀ(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
-	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
-	count = count / sizeof(fdt32_t);
+	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &ਗਿਣਤੀ_2);
+	ਜੇ (!val || ਗਿਣਤੀ_2 < ਆਕਾਰ(fdt32_t))
+		ਵਾਪਸ SBI_EINVAL;
+	ਗਿਣਤੀ_2 = ਗਿਣਤੀ_2 / ਆਕਾਰ(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
-		phandle = fdt32_to_cpu(val[i]);
-		hwirq = fdt32_to_cpu(val[i + 1]);
+	ਲਈ (i = 0; i < ਗਿਣਤੀ_2; i += 2) {
+		phandle = fdt32_ਮੰਜ਼ਿਲ_cpu(val[i]);
+		hwirq = fdt32_ਮੰਜ਼ਿਲ_cpu(val[i + 1]);
 
-		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		cpu_intc_ਵਿੱਥ = fdt_ਗੰਢ_ਵਿੱਥ_by_phandle(fdt, phandle);
+		ਜੇ (cpu_intc_ਵਿੱਥ < 0)
+			ਜਾਰੀ;
 
-		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		cpu_ਵਿੱਥ = fdt_ਮਾਪਾ_ਵਿੱਥ(fdt, cpu_intc_ਵਿੱਥ);
+		ਜੇ (cpu_ਵਿੱਥ < 0)
+			ਜਾਰੀ;
 
-		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		err = fdt_parse_hart_id(fdt, cpu_ਵਿੱਥ, &hartid);
+		ਜੇ (err)
+			ਜਾਰੀ;
 
-		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
-			continue;
+		hartindex = sbi_hartid_ਮੰਜ਼ਿਲ_hartindex(hartid);
+		ਜੇ (hartindex == -1U)
+			ਜਾਰੀ;
 
-		switch (hwirq) {
-		case IRQ_M_EXT:
+		ਚੋਣ (hwirq) {
+		ਹਾਲਤ IRQ_M_EXT:
 			pd->context_map[hartindex][PLIC_M_CONTEXT] = i / 2;
-			break;
-		case IRQ_S_EXT:
+			ਰੋਕੋ;
+		ਹਾਲਤ IRQ_S_EXT:
 			pd->context_map[hartindex][PLIC_S_CONTEXT] = i / 2;
-			break;
+			ਰੋਕੋ;
 		}
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ irqchip_plic_cold_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+				  ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
-	int rc;
-	struct plic_data *pd;
+	ਪੂਰਨ rc;
+	ਬਣਤਰ plic_ਅੰਕੜੇ *pd;
 
-	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
-	if (!pd)
-		return SBI_ENOMEM;
+	pd = sbi_zalloc(PLIC_ਅੰਕੜੇ_ਮਾਪ(sbi_hart_ਗਿਣਤੀ()));
+	ਜੇ (!pd)
+		ਵਾਪਸ SBI_ENOMEM;
 
-	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	rc = fdt_parse_plic_ਗੰਢ(fdt, nodeoff, pd);
+	ਜੇ (rc)
+		ਜਾਓ fail_free_ਅੰਕੜੇ;
 
-	pd->flags = (unsigned long)match->data;
+	pd->flags = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)ਮੇਲ->ਅੰਕੜੇ;
 
 	rc = irqchip_plic_update_context_map(fdt, nodeoff, pd);
-	if (rc)
-		goto fail_free_data;
+	ਜੇ (rc)
+		ਜਾਓ fail_free_ਅੰਕੜੇ;
 
 	rc = plic_cold_irqchip_init(pd);
-	if (rc)
-		goto fail_free_data;
+	ਜੇ (rc)
+		ਜਾਓ fail_free_ਅੰਕੜੇ;
 
-	return 0;
+	ਵਾਪਸ 0;
 
-fail_free_data:
+fail_free_ਅੰਕੜੇ:
 	sbi_free(pd);
-	return rc;
+	ਵਾਪਸ rc;
 }
 
-static const struct fdt_match irqchip_plic_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ irqchip_plic_ਮੇਲ[] = {
 	{ .compatible = "andestech,nceplic100" },
 	{ .compatible = "riscv,plic0" },
 	{ .compatible = "sifive,plic-1.0.0" },
 	{ .compatible = "thead,c900-plic",
-	  .data = (void *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
+	  .ਅੰਕੜੇ = (ਖਾਲੀ *)(PLIC_FLAG_THEAD_DELEGATION | PLIC_FLAG_ENABLE_PM) },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_irqchip_plic = {
-	.match_table = irqchip_plic_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_irqchip_plic = {
+	.ਮੇਲ_ਸਾਰਣੀ = irqchip_plic_ਮੇਲ,
 	.init = irqchip_plic_cold_init,
 };

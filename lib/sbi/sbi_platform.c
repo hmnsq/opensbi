@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_platform.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਅੱਖਰ *sbi_platform_feature_id2string(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ feature)
 {
-	char *fstr = NULL;
+	ਅੱਖਰ *fstr = ਨਿਰਾ;
 
-	if (!feature)
-		return NULL;
+	ਜੇ (!feature)
+		ਵਾਪਸ ਨਿਰਾ;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	ਚੋਣ (feature) {
+	ਹਾਲਤ SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		ਰੋਕੋ;
+	ਮੂਲ:
+		ਰੋਕੋ;
 	}
 
-	return fstr;
+	ਵਾਪਸ fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+ਖਾਲੀ sbi_platform_get_features_str(ਅਚਲ ਬਣਤਰ sbi_platform *plat,
+				   ਅੱਖਰ *features_str, ਪੂਰਨ nfstr)
 {
-	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ features, feat = 1UL;
+	ਅੱਖਰ *ਆਰਜ਼ੀ;
+	ਪੂਰਨ ਵਿੱਥ = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	ਜੇ (!plat || !features_str || !nfstr)
+		ਵਾਪਸ;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	ਜੇ (!features)
+		ਜਾਓ ਪੂਰਾ;
 
-	do {
-		if (features & feat) {
-			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
-						       nfstr - offset,
-						       "%s,", temp);
-				if (len < 0)
-					break;
+	ਕਰੋ {
+		ਜੇ (features & feat) {
+			ਆਰਜ਼ੀ = sbi_platform_feature_id2string(feat);
+			ਜੇ (ਆਰਜ਼ੀ) {
+				ਪੂਰਨ len = sbi_snprintf(features_str + ਵਿੱਥ,
+						       nfstr - ਵਿੱਥ,
+						       "%s,", ਆਰਜ਼ੀ);
+				ਜੇ (len < 0)
+					ਰੋਕੋ;
 
-				if (offset + len >= nfstr) {
+				ਜੇ (ਵਿੱਥ + len >= nfstr) {
 					/* No more space for features */
-					offset = nfstr;
-					break;
-				} else
-					offset = offset + len;
+					ਵਿੱਥ = nfstr;
+					ਰੋਕੋ;
+				} ਨਹੀਂਤਾਂ
+					ਵਿੱਥ = ਵਿੱਥ + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} ਜਦੋਂ (feat <= SBI_PLATFORM_HAS_ਆਖਰੀ_FEATURE);
 
-done:
-	if (offset)
-		features_str[offset - 1] = '\0';
-	else
+ਪੂਰਾ:
+	ਜੇ (ਵਿੱਥ)
+		features_str[ਵਿੱਥ - 1] = '\0';
+	ਨਹੀਂਤਾਂ
 		sbi_strncpy(features_str, "none", nfstr);
 }

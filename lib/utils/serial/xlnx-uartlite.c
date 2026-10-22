@@ -7,61 +7,61 @@
  *   Alistair Francis <alistair.francis@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/xlnx_uartlite.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/xlnx_uartlite.h>
 
 /* clang-format off */
 
-#define UART_RX_OFFSET		0x00
-#define UART_TX_OFFSET		0x04
-#define UART_STATUS_OFFSET	0x08
-# define UART_STATUS_RXVALID	0x01
-# define UART_STATUS_RXFULL	0x02
-# define UART_STATUS_TXEMPTY	0x04
-# define UART_STATUS_TXFULL	0x08
-# define UART_STATUS_IE	0x10
-# define UART_STATUS_OVERRUN	0x20
-# define UART_STATUS_FRAME	0x40
-# define UART_STATUS_PARITY	0x80
-#define UART_CTRL_OFFSET	0x0C
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_RX_ਵਿੱਥ		0x00
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_TX_ਵਿੱਥ		0x04
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_ਸਥਿਤੀ_ਵਿੱਥ	0x08
+# define UART_ਸਥਿਤੀ_RXVALID	0x01
+# define UART_ਸਥਿਤੀ_RXFULL	0x02
+# define UART_ਸਥਿਤੀ_TXEMPTY	0x04
+# define UART_ਸਥਿਤੀ_TXFULL	0x08
+# define UART_ਸਥਿਤੀ_IE	0x10
+# define UART_ਸਥਿਤੀ_OVERRUN	0x20
+# define UART_ਸਥਿਤੀ_ਚੌਖਟਾ	0x40
+# define UART_ਸਥਿਤੀ_PARITY	0x80
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_CTRL_ਵਿੱਥ	0x0C
 # define UART_CTRL_RST_TX	0x01
 # define UART_CTRL_RST_RX	0x02
 # define UART_CTRL_IE		0x10
 
 /* clang-format on */
 
-static volatile char *xlnx_uartlite_base;
+ਸਥਿਰ ਅਸਥਿਰ ਅੱਖਰ *xlnx_uartlite_ਅਧਾਰ;
 
-static void xlnx_uartlite_putc(char ch)
+ਸਥਿਰ ਖਾਲੀ xlnx_uartlite_putc(ਅੱਖਰ ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	ਜਦੋਂ((readb(xlnx_uartlite_ਅਧਾਰ + UART_ਸਥਿਤੀ_ਵਿੱਥ) & UART_ਸਥਿਤੀ_TXFULL))
 		;
 
-	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
+	writeb(ch, xlnx_uartlite_ਅਧਾਰ + UART_TX_ਵਿੱਥ);
 }
 
-static int xlnx_uartlite_getc(void)
+ਸਥਿਰ ਪੂਰਨ xlnx_uartlite_getc(ਖਾਲੀ)
 {
-	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
+	u16 ਸਥਿਤੀ = readb(xlnx_uartlite_ਅਧਾਰ + UART_ਸਥਿਤੀ_ਵਿੱਥ);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	ਜੇ (ਸਥਿਤੀ & UART_ਸਥਿਤੀ_RXVALID)
+		ਵਾਪਸ readb(xlnx_uartlite_ਅਧਾਰ + UART_RX_ਵਿੱਥ);
 
-	return -1;
+	ਵਾਪਸ -1;
 }
 
-static struct sbi_console_device xlnx_uartlite_console = {
+ਸਥਿਰ ਬਣਤਰ sbi_console_device xlnx_uartlite_console = {
 	.name = "xlnx-uartlite",
 	.console_putc = xlnx_uartlite_putc,
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+ਪੂਰਨ xlnx_uartlite_init(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਧਾਰ_2)
 {
-	xlnx_uartlite_base = (volatile char *)base;
+	xlnx_uartlite_ਅਧਾਰ = (ਅਸਥਿਰ ਅੱਖਰ *)ਅਧਾਰ_2;
 
-	sbi_console_set_device(&xlnx_uartlite_console);
+	sbi_console_ਸੈੱਟ_device(&xlnx_uartlite_console);
 
-	return 0;
+	ਵਾਪਸ 0;
 }

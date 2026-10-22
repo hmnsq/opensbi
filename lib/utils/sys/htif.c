@@ -5,247 +5,247 @@
  * (Regents).  All Rights Reserved.
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/sys/htif.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_locks.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_system.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/sys/htif.h>
 
-#define HTIF_DATA_BITS		48
-#define HTIF_DATA_MASK		((1ULL << HTIF_DATA_BITS) - 1)
-#define HTIF_DATA_SHIFT		0
-#define HTIF_CMD_BITS		8
-#define HTIF_CMD_MASK		((1ULL << HTIF_CMD_BITS) - 1)
-#define HTIF_CMD_SHIFT		48
-#define HTIF_DEV_BITS		8
-#define HTIF_DEV_MASK		((1ULL << HTIF_DEV_BITS) - 1)
-#define HTIF_DEV_SHIFT		56
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_ਅੰਕੜੇ_ਬਿੱਟ		48
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_ਅੰਕੜੇ_ਨਕਾਬ		((1ULL << HTIF_ਅੰਕੜੇ_ਬਿੱਟ) - 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_ਅੰਕੜੇ_ਖਿਸਕਾਓ		0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_CMD_ਬਿੱਟ		8
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_CMD_ਨਕਾਬ		((1ULL << HTIF_CMD_ਬਿੱਟ) - 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_CMD_ਖਿਸਕਾਓ		48
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_DEV_ਬਿੱਟ		8
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_DEV_ਨਕਾਬ		((1ULL << HTIF_DEV_ਬਿੱਟ) - 1)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_DEV_ਖਿਸਕਾਓ		56
 
-#define HTIF_DEV_SYSTEM		0
-#define HTIF_DEV_CONSOLE	1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_DEV_SYSTEM		0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_DEV_CONSOLE	1
 
-#define HTIF_CONSOLE_CMD_GETC	0
-#define HTIF_CONSOLE_CMD_PUTC	1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_CONSOLE_CMD_GETC	0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ HTIF_CONSOLE_CMD_PUTC	1
 
-#if __riscv_xlen == 64
+#ਜੇ __riscv_xlen == 64
 # define TOHOST_CMD(dev, cmd, payload) \
-	(((uint64_t)(dev) << HTIF_DEV_SHIFT) | \
-	 ((uint64_t)(cmd) << HTIF_CMD_SHIFT) | \
+	(((uint64_t)(dev) << HTIF_DEV_ਖਿਸਕਾਓ) | \
+	 ((uint64_t)(cmd) << HTIF_CMD_ਖਿਸਕਾਓ) | \
 	 (uint64_t)(payload))
-#else
+#ਨਹੀਂਤਾਂ
 # define TOHOST_CMD(dev, cmd, payload) ({ \
-  if ((dev) || (cmd)) __builtin_trap(); \
+  ਜੇ ((dev) || (cmd)) __builtin_trap(); \
   (payload); })
-#endif
-#define FROMHOST_DEV(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
-#define FROMHOST_CMD(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
-#define FROMHOST_DATA(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
+#ਜੇ_ਅੰਤ
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FROMHOST_DEV(fromhost_ਮੁੱਲ) \
+	((uint64_t)((fromhost_ਮੁੱਲ) >> HTIF_DEV_ਖਿਸਕਾਓ) & HTIF_DEV_ਨਕਾਬ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FROMHOST_CMD(fromhost_ਮੁੱਲ) \
+	((uint64_t)((fromhost_ਮੁੱਲ) >> HTIF_CMD_ਖਿਸਕਾਓ) & HTIF_CMD_ਨਕਾਬ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ FROMHOST_ਅੰਕੜੇ(fromhost_ਮੁੱਲ) \
+	((uint64_t)((fromhost_ਮੁੱਲ) >> HTIF_ਅੰਕੜੇ_ਖਿਸਕਾਓ) & HTIF_ਅੰਕੜੇ_ਨਕਾਬ)
 
-#define PK_SYS_write 64
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ PK_SYS_write 64
 
-static spinlock_t htif_lock = SPIN_LOCK_INITIALIZER;
+ਸਥਿਰ spinlock_t htif_ਤਾਲਾ = SPIN_ਤਾਲਾ_INITIALIZER;
 
-volatile uint64_t tohost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
-volatile uint64_t fromhost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
+ਅਸਥਿਰ uint64_t tohost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_ਤਾਲਾ);
+ਅਸਥਿਰ uint64_t fromhost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_ਤਾਲਾ);
 
-static uint64_t *htif_fromhost PT_GUARDED_BY(&htif_lock) = NULL;
-static uint64_t *htif_tohost PT_GUARDED_BY(&htif_lock)	 = NULL;
-static bool htif_custom = false;
+ਸਥਿਰ uint64_t *htif_fromhost PT_GUARDED_BY(&htif_ਤਾਲਾ) = ਨਿਰਾ;
+ਸਥਿਰ uint64_t *htif_tohost PT_GUARDED_BY(&htif_ਤਾਲਾ)	 = ਨਿਰਾ;
+ਸਥਿਰ bool htif_custom = false;
 
-static int htif_console_buf GUARDED_BY(&htif_lock);
+ਸਥਿਰ ਪੂਰਨ htif_console_buf GUARDED_BY(&htif_ਤਾਲਾ);
 
-static inline uint64_t __read_tohost(void) MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਸਤਰਅੰਦਰ uint64_t __read_tohost(ਖਾਲੀ) MUST_HOLD(&htif_ਤਾਲਾ)
 {
-	return (htif_custom) ? *htif_tohost : tohost;
+	ਵਾਪਸ (htif_custom) ? *htif_tohost : tohost;
 }
 
-static inline void __write_tohost(uint64_t val) MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ __write_tohost(uint64_t val) MUST_HOLD(&htif_ਤਾਲਾ)
 {
-	if (htif_custom)
+	ਜੇ (htif_custom)
 		*htif_tohost = val;
-	else
+	ਨਹੀਂਤਾਂ
 		tohost = val;
 }
 
-static inline uint64_t __read_fromhost(void) MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਸਤਰਅੰਦਰ uint64_t __read_fromhost(ਖਾਲੀ) MUST_HOLD(&htif_ਤਾਲਾ)
 {
-	return (htif_custom) ? *htif_fromhost : fromhost;
+	ਵਾਪਸ (htif_custom) ? *htif_fromhost : fromhost;
 }
 
-static inline void __write_fromhost(uint64_t val) MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਖਾਲੀ __write_fromhost(uint64_t val) MUST_HOLD(&htif_ਤਾਲਾ)
 {
-	if (htif_custom)
+	ਜੇ (htif_custom)
 		*htif_fromhost = val;
-	else
+	ਨਹੀਂਤਾਂ
 		fromhost = val;
 }
 
-static void __check_fromhost() MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਖਾਲੀ __check_fromhost() MUST_HOLD(&htif_ਤਾਲਾ)
 {
 	uint64_t fh = __read_fromhost();
-	if (!fh)
-		return;
+	ਜੇ (!fh)
+		ਵਾਪਸ;
 	__write_fromhost(0);
 
 	/* this should be from the console */
-	if (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
+	ਜੇ (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
 		__builtin_trap();
-	switch (FROMHOST_CMD(fh)) {
-		case HTIF_CONSOLE_CMD_GETC:
-			htif_console_buf = 1 + (uint8_t)FROMHOST_DATA(fh);
-			break;
-		case HTIF_CONSOLE_CMD_PUTC:
-			break;
-		default:
+	ਚੋਣ (FROMHOST_CMD(fh)) {
+		ਹਾਲਤ HTIF_CONSOLE_CMD_GETC:
+			htif_console_buf = 1 + (uint8_t)FROMHOST_ਅੰਕੜੇ(fh);
+			ਰੋਕੋ;
+		ਹਾਲਤ HTIF_CONSOLE_CMD_PUTC:
+			ਰੋਕੋ;
+		ਮੂਲ:
 			__builtin_trap();
 	}
 }
 
-static void __set_tohost(uint64_t dev, uint64_t cmd, uint64_t data)
-	MUST_HOLD(&htif_lock)
+ਸਥਿਰ ਖਾਲੀ __set_tohost(uint64_t dev, uint64_t cmd, uint64_t ਅੰਕੜੇ)
+	MUST_HOLD(&htif_ਤਾਲਾ)
 {
-	while (__read_tohost())
+	ਜਦੋਂ (__read_tohost())
 		__check_fromhost();
-	__write_tohost(TOHOST_CMD(dev, cmd, data));
+	__write_tohost(TOHOST_CMD(dev, cmd, ਅੰਕੜੇ));
 }
 
-static int set_custom_addr(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+ਸਥਿਰ ਪੂਰਨ ਸੈੱਟ_custom_addr(bool custom_addr,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_fromhost_addr,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_tohost_addr)
 {
-	if (custom_addr) {
-		if (htif_custom &&
-		    ((custom_fromhost_addr != (unsigned long)htif_fromhost) ||
-		     (custom_tohost_addr != (unsigned long)htif_tohost)))
-			return SBI_EINVAL;
+	ਜੇ (custom_addr) {
+		ਜੇ (htif_custom &&
+		    ((custom_fromhost_addr != (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)htif_fromhost) ||
+		     (custom_tohost_addr != (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)htif_tohost)))
+			ਵਾਪਸ SBI_EINVAL;
 		htif_fromhost = (uint64_t *)custom_fromhost_addr;
 		htif_tohost = (uint64_t *)custom_tohost_addr;
 		htif_custom = true;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-#if __riscv_xlen == 32
-static void do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
+#ਜੇ __riscv_xlen == 32
+ਸਥਿਰ ਖਾਲੀ do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t ਅੰਕੜੇ)
 {
-	spin_lock(&htif_lock);
+	spin_ਤਾਲਾ(&htif_ਤਾਲਾ);
 
-	__set_tohost(HTIF_DEV_SYSTEM, cmd, data);
+	__set_tohost(HTIF_DEV_SYSTEM, cmd, ਅੰਕੜੇ);
 
-	while (1) {
+	ਜਦੋਂ (1) {
 		uint64_t fh = __read_fromhost();
-		if (fh) {
-			if (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
+		ਜੇ (fh) {
+			ਜੇ (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
 			    FROMHOST_CMD(fh) == cmd) {
 				__write_fromhost(0);
-				break;
+				ਰੋਕੋ;
 			}
 			__check_fromhost();
 		}
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_ਤਾਲਾ);
 }
 
-static void htif_putc(char ch)
+ਸਥਿਰ ਖਾਲੀ htif_putc(ਅੱਖਰ ch)
 {
 	/* HTIF devices are not supported on RV32, so do a proxy write call */
-	volatile uint64_t magic_mem[8];
+	ਅਸਥਿਰ uint64_t magic_mem[8];
 	magic_mem[0] = PK_SYS_write;
 	magic_mem[1] = HTIF_DEV_CONSOLE;
 	magic_mem[2] = (uint64_t)(uintptr_t)&ch;
 	magic_mem[3] = HTIF_CONSOLE_CMD_PUTC;
 	do_tohost_fromhost(HTIF_DEV_SYSTEM, 0, (uint64_t)(uintptr_t)magic_mem);
 }
-#else
-static void htif_putc(char ch)
+#ਨਹੀਂਤਾਂ
+ਸਥਿਰ ਖਾਲੀ htif_putc(ਅੱਖਰ ch)
 {
-	spin_lock(&htif_lock);
+	spin_ਤਾਲਾ(&htif_ਤਾਲਾ);
 	__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_PUTC, ch);
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_ਤਾਲਾ);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static int htif_getc(void)
+ਸਥਿਰ ਪੂਰਨ htif_getc(ਖਾਲੀ)
 {
-	int ch;
+	ਪੂਰਨ ch;
 
-#if __riscv_xlen == 32
+#ਜੇ __riscv_xlen == 32
 	/* HTIF devices are not supported on RV32 */
-	return -1;
-#endif
+	ਵਾਪਸ -1;
+#ਜੇ_ਅੰਤ
 
-	spin_lock(&htif_lock);
+	spin_ਤਾਲਾ(&htif_ਤਾਲਾ);
 
 	__check_fromhost();
 	ch = htif_console_buf;
-	if (ch >= 0) {
+	ਜੇ (ch >= 0) {
 		htif_console_buf = -1;
 		__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_GETC, 0);
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_ਤਾਲਾ);
 
-	return ch - 1;
+	ਵਾਪਸ ch - 1;
 }
 
-static struct sbi_console_device htif_console = {
+ਸਥਿਰ ਬਣਤਰ sbi_console_device htif_console = {
 	.name = "htif",
 	.console_putc = htif_putc,
 	.console_getc = htif_getc
 };
 
-int htif_serial_init(bool custom_addr,
-		     unsigned long custom_fromhost_addr,
-		     unsigned long custom_tohost_addr)
+ਪੂਰਨ htif_serial_init(bool custom_addr,
+		     ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_fromhost_addr,
+		     ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_tohost_addr)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = ਸੈੱਟ_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	sbi_console_set_device(&htif_console);
-	return 0;
+	sbi_console_ਸੈੱਟ_device(&htif_console);
+	ਵਾਪਸ 0;
 }
 
-static int htif_system_reset_check(u32 type, u32 reason)
+ਸਥਿਰ ਪੂਰਨ htif_system_reset_check(u32 type, u32 reason)
 {
-	return 1;
+	ਵਾਪਸ 1;
 }
 
-static void htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
+ਸਥਿਰ ਖਾਲੀ htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
 {
-	while (1) {
+	ਜਦੋਂ (1) {
 		__write_fromhost(0);
 		__write_tohost(1);
 	}
 }
 
-static struct sbi_system_reset_device htif_reset = {
+ਸਥਿਰ ਬਣਤਰ sbi_system_reset_device htif_reset = {
 	.name = "htif",
 	.system_reset_check = htif_system_reset_check,
 	.system_reset = htif_system_reset
 };
 
-int htif_system_reset_init(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+ਪੂਰਨ htif_system_reset_init(bool custom_addr,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_fromhost_addr,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ custom_tohost_addr)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = ਸੈੱਟ_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
-	sbi_system_reset_add_device(&htif_reset);
-	return 0;
+	sbi_system_reset_ਜੋੜੋ_device(&htif_reset);
+	ਵਾਪਸ 0;
 }

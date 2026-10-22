@@ -7,80 +7,80 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_barrier.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_encoding.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_atomic.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_bitops.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall_interface.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hartmask.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hsm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_init.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ipi.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_system.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
 
-#define __sbi_hsm_hart_change_state(hdata, oldstate, newstate)		\
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ __sbi_hsm_hart_change_state(hdata, oldstate, newstate)		\
 ({									\
-	long state = atomic_cmpxchg(&(hdata)->state, oldstate, newstate); \
-	if (state != (oldstate))					\
+	ਲੰਮਾ state = atomic_cmpxchg(&(hdata)->state, oldstate, newstate); \
+	ਜੇ (state != (oldstate))					\
 		sbi_printf("%s: ERR: The hart is in invalid state [%lu]\n", \
 			   __func__, state);				\
 	state == (oldstate);						\
 })
 
-static const struct sbi_hsm_device *hsm_dev = NULL;
-static unsigned long hart_data_offset;
-static bool hsm_device_has_hart_hotplug(void);
-static int hsm_device_hart_stop(void);
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ sbi_hsm_device *hsm_dev = ਨਿਰਾ;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ hart_ਅੰਕੜੇ_ਵਿੱਥ;
+ਸਥਿਰ bool hsm_device_has_hart_hotplug(ਖਾਲੀ);
+ਸਥਿਰ ਪੂਰਨ hsm_device_hart_stop(ਖਾਲੀ);
 
 /** Per hart specific data to manage state transition **/
-struct sbi_hsm_data {
+ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ {
 	atomic_t state;
-	unsigned long suspend_type;
-	unsigned long saved_mie;
-	unsigned long saved_mip;
-	unsigned long saved_medeleg;
-	unsigned long saved_mideleg;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ suspend_type;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_mie;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_mip;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_medeleg;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_mideleg;
 	u64 saved_menvcfg;
-	atomic_t start_ticket;
+	atomic_t ਸ਼ੁਰੂ_ticket;
 };
 
-bool sbi_hsm_hart_change_state(struct sbi_scratch *scratch, long oldstate,
-			       long newstate)
+bool sbi_hsm_hart_change_state(ਬਣਤਰ sbi_scratch *scratch, ਲੰਮਾ oldstate,
+			       ਲੰਮਾ newstate)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
-	return __sbi_hsm_hart_change_state(hdata, oldstate, newstate);
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
+	ਵਾਪਸ __sbi_hsm_hart_change_state(hdata, oldstate, newstate);
 }
 
-int __sbi_hsm_hart_get_state(u32 hartindex)
+ਪੂਰਨ __sbi_hsm_hart_get_state(u32 hartindex)
 {
-	struct sbi_hsm_data *hdata;
-	struct sbi_scratch *scratch;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata;
+	ਬਣਤਰ sbi_scratch *scratch;
 
-	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return SBI_EINVAL;
+	scratch = sbi_hartindex_ਮੰਜ਼ਿਲ_scratch(hartindex);
+	ਜੇ (!scratch)
+		ਵਾਪਸ SBI_EINVAL;
 
-	hdata = sbi_scratch_offset_ptr(scratch, hart_data_offset);
-	return atomic_read(&hdata->state);
+	hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch, hart_ਅੰਕੜੇ_ਵਿੱਥ);
+	ਵਾਪਸ atomic_read(&hdata->state);
 }
 
-int sbi_hsm_hart_get_state(const struct sbi_domain *dom, u32 hartid)
+ਪੂਰਨ sbi_hsm_hart_get_state(ਅਚਲ ਬਣਤਰ sbi_domain *dom, u32 hartid)
 {
-	u32 hartindex = sbi_hartid_to_hartindex(hartid);
+	u32 hartindex = sbi_hartid_ਮੰਜ਼ਿਲ_hartindex(hartid);
 
-	if (!sbi_domain_is_assigned_hart(dom, hartindex))
-		return SBI_EINVAL;
+	ਜੇ (!sbi_domain_is_assigned_hart(dom, hartindex))
+		ਵਾਪਸ SBI_EINVAL;
 
-	return __sbi_hsm_hart_get_state(hartindex);
+	ਵਾਪਸ __sbi_hsm_hart_get_state(hartindex);
 }
 
 /*
@@ -92,9 +92,9 @@ int sbi_hsm_hart_get_state(const struct sbi_domain *dom, u32 hartid)
  * in the current hart can be seen before it by other harts.
  * atomic_cmpxchg() provides the memory barriers needed for that.
  */
-static bool hsm_start_ticket_acquire(struct sbi_hsm_data *hdata)
+ਸਥਿਰ bool hsm_ਸ਼ੁਰੂ_ticket_acquire(ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata)
 {
-	return (atomic_cmpxchg(&hdata->start_ticket, 0, 1) == 0);
+	ਵਾਪਸ (atomic_cmpxchg(&hdata->ਸ਼ੁਰੂ_ticket, 0, 1) == 0);
 }
 
 /*
@@ -103,10 +103,10 @@ static bool hsm_start_ticket_acquire(struct sbi_hsm_data *hdata)
  * The function has "release" semantics: no memory operations preceding it
  * in the current hart can be seen after it by other harts.
  */
-static void hsm_start_ticket_release(struct sbi_hsm_data *hdata)
+ਸਥਿਰ ਖਾਲੀ hsm_ਸ਼ੁਰੂ_ticket_release(ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata)
 {
 	RISCV_FENCE(rw, w);
-	atomic_write(&hdata->start_ticket, 0);
+	atomic_write(&hdata->ਸ਼ੁਰੂ_ticket, 0);
 }
 
 /**
@@ -115,67 +115,67 @@ static void hsm_start_ticket_release(struct sbi_hsm_data *hdata)
  * @param mask the output hartmask to fill
  * @return 0 on success and SBI_Exxx (< 0) on failure
  */
-int sbi_hsm_hart_interruptible_mask(const struct sbi_domain *dom,
-				    struct sbi_hartmask *mask)
+ਪੂਰਨ sbi_hsm_hart_interruptible_ਨਕਾਬ(ਅਚਲ ਬਣਤਰ sbi_domain *dom,
+				    ਬਣਤਰ sbi_hartmask *ਨਕਾਬ)
 {
-	int hstate, ret;
+	ਪੂਰਨ hstate, ret;
 	u32 i;
 
-	ret = sbi_domain_get_assigned_hartmask(dom, mask);
-	if (ret)
-		return ret;
+	ret = sbi_domain_get_assigned_hartmask(dom, ਨਕਾਬ);
+	ਜੇ (ret)
+		ਵਾਪਸ ret;
 
-	sbi_hartmask_for_each_hartindex(i, mask) {
+	sbi_hartmask_for_each_hartindex(i, ਨਕਾਬ) {
 		hstate = __sbi_hsm_hart_get_state(i);
-		if (hstate != SBI_HSM_STATE_STARTED &&
+		ਜੇ (hstate != SBI_HSM_STATE_STARTED &&
 		    hstate != SBI_HSM_STATE_SUSPENDED &&
 		    hstate != SBI_HSM_STATE_RESUME_PENDING)
-			sbi_hartmask_clear_hartindex(i, mask);
+			sbi_hartmask_clear_hartindex(i, ਨਕਾਬ);
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-void __noreturn sbi_hsm_hart_start_finish(struct sbi_scratch *scratch,
+ਖਾਲੀ __noreturn sbi_hsm_hart_ਸ਼ੁਰੂ_ਅੰਤ(ਬਣਤਰ sbi_scratch *scratch,
 					  u32 hartid)
 {
-	unsigned long next_arg1;
-	unsigned long next_addr;
-	unsigned long next_mode;
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਗਲਾ_arg1;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਗਲਾ_addr;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਗਲਾ_ਬਹੁਲਕ;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_START_PENDING,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_ਸ਼ੁਰੂ_PENDING,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
-	next_arg1 = scratch->next_arg1;
-	next_addr = scratch->next_addr;
-	next_mode = scratch->next_mode;
-	hsm_start_ticket_release(hdata);
+	ਅਗਲਾ_arg1 = scratch->ਅਗਲਾ_arg1;
+	ਅਗਲਾ_addr = scratch->ਅਗਲਾ_addr;
+	ਅਗਲਾ_ਬਹੁਲਕ = scratch->ਅਗਲਾ_ਬਹੁਲਕ;
+	hsm_ਸ਼ੁਰੂ_ticket_release(hdata);
 
-	sbi_hart_switch_mode(hartid, next_arg1, next_addr, next_mode, false);
+	sbi_hart_switch_ਬਹੁਲਕ(hartid, ਅਗਲਾ_arg1, ਅਗਲਾ_addr, ਅਗਲਾ_ਬਹੁਲਕ, false);
 }
 
-static void sbi_hsm_hart_wait(struct sbi_scratch *scratch)
+ਸਥਿਰ ਖਾਲੀ sbi_hsm_hart_wait(ਬਣਤਰ sbi_scratch *scratch)
 {
-	unsigned long saved_mie;
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ saved_mie;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 	/* Save MIE CSR */
 	saved_mie = csr_read(CSR_MIE);
 
 	/* Set MSIE and MEIE bits to receive IPI */
-	csr_set(CSR_MIE, MIP_MSIP | MIP_MEIP);
+	csr_ਸੈੱਟ(CSR_MIE, MIP_MSIP | MIP_MEIP);
 
 	/* Wait for state transition requested by sbi_hsm_hart_start() */
-	while (atomic_read(&hdata->state) != SBI_HSM_STATE_START_PENDING) {
+	ਜਦੋਂ (atomic_read(&hdata->state) != SBI_HSM_STATE_ਸ਼ੁਰੂ_PENDING) {
 		/*
 		 * If the hsm_dev is ready and it support the hotplug, we can
 		 * use the hsm stop for more power saving
 		 */
-		if (hsm_device_has_hart_hotplug()) {
-			sbi_revert_entry_count(scratch);
+		ਜੇ (hsm_device_has_hart_hotplug()) {
+			sbi_revert_ਇੰਦਰਾਜ_ਗਿਣਤੀ(scratch);
 			hsm_device_hart_stop();
 		}
 
@@ -191,104 +191,104 @@ static void sbi_hsm_hart_wait(struct sbi_scratch *scratch)
 	 */
 }
 
-const struct sbi_hsm_device *sbi_hsm_get_device(void)
+ਅਚਲ ਬਣਤਰ sbi_hsm_device *sbi_hsm_get_device(ਖਾਲੀ)
 {
-	return hsm_dev;
+	ਵਾਪਸ hsm_dev;
 }
 
-void sbi_hsm_set_device(const struct sbi_hsm_device *dev)
+ਖਾਲੀ sbi_hsm_ਸੈੱਟ_device(ਅਚਲ ਬਣਤਰ sbi_hsm_device *dev)
 {
-	if (!dev || hsm_dev)
-		return;
+	ਜੇ (!dev || hsm_dev)
+		ਵਾਪਸ;
 
 	hsm_dev = dev;
 }
 
-static bool hsm_device_has_hart_hotplug(void)
+ਸਥਿਰ bool hsm_device_has_hart_hotplug(ਖਾਲੀ)
 {
-	if (hsm_dev && hsm_dev->hart_start && hsm_dev->hart_stop)
-		return true;
-	return false;
+	ਜੇ (hsm_dev && hsm_dev->hart_ਸ਼ੁਰੂ && hsm_dev->hart_stop)
+		ਵਾਪਸ true;
+	ਵਾਪਸ false;
 }
 
-static bool hsm_device_has_hart_secondary_boot(void)
+ਸਥਿਰ bool hsm_device_has_hart_secondary_boot(ਖਾਲੀ)
 {
-	if (hsm_dev && hsm_dev->hart_start && !hsm_dev->hart_stop)
-		return true;
-	return false;
+	ਜੇ (hsm_dev && hsm_dev->hart_ਸ਼ੁਰੂ && !hsm_dev->hart_stop)
+		ਵਾਪਸ true;
+	ਵਾਪਸ false;
 }
 
-static int hsm_device_hart_start(u32 hartid, ulong saddr)
+ਸਥਿਰ ਪੂਰਨ hsm_device_hart_ਸ਼ੁਰੂ(u32 hartid, ulong saddr)
 {
-	if (hsm_dev && hsm_dev->hart_start)
-		return hsm_dev->hart_start(hartid, saddr);
-	return SBI_ENOTSUPP;
+	ਜੇ (hsm_dev && hsm_dev->hart_ਸ਼ੁਰੂ)
+		ਵਾਪਸ hsm_dev->hart_ਸ਼ੁਰੂ(hartid, saddr);
+	ਵਾਪਸ SBI_ENOTSUPP;
 }
 
-static int hsm_device_hart_stop(void)
+ਸਥਿਰ ਪੂਰਨ hsm_device_hart_stop(ਖਾਲੀ)
 {
-	if (hsm_dev && hsm_dev->hart_stop)
-		return hsm_dev->hart_stop();
-	return SBI_ENOTSUPP;
+	ਜੇ (hsm_dev && hsm_dev->hart_stop)
+		ਵਾਪਸ hsm_dev->hart_stop();
+	ਵਾਪਸ SBI_ENOTSUPP;
 }
 
-static int hsm_device_hart_suspend(u32 suspend_type, ulong mmode_resume_addr)
+ਸਥਿਰ ਪੂਰਨ hsm_device_hart_suspend(u32 suspend_type, ulong mmode_resume_addr)
 {
-	if (hsm_dev && hsm_dev->hart_suspend)
-		return hsm_dev->hart_suspend(suspend_type, mmode_resume_addr);
-	return SBI_ENOTSUPP;
+	ਜੇ (hsm_dev && hsm_dev->hart_suspend)
+		ਵਾਪਸ hsm_dev->hart_suspend(suspend_type, mmode_resume_addr);
+	ਵਾਪਸ SBI_ENOTSUPP;
 }
 
-static void hsm_device_hart_resume(void)
+ਸਥਿਰ ਖਾਲੀ hsm_device_hart_resume(ਖਾਲੀ)
 {
-	if (hsm_dev && hsm_dev->hart_resume)
+	ਜੇ (hsm_dev && hsm_dev->hart_resume)
 		hsm_dev->hart_resume();
 }
 
-int sbi_hsm_init(struct sbi_scratch *scratch, bool cold_boot)
+ਪੂਰਨ sbi_hsm_init(ਬਣਤਰ sbi_scratch *scratch, bool cold_boot)
 {
-	struct sbi_scratch *rscratch;
-	struct sbi_hsm_data *hdata;
+	ਬਣਤਰ sbi_scratch *rscratch;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata;
 
-	if (cold_boot) {
-		hart_data_offset = sbi_scratch_alloc_offset(sizeof(*hdata));
-		if (!hart_data_offset)
-			return SBI_ENOMEM;
+	ਜੇ (cold_boot) {
+		hart_ਅੰਕੜੇ_ਵਿੱਥ = sbi_scratch_alloc_ਵਿੱਥ(ਆਕਾਰ(*hdata));
+		ਜੇ (!hart_ਅੰਕੜੇ_ਵਿੱਥ)
+			ਵਾਪਸ SBI_ENOMEM;
 
 		/* Initialize hart state data for every hart */
 		sbi_for_each_hartindex(i) {
-			rscratch = sbi_hartindex_to_scratch(i);
-			if (!rscratch)
-				continue;
+			rscratch = sbi_hartindex_ਮੰਜ਼ਿਲ_scratch(i);
+			ਜੇ (!rscratch)
+				ਜਾਰੀ;
 
-			hdata = sbi_scratch_offset_ptr(rscratch,
-						       hart_data_offset);
+			hdata = sbi_scratch_ਵਿੱਥ_ptr(rscratch,
+						       hart_ਅੰਕੜੇ_ਵਿੱਥ);
 			ATOMIC_INIT(&hdata->state,
 				    (i == current_hartindex()) ?
-				    SBI_HSM_STATE_START_PENDING :
+				    SBI_HSM_STATE_ਸ਼ੁਰੂ_PENDING :
 				    SBI_HSM_STATE_STOPPED);
-			ATOMIC_INIT(&hdata->start_ticket, 0);
+			ATOMIC_INIT(&hdata->ਸ਼ੁਰੂ_ticket, 0);
 		}
-	} else {
+	} ਨਹੀਂਤਾਂ {
 		sbi_hsm_hart_wait(scratch);
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-void __noreturn sbi_hsm_exit(struct sbi_scratch *scratch)
+ਖਾਲੀ __noreturn sbi_hsm_exit(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
-	void (*jump_warmboot)(void) = (void (*)(void))scratch->warmboot_addr;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
+	ਖਾਲੀ (*jump_warmboot)(ਖਾਲੀ) = (ਖਾਲੀ (*)(ਖਾਲੀ))scratch->warmboot_addr;
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STOP_PENDING,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STOP_PENDING,
 					 SBI_HSM_STATE_STOPPED))
-		goto fail_exit;
+		ਜਾਓ fail_exit;
 
-	if (hsm_device_has_hart_hotplug()) {
-		if (hsm_device_hart_stop() != SBI_ENOTSUPP)
-			goto fail_exit;
+	ਜੇ (hsm_device_has_hart_hotplug()) {
+		ਜੇ (hsm_device_hart_stop() != SBI_ENOTSUPP)
+			ਜਾਓ fail_exit;
 	}
 
 	/**
@@ -304,40 +304,40 @@ fail_exit:
 	sbi_hart_hang();
 }
 
-int sbi_hsm_hart_start(struct sbi_scratch *scratch,
-		       const struct sbi_domain *dom,
+ਪੂਰਨ sbi_hsm_hart_ਸ਼ੁਰੂ(ਬਣਤਰ sbi_scratch *scratch,
+		       ਅਚਲ ਬਣਤਰ sbi_domain *dom,
 		       u32 hartid, ulong saddr, ulong smode, ulong arg1)
 {
-	u32 hartindex = sbi_hartid_to_hartindex(hartid);
-	unsigned long init_count, entry_count;
-	unsigned int hstate;
-	struct sbi_scratch *rscratch;
-	struct sbi_hsm_data *hdata;
-	int rc;
+	u32 hartindex = sbi_hartid_ਮੰਜ਼ਿਲ_hartindex(hartid);
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ init_ਗਿਣਤੀ, ਇੰਦਰਾਜ_ਗਿਣਤੀ;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ hstate;
+	ਬਣਤਰ sbi_scratch *rscratch;
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata;
+	ਪੂਰਨ rc;
 
 	/* For now, we only allow start mode to be S-mode or U-mode. */
-	if (smode != PRV_S && smode != PRV_U)
-		return SBI_EINVAL;
-	if (dom && !sbi_domain_is_assigned_hart(dom, hartindex))
-		return SBI_EINVAL;
-	if (dom && !sbi_domain_check_addr(dom, saddr, smode,
+	ਜੇ (smode != PRV_S && smode != PRV_U)
+		ਵਾਪਸ SBI_EINVAL;
+	ਜੇ (dom && !sbi_domain_is_assigned_hart(dom, hartindex))
+		ਵਾਪਸ SBI_EINVAL;
+	ਜੇ (dom && !sbi_domain_check_addr(dom, saddr, smode,
 					  SBI_DOMAIN_EXECUTE))
-		return SBI_EINVALID_ADDR;
+		ਵਾਪਸ SBI_EINVALID_ADDR;
 
-	rscratch = sbi_hartindex_to_scratch(hartindex);
-	if (!rscratch)
-		return SBI_EINVAL;
+	rscratch = sbi_hartindex_ਮੰਜ਼ਿਲ_scratch(hartindex);
+	ਜੇ (!rscratch)
+		ਵਾਪਸ SBI_EINVAL;
 
-	hdata = sbi_scratch_offset_ptr(rscratch, hart_data_offset);
-	if (!hsm_start_ticket_acquire(hdata))
-		return SBI_EINVAL;
+	hdata = sbi_scratch_ਵਿੱਥ_ptr(rscratch, hart_ਅੰਕੜੇ_ਵਿੱਥ);
+	ਜੇ (!hsm_ਸ਼ੁਰੂ_ticket_acquire(hdata))
+		ਵਾਪਸ SBI_EINVAL;
 
-	init_count = sbi_init_count(hartindex);
-	entry_count = sbi_entry_count(hartindex);
+	init_ਗਿਣਤੀ = sbi_init_ਗਿਣਤੀ(hartindex);
+	ਇੰਦਰਾਜ_ਗਿਣਤੀ = sbi_ਇੰਦਰਾਜ_ਗਿਣਤੀ(hartindex);
 
-	rscratch->next_arg1 = arg1;
-	rscratch->next_addr = saddr;
-	rscratch->next_mode = smode;
+	rscratch->ਅਗਲਾ_arg1 = arg1;
+	rscratch->ਅਗਲਾ_addr = saddr;
+	rscratch->ਅਗਲਾ_ਬਹੁਲਕ = smode;
 
 	/*
 	 * atomic_cmpxchg() is an implicit barrier. It makes sure that
@@ -345,70 +345,70 @@ int sbi_hsm_hart_start(struct sbi_scratch *scratch,
 	 * before hdata->state is set to SBI_HSM_STATE_START_PENDING.
 	 */
 	hstate = atomic_cmpxchg(&hdata->state, SBI_HSM_STATE_STOPPED,
-				SBI_HSM_STATE_START_PENDING);
-	if (hstate == SBI_HSM_STATE_STARTED) {
+				SBI_HSM_STATE_ਸ਼ੁਰੂ_PENDING);
+	ਜੇ (hstate == SBI_HSM_STATE_STARTED) {
 		rc = SBI_EALREADY;
-		goto err;
+		ਜਾਓ err;
 	}
 
 	/**
 	 * if a hart is already transition to start or stop, another start call
 	 * is considered as invalid request.
 	 */
-	if (hstate != SBI_HSM_STATE_STOPPED) {
+	ਜੇ (hstate != SBI_HSM_STATE_STOPPED) {
 		rc = SBI_EINVAL;
-		goto err;
+		ਜਾਓ err;
 	}
 
-	if ((hsm_device_has_hart_hotplug() && (entry_count == init_count)) ||
-	   (hsm_device_has_hart_secondary_boot() && !init_count)) {
-		rc = hsm_device_hart_start(hartid, scratch->warmboot_addr);
-	} else {
+	ਜੇ ((hsm_device_has_hart_hotplug() && (ਇੰਦਰਾਜ_ਗਿਣਤੀ == init_ਗਿਣਤੀ)) ||
+	   (hsm_device_has_hart_secondary_boot() && !init_ਗਿਣਤੀ)) {
+		rc = hsm_device_hart_ਸ਼ੁਰੂ(hartid, scratch->warmboot_addr);
+	} ਨਹੀਂਤਾਂ {
 		rc = sbi_ipi_raw_send(hartindex, true);
 	}
 
-	if (!rc)
-		return 0;
+	ਜੇ (!rc)
+		ਵਾਪਸ 0;
 
 	/* If it fails to start, change hart state back to stop */
-	__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_START_PENDING,
+	__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_ਸ਼ੁਰੂ_PENDING,
 				    SBI_HSM_STATE_STOPPED);
 err:
-	hsm_start_ticket_release(hdata);
-	return rc;
+	hsm_ਸ਼ੁਰੂ_ticket_release(hdata);
+	ਵਾਪਸ rc;
 }
 
-int sbi_hsm_hart_stop(struct sbi_scratch *scratch, bool exitnow)
+ਪੂਰਨ sbi_hsm_hart_stop(ਬਣਤਰ sbi_scratch *scratch, bool exitnow)
 {
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਅਚਲ ਬਣਤਰ sbi_domain *dom = sbi_domain_thishart_ptr();
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
-	if (!dom)
-		return SBI_EFAIL;
+	ਜੇ (!dom)
+		ਵਾਪਸ SBI_EFAIL;
 
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
 					 SBI_HSM_STATE_STOP_PENDING))
-		return SBI_EFAIL;
+		ਵਾਪਸ SBI_EFAIL;
 
-	if (exitnow)
+	ਜੇ (exitnow)
 		sbi_exit(scratch);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int __sbi_hsm_suspend_default(struct sbi_scratch *scratch)
+ਸਥਿਰ ਪੂਰਨ __sbi_hsm_suspend_default(ਬਣਤਰ sbi_scratch *scratch)
 {
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-void __sbi_hsm_suspend_non_ret_save(struct sbi_scratch *scratch)
+ਖਾਲੀ __sbi_hsm_suspend_non_ret_save(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
 	/*
 	 * We will be resuming in warm-boot path so the MIE and MIP CSRs
@@ -428,47 +428,47 @@ void __sbi_hsm_suspend_non_ret_save(struct sbi_scratch *scratch)
 	hdata->saved_mip = csr_read(CSR_MIP) & (MIP_SSIP | MIP_STIP);
 	hdata->saved_medeleg = csr_read(CSR_MEDELEG);
 	hdata->saved_mideleg = csr_read(CSR_MIDELEG);
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_12)
 		hdata->saved_menvcfg = csr_read64(CSR_MENVCFG);
 }
 
-static void __sbi_hsm_suspend_non_ret_restore(struct sbi_scratch *scratch)
+ਸਥਿਰ ਖਾਲੀ __sbi_hsm_suspend_non_ret_restore(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_12)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_12)
 		csr_write64(CSR_MENVCFG, hdata->saved_menvcfg);
 	csr_write(CSR_MIDELEG, hdata->saved_mideleg);
 	csr_write(CSR_MEDELEG, hdata->saved_medeleg);
 	csr_write(CSR_MIE, hdata->saved_mie);
-	csr_set(CSR_MIP, (hdata->saved_mip & (MIP_SSIP | MIP_STIP)));
+	csr_ਸੈੱਟ(CSR_MIP, (hdata->saved_mip & (MIP_SSIP | MIP_STIP)));
 }
 
-void sbi_hsm_hart_resume_start(struct sbi_scratch *scratch)
+ਖਾਲੀ sbi_hsm_hart_resume_ਸ਼ੁਰੂ(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
 	/* If current HART was SUSPENDED then set RESUME_PENDING state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
 					 SBI_HSM_STATE_RESUME_PENDING))
 		sbi_hart_hang();
 
-	if (sbi_system_is_suspended())
+	ਜੇ (sbi_system_is_suspended())
 		sbi_system_resume();
-	else
+	ਨਹੀਂਤਾਂ
 		hsm_device_hart_resume();
 }
 
-void __noreturn sbi_hsm_hart_resume_finish(struct sbi_scratch *scratch,
+ਖਾਲੀ __noreturn sbi_hsm_hart_resume_ਅੰਤ(ਬਣਤਰ sbi_scratch *scratch,
 					   u32 hartid)
 {
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
 	/* If current HART was RESUME_PENDING then set STARTED state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_RESUME_PENDING,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_RESUME_PENDING,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
@@ -478,53 +478,53 @@ void __noreturn sbi_hsm_hart_resume_finish(struct sbi_scratch *scratch,
 	 */
 	__sbi_hsm_suspend_non_ret_restore(scratch);
 
-	sbi_hart_switch_mode(hartid, scratch->next_arg1,
-			     scratch->next_addr,
-			     scratch->next_mode, false);
+	sbi_hart_switch_ਬਹੁਲਕ(hartid, scratch->ਅਗਲਾ_arg1,
+			     scratch->ਅਗਲਾ_addr,
+			     scratch->ਅਗਲਾ_ਬਹੁਲਕ, false);
 }
 
-int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
+ਪੂਰਨ sbi_hsm_hart_suspend(ਬਣਤਰ sbi_scratch *scratch, u32 suspend_type,
 			 ulong raddr, ulong rmode, ulong arg1)
 {
-	int ret;
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_hsm_data *hdata = sbi_scratch_offset_ptr(scratch,
-							    hart_data_offset);
+	ਪੂਰਨ ret;
+	ਅਚਲ ਬਣਤਰ sbi_domain *dom = sbi_domain_thishart_ptr();
+	ਬਣਤਰ sbi_hsm_ਅੰਕੜੇ *hdata = sbi_scratch_ਵਿੱਥ_ptr(scratch,
+							    hart_ਅੰਕੜੇ_ਵਿੱਥ);
 
 	/* Sanity check on domain assigned to current HART */
-	if (!dom)
-		return SBI_EFAIL;
+	ਜੇ (!dom)
+		ਵਾਪਸ SBI_EFAIL;
 
 	/* Sanity check on suspend type */
-	if (SBI_HSM_SUSPEND_RET_DEFAULT < suspend_type &&
+	ਜੇ (SBI_HSM_SUSPEND_RET_DEFAULT < suspend_type &&
 	    suspend_type < SBI_HSM_SUSPEND_RET_PLATFORM)
-		return SBI_EINVAL;
-	if (SBI_HSM_SUSPEND_NON_RET_DEFAULT < suspend_type &&
+		ਵਾਪਸ SBI_EINVAL;
+	ਜੇ (SBI_HSM_SUSPEND_NON_RET_DEFAULT < suspend_type &&
 	    suspend_type < SBI_HSM_SUSPEND_NON_RET_PLATFORM)
-		return SBI_EINVAL;
+		ਵਾਪਸ SBI_EINVAL;
 
 	/* Additional sanity check for non-retentive suspend */
-	if (suspend_type & SBI_HSM_SUSP_NON_RET_BIT) {
+	ਜੇ (suspend_type & SBI_HSM_SUSP_NON_RET_ਦੋਆਧਾਰੀ_ਅੰਕ) {
 		/*
 		 * For now, we only allow non-retentive suspend from
 		 * S-mode or U-mode.
 		 */
-		if (rmode != PRV_S && rmode != PRV_U)
-			return SBI_EFAIL;
-		if (dom && !sbi_domain_check_addr(dom, raddr, rmode,
+		ਜੇ (rmode != PRV_S && rmode != PRV_U)
+			ਵਾਪਸ SBI_EFAIL;
+		ਜੇ (dom && !sbi_domain_check_addr(dom, raddr, rmode,
 						  SBI_DOMAIN_EXECUTE))
-			return SBI_EINVALID_ADDR;
+			ਵਾਪਸ SBI_EINVALID_ADDR;
 	}
 
 	/* Save the resume address and resume mode */
-	scratch->next_arg1 = arg1;
-	scratch->next_addr = raddr;
-	scratch->next_mode = rmode;
+	scratch->ਅਗਲਾ_arg1 = arg1;
+	scratch->ਅਗਲਾ_addr = raddr;
+	scratch->ਅਗਲਾ_ਬਹੁਲਕ = rmode;
 
 	/* Directly move from STARTED to SUSPENDED state */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_STARTED,
 					 SBI_HSM_STATE_SUSPENDED))
-		return SBI_EFAIL;
+		ਵਾਪਸ SBI_EFAIL;
 
 	/* Save the suspend type */
 	hdata->suspend_type = suspend_type;
@@ -533,14 +533,14 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * Save context which will be restored after resuming from
 	 * non-retentive suspend.
 	 */
-	if (suspend_type & SBI_HSM_SUSP_NON_RET_BIT)
+	ਜੇ (suspend_type & SBI_HSM_SUSP_NON_RET_ਦੋਆਧਾਰੀ_ਅੰਕ)
 		__sbi_hsm_suspend_non_ret_save(scratch);
 
 	/* Try platform specific suspend */
 	ret = hsm_device_hart_suspend(suspend_type, scratch->warmboot_addr);
-	if (ret == SBI_ENOTSUPP) {
+	ਜੇ (ret == SBI_ENOTSUPP) {
 		/* Try generic implementation of default suspend types */
-		if (suspend_type == SBI_HSM_SUSPEND_RET_DEFAULT ||
+		ਜੇ (suspend_type == SBI_HSM_SUSPEND_RET_DEFAULT ||
 		    suspend_type == SBI_HSM_SUSPEND_NON_RET_DEFAULT) {
 			ret = __sbi_hsm_suspend_default(scratch);
 		}
@@ -552,9 +552,9 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * caller is not expecting a successful return, so jump to the warm
 	 * boot entry point to simulate resume from a non-retentive suspend.
 	 */
-	if (ret == 0 && (suspend_type & SBI_HSM_SUSP_NON_RET_BIT)) {
-		void (*jump_warmboot)(void) =
-			(void (*)(void))scratch->warmboot_addr;
+	ਜੇ (ret == 0 && (suspend_type & SBI_HSM_SUSP_NON_RET_ਦੋਆਧਾਰੀ_ਅੰਕ)) {
+		ਖਾਲੀ (*jump_warmboot)(ਖਾਲੀ) =
+			(ਖਾਲੀ (*)(ਖਾਲੀ))scratch->warmboot_addr;
 
 		jump_warmboot();
 	}
@@ -563,9 +563,9 @@ int sbi_hsm_hart_suspend(struct sbi_scratch *scratch, u32 suspend_type,
 	 * We might have successfully resumed from retentive suspend
 	 * or suspend failed. In both cases, we restore state of hart.
 	 */
-	if (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
+	ਜੇ (!__sbi_hsm_hart_change_state(hdata, SBI_HSM_STATE_SUSPENDED,
 					 SBI_HSM_STATE_STARTED))
 		sbi_hart_hang();
 
-	return ret;
+	ਵਾਪਸ ret;
 }

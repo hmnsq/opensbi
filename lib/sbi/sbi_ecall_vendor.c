@@ -8,47 +8,47 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall_interface.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_platform.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_trap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
 
-static inline unsigned long sbi_ecall_vendor_id(void)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sbi_ecall_vendor_id(ਖਾਲੀ)
 {
-	return SBI_EXT_VENDOR_START +
+	ਵਾਪਸ SBI_EXT_VENDOR_ਸ਼ੁਰੂ +
 		(csr_read(CSR_MVENDORID) &
-		 (SBI_EXT_VENDOR_END - SBI_EXT_VENDOR_START));
+		 (SBI_EXT_VENDOR_ਸਿਰਾ - SBI_EXT_VENDOR_ਸ਼ੁਰੂ));
 }
 
-static int sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
-				    struct sbi_trap_regs *regs,
-				    struct sbi_ecall_return *out)
+ਸਥਿਰ ਪੂਰਨ sbi_ecall_vendor_handler(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ extid, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ funcid,
+				    ਬਣਤਰ sbi_trap_regs *regs,
+				    ਬਣਤਰ sbi_ecall_return *ਬਾਹਰਲਾ)
 {
-	return sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
-						funcid, regs, out);
+	ਵਾਪਸ sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
+						funcid, regs, ਬਾਹਰਲਾ);
 }
 
-struct sbi_ecall_extension ecall_vendor;
+ਬਣਤਰ sbi_ecall_extension ecall_vendor;
 
-static int sbi_ecall_vendor_register_extensions(void)
+ਸਥਿਰ ਪੂਰਨ sbi_ecall_vendor_ਰਜਿਸਟਰ_extensions(ਖਾਲੀ)
 {
-	unsigned long extid = sbi_ecall_vendor_id();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ extid = sbi_ecall_vendor_id();
 
-	if (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
-		return 0;
+	ਜੇ (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
+		ਵਾਪਸ 0;
 
-	ecall_vendor.extid_start = extid;
-	ecall_vendor.extid_end = extid;
+	ecall_vendor.extid_ਸ਼ੁਰੂ = extid;
+	ecall_vendor.extid_ਸਿਰਾ = extid;
 
-	return sbi_ecall_register_extension(&ecall_vendor);
+	ਵਾਪਸ sbi_ecall_ਰਜਿਸਟਰ_extension(&ecall_vendor);
 }
 
-struct sbi_ecall_extension ecall_vendor = {
+ਬਣਤਰ sbi_ecall_extension ecall_vendor = {
 	.name			= "vendor",
-	.extid_start		= SBI_EXT_VENDOR_START,
-	.extid_end		= SBI_EXT_VENDOR_END,
-	.register_extensions	= sbi_ecall_vendor_register_extensions,
+	.extid_ਸ਼ੁਰੂ		= SBI_EXT_VENDOR_ਸ਼ੁਰੂ,
+	.extid_ਸਿਰਾ		= SBI_EXT_VENDOR_ਸਿਰਾ,
+	.ਰਜਿਸਟਰ_extensions	= sbi_ecall_vendor_ਰਜਿਸਟਰ_extensions,
 	.handle			= sbi_ecall_vendor_handler,
 };

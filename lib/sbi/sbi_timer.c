@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_barrier.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_encoding.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_locks.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hartmask.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_platform.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_pmu.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_timer.h>
 
-struct timer_state {
-	u64 time_delta;
-	spinlock_t event_list_lock;
-	struct sbi_dlist event_list GUARDED_BY(&event_list_lock);
-	struct sbi_timer_event smode_ev;
+ਬਣਤਰ timer_state {
+	u64 ਸਮਾਂ_delta;
+	spinlock_t event_list_ਤਾਲਾ;
+	ਬਣਤਰ sbi_dlist event_list GUARDED_BY(&event_list_ਤਾਲਾ);
+	ਬਣਤਰ sbi_timer_event smode_ev;
 };
 
-static unsigned long timer_state_off;
-static u64 (*get_time_val)(void);
-static const struct sbi_timer_device *timer_dev = NULL;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ timer_state_off;
+ਸਥਿਰ u64 (*get_ਸਮਾਂ_val)(ਖਾਲੀ);
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ sbi_timer_device *timer_dev = ਨਿਰਾ;
 
-#if __riscv_xlen == 32
-static u64 get_ticks(void)
+#ਜੇ __riscv_xlen == 32
+ਸਥਿਰ u64 get_ticks(ਖਾਲੀ)
 {
 	u32 lo, hi, tmp;
 	__asm__ __volatile__("1:\n"
@@ -41,19 +41,19 @@ static u64 get_ticks(void)
 			     "rdtimeh %2\n"
 			     "bne %0, %2, 1b"
 			     : "=&r"(hi), "=&r"(lo), "=&r"(tmp));
-	return ((u64)hi << 32) | lo;
+	ਵਾਪਸ ((u64)hi << 32) | lo;
 }
-#else
-static u64 get_ticks(void)
+#ਨਹੀਂਤਾਂ
+ਸਥਿਰ u64 get_ticks(ਖਾਲੀ)
 {
-	unsigned long n;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ n;
 
 	__asm__ __volatile__("rdtime %0" : "=r"(n));
-	return n;
+	ਵਾਪਸ n;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static void nop_delay_fn(void *opaque)
+ਸਥਿਰ ਖਾਲੀ nop_delay_fn(ਖਾਲੀ *opaque)
 {
 	cpu_relax();
 }
@@ -64,348 +64,348 @@ u64 sbi_timer_compute_delta(ulong units, u64 unit_freq)
 
 	delta = ((u64)timer_dev->timer_freq * (u64)units);
 	delta = delta / unit_freq;
-	return delta;
+	ਵਾਪਸ delta;
 }
 
-void sbi_timer_delay_loop(ulong units, u64 unit_freq,
-			  void (*delay_fn)(void *), void *opaque)
+ਖਾਲੀ sbi_timer_delay_loop(ulong units, u64 unit_freq,
+			  ਖਾਲੀ (*delay_fn)(ਖਾਲੀ *), ਖਾਲੀ *opaque)
 {
-	u64 start_val, delta;
+	u64 ਸ਼ੁਰੂ_val, delta;
 
 	/* Do nothing if we don't have timer device */
-	if (!timer_dev || !get_time_val) {
+	ਜੇ (!timer_dev || !get_ਸਮਾਂ_val) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return;
+		ਵਾਪਸ;
 	}
 
 	/* Save starting timer value */
-	start_val = get_time_val();
+	ਸ਼ੁਰੂ_val = get_ਸਮਾਂ_val();
 
 	/* Use NOP delay function if delay function not available */
-	if (!delay_fn)
+	ਜੇ (!delay_fn)
 		delay_fn = nop_delay_fn;
 
 	/* Busy loop until desired timer value delta reached */
 	delta = sbi_timer_compute_delta(units, unit_freq);
-	while ((get_time_val() - start_val) < delta)
+	ਜਦੋਂ ((get_ਸਮਾਂ_val() - ਸ਼ੁਰੂ_val) < delta)
 		delay_fn(opaque);
 }
 
-bool sbi_timer_waitms_until(bool (*predicate)(void *), void *arg,
+bool sbi_timer_waitms_until(bool (*predicate)(ਖਾਲੀ *), ਖਾਲੀ *arg,
 			    uint64_t timeout_ms)
 {
-	uint64_t start_time = sbi_timer_value();
+	uint64_t ਸ਼ੁਰੂ_ਸਮਾਂ = sbi_timer_ਮੁੱਲ();
 	uint64_t ticks =
 		(sbi_timer_get_device()->timer_freq / 1000) *
 		timeout_ms;
-	while(!predicate(arg))
-		if (sbi_timer_value() - start_time  >= ticks)
-			return false;
-	return true;
+	ਜਦੋਂ(!predicate(arg))
+		ਜੇ (sbi_timer_ਮੁੱਲ() - ਸ਼ੁਰੂ_ਸਮਾਂ  >= ticks)
+			ਵਾਪਸ false;
+	ਵਾਪਸ true;
 }
 
-unsigned long sbi_timer_frequency(void)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sbi_timer_frequency(ਖਾਲੀ)
 {
-	const struct sbi_timer_device *timer_dev = sbi_timer_get_device();
+	ਅਚਲ ਬਣਤਰ sbi_timer_device *timer_dev = sbi_timer_get_device();
 
-	if (!timer_dev) {
+	ਜੇ (!timer_dev) {
 		sbi_printf("%s: called without timer device\n", __func__);
-		return 0;
+		ਵਾਪਸ 0;
 	}
 
-	return timer_dev->timer_freq;
+	ਵਾਪਸ timer_dev->timer_freq;
 }
 
-u64 sbi_timer_value(void)
+u64 sbi_timer_ਮੁੱਲ(ਖਾਲੀ)
 {
-	if (get_time_val)
-		return get_time_val();
-	return 0;
+	ਜੇ (get_ਸਮਾਂ_val)
+		ਵਾਪਸ get_ਸਮਾਂ_val();
+	ਵਾਪਸ 0;
 }
 
-u64 sbi_timer_virt_value(void)
+u64 sbi_timer_virt_ਮੁੱਲ(ਖਾਲੀ)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
 
-	return sbi_timer_value() + tstate->time_delta;
+	ਵਾਪਸ sbi_timer_ਮੁੱਲ() + tstate->ਸਮਾਂ_delta;
 }
 
-u64 sbi_timer_get_delta(void)
+u64 sbi_timer_get_delta(ਖਾਲੀ)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
 
-	return tstate->time_delta;
+	ਵਾਪਸ tstate->ਸਮਾਂ_delta;
 }
 
-void sbi_timer_set_delta(ulong delta)
+ਖਾਲੀ sbi_timer_ਸੈੱਟ_delta(ulong delta)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
 
-#if __riscv_xlen == 32
-	tstate->time_delta &= ~0xffffffffUL;
-	tstate->time_delta |= (u32)delta;
-#else
-	tstate->time_delta = delta;
-#endif
+#ਜੇ __riscv_xlen == 32
+	tstate->ਸਮਾਂ_delta &= ~0xffffffffUL;
+	tstate->ਸਮਾਂ_delta |= (u32)delta;
+#ਨਹੀਂਤਾਂ
+	tstate->ਸਮਾਂ_delta = delta;
+#ਜੇ_ਅੰਤ
 }
 
-#if __riscv_xlen == 32
-void sbi_timer_set_delta_upper(ulong delta_upper)
+#ਜੇ __riscv_xlen == 32
+ਖਾਲੀ sbi_timer_ਸੈੱਟ_delta_ਉੱਤਲਾ(ulong delta_ਉੱਤਲਾ)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
 
-	tstate->time_delta &= 0xffffffffUL;
-	tstate->time_delta |= (u64)delta_upper << 32;
+	tstate->ਸਮਾਂ_delta &= 0xffffffffUL;
+	tstate->ਸਮਾਂ_delta |= (u64)delta_ਉੱਤਲਾ << 32;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-static void __sbi_timer_update_device(struct timer_state *tstate)
-	MUST_HOLD(&tstate->event_list_lock)
+ਸਥਿਰ ਖਾਲੀ __sbi_timer_update_device(ਬਣਤਰ timer_state *tstate)
+	MUST_HOLD(&tstate->event_list_ਤਾਲਾ)
 {
-	struct sbi_timer_event *ev;
+	ਬਣਤਰ sbi_timer_event *ev;
 
-	if (!timer_dev)
-		return;
+	ਜੇ (!timer_dev)
+		ਵਾਪਸ;
 
-	if (sbi_list_empty(&tstate->event_list)) {
-		if (timer_dev->timer_event_stop)
+	ਜੇ (sbi_list_ਖਾਲੀ_ਥਾਵਾਂ(&tstate->event_list)) {
+		ਜੇ (timer_dev->timer_event_stop)
 			timer_dev->timer_event_stop();
 		csr_clear(CSR_MIE, MIP_MTIP);
-	} else {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (timer_dev->timer_event_start)
-			timer_dev->timer_event_start(ev->time_stamp);
-		csr_set(CSR_MIE, MIP_MTIP);
+	} ਨਹੀਂਤਾਂ {
+		ev = sbi_list_ਪਹਿਲਾ_ਇੰਦਰਾਜ(&tstate->event_list, ਬਣਤਰ sbi_timer_event, ਸਿਰ);
+		ਜੇ (timer_dev->timer_event_ਸ਼ੁਰੂ)
+			timer_dev->timer_event_ਸ਼ੁਰੂ(ev->ਸਮਾਂ_stamp);
+		csr_ਸੈੱਟ(CSR_MIE, MIP_MTIP);
 	}
 }
 
-static void __sbi_timer_event_stop(struct sbi_timer_event *ev)
+ਸਥਿਰ ਖਾਲੀ __sbi_timer_event_stop(ਬਣਤਰ sbi_timer_event *ev)
 {
-	if (ev->hart_index > -1) {
-		sbi_list_del(&ev->head);
-		ev->hart_index = -1;
+	ਜੇ (ev->hart_ਸੂਚਕਾਂਕ > -1) {
+		sbi_list_del(&ev->ਸਿਰ);
+		ev->hart_ਸੂਚਕਾਂਕ = -1;
 	}
 }
 
-static void __sbi_timer_event_start(struct timer_state *tstate,
-				    struct sbi_timer_event *ev, u64 next_event)
-	MUST_HOLD(&tstate->event_list_lock)
+ਸਥਿਰ ਖਾਲੀ __sbi_timer_event_start(ਬਣਤਰ timer_state *tstate,
+				    ਬਣਤਰ sbi_timer_event *ev, u64 ਅਗਲਾ_event)
+	MUST_HOLD(&tstate->event_list_ਤਾਲਾ)
 {
-	struct sbi_timer_event *tev, *next_ev = NULL;
+	ਬਣਤਰ sbi_timer_event *tev, *ਅਗਲਾ_ev = ਨਿਰਾ;
 
 	/* Find where to insert the event in per-HART event list */
-	sbi_list_for_each_entry(tev, &tstate->event_list, head) {
-		if (next_event < tev->time_stamp) {
-			next_ev = tev;
-			break;
+	sbi_list_for_each_ਇੰਦਰਾਜ(tev, &tstate->event_list, ਸਿਰ) {
+		ਜੇ (ਅਗਲਾ_event < tev->ਸਮਾਂ_stamp) {
+			ਅਗਲਾ_ev = tev;
+			ਰੋਕੋ;
 		}
 	}
 
 	/* Insert the event in per-HART event list */
-	ev->hart_index = current_hartindex();
-	ev->time_stamp = next_event;
-	if (next_ev)
-		sbi_list_add(&ev->head, &next_ev->head);
-	else
-		sbi_list_add_tail(&ev->head, &tstate->event_list);
+	ev->hart_ਸੂਚਕਾਂਕ = current_hartindex();
+	ev->ਸਮਾਂ_stamp = ਅਗਲਾ_event;
+	ਜੇ (ਅਗਲਾ_ev)
+		sbi_list_ਜੋੜੋ(&ev->ਸਿਰ, &ਅਗਲਾ_ev->ਸਿਰ);
+	ਨਹੀਂਤਾਂ
+		sbi_list_ਜੋੜੋ_ਪੂਛ(&ev->ਸਿਰ, &tstate->event_list);
 }
 
-void sbi_timer_event_start(struct sbi_timer_event *ev, u64 next_event)
+ਖਾਲੀ sbi_timer_event_ਸ਼ੁਰੂ(ਬਣਤਰ sbi_timer_event *ev, u64 ਅਗਲਾ_event)
 {
-	struct timer_state *tstate;
+	ਬਣਤਰ timer_state *tstate;
 
-	if (!ev)
-		return;
+	ਜੇ (!ev)
+		ਵਾਪਸ;
 
 	/* Ensure that event is not on the per-HART event list */
-	if (ev->hart_index > -1) {
-		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
+	ਜੇ (ev->hart_ਸੂਚਕਾਂਕ > -1) {
+		tstate = sbi_scratch_ਵਿੱਥ_ptr(sbi_hartindex_ਮੰਜ਼ਿਲ_scratch(ev->hart_ਸੂਚਕਾਂਕ),
 						timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+		spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 		__sbi_timer_event_stop(ev);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_ਤਾਲਾ);
 	}
 
-	tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	spin_lock(&tstate->event_list_lock);
+	tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
+	spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 
-	__sbi_timer_event_start(tstate, ev, next_event);
+	__sbi_timer_event_start(tstate, ev, ਅਗਲਾ_event);
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_ਤਾਲਾ);
 }
 
-void sbi_timer_event_stop(struct sbi_timer_event *ev)
+ਖਾਲੀ sbi_timer_event_stop(ਬਣਤਰ sbi_timer_event *ev)
 {
-	struct timer_state *tstate;
-	int ev_hart_index;
+	ਬਣਤਰ timer_state *tstate;
+	ਪੂਰਨ ev_hart_ਸੂਚਕਾਂਕ;
 
-	if (!ev)
-		return;
+	ਜੇ (!ev)
+		ਵਾਪਸ;
 
 	/* Ensure that event is not on the per-HART event list */
-	ev_hart_index = ev->hart_index;
-	if (ev->hart_index > -1) {
-		tstate = sbi_scratch_offset_ptr(sbi_hartindex_to_scratch(ev->hart_index),
+	ev_hart_ਸੂਚਕਾਂਕ = ev->hart_ਸੂਚਕਾਂਕ;
+	ਜੇ (ev->hart_ਸੂਚਕਾਂਕ > -1) {
+		tstate = sbi_scratch_ਵਿੱਥ_ptr(sbi_hartindex_ਮੰਜ਼ਿਲ_scratch(ev->hart_ਸੂਚਕਾਂਕ),
 						timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+		spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 		__sbi_timer_event_stop(ev);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_ਤਾਲਾ);
 	}
 
 	/* Re-program timer device on the current HART */
-	if (ev_hart_index == current_hartindex()) {
-		tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-		spin_lock(&tstate->event_list_lock);
+	ਜੇ (ev_hart_ਸੂਚਕਾਂਕ == current_hartindex()) {
+		tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
+		spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 		__sbi_timer_update_device(tstate);
-		spin_unlock(&tstate->event_list_lock);
+		spin_unlock(&tstate->event_list_ਤਾਲਾ);
 	}
 }
 
-static void sbi_timer_smode_event_callback(struct sbi_timer_event *ev,
-					   struct sbi_timer_event_restart *restart)
+ਸਥਿਰ ਖਾਲੀ sbi_timer_smode_event_callback(ਬਣਤਰ sbi_timer_event *ev,
+					   ਬਣਤਰ sbi_timer_event_restart *restart)
 {
 	/*
 	 * If sstc extension is available, supervisor can receive the timer
 	 * directly without M-mode come in between. This function should
 	 * only invoked if M-mode programs the timer for its own purpose.
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
-		csr_set(CSR_MIP, MIP_STIP);
+	ਜੇ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+		csr_ਸੈੱਟ(CSR_MIP, MIP_STIP);
 }
 
-static void sbi_timer_smode_event_cleanup(struct sbi_timer_event *ev)
+ਸਥਿਰ ਖਾਲੀ sbi_timer_smode_event_cleanup(ਬਣਤਰ sbi_timer_event *ev)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
+	ਜੇ (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC))
 		csr_clear(CSR_MIP, MIP_STIP);
 }
 
-void sbi_timer_smode_event_start(u64 next_event)
+ਖਾਲੀ sbi_timer_smode_event_ਸ਼ੁਰੂ(u64 ਅਗਲਾ_event)
 {
-	struct timer_state *tstate = sbi_scratch_offset_ptr(sbi_scratch_thishart_ptr(),
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_ਵਿੱਥ_ptr(sbi_scratch_thishart_ptr(),
 							    timer_state_off);
 
-	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_SET_TIMER);
+	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_ਸੈੱਟ_TIMER);
 
 	/**
 	 * Update the stimecmp directly if available. This allows
 	 * the older software to leverage sstc extension on newer hardware.
 	 */
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
-		csr_write64(CSR_STIMECMP, next_event);
-	} else {
+	ਜੇ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SSTC)) {
+		csr_write64(CSR_STIMECMP, ਅਗਲਾ_event);
+	} ਨਹੀਂਤਾਂ {
 		csr_clear(CSR_MIP, MIP_STIP);
-		sbi_timer_event_start(&tstate->smode_ev, next_event);
+		sbi_timer_event_ਸ਼ੁਰੂ(&tstate->smode_ev, ਅਗਲਾ_event);
 	}
 }
 
-void sbi_timer_process(void)
+ਖਾਲੀ sbi_timer_process(ਖਾਲੀ)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event_restart restart;
-	SBI_LIST_HEAD(restart_list);
-	struct sbi_timer_event *ev;
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
+	ਬਣਤਰ sbi_timer_event_restart restart;
+	SBI_LIST_ਸਿਰ(restart_list);
+	ਬਣਤਰ sbi_timer_event *ev;
 
-	spin_lock(&tstate->event_list_lock);
+	spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		if (ev->time_stamp > sbi_timer_value())
-			break;
+	ਜਦੋਂ (!sbi_list_ਖਾਲੀ_ਥਾਵਾਂ(&tstate->event_list)) {
+		ev = sbi_list_ਪਹਿਲਾ_ਇੰਦਰਾਜ(&tstate->event_list, ਬਣਤਰ sbi_timer_event, ਸਿਰ);
+		ਜੇ (ev->ਸਮਾਂ_stamp > sbi_timer_ਮੁੱਲ())
+			ਰੋਕੋ;
 
 		__sbi_timer_event_stop(ev);
-		if (ev->callback) {
+		ਜੇ (ev->callback) {
 			restart.required = false;
-			restart.next_event = 0;
+			restart.ਅਗਲਾ_event = 0;
 			ev->callback(ev, &restart);
-			if (restart.required) {
-				ev->time_stamp = restart.next_event;
-				sbi_list_add_tail(&ev->head, &restart_list);
+			ਜੇ (restart.required) {
+				ev->ਸਮਾਂ_stamp = restart.ਅਗਲਾ_event;
+				sbi_list_ਜੋੜੋ_ਪੂਛ(&ev->ਸਿਰ, &restart_list);
 			}
 		}
 	}
 
-	while (!sbi_list_empty(&restart_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
-		sbi_list_del(&ev->head);
-		__sbi_timer_event_start(tstate, ev, ev->time_stamp);
+	ਜਦੋਂ (!sbi_list_ਖਾਲੀ_ਥਾਵਾਂ(&restart_list)) {
+		ev = sbi_list_ਪਹਿਲਾ_ਇੰਦਰਾਜ(&tstate->event_list, ਬਣਤਰ sbi_timer_event, ਸਿਰ);
+		sbi_list_del(&ev->ਸਿਰ);
+		__sbi_timer_event_start(tstate, ev, ev->ਸਮਾਂ_stamp);
 	}
 
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_ਤਾਲਾ);
 }
 
-const struct sbi_timer_device *sbi_timer_get_device(void)
+ਅਚਲ ਬਣਤਰ sbi_timer_device *sbi_timer_get_device(ਖਾਲੀ)
 {
-	return timer_dev;
+	ਵਾਪਸ timer_dev;
 }
 
-void sbi_timer_set_device(const struct sbi_timer_device *dev)
+ਖਾਲੀ sbi_timer_ਸੈੱਟ_device(ਅਚਲ ਬਣਤਰ sbi_timer_device *dev)
 {
-	if (!dev || timer_dev)
-		return;
+	ਜੇ (!dev || timer_dev)
+		ਵਾਪਸ;
 
 	timer_dev = dev;
-	if (!get_time_val && timer_dev->timer_value)
-		get_time_val = timer_dev->timer_value;
+	ਜੇ (!get_ਸਮਾਂ_val && timer_dev->timer_ਮੁੱਲ)
+		get_ਸਮਾਂ_val = timer_dev->timer_ਮੁੱਲ;
 }
 
-int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)
+ਪੂਰਨ sbi_timer_init(ਬਣਤਰ sbi_scratch *scratch, bool cold_boot)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct timer_state *tstate;
-	int ret;
+	ਅਚਲ ਬਣਤਰ sbi_platform *plat = sbi_platform_ptr(scratch);
+	ਬਣਤਰ timer_state *tstate;
+	ਪੂਰਨ ret;
 
-	if (cold_boot) {
-		timer_state_off = sbi_scratch_alloc_offset(sizeof(*tstate));
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+	ਜੇ (cold_boot) {
+		timer_state_off = sbi_scratch_alloc_ਵਿੱਥ(ਆਕਾਰ(*tstate));
+		ਜੇ (!timer_state_off)
+			ਵਾਪਸ SBI_ENOMEM;
 
-		if (sbi_hart_has_csr(scratch, SBI_HART_CSR_TIME))
-			get_time_val = get_ticks;
+		ਜੇ (sbi_hart_has_csr(scratch, SBI_HART_CSR_ਸਮਾਂ))
+			get_ਸਮਾਂ_val = get_ticks;
 
 		ret = sbi_platform_timer_init(plat);
-		if (ret)
-			return ret;
-	} else {
-		if (!timer_state_off)
-			return SBI_ENOMEM;
+		ਜੇ (ret)
+			ਵਾਪਸ ret;
+	} ਨਹੀਂਤਾਂ {
+		ਜੇ (!timer_state_off)
+			ਵਾਪਸ SBI_ENOMEM;
 	}
 
-	tstate = sbi_scratch_offset_ptr(scratch, timer_state_off);
-	tstate->time_delta = 0;
-	SPIN_LOCK_INIT(tstate->event_list_lock);
-	SBI_INIT_LIST_HEAD(&tstate->event_list);
+	tstate = sbi_scratch_ਵਿੱਥ_ptr(scratch, timer_state_off);
+	tstate->ਸਮਾਂ_delta = 0;
+	SPIN_ਤਾਲਾ_INIT(tstate->event_list_ਤਾਲਾ);
+	SBI_INIT_LIST_ਸਿਰ(&tstate->event_list);
 	SBI_INIT_TIMER_EVENT(&tstate->smode_ev,
 			     sbi_timer_smode_event_callback,
-			     sbi_timer_smode_event_cleanup, NULL);
+			     sbi_timer_smode_event_cleanup, ਨਿਰਾ);
 
-	if (timer_dev && timer_dev->warm_init) {
+	ਜੇ (timer_dev && timer_dev->warm_init) {
 		ret = timer_dev->warm_init();
-		if (ret)
-			return ret;
+		ਜੇ (ret)
+			ਵਾਪਸ ret;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-void sbi_timer_exit(struct sbi_scratch *scratch)
+ਖਾਲੀ sbi_timer_exit(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct timer_state *tstate = sbi_scratch_thishart_offset_ptr(timer_state_off);
-	struct sbi_timer_event *ev;
+	ਬਣਤਰ timer_state *tstate = sbi_scratch_thishart_ਵਿੱਥ_ptr(timer_state_off);
+	ਬਣਤਰ sbi_timer_event *ev;
 
-	spin_lock(&tstate->event_list_lock);
+	spin_ਤਾਲਾ(&tstate->event_list_ਤਾਲਾ);
 
-	while (!sbi_list_empty(&tstate->event_list)) {
-		ev = sbi_list_first_entry(&tstate->event_list, struct sbi_timer_event, head);
+	ਜਦੋਂ (!sbi_list_ਖਾਲੀ_ਥਾਵਾਂ(&tstate->event_list)) {
+		ev = sbi_list_ਪਹਿਲਾ_ਇੰਦਰਾਜ(&tstate->event_list, ਬਣਤਰ sbi_timer_event, ਸਿਰ);
 		__sbi_timer_event_stop(ev);
-		if (ev->cleanup)
+		ਜੇ (ev->cleanup)
 			ev->cleanup(ev);
 	}
 
 	__sbi_timer_update_device(tstate);
 
-	spin_unlock(&tstate->event_list_lock);
+	spin_unlock(&tstate->event_list_ਤਾਲਾ);
 }

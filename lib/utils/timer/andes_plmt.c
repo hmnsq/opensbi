@@ -7,102 +7,102 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/timer/andes_plmt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_timer.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/timer/andes_plmt.h>
 
-struct plmt_data plmt;
+ਬਣਤਰ plmt_ਅੰਕੜੇ plmt;
 
-static u64 plmt_timer_value(void)
+ਸਥਿਰ u64 plmt_timer_ਮੁੱਲ(ਖਾਲੀ)
 {
-#if __riscv_xlen == 64
-	return readq_relaxed(plmt.time_val);
-#else
+#ਜੇ __riscv_xlen == 64
+	ਵਾਪਸ readq_relaxed(plmt.ਸਮਾਂ_val);
+#ਨਹੀਂਤਾਂ
 	u32 lo, hi;
 
-	do {
-		hi = readl_relaxed((void *)plmt.time_val + 0x04);
-		lo = readl_relaxed(plmt.time_val);
-	} while (hi != readl_relaxed((void *)plmt.time_val + 0x04));
+	ਕਰੋ {
+		hi = readl_relaxed((ਖਾਲੀ *)plmt.ਸਮਾਂ_val + 0x04);
+		lo = readl_relaxed(plmt.ਸਮਾਂ_val);
+	} ਜਦੋਂ (hi != readl_relaxed((ਖਾਲੀ *)plmt.ਸਮਾਂ_val + 0x04));
 
-	return ((u64)hi << 32) | (u64)lo;
-#endif
+	ਵਾਪਸ ((u64)hi << 32) | (u64)lo;
+#ਜੇ_ਅੰਤ
 }
 
-static void plmt_timer_event_stop(void)
+ਸਥਿਰ ਖਾਲੀ plmt_timer_event_stop(ਖਾਲੀ)
 {
-	u32 target_hart = current_hartid();
+	u32 ਨਿਸ਼ਾਨਾ_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	ਜੇ (plmt.hart_ਗਿਣਤੀ <= ਨਿਸ਼ਾਨਾ_hart)
 		ebreak();
 
 	/* Clear PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(-1ULL, &plmt.time_cmp[target_hart]);
-#else
-	writel_relaxed(-1UL, &plmt.time_cmp[target_hart]);
-	writel_relaxed(-1UL, (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+#ਜੇ __riscv_xlen == 64
+	writeq_relaxed(-1ULL, &plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]);
+#ਨਹੀਂਤਾਂ
+	writel_relaxed(-1UL, &plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]);
+	writel_relaxed(-1UL, (ਖਾਲੀ *)(&plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]) + 0x04);
+#ਜੇ_ਅੰਤ
 }
 
-static void plmt_timer_event_start(u64 next_event)
+ਸਥਿਰ ਖਾਲੀ plmt_timer_event_ਸ਼ੁਰੂ(u64 ਅਗਲਾ_event)
 {
-	u32 target_hart = current_hartid();
+	u32 ਨਿਸ਼ਾਨਾ_hart = current_hartid();
 
-	if (plmt.hart_count <= target_hart)
+	ਜੇ (plmt.hart_ਗਿਣਤੀ <= ਨਿਸ਼ਾਨਾ_hart)
 		ebreak();
 
 	/* Program PLMT Time Compare */
-#if __riscv_xlen == 64
-	writeq_relaxed(next_event, &plmt.time_cmp[target_hart]);
-#else
-	u32 mask = -1UL;
+#ਜੇ __riscv_xlen == 64
+	writeq_relaxed(ਅਗਲਾ_event, &plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]);
+#ਨਹੀਂਤਾਂ
+	u32 ਨਕਾਬ = -1UL;
 
-	writel_relaxed(next_event & mask, &plmt.time_cmp[target_hart]);
-	writel_relaxed(next_event >> 32,
-		       (void *)(&plmt.time_cmp[target_hart]) + 0x04);
-#endif
+	writel_relaxed(ਅਗਲਾ_event & ਨਕਾਬ, &plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]);
+	writel_relaxed(ਅਗਲਾ_event >> 32,
+		       (ਖਾਲੀ *)(&plmt.ਸਮਾਂ_cmp[ਨਿਸ਼ਾਨਾ_hart]) + 0x04);
+#ਜੇ_ਅੰਤ
 }
 
-static int plmt_warm_timer_init(void)
+ਸਥਿਰ ਪੂਰਨ plmt_warm_timer_init(ਖਾਲੀ)
 {
-	if (!plmt.time_val)
-		return SBI_ENODEV;
+	ਜੇ (!plmt.ਸਮਾਂ_val)
+		ਵਾਪਸ SBI_ENODEV;
 
 	plmt_timer_event_stop();
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static struct sbi_timer_device plmt_timer = {
+ਸਥਿਰ ਬਣਤਰ sbi_timer_device plmt_timer = {
 	.name		   = "andes_plmt",
 	.timer_freq	   = DEFAULT_AE350_PLMT_FREQ,
-	.timer_value	   = plmt_timer_value,
-	.timer_event_start = plmt_timer_event_start,
+	.timer_ਮੁੱਲ	   = plmt_timer_ਮੁੱਲ,
+	.timer_event_ਸ਼ੁਰੂ = plmt_timer_event_ਸ਼ੁਰੂ,
 	.timer_event_stop  = plmt_timer_event_stop,
 	.warm_init	   = plmt_warm_timer_init,
 };
 
-int plmt_cold_timer_init(struct plmt_data *plmt)
+ਪੂਰਨ plmt_cold_timer_init(ਬਣਤਰ plmt_ਅੰਕੜੇ *plmt)
 {
-	int rc;
+	ਪੂਰਨ rc;
 
 	/* Add PLMT region to the root domain */
-	rc = sbi_domain_root_add_memrange(
-		(unsigned long)plmt->time_val, plmt->size,
+	rc = sbi_domain_ਜੜ੍ਹ_ਜੋੜੋ_memrange(
+		(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)plmt->ਸਮਾਂ_val, plmt->ਮਾਪ,
 		PLMT_REGION_ALIGN,
 		SBI_DOMAIN_MEMREGION_MMIO |
 		SBI_DOMAIN_MEMREGION_M_READABLE |
 		SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	ਜੇ (rc)
+		ਵਾਪਸ rc;
 
 	plmt_timer.timer_freq = plmt->timer_freq;
 
-	sbi_timer_set_device(&plmt_timer);
+	sbi_timer_ਸੈੱਟ_device(&plmt_timer);
 
-	return 0;
+	ਵਾਪਸ 0;
 }

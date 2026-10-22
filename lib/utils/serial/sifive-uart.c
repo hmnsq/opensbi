@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/sifive-uart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/serial/sifive-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_TXFIFO		0
-#define UART_REG_RXFIFO		1
-#define UART_REG_TXCTRL		2
-#define UART_REG_RXCTRL		3
-#define UART_REG_IE		4
-#define UART_REG_IP		5
-#define UART_REG_DIV		6
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_TXFIFO		0
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_RXFIFO		1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_TXCTRL		2
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_RXCTRL		3
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_IE		4
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_IP		5
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_REG_DIV		6
 
-#define UART_TXFIFO_FULL	0x80000000
-#define UART_RXFIFO_EMPTY	0x80000000
-#define UART_RXFIFO_DATA	0x000000ff
-#define UART_TXCTRL_TXEN	0x1
-#define UART_RXCTRL_RXEN	0x1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_TXFIFO_ਭਰਿਆ	0x80000000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_RXFIFO_ਖਾਲੀ_ਥਾਵਾਂ	0x80000000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_RXFIFO_ਅੰਕੜੇ	0x000000ff
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_TXCTRL_TXEN	0x1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ UART_RXCTRL_RXEN	0x1
 
 /* clang-format on */
 
-static volatile char *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+ਸਥਿਰ ਅਸਥਿਰ ਅੱਖਰ *uart_ਅਧਾਰ;
+ਸਥਿਰ u32 uart_ਵਿੱਚ_freq;
+ਸਥਿਰ u32 uart_baudrate;
 
 /**
  * Find minimum divisor divides in_freq to max_target_hz;
@@ -45,74 +45,74 @@ static u32 uart_baudrate;
  * This should not overflow as long as (f_in - 1 + f_baud) does not exceed
  * 2^32 - 1, which is unlikely since we represent frequencies in kHz.
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
-						uint64_t max_target_hz)
+ਸਥਿਰ ਸਤਰਅੰਦਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ uart_min_clk_ਭਾਜਕ(uint64_t ਵਿੱਚ_freq,
+						uint64_t max_ਨਿਸ਼ਾਨਾ_hz)
 {
-	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
+	uint64_t quotient = (ਵਿੱਚ_freq + max_ਨਿਸ਼ਾਨਾ_hz - 1) / (max_ਨਿਸ਼ਾਨਾ_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	ਜੇ (quotient == 0)
+		ਵਾਪਸ 0;
+	ਨਹੀਂਤਾਂ
+		ਵਾਪਸ quotient - 1;
 }
 
-static u32 get_reg(u32 num)
+ਸਥਿਰ u32 get_reg(u32 ਅੰਕ)
 {
-	return readl(uart_base + (num * 0x4));
+	ਵਾਪਸ readl(uart_ਅਧਾਰ + (ਅੰਕ * 0x4));
 }
 
-static void set_reg(u32 num, u32 val)
+ਸਥਿਰ ਖਾਲੀ ਸੈੱਟ_reg(u32 ਅੰਕ, u32 val)
 {
-	writel(val, uart_base + (num * 0x4));
+	writel(val, uart_ਅਧਾਰ + (ਅੰਕ * 0x4));
 }
 
-static void sifive_uart_putc(char ch)
+ਸਥਿਰ ਖਾਲੀ sifive_uart_putc(ਅੱਖਰ ch)
 {
-	while (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_FULL)
+	ਜਦੋਂ (get_reg(UART_REG_TXFIFO) & UART_TXFIFO_ਭਰਿਆ)
 		;
 
-	set_reg(UART_REG_TXFIFO, ch);
+	ਸੈੱਟ_reg(UART_REG_TXFIFO, ch);
 }
 
-static int sifive_uart_getc(void)
+ਸਥਿਰ ਪੂਰਨ sifive_uart_getc(ਖਾਲੀ)
 {
 	u32 ret = get_reg(UART_REG_RXFIFO);
 
-	if (!(ret & UART_RXFIFO_EMPTY))
-		return ret & UART_RXFIFO_DATA;
+	ਜੇ (!(ret & UART_RXFIFO_ਖਾਲੀ_ਥਾਵਾਂ))
+		ਵਾਪਸ ret & UART_RXFIFO_ਅੰਕੜੇ;
 
-	return -1;
+	ਵਾਪਸ -1;
 }
 
-static struct sbi_console_device sifive_console = {
+ਸਥਿਰ ਬਣਤਰ sbi_console_device sifive_console = {
 	.name = "sifive_uart",
 	.console_putc = sifive_uart_putc,
 	.console_getc = sifive_uart_getc
 };
 
-int sifive_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+ਪੂਰਨ sifive_uart_init(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅਧਾਰ_2, u32 ਵਿੱਚ_freq, u32 baudrate)
 {
-	uart_base     = (volatile char *)base;
-	uart_in_freq  = in_freq;
+	uart_ਅਧਾਰ     = (ਅਸਥਿਰ ਅੱਖਰ *)ਅਧਾਰ_2;
+	uart_ਵਿੱਚ_freq  = ਵਿੱਚ_freq;
 	uart_baudrate = baudrate;
 
 	/* Configure baudrate */
-	if (in_freq && baudrate)
-		set_reg(UART_REG_DIV, uart_min_clk_divisor(in_freq, baudrate));
+	ਜੇ (ਵਿੱਚ_freq && baudrate)
+		ਸੈੱਟ_reg(UART_REG_DIV, uart_min_clk_ਭਾਜਕ(ਵਿੱਚ_freq, baudrate));
 
 	/* Disable interrupts */
-	set_reg(UART_REG_IE, 0);
+	ਸੈੱਟ_reg(UART_REG_IE, 0);
 
 	/* Enable TX */
-	set_reg(UART_REG_TXCTRL, UART_TXCTRL_TXEN);
+	ਸੈੱਟ_reg(UART_REG_TXCTRL, UART_TXCTRL_TXEN);
 
 	/* Enable Rx */
-	set_reg(UART_REG_RXCTRL, UART_RXCTRL_RXEN);
+	ਸੈੱਟ_reg(UART_REG_RXCTRL, UART_RXCTRL_RXEN);
 
-	sbi_console_set_device(&sifive_console);
+	sbi_console_ਸੈੱਟ_device(&sifive_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	ਵਾਪਸ sbi_domain_ਜੜ੍ਹ_ਜੋੜੋ_memrange(ਅਧਾਰ_2, ਪੰਨਾ_ਮਾਪ, ਪੰਨਾ_ਮਾਪ,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

@@ -7,25 +7,25 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_sse.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_asm.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_bitops.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_console.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_domain.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_ecall_interface.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_hart_protection.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_heap.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_platform.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_pmu.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_scratch.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_string.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_sse.h>
 
 /** Information about hardware counters */
-struct sbi_pmu_hw_event {
+ਬਣਤਰ sbi_pmu_hw_event {
 	uint32_t counters;
-	uint32_t start_idx;
-	uint32_t end_idx;
+	uint32_t ਸ਼ੁਰੂ_idx;
+	uint32_t ਸਿਰਾ_idx;
 	/* Event selector value used only for raw events. The event select value
 	 * can be a even id or a selector value for set of events encoded in few
 	 * bits. In case latter, the bits used for encoding of the events should
@@ -35,44 +35,44 @@ struct sbi_pmu_hw_event {
 	 /**
 	  * The select_mask indicates which bits are encoded for the event(s).
 	  */
-	uint64_t select_mask;
+	uint64_t select_ਨਕਾਬ;
 };
 
 /* Information about PMU counters as per SBI specification */
-union sbi_pmu_ctr_info {
-	unsigned long value;
-	struct {
-		unsigned long csr:12;
-		unsigned long width:6;
-#if __riscv_xlen == 32
-		unsigned long reserved:13;
-#else
-		unsigned long reserved:45;
-#endif
-		unsigned long type:1;
+ਸੰਘ sbi_pmu_ctr_info {
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਮੁੱਲ;
+	ਬਣਤਰ {
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ csr:12;
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਚੌੜਾਈ:6;
+#ਜੇ __riscv_xlen == 32
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ reserved:13;
+#ਨਹੀਂਤਾਂ
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ reserved:45;
+#ਜੇ_ਅੰਤ
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ type:1;
 	};
 };
 
-#if SBI_PMU_FW_CTR_MAX >= BITS_PER_LONG
-#error "Can't handle firmware counters beyond BITS_PER_LONG"
-#endif
+#ਜੇ SBI_PMU_FW_CTR_MAX >= ਬਿੱਟ_ਪ੍ਰਤੀ_LONG
+#ਗਲਤੀ "Can't handle firmware counters beyond BITS_PER_LONG"
+#ਜੇ_ਅੰਤ
 
 /** HW event configuration parameters */
-struct sbi_pmu_hw_event_config {
+ਬਣਤਰ sbi_pmu_hw_event_config {
 	/* event_data value from sbi_pmu_ctr_cfg_match() */
-	uint64_t event_data;
+	uint64_t event_ਅੰਕੜੇ;
 	/* HW events flags from sbi_pmu_ctr_cfg_match() */
 	uint64_t flags;
 };
 
 /** Per-HART state of the PMU counters */
-struct sbi_pmu_hart_state {
+ਬਣਤਰ sbi_pmu_hart_state {
 	/* HART to which this state belongs */
 	uint32_t hartid;
 	/* Counter to enabled event mapping */
-	uint32_t active_events[SBI_PMU_HW_CTR_MAX + SBI_PMU_FW_CTR_MAX];
+	uint32_t ਸਰਗਰਮ_events[SBI_PMU_HW_CTR_MAX + SBI_PMU_FW_CTR_MAX];
 	/* Bitmap of firmware counters started */
-	unsigned long fw_counters_started;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ fw_counters_started;
 	/* if true, SSE is enabled */
 	bool sse_enabled;
 	/*
@@ -80,45 +80,45 @@ struct sbi_pmu_hart_state {
 	 * for platform firmware events. Both are mutually exclusive
 	 * and hence can optimally share the same memory.
 	 */
-	uint64_t fw_counters_data[SBI_PMU_FW_CTR_MAX];
+	uint64_t fw_counters_ਅੰਕੜੇ[SBI_PMU_FW_CTR_MAX];
 	/* HW events configuration parameters from
 	 * sbi_pmu_ctr_cfg_match() command which are
 	 * used for restoring RAW hardware events after
 	 * cpu suspending.
 	 */
-	struct sbi_pmu_hw_event_config hw_counters_cfg[SBI_PMU_HW_CTR_MAX];
+	ਬਣਤਰ sbi_pmu_hw_event_config hw_counters_cfg[SBI_PMU_HW_CTR_MAX];
 };
 
 /** Offset of pointer to PMU HART state in scratch space */
-static unsigned long phs_ptr_offset;
+ਸਥਿਰ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ phs_ptr_ਵਿੱਥ;
 
-#define pmu_get_hart_state_ptr(__scratch)				\
-	phs_ptr_offset ? sbi_scratch_read_type((__scratch), void *, phs_ptr_offset) : NULL
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ pmu_get_hart_state_ptr(__scratch)				\
+	phs_ptr_ਵਿੱਥ ? sbi_scratch_read_type((__scratch), ਖਾਲੀ *, phs_ptr_ਵਿੱਥ) : ਨਿਰਾ
 
-#define pmu_thishart_state_ptr()					\
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ pmu_thishart_state_ptr()					\
 	pmu_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define pmu_set_hart_state_ptr(__scratch, __phs)			\
-	sbi_scratch_write_type((__scratch), void *, phs_ptr_offset, (__phs))
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ pmu_ਸੈੱਟ_hart_state_ptr(__scratch, __phs)			\
+	sbi_scratch_write_type((__scratch), ਖਾਲੀ *, phs_ptr_ਵਿੱਥ, (__phs))
 
 /* Platform specific PMU device */
-static const struct sbi_pmu_device *pmu_dev = NULL;
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ sbi_pmu_device *pmu_dev = ਨਿਰਾ;
 
 /* Mapping between event range and possible counters  */
-static struct sbi_pmu_hw_event *hw_event_map;
+ਸਥਿਰ ਬਣਤਰ sbi_pmu_hw_event *hw_event_map;
 
 /* Maximum number of hardware events available */
-static uint32_t num_hw_events;
+ਸਥਿਰ uint32_t ਅੰਕ_hw_events;
 /* Maximum number of hardware counters available */
-static uint32_t num_hw_ctrs;
+ਸਥਿਰ uint32_t ਅੰਕ_hw_ctrs;
 
 /* Maximum number of counters available */
-static uint32_t total_ctrs;
+ਸਥਿਰ uint32_t ਕੁੱਲ_ctrs;
 
 /* Helper macros to retrieve event idx and code type */
-#define get_cidx_type(x) \
-  (((x) & SBI_PMU_EVENT_IDX_TYPE_MASK) >> SBI_PMU_EVENT_IDX_TYPE_OFFSET)
-#define get_cidx_code(x) (x & SBI_PMU_EVENT_IDX_CODE_MASK)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ get_cidx_type(x) \
+  (((x) & SBI_PMU_EVENT_IDX_TYPE_ਨਕਾਬ) >> SBI_PMU_EVENT_IDX_TYPE_ਵਿੱਥ)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ get_cidx_ਕੋਡ(x) (x & SBI_PMU_EVENT_IDX_ਕੋਡ_ਨਕਾਬ)
 
 /**
  * Perform a sanity check on event & counter mappings with event range overlap check
@@ -127,200 +127,200 @@ static uint32_t total_ctrs;
  *
  * Return false if the range doesn't overlap, true otherwise
  */
-static bool pmu_event_range_overlap(struct sbi_pmu_hw_event *evtA,
-				    struct sbi_pmu_hw_event *evtB)
+ਸਥਿਰ bool pmu_event_range_overlap(ਬਣਤਰ sbi_pmu_hw_event *evtA,
+				    ਬਣਤਰ sbi_pmu_hw_event *evtB)
 {
 	/* check if the range of events overlap with a previous entry */
-	if (((evtA->end_idx < evtB->start_idx) && (evtA->end_idx < evtB->end_idx)) ||
-	   ((evtA->start_idx > evtB->start_idx) && (evtA->start_idx > evtB->end_idx)))
-		return false;
-	return true;
+	ਜੇ (((evtA->ਸਿਰਾ_idx < evtB->ਸ਼ੁਰੂ_idx) && (evtA->ਸਿਰਾ_idx < evtB->ਸਿਰਾ_idx)) ||
+	   ((evtA->ਸ਼ੁਰੂ_idx > evtB->ਸ਼ੁਰੂ_idx) && (evtA->ਸ਼ੁਰੂ_idx > evtB->ਸਿਰਾ_idx)))
+		ਵਾਪਸ false;
+	ਵਾਪਸ true;
 }
 
-static bool pmu_event_select_overlap(struct sbi_pmu_hw_event *evt,
-				     uint64_t select_val, uint64_t select_mask)
+ਸਥਿਰ bool pmu_event_select_overlap(ਬਣਤਰ sbi_pmu_hw_event *evt,
+				     uint64_t select_val, uint64_t select_ਨਕਾਬ)
 {
-	if ((evt->select == select_val) && (evt->select_mask == select_mask))
-		return true;
+	ਜੇ ((evt->select == select_val) && (evt->select_ਨਕਾਬ == select_ਨਕਾਬ))
+		ਵਾਪਸ true;
 
-	return false;
+	ਵਾਪਸ false;
 }
 
-static int pmu_event_validate(struct sbi_pmu_hart_state *phs,
-			      unsigned long event_idx, uint64_t edata)
+ਸਥਿਰ ਪੂਰਨ pmu_event_validate(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			      ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ event_idx, uint64_t edata)
 {
 	uint32_t event_idx_type = get_cidx_type(event_idx);
-	uint32_t event_idx_code = get_cidx_code(event_idx);
-	uint32_t event_idx_code_max = -1;
-	uint32_t cache_ops_result, cache_ops_id, cache_id;
+	uint32_t event_idx_ਕੋਡ = get_cidx_ਕੋਡ(event_idx);
+	uint32_t event_idx_ਕੋਡ_max = -1;
+	uint32_t cache_ops_ਨਤੀਜਾ, cache_ops_id, cache_id;
 
-	switch(event_idx_type) {
-	case SBI_PMU_EVENT_TYPE_HW:
-		event_idx_code_max = SBI_PMU_HW_GENERAL_MAX;
-		break;
-	case SBI_PMU_EVENT_TYPE_FW:
-		if ((event_idx_code >= SBI_PMU_FW_MAX &&
-		    event_idx_code <= SBI_PMU_FW_RESERVED_MAX) ||
-		    event_idx_code > SBI_PMU_FW_PLATFORM)
-			return SBI_EINVAL;
+	ਚੋਣ(event_idx_type) {
+	ਹਾਲਤ SBI_PMU_EVENT_TYPE_HW:
+		event_idx_ਕੋਡ_max = SBI_PMU_HW_GENERAL_MAX;
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_PMU_EVENT_TYPE_FW:
+		ਜੇ ((event_idx_ਕੋਡ >= SBI_PMU_FW_MAX &&
+		    event_idx_ਕੋਡ <= SBI_PMU_FW_RESERVED_MAX) ||
+		    event_idx_ਕੋਡ > SBI_PMU_FW_PLATFORM)
+			ਵਾਪਸ SBI_EINVAL;
 
-		if (SBI_PMU_FW_PLATFORM == event_idx_code &&
+		ਜੇ (SBI_PMU_FW_PLATFORM == event_idx_ਕੋਡ &&
 		    pmu_dev && pmu_dev->fw_event_validate_encoding)
-			return pmu_dev->fw_event_validate_encoding(phs->hartid,
+			ਵਾਪਸ pmu_dev->fw_event_validate_encoding(phs->hartid,
 							           edata);
-		else
-			event_idx_code_max = SBI_PMU_FW_MAX;
-		break;
-	case SBI_PMU_EVENT_TYPE_HW_CACHE:
-		cache_ops_result = event_idx_code &
-					SBI_PMU_EVENT_HW_CACHE_OPS_RESULT;
-		cache_ops_id = (event_idx_code &
-				SBI_PMU_EVENT_HW_CACHE_OPS_ID_MASK) >>
-				SBI_PMU_EVENT_HW_CACHE_OPS_ID_OFFSET;
-		cache_id = (event_idx_code &
-			    SBI_PMU_EVENT_HW_CACHE_ID_MASK) >>
-			    SBI_PMU_EVENT_HW_CACHE_ID_OFFSET;
-		if ((cache_ops_result < SBI_PMU_HW_CACHE_RESULT_MAX) &&
+		ਨਹੀਂਤਾਂ
+			event_idx_ਕੋਡ_max = SBI_PMU_FW_MAX;
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_PMU_EVENT_TYPE_HW_CACHE:
+		cache_ops_ਨਤੀਜਾ = event_idx_ਕੋਡ &
+					SBI_PMU_EVENT_HW_CACHE_OPS_ਨਤੀਜਾ;
+		cache_ops_id = (event_idx_ਕੋਡ &
+				SBI_PMU_EVENT_HW_CACHE_OPS_ID_ਨਕਾਬ) >>
+				SBI_PMU_EVENT_HW_CACHE_OPS_ID_ਵਿੱਥ;
+		cache_id = (event_idx_ਕੋਡ &
+			    SBI_PMU_EVENT_HW_CACHE_ID_ਨਕਾਬ) >>
+			    SBI_PMU_EVENT_HW_CACHE_ID_ਵਿੱਥ;
+		ਜੇ ((cache_ops_ਨਤੀਜਾ < SBI_PMU_HW_CACHE_ਨਤੀਜਾ_MAX) &&
 		    (cache_ops_id < SBI_PMU_HW_CACHE_OP_MAX) &&
 		    (cache_id < SBI_PMU_HW_CACHE_MAX))
-			return event_idx_type;
-		else
-			return SBI_EINVAL;
-		break;
-	case SBI_PMU_EVENT_TYPE_HW_RAW:
-	case SBI_PMU_EVENT_TYPE_HW_RAW_V2:
-		event_idx_code_max = 1; // event_idx.code should be zero
-		break;
-	default:
-		return SBI_EINVAL;
+			ਵਾਪਸ event_idx_type;
+		ਨਹੀਂਤਾਂ
+			ਵਾਪਸ SBI_EINVAL;
+		ਰੋਕੋ;
+	ਹਾਲਤ SBI_PMU_EVENT_TYPE_HW_RAW:
+	ਹਾਲਤ SBI_PMU_EVENT_TYPE_HW_RAW_V2:
+		event_idx_ਕੋਡ_max = 1; // event_idx.code should be zero
+		ਰੋਕੋ;
+	ਮੂਲ:
+		ਵਾਪਸ SBI_EINVAL;
 	}
 
-	if (event_idx_code < event_idx_code_max)
-		return event_idx_type;
+	ਜੇ (event_idx_ਕੋਡ < event_idx_ਕੋਡ_max)
+		ਵਾਪਸ event_idx_type;
 
-	return SBI_EINVAL;
+	ਵਾਪਸ SBI_EINVAL;
 }
 
-static int pmu_ctr_validate(struct sbi_pmu_hart_state *phs,
-			    uint32_t cidx, uint32_t *event_idx_code)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_validate(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			    uint32_t cidx, uint32_t *event_idx_ਕੋਡ)
 {
 	uint32_t event_idx_val;
 	uint32_t event_idx_type;
 
-	if (cidx >= total_ctrs)
-		return SBI_EINVAL;
+	ਜੇ (cidx >= ਕੁੱਲ_ctrs)
+		ਵਾਪਸ SBI_EINVAL;
 
-	event_idx_val = phs->active_events[cidx];
+	event_idx_val = phs->ਸਰਗਰਮ_events[cidx];
 	event_idx_type = get_cidx_type(event_idx_val);
-	if (event_idx_val == SBI_PMU_EVENT_IDX_INVALID ||
+	ਜੇ (event_idx_val == SBI_PMU_EVENT_IDX_INVALID ||
 	    event_idx_type >= SBI_PMU_EVENT_TYPE_MAX)
-		return SBI_EINVAL;
+		ਵਾਪਸ SBI_EINVAL;
 
-	*event_idx_code = get_cidx_code(event_idx_val);
+	*event_idx_ਕੋਡ = get_cidx_ਕੋਡ(event_idx_val);
 
-	return event_idx_type;
+	ਵਾਪਸ event_idx_type;
 }
 
-static bool pmu_ctr_idx_validate(unsigned long cbase, unsigned long cmask)
+ਸਥਿਰ bool pmu_ctr_idx_validate(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cbase, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cmask)
 {
-	unsigned long last;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਆਖਰੀ;
 
-	if (!cmask)
-		return false;
+	ਜੇ (!cmask)
+		ਵਾਪਸ false;
 
-	last = sbi_fls(cmask);
-	if (cbase > -1UL - last)
-		return false;
+	ਆਖਰੀ = sbi_fls(cmask);
+	ਜੇ (cbase > -1UL - ਆਖਰੀ)
+		ਵਾਪਸ false;
 
-	return (cbase + last) < total_ctrs;
+	ਵਾਪਸ (cbase + ਆਖਰੀ) < ਕੁੱਲ_ctrs;
 }
 
-int sbi_pmu_ctr_fw_read(unsigned long cidx, uint64_t *cval, bool high_bits)
+ਪੂਰਨ sbi_pmu_ctr_fw_read(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cidx, uint64_t *cval, bool ਉੱਚਾ_ਬਿੱਟ)
 {
-	int event_idx_type;
-	uint32_t event_code;
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਪੂਰਨ event_idx_type;
+	uint32_t event_ਕੋਡ;
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
-	if (unlikely(!phs))
-		return SBI_EINVAL;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (cidx < num_hw_ctrs || cidx >= total_ctrs)
-		return SBI_EINVAL;
+	ਜੇ (cidx < ਅੰਕ_hw_ctrs || cidx >= ਕੁੱਲ_ctrs)
+		ਵਾਪਸ SBI_EINVAL;
 
-#if __riscv_xlen > 32
-	if (high_bits)
-		return 0;
-#endif
+#ਜੇ __riscv_xlen > 32
+	ਜੇ (ਉੱਚਾ_ਬਿੱਟ)
+		ਵਾਪਸ 0;
+#ਜੇ_ਅੰਤ
 
-	event_idx_type = pmu_ctr_validate(phs, cidx, &event_code);
-	if (event_idx_type != SBI_PMU_EVENT_TYPE_FW)
-		return SBI_EINVAL;
+	event_idx_type = pmu_ctr_validate(phs, cidx, &event_ਕੋਡ);
+	ਜੇ (event_idx_type != SBI_PMU_EVENT_TYPE_FW)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if ((event_code >= SBI_PMU_FW_MAX &&
-	    event_code <= SBI_PMU_FW_RESERVED_MAX) ||
-	    event_code > SBI_PMU_FW_PLATFORM)
-		return SBI_EINVAL;
+	ਜੇ ((event_ਕੋਡ >= SBI_PMU_FW_MAX &&
+	    event_ਕੋਡ <= SBI_PMU_FW_RESERVED_MAX) ||
+	    event_ਕੋਡ > SBI_PMU_FW_PLATFORM)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (SBI_PMU_FW_PLATFORM == event_code) {
-		if (pmu_dev && pmu_dev->fw_counter_read_value)
-			*cval = pmu_dev->fw_counter_read_value(phs->hartid,
+	ਜੇ (SBI_PMU_FW_PLATFORM == event_ਕੋਡ) {
+		ਜੇ (pmu_dev && pmu_dev->fw_counter_read_ਮੁੱਲ)
+			*cval = pmu_dev->fw_counter_read_ਮੁੱਲ(phs->hartid,
 							       cidx -
-							       num_hw_ctrs);
-		else
+							       ਅੰਕ_hw_ctrs);
+		ਨਹੀਂਤਾਂ
 			*cval = 0;
-	} else
-		*cval = phs->fw_counters_data[cidx - num_hw_ctrs];
+	} ਨਹੀਂਤਾਂ
+		*cval = phs->fw_counters_ਅੰਕੜੇ[cidx - ਅੰਕ_hw_ctrs];
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int pmu_add_hw_event_map(u32 eidx_start, u32 eidx_end, u32 cmap,
-				uint64_t select, uint64_t select_mask)
+ਸਥਿਰ ਪੂਰਨ pmu_ਜੋੜੋ_hw_event_map(u32 eidx_ਸ਼ੁਰੂ, u32 eidx_ਸਿਰਾ, u32 cmap,
+				uint64_t select, uint64_t select_ਨਕਾਬ)
 {
-	int i = 0;
+	ਪੂਰਨ i = 0;
 	bool is_overlap;
-	struct sbi_pmu_hw_event *event = &hw_event_map[num_hw_events];
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	uint32_t ctr_avail_mask = sbi_hart_mhpm_mask(scratch) | 0x7;
+	ਬਣਤਰ sbi_pmu_hw_event *event = &hw_event_map[ਅੰਕ_hw_events];
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	uint32_t ctr_avail_ਨਕਾਬ = sbi_hart_mhpm_ਨਕਾਬ(scratch) | 0x7;
 
 	/* The first two counters are reserved by priv spec */
-	if (eidx_start > SBI_PMU_HW_INSTRUCTIONS && (cmap & SBI_PMU_FIXED_CTR_MASK))
-		return SBI_EDENIED;
+	ਜੇ (eidx_ਸ਼ੁਰੂ > SBI_PMU_HW_INSTRUCTIONS && (cmap & SBI_PMU_FIXED_CTR_ਨਕਾਬ))
+		ਵਾਪਸ SBI_EDENIED;
 
-	if (num_hw_events >= SBI_PMU_HW_EVENT_MAX - 1) {
+	ਜੇ (ਅੰਕ_hw_events >= SBI_PMU_HW_EVENT_MAX - 1) {
 		sbi_printf("Can not handle more than %d perf events\n",
 			    SBI_PMU_HW_EVENT_MAX);
-		return SBI_EFAIL;
+		ਵਾਪਸ SBI_EFAIL;
 	}
 
-	event->start_idx = eidx_start;
-	event->end_idx = eidx_end;
+	event->ਸ਼ੁਰੂ_idx = eidx_ਸ਼ੁਰੂ;
+	event->ਸਿਰਾ_idx = eidx_ਸਿਰਾ;
 
 	/* Sanity check */
-	for (i = 0; i < num_hw_events; i++) {
-		if (eidx_start == SBI_PMU_EVENT_RAW_IDX ||
-			eidx_start == SBI_PMU_EVENT_RAW_V2_IDX)
+	ਲਈ (i = 0; i < ਅੰਕ_hw_events; i++) {
+		ਜੇ (eidx_ਸ਼ੁਰੂ == SBI_PMU_EVENT_RAW_IDX ||
+			eidx_ਸ਼ੁਰੂ == SBI_PMU_EVENT_RAW_V2_IDX)
 		/* All raw events have same event idx. Just do sanity check on select */
 			is_overlap = pmu_event_select_overlap(&hw_event_map[i],
-							      select, select_mask);
-		else
+							      select, select_ਨਕਾਬ);
+		ਨਹੀਂਤਾਂ
 			is_overlap = pmu_event_range_overlap(&hw_event_map[i], event);
-		if (is_overlap)
-			goto reset_event;
+		ਜੇ (is_overlap)
+			ਜਾਓ reset_event;
 	}
 
-	event->select_mask = select_mask;
+	event->select_ਨਕਾਬ = select_ਨਕਾਬ;
 	/* Map the only the counters that are available in the hardware */
-	event->counters = cmap & ctr_avail_mask;
+	event->counters = cmap & ctr_avail_ਨਕਾਬ;
 	event->select = select;
-	num_hw_events++;
+	ਅੰਕ_hw_events++;
 
-	return 0;
+	ਵਾਪਸ 0;
 
 reset_event:
-	event->start_idx = 0;
-	event->end_idx = 0;
-	return SBI_EINVAL;
+	event->ਸ਼ੁਰੂ_idx = 0;
+	event->ਸਿਰਾ_idx = 0;
+	ਵਾਪਸ SBI_EINVAL;
 }
 
 /**
@@ -328,50 +328,50 @@ reset_event:
  * E.g. counter0 must count MCYCLE where counter2 must count minstret. Similarly,
  * counterX will mhpmcounterX.
  */
-int sbi_pmu_add_hw_event_counter_map(u32 eidx_start, u32 eidx_end, u32 cmap)
+ਪੂਰਨ sbi_pmu_ਜੋੜੋ_hw_event_counter_map(u32 eidx_ਸ਼ੁਰੂ, u32 eidx_ਸਿਰਾ, u32 cmap)
 {
-	if ((eidx_start > eidx_end) || eidx_start >= SBI_PMU_EVENT_RAW_IDX ||
-	     eidx_end >= SBI_PMU_EVENT_RAW_IDX)
-		return SBI_EINVAL;
+	ਜੇ ((eidx_ਸ਼ੁਰੂ > eidx_ਸਿਰਾ) || eidx_ਸ਼ੁਰੂ >= SBI_PMU_EVENT_RAW_IDX ||
+	     eidx_ਸਿਰਾ >= SBI_PMU_EVENT_RAW_IDX)
+		ਵਾਪਸ SBI_EINVAL;
 
-	return pmu_add_hw_event_map(eidx_start, eidx_end, cmap, 0, 0);
+	ਵਾਪਸ pmu_ਜੋੜੋ_hw_event_map(eidx_ਸ਼ੁਰੂ, eidx_ਸਿਰਾ, cmap, 0, 0);
 }
 
-int sbi_pmu_add_raw_event_counter_map(uint64_t select, uint64_t select_mask, u32 cmap)
+ਪੂਰਨ sbi_pmu_ਜੋੜੋ_raw_event_counter_map(uint64_t select, uint64_t select_ਨਕਾਬ, u32 cmap)
 {
-	return pmu_add_hw_event_map(SBI_PMU_EVENT_RAW_IDX,
-				    SBI_PMU_EVENT_RAW_V2_IDX, cmap, select, select_mask);
+	ਵਾਪਸ pmu_ਜੋੜੋ_hw_event_map(SBI_PMU_EVENT_RAW_IDX,
+				    SBI_PMU_EVENT_RAW_V2_IDX, cmap, select, select_ਨਕਾਬ);
 }
 
-void sbi_pmu_ovf_irq()
+ਖਾਲੀ sbi_pmu_ovf_irq()
 {
 	/*
 	 * We need to disable the overflow irq before returning to S-mode or we will loop
 	 * on an irq being triggered
 	 */
-	csr_clear(CSR_MIE, sbi_pmu_irq_mask());
-	sbi_sse_inject_event(SBI_SSE_EVENT_LOCAL_PMU_OVERFLOW);
+	csr_clear(CSR_MIE, sbi_pmu_irq_ਨਕਾਬ());
+	sbi_sse_inject_event(SBI_SSE_EVENT_LOCAL_PMU_ਉਛਾਲ);
 }
 
-static int pmu_ctr_enable_irq_hw(int ctr_idx)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_enable_irq_hw(ਪੂਰਨ ctr_idx)
 {
-	unsigned long mhpmevent_csr;
-	unsigned long mhpmevent_curr;
-	unsigned long mip_val;
-	unsigned long of_mask;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mhpmevent_csr;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mhpmevent_curr;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mip_val;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਦਾ_ਨਕਾਬ;
 
-	if (ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
-		return SBI_EFAIL;
+	ਜੇ (ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
+		ਵਾਪਸ SBI_EFAIL;
 
-#if __riscv_xlen == 32
+#ਜੇ __riscv_xlen == 32
 	mhpmevent_csr = CSR_MHPMEVENT3H  + ctr_idx - 3;
-	of_mask = (uint32_t)~MHPMEVENTH_OF;
-#else
+	ਦਾ_ਨਕਾਬ = (uint32_t)~MHPMEVENTH_ਦਾ;
+#ਨਹੀਂਤਾਂ
 	mhpmevent_csr = CSR_MHPMEVENT3 + ctr_idx - 3;
-	of_mask = ~MHPMEVENT_OF;
-#endif
+	ਦਾ_ਨਕਾਬ = ~MHPMEVENT_ਦਾ;
+#ਜੇ_ਅੰਤ
 
-	mhpmevent_curr = csr_read_num(mhpmevent_csr);
+	mhpmevent_curr = csr_read_ਅੰਕ(mhpmevent_csr);
 	mip_val = csr_read(CSR_MIP);
 	/**
 	 * Clear out the OF bit so that next interrupt can be enabled.
@@ -381,38 +381,38 @@ static int pmu_ctr_enable_irq_hw(int ctr_idx)
 	 * Otherwise, there will be race conditions where we may clear the bit
 	 * the software is yet to handle the interrupt.
 	 */
-	if (!(mip_val & sbi_pmu_irq_mask())) {
-		mhpmevent_curr &= of_mask;
-		csr_write_num(mhpmevent_csr, mhpmevent_curr);
+	ਜੇ (!(mip_val & sbi_pmu_irq_ਨਕਾਬ())) {
+		mhpmevent_curr &= ਦਾ_ਨਕਾਬ;
+		csr_write_ਅੰਕ(mhpmevent_csr, mhpmevent_curr);
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void pmu_ctr_write_hw(uint32_t cidx, uint64_t ival)
+ਸਥਿਰ ਖਾਲੀ pmu_ctr_write_hw(uint32_t cidx, uint64_t ival)
 {
-#if __riscv_xlen == 32
-	csr_write_num(CSR_MCYCLE + cidx, 0);
-	csr_write_num(CSR_MCYCLE + cidx, ival & 0xFFFFFFFF);
-	csr_write_num(CSR_MCYCLEH + cidx, ival >> BITS_PER_LONG);
-#else
-	csr_write_num(CSR_MCYCLE + cidx, ival);
-#endif
+#ਜੇ __riscv_xlen == 32
+	csr_write_ਅੰਕ(CSR_MCYCLE + cidx, 0);
+	csr_write_ਅੰਕ(CSR_MCYCLE + cidx, ival & 0xFFFFFFFF);
+	csr_write_ਅੰਕ(CSR_MCYCLEH + cidx, ival >> ਬਿੱਟ_ਪ੍ਰਤੀ_LONG);
+#ਨਹੀਂਤਾਂ
+	csr_write_ਅੰਕ(CSR_MCYCLE + cidx, ival);
+#ਜੇ_ਅੰਤ
 }
 
-static int pmu_ctr_start_hw(uint32_t cidx, uint64_t ival, bool ival_update)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_ਸ਼ੁਰੂ_hw(uint32_t cidx, uint64_t ival, bool ival_update)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	unsigned long mctr_inhbt;
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mctr_inhbt;
 
 	/* Make sure the counter index lies within the range and is not TM bit */
-	if (cidx >= num_hw_ctrs || cidx == 1)
-		return SBI_EINVAL;
+	ਜੇ (cidx >= ਅੰਕ_hw_ctrs || cidx == 1)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (sbi_hart_priv_version(scratch) < SBI_HART_PRIV_VER_1_11) {
-		if (ival_update)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) < SBI_HART_PRIV_VER_1_11) {
+		ਜੇ (ival_update)
 			pmu_ctr_write_hw(cidx, ival);
-		return 0;
+		ਵਾਪਸ 0;
 	}
 
 	/*
@@ -420,436 +420,436 @@ static int pmu_ctr_start_hw(uint32_t cidx, uint64_t ival, bool ival_update)
 	 * still can work if supervisor mode programs the initial value.
 	 */
 	mctr_inhbt = csr_read(CSR_MCOUNTINHIBIT);
-	if (!__test_bit(cidx, &mctr_inhbt))
-		return SBI_EALREADY_STARTED;
+	ਜੇ (!__test_bit(cidx, &mctr_inhbt))
+		ਵਾਪਸ SBI_EALREADY_STARTED;
 
 	__clear_bit(cidx, &mctr_inhbt);
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
 		pmu_ctr_enable_irq_hw(cidx);
-	if (ival_update)
+	ਜੇ (ival_update)
 		pmu_ctr_write_hw(cidx, ival);
-	if (pmu_dev && pmu_dev->hw_counter_enable_irq)
+	ਜੇ (pmu_dev && pmu_dev->hw_counter_enable_irq)
 		pmu_dev->hw_counter_enable_irq(cidx);
 
 	csr_write(CSR_MCOUNTINHIBIT, mctr_inhbt);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-int sbi_pmu_irq_bit(void)
+ਪੂਰਨ sbi_pmu_irq_ਦੋਆਧਾਰੀ_ਅੰਕ(ਖਾਲੀ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-		return IRQ_PMU_OVF;
-	if (pmu_dev && pmu_dev->hw_counter_irq_bit)
-		return pmu_dev->hw_counter_irq_bit();
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+		ਵਾਪਸ IRQ_PMU_OVF;
+	ਜੇ (pmu_dev && pmu_dev->hw_counter_irq_ਦੋਆਧਾਰੀ_ਅੰਕ)
+		ਵਾਪਸ pmu_dev->hw_counter_irq_ਦੋਆਧਾਰੀ_ਅੰਕ();
 
-	return -1;
+	ਵਾਪਸ -1;
 }
 
-unsigned long sbi_pmu_irq_mask(void)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sbi_pmu_irq_ਨਕਾਬ(ਖਾਲੀ)
 {
-	int irq_bit = sbi_pmu_irq_bit();
+	ਪੂਰਨ irq_ਦੋਆਧਾਰੀ_ਅੰਕ = sbi_pmu_irq_ਦੋਆਧਾਰੀ_ਅੰਕ();
 
-	if (irq_bit < 0)
-		return 0;
+	ਜੇ (irq_ਦੋਆਧਾਰੀ_ਅੰਕ < 0)
+		ਵਾਪਸ 0;
 
-	return BIT(irq_bit);
+	ਵਾਪਸ ਦੋਆਧਾਰੀ_ਅੰਕ(irq_ਦੋਆਧਾਰੀ_ਅੰਕ);
 }
 
-static int pmu_ctr_start_fw(struct sbi_pmu_hart_state *phs,
-			    uint32_t cidx, uint32_t event_code,
-			    uint64_t event_data, uint64_t ival,
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_ਸ਼ੁਰੂ_fw(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			    uint32_t cidx, uint32_t event_ਕੋਡ,
+			    uint64_t event_ਅੰਕੜੇ, uint64_t ival,
 			    bool ival_update)
 {
-	int ret;
+	ਪੂਰਨ ret;
 
-	if ((event_code >= SBI_PMU_FW_MAX &&
-	    event_code <= SBI_PMU_FW_RESERVED_MAX) ||
-	    event_code > SBI_PMU_FW_PLATFORM)
-		return SBI_EINVAL;
+	ਜੇ ((event_ਕੋਡ >= SBI_PMU_FW_MAX &&
+	    event_ਕੋਡ <= SBI_PMU_FW_RESERVED_MAX) ||
+	    event_ਕੋਡ > SBI_PMU_FW_PLATFORM)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (phs->fw_counters_started & BIT(cidx - num_hw_ctrs))
-		return SBI_EALREADY_STARTED;
+	ਜੇ (phs->fw_counters_started & ਦੋਆਧਾਰੀ_ਅੰਕ(cidx - ਅੰਕ_hw_ctrs))
+		ਵਾਪਸ SBI_EALREADY_STARTED;
 
-	if (SBI_PMU_FW_PLATFORM == event_code) {
-		if (!pmu_dev ||
-		    !pmu_dev->fw_counter_write_value ||
-		    !pmu_dev->fw_counter_start) {
-			return SBI_EINVAL;
+	ਜੇ (SBI_PMU_FW_PLATFORM == event_ਕੋਡ) {
+		ਜੇ (!pmu_dev ||
+		    !pmu_dev->fw_counter_write_ਮੁੱਲ ||
+		    !pmu_dev->fw_counter_ਸ਼ੁਰੂ) {
+			ਵਾਪਸ SBI_EINVAL;
 		}
 
-		if (ival_update)
-			pmu_dev->fw_counter_write_value(phs->hartid,
-							cidx - num_hw_ctrs,
+		ਜੇ (ival_update)
+			pmu_dev->fw_counter_write_ਮੁੱਲ(phs->hartid,
+							cidx - ਅੰਕ_hw_ctrs,
 							ival);
 
-		ret = pmu_dev->fw_counter_start(phs->hartid,
-						 cidx - num_hw_ctrs,
-						 event_data);
-		if (ret)
-			return ret;
-	} else {
-		if (ival_update)
-			phs->fw_counters_data[cidx - num_hw_ctrs] = ival;
+		ret = pmu_dev->fw_counter_ਸ਼ੁਰੂ(phs->hartid,
+						 cidx - ਅੰਕ_hw_ctrs,
+						 event_ਅੰਕੜੇ);
+		ਜੇ (ret)
+			ਵਾਪਸ ret;
+	} ਨਹੀਂਤਾਂ {
+		ਜੇ (ival_update)
+			phs->fw_counters_ਅੰਕੜੇ[cidx - ਅੰਕ_hw_ctrs] = ival;
 	}
 
-	phs->fw_counters_started |= BIT(cidx - num_hw_ctrs);
+	phs->fw_counters_started |= ਦੋਆਧਾਰੀ_ਅੰਕ(cidx - ਅੰਕ_hw_ctrs);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void pmu_update_inhibit_flags(unsigned long flags, uint64_t *mhpmevent_val)
+ਸਥਿਰ ਖਾਲੀ pmu_update_inhibit_flags(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags, uint64_t *mhpmevent_val)
 {
-	if (flags & SBI_PMU_CFG_FLAG_SET_VUINH)
+	ਜੇ (flags & SBI_PMU_CFG_FLAG_ਸੈੱਟ_VUINH)
 		*mhpmevent_val |= MHPMEVENT_VUINH;
-	if (flags & SBI_PMU_CFG_FLAG_SET_VSINH)
+	ਜੇ (flags & SBI_PMU_CFG_FLAG_ਸੈੱਟ_VSINH)
 		*mhpmevent_val |= MHPMEVENT_VSINH;
-	if (flags & SBI_PMU_CFG_FLAG_SET_UINH)
+	ਜੇ (flags & SBI_PMU_CFG_FLAG_ਸੈੱਟ_UINH)
 		*mhpmevent_val |= MHPMEVENT_UINH;
-	if (flags & SBI_PMU_CFG_FLAG_SET_SINH)
+	ਜੇ (flags & SBI_PMU_CFG_FLAG_ਸੈੱਟ_SINH)
 		*mhpmevent_val |= MHPMEVENT_SINH;
 }
 
-static int pmu_update_hw_mhpmevent(struct sbi_pmu_hw_event *hw_evt, int ctr_idx,
-				   unsigned long flags, unsigned long eindex,
-				   uint64_t data)
+ਸਥਿਰ ਪੂਰਨ pmu_update_hw_mhpmevent(ਬਣਤਰ sbi_pmu_hw_event *hw_evt, ਪੂਰਨ ctr_idx,
+				   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ eindex,
+				   uint64_t ਅੰਕੜੇ)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਅਚਲ ਬਣਤਰ sbi_platform *plat = sbi_platform_ptr(scratch);
 	uint64_t mhpmevent_val;
 
 	/* Get the final mhpmevent value to be written from platform */
-	mhpmevent_val = sbi_platform_pmu_xlate_to_mhpmevent(plat, eindex, data);
+	mhpmevent_val = sbi_platform_pmu_xlate_ਮੰਜ਼ਿਲ_mhpmevent(plat, eindex, ਅੰਕੜੇ);
 
-	if (!mhpmevent_val || ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
-		return SBI_EFAIL;
+	ਜੇ (!mhpmevent_val || ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
+		ਵਾਪਸ SBI_EFAIL;
 
 	/**
 	 * Always set the OVF bit(disable interrupts) and inhibit counting of
 	 * events in M-mode. The OVF bit should be enabled during the start call.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-		mhpmevent_val = (mhpmevent_val & ~MHPMEVENT_SSCOF_MASK) |
-				 MHPMEVENT_MINH | MHPMEVENT_OF;
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+		mhpmevent_val = (mhpmevent_val & ~MHPMEVENT_SSCOF_ਨਕਾਬ) |
+				 MHPMEVENT_MINH | MHPMEVENT_ਦਾ;
 
-	if (pmu_dev && pmu_dev->hw_counter_disable_irq)
+	ਜੇ (pmu_dev && pmu_dev->hw_counter_disable_irq)
 		pmu_dev->hw_counter_disable_irq(ctr_idx);
 
 	/* Update the inhibit flags based on inhibit flags received from supervisor */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
 		pmu_update_inhibit_flags(flags, &mhpmevent_val);
-	if (pmu_dev && pmu_dev->hw_counter_filter_mode)
-		pmu_dev->hw_counter_filter_mode(flags, ctr_idx);
+	ਜੇ (pmu_dev && pmu_dev->hw_counter_filter_ਬਹੁਲਕ)
+		pmu_dev->hw_counter_filter_ਬਹੁਲਕ(flags, ctr_idx);
 
-#if __riscv_xlen == 32
-	csr_write_num(CSR_MHPMEVENT3 + ctr_idx - 3, mhpmevent_val & 0xFFFFFFFF);
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
-		csr_write_num(CSR_MHPMEVENT3H + ctr_idx - 3,
-			      mhpmevent_val >> BITS_PER_LONG);
-#else
-	csr_write_num(CSR_MHPMEVENT3 + ctr_idx - 3, mhpmevent_val);
-#endif
+#ਜੇ __riscv_xlen == 32
+	csr_write_ਅੰਕ(CSR_MHPMEVENT3 + ctr_idx - 3, mhpmevent_val & 0xFFFFFFFF);
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF))
+		csr_write_ਅੰਕ(CSR_MHPMEVENT3H + ctr_idx - 3,
+			      mhpmevent_val >> ਬਿੱਟ_ਪ੍ਰਤੀ_LONG);
+#ਨਹੀਂਤਾਂ
+	csr_write_ਅੰਕ(CSR_MHPMEVENT3 + ctr_idx - 3, mhpmevent_val);
+#ਜੇ_ਅੰਤ
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-int sbi_pmu_ctr_start(unsigned long cbase, unsigned long cmask,
-		      unsigned long flags, uint64_t ival)
+ਪੂਰਨ sbi_pmu_ctr_ਸ਼ੁਰੂ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cbase, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cmask,
+		      ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags, uint64_t ival)
 {
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
-	if (unlikely(!phs))
-		return SBI_EINVAL;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ SBI_EINVAL;
 
-	int event_idx_type;
-	uint32_t event_code;
-	int ret = SBI_EINVAL;
+	ਪੂਰਨ event_idx_type;
+	uint32_t event_ਕੋਡ;
+	ਪੂਰਨ ret = SBI_EINVAL;
 	bool bUpdate = false;
-	int i, cidx;
+	ਪੂਰਨ i, cidx;
 	uint64_t edata;
 
-	if (!pmu_ctr_idx_validate(cbase, cmask))
-		return ret;
+	ਜੇ (!pmu_ctr_idx_validate(cbase, cmask))
+		ਵਾਪਸ ret;
 
-	if (flags & ~SBI_PMU_START_FLAGS_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	ਜੇ (flags & ~SBI_PMU_ਸ਼ੁਰੂ_FLAGS_ਨਕਾਬ)
+		ਵਾਪਸ SBI_ERR_INVALID_PARAM;
 
-	if (flags & SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT)
-		return SBI_ENO_SHMEM;
+	ਜੇ (flags & SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT)
+		ਵਾਪਸ SBI_ENO_SHMEM;
 
-	if (flags & SBI_PMU_START_FLAG_SET_INIT_VALUE)
+	ਜੇ (flags & SBI_PMU_ਸ਼ੁਰੂ_FLAG_ਸੈੱਟ_INIT_ਮੁੱਲ)
 		bUpdate = true;
 
-	for_each_set_bit(i, &cmask, BITS_PER_LONG) {
+	for_each_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(i, &cmask, ਬਿੱਟ_ਪ੍ਰਤੀ_LONG) {
 		cidx = i + cbase;
-		event_idx_type = pmu_ctr_validate(phs, cidx, &event_code);
-		if (event_idx_type < 0)
+		event_idx_type = pmu_ctr_validate(phs, cidx, &event_ਕੋਡ);
+		ਜੇ (event_idx_type < 0)
 			/* Continue the start operation for other counters */
-			continue;
-		else if (event_idx_type == SBI_PMU_EVENT_TYPE_FW) {
-			edata = (event_code == SBI_PMU_FW_PLATFORM) ?
-				 phs->fw_counters_data[cidx - num_hw_ctrs]
+			ਜਾਰੀ;
+		ਨਹੀਂਤਾਂ ਜੇ (event_idx_type == SBI_PMU_EVENT_TYPE_FW) {
+			edata = (event_ਕੋਡ == SBI_PMU_FW_PLATFORM) ?
+				 phs->fw_counters_ਅੰਕੜੇ[cidx - ਅੰਕ_hw_ctrs]
 				 : 0x0;
-			ret = pmu_ctr_start_fw(phs, cidx, event_code, edata,
+			ret = pmu_ctr_ਸ਼ੁਰੂ_fw(phs, cidx, event_ਕੋਡ, edata,
 					       ival, bUpdate);
-			if (ret)
-				return ret;
-		} else {
-			if (cidx >= 3) {
-				struct sbi_pmu_hw_event_config *ev_cfg =
+			ਜੇ (ret)
+				ਵਾਪਸ ret;
+		} ਨਹੀਂਤਾਂ {
+			ਜੇ (cidx >= 3) {
+				ਬਣਤਰ sbi_pmu_hw_event_config *ev_cfg =
 					&phs->hw_counters_cfg[cidx];
 
 				ret = pmu_update_hw_mhpmevent(&hw_event_map[cidx], cidx,
 							ev_cfg->flags,
-							phs->active_events[cidx],
-							ev_cfg->event_data);
-				if (ret)
-					return ret;
+							phs->ਸਰਗਰਮ_events[cidx],
+							ev_cfg->event_ਅੰਕੜੇ);
+				ਜੇ (ret)
+					ਵਾਪਸ ret;
 			}
-			ret = pmu_ctr_start_hw(cidx, ival, bUpdate);
-			if (ret)
-				return ret;
+			ret = pmu_ctr_ਸ਼ੁਰੂ_hw(cidx, ival, bUpdate);
+			ਜੇ (ret)
+				ਵਾਪਸ ret;
 		}
 	}
 
-	return ret;
+	ਵਾਪਸ ret;
 }
 
-static int pmu_ctr_stop_hw(uint32_t cidx)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_stop_hw(uint32_t cidx)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	unsigned long mctr_inhbt;
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mctr_inhbt;
 
-	if (sbi_hart_priv_version(scratch) < SBI_HART_PRIV_VER_1_11)
-		return 0;
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) < SBI_HART_PRIV_VER_1_11)
+		ਵਾਪਸ 0;
 
 	mctr_inhbt = csr_read(CSR_MCOUNTINHIBIT);
 
 	/* Make sure the counter index lies within the range and is not TM bit */
-	if (cidx >= num_hw_ctrs || cidx == 1)
-		return SBI_EINVAL;
+	ਜੇ (cidx >= ਅੰਕ_hw_ctrs || cidx == 1)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (!__test_bit(cidx, &mctr_inhbt)) {
+	ਜੇ (!__test_bit(cidx, &mctr_inhbt)) {
 		__set_bit(cidx, &mctr_inhbt);
 		csr_write(CSR_MCOUNTINHIBIT, mctr_inhbt);
-		if (pmu_dev && pmu_dev->hw_counter_disable_irq) {
+		ਜੇ (pmu_dev && pmu_dev->hw_counter_disable_irq) {
 			pmu_dev->hw_counter_disable_irq(cidx);
 		}
-		return 0;
-	} else
-		return SBI_EALREADY_STOPPED;
+		ਵਾਪਸ 0;
+	} ਨਹੀਂਤਾਂ
+		ਵਾਪਸ SBI_EALREADY_STOPPED;
 }
 
-static int pmu_ctr_stop_fw(struct sbi_pmu_hart_state *phs,
-			   uint32_t cidx, uint32_t event_code)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_stop_fw(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			   uint32_t cidx, uint32_t event_ਕੋਡ)
 {
-	int ret;
+	ਪੂਰਨ ret;
 
-	if ((event_code >= SBI_PMU_FW_MAX &&
-	    event_code <= SBI_PMU_FW_RESERVED_MAX) ||
-	    event_code > SBI_PMU_FW_PLATFORM)
-		return SBI_EINVAL;
+	ਜੇ ((event_ਕੋਡ >= SBI_PMU_FW_MAX &&
+	    event_ਕੋਡ <= SBI_PMU_FW_RESERVED_MAX) ||
+	    event_ਕੋਡ > SBI_PMU_FW_PLATFORM)
+		ਵਾਪਸ SBI_EINVAL;
 
-	if (!(phs->fw_counters_started & BIT(cidx - num_hw_ctrs)))
-		return SBI_EALREADY_STOPPED;
+	ਜੇ (!(phs->fw_counters_started & ਦੋਆਧਾਰੀ_ਅੰਕ(cidx - ਅੰਕ_hw_ctrs)))
+		ਵਾਪਸ SBI_EALREADY_STOPPED;
 
-	if (SBI_PMU_FW_PLATFORM == event_code &&
+	ਜੇ (SBI_PMU_FW_PLATFORM == event_ਕੋਡ &&
 	    pmu_dev && pmu_dev->fw_counter_stop) {
-		ret = pmu_dev->fw_counter_stop(phs->hartid, cidx - num_hw_ctrs);
-		if (ret)
-			return ret;
+		ret = pmu_dev->fw_counter_stop(phs->hartid, cidx - ਅੰਕ_hw_ctrs);
+		ਜੇ (ret)
+			ਵਾਪਸ ret;
 	}
 
-	phs->fw_counters_started &= ~BIT(cidx - num_hw_ctrs);
+	phs->fw_counters_started &= ~ਦੋਆਧਾਰੀ_ਅੰਕ(cidx - ਅੰਕ_hw_ctrs);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static int pmu_reset_hw_mhpmevent(int ctr_idx)
+ਸਥਿਰ ਪੂਰਨ pmu_reset_hw_mhpmevent(ਪੂਰਨ ctr_idx)
 {
-	if (ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
-		return SBI_EFAIL;
-#if __riscv_xlen == 32
-	csr_write_num(CSR_MHPMEVENT3 + ctr_idx - 3, 0);
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	ਜੇ (ctr_idx < 3 || ctr_idx >= SBI_PMU_HW_CTR_MAX)
+		ਵਾਪਸ SBI_EFAIL;
+#ਜੇ __riscv_xlen == 32
+	csr_write_ਅੰਕ(CSR_MHPMEVENT3 + ctr_idx - 3, 0);
+	ਜੇ (sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				   SBI_HART_EXT_SSCOFPMF))
-		csr_write_num(CSR_MHPMEVENT3H + ctr_idx - 3, 0);
-#else
-	csr_write_num(CSR_MHPMEVENT3 + ctr_idx - 3, 0);
-#endif
+		csr_write_ਅੰਕ(CSR_MHPMEVENT3H + ctr_idx - 3, 0);
+#ਨਹੀਂਤਾਂ
+	csr_write_ਅੰਕ(CSR_MHPMEVENT3 + ctr_idx - 3, 0);
+#ਜੇ_ਅੰਤ
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-int sbi_pmu_ctr_stop(unsigned long cbase, unsigned long cmask,
-		     unsigned long flag)
+ਪੂਰਨ sbi_pmu_ctr_stop(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cbase, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cmask,
+		     ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flag)
 {
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
-	if (unlikely(!phs))
-		return SBI_EINVAL;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ SBI_EINVAL;
 
-	int ret = SBI_EINVAL;
-	int event_idx_type;
-	uint32_t event_code;
-	int i, cidx;
+	ਪੂਰਨ ret = SBI_EINVAL;
+	ਪੂਰਨ event_idx_type;
+	uint32_t event_ਕੋਡ;
+	ਪੂਰਨ i, cidx;
 
-	if (!pmu_ctr_idx_validate(cbase, cmask))
-		return ret;
+	ਜੇ (!pmu_ctr_idx_validate(cbase, cmask))
+		ਵਾਪਸ ret;
 
-	if (flag & ~SBI_PMU_STOP_FLAGS_MASK)
-		return SBI_ERR_INVALID_PARAM;
+	ਜੇ (flag & ~SBI_PMU_STOP_FLAGS_ਨਕਾਬ)
+		ਵਾਪਸ SBI_ERR_INVALID_PARAM;
 
-	if (flag & SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT)
-		return SBI_ENO_SHMEM;
+	ਜੇ (flag & SBI_PMU_STOP_FLAG_TAKE_SNAPSHOT)
+		ਵਾਪਸ SBI_ENO_SHMEM;
 
-	for_each_set_bit(i, &cmask, BITS_PER_LONG) {
+	for_each_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(i, &cmask, ਬਿੱਟ_ਪ੍ਰਤੀ_LONG) {
 		cidx = i + cbase;
-		event_idx_type = pmu_ctr_validate(phs, cidx, &event_code);
-		if (event_idx_type < 0)
+		event_idx_type = pmu_ctr_validate(phs, cidx, &event_ਕੋਡ);
+		ਜੇ (event_idx_type < 0)
 			/* Continue the stop operation for other counters */
-			continue;
+			ਜਾਰੀ;
 
-		else if (event_idx_type == SBI_PMU_EVENT_TYPE_FW)
-			ret = pmu_ctr_stop_fw(phs, cidx, event_code);
-		else
+		ਨਹੀਂਤਾਂ ਜੇ (event_idx_type == SBI_PMU_EVENT_TYPE_FW)
+			ret = pmu_ctr_stop_fw(phs, cidx, event_ਕੋਡ);
+		ਨਹੀਂਤਾਂ
 			ret = pmu_ctr_stop_hw(cidx);
 
-		if(ret)
-			return ret;
+		ਜੇ(ret)
+			ਵਾਪਸ ret;
 
-		if (cidx > (CSR_INSTRET - CSR_CYCLE) && flag & SBI_PMU_STOP_FLAG_RESET) {
-			phs->active_events[cidx] = SBI_PMU_EVENT_IDX_INVALID;
+		ਜੇ (cidx > (CSR_INSTRET - CSR_ਚੱਕਰ) && flag & SBI_PMU_STOP_FLAG_RESET) {
+			phs->ਸਰਗਰਮ_events[cidx] = SBI_PMU_EVENT_IDX_INVALID;
 			pmu_reset_hw_mhpmevent(cidx);
 		}
 	}
 
 	/* Clear PMU overflow interrupt to avoid spurious ones */
-	if (phs->sse_enabled)
-		csr_clear(CSR_MIP, sbi_pmu_irq_mask());
+	ਜੇ (phs->sse_enabled)
+		csr_clear(CSR_MIP, sbi_pmu_irq_ਨਕਾਬ());
 
-	return ret;
+	ਵਾਪਸ ret;
 }
 
-static int pmu_fixed_ctr_update_inhibit_bits(int fixed_ctr, unsigned long flags)
+ਸਥਿਰ ਪੂਰਨ pmu_fixed_ctr_update_inhibit_ਬਿੱਟ(ਪੂਰਨ fixed_ctr, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	uint64_t cfg_val = 0, cfg_csr_no;
-#if __riscv_xlen == 32
+#ਜੇ __riscv_xlen == 32
 	uint64_t cfgh_csr_no;
-#endif
-	if (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCNTRPMF) &&
-		!(pmu_dev && pmu_dev->hw_counter_filter_mode))
-		return fixed_ctr;
+#ਜੇ_ਅੰਤ
+	ਜੇ (!sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCNTRPMF) &&
+		!(pmu_dev && pmu_dev->hw_counter_filter_ਬਹੁਲਕ))
+		ਵਾਪਸ fixed_ctr;
 
-	switch (fixed_ctr) {
-	case 0:
+	ਚੋਣ (fixed_ctr) {
+	ਹਾਲਤ 0:
 		cfg_csr_no = CSR_MCYCLECFG;
-#if __riscv_xlen == 32
+#ਜੇ __riscv_xlen == 32
 		cfgh_csr_no = CSR_MCYCLECFGH;
-#endif
-		break;
-	case 2:
+#ਜੇ_ਅੰਤ
+		ਰੋਕੋ;
+	ਹਾਲਤ 2:
 		cfg_csr_no = CSR_MINSTRETCFG;
-#if __riscv_xlen == 32
+#ਜੇ __riscv_xlen == 32
 		cfgh_csr_no = CSR_MINSTRETCFGH;
-#endif
-		break;
-	default:
-		return SBI_EFAIL;
+#ਜੇ_ਅੰਤ
+		ਰੋਕੋ;
+	ਮੂਲ:
+		ਵਾਪਸ SBI_EFAIL;
 	}
 
 	cfg_val |= MHPMEVENT_MINH;
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCNTRPMF)) {
+	ਜੇ (sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCNTRPMF)) {
 		pmu_update_inhibit_flags(flags, &cfg_val);
-#if __riscv_xlen == 32
-		csr_write_num(cfg_csr_no, cfg_val & 0xFFFFFFFF);
-		csr_write_num(cfgh_csr_no, cfg_val >> BITS_PER_LONG);
-#else
-		csr_write_num(cfg_csr_no, cfg_val);
-#endif
+#ਜੇ __riscv_xlen == 32
+		csr_write_ਅੰਕ(cfg_csr_no, cfg_val & 0xFFFFFFFF);
+		csr_write_ਅੰਕ(cfgh_csr_no, cfg_val >> ਬਿੱਟ_ਪ੍ਰਤੀ_LONG);
+#ਨਹੀਂਤਾਂ
+		csr_write_ਅੰਕ(cfg_csr_no, cfg_val);
+#ਜੇ_ਅੰਤ
 	}
-	if (pmu_dev && pmu_dev->hw_counter_filter_mode)
-		pmu_dev->hw_counter_filter_mode(flags, fixed_ctr);
-	return fixed_ctr;
+	ਜੇ (pmu_dev && pmu_dev->hw_counter_filter_ਬਹੁਲਕ)
+		pmu_dev->hw_counter_filter_ਬਹੁਲਕ(flags, fixed_ctr);
+	ਵਾਪਸ fixed_ctr;
 }
 
-static int pmu_ctr_find_fixed_hw(unsigned long evt_idx_code)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_ਲੱਭੋ_fixed_hw(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ evt_idx_ਕੋਡ)
 {
 	/* Non-programmables counters are enabled always. No need to do lookup */
-	if (evt_idx_code == SBI_PMU_HW_CPU_CYCLES)
-		return 0;
-	else if (evt_idx_code == SBI_PMU_HW_INSTRUCTIONS)
-		return 2;
-	else
-		return SBI_EINVAL;
+	ਜੇ (evt_idx_ਕੋਡ == SBI_PMU_HW_CPU_ਚੱਕਰਾਂ)
+		ਵਾਪਸ 0;
+	ਨਹੀਂਤਾਂ ਜੇ (evt_idx_ਕੋਡ == SBI_PMU_HW_INSTRUCTIONS)
+		ਵਾਪਸ 2;
+	ਨਹੀਂਤਾਂ
+		ਵਾਪਸ SBI_EINVAL;
 }
 
-static int pmu_ctr_find_hw(struct sbi_pmu_hart_state *phs,
-			   unsigned long cbase, unsigned long cmask,
-			   unsigned long flags,
-			   unsigned long event_idx, uint64_t data)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_ਲੱਭੋ_hw(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cbase, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cmask,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ event_idx, uint64_t ਅੰਕੜੇ)
 {
-	unsigned long ctr_mask;
-	int i, ret = 0, fixed_ctr, ctr_idx = SBI_ENOTSUPP;
-	struct sbi_pmu_hw_event *temp;
-	unsigned long mctr_inhbt = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ctr_ਨਕਾਬ;
+	ਪੂਰਨ i, ret = 0, fixed_ctr, ctr_idx = SBI_ENOTSUPP;
+	ਬਣਤਰ sbi_pmu_hw_event *ਆਰਜ਼ੀ;
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ mctr_inhbt = 0;
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (cbase >= num_hw_ctrs)
-		return SBI_EINVAL;
+	ਜੇ (cbase >= ਅੰਕ_hw_ctrs)
+		ਵਾਪਸ SBI_EINVAL;
 
 	/**
 	 * If Sscofpmf or Andes PMU is present, try to find
 	 * the programmable counter for cycle/instret as well.
 	 */
-	fixed_ctr = pmu_ctr_find_fixed_hw(event_idx);
-	if (fixed_ctr >= 0 &&
+	fixed_ctr = pmu_ctr_ਲੱਭੋ_fixed_hw(event_idx);
+	ਜੇ (fixed_ctr >= 0 &&
 	    !sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF) &&
 	    !sbi_hart_has_extension(scratch, SBI_HART_EXT_XANDESPMU))
-		return pmu_fixed_ctr_update_inhibit_bits(fixed_ctr, flags);
+		ਵਾਪਸ pmu_fixed_ctr_update_inhibit_ਬਿੱਟ(fixed_ctr, flags);
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_11)
 		mctr_inhbt = csr_read(CSR_MCOUNTINHIBIT);
-	for (i = 0; i < num_hw_events; i++) {
-		temp = &hw_event_map[i];
-		if ((temp->start_idx > event_idx && event_idx < temp->end_idx) ||
-		    (temp->start_idx < event_idx && event_idx > temp->end_idx))
-			continue;
+	ਲਈ (i = 0; i < ਅੰਕ_hw_events; i++) {
+		ਆਰਜ਼ੀ = &hw_event_map[i];
+		ਜੇ ((ਆਰਜ਼ੀ->ਸ਼ੁਰੂ_idx > event_idx && event_idx < ਆਰਜ਼ੀ->ਸਿਰਾ_idx) ||
+		    (ਆਰਜ਼ੀ->ਸ਼ੁਰੂ_idx < event_idx && event_idx > ਆਰਜ਼ੀ->ਸਿਰਾ_idx))
+			ਜਾਰੀ;
 
 		/* For raw events, event data is used as the select value */
-		if (event_idx == SBI_PMU_EVENT_RAW_IDX ||
+		ਜੇ (event_idx == SBI_PMU_EVENT_RAW_IDX ||
 			event_idx == SBI_PMU_EVENT_RAW_V2_IDX) {
-			uint64_t select_mask = temp->select_mask;
+			uint64_t select_ਨਕਾਬ = ਆਰਜ਼ੀ->select_ਨਕਾਬ;
 
 			/* The non-event map bits of data should match the selector */
-			if (temp->select != (data & select_mask))
-				continue;
+			ਜੇ (ਆਰਜ਼ੀ->select != (ਅੰਕੜੇ & select_ਨਕਾਬ))
+				ਜਾਰੀ;
 		}
 		/* Fixed counters should not be part of the search */
-		ctr_mask = temp->counters & (cmask << cbase) &
-			   (~SBI_PMU_FIXED_CTR_MASK);
-		for_each_set_bit_from(cbase, &ctr_mask, SBI_PMU_HW_CTR_MAX) {
+		ctr_ਨਕਾਬ = ਆਰਜ਼ੀ->counters & (cmask << cbase) &
+			   (~SBI_PMU_FIXED_CTR_ਨਕਾਬ);
+		for_each_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ_from(cbase, &ctr_ਨਕਾਬ, SBI_PMU_HW_CTR_MAX) {
 			/**
 			 * Some of the platform may not support mcountinhibit.
 			 * Checking the active_events is enough for them
 			 */
-			if (phs->active_events[cbase] != SBI_PMU_EVENT_IDX_INVALID)
-				continue;
+			ਜੇ (phs->ਸਰਗਰਮ_events[cbase] != SBI_PMU_EVENT_IDX_INVALID)
+				ਜਾਰੀ;
 			/* If mcountinhibit is supported, the bit must be enabled */
-			if ((sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11) &&
+			ਜੇ ((sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_11) &&
 			    !__test_bit(cbase, &mctr_inhbt))
-				continue;
+				ਜਾਰੀ;
 			/* We found a valid counter that is not started yet */
 			ctr_idx = cbase;
-			break;
+			ਰੋਕੋ;
 		}
 	}
 
-	if (ctr_idx == SBI_ENOTSUPP) {
+	ਜੇ (ctr_idx == SBI_ENOTSUPP) {
 		/**
 		 * We can't find a programmable counter, see if we can use a
 		 * fixed counter instead if one was found for this event.
@@ -859,19 +859,19 @@ static int pmu_ctr_find_hw(struct sbi_pmu_hart_state *phs,
 		 * doesn't support filtering whereas a programmable counter
 		 * would.
 		 */
-		if (fixed_ctr < 0 ||
+		ਜੇ (fixed_ctr < 0 ||
 		    ((sbi_hart_has_extension(scratch, SBI_HART_EXT_SSCOFPMF) &&
 		      !sbi_hart_has_extension(scratch, SBI_HART_EXT_SMCNTRPMF))))
-			return SBI_EFAIL;
+			ਵਾਪਸ SBI_EFAIL;
 
-		return pmu_fixed_ctr_update_inhibit_bits(fixed_ctr, flags);
+		ਵਾਪਸ pmu_fixed_ctr_update_inhibit_ਬਿੱਟ(fixed_ctr, flags);
 	}
-	ret = pmu_update_hw_mhpmevent(temp, ctr_idx, flags, event_idx, data);
+	ret = pmu_update_hw_mhpmevent(ਆਰਜ਼ੀ, ctr_idx, flags, event_idx, ਅੰਕੜੇ);
 
-	if (!ret)
+	ਜੇ (!ret)
 		ret = ctr_idx;
 
-	return ret;
+	ਵਾਪਸ ret;
 }
 
 
@@ -880,53 +880,53 @@ static int pmu_ctr_find_hw(struct sbi_pmu_hart_state *phs,
  * Thus, select the first available fw counter after sanity
  * check.
  */
-static int pmu_ctr_find_fw(struct sbi_pmu_hart_state *phs,
-			   unsigned long cbase, unsigned long cmask,
-			   uint32_t event_code, uint64_t edata)
+ਸਥਿਰ ਪੂਰਨ pmu_ctr_ਲੱਭੋ_fw(ਬਣਤਰ sbi_pmu_hart_state *phs,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cbase, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cmask,
+			   uint32_t event_ਕੋਡ, uint64_t edata)
 {
-	int i, cidx;
+	ਪੂਰਨ i, cidx;
 
-	for_each_set_bit(i, &cmask, BITS_PER_LONG) {
+	for_each_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(i, &cmask, ਬਿੱਟ_ਪ੍ਰਤੀ_LONG) {
 		cidx = i + cbase;
-		if (cidx < num_hw_ctrs || total_ctrs <= cidx)
-			continue;
-		if (phs->active_events[cidx] != SBI_PMU_EVENT_IDX_INVALID)
-			continue;
-		if (SBI_PMU_FW_PLATFORM == event_code &&
-		    pmu_dev && pmu_dev->fw_counter_match_encoding) {
-			if (!pmu_dev->fw_counter_match_encoding(phs->hartid,
-							    cidx - num_hw_ctrs,
+		ਜੇ (cidx < ਅੰਕ_hw_ctrs || ਕੁੱਲ_ctrs <= cidx)
+			ਜਾਰੀ;
+		ਜੇ (phs->ਸਰਗਰਮ_events[cidx] != SBI_PMU_EVENT_IDX_INVALID)
+			ਜਾਰੀ;
+		ਜੇ (SBI_PMU_FW_PLATFORM == event_ਕੋਡ &&
+		    pmu_dev && pmu_dev->fw_counter_ਮੇਲ_encoding) {
+			ਜੇ (!pmu_dev->fw_counter_ਮੇਲ_encoding(phs->hartid,
+							    cidx - ਅੰਕ_hw_ctrs,
 							    edata))
-				continue;
+				ਜਾਰੀ;
 		}
 
-		return cidx;
+		ਵਾਪਸ cidx;
 	}
 
-	return SBI_ENOTSUPP;
+	ਵਾਪਸ SBI_ENOTSUPP;
 }
 
-int sbi_pmu_ctr_cfg_match(unsigned long cidx_base, unsigned long cidx_mask,
-			  unsigned long flags, unsigned long event_idx,
-			  uint64_t event_data)
+ਪੂਰਨ sbi_pmu_ctr_cfg_ਮੇਲ(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cidx_ਅਧਾਰ, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cidx_ਨਕਾਬ,
+			  ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ event_idx,
+			  uint64_t event_ਅੰਕੜੇ)
 {
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
-	if (unlikely(!phs))
-		return SBI_EINVAL;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ SBI_EINVAL;
 
-	int ret, event_type, ctr_idx = SBI_ENOTSUPP;
-	u32 event_code;
+	ਪੂਰਨ ret, event_type, ctr_idx = SBI_ENOTSUPP;
+	u32 event_ਕੋਡ;
 
-	if (!pmu_ctr_idx_validate(cidx_base, cidx_mask))
-		return SBI_EINVAL;
+	ਜੇ (!pmu_ctr_idx_validate(cidx_ਅਧਾਰ, cidx_ਨਕਾਬ))
+		ਵਾਪਸ SBI_EINVAL;
 
-	event_type = pmu_event_validate(phs, event_idx, event_data);
-	if (event_type < 0)
-		return SBI_EINVAL;
-	event_code = get_cidx_code(event_idx);
+	event_type = pmu_event_validate(phs, event_idx, event_ਅੰਕੜੇ);
+	ਜੇ (event_type < 0)
+		ਵਾਪਸ SBI_EINVAL;
+	event_ਕੋਡ = get_cidx_ਕੋਡ(event_idx);
 
-	if (flags & SBI_PMU_CFG_FLAG_SKIP_MATCH) {
+	ਜੇ (flags & SBI_PMU_CFG_FLAG_SKIP_ਮੇਲ) {
 		/* The caller wants to skip the match because it already knows the
 		 * counter idx for the given event. Verify that the counter idx
 		 * is still valid.
@@ -934,160 +934,160 @@ int sbi_pmu_ctr_cfg_match(unsigned long cidx_base, unsigned long cidx_mask,
 		 * the first counter from the set of counters specified by the
 		 * counter_idx_base and counter_idx_mask".
 		 */
-		unsigned long cidx_first = cidx_base + sbi_ffs(cidx_mask);
+		ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ cidx_ਪਹਿਲਾ = cidx_ਅਧਾਰ + sbi_ffs(cidx_ਨਕਾਬ);
 
-		if (cidx_first >= total_ctrs)
-			return SBI_EINVAL;
+		ਜੇ (cidx_ਪਹਿਲਾ >= ਕੁੱਲ_ctrs)
+			ਵਾਪਸ SBI_EINVAL;
 
-		if (phs->active_events[cidx_first] == SBI_PMU_EVENT_IDX_INVALID)
-			return SBI_EINVAL;
-		ctr_idx = cidx_first;
-		goto skip_match;
+		ਜੇ (phs->ਸਰਗਰਮ_events[cidx_ਪਹਿਲਾ] == SBI_PMU_EVENT_IDX_INVALID)
+			ਵਾਪਸ SBI_EINVAL;
+		ctr_idx = cidx_ਪਹਿਲਾ;
+		ਜਾਓ skip_ਮੇਲ;
 	}
 
-	if (event_type == SBI_PMU_EVENT_TYPE_FW) {
+	ਜੇ (event_type == SBI_PMU_EVENT_TYPE_FW) {
 		/* Any firmware counter can be used track any firmware event */
-		ctr_idx = pmu_ctr_find_fw(phs, cidx_base, cidx_mask,
-					  event_code, event_data);
-		if ((event_code == SBI_PMU_FW_PLATFORM) && (ctr_idx >= num_hw_ctrs))
-			phs->fw_counters_data[ctr_idx - num_hw_ctrs] =
-								event_data;
-	} else {
-		ctr_idx = pmu_ctr_find_hw(phs, cidx_base, cidx_mask, flags,
-					  event_idx, event_data);
-		if (ctr_idx >= 0) {
-			struct sbi_pmu_hw_event_config *ev_cfg =
+		ctr_idx = pmu_ctr_ਲੱਭੋ_fw(phs, cidx_ਅਧਾਰ, cidx_ਨਕਾਬ,
+					  event_ਕੋਡ, event_ਅੰਕੜੇ);
+		ਜੇ ((event_ਕੋਡ == SBI_PMU_FW_PLATFORM) && (ctr_idx >= ਅੰਕ_hw_ctrs))
+			phs->fw_counters_ਅੰਕੜੇ[ctr_idx - ਅੰਕ_hw_ctrs] =
+								event_ਅੰਕੜੇ;
+	} ਨਹੀਂਤਾਂ {
+		ctr_idx = pmu_ctr_ਲੱਭੋ_hw(phs, cidx_ਅਧਾਰ, cidx_ਨਕਾਬ, flags,
+					  event_idx, event_ਅੰਕੜੇ);
+		ਜੇ (ctr_idx >= 0) {
+			ਬਣਤਰ sbi_pmu_hw_event_config *ev_cfg =
 					&phs->hw_counters_cfg[ctr_idx];
 
-			ev_cfg->event_data = event_data;
+			ev_cfg->event_ਅੰਕੜੇ = event_ਅੰਕੜੇ;
 			/* Remove flags that are used in match call only */
-			ev_cfg->flags = flags & SBI_PMU_CFG_EVENT_MASK;
+			ev_cfg->flags = flags & SBI_PMU_CFG_EVENT_ਨਕਾਬ;
 		}
 	}
 
-	if (ctr_idx < 0)
-		return SBI_ENOTSUPP;
+	ਜੇ (ctr_idx < 0)
+		ਵਾਪਸ SBI_ENOTSUPP;
 
-	phs->active_events[ctr_idx] = event_idx;
-skip_match:
-	if (event_type == SBI_PMU_EVENT_TYPE_HW ||
+	phs->ਸਰਗਰਮ_events[ctr_idx] = event_idx;
+skip_ਮੇਲ:
+	ਜੇ (event_type == SBI_PMU_EVENT_TYPE_HW ||
 	    event_type == SBI_PMU_EVENT_TYPE_HW_CACHE ||
 	    event_type == SBI_PMU_EVENT_TYPE_HW_RAW ||
 	    event_type == SBI_PMU_EVENT_TYPE_HW_RAW_V2) {
-		if (flags & SBI_PMU_CFG_FLAG_CLEAR_VALUE)
+		ਜੇ (flags & SBI_PMU_CFG_FLAG_CLEAR_ਮੁੱਲ)
 			pmu_ctr_write_hw(ctr_idx, 0);
-		if (flags & SBI_PMU_CFG_FLAG_AUTO_START)
-			pmu_ctr_start_hw(ctr_idx, 0, false);
-	} else if (event_type == SBI_PMU_EVENT_TYPE_FW) {
-		if (flags & SBI_PMU_CFG_FLAG_CLEAR_VALUE)
-			phs->fw_counters_data[ctr_idx - num_hw_ctrs] = 0;
-		if (flags & SBI_PMU_CFG_FLAG_AUTO_START) {
-			if (SBI_PMU_FW_PLATFORM == event_code &&
-			    pmu_dev && pmu_dev->fw_counter_start) {
-				ret = pmu_dev->fw_counter_start(
+		ਜੇ (flags & SBI_PMU_CFG_FLAG_AUTO_ਸ਼ੁਰੂ)
+			pmu_ctr_ਸ਼ੁਰੂ_hw(ctr_idx, 0, false);
+	} ਨਹੀਂਤਾਂ ਜੇ (event_type == SBI_PMU_EVENT_TYPE_FW) {
+		ਜੇ (flags & SBI_PMU_CFG_FLAG_CLEAR_ਮੁੱਲ)
+			phs->fw_counters_ਅੰਕੜੇ[ctr_idx - ਅੰਕ_hw_ctrs] = 0;
+		ਜੇ (flags & SBI_PMU_CFG_FLAG_AUTO_ਸ਼ੁਰੂ) {
+			ਜੇ (SBI_PMU_FW_PLATFORM == event_ਕੋਡ &&
+			    pmu_dev && pmu_dev->fw_counter_ਸ਼ੁਰੂ) {
+				ret = pmu_dev->fw_counter_ਸ਼ੁਰੂ(
 					phs->hartid,
-					ctr_idx - num_hw_ctrs, event_data);
-				if (ret)
-					return ret;
+					ctr_idx - ਅੰਕ_hw_ctrs, event_ਅੰਕੜੇ);
+				ਜੇ (ret)
+					ਵਾਪਸ ret;
 			}
-			phs->fw_counters_started |= BIT(ctr_idx - num_hw_ctrs);
+			phs->fw_counters_started |= ਦੋਆਧਾਰੀ_ਅੰਕ(ctr_idx - ਅੰਕ_hw_ctrs);
 		}
 	}
 
-	return ctr_idx;
+	ਵਾਪਸ ctr_idx;
 }
 
-int sbi_pmu_ctr_incr_fw(enum sbi_pmu_fw_event_code_id fw_id)
+ਪੂਰਨ sbi_pmu_ctr_incr_fw(ਗਿਣਤੀ sbi_pmu_fw_event_ਕੋਡ_id fw_id)
 {
 	u32 cidx;
-	uint64_t *fcounter = NULL;
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	uint64_t *fcounter = ਨਿਰਾ;
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
-	if (unlikely(!phs))
-		return 0;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ 0;
 
-	if (likely(!phs->fw_counters_started))
-		return 0;
+	ਜੇ (likely(!phs->fw_counters_started))
+		ਵਾਪਸ 0;
 
-	if (unlikely(fw_id >= SBI_PMU_FW_MAX))
-		return SBI_EINVAL;
+	ਜੇ (unlikely(fw_id >= SBI_PMU_FW_MAX))
+		ਵਾਪਸ SBI_EINVAL;
 
-	for (cidx = num_hw_ctrs; cidx < total_ctrs; cidx++) {
-		if (get_cidx_code(phs->active_events[cidx]) == fw_id &&
-		    (phs->fw_counters_started & BIT(cidx - num_hw_ctrs))) {
-			fcounter = &phs->fw_counters_data[cidx - num_hw_ctrs];
-			break;
+	ਲਈ (cidx = ਅੰਕ_hw_ctrs; cidx < ਕੁੱਲ_ctrs; cidx++) {
+		ਜੇ (get_cidx_ਕੋਡ(phs->ਸਰਗਰਮ_events[cidx]) == fw_id &&
+		    (phs->fw_counters_started & ਦੋਆਧਾਰੀ_ਅੰਕ(cidx - ਅੰਕ_hw_ctrs))) {
+			fcounter = &phs->fw_counters_ਅੰਕੜੇ[cidx - ਅੰਕ_hw_ctrs];
+			ਰੋਕੋ;
 		}
 	}
 
-	if (fcounter)
+	ਜੇ (fcounter)
 		(*fcounter)++;
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-unsigned long sbi_pmu_num_ctr(void)
+ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ sbi_pmu_ਅੰਕ_ctr(ਖਾਲੀ)
 {
-	return (num_hw_ctrs + SBI_PMU_FW_CTR_MAX);
+	ਵਾਪਸ (ਅੰਕ_hw_ctrs + SBI_PMU_FW_CTR_MAX);
 }
 
-int sbi_pmu_ctr_get_info(uint32_t cidx, unsigned long *ctr_info)
+ਪੂਰਨ sbi_pmu_ctr_get_info(uint32_t cidx, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ *ctr_info)
 {
-	int width;
-	union sbi_pmu_ctr_info cinfo = {0};
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	unsigned long counter_mask = (unsigned long)sbi_hart_mhpm_mask(scratch) |
-				     SBI_PMU_CY_IR_MASK;
+	ਪੂਰਨ ਚੌੜਾਈ;
+	ਸੰਘ sbi_pmu_ctr_info cinfo = {0};
+	ਬਣਤਰ sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ counter_ਨਕਾਬ = (ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)sbi_hart_mhpm_ਨਕਾਬ(scratch) |
+				     SBI_PMU_CY_IR_ਨਕਾਬ;
 
 	/* Sanity check */
-	if (cidx >= total_ctrs)
-		return SBI_EINVAL;
+	ਜੇ (cidx >= ਕੁੱਲ_ctrs)
+		ਵਾਪਸ SBI_EINVAL;
 
 	/* We have 31 HW counters with 31 being the last index(MHPMCOUNTER31) */
-	if (cidx < num_hw_ctrs) {
-		if (!(__test_bit(cidx, &counter_mask)))
-			return SBI_EINVAL;
+	ਜੇ (cidx < ਅੰਕ_hw_ctrs) {
+		ਜੇ (!(__test_bit(cidx, &counter_ਨਕਾਬ)))
+			ਵਾਪਸ SBI_EINVAL;
 		cinfo.type = SBI_PMU_CTR_TYPE_HW;
-		cinfo.csr = CSR_CYCLE + cidx;
+		cinfo.csr = CSR_ਚੱਕਰ + cidx;
 		/* mcycle & minstret are always 64 bit */
-		if (cidx == 0 || cidx == 2)
-			cinfo.width = 63;
-		else
-			cinfo.width = sbi_hart_mhpm_bits(scratch) - 1;
-	} else {
+		ਜੇ (cidx == 0 || cidx == 2)
+			cinfo.ਚੌੜਾਈ = 63;
+		ਨਹੀਂਤਾਂ
+			cinfo.ਚੌੜਾਈ = sbi_hart_mhpm_ਬਿੱਟ(scratch) - 1;
+	} ਨਹੀਂਤਾਂ {
 		/* it's a firmware counter */
 		cinfo.type = SBI_PMU_CTR_TYPE_FW;
 		/* Firmware counters are always 64 bits wide */
-		cinfo.width = 63;
-		if (pmu_dev && pmu_dev->fw_counter_width) {
-			width = pmu_dev->fw_counter_width();
-			if (width)
-				cinfo.width = width - 1;
+		cinfo.ਚੌੜਾਈ = 63;
+		ਜੇ (pmu_dev && pmu_dev->fw_counter_ਚੌੜਾਈ) {
+			ਚੌੜਾਈ = pmu_dev->fw_counter_ਚੌੜਾਈ();
+			ਜੇ (ਚੌੜਾਈ)
+				cinfo.ਚੌੜਾਈ = ਚੌੜਾਈ - 1;
 		}
 	}
 
-	*ctr_info = cinfo.value;
+	*ctr_info = cinfo.ਮੁੱਲ;
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-int sbi_pmu_event_get_info(unsigned long shmem_phys_lo, unsigned long shmem_phys_hi,
-			   unsigned long num_events, unsigned long flags)
+ਪੂਰਨ sbi_pmu_event_get_info(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ shmem_phys_lo, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ shmem_phys_hi,
+			   ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ ਅੰਕ_events, ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ flags)
 {
-	unsigned long shmem_size = num_events * sizeof(struct sbi_pmu_event_info);
-	int i, j, event_type;
-	struct sbi_pmu_event_info *einfo;
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ shmem_ਮਾਪ = ਅੰਕ_events * ਆਕਾਰ(ਬਣਤਰ sbi_pmu_event_info);
+	ਪੂਰਨ i, j, event_type;
+	ਬਣਤਰ sbi_pmu_event_info *einfo;
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 	uint32_t event_idx;
-	struct sbi_pmu_hw_event *temp;
-	bool found = false;
+	ਬਣਤਰ sbi_pmu_hw_event *ਆਰਜ਼ੀ;
+	bool ਮਿਲਿਆ = false;
 
-	if (flags != 0)
-		return SBI_ERR_INVALID_PARAM;
+	ਜੇ (flags != 0)
+		ਵਾਪਸ SBI_ERR_INVALID_PARAM;
 
 	/** Check shared memory size and address aligned to 16 byte */
-	if (!num_events || (shmem_phys_lo & 0xF))
-		return SBI_ERR_INVALID_PARAM;
+	ਜੇ (!ਅੰਕ_events || (shmem_phys_lo & 0xF))
+		ਵਾਪਸ SBI_ERR_INVALID_PARAM;
 
 	/*
 	 * On RV32, the M-mode can only access the first 4GB of
@@ -1098,32 +1098,32 @@ int sbi_pmu_event_get_info(unsigned long shmem_phys_lo, unsigned long shmem_phys
 	 * the physical address (i.e. a2 register) is non-zero on
 	 * RV32.
 	 */
-	if (shmem_phys_hi)
-		return SBI_EINVALID_ADDR;
+	ਜੇ (shmem_phys_hi)
+		ਵਾਪਸ SBI_EINVALID_ADDR;
 
-	if (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
-					 shmem_phys_lo, shmem_size, PRV_S,
+	ਜੇ (!sbi_domain_check_addr_range(sbi_domain_thishart_ptr(),
+					 shmem_phys_lo, shmem_ਮਾਪ, PRV_S,
 					 SBI_DOMAIN_READ | SBI_DOMAIN_WRITE))
-		return SBI_ERR_INVALID_ADDRESS;
+		ਵਾਪਸ SBI_ERR_INVALID_ਪਤਾ;
 
-	sbi_hart_protection_temp_map_range(shmem_phys_lo, shmem_size);
+	sbi_hart_protection_ਆਰਜ਼ੀ_map_range(shmem_phys_lo, shmem_ਮਾਪ);
 
-	einfo = (struct sbi_pmu_event_info *)(shmem_phys_lo);
-	for (i = 0; i < num_events; i++) {
+	einfo = (ਬਣਤਰ sbi_pmu_event_info *)(shmem_phys_lo);
+	ਲਈ (i = 0; i < ਅੰਕ_events; i++) {
 		event_idx = einfo[i].event_idx;
 		/* Any must-be-zero event_idx bits set should return INVALID_PARAM per-spec */
-		if (event_idx & SBI_PMU_EVENT_IDX_MBZ_MASK)
-			return SBI_ERR_INVALID_PARAM;
-		event_type = pmu_event_validate(phs, event_idx, einfo[i].event_data);
-		if (event_type < 0) {
+		ਜੇ (event_idx & SBI_PMU_EVENT_IDX_MBZ_ਨਕਾਬ)
+			ਵਾਪਸ SBI_ERR_INVALID_PARAM;
+		event_type = pmu_event_validate(phs, event_idx, einfo[i].event_ਅੰਕੜੇ);
+		ਜੇ (event_type < 0) {
 			einfo[i].output = 0;
-		} else if (event_type == SBI_PMU_EVENT_TYPE_FW) {
+		} ਨਹੀਂਤਾਂ ਜੇ (event_type == SBI_PMU_EVENT_TYPE_FW) {
 			einfo[i].output = 1;
-		} else {
-			for (j = 0; j < num_hw_events; j++) {
-				temp = &hw_event_map[j];
+		} ਨਹੀਂਤਾਂ {
+			ਲਈ (j = 0; j < ਅੰਕ_hw_events; j++) {
+				ਆਰਜ਼ੀ = &hw_event_map[j];
 				/* For raw events, event data is used as the select value */
-				if (event_idx == SBI_PMU_EVENT_RAW_IDX ||
+				ਜੇ (event_idx == SBI_PMU_EVENT_RAW_IDX ||
 					event_idx == SBI_PMU_EVENT_RAW_V2_IDX) {
 					/*
 					 * Only a raw event map entry carries a
@@ -1131,179 +1131,179 @@ int sbi_pmu_event_get_info(unsigned long shmem_phys_lo, unsigned long shmem_phys
 					 * skip any entry which does not cover the
 					 * raw event index.
 					 */
-					if (temp->start_idx > event_idx ||
-					    event_idx > temp->end_idx)
-						continue;
+					ਜੇ (ਆਰਜ਼ੀ->ਸ਼ੁਰੂ_idx > event_idx ||
+					    event_idx > ਆਰਜ਼ੀ->ਸਿਰਾ_idx)
+						ਜਾਰੀ;
 					/* just match the selector */
-					if (temp->select == (einfo[i].event_data &
-									temp->select_mask)) {
-						found = true;
-						break;
+					ਜੇ (ਆਰਜ਼ੀ->select == (einfo[i].event_ਅੰਕੜੇ &
+									ਆਰਜ਼ੀ->select_ਨਕਾਬ)) {
+						ਮਿਲਿਆ = true;
+						ਰੋਕੋ;
 					}
-				} else if (temp->start_idx <= event_idx &&
-					   event_idx <= temp->end_idx) {
-					found = true;
-					break;
+				} ਨਹੀਂਤਾਂ ਜੇ (ਆਰਜ਼ੀ->ਸ਼ੁਰੂ_idx <= event_idx &&
+					   event_idx <= ਆਰਜ਼ੀ->ਸਿਰਾ_idx) {
+					ਮਿਲਿਆ = true;
+					ਰੋਕੋ;
 				}
 			}
-			if (found)
+			ਜੇ (ਮਿਲਿਆ)
 				einfo[i].output = 1;
-			else
+			ਨਹੀਂਤਾਂ
 				einfo[i].output = 0;
-			found = false;
+			ਮਿਲਿਆ = false;
 		}
 	}
 
-	sbi_hart_protection_temp_unmap_range(shmem_phys_lo, shmem_size);
+	sbi_hart_protection_ਆਰਜ਼ੀ_unmap_range(shmem_phys_lo, shmem_ਮਾਪ);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void pmu_reset_event_map(struct sbi_pmu_hart_state *phs)
+ਸਥਿਰ ਖਾਲੀ pmu_reset_event_map(ਬਣਤਰ sbi_pmu_hart_state *phs)
 {
-	int j;
+	ਪੂਰਨ j;
 
 	/* Initialize the counter to event mapping table */
-	for (j = 3; j < total_ctrs; j++)
-		phs->active_events[j] = SBI_PMU_EVENT_IDX_INVALID;
-	for (j = 0; j < SBI_PMU_FW_CTR_MAX; j++)
-		phs->fw_counters_data[j] = 0;
+	ਲਈ (j = 3; j < ਕੁੱਲ_ctrs; j++)
+		phs->ਸਰਗਰਮ_events[j] = SBI_PMU_EVENT_IDX_INVALID;
+	ਲਈ (j = 0; j < SBI_PMU_FW_CTR_MAX; j++)
+		phs->fw_counters_ਅੰਕੜੇ[j] = 0;
 	phs->fw_counters_started = 0;
 	phs->sse_enabled = 0;
 }
 
-const struct sbi_pmu_device *sbi_pmu_get_device(void)
+ਅਚਲ ਬਣਤਰ sbi_pmu_device *sbi_pmu_get_device(ਖਾਲੀ)
 {
-	return pmu_dev;
+	ਵਾਪਸ pmu_dev;
 }
 
-void sbi_pmu_set_device(const struct sbi_pmu_device *dev)
+ਖਾਲੀ sbi_pmu_ਸੈੱਟ_device(ਅਚਲ ਬਣਤਰ sbi_pmu_device *dev)
 {
-	if (!dev || pmu_dev)
-		return;
+	ਜੇ (!dev || pmu_dev)
+		ਵਾਪਸ;
 
 	pmu_dev = dev;
 }
 
-void sbi_pmu_exit(struct sbi_scratch *scratch)
+ਖਾਲੀ sbi_pmu_exit(ਬਣਤਰ sbi_scratch *scratch)
 {
-	struct sbi_pmu_hart_state *phs = pmu_get_hart_state_ptr(scratch);
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_get_hart_state_ptr(scratch);
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_11)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_11)
 		csr_write(CSR_MCOUNTINHIBIT, 0xFFFFFFF8);
 
-	if (sbi_hart_priv_version(scratch) >= SBI_HART_PRIV_VER_1_10)
+	ਜੇ (sbi_hart_priv_ਸੰਸਕਰਣ(scratch) >= SBI_HART_PRIV_VER_1_10)
 		csr_write(CSR_MCOUNTEREN, -1);
 
-	if (unlikely(!phs))
-		return;
+	ਜੇ (unlikely(!phs))
+		ਵਾਪਸ;
 
 	pmu_reset_event_map(phs);
 }
 
-static void pmu_sse_enable(uint32_t event_id)
+ਸਥਿਰ ਖਾਲੀ pmu_sse_enable(uint32_t event_id)
 {
-	unsigned long irq_mask = sbi_pmu_irq_mask();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ irq_ਨਕਾਬ = sbi_pmu_irq_ਨਕਾਬ();
 
-	csr_set(CSR_MIE, irq_mask);
+	csr_ਸੈੱਟ(CSR_MIE, irq_ਨਕਾਬ);
 }
 
-static void pmu_sse_disable(uint32_t event_id)
+ਸਥਿਰ ਖਾਲੀ pmu_sse_disable(uint32_t event_id)
 {
-	unsigned long irq_mask = sbi_pmu_irq_mask();
+	ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ irq_ਨਕਾਬ = sbi_pmu_irq_ਨਕਾਬ();
 
-	csr_clear(CSR_MIE, irq_mask);
-	csr_clear(CSR_MIP, irq_mask);
+	csr_clear(CSR_MIE, irq_ਨਕਾਬ);
+	csr_clear(CSR_MIP, irq_ਨਕਾਬ);
 }
 
-static void pmu_sse_complete(uint32_t event_id)
+ਸਥਿਰ ਖਾਲੀ pmu_sse_complete(uint32_t event_id)
 {
-	csr_set(CSR_MIE, sbi_pmu_irq_mask());
+	csr_ਸੈੱਟ(CSR_MIE, sbi_pmu_irq_ਨਕਾਬ());
 }
 
-static void pmu_sse_register(uint32_t event_id)
+ਸਥਿਰ ਖਾਲੀ pmu_sse_ਰਜਿਸਟਰ(uint32_t event_id)
 {
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
 	phs->sse_enabled = true;
-	csr_clear(CSR_MIDELEG, sbi_pmu_irq_mask());
+	csr_clear(CSR_MIDELEG, sbi_pmu_irq_ਨਕਾਬ());
 }
 
-static void pmu_sse_unregister(uint32_t event_id)
+ਸਥਿਰ ਖਾਲੀ pmu_sse_unregister(uint32_t event_id)
 {
-	struct sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
+	ਬਣਤਰ sbi_pmu_hart_state *phs = pmu_thishart_state_ptr();
 
 	phs->sse_enabled = false;
-	csr_set(CSR_MIDELEG, sbi_pmu_irq_mask());
+	csr_ਸੈੱਟ(CSR_MIDELEG, sbi_pmu_irq_ਨਕਾਬ());
 }
 
-static const struct sbi_sse_cb_ops pmu_sse_cb_ops = {
-	.register_cb = pmu_sse_register,
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ sbi_sse_cb_ops pmu_sse_cb_ops = {
+	.ਰਜਿਸਟਰ_cb = pmu_sse_ਰਜਿਸਟਰ,
 	.unregister_cb = pmu_sse_unregister,
 	.enable_cb = pmu_sse_enable,
 	.disable_cb = pmu_sse_disable,
 	.complete_cb = pmu_sse_complete,
 };
 
-int sbi_pmu_init(struct sbi_scratch *scratch, bool cold_boot)
+ਪੂਰਨ sbi_pmu_init(ਬਣਤਰ sbi_scratch *scratch, bool cold_boot)
 {
-	int hpm_count = sbi_fls(sbi_hart_mhpm_mask(scratch));
-	struct sbi_pmu_hart_state *phs;
-	const struct sbi_platform *plat;
-	int rc;
+	ਪੂਰਨ hpm_ਗਿਣਤੀ = sbi_fls(sbi_hart_mhpm_ਨਕਾਬ(scratch));
+	ਬਣਤਰ sbi_pmu_hart_state *phs;
+	ਅਚਲ ਬਣਤਰ sbi_platform *plat;
+	ਪੂਰਨ rc;
 
-	if (cold_boot) {
-		hw_event_map = sbi_calloc(sizeof(*hw_event_map),
+	ਜੇ (cold_boot) {
+		hw_event_map = sbi_calloc(ਆਕਾਰ(*hw_event_map),
 					  SBI_PMU_HW_EVENT_MAX);
-		if (!hw_event_map)
-			return SBI_ENOMEM;
+		ਜੇ (!hw_event_map)
+			ਵਾਪਸ SBI_ENOMEM;
 
-		phs_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!phs_ptr_offset) {
+		phs_ptr_ਵਿੱਥ = sbi_scratch_alloc_type_ਵਿੱਥ(ਖਾਲੀ *);
+		ਜੇ (!phs_ptr_ਵਿੱਥ) {
 			sbi_free(hw_event_map);
-			return SBI_ENOMEM;
+			ਵਾਪਸ SBI_ENOMEM;
 		}
 
 		plat = sbi_platform_ptr(scratch);
 		/* Initialize hw pmu events */
 		rc = sbi_platform_pmu_init(plat);
-		if (rc)
+		ਜੇ (rc)
 			sbi_dprintf("%s: platform pmu init failed "
 				    "(error %d)\n", __func__, rc);
 
 		/* mcycle & minstret is available always */
-		if (!hpm_count)
+		ਜੇ (!hpm_ਗਿਣਤੀ)
 			/* Only CY, TM & IR are implemented in the hw */
-			num_hw_ctrs = 3;
-		else
-			num_hw_ctrs = hpm_count + 1;
+			ਅੰਕ_hw_ctrs = 3;
+		ਨਹੀਂਤਾਂ
+			ਅੰਕ_hw_ctrs = hpm_ਗਿਣਤੀ + 1;
 
-		if (num_hw_ctrs > SBI_PMU_HW_CTR_MAX)
-			return SBI_EINVAL;
+		ਜੇ (ਅੰਕ_hw_ctrs > SBI_PMU_HW_CTR_MAX)
+			ਵਾਪਸ SBI_EINVAL;
 
-		total_ctrs = num_hw_ctrs + SBI_PMU_FW_CTR_MAX;
+		ਕੁੱਲ_ctrs = ਅੰਕ_hw_ctrs + SBI_PMU_FW_CTR_MAX;
 
-		if (sbi_pmu_irq_bit() >= 0)
-			sbi_sse_add_event(SBI_SSE_EVENT_LOCAL_PMU_OVERFLOW, &pmu_sse_cb_ops);
+		ਜੇ (sbi_pmu_irq_ਦੋਆਧਾਰੀ_ਅੰਕ() >= 0)
+			sbi_sse_ਜੋੜੋ_event(SBI_SSE_EVENT_LOCAL_PMU_ਉਛਾਲ, &pmu_sse_cb_ops);
 	}
 
 	phs = pmu_get_hart_state_ptr(scratch);
-	if (!phs) {
-		phs = sbi_zalloc(sizeof(*phs));
-		if (!phs)
-			return SBI_ENOMEM;
+	ਜੇ (!phs) {
+		phs = sbi_zalloc(ਆਕਾਰ(*phs));
+		ਜੇ (!phs)
+			ਵਾਪਸ SBI_ENOMEM;
 		phs->hartid = current_hartid();
-		pmu_set_hart_state_ptr(scratch, phs);
+		pmu_ਸੈੱਟ_hart_state_ptr(scratch, phs);
 	}
 
 	pmu_reset_event_map(phs);
 
 	/* First three counters are fixed by the priv spec and we enable it by default */
-	phs->active_events[0] = (SBI_PMU_EVENT_TYPE_HW << SBI_PMU_EVENT_IDX_TYPE_OFFSET) |
-				SBI_PMU_HW_CPU_CYCLES;
-	phs->active_events[1] = SBI_PMU_EVENT_IDX_INVALID;
-	phs->active_events[2] = (SBI_PMU_EVENT_TYPE_HW << SBI_PMU_EVENT_IDX_TYPE_OFFSET) |
+	phs->ਸਰਗਰਮ_events[0] = (SBI_PMU_EVENT_TYPE_HW << SBI_PMU_EVENT_IDX_TYPE_ਵਿੱਥ) |
+				SBI_PMU_HW_CPU_ਚੱਕਰਾਂ;
+	phs->ਸਰਗਰਮ_events[1] = SBI_PMU_EVENT_IDX_INVALID;
+	phs->ਸਰਗਰਮ_events[2] = (SBI_PMU_EVENT_TYPE_HW << SBI_PMU_EVENT_IDX_TYPE_ਵਿੱਥ) |
 				SBI_PMU_HW_INSTRUCTIONS;
 
-	return 0;
+	ਵਾਪਸ 0;
 }

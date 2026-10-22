@@ -4,74 +4,74 @@
  * Copyright (c) 2021 Samuel Holland <samuel@sholland.org>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <libfdt.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/riscv_io.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_bitops.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_error.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi/sbi_system.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_driver.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sbi_utils/fdt/fdt_helper.h>
 
-#define WDT_KEY_VAL			0x16aa0000
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WDT_ਕੁੰਜੀ_VAL			0x16aa0000
 
-#define WDT_SOFT_RST_REG		0x08
-#define WDT_SOFT_RST_EN			BIT(0)
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WDT_SOFT_RST_REG		0x08
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WDT_SOFT_RST_EN			ਦੋਆਧਾਰੀ_ਅੰਕ(0)
 
-#define WDT_MODE_REG			0x18
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ WDT_ਬਹੁਲਕ_REG			0x18
 
-static volatile char *sunxi_wdt_base;
+ਸਥਿਰ ਅਸਥਿਰ ਅੱਖਰ *sunxi_wdt_ਅਧਾਰ;
 
-static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
+ਸਥਿਰ ਪੂਰਨ sunxi_wdt_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 1;
+	ਚੋਣ (type) {
+	ਹਾਲਤ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	ਹਾਲਤ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ਵਾਪਸ 1;
 	}
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static void sunxi_wdt_system_reset(u32 type, u32 reason)
+ਸਥਿਰ ਖਾਲੀ sunxi_wdt_system_reset(u32 type, u32 reason)
 {
 	/* Disable the watchdog. */
-	writel_relaxed(WDT_KEY_VAL,
-		       sunxi_wdt_base + WDT_MODE_REG);
+	writel_relaxed(WDT_ਕੁੰਜੀ_VAL,
+		       sunxi_wdt_ਅਧਾਰ + WDT_ਬਹੁਲਕ_REG);
 
 	/* Trigger soft reset. */
-	writel_relaxed(WDT_KEY_VAL | WDT_SOFT_RST_EN,
-		       sunxi_wdt_base + WDT_SOFT_RST_REG);
+	writel_relaxed(WDT_ਕੁੰਜੀ_VAL | WDT_SOFT_RST_EN,
+		       sunxi_wdt_ਅਧਾਰ + WDT_SOFT_RST_REG);
 }
 
-static struct sbi_system_reset_device sunxi_wdt_reset = {
+ਸਥਿਰ ਬਣਤਰ sbi_system_reset_device sunxi_wdt_reset = {
 	.name = "sunxi-wdt-reset",
 	.system_reset_check = sunxi_wdt_system_reset_check,
 	.system_reset = sunxi_wdt_system_reset,
 };
 
-static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ਸਥਿਰ ਪੂਰਨ sunxi_wdt_reset_init(ਅਚਲ ਖਾਲੀ *fdt, ਪੂਰਨ nodeoff,
+				ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ *ਮੇਲ)
 {
 	uint64_t reg_addr;
-	int rc;
+	ਪੂਰਨ rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_ਗੰਢ_addr_ਮਾਪ(fdt, nodeoff, 0, &reg_addr, ਨਿਰਾ);
+	ਜੇ (rc < 0 || !reg_addr)
+		ਵਾਪਸ SBI_ENODEV;
 
-	sunxi_wdt_base = (volatile char *)(unsigned long)reg_addr;
+	sunxi_wdt_ਅਧਾਰ = (ਅਸਥਿਰ ਅੱਖਰ *)(ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾ)reg_addr;
 
-	sbi_system_reset_add_device(&sunxi_wdt_reset);
+	sbi_system_reset_ਜੋੜੋ_device(&sunxi_wdt_reset);
 
-	return 0;
+	ਵਾਪਸ 0;
 }
 
-static const struct fdt_match sunxi_wdt_reset_match[] = {
+ਸਥਿਰ ਅਚਲ ਬਣਤਰ fdt_ਮੇਲ sunxi_wdt_reset_ਮੇਲ[] = {
 	{ .compatible = "allwinner,sun20i-d1-wdt-reset" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sunxi_wdt = {
-	.match_table = sunxi_wdt_reset_match,
+ਅਚਲ ਬਣਤਰ fdt_driver fdt_reset_sunxi_wdt = {
+	.ਮੇਲ_ਸਾਰਣੀ = sunxi_wdt_reset_ਮੇਲ,
 	.init = sunxi_wdt_reset_init,
 };
