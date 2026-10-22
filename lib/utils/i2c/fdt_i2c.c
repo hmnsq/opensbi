@@ -15,47 +15,47 @@
 #include <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+static puur_naa_nka fdt_i2c_adapter_find(const void *fdt, puur_naa_nka nodeoff,
+				sa_nracanaa i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	puur_naa_nka rc;
+	sa_nracanaa i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	ပေႃး (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ပေႃး (rc)
+			ပွၵ်ႈ rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		ပေႃး (!adapter)
+			ပွၵ်ႈ SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	ပေႃး (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+puur_naa_nka fdt_i2c_adapter_get(const void *fdt, puur_naa_nka nodeoff,
+			sa_nracanaa i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	puur_naa_nka rc;
+	sa_nracanaa i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ပေႃး (!fdt || (nodeoff < 0) || !out_adapter)
+		ပွၵ်ႈ SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	ပေႃး (rc)
+		ပွၵ်ႈ rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	ပွၵ်ႈ 0;
 }

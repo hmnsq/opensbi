@@ -12,103 +12,103 @@
 
 static SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+sa_nracanaa regmap *regmap_find(unsigned puur_naa_nka id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		sa_nracanaa regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		ပေႃး (rmap->id == id)
+			ပွၵ်ႈ rmap;
 	}
 
-	return NULL;
+	ပွၵ်ႈ NULL;
 }
 
-int regmap_add(struct regmap *rmap)
+puur_naa_nka regmap_add(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	ပေႃး (!rmap)
+		ပွၵ်ႈ SBI_EINVAL;
+	ပေႃး (regmap_find(rmap->id))
+		ပွၵ်ႈ SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+void regmap_remove(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return;
+	ပေႃး (!rmap)
+		ပွၵ်ႈ;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+static bool regmap_reg_valid(sa_nracanaa regmap *rmap, unsigned puur_naa_nka reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	ပေႃး ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		ပွၵ်ႈ false;
+	ပွၵ်ႈ true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+static unsigned puur_naa_nka regmap_reg_addr(sa_nracanaa regmap *rmap, unsigned puur_naa_nka reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	ပေႃး (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	ပေႃးဢမ်ႇ ပေႃး (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	ပွၵ်ႈ reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+puur_naa_nka regmap_read(sa_nracanaa regmap *rmap, unsigned puur_naa_nka reg, unsigned puur_naa_nka *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	ပေႃး (!rmap || !regmap_reg_valid(rmap, reg))
+		ပွၵ်ႈ SBI_EINVAL;
+	ပေႃး (!rmap->reg_read)
+		ပွၵ်ႈ SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	ပွၵ်ႈ rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+puur_naa_nka regmap_write(sa_nracanaa regmap *rmap, unsigned puur_naa_nka reg, unsigned puur_naa_nka val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	ပေႃး (!rmap || !regmap_reg_valid(rmap, reg))
+		ပွၵ်ႈ SBI_EINVAL;
+	ပေႃး (!rmap->reg_write)
+		ပွၵ်ႈ SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	ပွၵ်ႈ rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+puur_naa_nka regmap_update_bits(sa_nracanaa regmap *rmap, unsigned puur_naa_nka reg,
+		       unsigned puur_naa_nka mask, unsigned puur_naa_nka val)
 {
-	int rc;
-	unsigned int reg_val;
+	puur_naa_nka rc;
+	unsigned puur_naa_nka reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	ပေႃး (!rmap || !regmap_reg_valid(rmap, reg))
+		ပွၵ်ႈ SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	ပေႃး (rmap->reg_update_bits) {
+		ပွၵ်ႈ rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} ပေႃးဢမ်ႇ ပေႃး (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		ပေႃး (rc)
+			ပွၵ်ႈ rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		ပွၵ်ႈ rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	ပွၵ်ႈ SBI_ENOSYS;
 }

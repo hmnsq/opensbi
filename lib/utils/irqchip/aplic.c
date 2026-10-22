@@ -128,57 +128,57 @@
 #define APLIC_DISABLE_ITHRESHOLD	1
 #define APLIC_ENABLE_ITHRESHOLD		0
 
-struct aplic_msi_data {
-	struct aplic_data *aplic;
+sa_nracanaa aplic_msi_data {
+	sa_nracanaa aplic_data *aplic;
 	u32 hwirq;
 	u32 parent_hwirq;
 };
 
 static SBI_LIST_HEAD(aplic_list);
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
+static void aplic_writel_msicfg(sa_nracanaa aplic_msicfg_data *msicfg,
 				void *msicfgaddr, void *msicfgaddrH);
 
-static inline bool aplic_is_direct_mode(struct aplic_data *aplic)
+static anta_hstha bool aplic_is_direct_mode(sa_nracanaa aplic_data *aplic)
 {
-	return aplic && aplic->num_idc;
+	ပွၵ်ႈ aplic && aplic->num_idc;
 }
 
-static inline void aplic_sourcecfg_write(struct aplic_data *aplic,
+static anta_hstha void aplic_sourcecfg_write(sa_nracanaa aplic_data *aplic,
 					 u32 hwirq, u32 val)
 {
 	writel(val, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+			     (hwirq - 1) * parimaa_na(u32)));
 }
 
-static inline u32 aplic_sourcecfg_read(struct aplic_data *aplic, u32 hwirq)
+static anta_hstha u32 aplic_sourcecfg_read(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
-	return readl((void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			      (hwirq - 1) * sizeof(u32)));
+	ပွၵ်ႈ readl((void *)(aplic->addr + APLIC_SOURCECFG_BASE +
+			      (hwirq - 1) * parimaa_na(u32)));
 }
 
-static inline void aplic_target_write(struct aplic_data *aplic,
+static anta_hstha void aplic_target_write(sa_nracanaa aplic_data *aplic,
 				      u32 hwirq, u32 val)
 {
 	writel(val, (void *)(aplic->addr + APLIC_TARGET_BASE +
-			     (hwirq - 1) * sizeof(u32)));
+			     (hwirq - 1) * parimaa_na(u32)));
 }
 
-static inline void aplic_irq_setie(struct aplic_data *aplic, u32 hwirq)
+static anta_hstha void aplic_irq_setie(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
 	writel(hwirq, (void *)(aplic->addr + APLIC_SETIENUM));
 }
 
-static inline void aplic_irq_clrie(struct aplic_data *aplic, u32 hwirq)
+static anta_hstha void aplic_irq_clrie(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
 	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIENUM));
 }
 
-static inline void aplic_irq_clrip(struct aplic_data *aplic, u32 hwirq)
+static anta_hstha void aplic_irq_clrip(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
 	writel(hwirq, (void *)(aplic->addr + APLIC_CLRIPNUM));
 }
 
-static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 hwirq)
+static anta_hstha void aplic_msi_irq_retrigger_level(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
 	/*
 	 * The section "4.9.2 Special consideration for level-sensitive interrupt
@@ -193,19 +193,19 @@ static inline void aplic_msi_irq_retrigger_level(struct aplic_data *aplic, u32 h
 	writel(hwirq, (void *)(aplic->addr + APLIC_SETIPNUM_LE));
 }
 
-static inline void *aplic_idc_base(struct aplic_data *aplic, u32 idc_index)
+static anta_hstha void *aplic_idc_base(sa_nracanaa aplic_data *aplic, u32 idc_index)
 {
-	return (void *)(aplic->addr + APLIC_IDC_BASE +
+	ပွၵ်ႈ (void *)(aplic->addr + APLIC_IDC_BASE +
 			idc_index * APLIC_IDC_SIZE);
 }
 
-static inline u32 aplic_idc_read(struct aplic_data *aplic, u32 idc_index,
+static anta_hstha u32 aplic_idc_read(sa_nracanaa aplic_data *aplic, u32 idc_index,
 				 u32 reg)
 {
-	return readl(aplic_idc_base(aplic, idc_index) + reg);
+	ပွၵ်ႈ readl(aplic_idc_base(aplic, idc_index) + reg);
 }
 
-static inline void aplic_idc_write(struct aplic_data *aplic, u32 idc_index,
+static anta_hstha void aplic_idc_write(sa_nracanaa aplic_data *aplic, u32 idc_index,
 				   u32 reg, u32 val)
 {
 	writel(val, aplic_idc_base(aplic, idc_index) + reg);
@@ -214,44 +214,44 @@ static inline void aplic_idc_write(struct aplic_data *aplic, u32 idc_index,
 static u32 aplic_hwirq_flags_to_sourcecfg(u32 hwirq_flags)
 {
 	switch (hwirq_flags & SBI_HWIRQ_FLAGS_LEVEL_SENSE_MASK) {
-	case SBI_HWIRQ_FLAGS_EDGE_RISING:
-		return APLIC_SOURCECFG_SM_EDGE_RISE;
-	case SBI_HWIRQ_FLAGS_EDGE_FALLING:
-		return APLIC_SOURCECFG_SM_EDGE_FALL;
-	case SBI_HWIRQ_FLAGS_LEVEL_HIGH:
-		return APLIC_SOURCECFG_SM_LEVEL_HIGH;
-	case SBI_HWIRQ_FLAGS_LEVEL_LOW:
-		return APLIC_SOURCECFG_SM_LEVEL_LOW;
+	pak_sa SBI_HWIRQ_FLAGS_EDGE_RISING:
+		ပွၵ်ႈ APLIC_SOURCECFG_SM_EDGE_RISE;
+	pak_sa SBI_HWIRQ_FLAGS_EDGE_FALLING:
+		ပွၵ်ႈ APLIC_SOURCECFG_SM_EDGE_FALL;
+	pak_sa SBI_HWIRQ_FLAGS_LEVEL_HIGH:
+		ပွၵ်ႈ APLIC_SOURCECFG_SM_LEVEL_HIGH;
+	pak_sa SBI_HWIRQ_FLAGS_LEVEL_LOW:
+		ပွၵ်ႈ APLIC_SOURCECFG_SM_LEVEL_LOW;
 	default:
-		return APLIC_SOURCECFG_SM_INACTIVE;
+		ပွၵ်ႈ APLIC_SOURCECFG_SM_INACTIVE;
 	}
 }
 
-static bool aplic_hwirq_is_delegated(struct aplic_data *aplic, u32 hwirq)
+static bool aplic_hwirq_is_delegated(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
 	u32 sourcecfg;
 
 	sourcecfg = aplic_sourcecfg_read(aplic, hwirq);
-	return !!(sourcecfg & APLIC_SOURCECFG_D);
+	ပွၵ်ႈ !!(sourcecfg & APLIC_SOURCECFG_D);
 }
 
-static int aplic_find_idc_index(struct aplic_data *aplic, u32 hart_index)
+static puur_naa_nka aplic_find_idc_index(sa_nracanaa aplic_data *aplic, u32 hart_index)
 {
 	u32 i;
 
 	for (i = 0; i < aplic->num_idc; i++) {
-		if (aplic->idc_map[i] == hart_index)
-			return i;
+		ပေႃး (aplic->idc_map[i] == hart_index)
+			ပွၵ်ႈ i;
 	}
 
-	return SBI_ENOENT;
+	ပွၵ်ႈ SBI_ENOENT;
 }
 
-static void aplic_init(struct aplic_data *aplic)
+static void aplic_init(sa_nracanaa aplic_data *aplic)
 {
-	struct aplic_delegate_data *deleg;
+	sa_nracanaa aplic_delegate_data *deleg;
 	u32 i, j, tmp, domaincfg;
-	int locked;
+	puur_naa_nka locked;
 
 	/* Set domain configuration to 0 */
 	writel(0, (void *)(aplic->addr + APLIC_DOMAINCFG));
@@ -259,30 +259,30 @@ static void aplic_init(struct aplic_data *aplic)
 	/* Disable all interrupts */
 	for (i = 0; i <= aplic->num_source; i += 32)
 		writel(-1U, (void *)(aplic->addr + APLIC_CLRIE_BASE +
-				     (i / 32) * sizeof(u32)));
+				     (i / 32) * parimaa_na(u32)));
 
 	/* Set interrupt type and priority for all interrupts */
 	for (i = 1; i <= aplic->num_source; i++) {
 		/* Set IRQ source configuration to 0 */
 		writel(0, (void *)(aplic->addr + APLIC_SOURCECFG_BASE +
-			  (i - 1) * sizeof(u32)));
+			  (i - 1) * parimaa_na(u32)));
 		/* Set IRQ target hart index and priority to 1 */
 		writel(APLIC_DEFAULT_PRIORITY, (void *)(aplic->addr +
 						APLIC_TARGET_BASE +
-						(i - 1) * sizeof(u32)));
+						(i - 1) * parimaa_na(u32)));
 	}
 
 	/* Configure IRQ delegation */
 	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (!deleg->first_irq || !deleg->last_irq)
+		ပေႃး (!deleg->first_irq || !deleg->last_irq)
 			continue;
-		if (aplic->num_source < deleg->first_irq ||
+		ပေႃး (aplic->num_source < deleg->first_irq ||
 		    aplic->num_source < deleg->last_irq)
 			continue;
-		if (deleg->child_index > APLIC_SOURCECFG_CHILDIDX_MASK)
+		ပေႃး (deleg->child_index > APLIC_SOURCECFG_CHILDIDX_MASK)
 			continue;
-		if (deleg->first_irq > deleg->last_irq) {
+		ပေႃး (deleg->first_irq > deleg->last_irq) {
 			tmp = deleg->first_irq;
 			deleg->first_irq = deleg->last_irq;
 			deleg->last_irq = tmp;
@@ -292,7 +292,7 @@ static void aplic_init(struct aplic_data *aplic)
 	}
 
 	/* Default initialization of IDC structures */
-	if (aplic_is_direct_mode(aplic)) {
+	ပေႃး (aplic_is_direct_mode(aplic)) {
 		for (i = 0; i < aplic->num_idc; i++) {
 			aplic_idc_write(aplic, i, APLIC_IDC_IDELIVERY,
 					APLIC_DISABLE_IDELIVERY);
@@ -300,15 +300,15 @@ static void aplic_init(struct aplic_data *aplic)
 			aplic_idc_write(aplic, i, APLIC_IDC_ITHRESHOLD,
 					APLIC_DISABLE_ITHRESHOLD);
 		}
-	} else {
+	} ပေႃးဢမ်ႇ {
 		/* MSI configuration */
 		locked = readl((void *)(aplic->addr + APLIC_MMSICFGADDRH)) & APLIC_xMSICFGADDRH_L;
-		if (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
+		ပေႃး (aplic->targets_mmode && aplic->has_msicfg_mmode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_mmode,
 						(void *)(aplic->addr + APLIC_MMSICFGADDR),
 						(void *)(aplic->addr + APLIC_MMSICFGADDRH));
 		}
-		if (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
+		ပေႃး (aplic->targets_mmode && aplic->has_msicfg_smode && !locked) {
 			aplic_writel_msicfg(&aplic->msicfg_smode,
 						(void *)(aplic->addr + APLIC_SMSICFGADDR),
 						(void *)(aplic->addr + APLIC_SMSICFGADDRH));
@@ -316,7 +316,7 @@ static void aplic_init(struct aplic_data *aplic)
 	}
 
 	domaincfg = APLIC_DOMAINCFG_IE;
-	if (!aplic_is_direct_mode(aplic))
+	ပေႃး (!aplic_is_direct_mode(aplic))
 		domaincfg |= APLIC_DOMAINCFG_DM;
 
 	writel(domaincfg, (void *)(aplic->addr + APLIC_DOMAINCFG));
@@ -324,13 +324,13 @@ static void aplic_init(struct aplic_data *aplic)
 
 void aplic_reinit_all(void)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 
 	sbi_list_for_each_entry(aplic, &aplic_list, node)
 		aplic_init(aplic);
 }
 
-static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
+static void aplic_writel_msicfg(sa_nracanaa aplic_msicfg_data *msicfg,
 				void *msicfgaddr, void *msicfgaddrH)
 {
 	u32 val;
@@ -359,96 +359,96 @@ static void aplic_writel_msicfg(struct aplic_msicfg_data *msicfg,
 	writel(val, msicfgaddrH);
 }
 
-static int aplic_check_msicfg(struct aplic_msicfg_data *msicfg)
+static puur_naa_nka aplic_check_msicfg(sa_nracanaa aplic_msicfg_data *msicfg)
 {
-	if (APLIC_xMSICFGADDRH_LHXS_MASK < msicfg->lhxs)
-		return SBI_EINVAL;
+	ပေႃး (APLIC_xMSICFGADDRH_LHXS_MASK < msicfg->lhxs)
+		ပွၵ်ႈ SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_LHXW_MASK < msicfg->lhxw)
-		return SBI_EINVAL;
+	ပေႃး (APLIC_xMSICFGADDRH_LHXW_MASK < msicfg->lhxw)
+		ပွၵ်ႈ SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXS_MASK < msicfg->hhxs)
-		return SBI_EINVAL;
+	ပေႃး (APLIC_xMSICFGADDRH_HHXS_MASK < msicfg->hhxs)
+		ပွၵ်ႈ SBI_EINVAL;
 
-	if (APLIC_xMSICFGADDRH_HHXW_MASK < msicfg->hhxw)
-		return SBI_EINVAL;
+	ပေႃး (APLIC_xMSICFGADDRH_HHXW_MASK < msicfg->hhxw)
+		ပွၵ်ႈ SBI_EINVAL;
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-static int aplic_warm_init(struct sbi_irqchip_device *chip)
+static puur_naa_nka aplic_warm_init(sa_nracanaa sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 	u32 hart_index;
-	int idc_index;
+	puur_naa_nka idc_index;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (!aplic_is_direct_mode(aplic))
-		return 0;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (!aplic_is_direct_mode(aplic))
+		ပွၵ်ႈ 0;
 
 	hart_index = current_hartindex();
 	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	ပေႃး (idc_index < 0)
+		ပွၵ်ႈ 0;
 
 	aplic_idc_write(aplic, idc_index, APLIC_IDC_ITHRESHOLD,
 			APLIC_ENABLE_ITHRESHOLD);
 	aplic_idc_write(aplic, idc_index, APLIC_IDC_IDELIVERY,
 			APLIC_ENABLE_IDELIVERY);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-static int aplic_process_hwirqs(struct sbi_irqchip_device *chip)
+static puur_naa_nka aplic_process_hwirqs(sa_nracanaa sbi_irqchip_device *chip)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 	u32 hart_index, claimi, hwirq;
-	int idc_index, rc = 0, tmp;
+	puur_naa_nka idc_index, rc = 0, tmp;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
 
-	if (!aplic_is_direct_mode(aplic))
+	ပေႃး (!aplic_is_direct_mode(aplic))
 		sbi_panic("aplic_process_hwirqs called in MSI mode.\n");
 
 	hart_index = current_hartindex();
 	idc_index  = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return 0;
+	ပေႃး (idc_index < 0)
+		ပွၵ်ႈ 0;
 
-	while ((claimi = aplic_idc_read(aplic, idc_index, APLIC_IDC_CLAIMI))) {
+	ၶၢဝ်း ((claimi = aplic_idc_read(aplic, idc_index, APLIC_IDC_CLAIMI))) {
 		hwirq = (claimi >> APLIC_IDC_TOPI_ID_SHIFT) &
 			APLIC_IDC_TOPI_ID_MASK;
 
-		if (!hwirq)
-			break;
+		ပေႃး (!hwirq)
+			bha_nga;
 
-		if (aplic_hwirq_is_delegated(aplic, hwirq))
+		ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq))
 			continue;
 
 		tmp = sbi_irqchip_process_hwirq(chip, hwirq);
-		if (tmp)
+		ပေႃး (tmp)
 			rc = tmp;
 	}
 
-	return rc;
+	ပွၵ်ႈ rc;
 }
 
-static void aplic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
+static void aplic_hwirq_eoi(sa_nracanaa sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 	u32 sm;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_is_direct_mode(aplic))
-		return;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (aplic_is_direct_mode(aplic))
+		ပွၵ်ႈ;
 
 	sm = aplic_sourcecfg_read(aplic, hwirq) & APLIC_SOURCECFG_SM_MASK;
-	if (sm == APLIC_SOURCECFG_SM_LEVEL_HIGH ||
+	ပေႃး (sm == APLIC_SOURCECFG_SM_LEVEL_HIGH ||
 	    sm == APLIC_SOURCECFG_SM_LEVEL_LOW)
 		aplic_msi_irq_retrigger_level(aplic, hwirq);
 }
 
-static void aplic_program_msi_target(struct aplic_data *aplic,
+static void aplic_program_msi_target(sa_nracanaa aplic_data *aplic,
 				     u32 hwirq, u32 hart_index,
 				     u32 guest_index, u32 eiid)
 {
@@ -461,8 +461,8 @@ static void aplic_program_msi_target(struct aplic_data *aplic,
 	aplic_target_write(aplic, hwirq, target);
 }
 
-static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
-			      const struct sbi_irqchip_msi_msg *msg)
+static u32 derive_hart_index(sa_nracanaa aplic_msicfg_data *msicfg,
+			      const sa_nracanaa sbi_irqchip_msi_msg *msg)
 {
 	u64 addr = ((u64)msg->address_hi << 32) | msg->address_lo;
 	u64 tppn = addr >> APLIC_xMSICFGADDR_PPN_SHIFT;
@@ -476,57 +476,57 @@ static u32 derive_hart_index(struct aplic_msicfg_data *msicfg,
 
 	hart_index |= (group_index << msicfg->lhxw);
 
-	return hart_index;
+	ပွၵ်ႈ hart_index;
 }
 
 static void aplic_write_msi(u32 parent_hwirq,
-			    const struct sbi_irqchip_msi_msg *msg,
+			    const sa_nracanaa sbi_irqchip_msi_msg *msg,
 			    void *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
+	sa_nracanaa aplic_msi_data *msi_data = priv;
 	u32 guest_index = 0;
 	u32 eiid;
 
 	eiid = msg->data;
-	if (!eiid || eiid > APLIC_TARGET_EIID_MASK)
-		return;
+	ပေႃး (!eiid || eiid > APLIC_TARGET_EIID_MASK)
+		ပွၵ်ႈ;
 
 	aplic_program_msi_target(msi_data->aplic, msi_data->hwirq,
 				derive_hart_index(&msi_data->aplic->msicfg_mmode, msg),
 				guest_index, eiid);
 }
 
-static int aplic_msi_callback(u32 parent_hwirq, void *priv)
+static puur_naa_nka aplic_msi_callback(u32 parent_hwirq, void *priv)
 {
-	struct aplic_msi_data *msi_data = priv;
-	int rc;
+	sa_nracanaa aplic_msi_data *msi_data = priv;
+	puur_naa_nka rc;
 
 	rc = sbi_irqchip_process_hwirq(&msi_data->aplic->irqchip, msi_data->hwirq);
-	if (rc && rc != SBI_ENOENT)
+	ပေႃး (rc && rc != SBI_ENOENT)
 		sbi_printf("%s: hwirq=%lu failed rc=%d\n",
 			__func__,
 			(unsigned long)parent_hwirq, rc);
 
-	return rc;
+	ပွၵ်ႈ rc;
 }
 
-static int aplic_setup_msi(struct aplic_data *aplic, u32 hwirq)
+static puur_naa_nka aplic_setup_msi(sa_nracanaa aplic_data *aplic, u32 hwirq)
 {
-	struct sbi_irqchip_device *parent;
+	sa_nracanaa sbi_irqchip_device *parent;
 	u32 first_hwirq;
-	struct aplic_msi_data *msi_data;
-	int rc;
+	sa_nracanaa aplic_msi_data *msi_data;
+	puur_naa_nka rc;
 
 	parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-	if (!parent) {
+	ပေႃး (!parent) {
 		sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
 			__func__, (unsigned long)hwirq);
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 	}
 
-	msi_data = sbi_zalloc(sizeof(struct aplic_msi_data));
-	if (!msi_data)
-		return SBI_ENOMEM;
+	msi_data = sbi_zalloc(parimaa_na(sa_nracanaa aplic_msi_data));
+	ပေႃး (!msi_data)
+		ပွၵ်ႈ SBI_ENOMEM;
 
 	msi_data->aplic = aplic;
 	msi_data->hwirq = hwirq;
@@ -536,136 +536,136 @@ static int aplic_setup_msi(struct aplic_data *aplic, u32 hwirq)
 					aplic_msi_callback,
 					msi_data,
 					&first_hwirq);
-	if (rc) {
+	ပေႃး (rc) {
 		sbi_printf("%s: register_msi failed hwirq=%lu rc=%d\n",
 			__func__, (unsigned long)hwirq, rc);
 		sbi_free(msi_data);
-		return rc;
+		ပွၵ်ႈ rc;
 	}
 
 	msi_data->parent_hwirq = first_hwirq;
 	sbi_irqchip_set_hwirq_priv(&aplic->irqchip, hwirq, msi_data);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-static int aplic_hwirq_setup(struct sbi_irqchip_device *chip,
+static puur_naa_nka aplic_hwirq_setup(sa_nracanaa sbi_irqchip_device *chip,
 			     u32 hwirq, u32 hwirq_flags)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 	u32 sourcecfg;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
 
 	sourcecfg = aplic_hwirq_flags_to_sourcecfg(hwirq_flags);
-	if (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
+	ပေႃး (sourcecfg == APLIC_SOURCECFG_SM_INACTIVE) {
 		sbi_printf("%s: unsupported flags=0x%lx hwirq=%lu\n",
 			__func__,
 			(unsigned long)hwirq_flags,
 			(unsigned long)hwirq);
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 	}
 
 	aplic_sourcecfg_write(aplic, hwirq, sourcecfg);
 
-	if (aplic_hwirq_is_delegated(aplic, hwirq)) {
+	ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq)) {
 		sbi_printf("%s: hwirq=%lu is delegated\n",
 			__func__, (unsigned long)hwirq);
-		return SBI_ENOTSUPP;
+		ပွၵ်ႈ SBI_ENOTSUPP;
 	}
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 
-	if (!aplic_is_direct_mode(aplic))
-		return aplic_setup_msi(aplic, hwirq);
+	ပေႃး (!aplic_is_direct_mode(aplic))
+		ပွၵ်ႈ aplic_setup_msi(aplic, hwirq);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-static void aplic_hwirq_cleanup(struct sbi_irqchip_device *chip, u32 hwirq)
+static void aplic_hwirq_cleanup(sa_nracanaa sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
+	sa_nracanaa aplic_data *aplic;
+	sa_nracanaa aplic_msi_data *msi_data;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq))
+		ပွၵ်ႈ;
 
 	aplic_irq_clrie(aplic, hwirq);
 	aplic_irq_clrip(aplic, hwirq);
 	aplic_sourcecfg_write(aplic, hwirq, APLIC_SOURCECFG_SM_INACTIVE);
 	aplic_target_write(aplic, hwirq, APLIC_DEFAULT_PRIORITY);
-	msi_data = (struct aplic_msi_data *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
-	if (msi_data)
+	msi_data = (sa_nracanaa aplic_msi_data *) sbi_irqchip_get_hwirq_priv(chip, hwirq);
+	ပေႃး (msi_data)
 		sbi_free(msi_data);
 }
 
-static int aplic_hwirq_set_affinity(struct sbi_irqchip_device *chip,
+static puur_naa_nka aplic_hwirq_set_affinity(sa_nracanaa sbi_irqchip_device *chip,
 				    u32 hwirq, u32 hart_index)
 {
-	struct aplic_data *aplic;
-	struct aplic_msi_data *msi_data;
-	struct sbi_irqchip_device *parent;
-	int idc_index;
-	int rc;
+	sa_nracanaa aplic_data *aplic;
+	sa_nracanaa aplic_msi_data *msi_data;
+	sa_nracanaa sbi_irqchip_device *parent;
+	puur_naa_nka idc_index;
+	puur_naa_nka rc;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return SBI_ENOTSUPP;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq))
+		ပွၵ်ႈ SBI_ENOTSUPP;
 
-	if (!aplic_is_direct_mode(aplic)) {
+	ပေႃး (!aplic_is_direct_mode(aplic)) {
 		parent = sbi_irqchip_find_device(aplic->parent_unique_id);
-		if (!parent) {
+		ပေႃး (!parent) {
 			sbi_printf("%s: msi_parent is NULL hwirq=%lu\n",
 				__func__, (unsigned long)hwirq);
-			return SBI_EINVAL;
+			ပွၵ်ႈ SBI_EINVAL;
 		}
 
 		msi_data = sbi_irqchip_get_hwirq_priv(chip, hwirq);
 		rc = sbi_irqchip_set_affinity(parent, msi_data->parent_hwirq, hart_index);
-		if (rc) {
+		ပေႃး (rc) {
 			sbi_printf("%s: sbi_irqchip_set_affinity failed hwirq=%lu rc=%d\n",
 				__func__, (unsigned long)hwirq, rc);
-			return rc;
+			ပွၵ်ႈ rc;
 		}
-		return 0;
+		ပွၵ်ႈ 0;
 	}
 
 	idc_index = aplic_find_idc_index(aplic, hart_index);
-	if (idc_index < 0)
-		return SBI_EINVAL;
+	ပေႃး (idc_index < 0)
+		ပွၵ်ႈ SBI_EINVAL;
 
 	aplic_target_write(aplic, hwirq,
 			   APLIC_TARGET_HART_IDX(hart_index) |
 			   APLIC_TARGET_IPRIO(APLIC_DEFAULT_PRIORITY));
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-static void aplic_hwirq_mask(struct sbi_irqchip_device *chip, u32 hwirq)
+static void aplic_hwirq_mask(sa_nracanaa sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq))
+		ပွၵ်ႈ;
 
 	aplic_irq_clrie(aplic, hwirq);
 }
 
-static void aplic_hwirq_unmask(struct sbi_irqchip_device *chip, u32 hwirq)
+static void aplic_hwirq_unmask(sa_nracanaa sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct aplic_data *aplic;
+	sa_nracanaa aplic_data *aplic;
 
-	aplic = container_of(chip, struct aplic_data, irqchip);
-	if (aplic_hwirq_is_delegated(aplic, hwirq))
-		return;
+	aplic = container_of(chip, sa_nracanaa aplic_data, irqchip);
+	ပေႃး (aplic_hwirq_is_delegated(aplic, hwirq))
+		ပွၵ်ႈ;
 
 	aplic_irq_setie(aplic, hwirq);
 }
 
-static struct sbi_irqchip_device aplic_irqchip_template = {
+static sa_nracanaa sbi_irqchip_device aplic_irqchip_template = {
 	.warm_init			= aplic_warm_init,
 	.process_hwirqs		= aplic_process_hwirqs,
 	.hwirq_eoi			= aplic_hwirq_eoi,
@@ -676,50 +676,50 @@ static struct sbi_irqchip_device aplic_irqchip_template = {
 	.hwirq_unmask		= aplic_hwirq_unmask,
 };
 
-int aplic_cold_irqchip_init(struct aplic_data *aplic)
+puur_naa_nka aplic_cold_irqchip_init(sa_nracanaa aplic_data *aplic)
 {
-	int rc;
-	struct aplic_delegate_data *deleg;
+	puur_naa_nka rc;
+	sa_nracanaa aplic_delegate_data *deleg;
 	u32 first_deleg_irq, last_deleg_irq, i;
 	bool msi_mode;
 
 	msi_mode = !aplic_is_direct_mode(aplic);
-	if (!aplic->num_source) {
+	ပေႃး (!aplic->num_source) {
 		sbi_printf("%s: num_source is zero\n", __func__);
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 	}
 
-	if (APLIC_MAX_SOURCE <= aplic->num_source) {
+	ပေႃး (APLIC_MAX_SOURCE <= aplic->num_source) {
 		sbi_printf("%s: num_source=%lu exceeds max=%lu\n",
 			__func__,
 			(unsigned long)aplic->num_source,
 			(unsigned long)APLIC_MAX_SOURCE);
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 	}
 
-	if (!msi_mode && APLIC_MAX_IDC <= aplic->num_idc) {
+	ပေႃး (!msi_mode && APLIC_MAX_IDC <= aplic->num_idc) {
 		sbi_printf("%s: num_idc=%lu exceeds max=%lu\n",
 			__func__,
 			(unsigned long)aplic->num_idc,
 			(unsigned long)APLIC_MAX_IDC);
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_mmode) {
+	ပေႃး (aplic->targets_mmode && aplic->has_msicfg_mmode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_mmode);
-		if (rc) {
+		ပေႃး (rc) {
 			sbi_printf("%s: invalid M-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			ပွၵ်ႈ rc;
 		}
 	}
 
-	if (aplic->targets_mmode && aplic->has_msicfg_smode) {
+	ပေႃး (aplic->targets_mmode && aplic->has_msicfg_smode) {
 		rc = aplic_check_msicfg(&aplic->msicfg_smode);
-		if (rc) {
+		ပေႃး (rc) {
 			sbi_printf("%s: invalid S-mode msicfg rc=%d\n",
 				__func__, rc);
-			return rc;
+			ပွၵ်ႈ rc;
 		}
 	}
 
@@ -735,13 +735,13 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 	last_deleg_irq = 0;
 	for (i = 0; i < APLIC_MAX_DELEGATE; i++) {
 		deleg = &aplic->delegate[i];
-		if (deleg->first_irq < first_deleg_irq)
+		ပေႃး (deleg->first_irq < first_deleg_irq)
 			first_deleg_irq = deleg->first_irq;
-		if (last_deleg_irq < deleg->last_irq)
+		ပေႃး (last_deleg_irq < deleg->last_irq)
 			last_deleg_irq = deleg->last_irq;
 	}
 
-	if (aplic->targets_mmode ||
+	ပေႃး (aplic->targets_mmode ||
 	    ((first_deleg_irq < last_deleg_irq) &&
 	    (last_deleg_irq == aplic->num_source) &&
 	    (first_deleg_irq == 1))) {
@@ -749,42 +749,42 @@ int aplic_cold_irqchip_init(struct aplic_data *aplic)
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-		if (rc)
-			return rc;
+		ပေႃး (rc)
+			ပွၵ်ႈ rc;
 	}
 
-	if ((aplic->targets_mmode)) {
+	ပေႃး ((aplic->targets_mmode)) {
 		aplic->irqchip		 = aplic_irqchip_template;
 		aplic->irqchip.id	 = aplic->unique_id;
 		aplic->irqchip.caps = SBI_IRQCHIP_CAPS_WIRED;
 		aplic->irqchip.num_hwirq = aplic->num_source + 1;
 
-		if (msi_mode) {
+		ပေႃး (msi_mode) {
 			aplic->irqchip.warm_init      = NULL;
 			aplic->irqchip.process_hwirqs = NULL;
 			aplic->irqchip.hwirq_eoi      = NULL;
 		}
 
-		if (msi_mode)
+		ပေႃး (msi_mode)
 			sbi_hartmask_set_all(&aplic->irqchip.target_harts);
-		else
+		ပေႃးဢမ်ႇ
 			for (i = 0; i < aplic->num_idc; i++)
 				sbi_hartmask_set_hartindex(aplic->idc_map[i],
 							   &aplic->irqchip.target_harts);
 
 		rc = sbi_irqchip_add_device(&aplic->irqchip);
-		if (rc) {
+		ပေႃး (rc) {
 			sbi_printf("%s: sbi_irqchip_add_device failed rc=%d id=%lu mode=%s target_weight=%lu\n",
 				__func__, rc,
 				(unsigned long)aplic->irqchip.id,
 				msi_mode ? "msi" : "direct",
 				(unsigned long)sbi_hartmask_weight(
 					&aplic->irqchip.target_harts));
-			return rc;
+			ပွၵ်ႈ rc;
 		}
 	}
 	/* Attach to the aplic list */
 	sbi_list_add_tail(&aplic->node, &aplic_list);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }

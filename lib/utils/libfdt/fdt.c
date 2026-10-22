@@ -19,281 +19,281 @@ int32_t fdt_ro_probe_(const void *fdt)
 {
 	uint32_t totalsize = fdt_totalsize(fdt);
 
-	if (can_assume(VALID_DTB))
-		return totalsize;
+	ပေႃး (can_assume(VALID_DTB))
+		ပွၵ်ႈ totalsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	ပေႃး ((uintptr_t)fdt & 7)
+		ပွၵ်ႈ -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
+	ပေႃး (fdt_magic(fdt) == FDT_MAGIC) {
 		/* Complete tree */
-		if (!can_assume(LATEST)) {
-			if (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
-			if (fdt_last_comp_version(fdt) >
+		ပေႃး (!can_assume(LATEST)) {
+			ပေႃး (fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+				ပွၵ်ႈ -FDT_ERR_BADVERSION;
+			ပေႃး (fdt_last_comp_version(fdt) >
 					FDT_LAST_SUPPORTED_VERSION)
-				return -FDT_ERR_BADVERSION;
+				ပွၵ်ႈ -FDT_ERR_BADVERSION;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
+	} ပေႃးဢမ်ႇ ပေႃး (fdt_magic(fdt) == FDT_SW_MAGIC) {
 		/* Unfinished sequential-write blob */
-		if (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
-			return -FDT_ERR_BADSTATE;
-	} else {
-		return -FDT_ERR_BADMAGIC;
+		ပေႃး (!can_assume(VALID_INPUT) && fdt_size_dt_struct(fdt) == 0)
+			ပွၵ်ႈ -FDT_ERR_BADSTATE;
+	} ပေႃးဢမ်ႇ {
+		ပွၵ်ႈ -FDT_ERR_BADMAGIC;
 	}
 
-	if (totalsize < INT32_MAX)
-		return totalsize;
-	else
-		return -FDT_ERR_TRUNCATED;
+	ပေႃး (totalsize < INT32_MAX)
+		ပွၵ်ႈ totalsize;
+	ပေႃးဢမ်ႇ
+		ပွၵ်ႈ -FDT_ERR_TRUNCATED;
 }
 
-static int check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
+static puur_naa_nka check_off_(uint32_t hdrsize, uint32_t totalsize, uint32_t off)
 {
-	return (off >= hdrsize) && (off <= totalsize);
+	ပွၵ်ႈ (off >= hdrsize) && (off <= totalsize);
 }
 
-static int check_block_(uint32_t hdrsize, uint32_t totalsize,
+static puur_naa_nka check_block_(uint32_t hdrsize, uint32_t totalsize,
 			uint32_t base, uint32_t size)
 {
-	if (!check_off_(hdrsize, totalsize, base))
-		return 0; /* block start out of bounds */
-	if ((base + size) < base)
-		return 0; /* overflow */
-	if (!check_off_(hdrsize, totalsize, base + size))
-		return 0; /* block end out of bounds */
-	return 1;
+	ပေႃး (!check_off_(hdrsize, totalsize, base))
+		ပွၵ်ႈ 0; /* block start out of bounds */
+	ပေႃး ((base + size) < base)
+		ပွၵ်ႈ 0; /* overflow */
+	ပေႃး (!check_off_(hdrsize, totalsize, base + size))
+		ပွၵ်ႈ 0; /* block end out of bounds */
+	ပွၵ်ႈ 1;
 }
 
 size_t fdt_header_size_(uint32_t version)
 {
-	if (version <= 1)
-		return FDT_V1_SIZE;
-	else if (version <= 2)
-		return FDT_V2_SIZE;
-	else if (version <= 3)
-		return FDT_V3_SIZE;
-	else if (version <= 16)
-		return FDT_V16_SIZE;
-	else
-		return FDT_V17_SIZE;
+	ပေႃး (version <= 1)
+		ပွၵ်ႈ FDT_V1_SIZE;
+	ပေႃးဢမ်ႇ ပေႃး (version <= 2)
+		ပွၵ်ႈ FDT_V2_SIZE;
+	ပေႃးဢမ်ႇ ပေႃး (version <= 3)
+		ပွၵ်ႈ FDT_V3_SIZE;
+	ပေႃးဢမ်ႇ ပေႃး (version <= 16)
+		ပွၵ်ႈ FDT_V16_SIZE;
+	ပေႃးဢမ်ႇ
+		ပွၵ်ႈ FDT_V17_SIZE;
 }
 
 size_t fdt_header_size(const void *fdt)
 {
-	return can_assume(LATEST) ? FDT_V17_SIZE :
+	ပွၵ်ႈ can_assume(LATEST) ? FDT_V17_SIZE :
 		fdt_header_size_(fdt_version(fdt));
 }
 
-int fdt_check_header(const void *fdt)
+puur_naa_nka fdt_check_header(const void *fdt)
 {
 	size_t hdrsize;
 
 	/* The device tree must be at an 8-byte aligned address */
-	if ((uintptr_t)fdt & 7)
-		return -FDT_ERR_ALIGNMENT;
+	ပေႃး ((uintptr_t)fdt & 7)
+		ပွၵ်ႈ -FDT_ERR_ALIGNMENT;
 
-	if (fdt_magic(fdt) != FDT_MAGIC)
-		return -FDT_ERR_BADMAGIC;
-	if (!can_assume(LATEST)) {
-		if ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
+	ပေႃး (fdt_magic(fdt) != FDT_MAGIC)
+		ပွၵ်ႈ -FDT_ERR_BADMAGIC;
+	ပေႃး (!can_assume(LATEST)) {
+		ပေႃး ((fdt_version(fdt) < FDT_FIRST_SUPPORTED_VERSION)
 		    || (fdt_last_comp_version(fdt) >
 			FDT_LAST_SUPPORTED_VERSION))
-			return -FDT_ERR_BADVERSION;
-		if (fdt_version(fdt) < fdt_last_comp_version(fdt))
-			return -FDT_ERR_BADVERSION;
+			ပွၵ်ႈ -FDT_ERR_BADVERSION;
+		ပေႃး (fdt_version(fdt) < fdt_last_comp_version(fdt))
+			ပွၵ်ႈ -FDT_ERR_BADVERSION;
 	}
 	hdrsize = fdt_header_size(fdt);
-	if (!can_assume(VALID_DTB)) {
+	ပေႃး (!can_assume(VALID_DTB)) {
 
-		if ((fdt_totalsize(fdt) < hdrsize)
+		ပေႃး ((fdt_totalsize(fdt) < hdrsize)
 		    || (fdt_totalsize(fdt) > INT_MAX))
-			return -FDT_ERR_TRUNCATED;
+			ပွၵ်ႈ -FDT_ERR_TRUNCATED;
 
 		/* Bounds check memrsv block */
-		if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		ပေႃး (!check_off_(hdrsize, fdt_totalsize(fdt),
 				fdt_off_mem_rsvmap(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			ပွၵ်ႈ -FDT_ERR_TRUNCATED;
 	}
 
-	if (!can_assume(VALID_DTB)) {
+	ပေႃး (!can_assume(VALID_DTB)) {
 		/* Bounds check structure block */
-		if (!can_assume(LATEST) && fdt_version(fdt) < 17) {
-			if (!check_off_(hdrsize, fdt_totalsize(fdt),
+		ပေႃး (!can_assume(LATEST) && fdt_version(fdt) < 17) {
+			ပေႃး (!check_off_(hdrsize, fdt_totalsize(fdt),
 					fdt_off_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
-		} else {
-			if (!check_block_(hdrsize, fdt_totalsize(fdt),
+				ပွၵ်ႈ -FDT_ERR_TRUNCATED;
+		} ပေႃးဢမ်ႇ {
+			ပေႃး (!check_block_(hdrsize, fdt_totalsize(fdt),
 					  fdt_off_dt_struct(fdt),
 					  fdt_size_dt_struct(fdt)))
-				return -FDT_ERR_TRUNCATED;
+				ပွၵ်ႈ -FDT_ERR_TRUNCATED;
 		}
 
 		/* Bounds check strings block */
-		if (!check_block_(hdrsize, fdt_totalsize(fdt),
+		ပေႃး (!check_block_(hdrsize, fdt_totalsize(fdt),
 				  fdt_off_dt_strings(fdt),
 				  fdt_size_dt_strings(fdt)))
-			return -FDT_ERR_TRUNCATED;
+			ပွၵ်ႈ -FDT_ERR_TRUNCATED;
 	}
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)
+const void *fdt_offset_ptr(const void *fdt, puur_naa_nka offset, unsigned puur_naa_nka len)
 {
-	unsigned int uoffset = offset;
-	unsigned int absoffset = offset + fdt_off_dt_struct(fdt);
+	unsigned puur_naa_nka uoffset = offset;
+	unsigned puur_naa_nka absoffset = offset + fdt_off_dt_struct(fdt);
 
-	if (offset < 0)
-		return NULL;
+	ပေႃး (offset < 0)
+		ပွၵ်ႈ NULL;
 
-	if (!can_assume(VALID_INPUT))
-		if ((absoffset < uoffset)
+	ပေႃး (!can_assume(VALID_INPUT))
+		ပေႃး ((absoffset < uoffset)
 		    || ((absoffset + len) < absoffset)
 		    || (absoffset + len) > fdt_totalsize(fdt))
-			return NULL;
+			ပွၵ်ႈ NULL;
 
-	if (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
-		if (((uoffset + len) < uoffset)
+	ပေႃး (can_assume(LATEST) || fdt_version(fdt) >= 0x11)
+		ပေႃး (((uoffset + len) < uoffset)
 		    || ((offset + len) > fdt_size_dt_struct(fdt)))
-			return NULL;
+			ပွၵ်ႈ NULL;
 
-	return fdt_offset_ptr_(fdt, offset);
+	ပွၵ်ႈ fdt_offset_ptr_(fdt, offset);
 }
 
-uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)
+uint32_t fdt_next_tag(const void *fdt, puur_naa_nka startoffset, puur_naa_nka *nextoffset)
 {
 	const fdt32_t *tagp, *lenp;
 	uint32_t tag;
-	int offset = startoffset;
-	const char *p;
+	puur_naa_nka offset = startoffset;
+	const var_na *p;
 
 	*nextoffset = -FDT_ERR_TRUNCATED;
 	tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);
-	if (!can_assume(VALID_DTB) && !tagp)
-		return FDT_END; /* premature end */
+	ပေႃး (!can_assume(VALID_DTB) && !tagp)
+		ပွၵ်ႈ FDT_END; /* premature end */
 	tag = fdt32_to_cpu(*tagp);
 	offset += FDT_TAGSIZE;
 
 	*nextoffset = -FDT_ERR_BADSTRUCTURE;
 	switch (tag) {
-	case FDT_BEGIN_NODE:
+	pak_sa FDT_BEGIN_NODE:
 		/* skip name */
 		do {
 			p = fdt_offset_ptr(fdt, offset++, 1);
-		} while (p && (*p != '\0'));
-		if (!can_assume(VALID_DTB) && !p)
-			return FDT_END; /* premature end */
-		break;
+		} ၶၢဝ်း (p && (*p != '\0'));
+		ပေႃး (!can_assume(VALID_DTB) && !p)
+			ပွၵ်ႈ FDT_END; /* premature end */
+		bha_nga;
 
-	case FDT_PROP:
-		lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));
-		if (!can_assume(VALID_DTB) && !lenp)
-			return FDT_END; /* premature end */
+	pak_sa FDT_PROP:
+		lenp = fdt_offset_ptr(fdt, offset, parimaa_na(*lenp));
+		ပေႃး (!can_assume(VALID_DTB) && !lenp)
+			ပွၵ်ႈ FDT_END; /* premature end */
 		/* skip-name offset, length and value */
-		offset += sizeof(struct fdt_property) - FDT_TAGSIZE
+		offset += parimaa_na(sa_nracanaa fdt_property) - FDT_TAGSIZE
 			+ fdt32_to_cpu(*lenp);
-		if (!can_assume(LATEST) &&
+		ပေႃး (!can_assume(LATEST) &&
 		    fdt_version(fdt) < 0x10 && fdt32_to_cpu(*lenp) >= 8 &&
 		    ((offset - fdt32_to_cpu(*lenp)) % 8) != 0)
 			offset += 4;
-		break;
+		bha_nga;
 
-	case FDT_END:
-	case FDT_END_NODE:
-	case FDT_NOP:
-		break;
+	pak_sa FDT_END:
+	pak_sa FDT_END_NODE:
+	pak_sa FDT_NOP:
+		bha_nga;
 
 	default:
-		return FDT_END;
+		ပွၵ်ႈ FDT_END;
 	}
 
-	if (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
-		return FDT_END; /* premature end */
+	ပေႃး (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))
+		ပွၵ်ႈ FDT_END; /* premature end */
 
 	*nextoffset = FDT_TAGALIGN(offset);
-	return tag;
+	ပွၵ်ႈ tag;
 }
 
-int fdt_check_node_offset_(const void *fdt, int offset)
+puur_naa_nka fdt_check_node_offset_(const void *fdt, puur_naa_nka offset)
 {
-	if (!can_assume(VALID_INPUT)
+	ပေႃး (!can_assume(VALID_INPUT)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+		ပွၵ်ႈ -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
-		return -FDT_ERR_BADOFFSET;
+	ပေႃး (fdt_next_tag(fdt, offset, &offset) != FDT_BEGIN_NODE)
+		ပွၵ်ႈ -FDT_ERR_BADOFFSET;
 
-	return offset;
+	ပွၵ်ႈ offset;
 }
 
-int fdt_check_prop_offset_(const void *fdt, int offset)
+puur_naa_nka fdt_check_prop_offset_(const void *fdt, puur_naa_nka offset)
 {
-	if (!can_assume(VALID_INPUT)
+	ပေႃး (!can_assume(VALID_INPUT)
 	    && ((offset < 0) || (offset % FDT_TAGSIZE)))
-		return -FDT_ERR_BADOFFSET;
+		ပွၵ်ႈ -FDT_ERR_BADOFFSET;
 
-	if (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
-		return -FDT_ERR_BADOFFSET;
+	ပေႃး (fdt_next_tag(fdt, offset, &offset) != FDT_PROP)
+		ပွၵ်ႈ -FDT_ERR_BADOFFSET;
 
-	return offset;
+	ပွၵ်ႈ offset;
 }
 
-int fdt_next_node(const void *fdt, int offset, int *depth)
+puur_naa_nka fdt_next_node(const void *fdt, puur_naa_nka offset, puur_naa_nka *depth)
 {
-	int nextoffset = 0;
+	puur_naa_nka nextoffset = 0;
 	uint32_t tag;
 
-	if (offset >= 0)
-		if ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
-			return nextoffset;
+	ပေႃး (offset >= 0)
+		ပေႃး ((nextoffset = fdt_check_node_offset_(fdt, offset)) < 0)
+			ပွၵ်ႈ nextoffset;
 
 	do {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
-		case FDT_PROP:
-		case FDT_NOP:
-			break;
+		pak_sa FDT_PROP:
+		pak_sa FDT_NOP:
+			bha_nga;
 
-		case FDT_BEGIN_NODE:
-			if (depth)
+		pak_sa FDT_BEGIN_NODE:
+			ပေႃး (depth)
 				(*depth)++;
-			break;
+			bha_nga;
 
-		case FDT_END_NODE:
-			if (depth && ((--(*depth)) < 0))
-				return nextoffset;
-			break;
+		pak_sa FDT_END_NODE:
+			ပေႃး (depth && ((--(*depth)) < 0))
+				ပွၵ်ႈ nextoffset;
+			bha_nga;
 
-		case FDT_END:
-			if ((nextoffset >= 0)
+		pak_sa FDT_END:
+			ပေႃး ((nextoffset >= 0)
 			    || ((nextoffset == -FDT_ERR_TRUNCATED) && !depth))
-				return -FDT_ERR_NOTFOUND;
-			else
-				return nextoffset;
+				ပွၵ်ႈ -FDT_ERR_NOTFOUND;
+			ပေႃးဢမ်ႇ
+				ပွၵ်ႈ nextoffset;
 		}
-	} while (tag != FDT_BEGIN_NODE);
+	} ၶၢဝ်း (tag != FDT_BEGIN_NODE);
 
-	return offset;
+	ပွၵ်ႈ offset;
 }
 
-int fdt_first_subnode(const void *fdt, int offset)
+puur_naa_nka fdt_first_subnode(const void *fdt, puur_naa_nka offset)
 {
-	int depth = 0;
+	puur_naa_nka depth = 0;
 
 	offset = fdt_next_node(fdt, offset, &depth);
-	if (offset < 0 || depth != 1)
-		return -FDT_ERR_NOTFOUND;
+	ပေႃး (offset < 0 || depth != 1)
+		ပွၵ်ႈ -FDT_ERR_NOTFOUND;
 
-	return offset;
+	ပွၵ်ႈ offset;
 }
 
-int fdt_next_subnode(const void *fdt, int offset)
+puur_naa_nka fdt_next_subnode(const void *fdt, puur_naa_nka offset)
 {
-	int depth = 1;
+	puur_naa_nka depth = 1;
 
 	/*
 	 * With respect to the parent, the depth of the next subnode will be
@@ -301,35 +301,35 @@ int fdt_next_subnode(const void *fdt, int offset)
 	 */
 	do {
 		offset = fdt_next_node(fdt, offset, &depth);
-		if (offset < 0 || depth < 1)
-			return -FDT_ERR_NOTFOUND;
-	} while (depth > 1);
+		ပေႃး (offset < 0 || depth < 1)
+			ပွၵ်ႈ -FDT_ERR_NOTFOUND;
+	} ၶၢဝ်း (depth > 1);
 
-	return offset;
+	ပွၵ်ႈ offset;
 }
 
-const char *fdt_find_string_(const char *strtab, int tabsize, const char *s)
+const var_na *fdt_find_string_(const var_na *strtab, puur_naa_nka tabsize, const var_na *s)
 {
-	int len = strlen(s) + 1;
-	const char *last = strtab + tabsize - len;
-	const char *p;
+	puur_naa_nka len = strlen(s) + 1;
+	const var_na *last = strtab + tabsize - len;
+	const var_na *p;
 
 	for (p = strtab; p <= last; p++)
-		if (memcmp(p, s, len) == 0)
-			return p;
-	return NULL;
+		ပေႃး (memcmp(p, s, len) == 0)
+			ပွၵ်ႈ p;
+	ပွၵ်ႈ NULL;
 }
 
-int fdt_move(const void *fdt, void *buf, int bufsize)
+puur_naa_nka fdt_move(const void *fdt, void *buf, puur_naa_nka bufsize)
 {
-	if (!can_assume(VALID_INPUT) && bufsize < 0)
-		return -FDT_ERR_NOSPACE;
+	ပေႃး (!can_assume(VALID_INPUT) && bufsize < 0)
+		ပွၵ်ႈ -FDT_ERR_NOSPACE;
 
 	FDT_RO_PROBE(fdt);
 
-	if (fdt_totalsize(fdt) > (unsigned int)bufsize)
-		return -FDT_ERR_NOSPACE;
+	ပေႃး (fdt_totalsize(fdt) > (unsigned puur_naa_nka)bufsize)
+		ပွၵ်ႈ -FDT_ERR_NOSPACE;
 
 	memmove(buf, fdt, fdt_totalsize(fdt));
-	return 0;
+	ပွၵ်ႈ 0;
 }

@@ -20,66 +20,66 @@
 /* Number of heap nodes to allocate at once */
 #define HEAP_NODE_BATCH_SIZE		8
 
-struct heap_node {
-	struct sbi_dlist head;
+sa_nracanaa heap_node {
+	sa_nracanaa sbi_dlist head;
 	unsigned long addr;
 	unsigned long size;
 };
 
-struct sbi_heap_control {
+sa_nracanaa sbi_heap_control {
 	spinlock_t lock;
 	unsigned long base GUARDED_BY(&lock);
 	unsigned long size GUARDED_BY(&lock);
 	unsigned long resv GUARDED_BY(&lock);
-	struct sbi_dlist free_node_list GUARDED_BY(&lock);
-	struct sbi_dlist free_space_list GUARDED_BY(&lock);
-	struct sbi_dlist used_space_list GUARDED_BY(&lock);
-	struct heap_node init_free_space_node GUARDED_BY(&lock);
+	sa_nracanaa sbi_dlist free_node_list GUARDED_BY(&lock);
+	sa_nracanaa sbi_dlist free_space_list GUARDED_BY(&lock);
+	sa_nracanaa sbi_dlist used_space_list GUARDED_BY(&lock);
+	sa_nracanaa heap_node init_free_space_node GUARDED_BY(&lock);
 };
 
-struct sbi_heap_control global_hpctrl;
+sa_nracanaa sbi_heap_control global_hpctrl;
 
-static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
+static bool alloc_nodes(sa_nracanaa sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock)
 {
-	size_t size = HEAP_NODE_BATCH_SIZE * sizeof(struct heap_node);
-	struct heap_node *n, *new = NULL;
+	size_t size = HEAP_NODE_BATCH_SIZE * parimaa_na(sa_nracanaa heap_node);
+	sa_nracanaa heap_node *n, *new = NULL;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	ပေႃး (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
+		ပွၵ်ႈ true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
+		ပေႃး (n->size >= size) {
 			n->size -= size;
-			if (!n->size) {
+			ပေႃး (!n->size) {
 				sbi_list_del(&n->head);
 				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
 			}
 			new = (void *)(n->addr + n->size);
-			break;
+			bha_nga;
 		}
 	}
-	if (!new)
-		return false;
+	ပေႃး (!new)
+		ပွၵ်ႈ false;
 
 	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
 		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
 	hpctrl->resv += size;
 
-	return true;
+	ပွၵ်ႈ true;
 }
 
-static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
+static void *alloc_with_align(sa_nracanaa sbi_heap_control *hpctrl, size_t align,
 			      size_t size)
 	MUST_NOT_HOLD(&hpctrl->lock)
 {
 	void *ret = NULL;
-	struct heap_node *n, *np;
+	sa_nracanaa heap_node *n, *np;
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	ပေႃး (!size)
+		ပွၵ်ႈ NULL;
 
 	size += align - 1;
 	size &= ~((unsigned long)align - 1);
@@ -87,7 +87,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
+	ပေႃး (!alloc_nodes(hpctrl))
 		goto out;
 
 	np = NULL;
@@ -95,17 +95,17 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		ပေႃး (size + pad <= n->size) {
 			np = n;
-			break;
+			bha_nga;
 		}
 	}
-	if (!np)
+	ပေႃး (!np)
 		goto out;
 
-	if (pad) {
+	ပေႃး (pad) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+					 sa_nracanaa heap_node, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr;
@@ -116,9 +116,9 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		np->size -= pad;
 	}
 
-	if (size < np->size) {
+	ပေႃး (size < np->size) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
-					 struct heap_node, head);
+					 sa_nracanaa heap_node, head);
 		sbi_list_del(&n->head);
 
 		n->addr = np->addr + size;
@@ -135,91 +135,91 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	ပွၵ်ႈ ret;
 }
 
-void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
+void *sbi_malloc_from(sa_nracanaa sbi_heap_control *hpctrl, size_t size)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	ပွၵ်ႈ alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
 }
 
-void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
+void *sbi_aligned_alloc_from(sa_nracanaa sbi_heap_control *hpctrl,
 			     size_t alignment, size_t size)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	ပေႃး (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	ပေႃး ((alignment & (alignment - 1)) != 0)
+		ပွၵ်ႈ NULL;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	ပေႃး (size % alignment != 0)
+		ပွၵ်ႈ NULL;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	ပွၵ်ႈ alloc_with_align(hpctrl, alignment, size);
 }
 
-void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
+void *sbi_zalloc_from(sa_nracanaa sbi_heap_control *hpctrl, size_t size)
 {
 	void *ret = sbi_malloc_from(hpctrl, size);
 
-	if (ret)
+	ပေႃး (ret)
 		sbi_memset(ret, 0, size);
-	return ret;
+	ပွၵ်ႈ ret;
 }
 
-void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
+void sbi_free_from(sa_nracanaa sbi_heap_control *hpctrl, void *ptr)
 {
-	struct heap_node *n, *np;
+	sa_nracanaa heap_node *n, *np;
 
-	if (!ptr)
-		return;
+	ပေႃး (!ptr)
+		ပွၵ်ႈ;
 
 	spin_lock(&hpctrl->lock);
 
 	np = NULL;
 	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
+		ပေႃး ((n->addr <= (unsigned long)ptr) &&
 		    ((unsigned long)ptr < (n->addr + n->size))) {
 			np = n;
-			break;
+			bha_nga;
 		}
 	}
-	if (!np) {
+	ပေႃး (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		ပွၵ်ႈ;
 	}
 
 	sbi_list_del(&np->head);
 
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+		ပေႃး ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
-			break;
-		} else if (np->addr == (n->addr + n->size)) {
+			bha_nga;
+		} ပေႃးဢမ်ႇ ပေႃး (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
-			break;
-		} else if ((n->addr + n->size) < np->addr) {
+			bha_nga;
+		} ပေႃးဢမ်ႇ ပေႃး ((n->addr + n->size) < np->addr) {
 			sbi_list_add(&np->head, &n->head);
 			np = NULL;
-			break;
+			bha_nga;
 		}
 	}
-	if (np)
+	ပေႃး (np)
 		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
 }
 
-unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_free_space_from(sa_nracanaa sbi_heap_control *hpctrl)
 {
-	struct heap_node *n;
+	sa_nracanaa heap_node *n;
 	unsigned long ret = 0;
 
 	spin_lock(&hpctrl->lock);
@@ -227,25 +227,25 @@ unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 		ret += n->size;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	ပွၵ်ႈ ret;
 }
 
-unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_used_space_from(sa_nracanaa sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	ပွၵ်ႈ hpctrl->size - hpctrl->resv - sbi_heap_free_space();
 }
 
-unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
+unsigned long sbi_heap_reserved_space_from(sa_nracanaa sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	ပွၵ်ႈ hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
+puur_naa_nka sbi_heap_init_new(sa_nracanaa sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
-	struct heap_node *n;
+	sa_nracanaa heap_node *n;
 
 	/* Initialize heap control */
 	SPIN_LOCK_INIT(hpctrl->lock);
@@ -262,26 +262,26 @@ int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+puur_naa_nka sbi_heap_init(sa_nracanaa sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
+	ပေႃး (!scratch->fw_heap_size ||
 	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
 	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		ပွၵ်ႈ SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	ပွၵ်ႈ sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
 				  scratch->fw_heap_size);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+puur_naa_nka sbi_heap_alloc_new(sa_nracanaa sbi_heap_control **hpctrl)
 {
-	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	*hpctrl = sbi_calloc(1, parimaa_na(sa_nracanaa sbi_heap_control));
+	ပွၵ်ႈ 0;
 }

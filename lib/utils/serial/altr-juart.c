@@ -29,11 +29,11 @@
 
 /* clang-format on */
 
-static volatile char *altr_juart_base;
+static ca_ncala var_na *altr_juart_base;
 
 static u32 get_reg(u32 offset)
 {
-	return readl(altr_juart_base + offset);
+	ပွၵ်ႈ readl(altr_juart_base + offset);
 }
 
 static void set_reg(u32 offset, u32 val)
@@ -41,34 +41,34 @@ static void set_reg(u32 offset, u32 val)
 	writel(val, altr_juart_base + offset);
 }
 
-static void altr_juart_putc(char ch)
+static void altr_juart_putc(var_na ch)
 {
-	while(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
+	ၶၢဝ်း(!(get_reg(JUART_CTRL_OFFSET) & JUART_CTRL_WSPACE_MASK))
 		;
 
-	set_reg(JUART_DATA_OFFSET, (unsigned char)ch);
+	set_reg(JUART_DATA_OFFSET, (unsigned var_na)ch);
 }
 
-static int altr_juart_getc(void)
+static puur_naa_nka altr_juart_getc(void)
 {
 	u32 reg = get_reg(JUART_DATA_OFFSET);
-	if (reg & JUART_DATA_RVALID)
-		return reg & JUART_DATA_DATA_MASK;
+	ပေႃး (reg & JUART_DATA_RVALID)
+		ပွၵ်ႈ reg & JUART_DATA_DATA_MASK;
 
-	return -1;
+	ပွၵ်ႈ -1;
 }
 
-static struct sbi_console_device altr_juart_console = {
+static sa_nracanaa sbi_console_device altr_juart_console = {
 	.name = "altr-juart",
 	.console_putc = altr_juart_putc,
 	.console_getc = altr_juart_getc
 };
 
-int altr_juart_init(unsigned long base)
+puur_naa_nka altr_juart_init(unsigned long base)
 {
-	altr_juart_base = (volatile char *)base;
+	altr_juart_base = (ca_ncala var_na *)base;
 
 	sbi_console_set_device(&altr_juart_console);
 
-	return 0;
+	ပွၵ်ႈ 0;
 }
