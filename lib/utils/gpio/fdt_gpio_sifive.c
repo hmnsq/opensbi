@@ -7,76 +7,76 @@
  *   Green Wan <green.wan@sifive.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/gpio/fdt_gpio.h>
 
-#define SIFIVE_GPIO_PINS_MIN	1
-#define SIFIVE_GPIO_PINS_MAX	32
-#define SIFIVE_GPIO_PINS_DEF	16
+#وصف_ڪريو SIFIVE_GPIO_PINS_MIN	1
+#وصف_ڪريو SIFIVE_GPIO_PINS_MAX	32
+#وصف_ڪريو SIFIVE_GPIO_PINS_DEF	16
 
-#define SIFIVE_GPIO_OUTEN	0x8
-#define SIFIVE_GPIO_OUTVAL	0xc
-#define SIFIVE_GPIO_BIT(b)	(1U << (b))
+#وصف_ڪريو SIFIVE_GPIO_OUTEN	0x8
+#وصف_ڪريو SIFIVE_GPIO_OUTVAL	0xc
+#وصف_ڪريو SIFIVE_GPIO_ٻٽو_انگ(b)	(1U << (b))
 
-struct sifive_gpio_chip {
-	unsigned long addr;
-	struct gpio_chip chip;
+بنية sifive_gpio_chip {
+	بنانشان ڊگهو addr;
+	بنية gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+ساكن صحيح sifive_gpio_direction_output(بنية gpio_pin *gp, صحيح قدر)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	بنانشان صحيح v;
+	بنية sifive_gpio_chip *chip =
+		container_جو(gp->chip, بنية sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
-	v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v = readl((متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTEN));
+	v |= SIFIVE_GPIO_ٻٽو_انگ(gp->وٿي);
+	writel(v, (متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
-		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
-		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	v = readl((متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	إذا (!قدر)
+		v &= ~SIFIVE_GPIO_ٻٽو_انگ(gp->وٿي);
+	وإلا
+		v |= SIFIVE_GPIO_ٻٽو_انگ(gp->وٿي);
+	writel(v, (متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 
-	return 0;
+	أرجع 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+ساكن فراغ sifive_gpio_سيٽ(بنية gpio_pin *gp, صحيح قدر)
 {
-	unsigned int v;
-	struct sifive_gpio_chip *chip =
-		container_of(gp->chip, struct sifive_gpio_chip, chip);
+	بنانشان صحيح v;
+	بنية sifive_gpio_chip *chip =
+		container_جو(gp->chip, بنية sifive_gpio_chip, chip);
 
-	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
-		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
-		v |= SIFIVE_GPIO_BIT(gp->offset);
-	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	v = readl((متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
+	إذا (!قدر)
+		v &= ~SIFIVE_GPIO_ٻٽو_انگ(gp->وٿي);
+	وإلا
+		v |= SIFIVE_GPIO_ٻٽو_انگ(gp->وٿي);
+	writel(v, (متطاير فراغ *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_sifive;
+ثابت بنية fdt_gpio fdt_gpio_sifive;
 
-static int sifive_gpio_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+ساكن صحيح sifive_gpio_init(ثابت فراغ *fdt, صحيح nodeoff,
+			    ثابت بنية fdt_ميلاپ *ميلاپ)
 {
-	int rc;
-	struct sifive_gpio_chip *chip;
+	صحيح rc;
+	بنية sifive_gpio_chip *chip;
 	uint64_t addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(حجم(*chip));
+	إذا (!chip)
+		أرجع SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_ڳنڍ_addr_سائيز(fdt, nodeoff, 0, &addr, عدم);
+	إذا (rc) {
 		sbi_free(chip);
-		return rc;
+		أرجع rc;
 	}
 
 	chip->addr = addr;
@@ -84,24 +84,24 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = SIFIVE_GPIO_PINS_DEF;
 	chip->chip.direction_output = sifive_gpio_direction_output;
-	chip->chip.set = sifive_gpio_set;
-	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	chip->chip.سيٽ = sifive_gpio_سيٽ;
+	rc = gpio_chip_جوڙيو(&chip->chip);
+	إذا (rc) {
 		sbi_free(chip);
-		return rc;
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match sifive_gpio_match[] = {
+ساكن ثابت بنية fdt_ميلاپ sifive_gpio_ميلاپ[] = {
 	{ .compatible = "sifive,gpio0" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_sifive = {
+ثابت بنية fdt_gpio fdt_gpio_sifive = {
 	.driver = {
-		.match_table = sifive_gpio_match,
+		.ميلاپ_جدول = sifive_gpio_ميلاپ,
 		.init = sifive_gpio_init,
 	},
 	.xlate = fdt_gpio_simple_xlate,

@@ -9,63 +9,63 @@
  *   Ben Dooks <ben.dooks@sifive.com>
  */
 
-#include <libfdt.h>
+#ضمن <libfdt.h>
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/gpio/fdt_gpio.h>
 
-#define DW_GPIO_PINS_MAX	32
+#وصف_ڪريو DW_GPIO_PINS_MAX	32
 
-#define DW_GPIO_DDR	0x4
-#define DW_GPIO_DR	0x0
-#define DW_GPIO_BIT(_b)	(1UL << (_b))
+#وصف_ڪريو DW_GPIO_DDR	0x4
+#وصف_ڪريو DW_GPIO_DR	0x0
+#وصف_ڪريو DW_GPIO_ٻٽو_انگ(_b)	(1UL << (_b))
 
-struct dw_gpio_chip {
-	void *dr;
-	void *ext;
-	struct gpio_chip chip;
+بنية dw_gpio_chip {
+	فراغ *dr;
+	فراغ *ext;
+	بنية gpio_chip chip;
 };
 
-const struct fdt_gpio fdt_gpio_designware;
+ثابت بنية fdt_gpio fdt_gpio_designware;
 
-#define pin_to_chip(__p) container_of((__p)->chip, struct dw_gpio_chip, chip);
+#وصف_ڪريو pin_منزل_chip(__p) container_جو((__p)->chip, بنية dw_gpio_chip, chip);
 
-static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
+ساكن صحيح dw_gpio_direction_output(بنية gpio_pin *gp, صحيح قدر)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
-	unsigned long v;
+	بنية dw_gpio_chip *chip = pin_منزل_chip(gp);
+	بنانشان ڊگهو v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
-		v &= ~DW_GPIO_BIT(gp->offset);
-	else
-		v |= DW_GPIO_BIT(gp->offset);
+	إذا (!قدر)
+		v &= ~DW_GPIO_ٻٽو_انگ(gp->وٿي);
+	وإلا
+		v |= DW_GPIO_ٻٽو_انگ(gp->وٿي);
 	writel(v, chip->dr + DW_GPIO_DR);
 
 	/* the DR is output only so we can set it then the DDR to set
 	 * the data direction, to avoid glitches.
 	 */
 	v = readl(chip->dr + DW_GPIO_DDR);
-	v |= DW_GPIO_BIT(gp->offset);
+	v |= DW_GPIO_ٻٽو_انگ(gp->وٿي);
 	writel(v, chip->dr + DW_GPIO_DDR);
 
-	return 0;
+	أرجع 0;
 }
 
-static void dw_gpio_set(struct gpio_pin *gp, int value)
+ساكن فراغ dw_gpio_سيٽ(بنية gpio_pin *gp, صحيح قدر)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
-	unsigned long v;
+	بنية dw_gpio_chip *chip = pin_منزل_chip(gp);
+	بنانشان ڊگهو v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
-		v &= ~DW_GPIO_BIT(gp->offset);
-	else
-		v |= DW_GPIO_BIT(gp->offset);
+	إذا (!قدر)
+		v &= ~DW_GPIO_ٻٽو_انگ(gp->وٿي);
+	وإلا
+		v |= DW_GPIO_ٻٽو_انگ(gp->وٿي);
 	writel(v, chip->dr + DW_GPIO_DR);
 }
 
@@ -75,66 +75,66 @@ static void dw_gpio_set(struct gpio_pin *gp, int value)
  * bank A is the only one with irq support but we're not using it here
 */
 
-static int dw_gpio_init_bank(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ساكن صحيح dw_gpio_init_bank(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_ميلاپ *ميلاپ)
 {
-	struct dw_gpio_chip *chip;
-	const fdt32_t *val;
+	بنية dw_gpio_chip *chip;
+	ثابت fdt32_t *val;
 	uint64_t addr;
-	int rc, poff, nr_pins, bank, len;
+	صحيح rc, poff, nr_pins, bank, len;
 
 	/* need to get parent for the address property  */
-	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	poff = fdt_والد_وٿي(fdt, nodeoff);
+	إذا (poff < 0)
+		أرجع SBI_EINVAL;
 
-	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	rc = fdt_get_ڳنڍ_addr_سائيز(fdt, poff, 0, &addr, عدم);
+	إذا (rc)
+		أرجع rc;
 
 	val = fdt_getprop(fdt, nodeoff, "reg", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
-	bank = fdt32_to_cpu(*val);
+	إذا (!val || len <= 0)
+		أرجع SBI_EINVAL;
+	bank = fdt32_منزل_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "snps,nr-gpios", &len);
-	if (!val)
+	إذا (!val)
 		val = fdt_getprop(fdt, nodeoff, "ngpios", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
-	nr_pins = fdt32_to_cpu(*val);
+	إذا (!val || len <= 0)
+		أرجع SBI_EINVAL;
+	nr_pins = fdt32_منزل_cpu(*val);
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(حجم(*chip));
+	إذا (!chip)
+		أرجع SBI_ENOMEM;
 
-	chip->dr = (void *)(uintptr_t)addr + (bank * 0xc);
-	chip->ext = (void *)(uintptr_t)addr + (bank * 4) + 0x50;
+	chip->dr = (فراغ *)(uintptr_t)addr + (bank * 0xc);
+	chip->ext = (فراغ *)(uintptr_t)addr + (bank * 4) + 0x50;
 	chip->chip.driver = &fdt_gpio_designware;
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = nr_pins;
-	chip->chip.set = dw_gpio_set;
+	chip->chip.سيٽ = dw_gpio_سيٽ;
 	chip->chip.direction_output = dw_gpio_direction_output;
-	rc = gpio_chip_add(&chip->chip);
-	if (rc)
-		goto err_free_chip;
+	rc = gpio_chip_جوڙيو(&chip->chip);
+	إذا (rc)
+		اذهب err_free_chip;
 
-	return 0;
+	أرجع 0;
 
 err_free_chip:
 	sbi_free(chip);
-	return rc;
+	أرجع rc;
 }
 
 /* since we're only probed when used, match on port not main controller node */
-static const struct fdt_match dw_gpio_match[] = {
+ساكن ثابت بنية fdt_ميلاپ dw_gpio_ميلاپ[] = {
 	{ .compatible = "snps,dw-apb-gpio-port" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_designware = {
+ثابت بنية fdt_gpio fdt_gpio_designware = {
 	.driver = {
-		.match_table = dw_gpio_match,
+		.ميلاپ_جدول = dw_gpio_ميلاپ,
 		.init = dw_gpio_init_bank,
 	},
 	.xlate = fdt_gpio_simple_xlate,

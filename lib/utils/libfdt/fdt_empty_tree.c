@@ -3,36 +3,36 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2012 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-int fdt_create_empty_tree(void *buf, int bufsize)
+صحيح fdt_create_خالي_جايون_وڻ(فراغ *buf, صحيح bufsize)
 {
-	int err;
+	صحيح err;
 
 	err = fdt_create(buf, bufsize);
-	if (err)
-		return err;
+	إذا (err)
+		أرجع err;
 
-	err = fdt_finish_reservemap(buf);
-	if (err)
-		return err;
+	err = fdt_پڄاڻي_reservemap(buf);
+	إذا (err)
+		أرجع err;
 
-	err = fdt_begin_node(buf, "");
-	if (err)
-		return err;
+	err = fdt_begin_ڳنڍ(buf, "");
+	إذا (err)
+		أرجع err;
 
-	err =  fdt_end_node(buf);
-	if (err)
-		return err;
+	err =  fdt_پڇاڙي_ڳنڍ(buf);
+	إذا (err)
+		أرجع err;
 
-	err = fdt_finish(buf);
-	if (err)
-		return err;
+	err = fdt_پڄاڻي(buf);
+	إذا (err)
+		أرجع err;
 
-	return fdt_open_into(buf, buf, bufsize);
+	أرجع fdt_open_into(buf, buf, bufsize);
 }

@@ -8,100 +8,100 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/irqchip/imsic.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_csr_detect.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_ipi.h>
+#ضمن <sbi/sbi_irqchip.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi_utils/irqchip/imsic.h>
 
-#define IMSIC_MMIO_PAGE_LE		0x00
-#define IMSIC_MMIO_PAGE_BE		0x04
+#وصف_ڪريو IMSIC_MMIO_صفحو_LE		0x00
+#وصف_ڪريو IMSIC_MMIO_صفحو_BE		0x04
 
-#define IMSIC_MIN_ID			63
-#define IMSIC_MAX_ID			2047
+#وصف_ڪريو IMSIC_MIN_ID			63
+#وصف_ڪريو IMSIC_MAX_ID			2047
 
-#define IMSIC_EIDELIVERY		0x70
+#وصف_ڪريو IMSIC_EIDELIVERY		0x70
 
-#define IMSIC_EITHRESHOLD		0x72
+#وصف_ڪريو IMSIC_EITHRESHOLD		0x72
 
-#define IMSIC_TOPEI			0x76
-#define IMSIC_TOPEI_ID_SHIFT		16
-#define IMSIC_TOPEI_ID_MASK		0x7ff
-#define IMSIC_TOPEI_PRIO_MASK		0x7ff
+#وصف_ڪريو IMSIC_TOPEI			0x76
+#وصف_ڪريو IMSIC_TOPEI_ID_سرڪايو		16
+#وصف_ڪريو IMSIC_TOPEI_ID_نقاب		0x7ff
+#وصف_ڪريو IMSIC_TOPEI_PRIO_نقاب		0x7ff
 
-#define IMSIC_EIP0			0x80
+#وصف_ڪريو IMSIC_EIP0			0x80
 
-#define IMSIC_EIP63			0xbf
+#وصف_ڪريو IMSIC_EIP63			0xbf
 
-#define IMSIC_EIPx_BITS			32
+#وصف_ڪريو IMSIC_EIPx_بٽ			32
 
-#define IMSIC_EIE0			0xc0
+#وصف_ڪريو IMSIC_EIE0			0xc0
 
-#define IMSIC_EIE63			0xff
+#وصف_ڪريو IMSIC_EIE63			0xff
 
-#define IMSIC_EIEx_BITS			32
+#وصف_ڪريو IMSIC_EIEx_بٽ			32
 
-#define IMSIC_DISABLE_EIDELIVERY	0
-#define IMSIC_ENABLE_EIDELIVERY		1
-#define IMSIC_DISABLE_EITHRESHOLD	1
-#define IMSIC_ENABLE_EITHRESHOLD	0
+#وصف_ڪريو IMSIC_DISABLE_EIDELIVERY	0
+#وصف_ڪريو IMSIC_ENABLE_EIDELIVERY		1
+#وصف_ڪريو IMSIC_DISABLE_EITHRESHOLD	1
+#وصف_ڪريو IMSIC_ENABLE_EITHRESHOLD	0
 
-#define IMSIC_IPI_ID			1
+#وصف_ڪريو IMSIC_IPI_ID			1
 
-#define imsic_csr_write(__c, __v)	\
-do { \
+#وصف_ڪريو imsic_csr_write(__c, __v)	\
+افعل { \
 	csr_write(CSR_MISELECT, __c); \
 	csr_write(CSR_MIREG, __v); \
-} while (0)
+} طالما (0)
 
-#define imsic_csr_read(__c)	\
+#وصف_ڪريو imsic_csr_read(__c)	\
 ({ \
-	unsigned long __v; \
+	بنانشان ڊگهو __v; \
 	csr_write(CSR_MISELECT, __c); \
 	__v = csr_read(CSR_MIREG); \
 	__v; \
 })
 
-#define imsic_csr_set(__c, __v)		\
-do { \
+#وصف_ڪريو imsic_csr_سيٽ(__c, __v)		\
+افعل { \
 	csr_write(CSR_MISELECT, __c); \
-	csr_set(CSR_MIREG, __v); \
-} while (0)
+	csr_سيٽ(CSR_MIREG, __v); \
+} طالما (0)
 
-#define imsic_csr_clear(__c, __v)	\
-do { \
+#وصف_ڪريو imsic_csr_clear(__c, __v)	\
+افعل { \
 	csr_write(CSR_MISELECT, __c); \
 	csr_clear(CSR_MIREG, __v); \
-} while (0)
+} طالما (0)
 
-static unsigned long imsic_ptr_offset;
+ساكن بنانشان ڊگهو imsic_ptr_وٿي;
 
-#define imsic_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, imsic_ptr_offset)
+#وصف_ڪريو imsic_get_hart_معلومات_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), فراغ *, imsic_ptr_وٿي)
 
-#define imsic_set_hart_data_ptr(__scratch, __imsic)			\
-	sbi_scratch_write_type((__scratch), void *, imsic_ptr_offset, (__imsic))
+#وصف_ڪريو imsic_سيٽ_hart_معلومات_ptr(__scratch, __imsic)			\
+	sbi_scratch_write_type((__scratch), فراغ *, imsic_ptr_وٿي, (__imsic))
 
-static unsigned long imsic_file_offset;
+ساكن بنانشان ڊگهو imsic_file_وٿي;
 
-#define imsic_get_hart_file(__scratch)					\
-	sbi_scratch_read_type((__scratch), long, imsic_file_offset)
+#وصف_ڪريو imsic_get_hart_file(__scratch)					\
+	sbi_scratch_read_type((__scratch), ڊگهو, imsic_file_وٿي)
 
-#define imsic_set_hart_file(__scratch, __file)				\
-	sbi_scratch_write_type((__scratch), long, imsic_file_offset, (__file))
+#وصف_ڪريو imsic_سيٽ_hart_file(__scratch, __file)				\
+	sbi_scratch_write_type((__scratch), ڊگهو, imsic_file_وٿي, (__file))
 
-int imsic_map_hartid_to_data(u32 hartid, struct imsic_data *imsic, int file)
+صحيح imsic_map_hartid_منزل_معلومات(u32 hartid, بنية imsic_معلومات *imsic, صحيح file)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع SBI_EINVAL;
 
 	/*
 	 * We don't need to fail if scratch pointer is not available
@@ -110,140 +110,140 @@ int imsic_map_hartid_to_data(u32 hartid, struct imsic_data *imsic, int file)
 	 * imsic_get_data() and imsic_get_target_file() will anyway
 	 * fail.
 	 */
-	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch)
-		return 0;
+	scratch = sbi_hartid_منزل_scratch(hartid);
+	إذا (!scratch)
+		أرجع 0;
 
-	imsic_set_hart_data_ptr(scratch, imsic);
-	imsic_set_hart_file(scratch, file);
-	return 0;
+	imsic_سيٽ_hart_معلومات_ptr(scratch, imsic);
+	imsic_سيٽ_hart_file(scratch, file);
+	أرجع 0;
 }
 
-struct imsic_data *imsic_get_data(u32 hartindex)
+بنية imsic_معلومات *imsic_get_معلومات(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 
-	if (!imsic_ptr_offset)
-		return NULL;
+	إذا (!imsic_ptr_وٿي)
+		أرجع عدم;
 
-	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return NULL;
+	scratch = sbi_hartindex_منزل_scratch(hartindex);
+	إذا (!scratch)
+		أرجع عدم;
 
-	return imsic_get_hart_data_ptr(scratch);
+	أرجع imsic_get_hart_معلومات_ptr(scratch);
 }
 
-int imsic_get_target_file(u32 hartindex)
+صحيح imsic_get_هدف_file(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 
-	if (!imsic_file_offset)
-		return SBI_ENOENT;
+	إذا (!imsic_file_وٿي)
+		أرجع SBI_ENOENT;
 
-	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return SBI_ENOENT;
+	scratch = sbi_hartindex_منزل_scratch(hartindex);
+	إذا (!scratch)
+		أرجع SBI_ENOENT;
 
-	return imsic_get_hart_file(scratch);
+	أرجع imsic_get_hart_file(scratch);
 }
 
-static int imsic_process_hwirqs(struct sbi_irqchip_device *chip)
+ساكن صحيح imsic_process_hwirqs(بنية sbi_irqchip_device *chip)
 {
-	struct imsic_data *imsic;
+	بنية imsic_معلومات *imsic;
 	ulong mirq;
 	u32 hwirq;
-	int rc, ret = 0;
+	صحيح rc, ret = 0;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	imsic = container_جو(chip, بنية imsic_معلومات, irqchip);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع SBI_EINVAL;
 
-	if (imsic_get_data(current_hartindex()) != imsic)
-		return 0;
+	إذا (imsic_get_معلومات(current_hartindex()) != imsic)
+		أرجع 0;
 
-	while ((mirq = csr_swap(CSR_MTOPEI, 0))) {
-		hwirq = (mirq >> IMSIC_TOPEI_ID_SHIFT) &
-			IMSIC_TOPEI_ID_MASK;
+	طالما ((mirq = csr_مٽا_سٽا(CSR_MTOPEI, 0))) {
+		hwirq = (mirq >> IMSIC_TOPEI_ID_سرڪايو) &
+			IMSIC_TOPEI_ID_نقاب;
 
-		if (hwirq > imsic->num_ids) {
+		إذا (hwirq > imsic->انگ_ids) {
 			sbi_printf("%s: invalid hwirq=%lu num_ids=%lu\n",
 					__func__,
-					(unsigned long)hwirq,
-					(unsigned long)imsic->num_ids);
-			continue;
+					(بنانشان ڊگهو)hwirq,
+					(بنانشان ڊگهو)imsic->انگ_ids);
+			استمر;
 		}
 
-		if (hwirq == IMSIC_IPI_ID) {
+		إذا (hwirq == IMSIC_IPI_ID) {
 			sbi_ipi_process();
-			continue;
+			استمر;
 		}
 
 		rc = sbi_irqchip_process_hwirq(chip, hwirq);
-		if (rc && rc != SBI_ENOENT) {
+		إذا (rc && rc != SBI_ENOENT) {
 			sbi_printf("%s: hwirq=%lu failed rc=%d\n",
 					__func__,
-					(unsigned long)hwirq, rc);
+					(بنانشان ڊگهو)hwirq, rc);
 			ret = rc;
 		}
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-static void imsic_ipi_send(u32 hart_index)
+ساكن فراغ imsic_ipi_send(u32 hart_اشاريو)
 {
-	unsigned long reloff;
-	struct imsic_regs *regs;
-	struct imsic_data *data;
-	struct sbi_scratch *scratch;
-	int file;
+	بنانشان ڊگهو reloff;
+	بنية imsic_regs *regs;
+	بنية imsic_معلومات *معلومات;
+	بنية sbi_scratch *scratch;
+	صحيح file;
 
-	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	scratch = sbi_hartindex_منزل_scratch(hart_اشاريو);
+	إذا (!scratch)
+		أرجع;
 
-	data = imsic_get_hart_data_ptr(scratch);
+	معلومات = imsic_get_hart_معلومات_ptr(scratch);
 	file = imsic_get_hart_file(scratch);
-	if (!data || !data->targets_mmode)
-		return;
+	إذا (!معلومات || !معلومات->targets_mmode)
+		أرجع;
 
-	regs = &data->regs[0];
-	reloff = file * (1UL << data->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
-	while (regs->size && (regs->size <= reloff)) {
-		reloff -= regs->size;
+	regs = &معلومات->regs[0];
+	reloff = file * (1UL << معلومات->guest_اشاريو_بٽ) * IMSIC_MMIO_صفحو_SZ;
+	طالما (regs->سائيز && (regs->سائيز <= reloff)) {
+		reloff -= regs->سائيز;
 		regs++;
 	}
 
-	if (regs->size && (reloff < regs->size))
+	إذا (regs->سائيز && (reloff < regs->سائيز))
 		writel_relaxed(IMSIC_IPI_ID,
-			(void *)(regs->addr + reloff + IMSIC_MMIO_PAGE_LE));
+			(فراغ *)(regs->addr + reloff + IMSIC_MMIO_صفحو_LE));
 }
 
-static struct sbi_ipi_device imsic_ipi_device = {
+ساكن بنية sbi_ipi_device imsic_ipi_device = {
 	.name		= "aia-imsic",
 	.rating		= 300,
 	.ipi_send	= imsic_ipi_send
 };
 
-static void imsic_local_eix_update(unsigned long id,
+ساكن فراغ imsic_local_eix_update(بنانشان ڊگهو id,
 				   bool pend, bool val)
 {
-	unsigned long isel, ireg = 0;
+	بنانشان ڊگهو isel, ireg = 0;
 
 	isel = id / __riscv_xlen;
-	isel *= __riscv_xlen / IMSIC_EIPx_BITS;
+	isel *= __riscv_xlen / IMSIC_EIPx_بٽ;
 	isel += (pend) ? IMSIC_EIP0 : IMSIC_EIE0;
-	ireg |= BIT(id);
+	ireg |= ٻٽو_انگ(id);
 
-	if (val)
-		imsic_csr_set(isel, ireg);
-	else
+	إذا (val)
+		imsic_csr_سيٽ(isel, ireg);
+	وإلا
 		imsic_csr_clear(isel, ireg);
 }
 
-void imsic_local_irqchip_init(void)
+فراغ imsic_local_irqchip_init(فراغ)
 {
-	struct sbi_trap_info trap = { 0 };
+	بنية sbi_trap_info trap = { 0 };
 
 	/*
 	 * This function is expected to be called from:
@@ -256,8 +256,8 @@ void imsic_local_irqchip_init(void)
 
 	/* If Smaia not available then do nothing */
 	csr_read_allowed(CSR_MTOPI, &trap);
-	if (trap.cause)
-		return;
+	إذا (trap.cause)
+		أرجع;
 
 	/* Setup threshold to allow all enabled interrupts */
 	imsic_csr_write(IMSIC_EITHRESHOLD, IMSIC_ENABLE_EITHRESHOLD);
@@ -269,25 +269,25 @@ void imsic_local_irqchip_init(void)
 	imsic_local_eix_update(IMSIC_IPI_ID, false, true);
 }
 
-static int imsic_warm_irqchip_init(struct sbi_irqchip_device *dev)
+ساكن صحيح imsic_warm_irqchip_init(بنية sbi_irqchip_device *dev)
 {
-	struct imsic_data *imsic;
-	struct imsic_data *hart_imsic;
-	int i;
+	بنية imsic_معلومات *imsic;
+	بنية imsic_معلومات *hart_imsic;
+	صحيح i;
 
-	imsic = container_of(dev, struct imsic_data, irqchip);
-	hart_imsic = imsic_get_data(current_hartindex());
+	imsic = container_جو(dev, بنية imsic_معلومات, irqchip);
+	hart_imsic = imsic_get_معلومات(current_hartindex());
 
 	/* Sanity checks */
-	if (!hart_imsic || hart_imsic != imsic ||
+	إذا (!hart_imsic || hart_imsic != imsic ||
 		!hart_imsic->targets_mmode)
-		return SBI_EINVAL;
+		أرجع SBI_EINVAL;
 
 	/* enable interrutps based on the irq state */
-	for (i = 1; i < imsic->num_ids; i++) {
-		if (sbi_irqchip_is_hwirq_enabled(&imsic->irqchip, i) == true)
+	لكل (i = 1; i < imsic->انگ_ids; i++) {
+		إذا (sbi_irqchip_is_hwirq_enabled(&imsic->irqchip, i) == true)
 			imsic_local_eix_update(i, true, true);
-		else
+		وإلا
 			imsic_local_eix_update(i, false, false);
 	}
 
@@ -297,106 +297,106 @@ static int imsic_warm_irqchip_init(struct sbi_irqchip_device *dev)
 	/* Local IMSIC initialization */
 	imsic_local_irqchip_init();
 
-	return 0;
+	أرجع 0;
 }
 
-int imsic_data_check(struct imsic_data *imsic)
+صحيح imsic_معلومات_check(بنية imsic_معلومات *imsic)
 {
 	u32 i, tmp;
-	unsigned long base_addr, addr, mask;
+	بنانشان ڊگهو بنياد_addr, addr, نقاب;
 
 	/* Sanity checks */
-	if (!imsic ||
-	    (imsic->num_ids < IMSIC_MIN_ID) ||
-	    (IMSIC_MAX_ID < imsic->num_ids))
-		return SBI_EINVAL;
+	إذا (!imsic ||
+	    (imsic->انگ_ids < IMSIC_MIN_ID) ||
+	    (IMSIC_MAX_ID < imsic->انگ_ids))
+		أرجع SBI_EINVAL;
 
-	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT;
-	if (tmp < imsic->guest_index_bits)
-		return SBI_EINVAL;
+	tmp = بٽ_في_LONG - IMSIC_MMIO_صفحو_سرڪايو;
+	إذا (tmp < imsic->guest_اشاريو_بٽ)
+		أرجع SBI_EINVAL;
 
-	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT -
-	      imsic->guest_index_bits;
-	if (tmp < imsic->hart_index_bits)
-		return SBI_EINVAL;
+	tmp = بٽ_في_LONG - IMSIC_MMIO_صفحو_سرڪايو -
+	      imsic->guest_اشاريو_بٽ;
+	إذا (tmp < imsic->hart_اشاريو_بٽ)
+		أرجع SBI_EINVAL;
 
-	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT -
-	      imsic->guest_index_bits - imsic->hart_index_bits;
-	if (tmp < imsic->group_index_bits)
-		return SBI_EINVAL;
+	tmp = بٽ_في_LONG - IMSIC_MMIO_صفحو_سرڪايو -
+	      imsic->guest_اشاريو_بٽ - imsic->hart_اشاريو_بٽ;
+	إذا (tmp < imsic->گروهه_اشاريو_بٽ)
+		أرجع SBI_EINVAL;
 
-	tmp = IMSIC_MMIO_PAGE_SHIFT + imsic->guest_index_bits +
-	      imsic->hart_index_bits;
-	if (imsic->group_index_shift < tmp)
-		return SBI_EINVAL;
-	tmp = imsic->group_index_bits + imsic->group_index_shift - 1;
-	if (tmp >= BITS_PER_LONG)
-		return SBI_EINVAL;
+	tmp = IMSIC_MMIO_صفحو_سرڪايو + imsic->guest_اشاريو_بٽ +
+	      imsic->hart_اشاريو_بٽ;
+	إذا (imsic->گروهه_اشاريو_سرڪايو < tmp)
+		أرجع SBI_EINVAL;
+	tmp = imsic->گروهه_اشاريو_بٽ + imsic->گروهه_اشاريو_سرڪايو - 1;
+	إذا (tmp >= بٽ_في_LONG)
+		أرجع SBI_EINVAL;
 
 	/*
 	 * Number of interrupt identities should be 1 less than
 	 * multiple of 63
 	 */
-	if ((imsic->num_ids & IMSIC_MIN_ID) != IMSIC_MIN_ID)
-		return SBI_EINVAL;
+	إذا ((imsic->انگ_ids & IMSIC_MIN_ID) != IMSIC_MIN_ID)
+		أرجع SBI_EINVAL;
 
 	/* We should have at least one regset */
-	if (!imsic->regs[0].size)
-		return SBI_EINVAL;
+	إذا (!imsic->regs[0].سائيز)
+		أرجع SBI_EINVAL;
 
 	/* Match patter of each regset */
-	base_addr = imsic->regs[0].addr;
-	base_addr &= ~((1UL << (imsic->guest_index_bits +
-				 imsic->hart_index_bits +
-				 IMSIC_MMIO_PAGE_SHIFT)) - 1);
-	base_addr &= ~(((1UL << imsic->group_index_bits) - 1) <<
-			imsic->group_index_shift);
-	for (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
-		mask = (1UL << imsic->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
-		mask -= 1UL;
-		if (imsic->regs[i].size & mask)
-			return SBI_EINVAL;
+	بنياد_addr = imsic->regs[0].addr;
+	بنياد_addr &= ~((1UL << (imsic->guest_اشاريو_بٽ +
+				 imsic->hart_اشاريو_بٽ +
+				 IMSIC_MMIO_صفحو_سرڪايو)) - 1);
+	بنياد_addr &= ~(((1UL << imsic->گروهه_اشاريو_بٽ) - 1) <<
+			imsic->گروهه_اشاريو_سرڪايو);
+	لكل (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].سائيز; i++) {
+		نقاب = (1UL << imsic->guest_اشاريو_بٽ) * IMSIC_MMIO_صفحو_SZ;
+		نقاب -= 1UL;
+		إذا (imsic->regs[i].سائيز & نقاب)
+			أرجع SBI_EINVAL;
 
 		addr = imsic->regs[i].addr;
-		addr &= ~((1UL << (imsic->guest_index_bits +
-					 imsic->hart_index_bits +
-					 IMSIC_MMIO_PAGE_SHIFT)) - 1);
-		addr &= ~(((1UL << imsic->group_index_bits) - 1) <<
-				imsic->group_index_shift);
-		if (base_addr != addr)
-			return SBI_EINVAL;
+		addr &= ~((1UL << (imsic->guest_اشاريو_بٽ +
+					 imsic->hart_اشاريو_بٽ +
+					 IMSIC_MMIO_صفحو_سرڪايو)) - 1);
+		addr &= ~(((1UL << imsic->گروهه_اشاريو_بٽ) - 1) <<
+				imsic->گروهه_اشاريو_سرڪايو);
+		إذا (بنياد_addr != addr)
+			أرجع SBI_EINVAL;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int imsic_hwirq_setup(struct sbi_irqchip_device *chip, u32 hwirq, u32 hwirq_flags)
+ساكن صحيح imsic_hwirq_تياري(بنية sbi_irqchip_device *chip, u32 hwirq, u32 hwirq_flags)
 {
-	if (hwirq_flags != SBI_HWIRQ_FLAGS_NONE)
-		return SBI_ENOTSUPP;
+	إذا (hwirq_flags != SBI_HWIRQ_FLAGS_NONE)
+		أرجع SBI_ENOTSUPP;
 
-	sbi_irqchip_set_raw_handler(chip, hwirq,
+	sbi_irqchip_سيٽ_raw_handler(chip, hwirq,
 				    sbi_irqchip_raw_handler_default);
 
-	return 0;
+	أرجع 0;
 }
 
-static void imsic_hwirq_cleanup(struct sbi_irqchip_device *chip, u32 hwirq)
+ساكن فراغ imsic_hwirq_cleanup(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	بنية imsic_معلومات *imsic;
 
-	if (!chip)
-		return;
+	إذا (!chip)
+		أرجع;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_جو(chip, بنية imsic_معلومات, irqchip);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع;
 
 	imsic_local_eix_update(hwirq, false, false);
 	imsic_local_eix_update(hwirq, true, false);
 }
 
-static void imsic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
+ساكن فراغ imsic_hwirq_eoi(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
 	/*
 	 * IMSIC interrupt claim/ack is already done by reading CSR_MTOPEI
@@ -404,222 +404,222 @@ static void imsic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
 	 */
 }
 
-static int imsic_compose_msi_msg(struct imsic_data *imsic,
-				 u32 hart_index, u32 eiid,
-				 struct sbi_irqchip_msi_msg *msg)
+ساكن صحيح imsic_compose_msi_نياپو(بنية imsic_معلومات *imsic,
+				 u32 hart_اشاريو, u32 eiid,
+				 بنية sbi_irqchip_msi_نياپو *نياپو)
 {
-	struct imsic_regs *regs;
-	unsigned long reloff;
+	بنية imsic_regs *regs;
+	بنانشان ڊگهو reloff;
 	u64 msi_addr;
-	int file;
+	صحيح file;
 
-	if (!imsic || !msg)
-		return SBI_EINVAL;
+	إذا (!imsic || !نياپو)
+		أرجع SBI_EINVAL;
 
-	if (!eiid || eiid == IMSIC_IPI_ID)
-		return 0;
+	إذا (!eiid || eiid == IMSIC_IPI_ID)
+		أرجع 0;
 
-	file = imsic_get_target_file(hart_index);
-	if (file < 0) {
+	file = imsic_get_هدف_file(hart_اشاريو);
+	إذا (file < 0) {
 		sbi_printf("%s: no file for hart=%lu rc=%d\n",
 				__func__,
-				(unsigned long)hart_index, file);
-		return file;
+				(بنانشان ڊگهو)hart_اشاريو, file);
+		أرجع file;
 	}
 
 	regs   = &imsic->regs[0];
-	reloff = file * (1UL << imsic->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
+	reloff = file * (1UL << imsic->guest_اشاريو_بٽ) * IMSIC_MMIO_صفحو_SZ;
 
-	while (regs->size && regs->size <= reloff) {
-		reloff -= regs->size;
+	طالما (regs->سائيز && regs->سائيز <= reloff) {
+		reloff -= regs->سائيز;
 		regs++;
 	}
 
-	if (!regs->size || regs->size <= reloff) {
+	إذا (!regs->سائيز || regs->سائيز <= reloff) {
 		sbi_printf("%s: no regset for hart=%lu file=%d reloff=0x%lx\n",
 			   __func__,
-			   (unsigned long)hart_index, file, reloff);
-		return SBI_ENODEV;
+			   (بنانشان ڊگهو)hart_اشاريو, file, reloff);
+		أرجع SBI_ENODEV;
 	}
 
-	msi_addr = (u64)regs->addr + reloff + IMSIC_MMIO_PAGE_LE;
-	msg->address_lo = (u32)(msi_addr);
-	msg->address_hi = (u32)(msi_addr >> 32);
-	msg->data       = eiid;
+	msi_addr = (u64)regs->addr + reloff + IMSIC_MMIO_صفحو_LE;
+	نياپو->پتو_lo = (u32)(msi_addr);
+	نياپو->پتو_hi = (u32)(msi_addr >> 32);
+	نياپو->معلومات       = eiid;
 
-	return 0;
+	أرجع 0;
 }
 
-static int imsic_program_msi(struct sbi_irqchip_device *chip,
-		      u32 eiid, u32 hart_index)
+ساكن صحيح imsic_پروگرام_msi(بنية sbi_irqchip_device *chip,
+		      u32 eiid, u32 hart_اشاريو)
 {
-	struct imsic_data *imsic;
-	struct sbi_irqchip_msi_msg msg;
-	int rc;
+	بنية imsic_معلومات *imsic;
+	بنية sbi_irqchip_msi_نياپو نياپو;
+	صحيح rc;
 
-	if (!chip)
-		return SBI_EINVAL;
+	إذا (!chip)
+		أرجع SBI_EINVAL;
 
-	imsic = imsic_get_data(hart_index);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_ENODEV;
+	imsic = imsic_get_معلومات(hart_اشاريو);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع SBI_ENODEV;
 
-	rc = imsic_compose_msi_msg(imsic, hart_index, eiid, &msg);
-	if (rc) {
+	rc = imsic_compose_msi_نياپو(imsic, hart_اشاريو, eiid, &نياپو);
+	إذا (rc) {
 		sbi_printf("%s: compose failed eiid=%lu hart=%lu rc=%d\n",
 				__func__,
-				(unsigned long)eiid,
-				(unsigned long)hart_index, rc);
+				(بنانشان ڊگهو)eiid,
+				(بنانشان ڊگهو)hart_اشاريو, rc);
 	}
 
-	rc = sbi_irqchip_write_msi(chip, eiid, &msg);
-	if (rc) {
+	rc = sbi_irqchip_write_msi(chip, eiid, &نياپو);
+	إذا (rc) {
 		sbi_printf("%s: write_msi failed eiid=%lu hart=%lu rc=%d\n",
 				__func__,
-				(unsigned long)eiid,
-				(unsigned long)hart_index, rc);
-		return rc;
+				(بنانشان ڊگهو)eiid,
+				(بنانشان ڊگهو)hart_اشاريو, rc);
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int imsic_hwirq_set_affinity(struct sbi_irqchip_device *chip,
-				    u32 hwirq, u32 hart_index)
+ساكن صحيح imsic_hwirq_سيٽ_affinity(بنية sbi_irqchip_device *chip,
+				    u32 hwirq, u32 hart_اشاريو)
 {
-	struct imsic_data *imsic;
-	int rc;
+	بنية imsic_معلومات *imsic;
+	صحيح rc;
 
-	if (!chip)
-		return SBI_EINVAL;
+	إذا (!chip)
+		أرجع SBI_EINVAL;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	imsic = container_جو(chip, بنية imsic_معلومات, irqchip);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع SBI_EINVAL;
 
-	if (!hwirq || hwirq == IMSIC_IPI_ID)
-		return 0;
+	إذا (!hwirq || hwirq == IMSIC_IPI_ID)
+		أرجع 0;
 
-	if (!sbi_hartmask_test_hartindex(hart_index, &chip->target_harts))
-		return SBI_EINVAL;
+	إذا (!sbi_hartmask_test_hartindex(hart_اشاريو, &chip->هدف_harts))
+		أرجع SBI_EINVAL;
 
-	rc = imsic_program_msi(chip, hwirq, hart_index);
-	if (rc) {
+	rc = imsic_پروگرام_msi(chip, hwirq, hart_اشاريو);
+	إذا (rc) {
 		sbi_printf("%s: failed hwirq=%lu hart=%lu rc=%d\n",
 				__func__,
-				(unsigned long)hwirq,
-				(unsigned long)hart_index, rc);
-		return rc;
+				(بنانشان ڊگهو)hwirq,
+				(بنانشان ڊگهو)hart_اشاريو, rc);
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static void imsic_hwirq_mask(struct sbi_irqchip_device *chip, u32 hwirq)
+ساكن فراغ imsic_hwirq_نقاب(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	بنية imsic_معلومات *imsic;
 
-	if (!chip)
-		return;
+	إذا (!chip)
+		أرجع;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_جو(chip, بنية imsic_معلومات, irqchip);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع;
 
 	imsic_local_eix_update(hwirq, false, false);
 }
 
-static void imsic_hwirq_unmask(struct sbi_irqchip_device *chip, u32 hwirq)
+ساكن فراغ imsic_hwirq_unmask(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	بنية imsic_معلومات *imsic;
 
-	if (!chip)
-		return;
+	إذا (!chip)
+		أرجع;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_جو(chip, بنية imsic_معلومات, irqchip);
+	إذا (!imsic || !imsic->targets_mmode)
+		أرجع;
 
-	if (!hwirq || hwirq == IMSIC_IPI_ID)
-		return;
+	إذا (!hwirq || hwirq == IMSIC_IPI_ID)
+		أرجع;
 
 	imsic_local_eix_update(hwirq, false, true);
 }
 
-static struct sbi_irqchip_device imsic_device = {
+ساكن بنية sbi_irqchip_device imsic_device = {
 	.warm_init		= imsic_warm_irqchip_init,
 	.process_hwirqs		= imsic_process_hwirqs,
-	.hwirq_setup		= imsic_hwirq_setup,
+	.hwirq_تياري		= imsic_hwirq_تياري,
 	.hwirq_cleanup		= imsic_hwirq_cleanup,
 	.hwirq_eoi		= imsic_hwirq_eoi,
-	.hwirq_set_affinity	= imsic_hwirq_set_affinity,
-	.hwirq_mask		= imsic_hwirq_mask,
+	.hwirq_سيٽ_affinity	= imsic_hwirq_سيٽ_affinity,
+	.hwirq_نقاب		= imsic_hwirq_نقاب,
 	.hwirq_unmask		= imsic_hwirq_unmask,
 };
 
-int imsic_cold_irqchip_init(struct imsic_data *imsic)
+صحيح imsic_cold_irqchip_init(بنية imsic_معلومات *imsic)
 {
-	int i, rc;
+	صحيح i, rc;
 
 	/* Sanity checks */
-	rc = imsic_data_check(imsic);
-	if (rc)
-		return rc;
+	rc = imsic_معلومات_check(imsic);
+	إذا (rc)
+		أرجع rc;
 
 	/* We only initialize M-mode IMSIC */
-	if (!imsic->targets_mmode)
-		return SBI_EINVAL;
+	إذا (!imsic->targets_mmode)
+		أرجع SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!imsic_ptr_offset) {
-		imsic_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!imsic_ptr_offset)
-			return SBI_ENOMEM;
+	إذا (!imsic_ptr_وٿي) {
+		imsic_ptr_وٿي = sbi_scratch_alloc_type_وٿي(فراغ *);
+		إذا (!imsic_ptr_وٿي)
+			أرجع SBI_ENOMEM;
 	}
 
 	/* Allocate scratch space file */
-	if (!imsic_file_offset) {
-		imsic_file_offset = sbi_scratch_alloc_type_offset(long);
-		if (!imsic_file_offset)
-			return SBI_ENOMEM;
+	إذا (!imsic_file_وٿي) {
+		imsic_file_وٿي = sbi_scratch_alloc_type_وٿي(ڊگهو);
+		إذا (!imsic_file_وٿي)
+			أرجع SBI_ENOMEM;
 	}
 
 	/* Add IMSIC regions to the root domain */
-	for (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
-		rc = sbi_domain_root_add_memrange(imsic->regs[i].addr,
-						  imsic->regs[i].size,
-						  IMSIC_MMIO_PAGE_SZ,
+	لكل (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].سائيز; i++) {
+		rc = sbi_domain_پاڙ_جوڙيو_memrange(imsic->regs[i].addr,
+						  imsic->regs[i].سائيز,
+						  IMSIC_MMIO_صفحو_SZ,
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
 	imsic->irqchip          = imsic_device;
 	imsic->irqchip.id       = imsic->unique_id;
 	imsic_device.caps = SBI_IRQCHIP_CAPS_MSI;
-	imsic->irqchip.num_hwirq = imsic->num_ids + 1;
+	imsic->irqchip.انگ_hwirq = imsic->انگ_ids + 1;
 
-	sbi_hartmask_set_all(&imsic->irqchip.target_harts);
+	sbi_hartmask_سيٽ_all(&imsic->irqchip.هدف_harts);
 
 	/* Register irqchip device */
-	rc = sbi_irqchip_add_device(&imsic->irqchip);
-	if (rc) {
+	rc = sbi_irqchip_جوڙيو_device(&imsic->irqchip);
+	إذا (rc) {
 		sbi_printf("%s: sbi_irqchip_add_device failed rc=%d\n",
 				__func__, rc);
-		return rc;
+		أرجع rc;
 	}
 
-	rc = sbi_irqchip_register_reserved(&imsic->irqchip, 0, IMSIC_IPI_ID + 1);
-	if (rc) {
+	rc = sbi_irqchip_رجسٽر_reserved(&imsic->irqchip, 0, IMSIC_IPI_ID + 1);
+	إذا (rc) {
 		sbi_printf("%s: register_reserved failed rc=%d\n",
 				__func__, rc);
-		return rc;
+		أرجع rc;
 	}
 
 	/* Register IPI device */
-	sbi_ipi_add_device(&imsic_ipi_device);
+	sbi_ipi_جوڙيو_device(&imsic_ipi_device);
 
-	return 0;
+	أرجع 0;
 }

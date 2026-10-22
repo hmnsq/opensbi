@@ -4,9 +4,9 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __LIMITS_H__
-#define __LIMITS_H__
+#جيڪڏهن_وصف_نه_ٿيل __LIMITS_H__
+#وصف_ڪريو __LIMITS_H__
 
-#define CHAR_BIT 8
+#وصف_ڪريو CHAR_BIT 8
 
-#endif
+#جيڪڏهن_پورو

@@ -7,95 +7,95 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_version.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_version.h>
+#ضمن <sbi/sbi_pmu.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/riscv_asm.h>
 
-static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+ساكن صحيح sbi_ecall_pmu_handler(بنانشان ڊگهو extid, بنانشان ڊگهو funcid,
+				 بنية sbi_trap_regs *regs,
+				 بنية sbi_ecall_return *ٻاهريون)
 {
-	int ret = 0;
-	uint64_t temp;
+	صحيح ret = 0;
+	uint64_t عارضي;
 
-	switch (funcid) {
-	case SBI_EXT_PMU_NUM_COUNTERS:
-		ret = sbi_pmu_num_ctr();
-		if (ret >= 0) {
-			out->value = ret;
+	بدل (funcid) {
+	حالة SBI_EXT_PMU_انگ_COUNTERS:
+		ret = sbi_pmu_انگ_ctr();
+		إذا (ret >= 0) {
+			ٻاهريون->قدر = ret;
 			ret = 0;
 		}
-		break;
-	case SBI_EXT_PMU_COUNTER_GET_INFO:
-		ret = sbi_pmu_ctr_get_info(regs->a0, &out->value);
-		break;
-	case SBI_EXT_PMU_COUNTER_CFG_MATCH:
-#if __riscv_xlen == 32
-		temp = ((uint64_t)regs->a5 << 32) | regs->a4;
-#else
-		temp = regs->a4;
-#endif
-		ret = sbi_pmu_ctr_cfg_match(regs->a0, regs->a1, regs->a2,
-					    regs->a3, temp);
-		if (ret >= 0) {
-			out->value = ret;
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_GET_INFO:
+		ret = sbi_pmu_ctr_get_info(regs->a0, &ٻاهريون->قدر);
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_CFG_ميلاپ:
+#إذا __riscv_xlen == 32
+		عارضي = ((uint64_t)regs->a5 << 32) | regs->a4;
+#وإلا
+		عارضي = regs->a4;
+#جيڪڏهن_پورو
+		ret = sbi_pmu_ctr_cfg_ميلاپ(regs->a0, regs->a1, regs->a2,
+					    regs->a3, عارضي);
+		إذا (ret >= 0) {
+			ٻاهريون->قدر = ret;
 			ret = 0;
 		}
 
-		break;
-	case SBI_EXT_PMU_COUNTER_FW_READ:
-		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, false);
-		out->value = temp;
-		break;
-	case SBI_EXT_PMU_COUNTER_FW_READ_HI:
-		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, true);
-#if __riscv_xlen == 32
-		out->value = temp >> 32;
-#else
-		out->value = 0;
-#endif
-		break;
-	case SBI_EXT_PMU_COUNTER_START:
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_FW_READ:
+		ret = sbi_pmu_ctr_fw_read(regs->a0, &عارضي, false);
+		ٻاهريون->قدر = عارضي;
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_FW_READ_HI:
+		ret = sbi_pmu_ctr_fw_read(regs->a0, &عارضي, true);
+#إذا __riscv_xlen == 32
+		ٻاهريون->قدر = عارضي >> 32;
+#وإلا
+		ٻاهريون->قدر = 0;
+#جيڪڏهن_پورو
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_شروعات:
 
-#if __riscv_xlen == 32
-		temp = ((uint64_t)regs->a4 << 32) | regs->a3;
-#else
-		temp = regs->a3;
-#endif
-		ret = sbi_pmu_ctr_start(regs->a0, regs->a1, regs->a2, temp);
-		break;
-	case SBI_EXT_PMU_COUNTER_STOP:
+#إذا __riscv_xlen == 32
+		عارضي = ((uint64_t)regs->a4 << 32) | regs->a3;
+#وإلا
+		عارضي = regs->a3;
+#جيڪڏهن_پورو
+		ret = sbi_pmu_ctr_شروعات(regs->a0, regs->a1, regs->a2, عارضي);
+		اكسر;
+	حالة SBI_EXT_PMU_COUNTER_STOP:
 		ret = sbi_pmu_ctr_stop(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_PMU_EVENT_GET_INFO:
+		اكسر;
+	حالة SBI_EXT_PMU_EVENT_GET_INFO:
 		ret = sbi_pmu_event_get_info(regs->a0, regs->a1, regs->a2, regs->a3);
-		break;
-	case SBI_EXT_PMU_SNAPSHOT_SET_SHMEM:
+		اكسر;
+	حالة SBI_EXT_PMU_SNAPSHOT_سيٽ_SHMEM:
 		/* fallthrough as OpenSBI doesn't support snapshot yet */
-	default:
+	افتراضي:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-struct sbi_ecall_extension ecall_pmu;
+بنية sbi_ecall_extension ecall_pmu;
 
-static int sbi_ecall_pmu_register_extensions(void)
+ساكن صحيح sbi_ecall_pmu_رجسٽر_extensions(فراغ)
 {
-	return sbi_ecall_register_extension(&ecall_pmu);
+	أرجع sbi_ecall_رجسٽر_extension(&ecall_pmu);
 }
 
-struct sbi_ecall_extension ecall_pmu = {
+بنية sbi_ecall_extension ecall_pmu = {
 	.name			= "pmu",
-	.extid_start		= SBI_EXT_PMU,
-	.extid_end		= SBI_EXT_PMU,
-	.register_extensions	= sbi_ecall_pmu_register_extensions,
+	.extid_شروعات		= SBI_EXT_PMU,
+	.extid_پڇاڙي		= SBI_EXT_PMU,
+	.رجسٽر_extensions	= sbi_ecall_pmu_رجسٽر_extensions,
 	.handle			= sbi_ecall_pmu_handler,
 };

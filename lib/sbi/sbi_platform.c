@@ -7,67 +7,67 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_string.h>
 
-static inline char *sbi_platform_feature_id2string(unsigned long feature)
+ساكن مضمن حرف *sbi_platform_feature_id2string(بنانشان ڊگهو feature)
 {
-	char *fstr = NULL;
+	حرف *fstr = عدم;
 
-	if (!feature)
-		return NULL;
+	إذا (!feature)
+		أرجع عدم;
 
-	switch (feature) {
-	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
+	بدل (feature) {
+	حالة SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
 		fstr = "medeleg";
-		break;
-	default:
-		break;
+		اكسر;
+	افتراضي:
+		اكسر;
 	}
 
-	return fstr;
+	أرجع fstr;
 }
 
-void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+فراغ sbi_platform_get_features_str(ثابت بنية sbi_platform *plat,
+				   حرف *features_str, صحيح nfstr)
 {
-	unsigned long features, feat = 1UL;
-	char *temp;
-	int offset = 0;
+	بنانشان ڊگهو features, feat = 1UL;
+	حرف *عارضي;
+	صحيح وٿي = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	إذا (!plat || !features_str || !nfstr)
+		أرجع;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
-		goto done;
+	إذا (!features)
+		اذهب پورو;
 
-	do {
-		if (features & feat) {
-			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
-						       nfstr - offset,
-						       "%s,", temp);
-				if (len < 0)
-					break;
+	افعل {
+		إذا (features & feat) {
+			عارضي = sbi_platform_feature_id2string(feat);
+			إذا (عارضي) {
+				صحيح len = sbi_snprintf(features_str + وٿي,
+						       nfstr - وٿي,
+						       "%s,", عارضي);
+				إذا (len < 0)
+					اكسر;
 
-				if (offset + len >= nfstr) {
+				إذا (وٿي + len >= nfstr) {
 					/* No more space for features */
-					offset = nfstr;
-					break;
-				} else
-					offset = offset + len;
+					وٿي = nfstr;
+					اكسر;
+				} وإلا
+					وٿي = وٿي + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} طالما (feat <= SBI_PLATFORM_HAS_آخري_FEATURE);
 
-done:
-	if (offset)
-		features_str[offset - 1] = '\0';
-	else
+پورو:
+	إذا (وٿي)
+		features_str[وٿي - 1] = '\0';
+	وإلا
 		sbi_strncpy(features_str, "none", nfstr);
 }

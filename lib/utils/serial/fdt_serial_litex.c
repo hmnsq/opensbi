@@ -7,33 +7,33 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/litex-uart.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/serial/fdt_serial.h>
+#ضمن <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ساكن صحيح serial_litex_init(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_ميلاپ *ميلاپ)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_سائيز;
+	صحيح rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	إذا (nodeoff < 0 || !fdt)
+		أرجع SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_ڳنڍ_addr_سائيز(fdt, nodeoff, 0, &reg_addr, &reg_سائيز);
+	إذا (rc < 0 || !reg_addr || !reg_سائيز)
+		أرجع SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	أرجع litex_uart_init(reg_addr);
 }
 
-static const struct fdt_match serial_litex_match[] = {
+ساكن ثابت بنية fdt_ميلاپ serial_litex_ميلاپ[] = {
 	{ .compatible = "litex,liteuart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_litex = {
-	.match_table = serial_litex_match,
+ثابت بنية fdt_driver fdt_serial_litex = {
+	.ميلاپ_جدول = serial_litex_ميلاپ,
 	.init = serial_litex_init
 };

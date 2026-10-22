@@ -7,158 +7,158 @@
  *   Clément Léger <cleger@rivosinc.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_bitmap.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hfence.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_types.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_bitmap.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_hfence.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi/sbi_tlb.h>
+#ضمن <sbi/sbi_types.h>
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_encoding.h>
 
 /** Offset of pointer to FWFT HART state in scratch space */
-static unsigned long fwft_ptr_offset;
+ساكن بنانشان ڊگهو fwft_ptr_وٿي;
 
-#define fwft_get_hart_state_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, fwft_ptr_offset)
+#وصف_ڪريو fwft_get_hart_state_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), فراغ *, fwft_ptr_وٿي)
 
-#define fwft_thishart_state_ptr()					\
+#وصف_ڪريو fwft_thishart_state_ptr()					\
 	fwft_get_hart_state_ptr(sbi_scratch_thishart_ptr())
 
-#define fwft_set_hart_state_ptr(__scratch, __phs)			\
-	sbi_scratch_write_type((__scratch), void *, fwft_ptr_offset, (__phs))
+#وصف_ڪريو fwft_سيٽ_hart_state_ptr(__scratch, __phs)			\
+	sbi_scratch_write_type((__scratch), فراغ *, fwft_ptr_وٿي, (__phs))
 
-#define MIS_DELEG (1UL << CAUSE_MISALIGNED_LOAD | 1UL << CAUSE_MISALIGNED_STORE)
+#وصف_ڪريو MIS_DELEG (1UL << CAUSE_MISALIGNED_ڀريو | 1UL << CAUSE_MISALIGNED_STORE)
 
-struct fwft_config;
+بنية fwft_config;
 
-struct fwft_feature {
-	enum sbi_fwft_feature_t id;
-	int (*supported)(struct fwft_config *conf);
-	int (*set)(struct fwft_config *conf, unsigned long value);
-	int (*get)(struct fwft_config *conf, unsigned long *value);
+بنية fwft_feature {
+	تعداد sbi_fwft_feature_t id;
+	صحيح (*supported)(بنية fwft_config *conf);
+	صحيح (*سيٽ)(بنية fwft_config *conf, بنانشان ڊگهو قدر);
+	صحيح (*get)(بنية fwft_config *conf, بنانشان ڊگهو *قدر);
 };
 
-struct fwft_config {
-	const struct fwft_feature *feature;
-	unsigned long flags;
+بنية fwft_config {
+	ثابت بنية fwft_feature *feature;
+	بنانشان ڊگهو flags;
 };
 
-struct fwft_hart_state {
-	unsigned int config_count;
-	struct fwft_config configs[];
+بنية fwft_hart_state {
+	بنانشان صحيح config_ڳڻپ;
+	بنية fwft_config configs[];
 };
 
-static const unsigned long fwft_defined_features[] = {
+ساكن ثابت بنانشان ڊگهو fwft_defined_features[] = {
 	SBI_FWFT_MISALIGNED_EXC_DELEG,
 	SBI_FWFT_LANDING_PAD,
-	SBI_FWFT_SHADOW_STACK,
+	SBI_FWFT_SHADOW_ڍير,
 	SBI_FWFT_DOUBLE_TRAP,
 	SBI_FWFT_PTE_AD_HW_UPDATING,
-	SBI_FWFT_POINTER_MASKING_PMLEN,
+	SBI_FWFT_اشارو_MASKING_PMLEN,
 };
 
-static bool fwft_is_defined_feature(enum sbi_fwft_feature_t feature)
+ساكن bool fwft_is_defined_feature(تعداد sbi_fwft_feature_t feature)
 {
-	int i;
+	صحيح i;
 
-	for (i = 0; i < array_size(fwft_defined_features); i++) {
-		if (fwft_defined_features[i] == feature)
-			return true;
+	لكل (i = 0; i < array_سائيز(fwft_defined_features); i++) {
+		إذا (fwft_defined_features[i] == feature)
+			أرجع true;
 	}
 
-	return false;
+	أرجع false;
 }
 
-static int fwft_menvcfg_set_bit(unsigned long value, unsigned long bit)
+ساكن صحيح fwft_menvcfg_سيٽ_ٻٽو_انگ(بنانشان ڊگهو قدر, بنانشان ڊگهو ٻٽو_انگ_2)
 {
-	if (value == 1) {
-		if (bit >= 32 && __riscv_xlen == 32)
-			csr_set(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
-			csr_set(CSR_MENVCFG, _ULL(1) << bit);
+	إذا (قدر == 1) {
+		إذا (ٻٽو_انگ_2 >= 32 && __riscv_xlen == 32)
+			csr_سيٽ(CSR_MENVCFGH, _ULL(1) << (ٻٽو_انگ_2 - 32));
+		وإلا
+			csr_سيٽ(CSR_MENVCFG, _ULL(1) << ٻٽو_انگ_2);
 
-	} else if (value == 0) {
-		if (bit >= 32 && __riscv_xlen == 32)
-			csr_clear(CSR_MENVCFGH, _ULL(1) << (bit - 32));
-		else
-			csr_clear(CSR_MENVCFG, _ULL(1) << bit);
-	} else {
-		return SBI_EINVAL;
+	} وإلا إذا (قدر == 0) {
+		إذا (ٻٽو_انگ_2 >= 32 && __riscv_xlen == 32)
+			csr_clear(CSR_MENVCFGH, _ULL(1) << (ٻٽو_انگ_2 - 32));
+		وإلا
+			csr_clear(CSR_MENVCFG, _ULL(1) << ٻٽو_انگ_2);
+	} وإلا {
+		أرجع SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_menvcfg_read_bit(unsigned long *value, unsigned long bit)
+ساكن صحيح fwft_menvcfg_read_ٻٽو_انگ(بنانشان ڊگهو *قدر, بنانشان ڊگهو ٻٽو_انگ_2)
 {
-	unsigned long cfg;
+	بنانشان ڊگهو cfg;
 
-	if (bit >= 32 && __riscv_xlen == 32)
-		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (bit - 32));
-	else
-		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << bit);
+	إذا (ٻٽو_انگ_2 >= 32 && __riscv_xlen == 32)
+		cfg = csr_read(CSR_MENVCFGH) & (_ULL(1) << (ٻٽو_انگ_2 - 32));
+	وإلا
+		cfg = csr_read(CSR_MENVCFG) & (_ULL(1) << ٻٽو_انگ_2);
 
-	*value = cfg != 0;
+	*قدر = cfg != 0;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_misaligned_delegation_supported(struct fwft_config *conf)
+ساكن صحيح fwft_misaligned_delegation_supported(بنية fwft_config *conf)
 {
-	if (!misa_extension('S'))
-		return SBI_ENOTSUPP;
+	إذا (!misa_extension('S'))
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_set_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long value)
+ساكن صحيح fwft_سيٽ_misaligned_delegation(بنية fwft_config *conf,
+					 بنانشان ڊگهو قدر)
 {
-	if (value == 1)
-		csr_set(CSR_MEDELEG, MIS_DELEG);
-	else if (value == 0)
+	إذا (قدر == 1)
+		csr_سيٽ(CSR_MEDELEG, MIS_DELEG);
+	وإلا إذا (قدر == 0)
 		csr_clear(CSR_MEDELEG, MIS_DELEG);
-	else
-		return SBI_EINVAL;
+	وإلا
+		أرجع SBI_EINVAL;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_get_misaligned_delegation(struct fwft_config *conf,
-					 unsigned long *value)
+ساكن صحيح fwft_get_misaligned_delegation(بنية fwft_config *conf,
+					 بنانشان ڊگهو *قدر)
 {
-	*value = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
+	*قدر = (csr_read(CSR_MEDELEG) & MIS_DELEG) != 0;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_double_trap_supported(struct fwft_config *conf)
+ساكن صحيح fwft_double_trap_supported(بنية fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	إذا (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SSDBLTRP))
-		return SBI_ENOTSUPP;
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_set_double_trap(struct fwft_config *conf, unsigned long value)
+ساكن صحيح fwft_سيٽ_double_trap(بنية fwft_config *conf, بنانشان ڊگهو قدر)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_DTE_SHIFT);
+	أرجع fwft_menvcfg_سيٽ_ٻٽو_انگ(قدر, ENVCFG_DTE_سرڪايو);
 }
 
-static int fwft_get_double_trap(struct fwft_config *conf, unsigned long *value)
+ساكن صحيح fwft_get_double_trap(بنية fwft_config *conf, بنانشان ڊگهو *قدر)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_DTE_SHIFT);
+	أرجع fwft_menvcfg_read_ٻٽو_انگ(قدر, ENVCFG_DTE_سرڪايو);
 }
 
-static int fwft_adue_supported(struct fwft_config *conf)
+ساكن صحيح fwft_adue_supported(بنية fwft_config *conf)
 {
 	/*
 	 * FWFT.PTE_AD_HW_UPDATING is only supported when both Svade and Svadu
@@ -166,287 +166,287 @@ static int fwft_adue_supported(struct fwft_config *conf)
 	 * ensure the reset value of zero is valid (it wouldn't be when only
 	 * Svadu is supported).
 	 */
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	إذا (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADU) ||
 	    !sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SVADE))
-		return SBI_ENOTSUPP;
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_set_adue(struct fwft_config *conf, unsigned long value)
+ساكن صحيح fwft_سيٽ_adue(بنية fwft_config *conf, بنانشان ڊگهو قدر)
 {
-	int res = fwft_menvcfg_set_bit(value, ENVCFG_ADUE_SHIFT);
+	صحيح res = fwft_menvcfg_سيٽ_ٻٽو_انگ(قدر, ENVCFG_ADUE_سرڪايو);
 
-	if (res == SBI_OK) {
+	إذا (res == SBI_OK) {
 		__sbi_sfence_vma_all();
 
-		if (misa_extension('H'))
+		إذا (misa_extension('H'))
 			__sbi_hfence_gvma_all();
 	}
 
-	return res;
+	أرجع res;
 }
 
-static int fwft_get_adue(struct fwft_config *conf, unsigned long *value)
+ساكن صحيح fwft_get_adue(بنية fwft_config *conf, بنانشان ڊگهو *قدر)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_ADUE_SHIFT);
+	أرجع fwft_menvcfg_read_ٻٽو_انگ(قدر, ENVCFG_ADUE_سرڪايو);
 }
 
-static int fwft_lpad_supported(struct fwft_config *conf)
+ساكن صحيح fwft_lpad_supported(بنية fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	إذا (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFILP))
-		return SBI_ENOTSUPP;
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_enable_lpad(struct fwft_config *conf, unsigned long value)
+ساكن صحيح fwft_enable_lpad(بنية fwft_config *conf, بنانشان ڊگهو قدر)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_LPE_SHIFT);
+	أرجع fwft_menvcfg_سيٽ_ٻٽو_انگ(قدر, ENVCFG_LPE_سرڪايو);
 }
 
-static int fwft_get_lpad(struct fwft_config *conf, unsigned long *value)
+ساكن صحيح fwft_get_lpad(بنية fwft_config *conf, بنانشان ڊگهو *قدر)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_LPE_SHIFT);
+	أرجع fwft_menvcfg_read_ٻٽو_انگ(قدر, ENVCFG_LPE_سرڪايو);
 }
 
-static int fwft_sstack_supported(struct fwft_config *conf)
+ساكن صحيح fwft_sstack_supported(بنية fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	إذا (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_ZICFISS))
-		return SBI_ENOTSUPP;
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_enable_sstack(struct fwft_config *conf, unsigned long value)
+ساكن صحيح fwft_enable_sstack(بنية fwft_config *conf, بنانشان ڊگهو قدر)
 {
-	return fwft_menvcfg_set_bit(value, ENVCFG_SSE_SHIFT);
+	أرجع fwft_menvcfg_سيٽ_ٻٽو_انگ(قدر, ENVCFG_SSE_سرڪايو);
 }
 
-static int fwft_get_sstack(struct fwft_config *conf, unsigned long *value)
+ساكن صحيح fwft_get_sstack(بنية fwft_config *conf, بنانشان ڊگهو *قدر)
 {
-	return fwft_menvcfg_read_bit(value, ENVCFG_SSE_SHIFT);
+	أرجع fwft_menvcfg_read_ٻٽو_انگ(قدر, ENVCFG_SSE_سرڪايو);
 }
 
-#if __riscv_xlen > 32
-static int fwft_pmlen_supported(struct fwft_config *conf)
+#إذا __riscv_xlen > 32
+ساكن صحيح fwft_pmlen_supported(بنية fwft_config *conf)
 {
-	if (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
+	إذا (!sbi_hart_has_extension(sbi_scratch_thishart_ptr(),
 				    SBI_HART_EXT_SMNPM))
-		return SBI_ENOTSUPP;
+		أرجع SBI_ENOTSUPP;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_set_pmlen(struct fwft_config *conf, unsigned long value)
+ساكن صحيح fwft_سيٽ_pmlen(بنية fwft_config *conf, بنانشان ڊگهو قدر)
 {
-	unsigned long pmm, prev;
+	بنانشان ڊگهو pmm, prev;
 
-	switch (value) {
-	case 0:
+	بدل (قدر) {
+	حالة 0:
 		pmm = ENVCFG_PMM_PMLEN_0;
-		break;
-	case 7:
+		اكسر;
+	حالة 7:
 		pmm = ENVCFG_PMM_PMLEN_7;
-		break;
-	case 16:
+		اكسر;
+	حالة 16:
 		pmm = ENVCFG_PMM_PMLEN_16;
-		break;
-	default:
-		return SBI_EINVAL;
+		اكسر;
+	افتراضي:
+		أرجع SBI_EINVAL;
 	}
 
 	prev = csr_read_clear(CSR_MENVCFG, ENVCFG_PMM);
-	csr_set(CSR_MENVCFG, pmm);
-	if ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
+	csr_سيٽ(CSR_MENVCFG, pmm);
+	إذا ((csr_read(CSR_MENVCFG) & ENVCFG_PMM) != pmm) {
 		csr_write(CSR_MENVCFG, prev);
-		return SBI_EINVAL;
+		أرجع SBI_EINVAL;
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fwft_get_pmlen(struct fwft_config *conf, unsigned long *value)
+ساكن صحيح fwft_get_pmlen(بنية fwft_config *conf, بنانشان ڊگهو *قدر)
 {
-	switch (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
-	case ENVCFG_PMM_PMLEN_0:
-		*value = 0;
-		break;
-	case ENVCFG_PMM_PMLEN_7:
-		*value = 7;
-		break;
-	case ENVCFG_PMM_PMLEN_16:
-		*value = 16;
-		break;
-	default:
-		return SBI_EFAIL;
+	بدل (csr_read(CSR_MENVCFG) & ENVCFG_PMM) {
+	حالة ENVCFG_PMM_PMLEN_0:
+		*قدر = 0;
+		اكسر;
+	حالة ENVCFG_PMM_PMLEN_7:
+		*قدر = 7;
+		اكسر;
+	حالة ENVCFG_PMM_PMLEN_16:
+		*قدر = 16;
+		اكسر;
+	افتراضي:
+		أرجع SBI_EFAIL;
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
-#endif
+#جيڪڏهن_پورو
 
-static struct fwft_config* get_feature_config(enum sbi_fwft_feature_t feature)
+ساكن بنية fwft_config* get_feature_config(تعداد sbi_fwft_feature_t feature)
 {
-	int i;
-	struct fwft_hart_state *fhs = fwft_thishart_state_ptr();
+	صحيح i;
+	بنية fwft_hart_state *fhs = fwft_thishart_state_ptr();
 
-	if (feature & SBI_FWFT_GLOBAL_FEATURE_BIT)
-		return NULL;
+	إذا (feature & SBI_FWFT_GLOBAL_FEATURE_ٻٽو_انگ)
+		أرجع عدم;
 
-	for (i = 0; i < fhs->config_count; i++){
-		if (feature == fhs->configs[i].feature->id)
-			return &fhs->configs[i];
+	لكل (i = 0; i < fhs->config_ڳڻپ; i++){
+		إذا (feature == fhs->configs[i].feature->id)
+			أرجع &fhs->configs[i];
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-static int fwft_get_feature(enum sbi_fwft_feature_t feature,
-			    struct fwft_config **conf)
+ساكن صحيح fwft_get_feature(تعداد sbi_fwft_feature_t feature,
+			    بنية fwft_config **conf)
 {
-	int ret;
-	struct fwft_config *tconf;
+	صحيح ret;
+	بنية fwft_config *tconf;
 
 	tconf = get_feature_config(feature);
-	if (!tconf) {
-		if (fwft_is_defined_feature(feature))
-			return SBI_ENOTSUPP;
+	إذا (!tconf) {
+		إذا (fwft_is_defined_feature(feature))
+			أرجع SBI_ENOTSUPP;
 
-		return SBI_EDENIED;
+		أرجع SBI_EDENIED;
 	}
 
-	if (tconf->feature->supported) {
+	إذا (tconf->feature->supported) {
 		ret = tconf->feature->supported(tconf);
-		if (ret)
-			return ret;
+		إذا (ret)
+			أرجع ret;
 	}
 	*conf = tconf;
 
-	return SBI_SUCCESS;
+	أرجع SBI_SUCCESS;
 }
 
-static void fwft_clear_config_lock(enum sbi_fwft_feature_t feature)
+ساكن فراغ fwft_clear_config_تالو(تعداد sbi_fwft_feature_t feature)
 {
-	int ret;
-	struct fwft_config *conf;
+	صحيح ret;
+	بنية fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return;
+	إذا (ret)
+		أرجع;
 
-	conf->flags &= ~SBI_FWFT_SET_FLAG_LOCK;
+	conf->flags &= ~SBI_FWFT_سيٽ_FLAG_تالو;
 }
 
-int sbi_fwft_set(enum sbi_fwft_feature_t feature, unsigned long value,
-		 unsigned long flags)
+صحيح sbi_fwft_سيٽ(تعداد sbi_fwft_feature_t feature, بنانشان ڊگهو قدر,
+		 بنانشان ڊگهو flags)
 {
-	int ret;
-	struct fwft_config *conf;
+	صحيح ret;
+	بنية fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	إذا (ret)
+		أرجع ret;
 
-	if ((flags & ~SBI_FWFT_SET_FLAG_LOCK) != 0)
-		return SBI_EINVAL;
+	إذا ((flags & ~SBI_FWFT_سيٽ_FLAG_تالو) != 0)
+		أرجع SBI_EINVAL;
 
-	if (conf->flags & SBI_FWFT_SET_FLAG_LOCK)
-		return SBI_EDENIED_LOCKED;
+	إذا (conf->flags & SBI_FWFT_سيٽ_FLAG_تالو)
+		أرجع SBI_EDENIED_LOCKED;
 
-	ret = conf->feature->set(conf, value);
-	if (ret)
-		return ret;
+	ret = conf->feature->سيٽ(conf, قدر);
+	إذا (ret)
+		أرجع ret;
 
 	conf->flags = flags;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-int sbi_fwft_get(enum sbi_fwft_feature_t feature, unsigned long *out_val)
+صحيح sbi_fwft_get(تعداد sbi_fwft_feature_t feature, بنانشان ڊگهو *ٻاهريون_val)
 {
-	int ret;
-	struct fwft_config *conf;
+	صحيح ret;
+	بنية fwft_config *conf;
 
 	ret = fwft_get_feature(feature, &conf);
-	if (ret)
-		return ret;
+	إذا (ret)
+		أرجع ret;
 
-	return conf->feature->get(conf, out_val);
+	أرجع conf->feature->get(conf, ٻاهريون_val);
 }
 
-static const struct fwft_feature features[] =
+ساكن ثابت بنية fwft_feature features[] =
 {
 	{
 		.id = SBI_FWFT_MISALIGNED_EXC_DELEG,
 		.supported = fwft_misaligned_delegation_supported,
-		.set = fwft_set_misaligned_delegation,
+		.سيٽ = fwft_سيٽ_misaligned_delegation,
 		.get = fwft_get_misaligned_delegation,
 	},
 	{
 		.id = SBI_FWFT_LANDING_PAD,
 		.supported = fwft_lpad_supported,
-		.set = fwft_enable_lpad,
+		.سيٽ = fwft_enable_lpad,
 		.get = fwft_get_lpad,
 	},
 	{
-		.id = SBI_FWFT_SHADOW_STACK,
+		.id = SBI_FWFT_SHADOW_ڍير,
 		.supported = fwft_sstack_supported,
-		.set = fwft_enable_sstack,
+		.سيٽ = fwft_enable_sstack,
 		.get = fwft_get_sstack,
 	},
 	{
 		.id = SBI_FWFT_DOUBLE_TRAP,
 		.supported = fwft_double_trap_supported,
-		.set = fwft_set_double_trap,
+		.سيٽ = fwft_سيٽ_double_trap,
 		.get = fwft_get_double_trap,
 	},
 	{
 		.id = SBI_FWFT_PTE_AD_HW_UPDATING,
 		.supported = fwft_adue_supported,
-		.set = fwft_set_adue,
+		.سيٽ = fwft_سيٽ_adue,
 		.get = fwft_get_adue,
 	},
-#if __riscv_xlen > 32
+#إذا __riscv_xlen > 32
 	{
-		.id = SBI_FWFT_POINTER_MASKING_PMLEN,
+		.id = SBI_FWFT_اشارو_MASKING_PMLEN,
 		.supported = fwft_pmlen_supported,
-		.set = fwft_set_pmlen,
+		.سيٽ = fwft_سيٽ_pmlen,
 		.get = fwft_get_pmlen,
 	},
-#endif
+#جيڪڏهن_پورو
 };
 
-int sbi_fwft_init(struct sbi_scratch *scratch, bool cold_boot)
+صحيح sbi_fwft_init(بنية sbi_scratch *scratch, bool cold_boot)
 {
-	int i;
-	struct fwft_hart_state *fhs;
+	صحيح i;
+	بنية fwft_hart_state *fhs;
 
-	if (cold_boot) {
-		fwft_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!fwft_ptr_offset)
-			return SBI_ENOMEM;
+	إذا (cold_boot) {
+		fwft_ptr_وٿي = sbi_scratch_alloc_type_وٿي(فراغ *);
+		إذا (!fwft_ptr_وٿي)
+			أرجع SBI_ENOMEM;
 	}
 
 	fhs = fwft_get_hart_state_ptr(scratch);
-	if (!fhs) {
-		fhs = sbi_zalloc(sizeof(*fhs) + array_size(features) * sizeof(struct fwft_config));
-		if (!fhs)
-			return SBI_ENOMEM;
+	إذا (!fhs) {
+		fhs = sbi_zalloc(حجم(*fhs) + array_سائيز(features) * حجم(بنية fwft_config));
+		إذا (!fhs)
+			أرجع SBI_ENOMEM;
 
-		fhs->config_count = array_size(features);
-		for (i = 0; i < array_size(features); i++)
+		fhs->config_ڳڻپ = array_سائيز(features);
+		لكل (i = 0; i < array_سائيز(features); i++)
 			fhs->configs[i].feature = &features[i];
 
-		fwft_set_hart_state_ptr(scratch, fhs);
+		fwft_سيٽ_hart_state_ptr(scratch, fhs);
 	}
 
-	for (i = 0; i < array_size(features); i++)
-		fwft_clear_config_lock(features[i].id);
+	لكل (i = 0; i < array_سائيز(features); i++)
+		fwft_clear_config_تالو(features[i].id);
 
-	return 0;
+	أرجع 0;
 }

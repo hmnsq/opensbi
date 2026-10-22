@@ -4,57 +4,57 @@
  * Copyright (c) 2020 Vijai Kumar K <vijai@behindbytes.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/shakti-uart.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi_utils/serial/shakti-uart.h>
 
-#define REG_BAUD	0x00
-#define REG_TX		0x04
-#define REG_RX		0x08
-#define REG_STATUS	0x0C
-#define REG_DELAY	0x10
-#define REG_CONTROL	0x14
-#define REG_INT_EN	0x18
-#define REG_IQ_CYCLES	0x1C
-#define REG_RX_THRES	0x20
+#وصف_ڪريو REG_BAUD	0x00
+#وصف_ڪريو REG_TX		0x04
+#وصف_ڪريو REG_RX		0x08
+#وصف_ڪريو REG_حالت	0x0C
+#وصف_ڪريو REG_DELAY	0x10
+#وصف_ڪريو REG_CONTROL	0x14
+#وصف_ڪريو REG_INT_EN	0x18
+#وصف_ڪريو REG_IQ_چڪرن	0x1C
+#وصف_ڪريو REG_RX_THRES	0x20
 
-#define UART_TX_FULL  0x2
-#define UART_RX_NOT_EMPTY 0x4
-#define UART_RX_FULL  0x8
+#وصف_ڪريو UART_TX_ڀريل  0x2
+#وصف_ڪريو UART_RX_NOT_خالي_جايون 0x4
+#وصف_ڪريو UART_RX_ڀريل  0x8
 
-static volatile char *uart_base;
+ساكن متطاير حرف *uart_بنياد;
 
-static void shakti_uart_putc(char ch)
+ساكن فراغ shakti_uart_putc(حرف ch)
 {
-	while ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
+	طالما ((readb(uart_بنياد + REG_حالت) & UART_TX_ڀريل))
 		;
-	writeb(ch, uart_base + REG_TX);
+	writeb(ch, uart_بنياد + REG_TX);
 }
 
-static int shakti_uart_getc(void)
+ساكن صحيح shakti_uart_getc(فراغ)
 {
-	if (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
-		return readb(uart_base + REG_RX);
-	return -1;
+	إذا (readb(uart_بنياد + REG_حالت) & UART_RX_NOT_خالي_جايون)
+		أرجع readb(uart_بنياد + REG_RX);
+	أرجع -1;
 }
 
-static struct sbi_console_device shakti_console = {
+ساكن بنية sbi_console_device shakti_console = {
 	.name = "shakti_uart",
 	.console_putc = shakti_uart_putc,
 	.console_getc = shakti_uart_getc
 };
 
-int shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+صحيح shakti_uart_init(بنانشان ڊگهو بنياد_2, u32 اندريون_freq, u32 baudrate)
 {
-	uart_base = (volatile char *)base;
+	uart_بنياد = (متطاير حرف *)بنياد_2;
 	u16 baud;
 
-	if (baudrate) {
-		baud = (u16)(in_freq / (16 * baudrate));
-		writew(baud, uart_base + REG_BAUD);
+	إذا (baudrate) {
+		baud = (u16)(اندريون_freq / (16 * baudrate));
+		writew(baud, uart_بنياد + REG_BAUD);
 	}
 
-	sbi_console_set_device(&shakti_console);
+	sbi_console_سيٽ_device(&shakti_console);
 
-	return 0;
+	أرجع 0;
 }

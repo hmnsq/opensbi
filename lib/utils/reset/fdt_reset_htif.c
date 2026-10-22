@@ -7,32 +7,32 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/sys/htif.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/sys/htif.h>
 
-static int htif_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+ساكن صحيح htif_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			   ثابت بنية fdt_ميلاپ *ميلاپ)
 {
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	إذا (!fdt_get_ڳنڍ_addr_سائيز(fdt, nodeoff, 0, &fromhost_addr, عدم)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + حجم(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_ڳنڍ_addr_سائيز(fdt, nodeoff, 1, &tohost_addr, عدم);
 
-	return htif_system_reset_init(custom, fromhost_addr, tohost_addr);
+	أرجع htif_system_reset_init(custom, fromhost_addr, tohost_addr);
 }
 
-static const struct fdt_match htif_reset_match[] = {
+ساكن ثابت بنية fdt_ميلاپ htif_reset_ميلاپ[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_htif = {
-	.match_table = htif_reset_match,
+ثابت بنية fdt_driver fdt_reset_htif = {
+	.ميلاپ_جدول = htif_reset_ميلاپ,
 	.init = htif_reset_init
 };

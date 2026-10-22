@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+صحيح fdt_check_ڀريل(ثابت فراغ *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
-	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
-	bool expect_end = false;
+	صحيح err;
+	صحيح انگ_memrsv;
+	صحيح وٿي, nextoffset = 0;
+	uint32_t ٽيگ;
+	بنانشان صحيح اونهائي = 0;
+	ثابت فراغ *prop;
+	ثابت حرف *propname;
+	bool expect_پڇاڙي = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
-	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	إذا (bufsize < FDT_V1_سائيز)
+		أرجع -FDT_ERR_TRUNCATED;
+	إذا (bufsize < fdt_سرو_سائيز_2(fdt))
+		أرجع -FDT_ERR_TRUNCATED;
+	err = fdt_check_سرو(fdt);
+	إذا (err != 0)
+		أرجع err;
+	إذا (bufsize < fdt_totalsize(fdt))
+		أرجع -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	انگ_memrsv = fdt_انگ_mem_rsv(fdt);
+	إذا (انگ_memrsv < 0)
+		أرجع انگ_memrsv;
 
-	while (1) {
-		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+	طالما (1) {
+		وٿي = nextoffset;
+		ٽيگ = fdt_ايندڙ_ٽيگ(fdt, وٿي, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		إذا (nextoffset < 0)
+			أرجع nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		إذا (expect_پڇاڙي && ٽيگ != FDT_پڇاڙي)
+			أرجع -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		بدل (ٽيگ) {
+		حالة FDT_NOP:
+			اكسر;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		حالة FDT_پڇاڙي:
+			إذا (اونهائي != 0)
+				أرجع -FDT_ERR_BADSTRUCTURE;
+			أرجع 0;
 
-		case FDT_BEGIN_NODE:
-			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+		حالة FDT_BEGIN_ڳنڍ:
+			اونهائي++;
+			إذا (اونهائي > وڌ_کان_وڌ_عدد)
+				أرجع -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			إذا (اونهائي == 1) {
+				ثابت حرف *name;
+				صحيح len;
 
-				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				name = fdt_get_name(fdt, وٿي, &len);
+				إذا (*name || len)
+					أرجع -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			اكسر;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			depth--;
-			if (depth == 0)
-				expect_end = true;
-			break;
+		حالة FDT_پڇاڙي_ڳنڍ:
+			إذا (اونهائي == 0)
+				أرجع -FDT_ERR_BADSTRUCTURE;
+			اونهائي--;
+			إذا (اونهائي == 0)
+				expect_پڇاڙي = true;
+			اكسر;
 
-		case FDT_PROP:
-			prop = fdt_getprop_by_offset(fdt, offset, &propname,
+		حالة FDT_PROP:
+			prop = fdt_getprop_by_وٿي(fdt, وٿي, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			إذا (!prop)
+				أرجع err;
+			اكسر;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		افتراضي:
+			أرجع -FDT_ERR_اندروني;
 		}
 	}
 }

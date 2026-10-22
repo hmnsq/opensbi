@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi_utils/cache/fdt_cache.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define LLCACHE_REG_CFG_OFFSET		0x0
-#define LLCACHE_REG_CTRL_OFFSET		0x8
-#define LLCACHE_REG_CCTL_CMD_OFFSET	0x40
-#define LLCACHE_REG_CCTL_STATUS_OFFSET	0x80
+#وصف_ڪريو LLCACHE_REG_CFG_وٿي		0x0
+#وصف_ڪريو LLCACHE_REG_CTRL_وٿي		0x8
+#وصف_ڪريو LLCACHE_REG_CCTL_CMD_وٿي	0x40
+#وصف_ڪريو LLCACHE_REG_CCTL_حالت_وٿي	0x80
 
-#define LLCACHE_REG_CFG_MAP_MASK	BIT(20)
-#define LLCACHE_REG_CTRL_EN_MASK	BIT(0)
-#define LLCACHE_REG_CTRL_INIT_MASK	BIT(14)
-#define LLCACHE_REG_CCTL_STATUS_MASK	GENMASK(3, 0)
+#وصف_ڪريو LLCACHE_REG_CFG_MAP_نقاب	ٻٽو_انگ(20)
+#وصف_ڪريو LLCACHE_REG_CTRL_EN_نقاب	ٻٽو_انگ(0)
+#وصف_ڪريو LLCACHE_REG_CTRL_INIT_نقاب	ٻٽو_انگ(14)
+#وصف_ڪريو LLCACHE_REG_CCTL_حالت_نقاب	GENMASK(3, 0)
 
-#define LLCACHE_WBINVAL_ALL		0x12
+#وصف_ڪريو LLCACHE_WBINVAL_ALL		0x12
 
-struct andes_llcache {
-	struct cache_device dev;
-	void *base;
+بنية andes_llcache {
+	بنية cache_device dev;
+	فراغ *بنياد_2;
 	uint32_t cmd_stride;
-	uint32_t status_stride;
-	uint32_t status_core_stride;
+	uint32_t حالت_stride;
+	uint32_t حالت_core_stride;
 };
 
-#define to_llcache(_dev) container_of(_dev, struct andes_llcache, dev)
+#وصف_ڪريو منزل_llcache(_dev) container_جو(_dev, بنية andes_llcache, dev)
 
-static bool andes_llcache_init_done(struct andes_llcache *llcache)
+ساكن bool andes_llcache_init_پورو(بنية andes_llcache *llcache)
 {
 	uint32_t llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	فراغ *ctrl_addr = (حرف *)llcache->بنياد_2 + LLCACHE_REG_CTRL_وٿي;
 
 	llcache_ctrl = readl_relaxed(ctrl_addr);
-	return !EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_INIT_MASK);
+	أرجع !ڪڍو_ميدان(llcache_ctrl, LLCACHE_REG_CTRL_INIT_نقاب);
 }
 
-static bool andes_llcache_cctl_done(struct andes_llcache *llcache, uint32_t hartid)
+ساكن bool andes_llcache_cctl_پورو(بنية andes_llcache *llcache, uint32_t hartid)
 {
-	uint32_t llcache_cctl_status;
-	void *cctl_status_addr = (char *)llcache->base + LLCACHE_REG_CCTL_STATUS_OFFSET +
-				 hartid * llcache->status_stride;
+	uint32_t llcache_cctl_حالت;
+	فراغ *cctl_حالت_addr = (حرف *)llcache->بنياد_2 + LLCACHE_REG_CCTL_حالت_وٿي +
+				 hartid * llcache->حالت_stride;
 
-	llcache_cctl_status = readl_relaxed(cctl_status_addr);
-	return !EXTRACT_FIELD(llcache_cctl_status,
-			      LLCACHE_REG_CCTL_STATUS_MASK <<
-			      hartid * llcache->status_core_stride);
+	llcache_cctl_حالت = readl_relaxed(cctl_حالت_addr);
+	أرجع !ڪڍو_ميدان(llcache_cctl_حالت,
+			      LLCACHE_REG_CCTL_حالت_نقاب <<
+			      hartid * llcache->حالت_core_stride);
 }
 
-static int andes_llcache_flush_all(struct cache_device *dev)
+ساكن صحيح andes_llcache_flush_all(بنية cache_device *dev)
 {
 	uint32_t hartid = current_hartid();
-	struct andes_llcache *llcache = to_llcache(dev);
-	void *cctl_cmd_addr = (char *)llcache->base + LLCACHE_REG_CCTL_CMD_OFFSET +
+	بنية andes_llcache *llcache = منزل_llcache(dev);
+	فراغ *cctl_cmd_addr = (حرف *)llcache->بنياد_2 + LLCACHE_REG_CCTL_CMD_وٿي +
 			      hartid * llcache->cmd_stride;
 
 	/*
@@ -71,17 +71,17 @@ static int andes_llcache_flush_all(struct cache_device *dev)
 	writel(LLCACHE_WBINVAL_ALL, cctl_cmd_addr);
 
 	/* Wait for the command completion */
-	while (!andes_llcache_cctl_done(llcache, hartid))
+	طالما (!andes_llcache_cctl_پورو(llcache, hartid))
 		;
 
-	return 0;
+	أرجع 0;
 }
 
-static int andes_llcache_enable(struct cache_device *dev, bool enable)
+ساكن صحيح andes_llcache_enable(بنية cache_device *dev, bool enable)
 {
-	struct andes_llcache *llcache = to_llcache(dev);
+	بنية andes_llcache *llcache = منزل_llcache(dev);
 	u32 llcache_ctrl;
-	void *ctrl_addr = (char *)llcache->base + LLCACHE_REG_CTRL_OFFSET;
+	فراغ *ctrl_addr = (حرف *)llcache->بنياد_2 + LLCACHE_REG_CTRL_وٿي;
 
 	/*
 	 * To properly enable the last level cache to cache both instructions
@@ -94,88 +94,88 @@ static int andes_llcache_enable(struct cache_device *dev, bool enable)
 	 * - Write the control register again using the same value of step 1
 	 *   with the CEN field being 1.
 	 */
-	if (enable) {
+	إذا (enable) {
 		llcache_ctrl = atcsmu_read_scratch();
 		writel(llcache_ctrl, ctrl_addr);
-		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
-	} else {
+		writel(llcache_ctrl | LLCACHE_REG_CTRL_EN_نقاب, ctrl_addr);
+	} وإلا {
 		llcache_ctrl = readl(ctrl_addr);
-		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK);
-		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_MASK, ctrl_addr);
+		atcsmu_write_scratch(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_نقاب);
+		writel(llcache_ctrl & ~LLCACHE_REG_CTRL_EN_نقاب, ctrl_addr);
 	}
 
 	llcache_ctrl = readl(ctrl_addr);
-	if (enable != EXTRACT_FIELD(llcache_ctrl, LLCACHE_REG_CTRL_EN_MASK))
-		return SBI_EFAIL;
+	إذا (enable != ڪڍو_ميدان(llcache_ctrl, LLCACHE_REG_CTRL_EN_نقاب))
+		أرجع SBI_EFAIL;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static struct cache_ops andes_llcache_ops = {
+ساكن بنية cache_ops andes_llcache_ops = {
 	.cache_flush_all = andes_llcache_flush_all,
 	.cache_enable = andes_llcache_enable,
 };
 
-static int andes_llcache_probe(const void *fdt, int nodeoff, const struct fdt_match *match)
+ساكن صحيح andes_llcache_probe(ثابت فراغ *fdt, صحيح nodeoff, ثابت بنية fdt_ميلاپ *ميلاپ)
 {
-	int rc;
-	u64 llcache_base = 0, size;
-	struct andes_llcache *llcache;
-	struct cache_device *dev;
+	صحيح rc;
+	u64 llcache_بنياد = 0, سائيز;
+	بنية andes_llcache *llcache;
+	بنية cache_device *dev;
 	uint32_t llcache_cfg;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &llcache_base, &size);
-	if (rc < 0 || !llcache_base || !size)
-		return SBI_ENODEV;
+	rc = fdt_get_ڳنڍ_addr_سائيز(fdt, nodeoff, 0, &llcache_بنياد, &سائيز);
+	إذا (rc < 0 || !llcache_بنياد || !سائيز)
+		أرجع SBI_ENODEV;
 
-	llcache = sbi_zalloc(sizeof(*llcache));
-	if (!llcache)
-		return SBI_ENOMEM;
+	llcache = sbi_zalloc(حجم(*llcache));
+	إذا (!llcache)
+		أرجع SBI_ENOMEM;
 
 	dev = &llcache->dev;
 	dev->ops = &andes_llcache_ops;
-	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc) {
+	rc = fdt_cache_جوڙيو(fdt, nodeoff, dev);
+	إذا (rc) {
 		sbi_free(llcache);
-		return rc;
+		أرجع rc;
 	}
 
-	llcache->base = (void *)(ulong)llcache_base;
-	llcache_cfg = readl_relaxed((char *)llcache->base + LLCACHE_REG_CFG_OFFSET);
+	llcache->بنياد_2 = (فراغ *)(ulong)llcache_بنياد;
+	llcache_cfg = readl_relaxed((حرف *)llcache->بنياد_2 + LLCACHE_REG_CFG_وٿي);
 
 	/* Configurations for V1/V0 memory map */
-	if (EXTRACT_FIELD(llcache_cfg, LLCACHE_REG_CFG_MAP_MASK)) {
+	إذا (ڪڍو_ميدان(llcache_cfg, LLCACHE_REG_CFG_MAP_نقاب)) {
 		llcache->cmd_stride = 0x1000;
-		llcache->status_stride = 0x1000;
-		llcache->status_core_stride = 0;
-	} else {
+		llcache->حالت_stride = 0x1000;
+		llcache->حالت_core_stride = 0;
+	} وإلا {
 		llcache->cmd_stride = 0x10;
-		llcache->status_stride = 0x0;
-		llcache->status_core_stride = 4;
+		llcache->حالت_stride = 0x0;
+		llcache->حالت_core_stride = 4;
 	}
 
-	if (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
-		rc = sbi_domain_root_add_memrange(
-			(unsigned long)llcache->base, (unsigned long)size, PAGE_SIZE,
+	إذا (sbi_hart_has_extension(sbi_scratch_thishart_ptr(), SBI_HART_EXT_SMEPMP)) {
+		rc = sbi_domain_پاڙ_جوڙيو_memrange(
+			(بنانشان ڊگهو)llcache->بنياد_2, (بنانشان ڊگهو)سائيز, صفحو_سائيز,
 			SBI_DOMAIN_MEMREGION_MMIO |
 			SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
 	/* Wait for the hardware initialization done */
-	while (!andes_llcache_init_done(llcache))
+	طالما (!andes_llcache_init_پورو(llcache))
 		;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static const struct fdt_match andes_llcache_match[] = {
+ساكن ثابت بنية fdt_ميلاپ andes_llcache_ميلاپ[] = {
 	{ .compatible = "andestech,llcache" },
 	{},
 };
 
-const struct fdt_driver fdt_andes_llcache = {
-	.match_table = andes_llcache_match,
+ثابت بنية fdt_driver fdt_andes_llcache = {
+	.ميلاپ_جدول = andes_llcache_ميلاپ,
 	.init = andes_llcache_probe,
 };
