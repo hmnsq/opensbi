@@ -14,124 +14,124 @@
 static unsigned long flc_offset;
 
 #define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
+	sbi_scratch_read_type(_s, sa_nracanaa cache_device *, flc_offset)
 #define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+	sbi_scratch_write_type(_s, sa_nracanaa cache_device *, flc_offset, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+ကိန်းပြည့် fdt_cmo_private_flc_flush_all(void)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	အကယ်၍ (!flc || !flc->cpu_private)
+		ပြန်ပေး SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	ပြန်ပေး cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+ကိန်းပြည့် fdt_cmo_llc_flush_all(void)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	အကယ်၍ (!llc)
+		ပြန်ပေး SBI_ENODEV;
 
-	while (llc->next)
+	နေစဉ် (llc->next)
 		llc = llc->next;
 
-	return cache_flush_all(llc);
+	ပြန်ပေး cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+ကိန်းပြည့် fdt_cmo_private_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	အကယ်၍ (!flc || !flc->cpu_private)
+		ပြန်ပေး SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	ပြန်ပေး cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+ကိန်းပြည့် fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	အကယ်၍ (!llc)
+		ပြန်ပေး SBI_ENODEV;
 
-	while (llc->next)
+	နေစဉ် (llc->next)
 		llc = llc->next;
 
-	return cache_enable(llc, enable);
+	ပြန်ပေး cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+static ကိန်းပြည့် fdt_cmo_cold_init(const void *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	sa_nracanaa sbi_scratch *scratch;
+	sa_nracanaa cache_device *dev;
+	ကိန်းပြည့် cpu_offset, cpus_offset, rc;
 	u32 hartid;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	အကယ်၍ (cpus_offset < 0)
+		ပြန်ပေး SBI_EINVAL;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
+		အကယ်၍ (rc)
 			continue;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
+		အကယ်၍ (!scratch)
 			continue;
 
 		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
+		အကယ်၍ (rc && rc != SBI_ENOENT)
+			ပြန်ပေး rc;
+		အကယ်၍ (rc == SBI_ENOENT)
 			dev = NULL;
 
 		set_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	ပြန်ပေး SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+static ကိန်းပြည့် fdt_cmo_warm_init(void)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	sa_nracanaa cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	ကိန်းပြည့် rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	နေစဉ် (cur) {
+		အကယ်၍ (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			အကယ်၍ (rc)
+				ပြန်ပေး rc;
 		}
 
 		cur = cur->next;
 	}
 
-	return SBI_OK;
+	ပြန်ပေး SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+ကိန်းပြည့် fdt_cmo_init(bool cold_boot)
 {
 	const void *fdt = fdt_get_address();
-	int rc;
+	ကိန်းပြည့် rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	အကယ်၍ (cold_boot) {
+		flc_offset = sbi_scratch_alloc_type_offset(sa_nracanaa cache_device *);
+		အကယ်၍ (!flc_offset)
+			ပြန်ပေး SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		အကယ်၍ (rc)
+			ပြန်ပေး rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
-	return SBI_OK;
+	ပြန်ပေး SBI_OK;
 }

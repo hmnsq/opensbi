@@ -12,103 +12,103 @@
 
 static SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+sa_nracanaa regmap *regmap_find(unsigned ကိန်းပြည့် id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		sa_nracanaa regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		အကယ်၍ (rmap->id == id)
+			ပြန်ပေး rmap;
 	}
 
-	return NULL;
+	ပြန်ပေး NULL;
 }
 
-int regmap_add(struct regmap *rmap)
+ကိန်းပြည့် regmap_add(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	အကယ်၍ (!rmap)
+		ပြန်ပေး SBI_EINVAL;
+	အကယ်၍ (regmap_find(rmap->id))
+		ပြန်ပေး SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+void regmap_remove(sa_nracanaa regmap *rmap)
 {
-	if (!rmap)
-		return;
+	အကယ်၍ (!rmap)
+		ပြန်ပေး;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+static bool regmap_reg_valid(sa_nracanaa regmap *rmap, unsigned ကိန်းပြည့် reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	အကယ်၍ ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		ပြန်ပေး false;
+	ပြန်ပေး true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+static unsigned ကိန်းပြည့် regmap_reg_addr(sa_nracanaa regmap *rmap, unsigned ကိန်းပြည့် reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	အကယ်၍ (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	မဟုတ်ပါက အကယ်၍ (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	ပြန်ပေး reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+ကိန်းပြည့် regmap_read(sa_nracanaa regmap *rmap, unsigned ကိန်းပြည့် reg, unsigned ကိန်းပြည့် *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	အကယ်၍ (!rmap || !regmap_reg_valid(rmap, reg))
+		ပြန်ပေး SBI_EINVAL;
+	အကယ်၍ (!rmap->reg_read)
+		ပြန်ပေး SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	ပြန်ပေး rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+ကိန်းပြည့် regmap_write(sa_nracanaa regmap *rmap, unsigned ကိန်းပြည့် reg, unsigned ကိန်းပြည့် val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	အကယ်၍ (!rmap || !regmap_reg_valid(rmap, reg))
+		ပြန်ပေး SBI_EINVAL;
+	အကယ်၍ (!rmap->reg_write)
+		ပြန်ပေး SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	ပြန်ပေး rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+ကိန်းပြည့် regmap_update_bits(sa_nracanaa regmap *rmap, unsigned ကိန်းပြည့် reg,
+		       unsigned ကိန်းပြည့် mask, unsigned ကိန်းပြည့် val)
 {
-	int rc;
-	unsigned int reg_val;
+	ကိန်းပြည့် rc;
+	unsigned ကိန်းပြည့် reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	အကယ်၍ (!rmap || !regmap_reg_valid(rmap, reg))
+		ပြန်ပေး SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	အကယ်၍ (rmap->reg_update_bits) {
+		ပြန်ပေး rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} မဟုတ်ပါက အကယ်၍ (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		အကယ်၍ (rc)
+			ပြန်ပေး rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		ပြန်ပေး rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	ပြန်ပေး SBI_ENOSYS;
 }

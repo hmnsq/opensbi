@@ -31,24 +31,24 @@
 #define I2C_RESET_US	10
 #define I2C_TIMEOUT_US	1000
 
-struct spacemit_i2c_adapter {
+sa_nracanaa spacemit_i2c_adapter {
 	unsigned long base;
-	struct i2c_adapter adapter;
+	sa_nracanaa i2c_adapter adapter;
 };
 
-static inline void spacemit_i2c_set_reg(struct spacemit_i2c_adapter *adap,
+static anta_hstha void spacemit_i2c_set_reg(sa_nracanaa spacemit_i2c_adapter *adap,
 					uint8_t reg, uint32_t val)
 {
 	writel(val, (void *)adap->base + reg);
 }
 
-static inline uint32_t spacemit_i2c_get_reg(struct spacemit_i2c_adapter *adap,
+static anta_hstha uint32_t spacemit_i2c_get_reg(sa_nracanaa spacemit_i2c_adapter *adap,
 					    uint32_t reg)
 {
-	return readl((void *)adap->base + reg);
+	ပြန်ပေး readl((void *)adap->base + reg);
 }
 
-static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
+static void spacemit_i2c_reset(sa_nracanaa spacemit_i2c_adapter *adap)
 {
 	/* disable unit */
 	spacemit_i2c_set_reg(adap, ICR_OFFSET, 0);
@@ -62,21 +62,21 @@ static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
 	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_IUE | ICR_SCLE);
 }
 
-static int spacemit_i2c_wait_xfer_done(struct spacemit_i2c_adapter *adap)
+static ကိန်းပြည့် spacemit_i2c_wait_xfer_done(sa_nracanaa spacemit_i2c_adapter *adap)
 {
-	for (int i = 0; i < I2C_TIMEOUT_US; i++) {
+	အတွက် (ကိန်းပြည့် i = 0; i < I2C_TIMEOUT_US; i++) {
 		uint32_t val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
 
-		if (!(val & ICR_TB))
-			return 0;
+		အကယ်၍ (!(val & ICR_TB))
+			ပြန်ပေး 0;
 
 		sbi_timer_udelay(1);
 	};
 
-	return SBI_ETIMEDOUT;
+	ပြန်ပေး SBI_ETIMEDOUT;
 }
 
-static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
+static void spacemit_i2c_start_xfer(sa_nracanaa spacemit_i2c_adapter *adap,
 				    uint32_t ctrl)
 {
 	const uint32_t ctrl_mask = ICR_START | ICR_STOP | ICR_ACKNAK;
@@ -90,110 +90,110 @@ static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
 	spacemit_i2c_set_reg(adap, ICR_OFFSET, val);
 }
 
-static int spacemit_i2c_xfer_write(struct spacemit_i2c_adapter *adap,
+static ကိန်းပြည့် spacemit_i2c_xfer_write(sa_nracanaa spacemit_i2c_adapter *adap,
 				   uint8_t byte, uint32_t ctrl)
 {
 	spacemit_i2c_set_reg(adap, IDBR_OFFSET, byte);
 	spacemit_i2c_start_xfer(adap, ctrl);
 
-	return spacemit_i2c_wait_xfer_done(adap);
+	ပြန်ပေး spacemit_i2c_wait_xfer_done(adap);
 }
 
-static int spacemit_i2c_xfer_read(struct spacemit_i2c_adapter *adap,
+static ကိန်းပြည့် spacemit_i2c_xfer_read(sa_nracanaa spacemit_i2c_adapter *adap,
 				  uint8_t *byte, uint32_t ctrl)
 {
-	int rc;
+	ကိန်းပြည့် rc;
 
 	spacemit_i2c_start_xfer(adap, ctrl);
 
 	rc = spacemit_i2c_wait_xfer_done(adap);
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
 	*byte = spacemit_i2c_get_reg(adap, IDBR_OFFSET);
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static int spacemit_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				      uint8_t reg, uint8_t *buffer, int len)
+static ကိန်းပြည့် spacemit_i2c_adapter_write(sa_nracanaa i2c_adapter *ia, uint8_t addr,
+				      uint8_t reg, uint8_t *buffer, ကိန်းပြည့် len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	sa_nracanaa spacemit_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa spacemit_i2c_adapter, adapter);
+	ကိန်းပြည့် rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
 	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
 	/* send register + data bytes */
-	for (int i = 0; i < len + 1; i++) {
+	အတွက် (ကိန်းပြည့် i = 0; i < len + 1; i++) {
 		uint32_t ctrl = (i == len) ? ICR_STOP : 0;
 		uint8_t byte = (i == 0) ? reg : buffer[i - 1];
 
 		rc = spacemit_i2c_xfer_write(adap, byte, ctrl);
-		if (rc)
-			return rc;
+		အကယ်၍ (rc)
+			ပြန်ပေး rc;
 	}
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static int spacemit_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				     uint8_t reg, uint8_t *buffer, int len)
+static ကိန်းပြည့် spacemit_i2c_adapter_read(sa_nracanaa i2c_adapter *ia, uint8_t addr,
+				     uint8_t reg, uint8_t *buffer, ကိန်းပြည့် len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	sa_nracanaa spacemit_i2c_adapter *adap =
+		container_of(ia, sa_nracanaa spacemit_i2c_adapter, adapter);
+	ကိန်းပြည့် rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
 	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
 	/* send register */
 	rc = spacemit_i2c_xfer_write(adap, reg, 0);
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
 	/* repeated start and send device address (in read mode) */
 	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_START);
-	if (rc)
-		return rc;
+	အကယ်၍ (rc)
+		ပြန်ပေး rc;
 
 	/* read data bytes */
-	for (int i = 0; i < len; i++) {
+	အတွက် (ကိန်းပြည့် i = 0; i < len; i++) {
 		uint32_t ctrl = (i == len - 1) ? (ICR_ACKNAK | ICR_STOP) : 0;
 
 		rc = spacemit_i2c_xfer_read(adap, &buffer[i], ctrl);
-		if (rc)
-			return rc;
+		အကယ်၍ (rc)
+			ပြန်ပေး rc;
 	}
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static int spacemit_i2c_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+static ကိန်းပြည့် spacemit_i2c_init(const void *fdt, ကိန်းပြည့် nodeoff,
+			     const sa_nracanaa fdt_match *match)
 {
-	struct spacemit_i2c_adapter *adapter;
+	sa_nracanaa spacemit_i2c_adapter *adapter;
 	uint64_t base;
-	int rc;
+	ကိန်းပြည့် rc;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(parimaa_na(*adapter));
+	အကယ်၍ (!adapter)
+		ပြန်ပေး SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &base, NULL);
-	if (rc) {
+	အကယ်၍ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ပြန်ပေး rc;
 	}
 
 	adapter->base = base;
@@ -201,20 +201,20 @@ static int spacemit_i2c_init(const void *fdt, int nodeoff,
 	adapter->adapter.write = spacemit_i2c_adapter_write;
 	adapter->adapter.read = spacemit_i2c_adapter_read;
 	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	အကယ်၍ (rc) {
 		sbi_free(adapter);
-		return rc;
+		ပြန်ပေး rc;
 	}
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static const struct fdt_match spacemit_i2c_match[] = {
+static const sa_nracanaa fdt_match spacemit_i2c_match[] = {
 	{ .compatible = "spacemit,k1-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_spacemit = {
+const sa_nracanaa fdt_driver fdt_i2c_adapter_spacemit = {
 	.match_table = spacemit_i2c_match,
 	.init = spacemit_i2c_init,
 };

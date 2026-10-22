@@ -11,14 +11,14 @@
 
 #include "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
+sa_nracanaa fdt_errtabent {
+	const var_na *str;
 };
 
 #define FDT_ERRTABENT(val) \
 	[(val)] = { .str = #val, }
 
-static struct fdt_errtabent fdt_errtable[] = {
+static sa_nracanaa fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
 	FDT_ERRTABENT(FDT_ERR_EXISTS),
 	FDT_ERRTABENT(FDT_ERR_NOSPACE),
@@ -40,20 +40,20 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#define FDT_ERRTABSIZE	((ကိန်းပြည့်)(parimaa_na(fdt_errtable) / parimaa_na(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+const var_na *fdt_strerror(ကိန်းပြည့် errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
+	အကယ်၍ (errval > 0)
+		ပြန်ပေး "<valid offset/length>";
+	မဟုတ်ပါက အကယ်၍ (errval == 0)
+		ပြန်ပေး "<no error>";
+	မဟုတ်ပါက အကယ်၍ (-errval < FDT_ERRTABSIZE) {
+		const var_na *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		အကယ်၍ (s)
+			ပြန်ပေး s;
 	}
 
-	return "<unknown error>";
+	ပြန်ပေး "<unknown error>";
 }

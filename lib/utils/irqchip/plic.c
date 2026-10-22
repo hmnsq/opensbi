@@ -35,114 +35,114 @@ static unsigned long plic_ptr_offset;
 #define plic_set_hart_data_ptr(__scratch, __plic)			\
 	sbi_scratch_write_type((__scratch), void *, plic_ptr_offset, (__plic))
 
-struct plic_data *plic_get(void)
+sa_nracanaa plic_data *plic_get(void)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	sa_nracanaa sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	return plic_get_hart_data_ptr(scratch);
+	ပြန်ပေး plic_get_hart_data_ptr(scratch);
 }
 
-static u32 plic_get_priority(const struct plic_data *plic, u32 source)
+static u32 plic_get_priority(const sa_nracanaa plic_data *plic, u32 source)
 {
-	volatile void *plic_priority = (char *)plic->addr +
+	ca_ncala void *plic_priority = (var_na *)plic->addr +
 			PLIC_PRIORITY_BASE + 4 * source;
-	return readl(plic_priority);
+	ပြန်ပေး readl(plic_priority);
 }
 
-static void plic_set_priority(const struct plic_data *plic, u32 source, u32 val)
+static void plic_set_priority(const sa_nracanaa plic_data *plic, u32 source, u32 val)
 {
-	volatile void *plic_priority = (char *)plic->addr +
+	ca_ncala void *plic_priority = (var_na *)plic->addr +
 			PLIC_PRIORITY_BASE + 4 * source;
 	writel(val, plic_priority);
 }
 
-static u32 plic_get_thresh(const struct plic_data *plic, u32 cntxid)
+static u32 plic_get_thresh(const sa_nracanaa plic_data *plic, u32 cntxid)
 {
-	volatile void *plic_thresh;
+	ca_ncala void *plic_thresh;
 
-	plic_thresh = (char *)plic->addr +
+	plic_thresh = (var_na *)plic->addr +
 		      PLIC_CONTEXT_BASE + PLIC_CONTEXT_STRIDE * cntxid;
 
-	return readl(plic_thresh);
+	ပြန်ပေး readl(plic_thresh);
 }
 
-static void plic_set_thresh(const struct plic_data *plic, u32 cntxid, u32 val)
+static void plic_set_thresh(const sa_nracanaa plic_data *plic, u32 cntxid, u32 val)
 {
-	volatile void *plic_thresh;
+	ca_ncala void *plic_thresh;
 
-	plic_thresh = (char *)plic->addr +
+	plic_thresh = (var_na *)plic->addr +
 		      PLIC_CONTEXT_BASE + PLIC_CONTEXT_STRIDE * cntxid;
 	writel(val, plic_thresh);
 }
 
-static u32 plic_get_ie(const struct plic_data *plic, u32 cntxid,
+static u32 plic_get_ie(const sa_nracanaa plic_data *plic, u32 cntxid,
 		       u32 word_index)
 {
-	volatile void *plic_ie;
+	ca_ncala void *plic_ie;
 
-	plic_ie = (char *)plic->addr +
+	plic_ie = (var_na *)plic->addr +
 		   PLIC_ENABLE_BASE + PLIC_ENABLE_STRIDE * cntxid +
 		   4 * word_index;
 
-	return readl(plic_ie);
+	ပြန်ပေး readl(plic_ie);
 }
 
-static void plic_set_ie(const struct plic_data *plic, u32 cntxid,
+static void plic_set_ie(const sa_nracanaa plic_data *plic, u32 cntxid,
 			u32 word_index, u32 val)
 {
-	volatile void *plic_ie;
+	ca_ncala void *plic_ie;
 
-	plic_ie = (char *)plic->addr +
+	plic_ie = (var_na *)plic->addr +
 		   PLIC_ENABLE_BASE + PLIC_ENABLE_STRIDE * cntxid +
 		   4 * word_index;
 	writel(val, plic_ie);
 }
 
-static void plic_delegate(const struct plic_data *plic)
+static void plic_delegate(const sa_nracanaa plic_data *plic)
 {
 	/* If this is a T-HEAD PLIC, delegate access to S-mode */
-	if (plic->flags & PLIC_FLAG_THEAD_DELEGATION)
-		writel_relaxed(BIT(0), (char *)plic->addr + THEAD_PLIC_CTRL_REG);
+	အကယ်၍ (plic->flags & PLIC_FLAG_THEAD_DELEGATION)
+		writel_relaxed(BIT(0), (var_na *)plic->addr + THEAD_PLIC_CTRL_REG);
 }
 
-static int plic_context_init(const struct plic_data *plic, int context_id,
+static ကိန်းပြည့် plic_context_init(const sa_nracanaa plic_data *plic, ကိန်းပြည့် context_id,
 			     bool enable, u32 threshold)
 {
 	u32 ie_words, ie_value;
 
-	if (!plic || context_id < 0)
-		return SBI_EINVAL;
+	အကယ်၍ (!plic || context_id < 0)
+		ပြန်ပေး SBI_EINVAL;
 
 	ie_words = PLIC_IE_WORDS(plic);
 	ie_value = enable ? 0xffffffffU : 0U;
 
-	for (u32 i = 0; i < ie_words; i++)
+	အတွက် (u32 i = 0; i < ie_words; i++)
 		plic_set_ie(plic, context_id, i, ie_value);
 
 	plic_set_thresh(plic, context_id, threshold);
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
 void plic_suspend(void)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
+	sa_nracanaa sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	const sa_nracanaa plic_data *plic = plic_get_hart_data_ptr(scratch);
 	u32 ie_words = PLIC_IE_WORDS(plic);
 	u32 *data_word = plic->pm_data;
 	u8 *data_byte;
 
-	if (!data_word)
-		return;
+	အကယ်၍ (!data_word)
+		ပြန်ပေး;
 
 	sbi_for_each_hartindex(h) {
 		s16 context_id = plic->context_map[h][PLIC_S_CONTEXT];
 
-		if (context_id < 0)
+		အကယ်၍ (context_id < 0)
 			continue;
 
 		/* Save the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
+		အတွက် (u32 i = 0; i < ie_words; i++)
 			*data_word++ = plic_get_ie(plic, context_id, i);
 
 		/* Save the context threshold */
@@ -151,29 +151,29 @@ void plic_suspend(void)
 
 	/* Restore the input priorities */
 	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
+	အတွက် (u32 i = 1; i <= plic->num_src; i++)
 		*data_byte++ = plic_get_priority(plic, i);
 }
 
 void plic_resume(void)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
+	sa_nracanaa sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	const sa_nracanaa plic_data *plic = plic_get_hart_data_ptr(scratch);
 	u32 ie_words = PLIC_IE_WORDS(plic);
 	u32 *data_word = plic->pm_data;
 	u8 *data_byte;
 
-	if (!data_word)
-		return;
+	အကယ်၍ (!data_word)
+		ပြန်ပေး;
 
 	sbi_for_each_hartindex(h) {
 		s16 context_id = plic->context_map[h][PLIC_S_CONTEXT];
 
-		if (context_id < 0)
+		အကယ်၍ (context_id < 0)
 			continue;
 
 		/* Restore the enable bits */
-		for (u32 i = 0; i < ie_words; i++)
+		အတွက် (u32 i = 0; i < ie_words; i++)
 			plic_set_ie(plic, context_id, i, *data_word++);
 
 		/* Restore the context threshold */
@@ -182,22 +182,22 @@ void plic_resume(void)
 
 	/* Restore the input priorities */
 	data_byte = (u8 *)data_word;
-	for (u32 i = 1; i <= plic->num_src; i++)
+	အတွက် (u32 i = 1; i <= plic->num_src; i++)
 		plic_set_priority(plic, i, *data_byte++);
 
 	/* Restore the delegation */
 	plic_delegate(plic);
 }
 
-static int plic_warm_irqchip_init(struct sbi_irqchip_device *dev)
+static ကိန်းပြည့် plic_warm_irqchip_init(sa_nracanaa sbi_irqchip_device *dev)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	const struct plic_data *plic = plic_get_hart_data_ptr(scratch);
+	sa_nracanaa sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	const sa_nracanaa plic_data *plic = plic_get_hart_data_ptr(scratch);
 	u32 hartindex = current_hartindex();
 	s16 m_cntx_id = plic->context_map[hartindex][PLIC_M_CONTEXT];
 	s16 s_cntx_id = plic->context_map[hartindex][PLIC_S_CONTEXT];
 	bool enable;
-	int ret;
+	ကိန်းပြည့် ret;
 
 	/*
 	 * By default, disable all IRQs for the target HART. Ariane
@@ -205,61 +205,61 @@ static int plic_warm_irqchip_init(struct sbi_irqchip_device *dev)
 	 */
 	enable = plic->flags & PLIC_FLAG_ARIANE_BUG;
 
-	if (m_cntx_id > -1) {
+	အကယ်၍ (m_cntx_id > -1) {
 		ret = plic_context_init(plic, m_cntx_id, enable, 0x7);
-		if (ret)
-			return ret;
+		အကယ်၍ (ret)
+			ပြန်ပေး ret;
 	}
 
-	if (s_cntx_id > -1) {
+	အကယ်၍ (s_cntx_id > -1) {
 		ret = plic_context_init(plic, s_cntx_id, enable, 0x7);
-		if (ret)
-			return ret;
+		အကယ်၍ (ret)
+			ပြန်ပေး ret;
 	}
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-int plic_cold_irqchip_init(struct plic_data *plic)
+ကိန်းပြည့် plic_cold_irqchip_init(sa_nracanaa plic_data *plic)
 {
-	int i, ret;
+	ကိန်းပြည့် i, ret;
 
-	if (!plic)
-		return SBI_EINVAL;
+	အကယ်၍ (!plic)
+		ပြန်ပေး SBI_EINVAL;
 
-	if (!plic_ptr_offset) {
+	အကယ်၍ (!plic_ptr_offset) {
 		plic_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!plic_ptr_offset)
-			return SBI_ENOMEM;
+		အကယ်၍ (!plic_ptr_offset)
+			ပြန်ပေး SBI_ENOMEM;
 	}
 
-	if (plic->flags & PLIC_FLAG_ENABLE_PM) {
+	အကယ်၍ (plic->flags & PLIC_FLAG_ENABLE_PM) {
 		unsigned long data_size = 0;
 
 		sbi_for_each_hartindex(i) {
-			if (plic->context_map[i][PLIC_S_CONTEXT] < 0)
+			အကယ်၍ (plic->context_map[i][PLIC_S_CONTEXT] < 0)
 				continue;
 
 			/* Allocate space for enable bits */
-			data_size += (plic->num_src / 32 + 1) * sizeof(u32);
+			data_size += (plic->num_src / 32 + 1) * parimaa_na(u32);
 
 			/* Allocate space for the context threshold */
-			data_size += sizeof(u32);
+			data_size += parimaa_na(u32);
 		}
 
 		/*
 		 * Allocate space for the input priorities. So far,
 		 * priorities on all known implementations fit in 8 bits.
 		 */
-		data_size += plic->num_src * sizeof(u8);
+		data_size += plic->num_src * parimaa_na(u8);
 
 		plic->pm_data = sbi_malloc(data_size);
-		if (!plic->pm_data)
-			return SBI_ENOMEM;
+		အကယ်၍ (!plic->pm_data)
+			ပြန်ပေး SBI_ENOMEM;
 	}
 
 	/* Configure default priorities of all IRQs */
-	for (i = 1; i <= plic->num_src; i++)
+	အတွက် (i = 1; i <= plic->num_src; i++)
 		plic_set_priority(plic, i, 0);
 
 	plic_delegate(plic);
@@ -267,11 +267,11 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 	ret = sbi_domain_root_add_memrange(plic->addr, plic->size, BIT(20),
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (ret)
-		return ret;
+	အကယ်၍ (ret)
+		ပြန်ပေး ret;
 
 	sbi_for_each_hartindex(i) {
-		if (plic->context_map[i][PLIC_M_CONTEXT] < 0 &&
+		အကယ်၍ (plic->context_map[i][PLIC_M_CONTEXT] < 0 &&
 		    plic->context_map[i][PLIC_S_CONTEXT] < 0)
 			continue;
 
@@ -283,5 +283,5 @@ int plic_cold_irqchip_init(struct plic_data *plic)
 	plic->irqchip.id = plic->unique_id;
 	plic->irqchip.num_hwirq = plic->num_src + 1;
 	plic->irqchip.warm_init = plic_warm_irqchip_init;
-	return sbi_irqchip_add_device(&plic->irqchip);
+	ပြန်ပေး sbi_irqchip_add_device(&plic->irqchip);
 }

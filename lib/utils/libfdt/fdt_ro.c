@@ -10,561 +10,561 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static ကိန်းပြည့် fdt_nodename_eq_(const void *fdt, ကိန်းပြည့် offset,
+			    const var_na *s, ကိန်းပြည့် len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	ကိန်းပြည့် olen;
+	const var_na *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	အကယ်၍ (!p || olen < len)
 		/* short match */
-		return 0;
+		ပြန်ပေး 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	အကယ်၍ (memcmp(p, s, len) != 0)
+		ပြန်ပေး 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	အကယ်၍ (p[len] == '\0')
+		ပြန်ပေး 1;
+	မဟုတ်ပါက အကယ်၍ (!memchr(s, '@', len) && (p[len] == '@'))
+		ပြန်ပေး 1;
+	မဟုတ်ပါက
+		ပြန်ပေး 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const var_na *fdt_get_string(const void *fdt, ကိန်းပြည့် stroffset, ကိန်းပြည့် *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
-	const char *s, *n;
+	ကိန်းပြည့် err;
+	const var_na *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	အကယ်၍ (can_assume(VALID_INPUT)) {
+		s = (const var_na *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		အကယ်၍ (lenp)
 			*lenp = strlen(s);
-		return s;
+		ပြန်ပေး s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	အကယ်၍ (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	အကယ်၍ (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	အကယ်၍ (fdt_magic(fdt) == FDT_MAGIC) {
+		အကယ်၍ (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		အကယ်၍ (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			အကယ်၍ ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			အကယ်၍ ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} မဟုတ်ပါက အကယ်၍ (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned ကိန်းပြည့် sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		အကယ်၍ ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		အကယ်၍ (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} မဟုတ်ပါက {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
-	s = (const char *)fdt + absoffset;
+	s = (const var_na *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	အကယ်၍ (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	အကယ်၍ (lenp)
 		*lenp = n - s;
-	return s;
+	ပြန်ပေး s;
 
 fail:
-	if (lenp)
+	အကယ်၍ (lenp)
 		*lenp = err;
-	return NULL;
+	ပြန်ပေး NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const var_na *fdt_string(const void *fdt, ကိန်းပြည့် stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	ပြန်ပေး fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static ကိန်းပြည့် fdt_string_eq_(const void *fdt, ကိန်းပြည့် stroffset,
+			  const var_na *s, ကိန်းပြည့် len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	ကိန်းပြည့် slen;
+	const var_na *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	ပြန်ပေး p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+ကိန်းပြည့် fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	ကိန်းပြည့် offset = -1;
 
-	while (true) {
+	နေစဉ် (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		အကယ်၍ (offset < 0) {
+			အကယ်၍ (offset == -FDT_ERR_NOTFOUND)
+				bha_nga;
 
-			return offset;
+			ပြန်ပေး offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		အကယ်၍ (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	အကယ်၍ (phandle)
 		*phandle = max;
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+ကိန်းပြည့် fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	ကိန်းပြည့် err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	အကယ်၍ (err < 0)
+		ပြန်ပေး err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	အကယ်၍ (max == FDT_MAX_PHANDLE)
+		ပြန်ပေး -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	အကယ်၍ (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const sa_nracanaa fdt_reserve_entry *fdt_mem_rsv(const void *fdt, ကိန်းပြည့် n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned ကိန်းပြည့် offset = n * parimaa_na(sa_nracanaa fdt_reserve_entry);
+	unsigned ကိန်းပြည့် absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	အကယ်၍ (!can_assume(VALID_INPUT)) {
+		အကယ်၍ (absoffset < fdt_off_mem_rsvmap(fdt))
+			ပြန်ပေး NULL;
+		အကယ်၍ (absoffset > fdt_totalsize(fdt) -
+		    parimaa_na(sa_nracanaa fdt_reserve_entry))
+			ပြန်ပေး NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	ပြန်ပေး fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+ကိန်းပြည့် fdt_get_mem_rsv(const void *fdt, ကိန်းပြည့် n, uint64_t *address, uint64_t *size)
 {
-	const struct fdt_reserve_entry *re;
+	const sa_nracanaa fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	အကယ်၍ (!can_assume(VALID_INPUT) && !re)
+		ပြန်ပေး -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	ပြန်ပေး 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+ကိန်းပြည့် fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	ကိန်းပြည့် i;
+	const sa_nracanaa fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	အတွက် (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		အကယ်၍ (fdt64_ld_(&re->size) == 0)
+			ပြန်ပေး i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	ပြန်ပေး -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static ကိန်းပြည့် nextprop_(const void *fdt, ကိန်းပြည့် offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	ကိန်းပြည့် nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		pak_sa FDT_END:
+			အကယ်၍ (nextoffset >= 0)
+				ပြန်ပေး -FDT_ERR_BADSTRUCTURE;
+			မဟုတ်ပါက
+				ပြန်ပေး nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		pak_sa FDT_PROP:
+			ပြန်ပေး offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} နေစဉ် (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	ပြန်ပေး -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+ကိန်းပြည့် fdt_subnode_offset_namelen(const void *fdt, ကိန်းပြည့် offset,
+			       const var_na *name, ကိန်းပြည့် namelen)
 {
-	int depth;
+	ကိန်းပြည့် depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	အတွက် (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		အကယ်၍ ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			ပြန်ပေး offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	အကယ်၍ (depth < 0)
+		ပြန်ပေး -FDT_ERR_NOTFOUND;
+	ပြန်ပေး offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+ကိန်းပြည့် fdt_subnode_offset(const void *fdt, ကိန်းပြည့် parentoffset,
+		       const var_na *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	ပြန်ပေး fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+ကိန်းပြည့် fdt_path_offset_namelen(const void *fdt, const var_na *path, ကိန်းပြည့် namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	const var_na *end = path + namelen;
+	const var_na *p = path;
+	ကိန်းပြည့် offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	အကယ်၍ (*path != '/') {
+		const var_na *q = memchr(path, '/', end - p);
 
-		if (!q)
+		အကယ်၍ (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		အကယ်၍ (!p)
+			ပြန်ပေး -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	နေစဉ် (p < end) {
+		const var_na *q;
 
-		while (*p == '/') {
+		နေစဉ် (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			အကယ်၍ (p == end)
+				ပြန်ပေး offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		အကယ်၍ (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		အကယ်၍ (offset < 0)
+			ပြန်ပေး offset;
 
 		p = q;
 	}
 
-	return offset;
+	ပြန်ပေး offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+ကိန်းပြည့် fdt_path_offset(const void *fdt, const var_na *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	ပြန်ပေး fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const var_na *fdt_get_name(const void *fdt, ကိန်းပြည့် nodeoffset, ကိန်းပြည့် *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	const sa_nracanaa fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	const var_na *nameptr;
+	ကိန်းပြည့် err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	အကယ်၍ (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	အကယ်၍ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
+		const var_na *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		အကယ်၍ (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	အကယ်၍ (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	ပြန်ပေး nameptr;
 
  fail:
-	if (len)
+	အကယ်၍ (len)
 		*len = err;
-	return NULL;
+	ပြန်ပေး NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+ကိန်းပြည့် fdt_first_property_offset(const void *fdt, ကိန်းပြည့် nodeoffset)
 {
-	int offset;
+	ကိန်းပြည့် offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	အကယ်၍ ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		ပြန်ပေး offset;
 
-	return nextprop_(fdt, offset);
+	ပြန်ပေး nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+ကိန်းပြည့် fdt_next_property_offset(const void *fdt, ကိန်းပြည့် offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	အကယ်၍ ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		ပြန်ပေး offset;
 
-	return nextprop_(fdt, offset);
+	ပြန်ပေး nextprop_(fdt, offset);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+static const sa_nracanaa fdt_property *fdt_get_property_by_offset_(const void *fdt,
+						              ကိန်းပြည့် offset,
+						              ကိန်းပြည့် *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	ကိန်းပြည့် err;
+	const sa_nracanaa fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	အကယ်၍ (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		အကယ်၍ (lenp)
 			*lenp = err;
-		return NULL;
+		ပြန်ပေး NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	အကယ်၍ (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	ပြန်ပေး prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_by_offset(const void *fdt,
+						      ကိန်းပြည့် offset,
+						      ကိန်းပြည့် *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	အကယ်၍ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		အကယ်၍ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ပြန်ပေး NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	ပြန်ပေး fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+static const sa_nracanaa fdt_property *fdt_get_property_namelen_(const void *fdt,
+						            ကိန်းပြည့် offset,
+						            const var_na *name,
+						            ကိန်းပြည့် namelen,
+							    ကိန်းပြည့် *lenp,
+							    ကိန်းပြည့် *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	အတွက် (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+		const sa_nracanaa fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		အကယ်၍ (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
-			break;
+			bha_nga;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		အကယ်၍ (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			အကယ်၍ (poffset)
 				*poffset = offset;
-			return prop;
+			ပြန်ပေး prop;
 		}
 	}
 
-	if (lenp)
+	အကယ်၍ (lenp)
 		*lenp = offset;
-	return NULL;
+	ပြန်ပေး NULL;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_namelen(const void *fdt,
+						    ကိန်းပြည့် offset,
+						    const var_na *name,
+						    ကိန်းပြည့် namelen, ကိန်းပြည့် *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	အကယ်၍ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		အကယ်၍ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ပြန်ပေး NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	ပြန်ပေး fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property(const void *fdt,
+					    ကိန်းပြည့် nodeoffset,
+					    const var_na *name, ကိန်းပြည့် *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	ပြန်ပေး fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, ကိန်းပြည့် nodeoffset,
+				const var_na *name, ကိန်းပြည့် namelen, ကိန်းပြည့် *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	ကိန်းပြည့် poffset;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	အကယ်၍ (!prop)
+		ပြန်ပေး NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	အကယ်၍ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (poffset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ပြန်ပေး prop->data + 4;
+	ပြန်ပေး prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, ကိန်းပြည့် offset,
+				  const var_na **namep, ကိန်းပြည့် *lenp)
 {
-	const struct fdt_property *prop;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	အကယ်၍ (!prop)
+		ပြန်ပေး NULL;
+	အကယ်၍ (namep) {
+		const var_na *name;
+		ကိန်းပြည့် namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		အကယ်၍ (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			အကယ်၍ (!name) {
+				အကယ်၍ (lenp)
 					*lenp = namelen;
-				return NULL;
+				ပြန်ပေး NULL;
 			}
 			*namep = name;
-		} else {
+		} မဟုတ်ပါက {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	အကယ်၍ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (offset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ပြန်ပေး prop->data + 4;
+	ပြန်ပေး prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, ကိန်းပြည့် nodeoffset,
+			const var_na *name, ကိန်းပြည့် *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	ပြန်ပေး fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, ကိန်းပြည့် nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	ကိန်းပြည့် len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	အကယ်၍ (!php || (len != parimaa_na(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		အကယ်၍ (!php || (len != parimaa_na(*php)))
+			ပြန်ပေး 0;
 	}
 
-	return fdt32_ld_(php);
+	ပြန်ပေး fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+const var_na *fdt_get_alias_namelen(const void *fdt,
+				  const var_na *name, ကိန်းပြည့် namelen)
 {
-	int aliasoffset;
+	ကိန်းပြည့် aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	အကယ်၍ (aliasoffset < 0)
+		ပြန်ပေး NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	ပြန်ပေး fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+const var_na *fdt_get_alias(const void *fdt, const var_na *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	ပြန်ပေး fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+ကိန်းပြည့် fdt_get_path(const void *fdt, ကိန်းပြည့် nodeoffset, var_na *buf, ကိန်းပြည့် buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	ကိန်းပြည့် pdepth = 0, p = 0;
+	ကိန်းပြည့် offset, depth, namelen;
+	const var_na *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	အကယ်၍ (buflen < 2)
+		ပြန်ပေး -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	အတွက် (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		နေစဉ် (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} နေစဉ် (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		အကယ်၍ (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			အကယ်၍ (!name)
+				ပြန်ပေး namelen;
+			အကယ်၍ ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		အကယ်၍ (offset == nodeoffset) {
+			အကယ်၍ (pdepth < (depth + 1))
+				ပြန်ပေး -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			အကယ်၍ (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			ပြန်ပေး 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	အကယ်၍ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		ပြန်ပေး -FDT_ERR_BADOFFSET;
+	မဟုတ်ပါက အကယ်၍ (offset == -FDT_ERR_BADOFFSET)
+		ပြန်ပေး -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	ပြန်ပေး offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+ကိန်းပြည့် fdt_supernode_atdepth_offset(const void *fdt, ကိန်းပြည့် nodeoffset,
+				 ကိန်းပြည့် supernodedepth, ကိန်းပြည့် *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	ကိန်းပြည့် offset, depth;
+	ကိန်းပြည့် supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	အကယ်၍ (supernodedepth < 0)
+		ပြန်ပေး -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	အတွက် (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		အကယ်၍ (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		အကယ်၍ (offset == nodeoffset) {
+			အကယ်၍ (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			အကယ်၍ (supernodedepth > depth)
+				ပြန်ပေး -FDT_ERR_NOTFOUND;
+			မဟုတ်ပါက
+				ပြန်ပေး supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	အကယ်၍ (!can_assume(VALID_INPUT)) {
+		အကယ်၍ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			ပြန်ပေး -FDT_ERR_BADOFFSET;
+		မဟုတ်ပါက အကယ်၍ (offset == -FDT_ERR_BADOFFSET)
+			ပြန်ပေး -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ပြန်ပေး offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+ကိန်းပြည့် fdt_node_depth(const void *fdt, ကိန်းပြည့် nodeoffset)
 {
-	int nodedepth;
-	int err;
+	ကိန်းပြည့် nodedepth;
+	ကိန်းပြည့် err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	အကယ်၍ (err)
+		ပြန်ပေး (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	ပြန်ပေး nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+ကိန်းပြည့် fdt_parent_offset(const void *fdt, ကိန်းပြည့် nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	ကိန်းပြည့် nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	အကယ်၍ (nodedepth < 0)
+		ပြန်ပေး nodedepth;
+	ပြန်ပေး fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+ကိန်းပြည့် fdt_node_offset_by_prop_value(const void *fdt, ကိန်းပြည့် startoffset,
+				  const var_na *propname,
+				  const void *propval, ကိန်းပြည့် proplen)
 {
-	int offset;
+	ကိန်းပြည့် offset;
 	const void *val;
-	int len;
+	ကိန်းပြည့် len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	အတွက် (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		အကယ်၍ (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			ပြန်ပေး offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ပြန်ပေး offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+ကိန်းပြည့် fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	ကိန်းပြည့် offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	အကယ်၍ ((phandle == 0) || (phandle == ~0U))
+		ပြန်ပေး -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	အတွက် (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		အကယ်၍ (fdt_get_phandle(fdt, offset) == phandle)
+			ပြန်ပေး offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ပြန်ပေး offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+ကိန်းပြည့် fdt_stringlist_contains(const var_na *strlist, ကိန်းပြည့် listlen, const var_na *str)
 {
-	int len = strlen(str);
-	const char *p;
+	ကိန်းပြည့် len = strlen(str);
+	const var_na *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	နေစဉ် (listlen >= len) {
+		အကယ်၍ (memcmp(str, strlist, len+1) == 0)
+			ပြန်ပေး 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		အကယ်၍ (!p)
+			ပြန်ပေး 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	ပြန်ပေး 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+ကိန်းပြည့် fdt_stringlist_count(const void *fdt, ကိန်းပြည့် nodeoffset, const var_na *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	const var_na *list, *end;
+	ကိန်းပြည့် length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	အကယ်၍ (!list)
+		ပြန်ပေး length;
 
 	end = list + length;
 
-	while (list < end) {
+	နေစဉ် (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		အကယ်၍ (list + length > end)
+			ပြန်ပေး -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	ပြန်ပေး count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+ကိန်းပြည့် fdt_stringlist_search(const void *fdt, ကိန်းပြည့် nodeoffset, const var_na *property,
+			  const var_na *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	ကိန်းပြည့် length, len, idx = 0;
+	const var_na *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	အကယ်၍ (!list)
+		ပြန်ပေး length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	နေစဉ် (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		အကယ်၍ (list + length > end)
+			ပြန်ပေး -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		အကယ်၍ (length == len && memcmp(list, string, length) == 0)
+			ပြန်ပေး idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	ပြန်ပေး -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const var_na *fdt_stringlist_get(const void *fdt, ကိန်းပြည့် nodeoffset,
+			       const var_na *property, ကိန်းပြည့် idx,
+			       ကိန်းပြည့် *lenp)
 {
-	const char *list, *end;
-	int length;
+	const var_na *list, *end;
+	ကိန်းပြည့် length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	အကယ်၍ (!list) {
+		အကယ်၍ (lenp)
 			*lenp = length;
 
-		return NULL;
+		ပြန်ပေး NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	နေစဉ် (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		အကယ်၍ (list + length > end) {
+			အကယ်၍ (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			ပြန်ပေး NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		အကယ်၍ (idx == 0) {
+			အကယ်၍ (lenp)
 				*lenp = length - 1;
 
-			return list;
+			ပြန်ပေး list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	အကယ်၍ (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	ပြန်ပေး NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+ကိန်းပြည့် fdt_node_check_compatible(const void *fdt, ကိန်းပြည့် nodeoffset,
+			      const var_na *compatible)
 {
 	const void *prop;
-	int len;
+	ကိန်းပြည့် len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	အကယ်၍ (!prop)
+		ပြန်ပေး len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	ပြန်ပေး !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+ကိန်းပြည့် fdt_node_offset_by_compatible(const void *fdt, ကိန်းပြည့် startoffset,
+				  const var_na *compatible)
 {
-	int offset, err;
+	ကိန်းပြည့် offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	အတွက် (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		အကယ်၍ ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			ပြန်ပေး err;
+		မဟုတ်ပါက အကယ်၍ (err == 0)
+			ပြန်ပေး offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ပြန်ပေး offset; /* error from fdt_next_node() */
 }

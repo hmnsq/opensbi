@@ -19,17 +19,17 @@
 
 #define WDT_MODE_REG			0x18
 
-static volatile char *sunxi_wdt_base;
+static ca_ncala var_na *sunxi_wdt_base;
 
-static int sunxi_wdt_system_reset_check(u32 type, u32 reason)
+static ကိန်းပြည့် sunxi_wdt_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 1;
+	pak_sa SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	pak_sa SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		ပြန်ပေး 1;
 	}
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
 static void sunxi_wdt_system_reset(u32 type, u32 reason)
@@ -43,35 +43,35 @@ static void sunxi_wdt_system_reset(u32 type, u32 reason)
 		       sunxi_wdt_base + WDT_SOFT_RST_REG);
 }
 
-static struct sbi_system_reset_device sunxi_wdt_reset = {
+static sa_nracanaa sbi_system_reset_device sunxi_wdt_reset = {
 	.name = "sunxi-wdt-reset",
 	.system_reset_check = sunxi_wdt_system_reset_check,
 	.system_reset = sunxi_wdt_system_reset,
 };
 
-static int sunxi_wdt_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+static ကိန်းပြည့် sunxi_wdt_reset_init(const void *fdt, ကိန်းပြည့် nodeoff,
+				const sa_nracanaa fdt_match *match)
 {
 	uint64_t reg_addr;
-	int rc;
+	ကိန်းပြည့် rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	အကယ်၍ (rc < 0 || !reg_addr)
+		ပြန်ပေး SBI_ENODEV;
 
-	sunxi_wdt_base = (volatile char *)(unsigned long)reg_addr;
+	sunxi_wdt_base = (ca_ncala var_na *)(unsigned long)reg_addr;
 
 	sbi_system_reset_add_device(&sunxi_wdt_reset);
 
-	return 0;
+	ပြန်ပေး 0;
 }
 
-static const struct fdt_match sunxi_wdt_reset_match[] = {
+static const sa_nracanaa fdt_match sunxi_wdt_reset_match[] = {
 	{ .compatible = "allwinner,sun20i-d1-wdt-reset" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sunxi_wdt = {
+const sa_nracanaa fdt_driver fdt_reset_sunxi_wdt = {
 	.match_table = sunxi_wdt_reset_match,
 	.init = sunxi_wdt_reset_init,
 };
