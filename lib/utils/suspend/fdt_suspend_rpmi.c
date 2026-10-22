@@ -7,48 +7,48 @@
  *   Subrahmanya Lingappa <slingappa@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_system.h>
-#include <sbi/riscv_asm.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#અન્તર્ભાવ <libfdt.h>
+#અન્તર્ભાવ <sbi/sbi_system.h>
+#અન્તર્ભાવ <sbi/riscv_asm.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_driver.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_helper.h>
+#અન્તર્ભાવ <sbi_utils/mailbox/fdt_mailbox.h>
+#અન્તર્ભાવ <sbi_utils/mailbox/mailbox.h>
+#અન્તર્ભાવ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-struct rpmi_syssusp {
-	struct mbox_chan *chan;
+સંરચના rpmi_syssusp {
+	સંરચના mbox_chan *chan;
 	bool cust_res_addr_supported;
 	bool suspend_supported;
 };
 
-static struct rpmi_syssusp syssusp_ctx;
+સ્થિર સંરચના rpmi_syssusp syssusp_ctx;
 
-static int rpmi_syssusp_attrs(uint32_t *attrs)
+સ્થિર પૂર્ણાંક rpmi_syssusp_attrs(uint32_t *attrs)
 {
-	int rc;
-	struct rpmi_syssusp_get_attr_resp resp;
-	struct rpmi_syssusp_get_attr_req req;
+	પૂર્ણાંક rc;
+	સંરચના rpmi_syssusp_get_attr_resp resp;
+	સંરચના rpmi_syssusp_get_attr_req req;
 
 	req.susp_type = SBI_SUSP_SLEEP_TYPE_SUSPEND;
 
 	rc = rpmi_normal_request_with_status(
 		syssusp_ctx.chan, RPMI_SYSSUSP_SRV_GET_ATTRIBUTES,
-		&req, rpmi_u32_count(req), rpmi_u32_count(req),
-		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+		&req, rpmi_u32_ગણતરી(req), rpmi_u32_ગણતરી(req),
+		&resp, rpmi_u32_ગણતરી(resp), rpmi_u32_ગણતરી(resp));
+	જો (rc)
+		પાછા rc;
 
 	*attrs = resp.flags;
 
-	return 0;
+	પાછા 0;
 }
 
-static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
+સ્થિર પૂર્ણાંક rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 {
-	int rc;
-	struct rpmi_syssusp_suspend_req req;
-	struct rpmi_syssusp_suspend_resp resp;
+	પૂર્ણાંક rc;
+	સંરચના rpmi_syssusp_suspend_req req;
+	સંરચના rpmi_syssusp_suspend_resp resp;
 
 	req.hartid = current_hartid();
 	req.suspend_type = suspend_type;
@@ -57,65 +57,65 @@ static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 
 	rc = rpmi_normal_request_with_status(
 			syssusp_ctx.chan, RPMI_SYSSUSP_SRV_SYSTEM_SUSPEND,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_ગણતરી(req), rpmi_u32_ગણતરી(req),
+			&resp, rpmi_u32_ગણતરી(resp), rpmi_u32_ગણતરી(resp));
+	જો (rc)
+		પાછા rc;
 
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	પાછા 0;
 }
 
-static int rpmi_system_suspend_check(u32 sleep_type)
+સ્થિર પૂર્ણાંક rpmi_system_suspend_check(u32 sleep_type)
 {
-	return ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
+	પાછા ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
 		syssusp_ctx.suspend_supported) ? 0 : SBI_EINVAL;
 }
 
-static int rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
+સ્થિર પૂર્ણાંક rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
 {
-	int rc;
+	પૂર્ણાંક rc;
 
-	if (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
-		return SBI_ENOTSUPP;
+	જો (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
+		પાછા SBI_ENOTSUPP;
 
 	rc = rpmi_syssusp(sleep_type, resume_addr);
-	if (rc)
-		return rc;
+	જો (rc)
+		પાછા rc;
 
-	return 0;
+	પાછા 0;
 }
 
-static struct sbi_system_suspend_device rpmi_suspend_dev = {
+સ્થિર સંરચના sbi_system_suspend_device rpmi_suspend_dev = {
 	.name = "rpmi-system-suspend",
 	.system_suspend_check = rpmi_system_suspend_check,
 	.system_suspend = rpmi_system_suspend,
 };
 
-static int rpmi_suspend_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+સ્થિર પૂર્ણાંક rpmi_suspend_init(અચલ શૂન્ય *fdt, પૂર્ણાંક nodeoff,
+			     અચલ સંરચના fdt_match *match)
 {
-	int rc;
+	પૂર્ણાંક rc;
 	uint32_t attrs = 0;
 
 	/* If channel already available then do nothing. */
-	if (syssusp_ctx.chan)
-		return 0;
+	જો (syssusp_ctx.chan)
+		પાછા 0;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * suspend service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &syssusp_ctx.chan);
-	if (rc)
-		return SBI_ENODEV;
+	જો (rc)
+		પાછા SBI_ENODEV;
 
 	/* Get suspend attributes */
 	rc = rpmi_syssusp_attrs(&attrs);
-	if (rc)
-		return rc;
+	જો (rc)
+		પાછા rc;
 
 	syssusp_ctx.suspend_supported =
 			attrs & RPMI_SYSSUSP_ATTRS_FLAGS_SUSPENDTYPE;
@@ -124,15 +124,15 @@ static int rpmi_suspend_init(const void *fdt, int nodeoff,
 
 	sbi_system_suspend_set_device(&rpmi_suspend_dev);
 
-	return 0;
+	પાછા 0;
 }
 
-static const struct fdt_match rpmi_suspend_match[] = {
+સ્થિર અચલ સંરચના fdt_match rpmi_suspend_match[] = {
 	{ .compatible = "riscv,rpmi-system-suspend" },
 	{},
 };
 
-const struct fdt_driver fdt_suspend_rpmi = {
+અચલ સંરચના fdt_driver fdt_suspend_rpmi = {
 	.match_table = rpmi_suspend_match,
 	.init = rpmi_suspend_init,
 };

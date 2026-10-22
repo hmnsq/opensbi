@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#અન્તર્ભાવ <sbi/sbi_error.h>
+#અન્તર્ભાવ <sbi_utils/mailbox/mailbox.h>
+#અન્તર્ભાવ <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+પૂર્ણાંક rpmi_xlate_error(ગણના rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	પસંદગી(error) {
+	સ્થિતિ RPMI_SUCCESS:
+		પાછા SBI_OK;
+	સ્થિતિ RPMI_ERR_FAILED:
+		પાછા SBI_EFAIL;
+	સ્થિતિ RPMI_ERR_NOTSUPP:
+		પાછા SBI_ENOTSUPP;
+	સ્થિતિ RPMI_ERR_INVALID_PARAM:
+		પાછા SBI_EINVAL;
+	સ્થિતિ RPMI_ERR_DENIED:
+		પાછા SBI_EDENIED;
+	સ્થિતિ RPMI_ERR_INVALID_ADDR:
+		પાછા SBI_EINVALID_ADDR;
+	સ્થિતિ RPMI_ERR_ALREADY:
+		પાછા SBI_EALREADY;
+	સ્થિતિ RPMI_ERR_EXTENSION:
+		પાછા SBI_EFAIL;
+	સ્થિતિ RPMI_ERR_HW_FAULT:
+		પાછા SBI_EIO;
+	સ્થિતિ RPMI_ERR_BUSY:
+		પાછા SBI_EFAIL;
+	સ્થિતિ RPMI_ERR_INVALID_STATE:
+		પાછા SBI_EINVALID_STATE;
+	સ્થિતિ RPMI_ERR_BAD_RANGE:
+		પાછા SBI_EBAD_RANGE;
+	સ્થિતિ RPMI_ERR_TIMEOUT:
+		પાછા SBI_ETIMEDOUT;
+	સ્થિતિ RPMI_ERR_IO:
+		પાછા SBI_EIO;
+	સ્થિતિ RPMI_ERR_NO_DATA:
+		પાછા SBI_EFAIL;
+	મૂળભૂત:
+		પાછા SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+પૂર્ણાંક rpmi_normal_request_with_status(
+			સંરચના mbox_chan *chan, u32 service_id,
+			શૂન્ય *req, u32 req_શબ્દો, u32 req_endian_શબ્દો,
+			શૂન્ય *resp, u32 resp_શબ્દો, u32 resp_endian_શબ્દો)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	પૂર્ણાંક ret;
+	સંરચના mbox_xfer xfer;
+	સંરચના rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
+	args.type = RPMI_સંદેશ_NORMAL_REQUEST;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
+	args.tx_endian_શબ્દો = req_endian_શબ્દો;
+	args.rx_endian_શબ્દો = resp_endian_શબ્દો;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, કદ(u32) * req_શબ્દો, RPMI_DEF_TX_TIMEOUT,
+			resp, કદ(u32) * resp_શબ્દો, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	જો (ret)
+		પાછા ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	પાછા rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+પૂર્ણાંક rpmi_posted_request(
+		સંરચના mbox_chan *chan, u32 service_id,
+		શૂન્ય *req, u32 req_શબ્દો, u32 req_endian_શબ્દો)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	સંરચના mbox_xfer xfer;
+	સંરચના rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
+	args.type = RPMI_સંદેશ_POSTED_REQUEST;
+	args.flags = RPMI_સંદેશ_FLAGS_NO_RX;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
+	args.tx_endian_શબ્દો = req_endian_શબ્દો;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, કદ(u32) * req_શબ્દો, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	પાછા mbox_chan_xfer(chan, &xfer);
 }

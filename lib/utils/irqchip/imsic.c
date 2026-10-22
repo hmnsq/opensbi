@@ -8,17 +8,17 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_csr_detect.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/irqchip/imsic.h>
+#અન્તર્ભાવ <sbi/riscv_asm.h>
+#અન્તર્ભાવ <sbi/riscv_io.h>
+#અન્તર્ભાવ <sbi/riscv_encoding.h>
+#અન્તર્ભાવ <sbi/sbi_console.h>
+#અન્તર્ભાવ <sbi/sbi_csr_detect.h>
+#અન્તર્ભાવ <sbi/sbi_domain.h>
+#અન્તર્ભાવ <sbi/sbi_ipi.h>
+#અન્તર્ભાવ <sbi/sbi_irqchip.h>
+#અન્તર્ભાવ <sbi/sbi_error.h>
+#અન્તર્ભાવ <sbi/sbi_scratch.h>
+#અન્તર્ભાવ <sbi_utils/irqchip/imsic.h>
 
 #define IMSIC_MMIO_PAGE_LE		0x00
 #define IMSIC_MMIO_PAGE_BE		0x04
@@ -55,10 +55,10 @@
 #define IMSIC_IPI_ID			1
 
 #define imsic_csr_write(__c, __v)	\
-do { \
+કરો { \
 	csr_write(CSR_MISELECT, __c); \
 	csr_write(CSR_MIREG, __v); \
-} while (0)
+} જ્યારે (0)
 
 #define imsic_csr_read(__c)	\
 ({ \
@@ -69,26 +69,26 @@ do { \
 })
 
 #define imsic_csr_set(__c, __v)		\
-do { \
+કરો { \
 	csr_write(CSR_MISELECT, __c); \
 	csr_set(CSR_MIREG, __v); \
-} while (0)
+} જ્યારે (0)
 
 #define imsic_csr_clear(__c, __v)	\
-do { \
+કરો { \
 	csr_write(CSR_MISELECT, __c); \
 	csr_clear(CSR_MIREG, __v); \
-} while (0)
+} જ્યારે (0)
 
-static unsigned long imsic_ptr_offset;
+સ્થિર unsigned long imsic_ptr_offset;
 
 #define imsic_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, imsic_ptr_offset)
+	sbi_scratch_read_type((__scratch), શૂન્ય *, imsic_ptr_offset)
 
 #define imsic_set_hart_data_ptr(__scratch, __imsic)			\
-	sbi_scratch_write_type((__scratch), void *, imsic_ptr_offset, (__imsic))
+	sbi_scratch_write_type((__scratch), શૂન્ય *, imsic_ptr_offset, (__imsic))
 
-static unsigned long imsic_file_offset;
+સ્થિર unsigned long imsic_file_offset;
 
 #define imsic_get_hart_file(__scratch)					\
 	sbi_scratch_read_type((__scratch), long, imsic_file_offset)
@@ -96,12 +96,12 @@ static unsigned long imsic_file_offset;
 #define imsic_set_hart_file(__scratch, __file)				\
 	sbi_scratch_write_type((__scratch), long, imsic_file_offset, (__file))
 
-int imsic_map_hartid_to_data(u32 hartid, struct imsic_data *imsic, int file)
+પૂર્ણાંક imsic_map_hartid_to_data(u32 hartid, સંરચના imsic_data *imsic, પૂર્ણાંક file)
 {
-	struct sbi_scratch *scratch;
+	સંરચના sbi_scratch *scratch;
 
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા SBI_EINVAL;
 
 	/*
 	 * We don't need to fail if scratch pointer is not available
@@ -111,75 +111,75 @@ int imsic_map_hartid_to_data(u32 hartid, struct imsic_data *imsic, int file)
 	 * fail.
 	 */
 	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch)
-		return 0;
+	જો (!scratch)
+		પાછા 0;
 
 	imsic_set_hart_data_ptr(scratch, imsic);
 	imsic_set_hart_file(scratch, file);
-	return 0;
+	પાછા 0;
 }
 
-struct imsic_data *imsic_get_data(u32 hartindex)
+સંરચના imsic_data *imsic_get_data(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	સંરચના sbi_scratch *scratch;
 
-	if (!imsic_ptr_offset)
-		return NULL;
+	જો (!imsic_ptr_offset)
+		પાછા ખાલી;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return NULL;
+	જો (!scratch)
+		પાછા ખાલી;
 
-	return imsic_get_hart_data_ptr(scratch);
+	પાછા imsic_get_hart_data_ptr(scratch);
 }
 
-int imsic_get_target_file(u32 hartindex)
+પૂર્ણાંક imsic_get_target_file(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
+	સંરચના sbi_scratch *scratch;
 
-	if (!imsic_file_offset)
-		return SBI_ENOENT;
+	જો (!imsic_file_offset)
+		પાછા SBI_ENOENT;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return SBI_ENOENT;
+	જો (!scratch)
+		પાછા SBI_ENOENT;
 
-	return imsic_get_hart_file(scratch);
+	પાછા imsic_get_hart_file(scratch);
 }
 
-static int imsic_process_hwirqs(struct sbi_irqchip_device *chip)
+સ્થિર પૂર્ણાંક imsic_process_hwirqs(સંરચના sbi_irqchip_device *chip)
 {
-	struct imsic_data *imsic;
+	સંરચના imsic_data *imsic;
 	ulong mirq;
 	u32 hwirq;
-	int rc, ret = 0;
+	પૂર્ણાંક rc, ret = 0;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	imsic = container_of(chip, સંરચના imsic_data, irqchip);
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા SBI_EINVAL;
 
-	if (imsic_get_data(current_hartindex()) != imsic)
-		return 0;
+	જો (imsic_get_data(current_hartindex()) != imsic)
+		પાછા 0;
 
-	while ((mirq = csr_swap(CSR_MTOPEI, 0))) {
+	જ્યારે ((mirq = csr_swap(CSR_MTOPEI, 0))) {
 		hwirq = (mirq >> IMSIC_TOPEI_ID_SHIFT) &
 			IMSIC_TOPEI_ID_MASK;
 
-		if (hwirq > imsic->num_ids) {
+		જો (hwirq > imsic->અંક_ids) {
 			sbi_printf("%s: invalid hwirq=%lu num_ids=%lu\n",
 					__func__,
 					(unsigned long)hwirq,
-					(unsigned long)imsic->num_ids);
-			continue;
+					(unsigned long)imsic->અંક_ids);
+			ચાલુ;
 		}
 
-		if (hwirq == IMSIC_IPI_ID) {
+		જો (hwirq == IMSIC_IPI_ID) {
 			sbi_ipi_process();
-			continue;
+			ચાલુ;
 		}
 
 		rc = sbi_irqchip_process_hwirq(chip, hwirq);
-		if (rc && rc != SBI_ENOENT) {
+		જો (rc && rc != SBI_ENOENT) {
 			sbi_printf("%s: hwirq=%lu failed rc=%d\n",
 					__func__,
 					(unsigned long)hwirq, rc);
@@ -187,45 +187,45 @@ static int imsic_process_hwirqs(struct sbi_irqchip_device *chip)
 		}
 	}
 
-	return ret;
+	પાછા ret;
 }
 
-static void imsic_ipi_send(u32 hart_index)
+સ્થિર શૂન્ય imsic_ipi_send(u32 hart_index)
 {
 	unsigned long reloff;
-	struct imsic_regs *regs;
-	struct imsic_data *data;
-	struct sbi_scratch *scratch;
-	int file;
+	સંરચના imsic_regs *regs;
+	સંરચના imsic_data *data;
+	સંરચના sbi_scratch *scratch;
+	પૂર્ણાંક file;
 
 	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	જો (!scratch)
+		પાછા;
 
 	data = imsic_get_hart_data_ptr(scratch);
 	file = imsic_get_hart_file(scratch);
-	if (!data || !data->targets_mmode)
-		return;
+	જો (!data || !data->targets_mmode)
+		પાછા;
 
 	regs = &data->regs[0];
 	reloff = file * (1UL << data->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
-	while (regs->size && (regs->size <= reloff)) {
+	જ્યારે (regs->size && (regs->size <= reloff)) {
 		reloff -= regs->size;
 		regs++;
 	}
 
-	if (regs->size && (reloff < regs->size))
+	જો (regs->size && (reloff < regs->size))
 		writel_relaxed(IMSIC_IPI_ID,
-			(void *)(regs->addr + reloff + IMSIC_MMIO_PAGE_LE));
+			(શૂન્ય *)(regs->addr + reloff + IMSIC_MMIO_PAGE_LE));
 }
 
-static struct sbi_ipi_device imsic_ipi_device = {
+સ્થિર સંરચના sbi_ipi_device imsic_ipi_device = {
 	.name		= "aia-imsic",
 	.rating		= 300,
 	.ipi_send	= imsic_ipi_send
 };
 
-static void imsic_local_eix_update(unsigned long id,
+સ્થિર શૂન્ય imsic_local_eix_update(unsigned long id,
 				   bool pend, bool val)
 {
 	unsigned long isel, ireg = 0;
@@ -235,15 +235,15 @@ static void imsic_local_eix_update(unsigned long id,
 	isel += (pend) ? IMSIC_EIP0 : IMSIC_EIE0;
 	ireg |= BIT(id);
 
-	if (val)
+	જો (val)
 		imsic_csr_set(isel, ireg);
-	else
+	નહીંતર
 		imsic_csr_clear(isel, ireg);
 }
 
-void imsic_local_irqchip_init(void)
+શૂન્ય imsic_local_irqchip_init(શૂન્ય)
 {
-	struct sbi_trap_info trap = { 0 };
+	સંરચના sbi_trap_info trap = { 0 };
 
 	/*
 	 * This function is expected to be called from:
@@ -256,8 +256,8 @@ void imsic_local_irqchip_init(void)
 
 	/* If Smaia not available then do nothing */
 	csr_read_allowed(CSR_MTOPI, &trap);
-	if (trap.cause)
-		return;
+	જો (trap.cause)
+		પાછા;
 
 	/* Setup threshold to allow all enabled interrupts */
 	imsic_csr_write(IMSIC_EITHRESHOLD, IMSIC_ENABLE_EITHRESHOLD);
@@ -269,25 +269,25 @@ void imsic_local_irqchip_init(void)
 	imsic_local_eix_update(IMSIC_IPI_ID, false, true);
 }
 
-static int imsic_warm_irqchip_init(struct sbi_irqchip_device *dev)
+સ્થિર પૂર્ણાંક imsic_warm_irqchip_init(સંરચના sbi_irqchip_device *dev)
 {
-	struct imsic_data *imsic;
-	struct imsic_data *hart_imsic;
-	int i;
+	સંરચના imsic_data *imsic;
+	સંરચના imsic_data *hart_imsic;
+	પૂર્ણાંક i;
 
-	imsic = container_of(dev, struct imsic_data, irqchip);
+	imsic = container_of(dev, સંરચના imsic_data, irqchip);
 	hart_imsic = imsic_get_data(current_hartindex());
 
 	/* Sanity checks */
-	if (!hart_imsic || hart_imsic != imsic ||
+	જો (!hart_imsic || hart_imsic != imsic ||
 		!hart_imsic->targets_mmode)
-		return SBI_EINVAL;
+		પાછા SBI_EINVAL;
 
 	/* enable interrutps based on the irq state */
-	for (i = 1; i < imsic->num_ids; i++) {
-		if (sbi_irqchip_is_hwirq_enabled(&imsic->irqchip, i) == true)
+	માટે (i = 1; i < imsic->અંક_ids; i++) {
+		જો (sbi_irqchip_is_hwirq_enabled(&imsic->irqchip, i) == true)
 			imsic_local_eix_update(i, true, true);
-		else
+		નહીંતર
 			imsic_local_eix_update(i, false, false);
 	}
 
@@ -297,52 +297,52 @@ static int imsic_warm_irqchip_init(struct sbi_irqchip_device *dev)
 	/* Local IMSIC initialization */
 	imsic_local_irqchip_init();
 
-	return 0;
+	પાછા 0;
 }
 
-int imsic_data_check(struct imsic_data *imsic)
+પૂર્ણાંક imsic_data_check(સંરચના imsic_data *imsic)
 {
 	u32 i, tmp;
 	unsigned long base_addr, addr, mask;
 
 	/* Sanity checks */
-	if (!imsic ||
-	    (imsic->num_ids < IMSIC_MIN_ID) ||
-	    (IMSIC_MAX_ID < imsic->num_ids))
-		return SBI_EINVAL;
+	જો (!imsic ||
+	    (imsic->અંક_ids < IMSIC_MIN_ID) ||
+	    (IMSIC_MAX_ID < imsic->અંક_ids))
+		પાછા SBI_EINVAL;
 
 	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT;
-	if (tmp < imsic->guest_index_bits)
-		return SBI_EINVAL;
+	જો (tmp < imsic->guest_index_bits)
+		પાછા SBI_EINVAL;
 
 	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT -
 	      imsic->guest_index_bits;
-	if (tmp < imsic->hart_index_bits)
-		return SBI_EINVAL;
+	જો (tmp < imsic->hart_index_bits)
+		પાછા SBI_EINVAL;
 
 	tmp = BITS_PER_LONG - IMSIC_MMIO_PAGE_SHIFT -
 	      imsic->guest_index_bits - imsic->hart_index_bits;
-	if (tmp < imsic->group_index_bits)
-		return SBI_EINVAL;
+	જો (tmp < imsic->group_index_bits)
+		પાછા SBI_EINVAL;
 
 	tmp = IMSIC_MMIO_PAGE_SHIFT + imsic->guest_index_bits +
 	      imsic->hart_index_bits;
-	if (imsic->group_index_shift < tmp)
-		return SBI_EINVAL;
+	જો (imsic->group_index_shift < tmp)
+		પાછા SBI_EINVAL;
 	tmp = imsic->group_index_bits + imsic->group_index_shift - 1;
-	if (tmp >= BITS_PER_LONG)
-		return SBI_EINVAL;
+	જો (tmp >= BITS_PER_LONG)
+		પાછા SBI_EINVAL;
 
 	/*
 	 * Number of interrupt identities should be 1 less than
 	 * multiple of 63
 	 */
-	if ((imsic->num_ids & IMSIC_MIN_ID) != IMSIC_MIN_ID)
-		return SBI_EINVAL;
+	જો ((imsic->અંક_ids & IMSIC_MIN_ID) != IMSIC_MIN_ID)
+		પાછા SBI_EINVAL;
 
 	/* We should have at least one regset */
-	if (!imsic->regs[0].size)
-		return SBI_EINVAL;
+	જો (!imsic->regs[0].size)
+		પાછા SBI_EINVAL;
 
 	/* Match patter of each regset */
 	base_addr = imsic->regs[0].addr;
@@ -351,11 +351,11 @@ int imsic_data_check(struct imsic_data *imsic)
 				 IMSIC_MMIO_PAGE_SHIFT)) - 1);
 	base_addr &= ~(((1UL << imsic->group_index_bits) - 1) <<
 			imsic->group_index_shift);
-	for (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
+	માટે (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
 		mask = (1UL << imsic->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
 		mask -= 1UL;
-		if (imsic->regs[i].size & mask)
-			return SBI_EINVAL;
+		જો (imsic->regs[i].size & mask)
+			પાછા SBI_EINVAL;
 
 		addr = imsic->regs[i].addr;
 		addr &= ~((1UL << (imsic->guest_index_bits +
@@ -363,40 +363,40 @@ int imsic_data_check(struct imsic_data *imsic)
 					 IMSIC_MMIO_PAGE_SHIFT)) - 1);
 		addr &= ~(((1UL << imsic->group_index_bits) - 1) <<
 				imsic->group_index_shift);
-		if (base_addr != addr)
-			return SBI_EINVAL;
+		જો (base_addr != addr)
+			પાછા SBI_EINVAL;
 	}
 
-	return 0;
+	પાછા 0;
 }
 
-static int imsic_hwirq_setup(struct sbi_irqchip_device *chip, u32 hwirq, u32 hwirq_flags)
+સ્થિર પૂર્ણાંક imsic_hwirq_setup(સંરચના sbi_irqchip_device *chip, u32 hwirq, u32 hwirq_flags)
 {
-	if (hwirq_flags != SBI_HWIRQ_FLAGS_NONE)
-		return SBI_ENOTSUPP;
+	જો (hwirq_flags != SBI_HWIRQ_FLAGS_NONE)
+		પાછા SBI_ENOTSUPP;
 
 	sbi_irqchip_set_raw_handler(chip, hwirq,
 				    sbi_irqchip_raw_handler_default);
 
-	return 0;
+	પાછા 0;
 }
 
-static void imsic_hwirq_cleanup(struct sbi_irqchip_device *chip, u32 hwirq)
+સ્થિર શૂન્ય imsic_hwirq_cleanup(સંરચના sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	સંરચના imsic_data *imsic;
 
-	if (!chip)
-		return;
+	જો (!chip)
+		પાછા;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_of(chip, સંરચના imsic_data, irqchip);
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા;
 
 	imsic_local_eix_update(hwirq, false, false);
 	imsic_local_eix_update(hwirq, true, false);
 }
 
-static void imsic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
+સ્થિર શૂન્ય imsic_hwirq_eoi(સંરચના sbi_irqchip_device *chip, u32 hwirq)
 {
 	/*
 	 * IMSIC interrupt claim/ack is already done by reading CSR_MTOPEI
@@ -404,149 +404,149 @@ static void imsic_hwirq_eoi(struct sbi_irqchip_device *chip, u32 hwirq)
 	 */
 }
 
-static int imsic_compose_msi_msg(struct imsic_data *imsic,
+સ્થિર પૂર્ણાંક imsic_compose_msi_સંદેશ(સંરચના imsic_data *imsic,
 				 u32 hart_index, u32 eiid,
-				 struct sbi_irqchip_msi_msg *msg)
+				 સંરચના sbi_irqchip_msi_સંદેશ *સંદેશ)
 {
-	struct imsic_regs *regs;
+	સંરચના imsic_regs *regs;
 	unsigned long reloff;
 	u64 msi_addr;
-	int file;
+	પૂર્ણાંક file;
 
-	if (!imsic || !msg)
-		return SBI_EINVAL;
+	જો (!imsic || !સંદેશ)
+		પાછા SBI_EINVAL;
 
-	if (!eiid || eiid == IMSIC_IPI_ID)
-		return 0;
+	જો (!eiid || eiid == IMSIC_IPI_ID)
+		પાછા 0;
 
 	file = imsic_get_target_file(hart_index);
-	if (file < 0) {
+	જો (file < 0) {
 		sbi_printf("%s: no file for hart=%lu rc=%d\n",
 				__func__,
 				(unsigned long)hart_index, file);
-		return file;
+		પાછા file;
 	}
 
 	regs   = &imsic->regs[0];
 	reloff = file * (1UL << imsic->guest_index_bits) * IMSIC_MMIO_PAGE_SZ;
 
-	while (regs->size && regs->size <= reloff) {
+	જ્યારે (regs->size && regs->size <= reloff) {
 		reloff -= regs->size;
 		regs++;
 	}
 
-	if (!regs->size || regs->size <= reloff) {
+	જો (!regs->size || regs->size <= reloff) {
 		sbi_printf("%s: no regset for hart=%lu file=%d reloff=0x%lx\n",
 			   __func__,
 			   (unsigned long)hart_index, file, reloff);
-		return SBI_ENODEV;
+		પાછા SBI_ENODEV;
 	}
 
 	msi_addr = (u64)regs->addr + reloff + IMSIC_MMIO_PAGE_LE;
-	msg->address_lo = (u32)(msi_addr);
-	msg->address_hi = (u32)(msi_addr >> 32);
-	msg->data       = eiid;
+	સંદેશ->address_lo = (u32)(msi_addr);
+	સંદેશ->address_hi = (u32)(msi_addr >> 32);
+	સંદેશ->data       = eiid;
 
-	return 0;
+	પાછા 0;
 }
 
-static int imsic_program_msi(struct sbi_irqchip_device *chip,
+સ્થિર પૂર્ણાંક imsic_program_msi(સંરચના sbi_irqchip_device *chip,
 		      u32 eiid, u32 hart_index)
 {
-	struct imsic_data *imsic;
-	struct sbi_irqchip_msi_msg msg;
-	int rc;
+	સંરચના imsic_data *imsic;
+	સંરચના sbi_irqchip_msi_સંદેશ સંદેશ;
+	પૂર્ણાંક rc;
 
-	if (!chip)
-		return SBI_EINVAL;
+	જો (!chip)
+		પાછા SBI_EINVAL;
 
 	imsic = imsic_get_data(hart_index);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_ENODEV;
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા SBI_ENODEV;
 
-	rc = imsic_compose_msi_msg(imsic, hart_index, eiid, &msg);
-	if (rc) {
+	rc = imsic_compose_msi_સંદેશ(imsic, hart_index, eiid, &સંદેશ);
+	જો (rc) {
 		sbi_printf("%s: compose failed eiid=%lu hart=%lu rc=%d\n",
 				__func__,
 				(unsigned long)eiid,
 				(unsigned long)hart_index, rc);
 	}
 
-	rc = sbi_irqchip_write_msi(chip, eiid, &msg);
-	if (rc) {
+	rc = sbi_irqchip_write_msi(chip, eiid, &સંદેશ);
+	જો (rc) {
 		sbi_printf("%s: write_msi failed eiid=%lu hart=%lu rc=%d\n",
 				__func__,
 				(unsigned long)eiid,
 				(unsigned long)hart_index, rc);
-		return rc;
+		પાછા rc;
 	}
 
-	return 0;
+	પાછા 0;
 }
 
-static int imsic_hwirq_set_affinity(struct sbi_irqchip_device *chip,
+સ્થિર પૂર્ણાંક imsic_hwirq_set_affinity(સંરચના sbi_irqchip_device *chip,
 				    u32 hwirq, u32 hart_index)
 {
-	struct imsic_data *imsic;
-	int rc;
+	સંરચના imsic_data *imsic;
+	પૂર્ણાંક rc;
 
-	if (!chip)
-		return SBI_EINVAL;
+	જો (!chip)
+		પાછા SBI_EINVAL;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return SBI_EINVAL;
+	imsic = container_of(chip, સંરચના imsic_data, irqchip);
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા SBI_EINVAL;
 
-	if (!hwirq || hwirq == IMSIC_IPI_ID)
-		return 0;
+	જો (!hwirq || hwirq == IMSIC_IPI_ID)
+		પાછા 0;
 
-	if (!sbi_hartmask_test_hartindex(hart_index, &chip->target_harts))
-		return SBI_EINVAL;
+	જો (!sbi_hartmask_test_hartindex(hart_index, &chip->target_harts))
+		પાછા SBI_EINVAL;
 
 	rc = imsic_program_msi(chip, hwirq, hart_index);
-	if (rc) {
+	જો (rc) {
 		sbi_printf("%s: failed hwirq=%lu hart=%lu rc=%d\n",
 				__func__,
 				(unsigned long)hwirq,
 				(unsigned long)hart_index, rc);
-		return rc;
+		પાછા rc;
 	}
 
-	return 0;
+	પાછા 0;
 }
 
-static void imsic_hwirq_mask(struct sbi_irqchip_device *chip, u32 hwirq)
+સ્થિર શૂન્ય imsic_hwirq_mask(સંરચના sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	સંરચના imsic_data *imsic;
 
-	if (!chip)
-		return;
+	જો (!chip)
+		પાછા;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_of(chip, સંરચના imsic_data, irqchip);
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા;
 
 	imsic_local_eix_update(hwirq, false, false);
 }
 
-static void imsic_hwirq_unmask(struct sbi_irqchip_device *chip, u32 hwirq)
+સ્થિર શૂન્ય imsic_hwirq_unmask(સંરચના sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct imsic_data *imsic;
+	સંરચના imsic_data *imsic;
 
-	if (!chip)
-		return;
+	જો (!chip)
+		પાછા;
 
-	imsic = container_of(chip, struct imsic_data, irqchip);
-	if (!imsic || !imsic->targets_mmode)
-		return;
+	imsic = container_of(chip, સંરચના imsic_data, irqchip);
+	જો (!imsic || !imsic->targets_mmode)
+		પાછા;
 
-	if (!hwirq || hwirq == IMSIC_IPI_ID)
-		return;
+	જો (!hwirq || hwirq == IMSIC_IPI_ID)
+		પાછા;
 
 	imsic_local_eix_update(hwirq, false, true);
 }
 
-static struct sbi_irqchip_device imsic_device = {
+સ્થિર સંરચના sbi_irqchip_device imsic_device = {
 	.warm_init		= imsic_warm_irqchip_init,
 	.process_hwirqs		= imsic_process_hwirqs,
 	.hwirq_setup		= imsic_hwirq_setup,
@@ -557,69 +557,69 @@ static struct sbi_irqchip_device imsic_device = {
 	.hwirq_unmask		= imsic_hwirq_unmask,
 };
 
-int imsic_cold_irqchip_init(struct imsic_data *imsic)
+પૂર્ણાંક imsic_cold_irqchip_init(સંરચના imsic_data *imsic)
 {
-	int i, rc;
+	પૂર્ણાંક i, rc;
 
 	/* Sanity checks */
 	rc = imsic_data_check(imsic);
-	if (rc)
-		return rc;
+	જો (rc)
+		પાછા rc;
 
 	/* We only initialize M-mode IMSIC */
-	if (!imsic->targets_mmode)
-		return SBI_EINVAL;
+	જો (!imsic->targets_mmode)
+		પાછા SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!imsic_ptr_offset) {
-		imsic_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!imsic_ptr_offset)
-			return SBI_ENOMEM;
+	જો (!imsic_ptr_offset) {
+		imsic_ptr_offset = sbi_scratch_alloc_type_offset(શૂન્ય *);
+		જો (!imsic_ptr_offset)
+			પાછા SBI_ENOMEM;
 	}
 
 	/* Allocate scratch space file */
-	if (!imsic_file_offset) {
+	જો (!imsic_file_offset) {
 		imsic_file_offset = sbi_scratch_alloc_type_offset(long);
-		if (!imsic_file_offset)
-			return SBI_ENOMEM;
+		જો (!imsic_file_offset)
+			પાછા SBI_ENOMEM;
 	}
 
 	/* Add IMSIC regions to the root domain */
-	for (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
-		rc = sbi_domain_root_add_memrange(imsic->regs[i].addr,
+	માટે (i = 0; i < IMSIC_MAX_REGS && imsic->regs[i].size; i++) {
+		rc = sbi_domain_મૂળ_add_memrange(imsic->regs[i].addr,
 						  imsic->regs[i].size,
 						  IMSIC_MMIO_PAGE_SZ,
 						  SBI_DOMAIN_MEMREGION_MMIO |
 						  SBI_DOMAIN_MEMREGION_M_READABLE |
 						  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-		if (rc)
-			return rc;
+		જો (rc)
+			પાછા rc;
 	}
 
 	imsic->irqchip          = imsic_device;
 	imsic->irqchip.id       = imsic->unique_id;
 	imsic_device.caps = SBI_IRQCHIP_CAPS_MSI;
-	imsic->irqchip.num_hwirq = imsic->num_ids + 1;
+	imsic->irqchip.અંક_hwirq = imsic->અંક_ids + 1;
 
 	sbi_hartmask_set_all(&imsic->irqchip.target_harts);
 
 	/* Register irqchip device */
 	rc = sbi_irqchip_add_device(&imsic->irqchip);
-	if (rc) {
+	જો (rc) {
 		sbi_printf("%s: sbi_irqchip_add_device failed rc=%d\n",
 				__func__, rc);
-		return rc;
+		પાછા rc;
 	}
 
 	rc = sbi_irqchip_register_reserved(&imsic->irqchip, 0, IMSIC_IPI_ID + 1);
-	if (rc) {
+	જો (rc) {
 		sbi_printf("%s: register_reserved failed rc=%d\n",
 				__func__, rc);
-		return rc;
+		પાછા rc;
 	}
 
 	/* Register IPI device */
 	sbi_ipi_add_device(&imsic_ipi_device);
 
-	return 0;
+	પાછા 0;
 }

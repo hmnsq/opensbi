@@ -7,29 +7,29 @@
  *   Daniel Cederman <cederman@gaisler.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/gaisler-uart.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_helper.h>
+#અન્તર્ભાવ <sbi_utils/serial/fdt_serial.h>
+#અન્તર્ભાવ <sbi_utils/serial/gaisler-uart.h>
 
-static int serial_gaisler_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+સ્થિર પૂર્ણાંક serial_gaisler_init(અચલ શૂન્ય *fdt, પૂર્ણાંક nodeoff,
+			       અચલ સંરચના fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	પૂર્ણાંક rc;
+	સંરચના platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_gaisler_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_gaisler_uart_ગાંઠ(fdt, nodeoff, &uart);
+	જો (rc)
+		પાછા rc;
 
-	return gaisler_uart_init(uart.addr, uart.freq, uart.baud);
+	પાછા gaisler_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_gaisler_match[] = {
+સ્થિર અચલ સંરચના fdt_match serial_gaisler_match[] = {
 	{ .compatible = "gaisler,apbuart" },
 	{},
 };
 
-const struct fdt_driver fdt_serial_gaisler = {
+અચલ સંરચના fdt_driver fdt_serial_gaisler = {
 	.match_table = serial_gaisler_match,
 	.init = serial_gaisler_init
 };

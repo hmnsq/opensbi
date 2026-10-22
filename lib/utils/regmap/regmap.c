@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#અન્તર્ભાવ <sbi/sbi_error.h>
+#અન્તર્ભાવ <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+સ્થિર SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+સંરચના regmap *regmap_find(unsigned પૂર્ણાંક id)
 {
-	struct sbi_dlist *pos;
+	સંરચના sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		સંરચના regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		જો (rmap->id == id)
+			પાછા rmap;
 	}
 
-	return NULL;
+	પાછા ખાલી;
 }
 
-int regmap_add(struct regmap *rmap)
+પૂર્ણાંક regmap_add(સંરચના regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	જો (!rmap)
+		પાછા SBI_EINVAL;
+	જો (regmap_find(rmap->id))
+		પાછા SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_add(&(rmap->ગાંઠ), &(regmap_list));
 
-	return 0;
+	પાછા 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+શૂન્ય regmap_remove(સંરચના regmap *rmap)
 {
-	if (!rmap)
-		return;
+	જો (!rmap)
+		પાછા;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->ગાંઠ));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+સ્થિર bool regmap_reg_valid(સંરચના regmap *rmap, unsigned પૂર્ણાંક reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	જો ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		પાછા false;
+	પાછા true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+સ્થિર unsigned પૂર્ણાંક regmap_reg_addr(સંરચના regmap *rmap, unsigned પૂર્ણાંક reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	જો (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	નહીંતર જો (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	પાછા reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+પૂર્ણાંક regmap_read(સંરચના regmap *rmap, unsigned પૂર્ણાંક reg, unsigned પૂર્ણાંક *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	જો (!rmap || !regmap_reg_valid(rmap, reg))
+		પાછા SBI_EINVAL;
+	જો (!rmap->reg_read)
+		પાછા SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	પાછા rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+પૂર્ણાંક regmap_write(સંરચના regmap *rmap, unsigned પૂર્ણાંક reg, unsigned પૂર્ણાંક val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	જો (!rmap || !regmap_reg_valid(rmap, reg))
+		પાછા SBI_EINVAL;
+	જો (!rmap->reg_write)
+		પાછા SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	પાછા rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+પૂર્ણાંક regmap_update_bits(સંરચના regmap *rmap, unsigned પૂર્ણાંક reg,
+		       unsigned પૂર્ણાંક mask, unsigned પૂર્ણાંક val)
 {
-	int rc;
-	unsigned int reg_val;
+	પૂર્ણાંક rc;
+	unsigned પૂર્ણાંક reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	જો (!rmap || !regmap_reg_valid(rmap, reg))
+		પાછા SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	જો (rmap->reg_update_bits) {
+		પાછા rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} નહીંતર જો (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		જો (rc)
+			પાછા rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		પાછા rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	પાછા SBI_ENOSYS;
 }

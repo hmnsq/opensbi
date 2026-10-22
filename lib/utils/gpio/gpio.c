@@ -7,104 +7,104 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/gpio/gpio.h>
+#અન્તર્ભાવ <sbi/sbi_error.h>
+#અન્તર્ભાવ <sbi_utils/gpio/gpio.h>
 
-static SBI_LIST_HEAD(gpio_chip_list);
+સ્થિર SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+સંરચના gpio_chip *gpio_chip_find(unsigned પૂર્ણાંક id)
 {
-	struct sbi_dlist *pos;
+	સંરચના sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
-		struct gpio_chip *chip = to_gpio_chip(pos);
+		સંરચના gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		જો (chip->id == id)
+			પાછા chip;
 	}
 
-	return NULL;
+	પાછા ખાલી;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+પૂર્ણાંક gpio_chip_add(સંરચના gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	જો (!gc)
+		પાછા SBI_EINVAL;
+	જો (gpio_chip_find(gc->id))
+		પાછા SBI_EALREADY;
 
-	sbi_list_add(&(gc->node), &(gpio_chip_list));
+	sbi_list_add(&(gc->ગાંઠ), &(gpio_chip_list));
 
-	return 0;
+	પાછા 0;
 }
 
-void gpio_chip_remove(struct gpio_chip *gc)
+શૂન્ય gpio_chip_remove(સંરચના gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	જો (!gc)
+		પાછા;
 
-	sbi_list_del(&(gc->node));
+	sbi_list_del(&(gc->ગાંઠ));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+પૂર્ણાંક gpio_get_direction(સંરચના gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	જો (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		પાછા SBI_EINVAL;
+	જો (!gp->chip->get_direction)
+		પાછા SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	પાછા gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+પૂર્ણાંક gpio_direction_આગત(સંરચના gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	જો (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		પાછા SBI_EINVAL;
+	જો (!gp->chip->direction_આગત)
+		પાછા SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	પાછા gp->chip->direction_આગત(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+પૂર્ણાંક gpio_direction_output(સંરચના gpio_pin *gp, પૂર્ણાંક કિંમત)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	જો (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		પાછા SBI_EINVAL;
+	જો (!gp->chip->direction_output)
+		પાછા SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	જો (gp->flags & GPIO_FLAG_ACTIVE_નીચલું)
+		કિંમત = કિંમત == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	પાછા gp->chip->direction_output(gp, કિંમત);
 }
 
-int gpio_get(struct gpio_pin *gp)
+પૂર્ણાંક gpio_get(સંરચના gpio_pin *gp)
 {
-	int value;
+	પૂર્ણાંક કિંમત;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	જો (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		પાછા SBI_EINVAL;
+	જો (!gp->chip->get)
+		પાછા SBI_ENOSYS;
 
-	value = gp->chip->get(gp);
+	કિંમત = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
-	return value;
+	જો (gp->flags & GPIO_FLAG_ACTIVE_નીચલું)
+		કિંમત = કિંમત == 0 ? 1 : 0;
+	પાછા કિંમત;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+પૂર્ણાંક gpio_set(સંરચના gpio_pin *gp, પૂર્ણાંક કિંમત)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	જો (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		પાછા SBI_EINVAL;
+	જો (!gp->chip->set)
+		પાછા SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
-		value = value == 0 ? 1 : 0;
+	જો (gp->flags & GPIO_FLAG_ACTIVE_નીચલું)
+		કિંમત = કિંમત == 0 ? 1 : 0;
 
-	gp->chip->set(gp, value);
-	return 0;
+	gp->chip->set(gp, કિંમત);
+	પાછા 0;
 }

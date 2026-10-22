@@ -9,57 +9,57 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#અન્તર્ભાવ <libfdt.h>
+#અન્તર્ભાવ <sbi/sbi_console.h>
+#અન્તર્ભાવ <sbi/sbi_ecall_interface.h>
+#અન્તર્ભાવ <sbi/sbi_hart.h>
+#અન્તર્ભાવ <sbi/sbi_system.h>
+#અન્તર્ભાવ <sbi/sbi_timer.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_driver.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_helper.h>
+#અન્તર્ભાવ <sbi_utils/gpio/fdt_gpio.h>
 
-struct gpio_reset {
-	struct gpio_pin pin;
+સંરચના gpio_reset {
+	સંરચના gpio_pin pin;
 	u32 active_delay;
 	u32 inactive_delay;
 };
 
-static struct gpio_reset poweroff = {
+સ્થિર સંરચના gpio_reset poweroff = {
 	.active_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset restart = {
+સ્થિર સંરચના gpio_reset restart = {
 	.active_delay = 100,
 	.inactive_delay = 100
 };
 
-static struct gpio_reset *gpio_reset_get(bool is_restart, u32 type)
+સ્થિર સંરચના gpio_reset *gpio_reset_get(bool is_restart, u32 type)
 {
-	struct gpio_reset *reset = NULL;
+	સંરચના gpio_reset *reset = ખાલી;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_restart)
+	પસંદગી (type) {
+	સ્થિતિ SBI_SRST_RESET_TYPE_SHUTDOWN:
+		જો (!is_restart)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_restart)
+		તોડો;
+	સ્થિતિ SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	સ્થિતિ SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		જો (is_restart)
 			reset = &restart;
-		break;
+		તોડો;
 	}
 
-	if (reset && !reset->pin.chip)
-		reset = NULL;
+	જો (reset && !reset->pin.chip)
+		reset = ખાલી;
 
-	return reset;
+	પાછા reset;
 }
 
-static void gpio_reset_exec(struct gpio_reset *reset)
+સ્થિર શૂન્ય gpio_reset_exec(સંરચના gpio_reset *reset)
 {
-	if (reset) {
+	જો (reset) {
 		/* drive it active, also inactive->active edge */
 		gpio_direction_output(&reset->pin, 1);
 		sbi_timer_mdelay(reset->active_delay);
@@ -75,95 +75,95 @@ static void gpio_reset_exec(struct gpio_reset *reset)
 	sbi_hart_hang();
 }
 
-static int gpio_system_poweroff_check(u32 type, u32 reason)
+સ્થિર પૂર્ણાંક gpio_system_poweroff_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(false, type))
-		return 128;
+	જો (gpio_reset_get(false, type))
+		પાછા 128;
 
-	return 0;
+	પાછા 0;
 }
 
-static void gpio_system_poweroff(u32 type, u32 reason)
+સ્થિર શૂન્ય gpio_system_poweroff(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device gpio_poweroff = {
+સ્થિર સંરચના sbi_system_reset_device gpio_poweroff = {
 	.name = "gpio-poweroff",
 	.system_reset_check = gpio_system_poweroff_check,
 	.system_reset = gpio_system_poweroff
 };
 
-static int gpio_system_restart_check(u32 type, u32 reason)
+સ્થિર પૂર્ણાંક gpio_system_restart_check(u32 type, u32 reason)
 {
-	if (gpio_reset_get(true, type))
-		return 128;
+	જો (gpio_reset_get(true, type))
+		પાછા 128;
 
-	return 0;
+	પાછા 0;
 }
 
-static void gpio_system_restart(u32 type, u32 reason)
+સ્થિર શૂન્ય gpio_system_restart(u32 type, u32 reason)
 {
 	gpio_reset_exec(gpio_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device gpio_restart = {
+સ્થિર સંરચના sbi_system_reset_device gpio_restart = {
 	.name = "gpio-restart",
 	.system_reset_check = gpio_system_restart_check,
 	.system_reset = gpio_system_restart
 };
 
-static int gpio_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+સ્થિર પૂર્ણાંક gpio_reset_init(અચલ શૂન્ય *fdt, પૂર્ણાંક nodeoff,
+			   અચલ સંરચના fdt_match *match)
 {
-	int rc, len;
-	const fdt32_t *val;
+	પૂર્ણાંક rc, len;
+	અચલ fdt32_t *val;
 	bool is_restart = (ulong)match->data;
-	const char *dir_prop = (is_restart) ? "open-source" : "input";
-	struct gpio_reset *reset = (is_restart) ? &restart : &poweroff;
+	અચલ અક્ષર *dir_prop = (is_restart) ? "open-source" : "input";
+	સંરચના gpio_reset *reset = (is_restart) ? &restart : &poweroff;
 
 	rc = fdt_gpio_pin_get(fdt, nodeoff, 0, &reset->pin);
-	if (rc)
-		return rc;
+	જો (rc)
+		પાછા rc;
 
-	if (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
-		rc = gpio_direction_input(&reset->pin);
-		if (rc)
-			return rc;
+	જો (fdt_getprop(fdt, nodeoff, dir_prop, &len)) {
+		rc = gpio_direction_આગત(&reset->pin);
+		જો (rc)
+			પાછા rc;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "active-delay-ms", &len);
-	if (len > 0)
+	જો (len > 0)
 		reset->active_delay = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "inactive-delay-ms", &len);
-	if (len > 0)
+	જો (len > 0)
 		reset->inactive_delay = fdt32_to_cpu(*val);
 
-	if (is_restart)
+	જો (is_restart)
 		sbi_system_reset_add_device(&gpio_restart);
-	else
+	નહીંતર
 		sbi_system_reset_add_device(&gpio_poweroff);
 
-	return 0;
+	પાછા 0;
 }
 
-static const struct fdt_match gpio_poweroff_match[] = {
-	{ .compatible = "gpio-poweroff", .data = (const void *)false },
+સ્થિર અચલ સંરચના fdt_match gpio_poweroff_match[] = {
+	{ .compatible = "gpio-poweroff", .data = (અચલ શૂન્ય *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_poweroff_gpio = {
+અચલ સંરચના fdt_driver fdt_poweroff_gpio = {
 	.match_table = gpio_poweroff_match,
 	.init = gpio_reset_init,
 };
 
-static const struct fdt_match gpio_reset_match[] = {
-	{ .compatible = "gpio-restart", .data = (const void *)true },
+સ્થિર અચલ સંરચના fdt_match gpio_reset_match[] = {
+	{ .compatible = "gpio-restart", .data = (અચલ શૂન્ય *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_gpio = {
+અચલ સંરચના fdt_driver fdt_reset_gpio = {
 	.match_table = gpio_reset_match,
 	.init = gpio_reset_init,
 };

@@ -4,21 +4,21 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "libfdt_env.h"
+#અન્તર્ભાવ "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#અન્તર્ભાવ <fdt.h>
+#અન્તર્ભાવ <libfdt.h>
 
-#include "libfdt_internal.h"
+#અન્તર્ભાવ "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
+સંરચના fdt_errtabent {
+	અચલ અક્ષર *str;
 };
 
 #define FDT_ERRTABENT(val) \
 	[(val)] = { .str = #val, }
 
-static struct fdt_errtabent fdt_errtable[] = {
+સ્થિર સંરચના fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
 	FDT_ERRTABENT(FDT_ERR_EXISTS),
 	FDT_ERRTABENT(FDT_ERR_NOSPACE),
@@ -40,20 +40,20 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#define FDT_ERRTABSIZE	((પૂર્ણાંક)(કદ(fdt_errtable) / કદ(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+અચલ અક્ષર *fdt_strerror(પૂર્ણાંક errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
+	જો (errval > 0)
+		પાછા "<valid offset/length>";
+	નહીંતર જો (errval == 0)
+		પાછા "<no error>";
+	નહીંતર જો (-errval < FDT_ERRTABSIZE) {
+		અચલ અક્ષર *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		જો (s)
+			પાછા s;
 	}
 
-	return "<unknown error>";
+	પાછા "<unknown error>";
 }

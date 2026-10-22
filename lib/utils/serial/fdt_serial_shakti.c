@@ -5,29 +5,29 @@
  *
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/shakti-uart.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_helper.h>
+#અન્તર્ભાવ <sbi_utils/serial/fdt_serial.h>
+#અન્તર્ભાવ <sbi_utils/serial/shakti-uart.h>
 
-static int serial_shakti_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+સ્થિર પૂર્ણાંક serial_shakti_init(અચલ શૂન્ય *fdt, પૂર્ણાંક nodeoff,
+			      અચલ સંરચના fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	પૂર્ણાંક rc;
+	સંરચના platform_uart_data uart = { 0 };
 
-	rc = fdt_parse_shakti_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_shakti_uart_ગાંઠ(fdt, nodeoff, &uart);
+	જો (rc)
+		પાછા rc;
 
-	return shakti_uart_init(uart.addr, uart.freq, uart.baud);
+	પાછા shakti_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_shakti_match[] = {
+સ્થિર અચલ સંરચના fdt_match serial_shakti_match[] = {
 	{ .compatible = "shakti,uart0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_shakti = {
+અચલ સંરચના fdt_driver fdt_serial_shakti = {
 	.match_table = serial_shakti_match,
 	.init = serial_shakti_init
 };

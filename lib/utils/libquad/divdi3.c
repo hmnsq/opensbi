@@ -33,13 +33,13 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)divdi3.c	8.1 (Berkeley) 6/4/93";
+#જો defined(LIBC_SCCS) && !defined(lint)
+સ્થિર અક્ષર sccsid[] = "@(#)divdi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
-#include <sys/cdefs.h>
+#અન્તર્ભાવ <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
-#include "quad.h"
+#અન્તર્ભાવ "quad.h"
 
 /*
  * Divide two signed quads.
@@ -49,16 +49,16 @@ quad_t
 __divdi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, uq;
-	int neg;
+	પૂર્ણાંક neg;
 
-	if (a < 0)
+	જો (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	નહીંતર
 		ua = a, neg = 0;
-	if (b < 0)
+	જો (b < 0)
 		ub = -(u_quad_t)b, neg ^= 1;
-	else
+	નહીંતર
 		ub = b;
 	uq = __qdivrem(ua, ub, (u_quad_t *)0);
-	return (neg ? -uq : uq);
+	પાછા (neg ? -uq : uq);
 }

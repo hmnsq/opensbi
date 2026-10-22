@@ -7,19 +7,19 @@
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_byteorder.h>
+#અન્તર્ભાવ <sbi/sbi_string.h>
+#અન્તર્ભાવ <sbi/sbi_types.h>
+#અન્તર્ભાવ <sbi/sbi_byteorder.h>
 
-#define INT_MAX		((int)(~0U >> 1))
-#define UINT_MAX	((unsigned int)~0U)
+#define INT_MAX		((પૂર્ણાંક)(~0U >> 1))
+#define UINT_MAX	((unsigned પૂર્ણાંક)~0U)
 #define INT32_MAX	INT_MAX
 #define UINT32_MAX	UINT_MAX
 
 #ifdef __CHECKER__
 #define FDT_FORCE __attribute__((force))
 #define FDT_BITWISE __attribute__((bitwise))
-#else
+#નહીંતર
 #define FDT_FORCE
 #define FDT_BITWISE
 #endif
@@ -38,45 +38,45 @@
 #define strlen		sbi_strlen
 #define strnlen		sbi_strnlen
 
-typedef be16_t FDT_BITWISE fdt16_t;
-typedef be32_t FDT_BITWISE fdt32_t;
-typedef be64_t FDT_BITWISE fdt64_t;
+પ્રકારવ્યાખ્યા be16_t FDT_BITWISE fdt16_t;
+પ્રકારવ્યાખ્યા be32_t FDT_BITWISE fdt32_t;
+પ્રકારવ્યાખ્યા be64_t FDT_BITWISE fdt64_t;
 
-static inline uint16_t fdt16_to_cpu(fdt16_t x)
+સ્થિર અંતઃરેખ uint16_t fdt16_to_cpu(fdt16_t x)
 {
-	return (FDT_FORCE uint16_t)be16_to_cpu(x);
+	પાછા (FDT_FORCE uint16_t)be16_to_cpu(x);
 }
 
-static inline fdt16_t cpu_to_fdt16(uint16_t x)
+સ્થિર અંતઃરેખ fdt16_t cpu_to_fdt16(uint16_t x)
 {
-	return (FDT_FORCE fdt16_t)cpu_to_be16(x);
+	પાછા (FDT_FORCE fdt16_t)cpu_to_be16(x);
 }
 
-static inline uint32_t fdt32_to_cpu(fdt32_t x)
+સ્થિર અંતઃરેખ uint32_t fdt32_to_cpu(fdt32_t x)
 {
-	return (FDT_FORCE uint32_t)be32_to_cpu(x);
+	પાછા (FDT_FORCE uint32_t)be32_to_cpu(x);
 }
 
-static inline fdt32_t cpu_to_fdt32(uint32_t x)
+સ્થિર અંતઃરેખ fdt32_t cpu_to_fdt32(uint32_t x)
 {
-	return (FDT_FORCE fdt32_t)cpu_to_be32(x);
+	પાછા (FDT_FORCE fdt32_t)cpu_to_be32(x);
 }
 
-static inline uint64_t fdt64_to_cpu(fdt64_t x)
+સ્થિર અંતઃરેખ uint64_t fdt64_to_cpu(fdt64_t x)
 {
-	return (FDT_FORCE uint64_t)be64_to_cpu(x);
+	પાછા (FDT_FORCE uint64_t)be64_to_cpu(x);
 }
 
-static inline fdt64_t cpu_to_fdt64(uint64_t x)
+સ્થિર અંતઃરેખ fdt64_t cpu_to_fdt64(uint64_t x)
 {
-	return (FDT_FORCE fdt64_t)cpu_to_be64(x);
+	પાછા (FDT_FORCE fdt64_t)cpu_to_be64(x);
 }
 
 #ifdef __APPLE__
-#include <AvailabilityMacros.h>
+#અન્તર્ભાવ <AvailabilityMacros.h>
 
 /* strnlen() is not available on Mac OS < 10.7 */
-# if !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
+# જો !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
                                          MAC_OS_X_VERSION_10_7)
 
 #define strnlen fdt_strnlen
@@ -88,10 +88,10 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+સ્થિર અંતઃરેખ size_t fdt_strnlen(અચલ અક્ષર *string, size_t max_ગણતરી)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    અચલ અક્ષર *p = memchr(string, 0, max_ગણતરી);
+    પાછા p ? p - string : max_ગણતરી;
 }
 
 #endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <

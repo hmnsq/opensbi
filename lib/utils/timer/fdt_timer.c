@@ -7,19 +7,19 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/timer/fdt_timer.h>
+#અન્તર્ભાવ <sbi/sbi_error.h>
+#અન્તર્ભાવ <sbi/sbi_scratch.h>
+#અન્તર્ભાવ <sbi_utils/fdt/fdt_helper.h>
+#અન્તર્ભાવ <sbi_utils/timer/fdt_timer.h>
 
 /* List of FDT timer drivers generated at compile time */
-extern const struct fdt_driver *const fdt_timer_drivers[];
+બાહ્ય અચલ સંરચના fdt_driver *અચલ fdt_timer_drivers[];
 
-int fdt_timer_init(void)
+પૂર્ણાંક fdt_timer_init(શૂન્ય)
 {
 	/*
 	 * Systems with Sstc might not provide any node in the FDT,
 	 * so do not return a failure if no device is found.
 	 */
-	return fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
+	પાછા fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
 }
