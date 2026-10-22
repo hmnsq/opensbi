@@ -33,7 +33,7 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
+#якщо defined(LIBC_SCCS) && !defined(lint)
 static char sccsid[] = "@(#)moddi3.c	8.1 (Berkeley) 6/4/93";
 #endif /* LIBC_SCCS and not lint */
 #include <sys/cdefs.h>
@@ -51,16 +51,16 @@ quad_t
 __moddi3(quad_t a, quad_t b)
 {
 	u_quad_t ua, ub, ur;
-	int neg;
+	ціле neg;
 
-	if (a < 0)
+	якщо (a < 0)
 		ua = -(u_quad_t)a, neg = 1;
-	else
+	інакше
 		ua = a, neg = 0;
-	if (b < 0)
+	якщо (b < 0)
 		ub = -(u_quad_t)b;
-	else
+	інакше
 		ub = b;
 	(void)__qdivrem(ua, ub, &ur);
-	return (neg ? -ur : ur);
+	повернути (neg ? -ur : ur);
 }

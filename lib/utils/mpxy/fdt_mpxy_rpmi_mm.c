@@ -37,24 +37,24 @@ static struct mpxy_rpmi_service_data mm_srvcdata[] = {
 	},
 };
 
-static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
+static ціле mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
 			      const struct mpxy_rpmi_mbox_data *data)
 {
 	unsigned long mm_region_addr = 0;
 	unsigned long mm_region_size = 0;
 	unsigned long mm_region_flags;
-	int rc = 0;
+	ціле rc = 0;
 
 	rc = rpmi_normal_request_with_status(chan, RPMI_MM_SRV_GET_ATTRIBUTES,
 					     NULL, 0, 0, &rsp,
 					     rpmi_u32_count(rsp),
 					     rpmi_u32_count(rsp));
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
-#if __riscv_xlen == 32
+#якщо __riscv_xlen == 32
 	mm_region_addr = rsp.mma.shmem_addr_lo;
-#else
+#інакше
 	mm_region_addr = ((unsigned long)(rsp.mma.shmem_addr_hi) << 32) |
 	    rsp.mma.shmem_addr_lo;
 #endif
@@ -64,17 +64,17 @@ static int mpxy_rpmi_mm_setup(void **context, struct mbox_chan *chan,
 
 	rc = sbi_domain_root_add_memrange(mm_region_addr, mm_region_size,
 					  PAGE_SIZE, mm_region_flags);
-	return rc;
+	повернути rc;
 }
 
-static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
+static ціле mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
 			     struct mbox_xfer *xfer)
 {
 	struct rpmi_message_args *args = xfer->args;
-	int rc = 0;
+	ціле rc = 0;
 
-	if (!xfer->rx || (args->type != RPMI_MSG_NORMAL_REQUEST))
-		return 0;
+	якщо (!xfer->rx || (args->type != RPMI_MSG_NORMAL_REQUEST))
+		повернути 0;
 
 	switch (args->service_id) {
 	case RPMI_MM_SRV_GET_ATTRIBUTES:
@@ -96,7 +96,7 @@ static int mpxy_rpmi_mm_xfer(void *context, struct mbox_chan *chan,
 		break;
 	};
 
-	return rc;
+	повернути rc;
 }
 
 static const struct mpxy_rpmi_mbox_data mm_data = {

@@ -153,15 +153,15 @@ static inline void sbi_misaligned_v_tinst_fixup(struct sbi_trap_info *uptrap)
 	 * load/store misaligned fault, thus the new uptrap can't have
 	 * custom value of tinst
 	 */
-	if (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
+	якщо (uptrap->tinst == INSN_PSEUDO_VS_LOAD ||
 	    uptrap->tinst == INSN_PSEUDO_VS_STORE)
 		/* Use uptrap as-is for guest-page faults */
-		return;
+		повернути;
 
 	uptrap->tinst = 0;
 }
 
-int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
+ціле sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 {
 	struct sbi_trap_regs *regs = &tcntx->regs;
 	struct sbi_trap_info uptrap;
@@ -186,44 +186,44 @@ int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	ulong vemul = GET_VEMUL(vlmul, view, vsew);
 	ulong emul = GET_EMUL(vemul);
 
-	if (IS_UNIT_STRIDE_LOAD(insn) || IS_FAULT_ONLY_FIRST_LOAD(insn)) {
+	якщо (IS_UNIT_STRIDE_LOAD(insn) || IS_FAULT_ONLY_FIRST_LOAD(insn)) {
 		stride = nf * len;
-	} else if (IS_WHOLE_REG_LOAD(insn)) {
+	} інакше якщо (IS_WHOLE_REG_LOAD(insn)) {
 		vl = (nf * vlenb) >> view;
 		nf = 1;
 		vemul = 0;
 		emul = 1;
 		stride = nf * len;
-	} else if (IS_INDEXED_LOAD(insn)) {
+	} інакше якщо (IS_INDEXED_LOAD(insn)) {
 		len = 1 << vsew;
 		vemul = (vlmul + vsew - vsew) & 7;
 		emul = 1 << ((vemul & 4) ? 0 : vemul);
 		stride = nf * len;
 	}
 
-	if (illegal) {
+	якщо (illegal) {
 		struct sbi_trap_info trap = {
 			uptrap.cause = CAUSE_ILLEGAL_INSTRUCTION,
 			uptrap.tval = insn,
 		};
-		return sbi_trap_redirect(regs, &trap);
+		повернути sbi_trap_redirect(regs, &trap);
 	}
 
 	do {
-		if (masked) {
-			if (vstart == orig_vstart || vstart % mask_len == 0)
+		якщо (masked) {
+			якщо (vstart == orig_vstart || vstart % mask_len == 0)
 				/* Fetch a mask_len chunk of mask */
 				get_vreg(vlenb, 0, vstart / mask_len * mask_len,
 					 mask_len, mask);
 
-			if (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
+			якщо (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
 				continue;
 		}
 
 		/* compute element address */
 		ulong addr = base + vstart * stride;
 
-		if (IS_INDEXED_LOAD(insn)) {
+		якщо (IS_INDEXED_LOAD(insn)) {
 			ulong offset = 0;
 
 			get_vreg(vlenb, vs2, vstart << view, 1 << view, (uint8_t *)&offset);
@@ -233,14 +233,14 @@ int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 		csr_write(CSR_VSTART, vstart);
 
 		/* obtain load data from memory */
-		for (ulong seg = 0; seg < nf; seg++) {
+		для (ulong seg = 0; seg < nf; seg++) {
 			sbi_load_loop(bytes + seg * len,
 				       addr + seg * len, len, &uptrap);
 
-			if (!uptrap.cause)
+			якщо (!uptrap.cause)
 				continue;
 
-			if (IS_FAULT_ONLY_FIRST_LOAD(insn) && vstart != 0) {
+			якщо (IS_FAULT_ONLY_FIRST_LOAD(insn) && vstart != 0) {
 				vl = vstart;
 				goto done;
 			}
@@ -248,17 +248,17 @@ int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 			vsetvl(vl, vtype);
 			csr_write(CSR_VSTART, vstart);
 			/* Don't forget to set dirty if vstart has changed */
-			if (vstart != orig_vstart)
+			якщо (vstart != orig_vstart)
 				SET_VS_DIRTY(regs);
 			sbi_misaligned_v_tinst_fixup(&uptrap);
-			return sbi_trap_redirect(regs, &uptrap);
+			повернути sbi_trap_redirect(regs, &uptrap);
 		}
 
 		/* write load data to regfile */
-		for (ulong seg = 0; seg < nf; seg++)
+		для (ulong seg = 0; seg < nf; seg++)
 			set_vreg(vlenb, vd + seg * emul, vstart * len,
 				 len, &bytes[seg * len]);
-	} while (++vstart < vl);
+	} поки (++vstart < vl);
 
 done:
 	/* restore clobbered vl/vtype */
@@ -271,10 +271,10 @@ done:
 	SET_VS_DIRTY(regs);
 
 	/* Return a >0 value for the caller to advance mepc */
-	return 1;
+	повернути 1;
 }
 
-int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
+ціле sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 {
 	struct sbi_trap_regs *regs = &tcntx->regs;
 	struct sbi_trap_info uptrap;
@@ -299,44 +299,44 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	ulong vemul = GET_VEMUL(vlmul, view, vsew);
 	ulong emul = GET_EMUL(vemul);
 
-	if (IS_UNIT_STRIDE_STORE(insn)) {
+	якщо (IS_UNIT_STRIDE_STORE(insn)) {
 		stride = nf * len;
-	} else if (IS_WHOLE_REG_STORE(insn)) {
+	} інакше якщо (IS_WHOLE_REG_STORE(insn)) {
 		vl = (nf * vlenb) >> view;
 		nf = 1;
 		vemul = 0;
 		emul = 1;
 		stride = nf * len;
-	} else if (IS_INDEXED_STORE(insn)) {
+	} інакше якщо (IS_INDEXED_STORE(insn)) {
 		len = 1 << vsew;
 		vemul = (vlmul + vsew - vsew) & 7;
 		emul = 1 << ((vemul & 4) ? 0 : vemul);
 		stride = nf * len;
 	}
 
-	if (illegal) {
+	якщо (illegal) {
 		struct sbi_trap_info trap = {
 			uptrap.cause = CAUSE_ILLEGAL_INSTRUCTION,
 			uptrap.tval = insn,
 		};
-		return sbi_trap_redirect(regs, &trap);
+		повернути sbi_trap_redirect(regs, &trap);
 	}
 
 	do {
-		if (masked) {
-			if (vstart == orig_vstart || vstart % mask_len == 0)
+		якщо (masked) {
+			якщо (vstart == orig_vstart || vstart % mask_len == 0)
 				/* Fetch a mask_len chunk of mask */
 				get_vreg(vlenb, 0, vstart / mask_len * mask_len,
 					 mask_len, mask);
 
-			if (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
+			якщо (~mask[vstart % mask_len / 8] & BIT(vstart % 8))
 				continue;
 		}
 
 		/* compute element address */
 		ulong addr = base + vstart * stride;
 
-		if (IS_INDEXED_STORE(insn)) {
+		якщо (IS_INDEXED_STORE(insn)) {
 			ulong offset = 0;
 
 			get_vreg(vlenb, vs2, vstart << view, 1 << view, (uint8_t *)&offset);
@@ -344,27 +344,27 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 		}
 
 		/* obtain store data from regfile */
-		for (ulong seg = 0; seg < nf; seg++)
+		для (ulong seg = 0; seg < nf; seg++)
 			get_vreg(vlenb, vd + seg * emul, vstart * len,
 				 len, &bytes[seg * len]);
 
 		/* write store data to memory */
-		for (ulong seg = 0; seg < nf; seg++) {
+		для (ulong seg = 0; seg < nf; seg++) {
 			sbi_store_loop(bytes + seg * len,
 					addr + seg * len, len, &uptrap);
 
-			if (!uptrap.cause)
+			якщо (!uptrap.cause)
 				continue;
 
 			vsetvl(vl, vtype);
 			csr_write(CSR_VSTART, vstart);
 			/* Don't forget to set dirty if vstart has changed */
-			if (vstart != orig_vstart)
+			якщо (vstart != orig_vstart)
 				SET_VS_DIRTY(regs);
 			sbi_misaligned_v_tinst_fixup(&uptrap);
-			return sbi_trap_redirect(regs, &uptrap);
+			повернути sbi_trap_redirect(regs, &uptrap);
 		}
-	} while (++vstart < vl);
+	} поки (++vstart < vl);
 
 	/* restore clobbered vl/vtype */
 	vsetvl(vl, vtype); // VSTART resets to 0
@@ -373,22 +373,22 @@ int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 	 * No need to set dirty for memory store, but as VSTART resets to
 	 * 0 above, need to set dirty if it's originally not 0.
 	 */
-	if (orig_vstart != 0)
+	якщо (orig_vstart != 0)
 		SET_VS_DIRTY(regs);
 
 	/* Return a >0 value for the caller to advance mepc */
-	return 1;
+	повернути 1;
 }
-#else
-int sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
+#інакше
+ціле sbi_misaligned_v_ld_emulator(ulong insn, struct sbi_trap_context *tcntx)
 {
 	/* Unable to emulate, send trap to previous mode. */
-	return sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
+	повернути sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
 }
 
-int sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
+ціле sbi_misaligned_v_st_emulator(ulong insn, struct sbi_trap_context *tcntx)
 {
 	/* Unable to emulate, send trap to previous mode. */
-	return sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
+	повернути sbi_trap_redirect(&tcntx->regs, &tcntx->trap);
 }
 #endif /* OPENSBI_CC_SUPPORT_VECTOR */

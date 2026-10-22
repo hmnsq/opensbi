@@ -10,84 +10,84 @@
 
 #include "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+ціле fdt_check_full(const void *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	ціле err;
+	ціле num_memrsv;
+	ціле offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
+	unsigned ціле depth = 0;
 	const void *prop;
 	const char *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	якщо (bufsize < FDT_V1_SIZE)
+		повернути -FDT_ERR_TRUNCATED;
+	якщо (bufsize < fdt_header_size(fdt))
+		повернути -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	якщо (err != 0)
+		повернути err;
+	якщо (bufsize < fdt_totalsize(fdt))
+		повернути -FDT_ERR_TRUNCATED;
 
 	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	якщо (num_memrsv < 0)
+		повернути num_memrsv;
 
-	while (1) {
+	поки (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		якщо (nextoffset < 0)
+			повернути nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		якщо (expect_end && tag != FDT_END)
+			повернути -FDT_ERR_BADSTRUCTURE;
 
 		switch (tag) {
 		case FDT_NOP:
 			break;
 
 		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+			якщо (depth != 0)
+				повернути -FDT_ERR_BADSTRUCTURE;
+			повернути 0;
 
 		case FDT_BEGIN_NODE:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			якщо (depth > INT_MAX)
+				повернути -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
+			якщо (depth == 1) {
 				const char *name;
-				int len;
+				ціле len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				якщо (*name || len)
+					повернути -FDT_ERR_BADSTRUCTURE;
 			}
 			break;
 
 		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+			якщо (depth == 0)
+				повернути -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			якщо (depth == 0)
 				expect_end = true;
 			break;
 
 		case FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
+			якщо (!prop)
+				повернути err;
 			break;
 
 		default:
-			return -FDT_ERR_INTERNAL;
+			повернути -FDT_ERR_INTERNAL;
 		}
 	}
 }

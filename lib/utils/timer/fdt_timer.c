@@ -15,11 +15,11 @@
 /* List of FDT timer drivers generated at compile time */
 extern const struct fdt_driver *const fdt_timer_drivers[];
 
-int fdt_timer_init(void)
+ціле fdt_timer_init(void)
 {
 	/*
 	 * Systems with Sstc might not provide any node in the FDT,
 	 * so do not return a failure if no device is found.
 	 */
-	return fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
+	повернути fdt_driver_init_all(fdt_get_address(), fdt_timer_drivers);
 }

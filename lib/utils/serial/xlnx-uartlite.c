@@ -35,20 +35,20 @@ static volatile char *xlnx_uartlite_base;
 
 static void xlnx_uartlite_putc(char ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	поки((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
 		;
 
 	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
 }
 
-static int xlnx_uartlite_getc(void)
+static ціле xlnx_uartlite_getc(void)
 {
 	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	якщо (status & UART_STATUS_RXVALID)
+		повернути readb(xlnx_uartlite_base + UART_RX_OFFSET);
 
-	return -1;
+	повернути -1;
 }
 
 static struct sbi_console_device xlnx_uartlite_console = {
@@ -57,11 +57,11 @@ static struct sbi_console_device xlnx_uartlite_console = {
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+ціле xlnx_uartlite_init(unsigned long base)
 {
 	xlnx_uartlite_base = (volatile char *)base;
 
 	sbi_console_set_device(&xlnx_uartlite_console);
 
-	return 0;
+	повернути 0;
 }

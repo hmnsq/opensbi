@@ -11,17 +11,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/gaisler-uart.h>
 
-static int serial_gaisler_init(const void *fdt, int nodeoff,
+static ціле serial_gaisler_init(const void *fdt, ціле nodeoff,
 			       const struct fdt_match *match)
 {
-	int rc;
+	ціле rc;
 	struct platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_gaisler_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
-	return gaisler_uart_init(uart.addr, uart.freq, uart.baud);
+	повернути gaisler_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
 static const struct fdt_match serial_gaisler_match[] = {

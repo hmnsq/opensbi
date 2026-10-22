@@ -7,17 +7,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/renesas-scif.h>
 
-static int serial_renesas_scif_init(const void *fdt, int nodeoff,
+static ціле serial_renesas_scif_init(const void *fdt, ціле nodeoff,
 				    const struct fdt_match *match)
 {
 	struct platform_uart_data uart = { 0 };
-	int ret;
+	ціле ret;
 
 	ret = fdt_parse_renesas_scif_node(fdt, nodeoff, &uart);
-	if (ret)
-		return ret;
+	якщо (ret)
+		повернути ret;
 
-	return renesas_scif_init(uart.addr, uart.freq, uart.baud);
+	повернути renesas_scif_init(uart.addr, uart.freq, uart.baud);
 }
 
 static const struct fdt_match serial_renesas_scif_match[] = {

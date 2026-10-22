@@ -19,164 +19,164 @@
 #include <sbi_utils/fdt/fdt_domain.h>
 #include <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_iterate_each_domain(void *fdt, void *opaque,
-			    int (*fn)(void *fdt, int domain_offset,
+ціле fdt_iterate_each_domain(void *fdt, void *opaque,
+			    ціле (*fn)(void *fdt, ціле domain_offset,
 				       void *opaque))
 {
-	int rc, doffset, poffset;
+	ціле rc, doffset, poffset;
 
-	if (!fdt || !fn)
-		return SBI_EINVAL;
+	якщо (!fdt || !fn)
+		повернути SBI_EINVAL;
 
 	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return 0;
+	якщо (poffset < 0)
+		повернути 0;
 	poffset = fdt_node_offset_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return 0;
+	якщо (poffset < 0)
+		повернути 0;
 
 	fdt_for_each_subnode(doffset, fdt, poffset) {
-		if (fdt_node_check_compatible(fdt, doffset,
+		якщо (fdt_node_check_compatible(fdt, doffset,
 					      "opensbi,domain,instance"))
 			continue;
 
 		rc = fn(fdt, doffset, opaque);
-		if (rc)
-			return rc;
+		якщо (rc)
+			повернути rc;
 	}
 
-	return 0;
+	повернути 0;
 }
 
-static int fdt_iterate_each_domain_ro(const void *fdt, void *opaque,
-				      int (*fn)(const void *fdt, int domain_offset,
+static ціле fdt_iterate_each_domain_ro(const void *fdt, void *opaque,
+				      ціле (*fn)(const void *fdt, ціле domain_offset,
 						void *opaque))
 {
-	return fdt_iterate_each_domain((void *)fdt, opaque,
-				       (int (*)(void *, int,  void *))fn);
+	повернути fdt_iterate_each_domain((void *)fdt, opaque,
+				       (ціле (*)(void *, ціле,  void *))fn);
 }
 
-int fdt_iterate_each_memregion(void *fdt, int domain_offset, void *opaque,
-			       int (*fn)(void *fdt, int domain_offset,
-					 int region_offset, u32 region_access,
+ціле fdt_iterate_each_memregion(void *fdt, ціле domain_offset, void *opaque,
+			       ціле (*fn)(void *fdt, ціле domain_offset,
+					 ціле region_offset, u32 region_access,
 					 void *opaque))
 {
 	u32 i, rcount;
-	int rc, len, region_offset;
+	ціле rc, len, region_offset;
 	const u32 *regions;
 
-	if (!fdt || (domain_offset < 0) || !fn)
-		return SBI_EINVAL;
+	якщо (!fdt || (domain_offset < 0) || !fn)
+		повернути SBI_EINVAL;
 
-	if (fdt_node_check_compatible(fdt, domain_offset,
+	якщо (fdt_node_check_compatible(fdt, domain_offset,
 				      "opensbi,domain,instance"))
-		return SBI_EINVAL;
+		повернути SBI_EINVAL;
 
 	regions = fdt_getprop(fdt, domain_offset, "regions", &len);
-	if (!regions)
-		return 0;
+	якщо (!regions)
+		повернути 0;
 
 	rcount = (u32)len / (sizeof(u32) * 2);
-	for (i = 0; i < rcount; i++) {
+	для (i = 0; i < rcount; i++) {
 		region_offset = fdt_node_offset_by_phandle(fdt,
 						fdt32_to_cpu(regions[2 * i]));
-		if (region_offset < 0)
-			return region_offset;
+		якщо (region_offset < 0)
+			повернути region_offset;
 
-		if (fdt_node_check_compatible(fdt, region_offset,
+		якщо (fdt_node_check_compatible(fdt, region_offset,
 					      "opensbi,domain,memregion"))
-			return SBI_EINVAL;
+			повернути SBI_EINVAL;
 
 		rc = fn(fdt, domain_offset, region_offset,
 			fdt32_to_cpu(regions[(2 * i) + 1]), opaque);
-		if (rc)
-			return rc;
+		якщо (rc)
+			повернути rc;
 	}
 
-	return 0;
+	повернути 0;
 }
 
-static int fdt_iterate_each_memregion_ro(const void *fdt, int domain_offset, void *opaque,
-					 int (*fn)(const void *fdt, int domain_offset,
-						   int region_offset, u32 region_access,
+static ціле fdt_iterate_each_memregion_ro(const void *fdt, ціле domain_offset, void *opaque,
+					 ціле (*fn)(const void *fdt, ціле domain_offset,
+						   ціле region_offset, u32 region_access,
 						   void *opaque))
 {
-	return fdt_iterate_each_memregion((void *)fdt, domain_offset, opaque,
-					  (int (*)(void *, int, int, u32, void *))fn);
+	повернути fdt_iterate_each_memregion((void *)fdt, domain_offset, opaque,
+					  (ціле (*)(void *, ціле, ціле, u32, void *))fn);
 }
 
 struct __fixup_find_domain_offset_info {
 	const char *name;
-	int *doffset;
+	ціле *doffset;
 };
 
-static int __fixup_find_domain_offset(void *fdt, int doff, void *p)
+static ціле __fixup_find_domain_offset(void *fdt, ціле doff, void *p)
 {
 	struct __fixup_find_domain_offset_info *fdo = p;
 
-	if (!strncmp(fdo->name, fdt_get_name(fdt, doff, NULL), strlen(fdo->name)))
+	якщо (!strncmp(fdo->name, fdt_get_name(fdt, doff, NULL), strlen(fdo->name)))
 		*fdo->doffset = doff;
 
-	return 0;
+	повернути 0;
 }
 
 #define DISABLE_DEVICES_MASK	(SBI_DOMAIN_MEMREGION_READABLE | \
 				 SBI_DOMAIN_MEMREGION_WRITEABLE | \
 				 SBI_DOMAIN_MEMREGION_EXECUTABLE)
 
-static int __fixup_count_disable_devices(void *fdt, int doff, int roff,
+static ціле __fixup_count_disable_devices(void *fdt, ціле doff, ціле roff,
 					 u32 perm, void *p)
 {
-	int len;
+	ціле len;
 	u32 *dcount = p;
 
-	if (perm & DISABLE_DEVICES_MASK)
-		return 0;
+	якщо (perm & DISABLE_DEVICES_MASK)
+		повернути 0;
 
 	len = 0;
-	if (fdt_getprop(fdt, roff, "devices", &len))
+	якщо (fdt_getprop(fdt, roff, "devices", &len))
 		*dcount += len / sizeof(u32);
 
-	return 0;
+	повернути 0;
 }
 
-static int __fixup_disable_devices(void *fdt, int doff, int roff,
+static ціле __fixup_disable_devices(void *fdt, ціле doff, ціле roff,
 				   u32 raccess, void *p)
 {
-	int i, len, coff;
+	ціле i, len, coff;
 	const u32 *devices;
 
-	if (raccess & DISABLE_DEVICES_MASK)
-		return 0;
+	якщо (raccess & DISABLE_DEVICES_MASK)
+		повернути 0;
 
 	len = 0;
 	devices = fdt_getprop(fdt, roff, "devices", &len);
-	if (!devices)
-		return 0;
+	якщо (!devices)
+		повернути 0;
 	len = len / sizeof(u32);
 
-	for (i = 0; i < len; i++) {
+	для (i = 0; i < len; i++) {
 		coff = fdt_node_offset_by_phandle(fdt,
 					fdt32_to_cpu(devices[i]));
-		if (coff < 0)
-			return coff;
+		якщо (coff < 0)
+			повернути coff;
 
 		fdt_setprop_string(fdt, coff, "status", "disabled");
 	}
 
-	return 0;
+	повернути 0;
 }
 
 void fdt_domain_fixup(void *fdt)
 {
 	u32 dcount;
-	int err, poffset, doffset;
+	ціле err, poffset, doffset;
 	struct sbi_domain *dom = sbi_domain_thishart_ptr();
 	struct __fixup_find_domain_offset_info fdo;
 
 	/* Skip device disable for root domain */
-	if (!dom->index)
+	якщо (!dom->index)
 		goto skip_device_disable;
 
 	/* Find current domain DT node */
@@ -184,27 +184,27 @@ void fdt_domain_fixup(void *fdt)
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
+	якщо (doffset < 0)
 		goto skip_device_disable;
 
 	/* Count current domain device DT nodes to be disabled */
 	dcount = 0;
 	fdt_iterate_each_memregion(fdt, doffset, &dcount,
 				   __fixup_count_disable_devices);
-	if (!dcount)
+	якщо (!dcount)
 		goto skip_device_disable;
 
 	/* Expand FDT based on device DT nodes to be disabled */
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + dcount * 32);
-	if (err < 0)
-		return;
+	якщо (err < 0)
+		повернути;
 
 	/* Again find current domain DT node */
 	doffset = -1;
 	fdo.name = dom->name;
 	fdo.doffset = &doffset;
 	fdt_iterate_each_domain(fdt, &fdo, __fixup_find_domain_offset);
-	if (doffset < 0)
+	якщо (doffset < 0)
 		goto skip_device_disable;
 
 	/* Disable device DT nodes for current domain */
@@ -214,12 +214,12 @@ skip_device_disable:
 
 	/* Remove the OpenSBI domain config DT node */
 	poffset = fdt_path_offset(fdt, "/chosen");
-	if (poffset < 0)
-		return;
+	якщо (poffset < 0)
+		повернути;
 	poffset = fdt_node_offset_by_compatible(fdt, poffset,
 						"opensbi,domain,config");
-	if (poffset < 0)
-		return;
+	якщо (poffset < 0)
+		повернути;
 	fdt_nop_node(fdt, poffset);
 }
 
@@ -233,11 +233,11 @@ struct parse_region_data {
 	u32 max_regions;
 };
 
-static int __fdt_parse_region(const void *fdt, int domain_offset,
-			      int region_offset, u32 region_access,
+static ціле __fdt_parse_region(const void *fdt, ціле domain_offset,
+			      ціле region_offset, u32 region_access,
 			      void *opaque)
 {
-	int len;
+	ціле len;
 	u32 val32;
 	u64 val64;
 	const u32 *val;
@@ -252,36 +252,36 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 	 * SU permission bits can't be all zeroes when M-mode permission
 	 * bits have at least one bit set.
 	 */
-	if (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_MASK)
+	якщо (!(region_access & SBI_DOMAIN_MEMREGION_SU_ACCESS_MASK)
 	    && (region_access & SBI_DOMAIN_MEMREGION_M_ACCESS_MASK))
-		return SBI_EINVAL;
+		повернути SBI_EINVAL;
 
 	/* Find next region of the domain */
-	if (preg->max_regions <= preg->region_count)
-		return SBI_ENOSPC;
+	якщо (preg->max_regions <= preg->region_count)
+		повернути SBI_ENOSPC;
 
 	/* Read "base" DT property */
 	val = fdt_getprop(fdt, region_offset, "base", &len);
-	if (!val || len != 8)
-		return SBI_EINVAL;
+	якщо (!val || len != 8)
+		повернути SBI_EINVAL;
 	val64 = fdt32_to_cpu(val[0]);
 	val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
 	base = val64;
 
 	/* Read "order" DT property */
 	val = fdt_getprop(fdt, region_offset, "order", &len);
-	if (!val || len != 4)
-		return SBI_EINVAL;
+	якщо (!val || len != 4)
+		повернути SBI_EINVAL;
 	val32 = fdt32_to_cpu(*val);
-	if (val32 < 3 || __riscv_xlen < val32)
-		return SBI_EINVAL;
+	якщо (val32 < 3 || __riscv_xlen < val32)
+		повернути SBI_EINVAL;
 	order = val32;
 
 	flags = region_access & (SBI_DOMAIN_MEMREGION_ACCESS_MASK
 				| SBI_DOMAIN_MEMREGION_ENF_PERMISSIONS);
 
 	/* Read "mmio" DT property */
-	if (fdt_get_property(fdt, region_offset, "mmio", NULL))
+	якщо (fdt_get_property(fdt, region_offset, "mmio", NULL))
 		flags |= SBI_DOMAIN_MEMREGION_MMIO;
 
 	sbi_domain_memregion_init(base, (order == __riscv_xlen) ? ~0UL : BIT(order),
@@ -289,10 +289,10 @@ static int __fdt_parse_region(const void *fdt, int domain_offset,
 
 	preg->region_count++;
 
-	return 0;
+	повернути 0;
 }
 
-static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
+static ціле __fdt_parse_domain(const void *fdt, ціле domain_offset, void *opaque)
 {
 	u32 val32;
 	u64 val64;
@@ -302,16 +302,16 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	struct sbi_hartmask *mask;
 	struct parse_region_data preg;
 	struct sbi_domain_memregion *reg;
-	int inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-	int i, err = 0, len, cpu_offset;
+	ціле inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
+	ціле i, err = 0, len, cpu_offset;
 
 	dom = sbi_zalloc(sizeof(*dom));
-	if (!dom)
-		return SBI_ENOMEM;
+	якщо (!dom)
+		повернути SBI_ENOMEM;
 
 	dom->regions = sbi_calloc(sizeof(*dom->regions),
 				  FDT_DOMAIN_REGION_MAX_COUNT + 1);
-	if (!dom->regions) {
+	якщо (!dom->regions) {
 		err = SBI_ENOMEM;
 		goto fail_free_domain;
 	}
@@ -320,7 +320,7 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	preg.max_regions = FDT_DOMAIN_REGION_MAX_COUNT;
 
 	mask = sbi_zalloc(sizeof(*mask));
-	if (!mask) {
+	якщо (!mask) {
 		err = SBI_ENOMEM;
 		goto fail_free_regions;
 	}
@@ -333,9 +333,9 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Read initalization order */
 	val = fdt_getprop(fdt, domain_offset, "init-order", &len);
 	len = len / sizeof(u32);
-	if (val && len)
+	якщо (val && len)
 		dom->init_order = fdt32_to_cpu(val[0]);
-	else
+	інакше
 		dom->init_order = (u32)domain_offset;
 
 	/* Setup possible HARTs mask */
@@ -343,20 +343,20 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	dom->possible_harts = mask;
 	val = fdt_getprop(fdt, domain_offset, "possible-harts", &len);
 	len = len / sizeof(u32);
-	if (val && len) {
-		for (i = 0; i < len; i++) {
+	якщо (val && len) {
+		для (i = 0; i < len; i++) {
 			cpu_offset = fdt_node_offset_by_phandle(fdt,
 							fdt32_to_cpu(val[i]));
-			if (cpu_offset < 0) {
+			якщо (cpu_offset < 0) {
 				err = cpu_offset;
 				goto fail_free_all;
 			}
 
 			err = fdt_parse_hart_id(fdt, cpu_offset, &val32);
-			if (err)
+			якщо (err)
 				goto fail_free_all;
 
-			if (!fdt_node_is_enabled(fdt, cpu_offset))
+			якщо (!fdt_node_is_enabled(fdt, cpu_offset))
 				continue;
 
 			sbi_hartmask_set_hartid(val32, mask);
@@ -366,18 +366,18 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Setup memregions from DT */
 	err = fdt_iterate_each_memregion_ro(fdt, domain_offset, &preg,
 					    __fdt_parse_region);
-	if (err)
+	якщо (err)
 		goto fail_free_all;
 
 	/* Determine root domain regions inheritance behavior. */
 	inherit = fdt_getprop(fdt, domain_offset,
 			       "root-regions-inheritance", &len);
-	if (inherit && len > 0) {
-		if (!strcmp(inherit, "all"))
+	якщо (inherit && len > 0) {
+		якщо (!strcmp(inherit, "all"))
 			inheritance_mode = FDT_ROOT_REGION_INHERIT_ALL;
-		else if (!strcmp(inherit, "m-only"))
+		інакше якщо (!strcmp(inherit, "m-only"))
 			inheritance_mode = FDT_ROOT_REGION_INHERIT_M_ONLY;
-		else {
+		інакше {
 			sbi_printf("%s: domain \"%s\" has unsupported "
 				   "root-regions-inheritance=\"%s\"\n",
 				   __func__, dom->name, inherit);
@@ -395,17 +395,17 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 			copy = true;
 			break;
 		case FDT_ROOT_REGION_INHERIT_M_ONLY:
-			if (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
+			якщо (SBI_DOMAIN_MEMREGION_IS_FIRMWARE(reg->flags) ||
 			    SBI_DOMAIN_MEMREGION_M_ONLY_ACCESS(reg->flags)) {
 				copy = true;
 			}
 			break;
 		}
 
-		if (!copy)
+		якщо (!copy)
 			continue;
 
-		if (preg.max_regions <= preg.region_count) {
+		якщо (preg.max_regions <= preg.region_count) {
 			err = SBI_EINVAL;
 			goto fail_free_all;
 		}
@@ -416,10 +416,10 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Read "boot-hart" DT property */
 	val32 = current_hartid();
 	val = fdt_getprop(fdt, domain_offset, "boot-hart", &len);
-	if (val && len >= 4) {
+	якщо (val && len >= 4) {
 		cpu_offset = fdt_node_offset_by_phandle(fdt,
 							 fdt32_to_cpu(*val));
-		if (cpu_offset >= 0 && fdt_node_is_enabled(fdt, cpu_offset))
+		якщо (cpu_offset >= 0 && fdt_node_is_enabled(fdt, cpu_offset))
 			fdt_parse_hart_id(fdt, cpu_offset, &val32);
 	}
 	dom->boot_hartid = val32;
@@ -427,10 +427,10 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Read "next-arg1" DT property */
 	val64 = 0;
 	val = fdt_getprop(fdt, domain_offset, "next-arg1", &len);
-	if (val && len >= 8) {
+	якщо (val && len >= 8) {
 		val64 = fdt32_to_cpu(val[0]);
 		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
+	} інакше {
 		val64 = root.next_arg1;
 	}
 	dom->next_arg1 = val64;
@@ -438,10 +438,10 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Read "next-addr" DT property */
 	val64 = 0;
 	val = fdt_getprop(fdt, domain_offset, "next-addr", &len);
-	if (val && len >= 8) {
+	якщо (val && len >= 8) {
 		val64 = fdt32_to_cpu(val[0]);
 		val64 = (val64 << 32) | fdt32_to_cpu(val[1]);
-	} else {
+	} інакше {
 		val64 = root.next_addr;
 	}
 	dom->next_addr = val64;
@@ -449,35 +449,35 @@ static int __fdt_parse_domain(const void *fdt, int domain_offset, void *opaque)
 	/* Read "next-mode" DT property */
 	val32 = 0x1;
 	val = fdt_getprop(fdt, domain_offset, "next-mode", &len);
-	if (val && len >= 4) {
+	якщо (val && len >= 4) {
 		val32 = fdt32_to_cpu(val[0]);
-		if (val32 != 0x0 && val32 != 0x1)
+		якщо (val32 != 0x0 && val32 != 0x1)
 			val32 = 0x1;
-	} else {
+	} інакше {
 		val32 = root.next_mode;
 	}
 	dom->next_mode = val32;
 
 	/* Read "system-reset-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
+	якщо (fdt_get_property(fdt, domain_offset,
 			     "system-reset-allowed", NULL))
 		dom->system_reset_allowed = true;
-	else
+	інакше
 		dom->system_reset_allowed = false;
 
 	/* Read "system-suspend-allowed" DT property */
-	if (fdt_get_property(fdt, domain_offset,
+	якщо (fdt_get_property(fdt, domain_offset,
 			     "system-suspend-allowed", NULL))
 		dom->system_suspend_allowed = true;
-	else
+	інакше
 		dom->system_suspend_allowed = false;
 
 	/* Register the domain */
 	err = sbi_domain_register(dom);
-	if (err)
+	якщо (err)
 		goto fail_free_all;
 
-	return 0;
+	повернути 0;
 
 fail_free_all:
 	sbi_free(mask);
@@ -485,15 +485,15 @@ fail_free_regions:
 	sbi_free(dom->regions);
 fail_free_domain:
 	sbi_free(dom);
-	return err;
+	повернути err;
 }
 
-int fdt_domains_populate(const void *fdt)
+ціле fdt_domains_populate(const void *fdt)
 {
 	/* Sanity checks */
-	if (!fdt)
-		return SBI_EINVAL;
+	якщо (!fdt)
+		повернути SBI_EINVAL;
 
 	/* Iterate over each domain in FDT and populate details */
-	return fdt_iterate_each_domain_ro(fdt, NULL, __fdt_parse_domain);
+	повернути fdt_iterate_each_domain_ro(fdt, NULL, __fdt_parse_domain);
 }

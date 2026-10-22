@@ -15,82 +15,82 @@
 /* List of FDT mailbox drivers generated at compile time */
 extern const struct fdt_driver *const fdt_mailbox_drivers[];
 
-static int fdt_mbox_controller_find(const void *fdt, int nodeoff,
+static ціле fdt_mbox_controller_find(const void *fdt, ціле nodeoff,
 				    struct mbox_controller **out_mbox)
 {
-	int rc;
+	ціле rc;
 	struct mbox_controller *mbox = mbox_controller_find(nodeoff);
 
-	if (!mbox) {
+	якщо (!mbox) {
 		/* mailbox not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, fdt_mailbox_drivers);
-		if (rc)
-			return rc;
+		якщо (rc)
+			повернути rc;
 
 		/* Try to find mailbox controller again */
 		mbox = mbox_controller_find(nodeoff);
-		if (!mbox)
-			return SBI_ENOSYS;
+		якщо (!mbox)
+			повернути SBI_ENOSYS;
 	}
 
-	if (out_mbox)
+	якщо (out_mbox)
 		*out_mbox = mbox;
 
-	return 0;
+	повернути 0;
 }
 
-int fdt_mailbox_request_chan(const void *fdt, int nodeoff, int index,
+ціле fdt_mailbox_request_chan(const void *fdt, ціле nodeoff, ціле index,
 			     struct mbox_chan **out_chan)
 {
-	int rc;
+	ціле rc;
 	struct mbox_chan *chan;
 	struct fdt_mailbox *drv;
 	struct fdt_phandle_args pargs;
 	struct mbox_controller *mbox = NULL;
 	u32 chan_args[MBOX_CHAN_MAX_ARGS];
 
-	if (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
-		return SBI_EINVAL;
+	якщо (!fdt || (nodeoff < 0) || (index < 0) || !out_chan)
+		повернути SBI_EINVAL;
 
 	pargs.node_offset = pargs.args_count = 0;
 	rc = fdt_parse_phandle_with_args(fdt, nodeoff,
 					 "mboxes", "#mbox-cells",
 					 index, &pargs);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
 	rc = fdt_mbox_controller_find(fdt, pargs.node_offset, &mbox);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
 	drv = mbox->driver;
-	if (!drv || !drv->xlate)
-		return SBI_ENOSYS;
+	якщо (!drv || !drv->xlate)
+		повернути SBI_ENOSYS;
 
 	rc = drv->xlate(mbox, &pargs, chan_args);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
 	chan = mbox_controller_request_chan(mbox, chan_args);
-	if (!chan)
-		return SBI_ENOENT;
+	якщо (!chan)
+		повернути SBI_ENOENT;
 
 	*out_chan = chan;
-	return 0;
+	повернути 0;
 }
 
-int fdt_mailbox_simple_xlate(struct mbox_controller *mbox,
+ціле fdt_mailbox_simple_xlate(struct mbox_controller *mbox,
 			     const struct fdt_phandle_args *pargs,
 			     u32 *out_chan_args)
 {
-	int i;
+	ціле i;
 
-	if (pargs->args_count < 1)
-		return SBI_EINVAL;
+	якщо (pargs->args_count < 1)
+		повернути SBI_EINVAL;
 
 	out_chan_args[0] = pargs->args[0];
-	for (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
+	для (i = 1; i < MBOX_CHAN_MAX_ARGS; i++)
 		out_chan_args[i] = 0;
 
-	return 0;
+	повернути 0;
 }

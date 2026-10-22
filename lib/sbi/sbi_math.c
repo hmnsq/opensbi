@@ -13,11 +13,11 @@ unsigned long log2roundup(unsigned long x)
 {
 	unsigned long ret = 0;
 
-	while (ret < __riscv_xlen) {
-		if (x <= (1UL << ret))
+	поки (ret < __riscv_xlen) {
+		якщо (x <= (1UL << ret))
 			break;
 		ret++;
 	}
 
-	return ret;
+	повернути ret;
 }

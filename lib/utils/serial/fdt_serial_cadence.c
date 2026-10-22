@@ -10,17 +10,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/cadence-uart.h>
 
-static int serial_cadence_init(const void *fdt, int nodeoff,
+static ціле serial_cadence_init(const void *fdt, ціле nodeoff,
 			       const struct fdt_match *match)
 {
-	int rc;
+	ціле rc;
 	struct platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
-	return cadence_uart_init(uart.addr, uart.freq, uart.baud);
+	повернути cadence_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
 static const struct fdt_match serial_cadence_match[] = {

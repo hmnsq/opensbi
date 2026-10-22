@@ -33,26 +33,26 @@ static struct syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
 
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_reboot)
+		якщо (!is_reboot)
 			reset = &poweroff;
 		break;
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_reboot)
+		якщо (is_reboot)
 			reset = &reboot;
 		break;
 	}
 
-	if (reset && !reset->rmap)
+	якщо (reset && !reset->rmap)
 		reset = NULL;
 
-	return reset;
+	повернути reset;
 }
 
 static void syscon_reset_exec(struct syscon_reset *reset)
 {
 	/* Issue the reset through regmap */
-	if (reset)
+	якщо (reset)
 		regmap_update_bits(reset->rmap, reset->offset,
 				   reset->mask, reset->value);
 
@@ -60,11 +60,11 @@ static void syscon_reset_exec(struct syscon_reset *reset)
 	sbi_hart_hang();
 }
 
-static int syscon_poweroff_check(u32 type, u32 reason)
+static ціле syscon_poweroff_check(u32 type, u32 reason)
 {
 	struct syscon_reset *reset = syscon_reset_get(false, type);
 
-	return (reset) ? reset->priority : 0;
+	повернути (reset) ? reset->priority : 0;
 }
 
 static void syscon_do_poweroff(u32 type, u32 reason)
@@ -78,11 +78,11 @@ static struct sbi_system_reset_device syscon_poweroff = {
 	.system_reset = syscon_do_poweroff
 };
 
-static int syscon_reboot_check(u32 type, u32 reason)
+static ціле syscon_reboot_check(u32 type, u32 reason)
 {
 	struct syscon_reset *reset = syscon_reset_get(true, type);
 
-	return (reset) ? reset->priority : 0;
+	повернути (reset) ? reset->priority : 0;
 }
 
 static void syscon_do_reboot(u32 type, u32 reason)
@@ -96,54 +96,54 @@ static struct sbi_system_reset_device syscon_reboot = {
 	.system_reset = syscon_do_reboot
 };
 
-static int syscon_reset_init(const void *fdt, int nodeoff,
+static ціле syscon_reset_init(const void *fdt, ціле nodeoff,
 			     const struct fdt_match *match)
 {
-	int rc, len;
+	ціле rc, len;
 	const fdt32_t *val, *mask;
 	bool is_reboot = (ulong)match->data;
 	struct syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
 
-	if (reset->rmap)
-		return SBI_EALREADY;
+	якщо (reset->rmap)
+		повернути SBI_EALREADY;
 
 	rc = fdt_regmap_get(fdt, nodeoff, &reset->rmap);
-	if (rc)
-		return rc;
+	якщо (rc)
+		повернути rc;
 
 	val = fdt_getprop(fdt, nodeoff, "priority", &len);
 	reset->priority = (val && len > 0) ? fdt32_to_cpu(*val) : 192;
 
 	val = fdt_getprop(fdt, nodeoff, "offset", &len);
-	if (val && len > 0)
+	якщо (val && len > 0)
 		reset->offset = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	інакше
+		повернути SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "value", &len);
 	mask = fdt_getprop(fdt, nodeoff, "mask", &len);
-	if (!val && !mask)
-		return SBI_EINVAL;
+	якщо (!val && !mask)
+		повернути SBI_EINVAL;
 
-	if (!val) {
+	якщо (!val) {
 		/* support old binding */
 		reset->value = fdt32_to_cpu(*mask);
 		reset->mask = 0xFFFFFFFF;
-	} else if (!mask) {
+	} інакше якщо (!mask) {
 		/* support value without mask */
 		reset->value = fdt32_to_cpu(*val);
 		reset->mask = 0xFFFFFFFF;
-	} else {
+	} інакше {
 		reset->value = fdt32_to_cpu(*val);
 		reset->mask = fdt32_to_cpu(*mask);
 	}
 
-	if (is_reboot)
+	якщо (is_reboot)
 		sbi_system_reset_add_device(&syscon_reboot);
-	else
+	інакше
 		sbi_system_reset_add_device(&syscon_poweroff);
 
-	return 0;
+	повернути 0;
 }
 
 static const struct fdt_match syscon_poweroff_match[] = {

@@ -16,11 +16,11 @@
 #include <sbi/sbi_scratch.h>
 #include <sbi/riscv_asm.h>
 
-static int sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
+static ціле sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
 				 struct sbi_trap_regs *regs,
 				 struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	ціле ret = 0;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	ulong smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
@@ -45,19 +45,19 @@ static int sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (ret >= 0) {
+	якщо (ret >= 0) {
 		out->value = ret;
 		ret = 0;
 	}
 
-	return ret;
+	повернути ret;
 }
 
 struct sbi_ecall_extension ecall_hsm;
 
-static int sbi_ecall_hsm_register_extensions(void)
+static ціле sbi_ecall_hsm_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_hsm);
+	повернути sbi_ecall_register_extension(&ecall_hsm);
 }
 
 struct sbi_ecall_extension ecall_hsm = {

@@ -18,106 +18,106 @@
   Provides sbi_strcmp for the completeness of supporting string functions.
   it is not recommended to use sbi_strcmp() but use sbi_strncmp instead.
 */
-int sbi_strcmp(const char *a, const char *b)
+ціле sbi_strcmp(const char *a, const char *b)
 {
 	/* search first diff or end of string */
-	for (; *a == *b && *a != '\0'; a++, b++)
+	для (; *a == *b && *a != '\0'; a++, b++)
 		;
 
-	return *a - *b;
+	повернути *a - *b;
 }
 
-int sbi_strncmp(const char *a, const char *b, size_t count)
+ціле sbi_strncmp(const char *a, const char *b, size_t count)
 {
 	/* search first diff or end of string */
-	for (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
+	для (; count > 0 && *a == *b && *a != '\0'; a++, b++, count--)
 		;
 
 	/* No difference till the end */
-	if (!count)
-		return 0;
+	якщо (!count)
+		повернути 0;
 
-	return *a - *b;
+	повернути *a - *b;
 }
 
 size_t sbi_strlen(const char *str)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0') {
+	поки (*str != '\0') {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	повернути ret;
 }
 
 size_t sbi_strnlen(const char *str, size_t count)
 {
 	unsigned long ret = 0;
 
-	while (*str != '\0' && ret < count) {
+	поки (*str != '\0' && ret < count) {
 		ret++;
 		str++;
 	}
 
-	return ret;
+	повернути ret;
 }
 
 char *sbi_strcpy(char *dest, const char *src)
 {
 	char *ret = dest;
 
-	while ((*dest++ = *src++) != '\0') {
+	поки ((*dest++ = *src++) != '\0') {
 	}
-	return ret;
+	повернути ret;
 }
 
 char *sbi_strncpy(char *dest, const char *src, size_t count)
 {
 	char *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
+	поки (count) {
+		якщо ((*tmp = *src) != 0)
 			src++;
 		tmp++;
 		count--;
 	}
-	return dest;
+	повернути dest;
 }
 
-char *sbi_strchr(const char *s, int c)
+char *sbi_strchr(const char *s, ціле c)
 {
 	do {
-		if (*s == (char)c)
-			return (char *)s;
-	} while (*s++ != '\0');
+		якщо (*s == (char)c)
+			повернути (char *)s;
+	} поки (*s++ != '\0');
 
-	return NULL;
+	повернути NULL;
 }
 
-char *sbi_strrchr(const char *s, int c)
+char *sbi_strrchr(const char *s, ціле c)
 {
 	const char *last = s + sbi_strlen(s);
 
-	while (last > s && *last != (char)c)
+	поки (last > s && *last != (char)c)
 		last--;
 
-	if (*last != (char)c)
-		return NULL;
-	else
-		return (char *)last;
+	якщо (*last != (char)c)
+		повернути NULL;
+	інакше
+		повернути (char *)last;
 }
-void *sbi_memset(void *s, int c, size_t count)
+void *sbi_memset(void *s, ціле c, size_t count)
 {
 	char *temp = s;
 
-	while (count > 0) {
+	поки (count > 0) {
 		count--;
 		*temp++ = c;
 	}
 
-	return s;
+	повернути s;
 }
 
 void *sbi_memcpy(void *dest, const void *src, size_t count)
@@ -125,12 +125,12 @@ void *sbi_memcpy(void *dest, const void *src, size_t count)
 	char *temp1	  = dest;
 	const char *temp2 = src;
 
-	while (count > 0) {
+	поки (count > 0) {
 		*temp1++ = *temp2++;
 		count--;
 	}
 
-	return dest;
+	повернути dest;
 }
 
 void *sbi_memmove(void *dest, const void *src, size_t count)
@@ -138,53 +138,53 @@ void *sbi_memmove(void *dest, const void *src, size_t count)
 	char *temp1	  = (char *)dest;
 	const char *temp2 = (char *)src;
 
-	if (src == dest)
-		return dest;
+	якщо (src == dest)
+		повернути dest;
 
-	if (dest < src) {
-		while (count > 0) {
+	якщо (dest < src) {
+		поки (count > 0) {
 			*temp1++ = *temp2++;
 			count--;
 		}
-	} else {
+	} інакше {
 		temp1 = (char *)dest + count - 1;
 		temp2 = (char *)src + count - 1;
 
-		while (count > 0) {
+		поки (count > 0) {
 			*temp1-- = *temp2--;
 			count--;
 		}
 	}
 
-	return dest;
+	повернути dest;
 }
 
-int sbi_memcmp(const void *s1, const void *s2, size_t count)
+ціле sbi_memcmp(const void *s1, const void *s2, size_t count)
 {
 	const char *temp1 = s1;
 	const char *temp2 = s2;
 
-	for (; count > 0 && (*temp1 == *temp2); count--) {
+	для (; count > 0 && (*temp1 == *temp2); count--) {
 		temp1++;
 		temp2++;
 	}
 
-	if (count > 0)
-		return *(unsigned char *)temp1 - *(unsigned char *)temp2;
-	else
-		return 0;
+	якщо (count > 0)
+		повернути *(unsigned char *)temp1 - *(unsigned char *)temp2;
+	інакше
+		повернути 0;
 }
 
-void *sbi_memchr(const void *s, int c, size_t count)
+void *sbi_memchr(const void *s, ціле c, size_t count)
 {
 	const unsigned char *temp = s;
 
-	while (count > 0) {
-		if ((unsigned char)c == *temp++) {
-			return (void *)(temp - 1);
+	поки (count > 0) {
+		якщо ((unsigned char)c == *temp++) {
+			повернути (void *)(temp - 1);
 		}
 		count--;
 	}
 
-	return NULL;
+	повернути NULL;
 }
