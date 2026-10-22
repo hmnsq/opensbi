@@ -47,76 +47,76 @@
 
 /* clang-format on */
 
-static struct uart8250_device uart8250_dev;
+static sa_nracanaa uart8250_device uart8250_dev;
 
-static u32 get_reg(struct uart8250_device *dev, u32 num)
+static u32 get_reg(sa_nracanaa uart8250_device *dev, u32 num)
 {
 	u32 offset = num << dev->reg_shift;
 
-	if (dev->reg_width == 1)
-		return readb(dev->base + offset);
-	else if (dev->reg_width == 2)
-		return readw(dev->base + offset);
-	else
-		return readl(dev->base + offset);
+	ᱡᱩᱫᱤ (dev->reg_width == 1)
+		ᱨᱩᱣᱟᱹᱲ readb(dev->base + offset);
+	ᱵᱟᱝ ᱡᱩᱫᱤ (dev->reg_width == 2)
+		ᱨᱩᱣᱟᱹᱲ readw(dev->base + offset);
+	ᱵᱟᱝ
+		ᱨᱩᱣᱟᱹᱲ readl(dev->base + offset);
 }
 
-static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
+static void set_reg(sa_nracanaa uart8250_device *dev, u32 num, u32 val)
 {
 	u32 offset = num << dev->reg_shift;
 
-	if (dev->reg_width == 1)
+	ᱡᱩᱫᱤ (dev->reg_width == 1)
 		writeb(val, dev->base + offset);
-	else if (dev->reg_width == 2)
+	ᱵᱟᱝ ᱡᱩᱫᱤ (dev->reg_width == 2)
 		writew(val, dev->base + offset);
-	else
+	ᱵᱟᱝ
 		writel(val, dev->base + offset);
 }
 
-void uart8250_device_putc(struct uart8250_device *dev, char ch)
+void uart8250_device_putc(sa_nracanaa uart8250_device *dev, var_na ch)
 {
-	while ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	ᱡᱚᱠᱷᱚᱱ ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
 		;
 
 	set_reg(dev, UART_THR_OFFSET, ch);
 }
 
-static void uart8250_putc(char ch)
+static void uart8250_putc(var_na ch)
 {
-	return uart8250_device_putc(&uart8250_dev, ch);
+	ᱨᱩᱣᱟᱹᱲ uart8250_device_putc(&uart8250_dev, ch);
 }
 
-int uart8250_device_getc(struct uart8250_device *dev)
+puur_naa_nka uart8250_device_getc(sa_nracanaa uart8250_device *dev)
 {
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(dev, UART_RBR_OFFSET);
-	return -1;
+	ᱡᱩᱫᱤ (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+		ᱨᱩᱣᱟᱹᱲ get_reg(dev, UART_RBR_OFFSET);
+	ᱨᱩᱣᱟᱹᱲ -1;
 }
 
-static int uart8250_getc(void)
+static puur_naa_nka uart8250_getc(void)
 {
-	return uart8250_device_getc(&uart8250_dev);
+	ᱨᱩᱣᱟᱹᱲ uart8250_device_getc(&uart8250_dev);
 }
 
-static struct sbi_console_device uart8250_console = {
+static sa_nracanaa sbi_console_device uart8250_console = {
 	.name = "uart8250",
 	.console_putc = uart8250_putc,
 	.console_getc = uart8250_getc
 };
 
-void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
+void uart8250_device_init(sa_nracanaa uart8250_device *dev, unsigned long base,
 			  u32 in_freq, u32 baudrate, u32 reg_shift,
 			  u32 reg_width, u32 reg_offset, u32 caps)
 {
 	u16 bdiv = 0;
 
-	dev->base      = (volatile char *)base + reg_offset;
+	dev->base      = (ca_ncala var_na *)base + reg_offset;
 	dev->reg_shift = reg_shift;
 	dev->reg_width = reg_width;
 	dev->in_freq   = in_freq;
 	dev->baudrate  = baudrate;
 
-	if (dev->baudrate) {
+	ᱡᱩᱫᱤ (dev->baudrate) {
 		bdiv = (dev->in_freq + 8 * dev->baudrate) /
 		       (16 * dev->baudrate);
 	}
@@ -127,7 +127,7 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* Enable DLAB */
 	set_reg(dev, UART_LCR_OFFSET, 0x80);
 
-	if (bdiv) {
+	ᱡᱩᱫᱤ (bdiv) {
 		/* Set divisor low byte */
 		set_reg(dev, UART_DLL_OFFSET, bdiv & 0xff);
 		/* Set divisor high byte */
@@ -141,13 +141,13 @@ void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
 	/* No modem control DTR RTS */
 	set_reg(dev, UART_MCR_OFFSET, 0x00);
 	/* Clear line status and read receive buffer */
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
+	ᱡᱩᱫᱤ (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
 		get_reg(dev, UART_RBR_OFFSET);
 	/* Set scratchpad */
 	set_reg(dev, UART_SCR_OFFSET, 0x00);
 }
 
-int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
+puur_naa_nka uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 		  u32 reg_width, u32 reg_offset, u32 caps)
 {
 	uart8250_device_init(&uart8250_dev, base, in_freq, baudrate,
@@ -155,7 +155,7 @@ int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
 
 	sbi_console_set_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	ᱨᱩᱣᱟᱹᱲ sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

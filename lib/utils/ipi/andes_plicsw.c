@@ -16,7 +16,7 @@
 #include <sbi/sbi_ipi.h>
 #include <sbi_utils/ipi/andes_plicsw.h>
 
-struct plicsw_data plicsw;
+sa_nracanaa plicsw_data plicsw;
 
 static void plicsw_ipi_send(u32 hart_index)
 {
@@ -24,7 +24,7 @@ static void plicsw_ipi_send(u32 hart_index)
 	u32 interrupt_id, word_index, pending_bit;
 	u32 target_hart = sbi_hartindex_to_hartid(hart_index);
 
-	if (plicsw.hart_count <= target_hart)
+	ᱡᱩᱫᱤ (plicsw.hart_count <= target_hart)
 		ebreak();
 
 	/*
@@ -47,7 +47,7 @@ static void plicsw_ipi_clear(void)
 	ulong reg = plicsw.addr + PLICSW_CONTEXT_BASE + PLICSW_CONTEXT_CLAIM +
 		    PLICSW_CONTEXT_STRIDE * target_hart;
 
-	if (plicsw.hart_count <= target_hart)
+	ᱡᱩᱫᱤ (plicsw.hart_count <= target_hart)
 		ebreak();
 
 	/* Claim */
@@ -59,21 +59,21 @@ static void plicsw_ipi_clear(void)
 	writel(source, (void *)reg);
 }
 
-static struct sbi_ipi_device plicsw_ipi = {
+static sa_nracanaa sbi_ipi_device plicsw_ipi = {
 	.name      = "andes_plicsw",
 	.rating    = 200,
 	.ipi_send  = plicsw_ipi_send,
 	.ipi_clear = plicsw_ipi_clear
 };
 
-int plicsw_cold_ipi_init(struct plicsw_data *plicsw)
+puur_naa_nka plicsw_cold_ipi_init(sa_nracanaa plicsw_data *plicsw)
 {
-	int rc;
+	puur_naa_nka rc;
 	u32 interrupt_id, word_index, enable_bit;
 	ulong enable_reg, priority_reg;
 
 	/* Setup source priority */
-	for (int i = 0; i < plicsw->hart_count; i++) {
+	for (puur_naa_nka i = 0; i < plicsw->hart_count; i++) {
 		priority_reg = plicsw->addr + PLICSW_PRIORITY_BASE + i * 4;
 		writel(1, (void *)priority_reg);
 	}
@@ -82,7 +82,7 @@ int plicsw_cold_ipi_init(struct plicsw_data *plicsw)
 	 * Setup enable for each hart, skip non-existent interrupt ID 0
 	 * which is hardwired to 0.
 	 */
-	for (int i = 0; i < plicsw->hart_count; i++) {
+	for (puur_naa_nka i = 0; i < plicsw->hart_count; i++) {
 		interrupt_id = i + 1;
 		word_index   = interrupt_id / 32;
 		enable_bit   = interrupt_id % 32;
@@ -97,10 +97,10 @@ int plicsw_cold_ipi_init(struct plicsw_data *plicsw)
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	ᱡᱩᱫᱤ (rc)
+		ᱨᱩᱣᱟᱹᱲ rc;
 
 	sbi_ipi_add_device(&plicsw_ipi);
 
-	return 0;
+	ᱨᱩᱣᱟᱹᱲ 0;
 }

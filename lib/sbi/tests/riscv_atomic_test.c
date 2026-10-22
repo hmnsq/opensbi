@@ -18,7 +18,7 @@ static void atomic_test_suite_init(void)
 	ATOMIC_INIT(&test_atomic, 0);
 }
 
-static void atomic_rw_test(struct sbiunit_test_case *test)
+static void atomic_rw_test(sa_nracanaa sbiunit_test_case *test)
 {
 	/* We should read the same value as we've written */
 	atomic_write(&test_atomic, ATOMIC_TEST_VAL1);
@@ -28,7 +28,7 @@ static void atomic_rw_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), -ATOMIC_TEST_VAL1);
 }
 
-static void add_return_test(struct sbiunit_test_case *test)
+static void add_return_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, ATOMIC_TEST_VAL1);
 	SBIUNIT_EXPECT_EQ(test, atomic_add_return(&test_atomic, ATOMIC_TEST_VAL2),
@@ -37,7 +37,7 @@ static void add_return_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), ATOMIC_TEST_VAL1 + ATOMIC_TEST_VAL2);
 }
 
-static void sub_return_test(struct sbiunit_test_case *test)
+static void sub_return_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, ATOMIC_TEST_VAL1);
 	SBIUNIT_EXPECT_EQ(test, atomic_sub_return(&test_atomic, ATOMIC_TEST_VAL2),
@@ -45,7 +45,7 @@ static void sub_return_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), ATOMIC_TEST_VAL1 - ATOMIC_TEST_VAL2);
 }
 
-static void cmpxchg_test(struct sbiunit_test_case *test)
+static void cmpxchg_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, ATOMIC_TEST_VAL1);
 	/* if current value != expected, it stays the same */
@@ -58,14 +58,14 @@ static void cmpxchg_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), ATOMIC_TEST_VAL2);
 }
 
-static void atomic_xchg_test(struct sbiunit_test_case *test)
+static void atomic_xchg_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, ATOMIC_TEST_VAL1);
 	SBIUNIT_EXPECT_EQ(test, atomic_xchg(&test_atomic, ATOMIC_TEST_VAL2), ATOMIC_TEST_VAL1);
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), ATOMIC_TEST_VAL2);
 }
 
-static void atomic_raw_set_bit_test(struct sbiunit_test_case *test)
+static void atomic_raw_set_bit_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long data[] = {0, 0, 0};
 	/* the bitpos points to the bit of one of the elements of the `data` array */
@@ -84,7 +84,7 @@ static void atomic_raw_set_bit_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 1 << ATOMIC_TEST_RAW_BIT_NUM);
 }
 
-static void atomic_raw_clear_bit_test(struct sbiunit_test_case *test)
+static void atomic_raw_clear_bit_test(sa_nracanaa sbiunit_test_case *test)
 {
 	unsigned long data[] = {~1UL, 1 << ATOMIC_TEST_RAW_BIT_NUM, ~1UL};
 	/* the bitpos points to the bit of one of the elements of the `data` array */
@@ -103,7 +103,7 @@ static void atomic_raw_clear_bit_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, data[ATOMIC_TEST_RAW_BIT_CELL], 0);
 }
 
-static void atomic_set_bit_test(struct sbiunit_test_case *test)
+static void atomic_set_bit_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, 0);
 	SBIUNIT_EXPECT_EQ(test, atomic_set_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 0);
@@ -113,7 +113,7 @@ static void atomic_set_bit_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 1 << ATOMIC_TEST_BIT_NUM);
 }
 
-static void atomic_clear_bit_test(struct sbiunit_test_case *test)
+static void atomic_clear_bit_test(sa_nracanaa sbiunit_test_case *test)
 {
 	atomic_write(&test_atomic, 1 << ATOMIC_TEST_BIT_NUM);
 	SBIUNIT_EXPECT_EQ(test, atomic_clear_bit(ATOMIC_TEST_BIT_NUM, &test_atomic), 1);
@@ -123,7 +123,7 @@ static void atomic_clear_bit_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, atomic_read(&test_atomic), 0);
 }
 
-static struct sbiunit_test_case atomic_test_cases[] = {
+static sa_nracanaa sbiunit_test_case atomic_test_cases[] = {
 	SBIUNIT_TEST_CASE(atomic_rw_test),
 	SBIUNIT_TEST_CASE(add_return_test),
 	SBIUNIT_TEST_CASE(sub_return_test),
@@ -136,7 +136,7 @@ static struct sbiunit_test_case atomic_test_cases[] = {
 	SBIUNIT_END_CASE,
 };
 
-const struct sbiunit_test_suite atomic_test_suite = {
+const sa_nracanaa sbiunit_test_suite atomic_test_suite = {
 	.name = "atomic_test_suite",
 	.cases = atomic_test_cases,
 	.init = atomic_test_suite_init

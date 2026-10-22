@@ -24,25 +24,25 @@
 #define DW_GPIO_DR	0x0
 #define DW_GPIO_BIT(_b)	(1UL << (_b))
 
-struct dw_gpio_chip {
+sa_nracanaa dw_gpio_chip {
 	void *dr;
 	void *ext;
-	struct gpio_chip chip;
+	sa_nracanaa gpio_chip chip;
 };
 
-const struct fdt_gpio fdt_gpio_designware;
+const sa_nracanaa fdt_gpio fdt_gpio_designware;
 
-#define pin_to_chip(__p) container_of((__p)->chip, struct dw_gpio_chip, chip);
+#define pin_to_chip(__p) container_of((__p)->chip, sa_nracanaa dw_gpio_chip, chip);
 
-static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
+static puur_naa_nka dw_gpio_direction_output(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
+	sa_nracanaa dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	ᱡᱩᱫᱤ (!value)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	ᱵᱟᱝ
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 
@@ -53,18 +53,18 @@ static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
 	v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DDR);
 
-	return 0;
+	ᱨᱩᱣᱟᱹᱲ 0;
 }
 
-static void dw_gpio_set(struct gpio_pin *gp, int value)
+static void dw_gpio_set(sa_nracanaa gpio_pin *gp, puur_naa_nka value)
 {
-	struct dw_gpio_chip *chip = pin_to_chip(gp);
+	sa_nracanaa dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	ᱡᱩᱫᱤ (!value)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	ᱵᱟᱝ
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 }
@@ -75,38 +75,38 @@ static void dw_gpio_set(struct gpio_pin *gp, int value)
  * bank A is the only one with irq support but we're not using it here
 */
 
-static int dw_gpio_init_bank(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+static puur_naa_nka dw_gpio_init_bank(const void *fdt, puur_naa_nka nodeoff,
+			     const sa_nracanaa fdt_match *match)
 {
-	struct dw_gpio_chip *chip;
+	sa_nracanaa dw_gpio_chip *chip;
 	const fdt32_t *val;
 	uint64_t addr;
-	int rc, poff, nr_pins, bank, len;
+	puur_naa_nka rc, poff, nr_pins, bank, len;
 
 	/* need to get parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	ᱡᱩᱫᱤ (poff < 0)
+		ᱨᱩᱣᱟᱹᱲ SBI_EINVAL;
 
 	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	ᱡᱩᱫᱤ (rc)
+		ᱨᱩᱣᱟᱹᱲ rc;
 
 	val = fdt_getprop(fdt, nodeoff, "reg", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	ᱡᱩᱫᱤ (!val || len <= 0)
+		ᱨᱩᱣᱟᱹᱲ SBI_EINVAL;
 	bank = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "snps,nr-gpios", &len);
-	if (!val)
+	ᱡᱩᱫᱤ (!val)
 		val = fdt_getprop(fdt, nodeoff, "ngpios", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	ᱡᱩᱫᱤ (!val || len <= 0)
+		ᱨᱩᱣᱟᱹᱲ SBI_EINVAL;
 	nr_pins = fdt32_to_cpu(*val);
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(parimaa_na(*chip));
+	ᱡᱩᱫᱤ (!chip)
+		ᱨᱩᱣᱟᱹᱲ SBI_ENOMEM;
 
 	chip->dr = (void *)(uintptr_t)addr + (bank * 0xc);
 	chip->ext = (void *)(uintptr_t)addr + (bank * 4) + 0x50;
@@ -116,23 +116,23 @@ static int dw_gpio_init_bank(const void *fdt, int nodeoff,
 	chip->chip.set = dw_gpio_set;
 	chip->chip.direction_output = dw_gpio_direction_output;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc)
+	ᱡᱩᱫᱤ (rc)
 		goto err_free_chip;
 
-	return 0;
+	ᱨᱩᱣᱟᱹᱲ 0;
 
 err_free_chip:
 	sbi_free(chip);
-	return rc;
+	ᱨᱩᱣᱟᱹᱲ rc;
 }
 
 /* since we're only probed when used, match on port not main controller node */
-static const struct fdt_match dw_gpio_match[] = {
+static const sa_nracanaa fdt_match dw_gpio_match[] = {
 	{ .compatible = "snps,dw-apb-gpio-port" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_designware = {
+const sa_nracanaa fdt_gpio fdt_gpio_designware = {
 	.driver = {
 		.match_table = dw_gpio_match,
 		.init = dw_gpio_init_bank,
