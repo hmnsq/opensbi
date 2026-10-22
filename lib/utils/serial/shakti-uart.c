@@ -26,16 +26,16 @@ static volatile char *uart_base;
 
 static void shakti_uart_putc(char ch)
 {
-	while ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
+	동안 ((readb(uart_base + REG_STATUS) & UART_TX_FULL))
 		;
 	writeb(ch, uart_base + REG_TX);
 }
 
-static int shakti_uart_getc(void)
+static 정수 shakti_uart_getc(void)
 {
-	if (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
-		return readb(uart_base + REG_RX);
-	return -1;
+	만약 (readb(uart_base + REG_STATUS) & UART_RX_NOT_EMPTY)
+		반환 readb(uart_base + REG_RX);
+	반환 -1;
 }
 
 static struct sbi_console_device shakti_console = {
@@ -44,17 +44,17 @@ static struct sbi_console_device shakti_console = {
 	.console_getc = shakti_uart_getc
 };
 
-int shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+정수 shakti_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 {
 	uart_base = (volatile char *)base;
 	u16 baud;
 
-	if (baudrate) {
+	만약 (baudrate) {
 		baud = (u16)(in_freq / (16 * baudrate));
 		writew(baud, uart_base + REG_BAUD);
 	}
 
 	sbi_console_set_device(&shakti_console);
 
-	return 0;
+	반환 0;
 }

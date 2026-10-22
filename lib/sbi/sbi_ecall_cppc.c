@@ -11,11 +11,11 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_cppc.h>
 
-static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
+static 정수 sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	정수 ret = 0;
 	uint64_t temp;
 
 	switch (funcid) {
@@ -24,25 +24,25 @@ static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
 		out->value = temp;
 		break;
 	case SBI_EXT_CPPC_READ_HI:
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 		ret = sbi_cppc_read(regs->a0, &temp);
 		out->value = temp >> 32;
-#else
+#아니면
 		out->value = 0;
 #endif
 		break;
 	case SBI_EXT_CPPC_WRITE:
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 		temp = regs->a2;
 		temp = (temp << 32) | regs->a1;
-#else
+#아니면
 		temp = regs->a1;
 #endif
 		ret = sbi_cppc_write(regs->a0, temp);
 		break;
 	case SBI_EXT_CPPC_PROBE:
 		ret = sbi_cppc_probe(regs->a0);
-		if (ret >= 0) {
+		만약 (ret >= 0) {
 			out->value = ret;
 			ret = 0;
 		}
@@ -51,17 +51,17 @@ static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	반환 ret;
 }
 
 struct sbi_ecall_extension ecall_cppc;
 
-static int sbi_ecall_cppc_register_extensions(void)
+static 정수 sbi_ecall_cppc_register_extensions(void)
 {
-	if (!sbi_cppc_get_device())
-		return 0;
+	만약 (!sbi_cppc_get_device())
+		반환 0;
 
-	return sbi_ecall_register_extension(&ecall_cppc);
+	반환 sbi_ecall_register_extension(&ecall_cppc);
 }
 
 struct sbi_ecall_extension ecall_cppc = {

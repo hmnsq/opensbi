@@ -15,8 +15,8 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 {
 	char *fstr = NULL;
 
-	if (!feature)
-		return NULL;
+	만약 (!feature)
+		반환 NULL;
 
 	switch (feature) {
 	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
@@ -26,48 +26,48 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 		break;
 	}
 
-	return fstr;
+	반환 fstr;
 }
 
 void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+				   char *features_str, 정수 nfstr)
 {
 	unsigned long features, feat = 1UL;
 	char *temp;
-	int offset = 0;
+	정수 offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	만약 (!plat || !features_str || !nfstr)
+		반환;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
+	만약 (!features)
 		goto done;
 
 	do {
-		if (features & feat) {
+		만약 (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			만약 (temp) {
+				정수 len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
+				만약 (len < 0)
 					break;
 
-				if (offset + len >= nfstr) {
+				만약 (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
 					break;
-				} else
+				} 아니면
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} 동안 (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	만약 (offset)
 		features_str[offset - 1] = '\0';
-	else
+	아니면
 		sbi_strncpy(features_str, "none", nfstr);
 }

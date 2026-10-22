@@ -24,7 +24,7 @@ static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
 
 #ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
 #define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
+#아니면
 #define CONSOLE_EARLY_BUFFER_SIZE	256
 #endif
 static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
@@ -33,18 +33,18 @@ static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
 
 bool sbi_isprintable(char c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	만약 (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		반환 true;
 	}
-	return false;
+	반환 false;
 }
 
-int sbi_getc(void)
+정수 sbi_getc(void)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	만약 (console_dev && console_dev->console_getc)
+		반환 console_dev->console_getc();
+	반환 -1;
 }
 
 static unsigned long nputs(const char *str, unsigned long len)
@@ -52,30 +52,30 @@ static unsigned long nputs(const char *str, unsigned long len)
 	char ch;
 	unsigned long i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	만약 (console_dev) {
+		만약 (console_dev->console_puts)
+			반환 console_dev->console_puts(str, len);
+		아니면 만약 (console_dev->console_putc) {
+			위해 (i = 0; i < len; i++) {
+				만약 (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} 아니면 {
+		위해 (i = 0; i < len; i++) {
 			ch = str[i];
 			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	반환 len;
 }
 
 static void nputs_all(const char *str, unsigned long len)
 {
 	unsigned long p = 0;
 
-	while (p < len)
+	동안 (p < len)
 		p += nputs(&str[p], len - p);
 }
 
@@ -101,15 +101,15 @@ unsigned long sbi_nputs(const char *str, unsigned long len)
 	ret = nputs(str, len);
 	spin_unlock(&console_out_lock);
 
-	return ret;
+	반환 ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+void sbi_gets(char *s, 정수 maxwidth, char endchar)
 {
-	int ch;
+	정수 ch;
 	char *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+	동안 ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
 		*retval = (char)ch;
 		retval++;
 		maxwidth--;
@@ -119,17 +119,17 @@ void sbi_gets(char *s, int maxwidth, char endchar)
 
 unsigned long sbi_ngets(char *str, unsigned long len)
 {
-	int ch;
+	정수 ch;
 	unsigned long i;
 
-	for (i = 0; i < len; i++) {
+	위해 (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
+		만약 (ch < 0)
 			break;
 		str[i] = ch;
 	}
 
-	return i;
+	반환 i;
 }
 
 #define PAD_RIGHT 1
@@ -144,23 +144,23 @@ unsigned long sbi_ngets(char *str, unsigned long len)
 #define va_arg __builtin_va_arg
 typedef __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+static void printc(char **out, u32 *out_len, char ch, 정수 flags)
 {
-	if (!out) {
+	만약 (!out) {
 		sbi_putc(ch);
-		return;
+		반환;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
+	만약 (!out_len || *out_len > 1) {
 		*(*out)++ = ch;
 		**out = '\0';
-		if (out_len) {
+		만약 (out_len) {
 			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
+			만약 ((flags & USE_TBUF) && *out_len == 1) {
 				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
 				*out = console_tbuf;
 				*out_len = CONSOLE_TBUF_MAX;
@@ -169,41 +169,41 @@ static void printc(char **out, u32 *out_len, char ch, int flags)
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+static 정수 prints(char **out, u32 *out_len, const char *string, 정수 width,
+		  정수 flags)
 {
-	int pc = 0;
+	정수 pc = 0;
 	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
+	만약 (!(flags & PAD_RIGHT)) {
+		위해 (; width > 0; --width) {
 			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
+	위해 (; *string; ++string) {
 		printc(out, out_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
+	위해 (; width > 0; --width) {
 		printc(out, out_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	반환 pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+static 정수 printi(char **out, u32 *out_len, long long i,
+		  정수 width, 정수 flags, 정수 type)
 {
-	int pc = 0;
+	정수 pc = 0;
 	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
 	unsigned long long u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	만약 (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	아니면 만약 (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	만약 (type == 'i' || type == 'd') {
+		만약 ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		만약 (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,54 +223,54 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	만약 (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} 아니면 {
+		동안 (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			만약 (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
+	만약 (flags & PAD_ZERO) {
+		만약 (sign) {
 			printc(out, out_len, sign, flags);
 			++pc;
 			--width;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
+		만약 (i && (flags & PAD_ALTERNATE)) {
+			만약 (b == 16 || b == 8) {
 				printc(out, out_len, '0', flags);
 				++pc;
 				--width;
 			}
-			if (b == 16) {
+			만약 (b == 16) {
 				printc(out, out_len, 'x' - 'a' + letbase, flags);
 				++pc;
 				--width;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} 아니면 {
+		만약 (i && (flags & PAD_ALTERNATE)) {
+			만약 (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			만약 (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		만약 (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	반환 pc + prints(out, out_len, s, width, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+static 정수 print(char **out, u32 *out_len, const char *format, va_list args)
 {
 	bool flags_done;
-	int width, flags, pc = 0;
+	정수 width, flags, pc = 0;
 	char type, scr[2], *tout;
 	bool use_tbuf = (!out) ? true : false;
 
@@ -279,7 +279,7 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	만약 (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
 		out = &tout;
@@ -287,24 +287,24 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
+	만약 (out) {
+		만약(!out_len || *out_len)
 			**out = '\0';
 	}
 
-	for (; *format != 0; ++format) {
+	위해 (; *format != 0; ++format) {
 		width = flags = 0;
-		if (use_tbuf)
+		만약 (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		만약 (*format == '%') {
 			++format;
-			if (*format == '\0')
+			만약 (*format == '\0')
 				break;
-			if (*format == '%')
+			만약 (*format == '%')
 				goto literal;
 			/* Get flags */
 			flags_done = false;
-			while (!flags_done) {
+			동안 (!flags_done) {
 				switch (*format) {
 				case '-':
 					flags |= PAD_RIGHT;
@@ -326,43 +326,43 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 					flags_done = true;
 					break;
 				}
-				if (!flags_done)
+				만약 (!flags_done)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			만약 (flags & PAD_RIGHT)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
+			위해 (; *format >= '0' && *format <= '9'; ++format) {
 				width *= 10;
 				width += *format - '0';
 			}
-			if (*format == 's') {
+			만약 (*format == 's') {
 				char *s = va_arg(args, char *);
 				pc += prints(out, out_len, s ? s : "(null)",
 					     width, flags);
 				continue;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
+			만약 ((*format == 'd') || (*format == 'i')) {
+				pc += printi(out, out_len, va_arg(args, 정수),
 					     width, flags, *format);
 				continue;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			만약 ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
+				pc += printi(out, out_len, va_arg(args, unsigned 정수),
 					     width, flags, *format);
 				continue;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
+			만약 ((*format == 'p') || (*format == 'P')) {
 				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
 					     width, flags, *format);
 				continue;
 			}
-			if (*format == 'l') {
+			만약 (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				만약 (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					만약 ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
@@ -372,61 +372,61 @@ static int print(char **out, u32 *out_len, const char *format, va_list args)
 						width, flags, type);
 					continue;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				만약 ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
+				만약 ((type == 'd') || (type == 'i'))
 					pc += printi(out, out_len, va_arg(args, long),
 					     width, flags, type);
-				else
+				아니면
 					pc += printi(out, out_len, va_arg(args, unsigned long),
 					     width, flags, type);
 				continue;
 			}
-			if (*format == 'c') {
+			만약 (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(args, 정수);
 				scr[1] = '\0';
 				pc += prints(out, out_len, scr, width, flags);
 				continue;
 			}
-		} else {
+		} 아니면 {
 literal:
 			printc(out, out_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	만약 (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	반환 pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+정수 sbi_sprintf(char *out, const char *format, ...)
 {
 	va_list args;
-	int retval;
+	정수 retval;
 
-	if (unlikely(!out))
+	만약 (unlikely(!out))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
 	va_start(args, format);
 	retval = print(&out, NULL, format, args);
 	va_end(args);
 
-	return retval;
+	반환 retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+정수 sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 {
 	va_list args;
-	int retval;
+	정수 retval;
 
-	if (unlikely(!out && out_sz != 0))
+	만약 (unlikely(!out && out_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
@@ -434,13 +434,13 @@ int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
 	retval = print(&out, &out_sz, format, args);
 	va_end(args);
 
-	return retval;
+	반환 retval;
 }
 
-int sbi_printf(const char *format, ...)
+정수 sbi_printf(const char *format, ...)
 {
 	va_list args;
-	int retval;
+	정수 retval;
 
 	spin_lock(&console_out_lock);
 	va_start(args, format);
@@ -448,24 +448,24 @@ int sbi_printf(const char *format, ...)
 	va_end(args);
 	spin_unlock(&console_out_lock);
 
-	return retval;
+	반환 retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+정수 sbi_dprintf(const char *format, ...)
 {
 	va_list args;
-	int retval = 0;
+	정수 retval = 0;
 	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
 	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+	만약 (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
 		spin_lock(&console_out_lock);
 		retval = print(NULL, NULL, format, args);
 		spin_unlock(&console_out_lock);
 	}
 	va_end(args);
 
-	return retval;
+	반환 retval;
 }
 
 void sbi_panic(const char *format, ...)
@@ -483,7 +483,7 @@ void sbi_panic(const char *format, ...)
 
 const struct sbi_console_device *sbi_console_get_device(void)
 {
-	return console_dev;
+	반환 console_dev;
 }
 
 void sbi_console_set_device(const struct sbi_console_device *dev)
@@ -491,16 +491,16 @@ void sbi_console_set_device(const struct sbi_console_device *dev)
 	char ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	만약 (!dev)
+		반환;
 
-	if (!console_dev)
+	만약 (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	만약 (flush_early_fifo) {
+		동안 (!sbi_fifo_dequeue(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

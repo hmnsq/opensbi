@@ -17,45 +17,45 @@
 /* List of FDT i2c adapter drivers generated at compile time */
 extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
+static 정수 fdt_i2c_adapter_find(const void *fdt, 정수 nodeoff,
 				struct i2c_adapter **out_adapter)
 {
-	int rc;
+	정수 rc;
 	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	만약 (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		만약 (rc)
+			반환 rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		만약 (!adapter)
+			반환 SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	만약 (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	반환 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
+정수 fdt_i2c_adapter_get(const void *fdt, 정수 nodeoff,
 			struct i2c_adapter **out_adapter)
 {
-	int rc;
+	정수 rc;
 	struct i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	만약 (!fdt || (nodeoff < 0) || !out_adapter)
+		반환 SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	만약 (rc)
+		반환 rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	반환 0;
 }

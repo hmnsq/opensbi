@@ -16,75 +16,75 @@
 #include <sbi_utils/irqchip/fdt_irqchip.h>
 #include <sbi_utils/irqchip/imsic.h>
 
-static int irqchip_imsic_update_hartid_table(const void *fdt, int nodeoff,
+static 정수 irqchip_imsic_update_hartid_table(const void *fdt, 정수 nodeoff,
 					     struct imsic_data *id)
 {
 	const fdt32_t *val;
 	u32 phandle, hwirq, hartid;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	정수 i, err, count, cpu_offset, cpu_intc_offset;
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	만약 (!val || count < sizeof(fdt32_t))
+		반환 SBI_EINVAL;
 	count = count / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	위해 (i = 0; i < count; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
+		만약 (cpu_intc_offset < 0)
 			continue;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
+		만약 (cpu_offset < 0)
 			continue;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			return SBI_EINVAL;
+		만약 (err)
+			반환 SBI_EINVAL;
 
 		switch (hwirq) {
 		case IRQ_M_EXT:
 			err = imsic_map_hartid_to_data(hartid, id, i / 2);
-			if (err)
-				return err;
+			만약 (err)
+				반환 err;
 			break;
 		default:
 			break;
 		}
 	}
 
-	return 0;
+	반환 0;
 }
 
-static int irqchip_imsic_cold_init(const void *fdt, int nodeoff,
+static 정수 irqchip_imsic_cold_init(const void *fdt, 정수 nodeoff,
 				   const struct fdt_match *match)
 {
-	int rc;
+	정수 rc;
 	struct imsic_data *id;
 
 	id = sbi_zalloc(sizeof(*id));
-	if (!id)
-		return SBI_ENOMEM;
+	만약 (!id)
+		반환 SBI_ENOMEM;
 
 	rc = fdt_parse_imsic_node(fdt, nodeoff, id);
-	if (rc || !id->targets_mmode)
+	만약 (rc || !id->targets_mmode)
 		goto fail_free_data;
 
 	rc = imsic_cold_irqchip_init(id);
-	if (rc)
+	만약 (rc)
 		goto fail_free_data;
 
 	rc = irqchip_imsic_update_hartid_table(fdt, nodeoff, id);
-	if (rc)
+	만약 (rc)
 		goto fail_free_data;
 
-	return 0;
+	반환 0;
 
 fail_free_data:
 	sbi_free(id);
-	return rc;
+	반환 rc;
 }
 
 static const struct fdt_match irqchip_imsic_match[] = {

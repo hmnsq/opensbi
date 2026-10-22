@@ -12,103 +12,103 @@
 
 static SBI_LIST_HEAD(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+struct regmap *regmap_find(unsigned 정수 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
 		struct regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		만약 (rmap->id == id)
+			반환 rmap;
 	}
 
-	return NULL;
+	반환 NULL;
 }
 
-int regmap_add(struct regmap *rmap)
+정수 regmap_add(struct regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	만약 (!rmap)
+		반환 SBI_EINVAL;
+	만약 (regmap_find(rmap->id))
+		반환 SBI_EALREADY;
 
 	sbi_list_add(&(rmap->node), &(regmap_list));
 
-	return 0;
+	반환 0;
 }
 
 void regmap_remove(struct regmap *rmap)
 {
-	if (!rmap)
-		return;
+	만약 (!rmap)
+		반환;
 
 	sbi_list_del(&(rmap->node));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+static bool regmap_reg_valid(struct regmap *rmap, unsigned 정수 reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	만약 ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		반환 false;
+	반환 true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+static unsigned 정수 regmap_reg_addr(struct regmap *rmap, unsigned 정수 reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	만약 (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	아니면 만약 (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	반환 reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+정수 regmap_read(struct regmap *rmap, unsigned 정수 reg, unsigned 정수 *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	만약 (!rmap || !regmap_reg_valid(rmap, reg))
+		반환 SBI_EINVAL;
+	만약 (!rmap->reg_read)
+		반환 SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	반환 rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+정수 regmap_write(struct regmap *rmap, unsigned 정수 reg, unsigned 정수 val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	만약 (!rmap || !regmap_reg_valid(rmap, reg))
+		반환 SBI_EINVAL;
+	만약 (!rmap->reg_write)
+		반환 SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	반환 rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+정수 regmap_update_bits(struct regmap *rmap, unsigned 정수 reg,
+		       unsigned 정수 mask, unsigned 정수 val)
 {
-	int rc;
-	unsigned int reg_val;
+	정수 rc;
+	unsigned 정수 reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	만약 (!rmap || !regmap_reg_valid(rmap, reg))
+		반환 SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	만약 (rmap->reg_update_bits) {
+		반환 rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} 아니면 만약 (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		만약 (rc)
+			반환 rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		반환 rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	반환 SBI_ENOSYS;
 }

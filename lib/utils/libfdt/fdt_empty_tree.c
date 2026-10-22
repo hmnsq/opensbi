@@ -10,29 +10,29 @@
 
 #include "libfdt_internal.h"
 
-int fdt_create_empty_tree(void *buf, int bufsize)
+정수 fdt_create_empty_tree(void *buf, 정수 bufsize)
 {
-	int err;
+	정수 err;
 
 	err = fdt_create(buf, bufsize);
-	if (err)
-		return err;
+	만약 (err)
+		반환 err;
 
 	err = fdt_finish_reservemap(buf);
-	if (err)
-		return err;
+	만약 (err)
+		반환 err;
 
 	err = fdt_begin_node(buf, "");
-	if (err)
-		return err;
+	만약 (err)
+		반환 err;
 
 	err =  fdt_end_node(buf);
-	if (err)
-		return err;
+	만약 (err)
+		반환 err;
 
 	err = fdt_finish(buf);
-	if (err)
-		return err;
+	만약 (err)
+		반환 err;
 
-	return fdt_open_into(buf, buf, bufsize);
+	반환 fdt_open_into(buf, buf, bufsize);
 }

@@ -10,31 +10,31 @@
 #include <sbi/sbi_bitmap.h>
 
 void __bitmap_and(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+		  const unsigned long *bitmap2, 정수 bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	정수 k;
+	정수 nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	위해 (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] & bitmap2[k];
 }
 
 void __bitmap_or(unsigned long *dst, const unsigned long *bitmap1,
-		 const unsigned long *bitmap2, int bits)
+		 const unsigned long *bitmap2, 정수 bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	정수 k;
+	정수 nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	위해 (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] | bitmap2[k];
 }
 
 void __bitmap_xor(unsigned long *dst, const unsigned long *bitmap1,
-		  const unsigned long *bitmap2, int bits)
+		  const unsigned long *bitmap2, 정수 bits)
 {
-	int k;
-	int nr = BITS_TO_LONGS(bits);
+	정수 k;
+	정수 nr = BITS_TO_LONGS(bits);
 
-	for (k = 0; k < nr; k++)
+	위해 (k = 0; k < nr; k++)
 		dst[k] = bitmap1[k] ^ bitmap2[k];
 }

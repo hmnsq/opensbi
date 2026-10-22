@@ -9,17 +9,17 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/shakti-uart.h>
 
-static int serial_shakti_init(const void *fdt, int nodeoff,
+static 정수 serial_shakti_init(const void *fdt, 정수 nodeoff,
 			      const struct fdt_match *match)
 {
-	int rc;
+	정수 rc;
 	struct platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_shakti_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	만약 (rc)
+		반환 rc;
 
-	return shakti_uart_init(uart.addr, uart.freq, uart.baud);
+	반환 shakti_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
 static const struct fdt_match serial_shakti_match[] = {

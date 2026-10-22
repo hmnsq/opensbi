@@ -61,7 +61,7 @@ static void putc_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} 동안 (0)
 
 static void puts_test(struct sbiunit_test_case *test)
 {
@@ -79,7 +79,7 @@ static void puts_test(struct sbiunit_test_case *test)
 	SBIUNIT_ASSERT_STREQ(test, test_console_buf, expected,	\
 			     sbi_strlen(expected));		\
 	spin_unlock(&test_console_lock);			\
-} while (0)
+} 동안 (0)
 
 static void printf_test(struct sbiunit_test_case *test)
 {

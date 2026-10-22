@@ -14,13 +14,13 @@
 #include <sbi/sbi_domain.h>
 #include <sbi/sbi_dbtr.h>
 
-static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
+static 정수 sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
 				  struct sbi_trap_regs *regs,
 				  struct sbi_ecall_return *out)
 {
 	unsigned long smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
 			MSTATUS_MPP_SHIFT;
-	int ret = 0;
+	정수 ret = 0;
 
 	switch (funcid) {
 	case SBI_EXT_DBTR_NUM_TRIGGERS:
@@ -52,17 +52,17 @@ static int sbi_ecall_dbtr_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	};
 
-	return ret;
+	반환 ret;
 }
 
 struct sbi_ecall_extension ecall_dbtr;
 
-static int sbi_ecall_dbtr_register_extensions(void)
+static 정수 sbi_ecall_dbtr_register_extensions(void)
 {
-	if (sbi_dbtr_get_total_triggers() == 0)
-		return 0;
+	만약 (sbi_dbtr_get_total_triggers() == 0)
+		반환 0;
 
-	return sbi_ecall_register_extension(&ecall_dbtr);
+	반환 sbi_ecall_register_extension(&ecall_dbtr);
 }
 
 struct sbi_ecall_extension ecall_dbtr = {

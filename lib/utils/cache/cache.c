@@ -14,44 +14,44 @@ struct cache_device *cache_find(u32 id)
 	struct cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		만약 (dev->id == id)
+			반환 dev;
 	}
 
-	return NULL;
+	반환 NULL;
 }
 
-int cache_add(struct cache_device *dev)
+정수 cache_add(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	만약 (!dev)
+		반환 SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	만약 (cache_find(dev->id))
+		반환 SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	반환 SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+정수 cache_flush_all(struct cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	만약 (!dev)
+		반환 SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	만약 (!dev->ops || !dev->ops->cache_flush_all)
+		반환 SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	반환 dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+정수 cache_enable(struct cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	만약 (!dev)
+		반환 SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	만약 (!dev->ops || !dev->ops->cache_enable)
+		반환 SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	반환 dev->ops->cache_enable(dev, enable);
 }

@@ -20,15 +20,15 @@ struct reset_metanoia_data {
 
 static struct reset_metanoia_data reset_data;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+static 정수 metanoia_system_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
+		반환 1;
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
 	default:
-		return 0;
+		반환 0;
 	}
 }
 
@@ -44,21 +44,21 @@ static struct sbi_system_reset_device metanoia_reset = {
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
+static 정수 metanoia_reset_init(const void *fdt, 정수 nodeoff,
 			       const struct fdt_match *match)
 {
 	u64 reg_addr;
-	int rc;
+	정수 rc;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	만약 (rc < 0 || !reg_addr)
+		반환 SBI_ENODEV;
 
 	reset_data.reg_base = (u8 *)(ulong)reg_addr;
 
 	sbi_system_reset_add_device(&metanoia_reset);
 
-	return 0;
+	반환 0;
 }
 
 static const struct fdt_match metanoia_reset_match[] = {

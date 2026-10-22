@@ -15,57 +15,57 @@
 /* List of FDT regmap drivers generated at compile time */
 extern const struct fdt_driver *const fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
+static 정수 fdt_regmap_find(const void *fdt, 정수 nodeoff,
 			   struct regmap **out_rmap)
 {
-	int rc;
+	정수 rc;
 	struct regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	만약 (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		만약 (rc)
+			반환 rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		만약 (!rmap)
+			반환 SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	만약 (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	반환 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
+정수 fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
 			      struct regmap **out_rmap)
 {
-	int pnodeoff;
+	정수 pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	만약 (!fdt || !out_rmap)
+		반환 SBI_EINVAL;
 
 	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	만약 (pnodeoff < 0)
+		반환 pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	반환 fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+정수 fdt_regmap_get(const void *fdt, 정수 nodeoff, struct regmap **out_rmap)
 {
-	int len;
+	정수 len;
 	const fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	만약 (!fdt || (nodeoff < 0) || !out_rmap)
+		반환 SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	만약 (!val)
+		반환 SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	반환 fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }

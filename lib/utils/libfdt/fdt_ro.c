@@ -10,306 +10,306 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static 정수 fdt_nodename_eq_(const void *fdt, 정수 offset,
+			    const char *s, 정수 len)
 {
-	int olen;
+	정수 olen;
 	const char *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	만약 (!p || olen < len)
 		/* short match */
-		return 0;
+		반환 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	만약 (memcmp(p, s, len) != 0)
+		반환 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	만약 (p[len] == '\0')
+		반환 1;
+	아니면 만약 (!memchr(s, '@', len) && (p[len] == '@'))
+		반환 1;
+	아니면
+		반환 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const char *fdt_get_string(const void *fdt, 정수 stroffset, 정수 *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
+	정수 err;
 	const char *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
+	만약 (can_assume(VALID_INPUT)) {
 		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		만약 (lenp)
 			*lenp = strlen(s);
-		return s;
+		반환 s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	만약 (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	만약 (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	만약 (fdt_magic(fdt) == FDT_MAGIC) {
+		만약 (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		만약 (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			만약 ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			만약 ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} 아니면 만약 (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned 정수 sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		만약 ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		만약 (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} 아니면 {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
 	s = (const char *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	만약 (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	만약 (lenp)
 		*lenp = n - s;
-	return s;
+	반환 s;
 
 fail:
-	if (lenp)
+	만약 (lenp)
 		*lenp = err;
-	return NULL;
+	반환 NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const char *fdt_string(const void *fdt, 정수 stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	반환 fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static 정수 fdt_string_eq_(const void *fdt, 정수 stroffset,
+			  const char *s, 정수 len)
 {
-	int slen;
+	정수 slen;
 	const char *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	반환 p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+정수 fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	정수 offset = -1;
 
-	while (true) {
+	동안 (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
+		만약 (offset < 0) {
+			만약 (offset == -FDT_ERR_NOTFOUND)
 				break;
 
-			return offset;
+			반환 offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		만약 (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	만약 (phandle)
 		*phandle = max;
 
-	return 0;
+	반환 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+정수 fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	정수 err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	만약 (err < 0)
+		반환 err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	만약 (max == FDT_MAX_PHANDLE)
+		반환 -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	만약 (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	반환 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, 정수 n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned 정수 offset = n * sizeof(struct fdt_reserve_entry);
+	unsigned 정수 absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
+	만약 (!can_assume(VALID_INPUT)) {
+		만약 (absoffset < fdt_off_mem_rsvmap(fdt))
+			반환 NULL;
+		만약 (absoffset > fdt_totalsize(fdt) -
 		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+			반환 NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	반환 fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+정수 fdt_get_mem_rsv(const void *fdt, 정수 n, uint64_t *address, uint64_t *size)
 {
 	const struct fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	만약 (!can_assume(VALID_INPUT) && !re)
+		반환 -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	반환 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+정수 fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
+	정수 i;
 	const struct fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	위해 (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		만약 (fdt64_ld_(&re->size) == 0)
+			반환 i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	반환 -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static 정수 nextprop_(const void *fdt, 정수 offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	정수 nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
 		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+			만약 (nextoffset >= 0)
+				반환 -FDT_ERR_BADSTRUCTURE;
+			아니면
+				반환 nextoffset;
 
 		case FDT_PROP:
-			return offset;
+			반환 offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} 동안 (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	반환 -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+정수 fdt_subnode_offset_namelen(const void *fdt, 정수 offset,
+			       const char *name, 정수 namelen)
 {
-	int depth;
+	정수 depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	위해 (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		만약 ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			반환 offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	만약 (depth < 0)
+		반환 -FDT_ERR_NOTFOUND;
+	반환 offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
+정수 fdt_subnode_offset(const void *fdt, 정수 parentoffset,
 		       const char *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	반환 fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+정수 fdt_path_offset_namelen(const void *fdt, const char *path, 정수 namelen)
 {
 	const char *end = path + namelen;
 	const char *p = path;
-	int offset = 0;
+	정수 offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
+	만약 (*path != '/') {
 		const char *q = memchr(path, '/', end - p);
 
-		if (!q)
+		만약 (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		만약 (!p)
+			반환 -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
+	동안 (p < end) {
 		const char *q;
 
-		while (*p == '/') {
+		동안 (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			만약 (p == end)
+				반환 offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		만약 (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		만약 (offset < 0)
+			반환 offset;
 
 		p = q;
 	}
 
-	return offset;
+	반환 offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+정수 fdt_path_offset(const void *fdt, const char *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	반환 fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const char *fdt_get_name(const void *fdt, 정수 nodeoffset, 정수 *len)
 {
 	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
 	const char *nameptr;
-	int err;
+	정수 err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	만약 (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	만약 (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
@@ -317,254 +317,254 @@ const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
 		 */
 		const char *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		만약 (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	만약 (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	반환 nameptr;
 
  fail:
-	if (len)
+	만약 (len)
 		*len = err;
-	return NULL;
+	반환 NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+정수 fdt_first_property_offset(const void *fdt, 정수 nodeoffset)
 {
-	int offset;
+	정수 offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	만약 ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		반환 offset;
 
-	return nextprop_(fdt, offset);
+	반환 nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+정수 fdt_next_property_offset(const void *fdt, 정수 offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	만약 ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		반환 offset;
 
-	return nextprop_(fdt, offset);
+	반환 nextprop_(fdt, offset);
 }
 
 static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+						              정수 offset,
+						              정수 *lenp)
 {
-	int err;
+	정수 err;
 	const struct fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	만약 (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		만약 (lenp)
 			*lenp = err;
-		return NULL;
+		반환 NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	만약 (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	반환 prop;
 }
 
 const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+						      정수 offset,
+						      정수 *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	만약 (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		만약 (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		반환 NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	반환 fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
 static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
+						            정수 offset,
 						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+						            정수 namelen,
+							    정수 *lenp,
+							    정수 *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	위해 (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
 		const struct fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		만약 (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
 			break;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		만약 (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			만약 (poffset)
 				*poffset = offset;
-			return prop;
+			반환 prop;
 		}
 	}
 
-	if (lenp)
+	만약 (lenp)
 		*lenp = offset;
-	return NULL;
+	반환 NULL;
 }
 
 
 const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
+						    정수 offset,
 						    const char *name,
-						    int namelen, int *lenp)
+						    정수 namelen, 정수 *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	만약 (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		만약 (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		반환 NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	반환 fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
 const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+					    정수 nodeoffset,
+					    const char *name, 정수 *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	반환 fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, 정수 nodeoffset,
+				const char *name, 정수 namelen, 정수 *lenp)
 {
-	int poffset;
+	정수 poffset;
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	만약 (!prop)
+		반환 NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	만약 (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		반환 prop->data + 4;
+	반환 prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, 정수 offset,
+				  const char **namep, 정수 *lenp)
 {
 	const struct fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
+	만약 (!prop)
+		반환 NULL;
+	만약 (namep) {
 		const char *name;
-		int namelen;
+		정수 namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		만약 (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			만약 (!name) {
+				만약 (lenp)
 					*lenp = namelen;
-				return NULL;
+				반환 NULL;
 			}
 			*namep = name;
-		} else {
+		} 아니면 {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	만약 (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
 	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+		반환 prop->data + 4;
+	반환 prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, 정수 nodeoffset,
+			const char *name, 정수 *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	반환 fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, 정수 nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	정수 len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	만약 (!php || (len != sizeof(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		만약 (!php || (len != sizeof(*php)))
+			반환 0;
 	}
 
-	return fdt32_ld_(php);
+	반환 fdt32_ld_(php);
 }
 
 const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+				  const char *name, 정수 namelen)
 {
-	int aliasoffset;
+	정수 aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	만약 (aliasoffset < 0)
+		반환 NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	반환 fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
 const char *fdt_get_alias(const void *fdt, const char *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	반환 fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+정수 fdt_get_path(const void *fdt, 정수 nodeoffset, char *buf, 정수 buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
+	정수 pdepth = 0, p = 0;
+	정수 offset, depth, namelen;
 	const char *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	만약 (buflen < 2)
+		반환 -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	위해 (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		동안 (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} 동안 (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		만약 (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			만약 (!name)
+				반환 namelen;
+			만약 ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		만약 (offset == nodeoffset) {
+			만약 (pdepth < (depth + 1))
+				반환 -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			만약 (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			반환 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	만약 ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		반환 -FDT_ERR_BADOFFSET;
+	아니면 만약 (offset == -FDT_ERR_BADOFFSET)
+		반환 -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	반환 offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+정수 fdt_supernode_atdepth_offset(const void *fdt, 정수 nodeoffset,
+				 정수 supernodedepth, 정수 *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	정수 offset, depth;
+	정수 supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	만약 (supernodedepth < 0)
+		반환 -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	위해 (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		만약 (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		만약 (offset == nodeoffset) {
+			만약 (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			만약 (supernodedepth > depth)
+				반환 -FDT_ERR_NOTFOUND;
+			아니면
+				반환 supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	만약 (!can_assume(VALID_INPUT)) {
+		만약 ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			반환 -FDT_ERR_BADOFFSET;
+		아니면 만약 (offset == -FDT_ERR_BADOFFSET)
+			반환 -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	반환 offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+정수 fdt_node_depth(const void *fdt, 정수 nodeoffset)
 {
-	int nodedepth;
-	int err;
+	정수 nodedepth;
+	정수 err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	만약 (err)
+		반환 (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	반환 nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+정수 fdt_parent_offset(const void *fdt, 정수 nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	정수 nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	만약 (nodedepth < 0)
+		반환 nodedepth;
+	반환 fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
+정수 fdt_node_offset_by_prop_value(const void *fdt, 정수 startoffset,
 				  const char *propname,
-				  const void *propval, int proplen)
+				  const void *propval, 정수 proplen)
 {
-	int offset;
+	정수 offset;
 	const void *val;
-	int len;
+	정수 len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	위해 (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		만약 (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			반환 offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	반환 offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+정수 fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	정수 offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	만약 ((phandle == 0) || (phandle == ~0U))
+		반환 -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	위해 (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		만약 (fdt_get_phandle(fdt, offset) == phandle)
+			반환 offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	반환 offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+정수 fdt_stringlist_contains(const char *strlist, 정수 listlen, const char *str)
 {
-	int len = strlen(str);
+	정수 len = strlen(str);
 	const char *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	동안 (listlen >= len) {
+		만약 (memcmp(str, strlist, len+1) == 0)
+			반환 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		만약 (!p)
+			반환 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	반환 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+정수 fdt_stringlist_count(const void *fdt, 정수 nodeoffset, const char *property)
 {
 	const char *list, *end;
-	int length, count = 0;
+	정수 length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	만약 (!list)
+		반환 length;
 
 	end = list + length;
 
-	while (list < end) {
+	동안 (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		만약 (list + length > end)
+			반환 -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	반환 count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
+정수 fdt_stringlist_search(const void *fdt, 정수 nodeoffset, const char *property,
 			  const char *string)
 {
-	int length, len, idx = 0;
+	정수 length, len, idx = 0;
 	const char *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	만약 (!list)
+		반환 length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	동안 (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		만약 (list + length > end)
+			반환 -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		만약 (length == len && memcmp(list, string, length) == 0)
+			반환 idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	반환 -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const char *fdt_stringlist_get(const void *fdt, 정수 nodeoffset,
+			       const char *property, 정수 idx,
+			       정수 *lenp)
 {
 	const char *list, *end;
-	int length;
+	정수 length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	만약 (!list) {
+		만약 (lenp)
 			*lenp = length;
 
-		return NULL;
+		반환 NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	동안 (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		만약 (list + length > end) {
+			만약 (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			반환 NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		만약 (idx == 0) {
+			만약 (lenp)
 				*lenp = length - 1;
 
-			return list;
+			반환 list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	만약 (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	반환 NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
+정수 fdt_node_check_compatible(const void *fdt, 정수 nodeoffset,
 			      const char *compatible)
 {
 	const void *prop;
-	int len;
+	정수 len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	만약 (!prop)
+		반환 len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	반환 !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
+정수 fdt_node_offset_by_compatible(const void *fdt, 정수 startoffset,
 				  const char *compatible)
 {
-	int offset, err;
+	정수 offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	위해 (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		만약 ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			반환 err;
+		아니면 만약 (err == 0)
+			반환 offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	반환 offset; /* error from fdt_next_node() */
 }

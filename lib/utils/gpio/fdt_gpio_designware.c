@@ -34,15 +34,15 @@ const struct fdt_gpio fdt_gpio_designware;
 
 #define pin_to_chip(__p) container_of((__p)->chip, struct dw_gpio_chip, chip);
 
-static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
+static 정수 dw_gpio_direction_output(struct gpio_pin *gp, 정수 value)
 {
 	struct dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	만약 (!value)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	아니면
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 
@@ -53,18 +53,18 @@ static int dw_gpio_direction_output(struct gpio_pin *gp, int value)
 	v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DDR);
 
-	return 0;
+	반환 0;
 }
 
-static void dw_gpio_set(struct gpio_pin *gp, int value)
+static void dw_gpio_set(struct gpio_pin *gp, 정수 value)
 {
 	struct dw_gpio_chip *chip = pin_to_chip(gp);
 	unsigned long v;
 
 	v = readl(chip->dr + DW_GPIO_DR);
-	if (!value)
+	만약 (!value)
 		v &= ~DW_GPIO_BIT(gp->offset);
-	else
+	아니면
 		v |= DW_GPIO_BIT(gp->offset);
 	writel(v, chip->dr + DW_GPIO_DR);
 }
@@ -75,38 +75,38 @@ static void dw_gpio_set(struct gpio_pin *gp, int value)
  * bank A is the only one with irq support but we're not using it here
 */
 
-static int dw_gpio_init_bank(const void *fdt, int nodeoff,
+static 정수 dw_gpio_init_bank(const void *fdt, 정수 nodeoff,
 			     const struct fdt_match *match)
 {
 	struct dw_gpio_chip *chip;
 	const fdt32_t *val;
 	uint64_t addr;
-	int rc, poff, nr_pins, bank, len;
+	정수 rc, poff, nr_pins, bank, len;
 
 	/* need to get parent for the address property  */
 	poff = fdt_parent_offset(fdt, nodeoff);
-	if (poff < 0)
-		return SBI_EINVAL;
+	만약 (poff < 0)
+		반환 SBI_EINVAL;
 
 	rc = fdt_get_node_addr_size(fdt, poff, 0, &addr, NULL);
-	if (rc)
-		return rc;
+	만약 (rc)
+		반환 rc;
 
 	val = fdt_getprop(fdt, nodeoff, "reg", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	만약 (!val || len <= 0)
+		반환 SBI_EINVAL;
 	bank = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "snps,nr-gpios", &len);
-	if (!val)
+	만약 (!val)
 		val = fdt_getprop(fdt, nodeoff, "ngpios", &len);
-	if (!val || len <= 0)
-		return SBI_EINVAL;
+	만약 (!val || len <= 0)
+		반환 SBI_EINVAL;
 	nr_pins = fdt32_to_cpu(*val);
 
 	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	만약 (!chip)
+		반환 SBI_ENOMEM;
 
 	chip->dr = (void *)(uintptr_t)addr + (bank * 0xc);
 	chip->ext = (void *)(uintptr_t)addr + (bank * 4) + 0x50;
@@ -116,14 +116,14 @@ static int dw_gpio_init_bank(const void *fdt, int nodeoff,
 	chip->chip.set = dw_gpio_set;
 	chip->chip.direction_output = dw_gpio_direction_output;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc)
+	만약 (rc)
 		goto err_free_chip;
 
-	return 0;
+	반환 0;
 
 err_free_chip:
 	sbi_free(chip);
-	return rc;
+	반환 rc;
 }
 
 /* since we're only probed when used, match on port not main controller node */

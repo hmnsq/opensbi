@@ -10,84 +10,84 @@
 
 #include "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+정수 fdt_check_full(const void *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	정수 err;
+	정수 num_memrsv;
+	정수 offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
+	unsigned 정수 depth = 0;
 	const void *prop;
 	const char *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	만약 (bufsize < FDT_V1_SIZE)
+		반환 -FDT_ERR_TRUNCATED;
+	만약 (bufsize < fdt_header_size(fdt))
+		반환 -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	만약 (err != 0)
+		반환 err;
+	만약 (bufsize < fdt_totalsize(fdt))
+		반환 -FDT_ERR_TRUNCATED;
 
 	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	만약 (num_memrsv < 0)
+		반환 num_memrsv;
 
-	while (1) {
+	동안 (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		만약 (nextoffset < 0)
+			반환 nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		만약 (expect_end && tag != FDT_END)
+			반환 -FDT_ERR_BADSTRUCTURE;
 
 		switch (tag) {
 		case FDT_NOP:
 			break;
 
 		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+			만약 (depth != 0)
+				반환 -FDT_ERR_BADSTRUCTURE;
+			반환 0;
 
 		case FDT_BEGIN_NODE:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			만약 (depth > INT_MAX)
+				반환 -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
+			만약 (depth == 1) {
 				const char *name;
-				int len;
+				정수 len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				만약 (*name || len)
+					반환 -FDT_ERR_BADSTRUCTURE;
 			}
 			break;
 
 		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+			만약 (depth == 0)
+				반환 -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			만약 (depth == 0)
 				expect_end = true;
 			break;
 
 		case FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
+			만약 (!prop)
+				반환 err;
 			break;
 
 		default:
-			return -FDT_ERR_INTERNAL;
+			반환 -FDT_ERR_INTERNAL;
 		}
 	}
 }

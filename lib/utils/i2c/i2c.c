@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+struct i2c_adapter *i2c_adapter_find(정수 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
 		struct i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		만약 (adap->id == id)
+			반환 adap;
 	}
 
-	return NULL;
+	반환 NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+정수 i2c_adapter_add(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	만약 (!ia)
+		반환 SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	만약 (i2c_adapter_find(ia->id))
+		반환 SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	반환 0;
 }
 
 void i2c_adapter_remove(struct i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	만약 (!ia)
+		반환;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+정수 i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, 정수 len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	만약 (!ia)
+		반환 SBI_EINVAL;
+	만약 (!ia->write)
+		반환 SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	반환 ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+정수 i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, 정수 len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	만약 (!ia)
+		반환 SBI_EINVAL;
+	만약 (!ia->read)
+		반환 SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	반환 ia->read(ia, addr, reg, buffer, len);
 }

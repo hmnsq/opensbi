@@ -32,12 +32,12 @@ static void mswi_ipi_send(u32 hart_index)
 	struct aclint_mswi_data *mswi;
 
 	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	만약 (!scratch)
+		반환;
 
 	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	만약 (!mswi)
+		반환;
 
 	/* Set ACLINT IPI */
 	msip = (void *)mswi->addr;
@@ -52,8 +52,8 @@ static void mswi_ipi_clear(void)
 	struct aclint_mswi_data *mswi;
 
 	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	만약 (!mswi)
+		반환;
 
 	/* Clear ACLINT IPI */
 	msip = (void *)mswi->addr;
@@ -67,34 +67,34 @@ static struct sbi_ipi_device aclint_mswi = {
 	.ipi_clear = mswi_ipi_clear
 };
 
-int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+정수 aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 {
 	u32 i;
-	int rc;
+	정수 rc;
 	struct sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
+	만약 (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
 	    (mswi->size < (mswi->hart_count * sizeof(u32))) ||
 	    (!mswi->hart_count || mswi->hart_count > ACLINT_MSWI_MAX_HARTS))
-		return SBI_EINVAL;
+		반환 SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mswi_ptr_offset) {
+	만약 (!mswi_ptr_offset) {
 		mswi_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mswi_ptr_offset)
-			return SBI_ENOMEM;
+		만약 (!mswi_ptr_offset)
+			반환 SBI_ENOMEM;
 	}
 
 	/* Update MSWI pointer in scratch space */
-	for (i = 0; i < mswi->hart_count; i++) {
+	위해 (i = 0; i < mswi->hart_count; i++) {
 		scratch = sbi_hartid_to_scratch(mswi->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
+		만약 (!scratch)
 			continue;
 		mswi_set_hart_data_ptr(scratch, mswi);
 	}
@@ -104,10 +104,10 @@ int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	만약 (rc)
+		반환 rc;
 
 	sbi_ipi_add_device(&aclint_mswi);
 
-	return 0;
+	반환 0;
 }

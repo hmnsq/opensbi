@@ -15,35 +15,35 @@
 /* List of FDT serial drivers generated at compile time */
 extern const struct fdt_driver *const fdt_serial_drivers[];
 
-int fdt_serial_init(const void *fdt)
+정수 fdt_serial_init(const void *fdt)
 {
 	const void *prop;
-	int noff = -1, len, coff, rc;
+	정수 noff = -1, len, coff, rc;
 
 	/* Find offset of node pointed to by stdout-path */
 	coff = fdt_path_offset(fdt, "/chosen");
-	if (-1 < coff) {
+	만약 (-1 < coff) {
 		prop = fdt_getprop(fdt, coff, "stdout-path", &len);
-		if (prop && len) {
+		만약 (prop && len) {
 			const char *sep, *start = prop;
 
 			/* The device path may be followed by ':' */
 			sep = strchr(start, ':');
-			if (sep)
+			만약 (sep)
 				noff = fdt_path_offset_namelen(fdt, prop,
 							       sep - start);
-			else
+			아니면
 				noff = fdt_path_offset(fdt, prop);
 		}
 	}
 
 	/* First check DT node pointed by stdout-path */
-	if (-1 < noff) {
+	만약 (-1 < noff) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_serial_drivers);
-		if (rc != SBI_ENODEV)
-			return rc;
+		만약 (rc != SBI_ENODEV)
+			반환 rc;
 	}
 
 	/* Lastly check all DT nodes */
-	return fdt_driver_init_one(fdt, fdt_serial_drivers);
+	반환 fdt_driver_init_one(fdt, fdt_serial_drivers);
 }

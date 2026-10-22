@@ -12,99 +12,99 @@
 
 static SBI_LIST_HEAD(gpio_chip_list);
 
-struct gpio_chip *gpio_chip_find(unsigned int id)
+struct gpio_chip *gpio_chip_find(unsigned 정수 id)
 {
 	struct sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(gpio_chip_list)) {
 		struct gpio_chip *chip = to_gpio_chip(pos);
 
-		if (chip->id == id)
-			return chip;
+		만약 (chip->id == id)
+			반환 chip;
 	}
 
-	return NULL;
+	반환 NULL;
 }
 
-int gpio_chip_add(struct gpio_chip *gc)
+정수 gpio_chip_add(struct gpio_chip *gc)
 {
-	if (!gc)
-		return SBI_EINVAL;
-	if (gpio_chip_find(gc->id))
-		return SBI_EALREADY;
+	만약 (!gc)
+		반환 SBI_EINVAL;
+	만약 (gpio_chip_find(gc->id))
+		반환 SBI_EALREADY;
 
 	sbi_list_add(&(gc->node), &(gpio_chip_list));
 
-	return 0;
+	반환 0;
 }
 
 void gpio_chip_remove(struct gpio_chip *gc)
 {
-	if (!gc)
-		return;
+	만약 (!gc)
+		반환;
 
 	sbi_list_del(&(gc->node));
 }
 
-int gpio_get_direction(struct gpio_pin *gp)
+정수 gpio_get_direction(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get_direction)
-		return SBI_ENOSYS;
+	만약 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		반환 SBI_EINVAL;
+	만약 (!gp->chip->get_direction)
+		반환 SBI_ENOSYS;
 
-	return gp->chip->get_direction(gp);
+	반환 gp->chip->get_direction(gp);
 }
 
-int gpio_direction_input(struct gpio_pin *gp)
+정수 gpio_direction_input(struct gpio_pin *gp)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_input)
-		return SBI_ENOSYS;
+	만약 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		반환 SBI_EINVAL;
+	만약 (!gp->chip->direction_input)
+		반환 SBI_ENOSYS;
 
-	return gp->chip->direction_input(gp);
+	반환 gp->chip->direction_input(gp);
 }
 
-int gpio_direction_output(struct gpio_pin *gp, int value)
+정수 gpio_direction_output(struct gpio_pin *gp, 정수 value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->direction_output)
-		return SBI_ENOSYS;
+	만약 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		반환 SBI_EINVAL;
+	만약 (!gp->chip->direction_output)
+		반환 SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	만약 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
-	return gp->chip->direction_output(gp, value);
+	반환 gp->chip->direction_output(gp, value);
 }
 
-int gpio_get(struct gpio_pin *gp)
+정수 gpio_get(struct gpio_pin *gp)
 {
-	int value;
+	정수 value;
 
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->get)
-		return SBI_ENOSYS;
+	만약 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		반환 SBI_EINVAL;
+	만약 (!gp->chip->get)
+		반환 SBI_ENOSYS;
 
 	value = gp->chip->get(gp);
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	만약 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
-	return value;
+	반환 value;
 }
 
-int gpio_set(struct gpio_pin *gp, int value)
+정수 gpio_set(struct gpio_pin *gp, 정수 value)
 {
-	if (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
-		return SBI_EINVAL;
-	if (!gp->chip->set)
-		return SBI_ENOSYS;
+	만약 (!gp || !gp->chip || (gp->chip->ngpio <= gp->offset))
+		반환 SBI_EINVAL;
+	만약 (!gp->chip->set)
+		반환 SBI_ENOSYS;
 
-	if (gp->flags & GPIO_FLAG_ACTIVE_LOW)
+	만약 (gp->flags & GPIO_FLAG_ACTIVE_LOW)
 		value = value == 0 ? 1 : 0;
 
 	gp->chip->set(gp, value);
-	return 0;
+	반환 0;
 }

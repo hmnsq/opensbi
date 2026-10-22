@@ -38,7 +38,7 @@ struct sifive_pl2 {
 
 #define to_pl2(_dev) container_of(_dev, struct sifive_pl2, dev)
 
-static int sifive_pl2_flush_all(struct cache_device *dev)
+static 정수 sifive_pl2_flush_all(struct cache_device *dev)
 {
 	struct sifive_pl2 *pl2_dev = to_pl2(dev);
 	char *addr = pl2_dev->addr;
@@ -50,24 +50,24 @@ static int sifive_pl2_flush_all(struct cache_device *dev)
 	 * into PL2. It will cause the SiFive SMC0 refuse to enter the power gating.
 	 * Disable the ACCEPT_DIRTY_DATA_ENABLE to avoid the issue.
 	 */
-	if (pl2_dev->no_dirty_fill) {
+	만약 (pl2_dev->no_dirty_fill) {
 		config0 = readl((void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
 		config0 &= ~CONFIG0_ACCEPT_DIRTY_DATA_ENABLE;
 		writel(config0, (void *)addr + SIFIVE_PL2CACHE_CONFIG0_OFF);
 	}
 
-#if __riscv_xlen != 32
+#만약 __riscv_xlen != 32
 	writeq(cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
-#else
+#아니면
 	writel((u32)cmd, addr + SIFIVE_PL2CACHE_FLUSH64_OFF);
 	writel((u32)(cmd >> 32), addr + SIFIVE_PL2CACHE_FLUSH64_OFF + sizeof(u32));
 #endif
-	do {} while (readl(addr + SIFIVE_PL2CACHE_STATUS_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
+	do {} 동안 (readl(addr + SIFIVE_PL2CACHE_STATUS_OFF) & SIFIVE_PL2CACHE_CMD_QLEN);
 
-	return 0;
+	반환 0;
 }
 
-static int sifive_pl2_warm_init(struct cache_device *dev)
+static 정수 sifive_pl2_warm_init(struct cache_device *dev)
 {
 	struct sifive_pl2 *pl2_dev = to_pl2(dev);
 	char *addr = pl2_dev->addr;
@@ -78,7 +78,7 @@ static int sifive_pl2_warm_init(struct cache_device *dev)
 	val &= (~REGIONCLOCKDISABLE_MASK);
 	writel(val, addr + SIFIVE_PL2CACHE_CONFIG1_OFF);
 
-	return 0;
+	반환 0;
 }
 
 static struct cache_ops sifive_pl2_ops = {
@@ -86,36 +86,36 @@ static struct cache_ops sifive_pl2_ops = {
 	.cache_flush_all = sifive_pl2_flush_all,
 };
 
-static int sifive_pl2_cold_init(const void *fdt, int nodeoff, const struct fdt_match *match)
+static 정수 sifive_pl2_cold_init(const void *fdt, 정수 nodeoff, const struct fdt_match *match)
 {
 	const struct sifive_pl2_quirks *quirk = match->data;
 	struct sifive_pl2 *pl2_dev;
 	struct cache_device *dev;
 	u64 reg_addr;
-	int rc;
+	정수 rc;
 
 	/* find the pl2 control base address */
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 && reg_addr)
-		return SBI_ENODEV;
+	만약 (rc < 0 && reg_addr)
+		반환 SBI_ENODEV;
 
 	pl2_dev = sbi_zalloc(sizeof(*pl2_dev));
-	if (!pl2_dev)
-		return SBI_ENOMEM;
+	만약 (!pl2_dev)
+		반환 SBI_ENOMEM;
 
 	dev = &pl2_dev->dev;
 	dev->ops = &sifive_pl2_ops;
 	dev->cpu_private = true;
 
 	rc = fdt_cache_add(fdt, nodeoff, dev);
-	if (rc)
-		return rc;
+	만약 (rc)
+		반환 rc;
 
 	pl2_dev->addr = (void *)(uintptr_t)reg_addr;
-	if (quirk)
+	만약 (quirk)
 		pl2_dev->no_dirty_fill = quirk->no_dirty_fill;
 
-	return 0;
+	반환 0;
 }
 
 static const struct sifive_pl2_quirks pl2cache2_quirks = {

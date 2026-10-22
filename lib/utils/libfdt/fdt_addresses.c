@@ -11,91 +11,91 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+static 정수 fdt_cells(const void *fdt, 정수 nodeoffset, const char *name)
 {
 	const fdt32_t *c;
 	uint32_t val;
-	int len;
+	정수 len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	만약 (!c)
+		반환 len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	만약 (len != sizeof(*c))
+		반환 -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	만약 (val > FDT_MAX_NCELLS)
+		반환 -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	반환 (정수)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+정수 fdt_address_cells(const void *fdt, 정수 nodeoffset)
 {
-	int val;
+	정수 val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	만약 (val == 0)
+		반환 -FDT_ERR_BADNCELLS;
+	만약 (val == -FDT_ERR_NOTFOUND)
+		반환 2;
+	반환 val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+정수 fdt_size_cells(const void *fdt, 정수 nodeoffset)
 {
-	int val;
+	정수 val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	만약 (val == -FDT_ERR_NOTFOUND)
+		반환 1;
+	반환 val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
+정수 fdt_appendprop_addrrange(void *fdt, 정수 parent, 정수 nodeoffset,
 			     const char *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
+	정수 addr_cells, size_cells, ret;
 	uint8_t data[sizeof(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	만약 (ret < 0)
+		반환 ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	만약 (ret < 0)
+		반환 ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	만약 (addr_cells == 1) {
+		만약 ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			반환 -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} 아니면 만약 (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} 아니면 {
+		반환 -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
 	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	만약 (size_cells == 1) {
+		만약 (size > UINT32_MAX)
+			반환 -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} 아니면 만약 (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} 아니면 {
+		반환 -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
+	반환 fdt_appendprop(fdt, nodeoffset, name, data,
 			      (addr_cells + size_cells) * sizeof(fdt32_t));
 }

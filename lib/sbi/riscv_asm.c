@@ -15,27 +15,27 @@
 #include <sbi/sbi_pmp.h>
 
 /* determine CPU extension, return non-zero support */
-int misa_extension_imp(char ext)
+정수 misa_extension_imp(char ext)
 {
 	unsigned long misa = csr_read(CSR_MISA);
 
-	if (misa) {
-		if ('A' <= ext && ext <= 'Z')
-			return misa & (1 << (ext - 'A'));
-		if ('a' <= ext && ext <= 'z')
-			return misa & (1 << (ext - 'a'));
-		return 0;
+	만약 (misa) {
+		만약 ('A' <= ext && ext <= 'Z')
+			반환 misa & (1 << (ext - 'A'));
+		만약 ('a' <= ext && ext <= 'z')
+			반환 misa & (1 << (ext - 'a'));
+		반환 0;
 	}
 
-	return sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
+	반환 sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
 }
 
-int misa_xlen(void)
+정수 misa_xlen(void)
 {
 	long r;
 
-	if (csr_read(CSR_MISA) == 0)
-		return sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
+	만약 (csr_read(CSR_MISA) == 0)
+		반환 sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
 
 	__asm__ __volatile__(
 		"csrr   t0, misa\n\t"
@@ -48,18 +48,18 @@ int misa_xlen(void)
 		:
 		: "t0", "t1");
 
-	return r ? r : -1;
+	반환 r ? r : -1;
 }
 
-void misa_string(int xlen, char *out, unsigned int out_sz)
+void misa_string(정수 xlen, char *out, unsigned 정수 out_sz)
 {
-	unsigned int i, pos = 0;
+	unsigned 정수 i, pos = 0;
 	const char valid_isa_order[] = "iemafdqclbjtpvnhkorwxyzg";
 
-	if (!out)
-		return;
+	만약 (!out)
+		반환;
 
-	if (5 <= (out_sz - pos)) {
+	만약 (5 <= (out_sz - pos)) {
 		out[pos++] = 'r';
 		out[pos++] = 'v';
 		switch (xlen) {
@@ -79,24 +79,24 @@ void misa_string(int xlen, char *out, unsigned int out_sz)
 		default:
 			sbi_panic("%s: Unknown misa.MXL encoding %d",
 				   __func__, xlen);
-			return;
+			반환;
 		}
 	}
 
-	for (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
-		if (misa_extension_imp(valid_isa_order[i]))
+	위해 (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
+		만약 (misa_extension_imp(valid_isa_order[i]))
 			out[pos++] = valid_isa_order[i];
 	}
 
-	if (pos < out_sz)
+	만약 (pos < out_sz)
 		out[pos++] = '\0';
 }
 
-unsigned long csr_read_num(int csr_num)
+unsigned long csr_read_num(정수 csr_num)
 {
 #define switchcase_csr_read(__csr_num)			\
 	case __csr_num:					\
-		return csr_read(__csr_num);
+		반환 csr_read(__csr_num);
 #define switchcase_csr_read_2(__csr_num)		\
 	switchcase_csr_read(__csr_num + 0)		\
 	switchcase_csr_read(__csr_num + 1)
@@ -138,7 +138,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4)
 	switchcase_csr_read_8(CSR_MHPMEVENT8)
 	switchcase_csr_read_16(CSR_MHPMEVENT16)
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 	switchcase_csr_read(CSR_MCYCLEH)
 	switchcase_csr_read(CSR_MINSTRETH)
 	switchcase_csr_read(CSR_MHPMCOUNTER3H)
@@ -174,7 +174,7 @@ unsigned long csr_read_num(int csr_num)
 
 	default:
 		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		return 0;
+		반환 0;
 	}
 
 #undef switchcase_csr_read_256
@@ -188,7 +188,7 @@ unsigned long csr_read_num(int csr_num)
 #undef switchcase_csr_read
 }
 
-void csr_write_num(int csr_num, unsigned long val)
+void csr_write_num(정수 csr_num, unsigned long val)
 {
 #define switchcase_csr_write(__csr_num, __val)		\
 	case __csr_num:					\
@@ -228,7 +228,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMCOUNTER4, val)
 	switchcase_csr_write_8(CSR_MHPMCOUNTER8, val)
 	switchcase_csr_write_16(CSR_MHPMCOUNTER16, val)
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 	switchcase_csr_write(CSR_MCYCLEH, val)
 	switchcase_csr_write(CSR_MINSTRETH, val)
 	switchcase_csr_write(CSR_MHPMCOUNTER3H, val)

@@ -17,41 +17,41 @@
 #include <sbi_utils/irqchip/fdt_irqchip.h>
 #include <sbi_utils/irqchip/plic.h>
 
-static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
+static 정수 irqchip_plic_update_context_map(const void *fdt, 정수 nodeoff,
 					   struct plic_data *pd)
 {
 	const fdt32_t *val;
 	u32 phandle, hwirq, hartid, hartindex;
-	int i, err, count, cpu_offset, cpu_intc_offset;
+	정수 i, err, count, cpu_offset, cpu_intc_offset;
 
-	for (i = 0; i < sbi_hart_count(); i++) {
+	위해 (i = 0; i < sbi_hart_count(); i++) {
 		pd->context_map[i][PLIC_M_CONTEXT] = -1;
 		pd->context_map[i][PLIC_S_CONTEXT] = -1;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	만약 (!val || count < sizeof(fdt32_t))
+		반환 SBI_EINVAL;
 	count = count / sizeof(fdt32_t);
 
-	for (i = 0; i < count; i += 2) {
+	위해 (i = 0; i < count; i += 2) {
 		phandle = fdt32_to_cpu(val[i]);
 		hwirq = fdt32_to_cpu(val[i + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
+		만약 (cpu_intc_offset < 0)
 			continue;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
+		만약 (cpu_offset < 0)
 			continue;
 
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
+		만약 (err)
 			continue;
 
 		hartindex = sbi_hartid_to_hartindex(hartid);
-		if (hartindex == -1U)
+		만약 (hartindex == -1U)
 			continue;
 
 		switch (hwirq) {
@@ -64,38 +64,38 @@ static int irqchip_plic_update_context_map(const void *fdt, int nodeoff,
 		}
 	}
 
-	return 0;
+	반환 0;
 }
 
-static int irqchip_plic_cold_init(const void *fdt, int nodeoff,
+static 정수 irqchip_plic_cold_init(const void *fdt, 정수 nodeoff,
 				  const struct fdt_match *match)
 {
-	int rc;
+	정수 rc;
 	struct plic_data *pd;
 
 	pd = sbi_zalloc(PLIC_DATA_SIZE(sbi_hart_count()));
-	if (!pd)
-		return SBI_ENOMEM;
+	만약 (!pd)
+		반환 SBI_ENOMEM;
 
 	rc = fdt_parse_plic_node(fdt, nodeoff, pd);
-	if (rc)
+	만약 (rc)
 		goto fail_free_data;
 
 	pd->flags = (unsigned long)match->data;
 
 	rc = irqchip_plic_update_context_map(fdt, nodeoff, pd);
-	if (rc)
+	만약 (rc)
 		goto fail_free_data;
 
 	rc = plic_cold_irqchip_init(pd);
-	if (rc)
+	만약 (rc)
 		goto fail_free_data;
 
-	return 0;
+	반환 0;
 
 fail_free_data:
 	sbi_free(pd);
-	return rc;
+	반환 rc;
 }
 
 static const struct fdt_match irqchip_plic_match[] = {

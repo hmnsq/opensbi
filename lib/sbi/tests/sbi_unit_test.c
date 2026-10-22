@@ -20,15 +20,15 @@ static void run_test_suite(struct sbiunit_test_suite *suite)
 
 	sbi_printf("## Running test suite: %s\n", suite->name);
 
-	if (suite->init)
+	만약 (suite->init)
 		suite->init();
 
 	s_case = suite->cases;
-	while (s_case->test_func) {
+	동안 (s_case->test_func) {
 		s_case->test_func(s_case);
-		if (s_case->failed)
+		만약 (s_case->failed)
 			count_fail++;
-		else
+		아니면
 			count_pass++;
 		sbi_printf("%s[%s]%s %s\n",
 			   s_case->failed ? ANSI_COLOR_RED : ANSI_COLOR_GREEN,
@@ -47,6 +47,6 @@ void run_all_tests(void)
 
 	sbi_printf("\n# Running SBIUNIT tests #\n");
 
-	for (i = 0; sbi_unit_tests[i]; i++)
+	위해 (i = 0; sbi_unit_tests[i]; i++)
 		run_test_suite(sbi_unit_tests[i]);
 }

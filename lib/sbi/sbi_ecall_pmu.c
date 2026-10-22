@@ -17,17 +17,17 @@
 #include <sbi/sbi_scratch.h>
 #include <sbi/riscv_asm.h>
 
-static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
+static 정수 sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 				 struct sbi_trap_regs *regs,
 				 struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	정수 ret = 0;
 	uint64_t temp;
 
 	switch (funcid) {
 	case SBI_EXT_PMU_NUM_COUNTERS:
 		ret = sbi_pmu_num_ctr();
-		if (ret >= 0) {
+		만약 (ret >= 0) {
 			out->value = ret;
 			ret = 0;
 		}
@@ -36,14 +36,14 @@ static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 		ret = sbi_pmu_ctr_get_info(regs->a0, &out->value);
 		break;
 	case SBI_EXT_PMU_COUNTER_CFG_MATCH:
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 		temp = ((uint64_t)regs->a5 << 32) | regs->a4;
-#else
+#아니면
 		temp = regs->a4;
 #endif
 		ret = sbi_pmu_ctr_cfg_match(regs->a0, regs->a1, regs->a2,
 					    regs->a3, temp);
-		if (ret >= 0) {
+		만약 (ret >= 0) {
 			out->value = ret;
 			ret = 0;
 		}
@@ -55,17 +55,17 @@ static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 		break;
 	case SBI_EXT_PMU_COUNTER_FW_READ_HI:
 		ret = sbi_pmu_ctr_fw_read(regs->a0, &temp, true);
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 		out->value = temp >> 32;
-#else
+#아니면
 		out->value = 0;
 #endif
 		break;
 	case SBI_EXT_PMU_COUNTER_START:
 
-#if __riscv_xlen == 32
+#만약 __riscv_xlen == 32
 		temp = ((uint64_t)regs->a4 << 32) | regs->a3;
-#else
+#아니면
 		temp = regs->a3;
 #endif
 		ret = sbi_pmu_ctr_start(regs->a0, regs->a1, regs->a2, temp);
@@ -82,14 +82,14 @@ static int sbi_ecall_pmu_handler(unsigned long extid, unsigned long funcid,
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	반환 ret;
 }
 
 struct sbi_ecall_extension ecall_pmu;
 
-static int sbi_ecall_pmu_register_extensions(void)
+static 정수 sbi_ecall_pmu_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_pmu);
+	반환 sbi_ecall_register_extension(&ecall_pmu);
 }
 
 struct sbi_ecall_extension ecall_pmu = {

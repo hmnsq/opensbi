@@ -17,32 +17,32 @@
 
 static inline unsigned long sbi_ecall_vendor_id(void)
 {
-	return SBI_EXT_VENDOR_START +
+	반환 SBI_EXT_VENDOR_START +
 		(csr_read(CSR_MVENDORID) &
 		 (SBI_EXT_VENDOR_END - SBI_EXT_VENDOR_START));
 }
 
-static int sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
+static 정수 sbi_ecall_vendor_handler(unsigned long extid, unsigned long funcid,
 				    struct sbi_trap_regs *regs,
 				    struct sbi_ecall_return *out)
 {
-	return sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
+	반환 sbi_platform_vendor_ext_provider(sbi_platform_thishart_ptr(),
 						funcid, regs, out);
 }
 
 struct sbi_ecall_extension ecall_vendor;
 
-static int sbi_ecall_vendor_register_extensions(void)
+static 정수 sbi_ecall_vendor_register_extensions(void)
 {
 	unsigned long extid = sbi_ecall_vendor_id();
 
-	if (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
-		return 0;
+	만약 (!sbi_platform_vendor_ext_check(sbi_platform_thishart_ptr()))
+		반환 0;
 
 	ecall_vendor.extid_start = extid;
 	ecall_vendor.extid_end = extid;
 
-	return sbi_ecall_register_extension(&ecall_vendor);
+	반환 sbi_ecall_register_extension(&ecall_vendor);
 }
 
 struct sbi_ecall_extension ecall_vendor = {
