@@ -5,247 +5,247 @@
  * (Regents).  All Rights Reserved.
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/sys/htif.h>
+#ضمن <sbi/riscv_locks.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/sys/htif.h>
 
-#define HTIF_DATA_BITS		48
-#define HTIF_DATA_MASK		((1ULL << HTIF_DATA_BITS) - 1)
-#define HTIF_DATA_SHIFT		0
-#define HTIF_CMD_BITS		8
-#define HTIF_CMD_MASK		((1ULL << HTIF_CMD_BITS) - 1)
-#define HTIF_CMD_SHIFT		48
-#define HTIF_DEV_BITS		8
-#define HTIF_DEV_MASK		((1ULL << HTIF_DEV_BITS) - 1)
-#define HTIF_DEV_SHIFT		56
+#تعریف_کړه HTIF_معلومات_بټونه		48
+#تعریف_کړه HTIF_معلومات_ماسک		((1ULL << HTIF_معلومات_بټونه) - 1)
+#تعریف_کړه HTIF_معلومات_ښويدنه		0
+#تعریف_کړه HTIF_CMD_بټونه		8
+#تعریف_کړه HTIF_CMD_ماسک		((1ULL << HTIF_CMD_بټونه) - 1)
+#تعریف_کړه HTIF_CMD_ښويدنه		48
+#تعریف_کړه HTIF_DEV_بټونه		8
+#تعریف_کړه HTIF_DEV_ماسک		((1ULL << HTIF_DEV_بټونه) - 1)
+#تعریف_کړه HTIF_DEV_ښويدنه		56
 
-#define HTIF_DEV_SYSTEM		0
-#define HTIF_DEV_CONSOLE	1
+#تعریف_کړه HTIF_DEV_SYSTEM		0
+#تعریف_کړه HTIF_DEV_CONSOLE	1
 
-#define HTIF_CONSOLE_CMD_GETC	0
-#define HTIF_CONSOLE_CMD_PUTC	1
+#تعریف_کړه HTIF_CONSOLE_CMD_GETC	0
+#تعریف_کړه HTIF_CONSOLE_CMD_PUTC	1
 
-#if __riscv_xlen == 64
+#إذا __riscv_xlen == 64
 # define TOHOST_CMD(dev, cmd, payload) \
-	(((uint64_t)(dev) << HTIF_DEV_SHIFT) | \
-	 ((uint64_t)(cmd) << HTIF_CMD_SHIFT) | \
+	(((uint64_t)(dev) << HTIF_DEV_ښويدنه) | \
+	 ((uint64_t)(cmd) << HTIF_CMD_ښويدنه) | \
 	 (uint64_t)(payload))
-#else
+#وإلا
 # define TOHOST_CMD(dev, cmd, payload) ({ \
-  if ((dev) || (cmd)) __builtin_trap(); \
+  إذا ((dev) || (cmd)) __builtin_trap(); \
   (payload); })
-#endif
-#define FROMHOST_DEV(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DEV_SHIFT) & HTIF_DEV_MASK)
-#define FROMHOST_CMD(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_CMD_SHIFT) & HTIF_CMD_MASK)
-#define FROMHOST_DATA(fromhost_value) \
-	((uint64_t)((fromhost_value) >> HTIF_DATA_SHIFT) & HTIF_DATA_MASK)
+#د_که_پای
+#تعریف_کړه FROMHOST_DEV(fromhost_ارزښت) \
+	((uint64_t)((fromhost_ارزښت) >> HTIF_DEV_ښويدنه) & HTIF_DEV_ماسک)
+#تعریف_کړه FROMHOST_CMD(fromhost_ارزښت) \
+	((uint64_t)((fromhost_ارزښت) >> HTIF_CMD_ښويدنه) & HTIF_CMD_ماسک)
+#تعریف_کړه FROMHOST_معلومات(fromhost_ارزښت) \
+	((uint64_t)((fromhost_ارزښت) >> HTIF_معلومات_ښويدنه) & HTIF_معلومات_ماسک)
 
-#define PK_SYS_write 64
+#تعریف_کړه PK_SYS_write 64
 
-static spinlock_t htif_lock = SPIN_LOCK_INITIALIZER;
+ساكن spinlock_t htif_قلف = SPIN_قلف_INITIALIZER;
 
-volatile uint64_t tohost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
-volatile uint64_t fromhost
-	__attribute__((section(".htif"))) GUARDED_BY(&htif_lock);
+متطاير uint64_t tohost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_قلف);
+متطاير uint64_t fromhost
+	__attribute__((section(".htif"))) GUARDED_BY(&htif_قلف);
 
-static uint64_t *htif_fromhost PT_GUARDED_BY(&htif_lock) = NULL;
-static uint64_t *htif_tohost PT_GUARDED_BY(&htif_lock)	 = NULL;
-static bool htif_custom = false;
+ساكن uint64_t *htif_fromhost PT_GUARDED_BY(&htif_قلف) = عدم;
+ساكن uint64_t *htif_tohost PT_GUARDED_BY(&htif_قلف)	 = عدم;
+ساكن bool htif_custom = false;
 
-static int htif_console_buf GUARDED_BY(&htif_lock);
+ساكن صحيح htif_console_buf GUARDED_BY(&htif_قلف);
 
-static inline uint64_t __read_tohost(void) MUST_HOLD(&htif_lock)
+ساكن مضمن uint64_t __read_tohost(فراغ) MUST_HOLD(&htif_قلف)
 {
-	return (htif_custom) ? *htif_tohost : tohost;
+	أرجع (htif_custom) ? *htif_tohost : tohost;
 }
 
-static inline void __write_tohost(uint64_t val) MUST_HOLD(&htif_lock)
+ساكن مضمن فراغ __write_tohost(uint64_t val) MUST_HOLD(&htif_قلف)
 {
-	if (htif_custom)
+	إذا (htif_custom)
 		*htif_tohost = val;
-	else
+	وإلا
 		tohost = val;
 }
 
-static inline uint64_t __read_fromhost(void) MUST_HOLD(&htif_lock)
+ساكن مضمن uint64_t __read_fromhost(فراغ) MUST_HOLD(&htif_قلف)
 {
-	return (htif_custom) ? *htif_fromhost : fromhost;
+	أرجع (htif_custom) ? *htif_fromhost : fromhost;
 }
 
-static inline void __write_fromhost(uint64_t val) MUST_HOLD(&htif_lock)
+ساكن مضمن فراغ __write_fromhost(uint64_t val) MUST_HOLD(&htif_قلف)
 {
-	if (htif_custom)
+	إذا (htif_custom)
 		*htif_fromhost = val;
-	else
+	وإلا
 		fromhost = val;
 }
 
-static void __check_fromhost() MUST_HOLD(&htif_lock)
+ساكن فراغ __check_fromhost() MUST_HOLD(&htif_قلف)
 {
 	uint64_t fh = __read_fromhost();
-	if (!fh)
-		return;
+	إذا (!fh)
+		أرجع;
 	__write_fromhost(0);
 
 	/* this should be from the console */
-	if (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
+	إذا (FROMHOST_DEV(fh) != HTIF_DEV_CONSOLE)
 		__builtin_trap();
-	switch (FROMHOST_CMD(fh)) {
-		case HTIF_CONSOLE_CMD_GETC:
-			htif_console_buf = 1 + (uint8_t)FROMHOST_DATA(fh);
-			break;
-		case HTIF_CONSOLE_CMD_PUTC:
-			break;
-		default:
+	بدل (FROMHOST_CMD(fh)) {
+		حالة HTIF_CONSOLE_CMD_GETC:
+			htif_console_buf = 1 + (uint8_t)FROMHOST_معلومات(fh);
+			اكسر;
+		حالة HTIF_CONSOLE_CMD_PUTC:
+			اكسر;
+		افتراضي:
 			__builtin_trap();
 	}
 }
 
-static void __set_tohost(uint64_t dev, uint64_t cmd, uint64_t data)
-	MUST_HOLD(&htif_lock)
+ساكن فراغ __set_tohost(uint64_t dev, uint64_t cmd, uint64_t معلومات)
+	MUST_HOLD(&htif_قلف)
 {
-	while (__read_tohost())
+	طالما (__read_tohost())
 		__check_fromhost();
-	__write_tohost(TOHOST_CMD(dev, cmd, data));
+	__write_tohost(TOHOST_CMD(dev, cmd, معلومات));
 }
 
-static int set_custom_addr(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+ساكن صحيح سېټ_custom_addr(bool custom_addr,
+			   بینښه اوږد custom_fromhost_addr,
+			   بینښه اوږد custom_tohost_addr)
 {
-	if (custom_addr) {
-		if (htif_custom &&
-		    ((custom_fromhost_addr != (unsigned long)htif_fromhost) ||
-		     (custom_tohost_addr != (unsigned long)htif_tohost)))
-			return SBI_EINVAL;
+	إذا (custom_addr) {
+		إذا (htif_custom &&
+		    ((custom_fromhost_addr != (بینښه اوږد)htif_fromhost) ||
+		     (custom_tohost_addr != (بینښه اوږد)htif_tohost)))
+			أرجع SBI_EINVAL;
 		htif_fromhost = (uint64_t *)custom_fromhost_addr;
 		htif_tohost = (uint64_t *)custom_tohost_addr;
 		htif_custom = true;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-#if __riscv_xlen == 32
-static void do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t data)
+#إذا __riscv_xlen == 32
+ساكن فراغ do_tohost_fromhost(uint64_t dev, uint64_t cmd, uint64_t معلومات)
 {
-	spin_lock(&htif_lock);
+	spin_قلف(&htif_قلف);
 
-	__set_tohost(HTIF_DEV_SYSTEM, cmd, data);
+	__set_tohost(HTIF_DEV_SYSTEM, cmd, معلومات);
 
-	while (1) {
+	طالما (1) {
 		uint64_t fh = __read_fromhost();
-		if (fh) {
-			if (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
+		إذا (fh) {
+			إذا (FROMHOST_DEV(fh) == HTIF_DEV_SYSTEM &&
 			    FROMHOST_CMD(fh) == cmd) {
 				__write_fromhost(0);
-				break;
+				اكسر;
 			}
 			__check_fromhost();
 		}
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_قلف);
 }
 
-static void htif_putc(char ch)
+ساكن فراغ htif_putc(حرف ch)
 {
 	/* HTIF devices are not supported on RV32, so do a proxy write call */
-	volatile uint64_t magic_mem[8];
+	متطاير uint64_t magic_mem[8];
 	magic_mem[0] = PK_SYS_write;
 	magic_mem[1] = HTIF_DEV_CONSOLE;
 	magic_mem[2] = (uint64_t)(uintptr_t)&ch;
 	magic_mem[3] = HTIF_CONSOLE_CMD_PUTC;
 	do_tohost_fromhost(HTIF_DEV_SYSTEM, 0, (uint64_t)(uintptr_t)magic_mem);
 }
-#else
-static void htif_putc(char ch)
+#وإلا
+ساكن فراغ htif_putc(حرف ch)
 {
-	spin_lock(&htif_lock);
+	spin_قلف(&htif_قلف);
 	__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_PUTC, ch);
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_قلف);
 }
-#endif
+#د_که_پای
 
-static int htif_getc(void)
+ساكن صحيح htif_getc(فراغ)
 {
-	int ch;
+	صحيح ch;
 
-#if __riscv_xlen == 32
+#إذا __riscv_xlen == 32
 	/* HTIF devices are not supported on RV32 */
-	return -1;
-#endif
+	أرجع -1;
+#د_که_پای
 
-	spin_lock(&htif_lock);
+	spin_قلف(&htif_قلف);
 
 	__check_fromhost();
 	ch = htif_console_buf;
-	if (ch >= 0) {
+	إذا (ch >= 0) {
 		htif_console_buf = -1;
 		__set_tohost(HTIF_DEV_CONSOLE, HTIF_CONSOLE_CMD_GETC, 0);
 	}
 
-	spin_unlock(&htif_lock);
+	spin_unlock(&htif_قلف);
 
-	return ch - 1;
+	أرجع ch - 1;
 }
 
-static struct sbi_console_device htif_console = {
+ساكن بنية sbi_console_device htif_console = {
 	.name = "htif",
 	.console_putc = htif_putc,
 	.console_getc = htif_getc
 };
 
-int htif_serial_init(bool custom_addr,
-		     unsigned long custom_fromhost_addr,
-		     unsigned long custom_tohost_addr)
+صحيح htif_serial_init(bool custom_addr,
+		     بینښه اوږد custom_fromhost_addr,
+		     بینښه اوږد custom_tohost_addr)
 {
-	int rc;
+	صحيح rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = سېټ_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	sbi_console_set_device(&htif_console);
-	return 0;
+	sbi_console_سېټ_device(&htif_console);
+	أرجع 0;
 }
 
-static int htif_system_reset_check(u32 type, u32 reason)
+ساكن صحيح htif_system_reset_check(u32 type, u32 reason)
 {
-	return 1;
+	أرجع 1;
 }
 
-static void htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
+ساكن فراغ htif_system_reset(u32 type, u32 reason) NO_THREAD_SAFETY_ANALYSIS
 {
-	while (1) {
+	طالما (1) {
 		__write_fromhost(0);
 		__write_tohost(1);
 	}
 }
 
-static struct sbi_system_reset_device htif_reset = {
+ساكن بنية sbi_system_reset_device htif_reset = {
 	.name = "htif",
 	.system_reset_check = htif_system_reset_check,
 	.system_reset = htif_system_reset
 };
 
-int htif_system_reset_init(bool custom_addr,
-			   unsigned long custom_fromhost_addr,
-			   unsigned long custom_tohost_addr)
+صحيح htif_system_reset_init(bool custom_addr,
+			   بینښه اوږد custom_fromhost_addr,
+			   بینښه اوږد custom_tohost_addr)
 {
-	int rc;
+	صحيح rc;
 
-	rc = set_custom_addr(custom_addr, custom_fromhost_addr,
+	rc = سېټ_custom_addr(custom_addr, custom_fromhost_addr,
 			     custom_tohost_addr);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	sbi_system_reset_add_device(&htif_reset);
-	return 0;
+	sbi_system_reset_جمع_کړه_device(&htif_reset);
+	أرجع 0;
 }

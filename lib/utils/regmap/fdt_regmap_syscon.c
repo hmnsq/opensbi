@@ -7,263 +7,263 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_byteorder.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_byteorder.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/regmap/fdt_regmap.h>
 
-enum syscon_regmap_endian {
+تعداد syscon_regmap_endian {
 	SYSCON_ENDIAN_NATIVE = 0,
 	SYSCON_ENDIAN_LITTLE,
 	SYSCON_ENDIAN_BIG,
 	SYSCON_ENDIAN_MAX
 };
 
-struct syscon_regmap {
-	u32 reg_io_width;
-	enum syscon_regmap_endian reg_endian;
-	unsigned long addr;
-	struct regmap rmap;
+بنية syscon_regmap {
+	u32 reg_io_پلنوالی;
+	تعداد syscon_regmap_endian reg_endian;
+	بینښه اوږد addr;
+	بنية regmap rmap;
 };
 
-#define to_syscon_regmap(__rmap)	\
-	container_of((__rmap), struct syscon_regmap, rmap)
+#تعریف_کړه منزل_syscon_regmap(__rmap)	\
+	container_د((__rmap), بنية syscon_regmap, rmap)
 
-static int regmap_syscon_read_8(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ساكن صحيح regmap_syscon_read_8(بنية regmap *rmap, بینښه صحيح reg,
+				بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = readb((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readb((متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_8(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ساكن صحيح regmap_syscon_write_8(بنية regmap *rmap, بینښه صحيح reg,
+				 بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writeb(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writeb(val, (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_16(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ساكن صحيح regmap_syscon_read_16(بنية regmap *rmap, بینښه صحيح reg,
+				بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = readw((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readw((متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_16(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ساكن صحيح regmap_syscon_write_16(بنية regmap *rmap, بینښه صحيح reg,
+				 بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writew(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writew(val, (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_32(struct regmap *rmap, unsigned int reg,
-				unsigned int *val)
+ساكن صحيح regmap_syscon_read_32(بنية regmap *rmap, بینښه صحيح reg,
+				بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = readl((volatile void *)(srm->addr + reg));
-	return 0;
+	*val = readl((متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_32(struct regmap *rmap, unsigned int reg,
-				 unsigned int val)
+ساكن صحيح regmap_syscon_write_32(بنية regmap *rmap, بینښه صحيح reg,
+				 بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writel(val, (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(val, (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_le16(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ساكن صحيح regmap_syscon_read_le16(بنية regmap *rmap, بینښه صحيح reg,
+				   بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = le16_to_cpu(readw((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = le16_منزل_cpu(readw((متطاير فراغ *)(srm->addr + reg)));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_le16(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ساكن صحيح regmap_syscon_write_le16(بنية regmap *rmap, بینښه صحيح reg,
+				    بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writew(cpu_to_le16(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writew(cpu_منزل_le16(val), (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_le32(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ساكن صحيح regmap_syscon_read_le32(بنية regmap *rmap, بینښه صحيح reg,
+				   بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = le32_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = le32_منزل_cpu(readl((متطاير فراغ *)(srm->addr + reg)));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_le32(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ساكن صحيح regmap_syscon_write_le32(بنية regmap *rmap, بینښه صحيح reg,
+				    بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writel(cpu_to_le32(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_منزل_le32(val), (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_be16(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ساكن صحيح regmap_syscon_read_be16(بنية regmap *rmap, بینښه صحيح reg,
+				   بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = be16_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = be16_منزل_cpu(readl((متطاير فراغ *)(srm->addr + reg)));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_be16(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ساكن صحيح regmap_syscon_write_be16(بنية regmap *rmap, بینښه صحيح reg,
+				    بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writel(cpu_to_be16(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_منزل_be16(val), (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_read_be32(struct regmap *rmap, unsigned int reg,
-				   unsigned int *val)
+ساكن صحيح regmap_syscon_read_be32(بنية regmap *rmap, بینښه صحيح reg,
+				   بینښه صحيح *val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	*val = be32_to_cpu(readl((volatile void *)(srm->addr + reg)));
-	return 0;
+	*val = be32_منزل_cpu(readl((متطاير فراغ *)(srm->addr + reg)));
+	أرجع 0;
 }
 
-static int regmap_syscon_write_be32(struct regmap *rmap, unsigned int reg,
-				    unsigned int val)
+ساكن صحيح regmap_syscon_write_be32(بنية regmap *rmap, بینښه صحيح reg,
+				    بینښه صحيح val)
 {
-	struct syscon_regmap *srm = to_syscon_regmap(rmap);
+	بنية syscon_regmap *srm = منزل_syscon_regmap(rmap);
 
-	writel(cpu_to_be32(val), (volatile void *)(srm->addr + reg));
-	return 0;
+	writel(cpu_منزل_be32(val), (متطاير فراغ *)(srm->addr + reg));
+	أرجع 0;
 }
 
-static int regmap_syscon_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ساكن صحيح regmap_syscon_init(ثابت فراغ *fdt, صحيح nodeoff,
+			      ثابت بنية fdt_سمون *سمون)
 {
-	struct syscon_regmap *srm;
-	uint64_t addr, size;
-	const fdt32_t *val;
-	int rc, len;
+	بنية syscon_regmap *srm;
+	uint64_t addr, اندازه;
+	ثابت fdt32_t *val;
+	صحيح rc, len;
 
-	srm = sbi_zalloc(sizeof(*srm));
-	if (!srm)
-		return SBI_ENOMEM;
+	srm = sbi_zalloc(حجم(*srm));
+	إذا (!srm)
+		أرجع SBI_ENOMEM;
 
 	val = fdt_getprop(fdt, nodeoff, "reg-io-width", &len);
-	srm->reg_io_width = val ? fdt32_to_cpu(*val) : 4;
+	srm->reg_io_پلنوالی = val ? fdt32_منزل_cpu(*val) : 4;
 
-	if (fdt_getprop(fdt, nodeoff, "native-endian", &len))
+	إذا (fdt_getprop(fdt, nodeoff, "native-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_NATIVE;
-	else if (fdt_getprop(fdt, nodeoff, "little-endian", &len))
+	وإلا إذا (fdt_getprop(fdt, nodeoff, "little-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_LITTLE;
-	else if (fdt_getprop(fdt, nodeoff, "big-endian", &len))
+	وإلا إذا (fdt_getprop(fdt, nodeoff, "big-endian", &len))
 		srm->reg_endian = SYSCON_ENDIAN_BIG;
-	else
+	وإلا
 		srm->reg_endian = SYSCON_ENDIAN_NATIVE;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, &size);
-	if (rc)
-		goto fail_free_syscon;
+	rc = fdt_get_غوټه_addr_اندازه(fdt, nodeoff, 0, &addr, &اندازه);
+	إذا (rc)
+		اذهب fail_free_syscon;
 	srm->addr = addr;
 
 	srm->rmap.id = nodeoff;
-	srm->rmap.reg_shift = 0;
-	srm->rmap.reg_stride = srm->reg_io_width;
-	srm->rmap.reg_base = 0;
-	srm->rmap.reg_max = size / srm->reg_io_width;
-	switch (srm->reg_io_width) {
-	case 1:
+	srm->rmap.reg_ښويدنه = 0;
+	srm->rmap.reg_stride = srm->reg_io_پلنوالی;
+	srm->rmap.reg_بنسټ = 0;
+	srm->rmap.reg_max = اندازه / srm->reg_io_پلنوالی;
+	بدل (srm->reg_io_پلنوالی) {
+	حالة 1:
 		srm->rmap.reg_read = regmap_syscon_read_8;
 		srm->rmap.reg_write = regmap_syscon_write_8;
-		break;
-	case 2:
-		switch (srm->reg_endian) {
-		case SYSCON_ENDIAN_NATIVE:
+		اكسر;
+	حالة 2:
+		بدل (srm->reg_endian) {
+		حالة SYSCON_ENDIAN_NATIVE:
 			srm->rmap.reg_read = regmap_syscon_read_16;
 			srm->rmap.reg_write = regmap_syscon_write_16;
-			break;
-		case SYSCON_ENDIAN_LITTLE:
+			اكسر;
+		حالة SYSCON_ENDIAN_LITTLE:
 			srm->rmap.reg_read = regmap_syscon_read_le16;
 			srm->rmap.reg_write = regmap_syscon_write_le16;
-			break;
-		case SYSCON_ENDIAN_BIG:
+			اكسر;
+		حالة SYSCON_ENDIAN_BIG:
 			srm->rmap.reg_read = regmap_syscon_read_be16;
 			srm->rmap.reg_write = regmap_syscon_write_be16;
-			break;
-		default:
+			اكسر;
+		افتراضي:
 			rc = SBI_EINVAL;
-			goto fail_free_syscon;
+			اذهب fail_free_syscon;
 		}
-		break;
-	case 4:
-		switch (srm->reg_endian) {
-		case SYSCON_ENDIAN_NATIVE:
+		اكسر;
+	حالة 4:
+		بدل (srm->reg_endian) {
+		حالة SYSCON_ENDIAN_NATIVE:
 			srm->rmap.reg_read = regmap_syscon_read_32;
 			srm->rmap.reg_write = regmap_syscon_write_32;
-			break;
-		case SYSCON_ENDIAN_LITTLE:
+			اكسر;
+		حالة SYSCON_ENDIAN_LITTLE:
 			srm->rmap.reg_read = regmap_syscon_read_le32;
 			srm->rmap.reg_write = regmap_syscon_write_le32;
-			break;
-		case SYSCON_ENDIAN_BIG:
+			اكسر;
+		حالة SYSCON_ENDIAN_BIG:
 			srm->rmap.reg_read = regmap_syscon_read_be32;
 			srm->rmap.reg_write = regmap_syscon_write_be32;
-			break;
-		default:
+			اكسر;
+		افتراضي:
 			rc = SBI_EINVAL;
-			goto fail_free_syscon;
+			اذهب fail_free_syscon;
 		}
-		break;
-	default:
+		اكسر;
+	افتراضي:
 		rc = SBI_EINVAL;
-		goto fail_free_syscon;
+		اذهب fail_free_syscon;
 	}
 
-	rc = sbi_domain_root_add_memrange(addr, size, PAGE_SIZE,
+	rc = sbi_domain_ریښه_جمع_کړه_memrange(addr, اندازه, پاڼه_اندازه,
 				(SBI_DOMAIN_MEMREGION_MMIO |
 				 SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		goto fail_free_syscon;
+	إذا (rc)
+		اذهب fail_free_syscon;
 
-	rc = regmap_add(&srm->rmap);
-	if (rc)
-		goto fail_free_syscon;
+	rc = regmap_جمع_کړه(&srm->rmap);
+	إذا (rc)
+		اذهب fail_free_syscon;
 
-	return 0;
+	أرجع 0;
 
 fail_free_syscon:
 	sbi_free(srm);
-	return rc;
+	أرجع rc;
 }
 
-static const struct fdt_match regmap_syscon_match[] = {
+ساكن ثابت بنية fdt_سمون regmap_syscon_سمون[] = {
 	{ .compatible = "syscon" },
 	{ },
 };
 
-const struct fdt_driver fdt_regmap_syscon = {
-	.match_table = regmap_syscon_match,
+ثابت بنية fdt_driver fdt_regmap_syscon = {
+	.سمون_جدول = regmap_syscon_سمون,
 	.init = regmap_syscon_init,
 };

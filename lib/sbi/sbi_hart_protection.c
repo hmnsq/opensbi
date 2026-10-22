@@ -4,214 +4,214 @@
  * Copyright (c) 2025 Ventana Micro Systems Inc.
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart_protection.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
 
-static SBI_LIST_HEAD(hart_protection_list);
+ساكن SBI_LIST_سر(hart_protection_list);
 
-static struct sbi_hart_protection *__hart_memory_protection_best(void)
+ساكن بنية sbi_hart_protection *__hart_memory_protection_best(فراغ)
 {
-	struct sbi_hart_protection *pos;
+	بنية sbi_hart_protection *pos;
 
-	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
-			return pos;
+	sbi_list_for_each_ثبت(pos, &hart_protection_list, سر) {
+		إذا (pos->type == SBI_HART_PROTECTION_TYPE_حافظه)
+			أرجع pos;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-void sbi_hart_protection_get_str(char *out_str, int out_str_size)
+فراغ sbi_hart_protection_get_str(حرف *بهر_str, صحيح بهر_str_اندازه)
 {
-	bool memory_protect_done = false;
-	struct sbi_hart_protection *pos;
-	int offset = 0;
+	bool حافظه_protect_بشپړ = false;
+	بنية sbi_hart_protection *pos;
+	صحيح دننه_واټن = 0;
 
-	if (!out_str || out_str_size <= 0)
-		return;
-	sbi_memset(out_str, 0, out_str_size);
+	إذا (!بهر_str || بهر_str_اندازه <= 0)
+		أرجع;
+	sbi_memset(بهر_str, 0, بهر_str_اندازه);
 
-	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
-			if (memory_protect_done)
-				continue;
-			memory_protect_done = true;
+	sbi_list_for_each_ثبت(pos, &hart_protection_list, سر) {
+		إذا (pos->type == SBI_HART_PROTECTION_TYPE_حافظه) {
+			إذا (حافظه_protect_بشپړ)
+				استمر;
+			حافظه_protect_بشپړ = true;
 		}
-		sbi_snprintf(out_str + offset, out_str_size - offset, "%s,", pos->name);
-		offset = offset + sbi_strlen(pos->name) + 1;
+		sbi_snprintf(بهر_str + دننه_واټن, بهر_str_اندازه - دننه_واټن, "%s,", pos->name);
+		دننه_واټن = دننه_واټن + sbi_strlen(pos->name) + 1;
 	}
 
-	if (offset)
-		out_str[offset - 1] = '\0';
-	else
-		sbi_strncpy(out_str, "none", out_str_size);
+	إذا (دننه_واټن)
+		بهر_str[دننه_واټن - 1] = '\0';
+	وإلا
+		sbi_strncpy(بهر_str, "none", بهر_str_اندازه);
 }
 
-int sbi_hart_protection_register(struct sbi_hart_protection *hprot)
+صحيح sbi_hart_protection_ثبتوونکی(بنية sbi_hart_protection *hprot)
 {
-	struct sbi_hart_protection *pos = NULL;
-	bool found_pos = false;
+	بنية sbi_hart_protection *pos = عدم;
+	bool وموندل_pos = false;
 
-	if (!hprot)
-		return SBI_EINVAL;
-	if (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
-		return SBI_EINVAL;
+	إذا (!hprot)
+		أرجع SBI_EINVAL;
+	إذا (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
+		أرجع SBI_EINVAL;
 
-	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (hprot->rating > pos->rating) {
-			found_pos = true;
-			break;
+	sbi_list_for_each_ثبت(pos, &hart_protection_list, سر) {
+		إذا (hprot->rating > pos->rating) {
+			وموندل_pos = true;
+			اكسر;
 		}
 	}
 
-	if (found_pos)
-		sbi_list_add_tail(&hprot->head, &pos->head);
-	else
-		sbi_list_add_tail(&hprot->head, &hart_protection_list);
+	إذا (وموندل_pos)
+		sbi_list_جمع_کړه_لکۍ(&hprot->سر, &pos->سر);
+	وإلا
+		sbi_list_جمع_کړه_لکۍ(&hprot->سر, &hart_protection_list);
 
-	return 0;
+	أرجع 0;
 }
 
-void sbi_hart_protection_unregister(struct sbi_hart_protection *hprot)
+فراغ sbi_hart_protection_unregister(بنية sbi_hart_protection *hprot)
 {
-	if (!hprot)
-		return;
+	إذا (!hprot)
+		أرجع;
 
-	sbi_list_del(&hprot->head);
+	sbi_list_del(&hprot->سر);
 }
 
-static int __hart_protection_configure(struct sbi_scratch *scratch,
-				       struct sbi_hart_protection *hprot,
-				       struct sbi_domain *dom)
+ساكن صحيح __hart_protection_configure(بنية sbi_scratch *scratch,
+				       بنية sbi_hart_protection *hprot,
+				       بنية sbi_domain *dom)
 {
-	if (!hprot)
-		return 0;
-	if (!hprot->configure)
-		return SBI_ENOSYS;
+	إذا (!hprot)
+		أرجع 0;
+	إذا (!hprot->configure)
+		أرجع SBI_ENOSYS;
 
-	return hprot->configure(scratch, dom);
+	أرجع hprot->configure(scratch, dom);
 }
 
-static void __hart_protection_unconfigure(struct sbi_scratch *scratch,
-					  struct sbi_hart_protection *hprot,
-					  struct sbi_domain *dom)
+ساكن فراغ __hart_protection_unconfigure(بنية sbi_scratch *scratch,
+					  بنية sbi_hart_protection *hprot,
+					  بنية sbi_domain *dom)
 {
-	if (!hprot || !hprot->unconfigure)
-		return;
+	إذا (!hprot || !hprot->unconfigure)
+		أرجع;
 
 	hprot->unconfigure(scratch, dom);
 }
 
-int sbi_hart_protection_configure(struct sbi_scratch *scratch,
-				  struct sbi_domain *dom)
+صحيح sbi_hart_protection_configure(بنية sbi_scratch *scratch,
+				  بنية sbi_domain *dom)
 {
-	bool do_configure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	bool do_configure, حافظه_protect_بشپړ = false;
+	بنية sbi_hart_protection *hprot;
+	صحيح ret;
 
-	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
+	sbi_list_for_each_ثبت(hprot, &hart_protection_list, سر) {
 		do_configure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
-			do_configure = !memory_protect_done;
-			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+		بدل (hprot->type) {
+		حالة SBI_HART_PROTECTION_TYPE_حافظه:
+			do_configure = !حافظه_protect_بشپړ;
+			حافظه_protect_بشپړ = true;
+			اكسر;
+		حالة SBI_HART_PROTECTION_TYPE_ID:
 			do_configure = true;
-			break;
-		default:
-			break;
+			اكسر;
+		افتراضي:
+			اكسر;
 		}
-		if (!do_configure)
-			continue;
+		إذا (!do_configure)
+			استمر;
 
 		ret = __hart_protection_configure(scratch, hprot, dom);
-		if (ret)
-			return ret;
+		إذا (ret)
+			أرجع ret;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
-				     struct sbi_domain *dom)
+فراغ sbi_hart_protection_unconfigure(بنية sbi_scratch *scratch,
+				     بنية sbi_domain *dom)
 {
 
-	bool do_unconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
+	bool do_unconfigure, حافظه_protect_بشپړ = false;
+	بنية sbi_hart_protection *hprot;
 
-	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
+	sbi_list_for_each_ثبت(hprot, &hart_protection_list, سر) {
 		do_unconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
-			do_unconfigure = !memory_protect_done;
-			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+		بدل (hprot->type) {
+		حالة SBI_HART_PROTECTION_TYPE_حافظه:
+			do_unconfigure = !حافظه_protect_بشپړ;
+			حافظه_protect_بشپړ = true;
+			اكسر;
+		حالة SBI_HART_PROTECTION_TYPE_ID:
 			do_unconfigure = true;
-			break;
-		default:
-			break;
+			اكسر;
+		افتراضي:
+			اكسر;
 		}
-		if (!do_unconfigure)
-			continue;
+		إذا (!do_unconfigure)
+			استمر;
 
 		__hart_protection_unconfigure(scratch, hprot, dom);
 	}
 }
 
-int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
-				    struct sbi_domain *current_dom,
-				    struct sbi_domain *next_dom)
+صحيح sbi_hart_protection_reconfigure(بنية sbi_scratch *scratch,
+				    بنية sbi_domain *current_dom,
+				    بنية sbi_domain *بل_dom)
 {
-	bool do_reconfigure, memory_protect_done = false;
-	struct sbi_hart_protection *hprot;
-	int ret;
+	bool do_reconfigure, حافظه_protect_بشپړ = false;
+	بنية sbi_hart_protection *hprot;
+	صحيح ret;
 
-	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
+	sbi_list_for_each_ثبت(hprot, &hart_protection_list, سر) {
 		do_reconfigure = false;
-		switch (hprot->type) {
-		case SBI_HART_PROTECTION_TYPE_MEMORY:
-			do_reconfigure = !memory_protect_done;
-			memory_protect_done = true;
-			break;
-		case SBI_HART_PROTECTION_TYPE_ID:
+		بدل (hprot->type) {
+		حالة SBI_HART_PROTECTION_TYPE_حافظه:
+			do_reconfigure = !حافظه_protect_بشپړ;
+			حافظه_protect_بشپړ = true;
+			اكسر;
+		حالة SBI_HART_PROTECTION_TYPE_ID:
 			do_reconfigure = true;
-			break;
-		default:
-			break;
+			اكسر;
+		افتراضي:
+			اكسر;
 		}
-		if (!do_reconfigure)
-			continue;
+		إذا (!do_reconfigure)
+			استمر;
 
 		__hart_protection_unconfigure(scratch, hprot, current_dom);
-		ret = __hart_protection_configure(scratch, hprot, next_dom);
-		if (ret)
-			return ret;
+		ret = __hart_protection_configure(scratch, hprot, بل_dom);
+		إذا (ret)
+			أرجع ret;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
+صحيح sbi_hart_protection_لنډمهاله_map_range(بینښه اوږد بنسټ_2, بینښه اوږد اندازه)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	بنية sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_map_range)
-		return 0;
+	إذا (!hprot || !hprot->لنډمهاله_map_range)
+		أرجع 0;
 
-	return hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
+	أرجع hprot->لنډمهاله_map_range(sbi_scratch_thishart_ptr(), بنسټ_2, اندازه);
 }
 
-int sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
+صحيح sbi_hart_protection_لنډمهاله_unmap_range(بینښه اوږد بنسټ_2, بینښه اوږد اندازه)
 {
-	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
+	بنية sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_unmap_range)
-		return 0;
+	إذا (!hprot || !hprot->لنډمهاله_unmap_range)
+		أرجع 0;
 
-	return hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
+	أرجع hprot->لنډمهاله_unmap_range(sbi_scratch_thishart_ptr(), بنسټ_2, اندازه);
 }

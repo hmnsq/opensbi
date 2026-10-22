@@ -8,125 +8,125 @@
  * Copyright (C) 2020 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_math.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_fixup.h>
-#include <sbi_utils/fdt/fdt_pmu.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_math.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi_utils/fdt/fdt_fixup.h>
+#ضمن <sbi_utils/fdt/fdt_pmu.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_add_cpu_idle_states(void *fdt, const struct sbi_cpu_idle_state *state)
+صحيح fdt_جمع_کړه_cpu_idle_حالتونه(فراغ *fdt, ثابت بنية sbi_cpu_idle_state *state)
 {
-	int cpu_node, cpus_node, err, idle_states_node;
-	uint32_t count, phandle;
+	صحيح cpu_غوټه, cpus_غوټه, err, idle_حالتونه_غوټه;
+	uint32_t شمېر, phandle;
 
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 1024);
-	if (err < 0)
-		return err;
+	إذا (err < 0)
+		أرجع err;
 
-	err = fdt_find_max_phandle(fdt, &phandle);
+	err = fdt_پیدا_کړه_max_phandle(fdt, &phandle);
 	phandle++;
-	if (err < 0)
-		return err;
+	إذا (err < 0)
+		أرجع err;
 
-	cpus_node = fdt_path_offset(fdt, "/cpus");
-	if (cpus_node < 0)
-		return cpus_node;
+	cpus_غوټه = fdt_لار_دننه_واټن(fdt, "/cpus");
+	إذا (cpus_غوټه < 0)
+		أرجع cpus_غوټه;
 
 	/* Do nothing if the idle-states node already exists. */
-	idle_states_node = fdt_subnode_offset(fdt, cpus_node, "idle-states");
-	if (idle_states_node >= 0)
-		return 0;
+	idle_حالتونه_غوټه = fdt_subnode_دننه_واټن(fdt, cpus_غوټه, "idle-states");
+	إذا (idle_حالتونه_غوټه >= 0)
+		أرجع 0;
 
 	/* Create the idle-states node and its child nodes. */
-	idle_states_node = fdt_add_subnode(fdt, cpus_node, "idle-states");
-	if (idle_states_node < 0)
-		return idle_states_node;
+	idle_حالتونه_غوټه = fdt_جمع_کړه_subnode(fdt, cpus_غوټه, "idle-states");
+	إذا (idle_حالتونه_غوټه < 0)
+		أرجع idle_حالتونه_غوټه;
 
-	for (count = 0; state->name; count++, phandle++, state++) {
-		int idle_state_node;
+	لكل (شمېر = 0; state->name; شمېر++, phandle++, state++) {
+		صحيح idle_state_غوټه;
 
-		idle_state_node = fdt_add_subnode(fdt, idle_states_node,
+		idle_state_غوټه = fdt_جمع_کړه_subnode(fdt, idle_حالتونه_غوټه,
 						  state->name);
-		if (idle_state_node < 0)
-			return idle_state_node;
+		إذا (idle_state_غوټه < 0)
+			أرجع idle_state_غوټه;
 
-		fdt_setprop_string(fdt, idle_state_node, "compatible",
+		fdt_setprop_string(fdt, idle_state_غوټه, "compatible",
 				   "riscv,idle-state");
-		fdt_setprop_u32(fdt, idle_state_node,
+		fdt_setprop_u32(fdt, idle_state_غوټه,
 				"riscv,sbi-suspend-param",
 				state->suspend_param);
-		if (state->local_timer_stop)
-			fdt_setprop_empty(fdt, idle_state_node,
+		إذا (state->local_timer_stop)
+			fdt_setprop_تشه(fdt, idle_state_غوټه,
 					  "local-timer-stop");
-		fdt_setprop_u32(fdt, idle_state_node, "entry-latency-us",
-				state->entry_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "exit-latency-us",
+		fdt_setprop_u32(fdt, idle_state_غوټه, "entry-latency-us",
+				state->ثبت_latency_us);
+		fdt_setprop_u32(fdt, idle_state_غوټه, "exit-latency-us",
 				state->exit_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "min-residency-us",
+		fdt_setprop_u32(fdt, idle_state_غوټه, "min-residency-us",
 				state->min_residency_us);
-		if (state->wakeup_latency_us)
-			fdt_setprop_u32(fdt, idle_state_node,
+		إذا (state->wakeup_latency_us)
+			fdt_setprop_u32(fdt, idle_state_غوټه,
 					"wakeup-latency-us",
 					state->wakeup_latency_us);
-		fdt_setprop_u32(fdt, idle_state_node, "phandle", phandle);
+		fdt_setprop_u32(fdt, idle_state_غوټه, "phandle", phandle);
 	}
 
-	if (count == 0)
-		return 0;
+	إذا (شمېر == 0)
+		أرجع 0;
 
 	/* Link each cpu node to the idle state nodes. */
-	fdt_for_each_subnode(cpu_node, fdt, cpus_node) {
-		const char *device_type;
-		fdt32_t *value;
+	fdt_for_each_subnode(cpu_غوټه, fdt, cpus_غوټه) {
+		ثابت حرف *device_type;
+		fdt32_t *ارزښت;
 
 		/* Only process child nodes with device_type = "cpu". */
-		device_type = fdt_getprop(fdt, cpu_node, "device_type", NULL);
-		if (!device_type || strcmp(device_type, "cpu"))
-			continue;
+		device_type = fdt_getprop(fdt, cpu_غوټه, "device_type", عدم);
+		إذا (!device_type || strcmp(device_type, "cpu"))
+			استمر;
 
 		/* Allocate space for the list of phandles. */
-		err = fdt_setprop_placeholder(fdt, cpu_node, "cpu-idle-states",
-					      count * sizeof(phandle),
-					      (void **)&value);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_placeholder(fdt, cpu_غوټه, "cpu-idle-states",
+					      شمېر * حجم(phandle),
+					      (فراغ **)&ارزښت);
+		إذا (err < 0)
+			أرجع err;
 
 		/* Fill in the phandles of the idle state nodes. */
-		for (uint32_t i = 0; i < count; ++i)
-			value[i] = cpu_to_fdt32(phandle - count + i);
+		لكل (uint32_t i = 0; i < شمېر; ++i)
+			ارزښت[i] = cpu_منزل_fdt32(phandle - شمېر + i);
 	}
 
-	return 0;
+	أرجع 0;
 }
 
 /**
  * Report which fixups a HART DT node needs. Read-only, so the sizing pass
  * and the fixup pass below stay in sync by construction.
  */
-static void fdt_cpu_fixup_needed(const void *fdt, int cpu_offset,
+ساكن فراغ fdt_cpu_fixup_needed(ثابت فراغ *fdt, صحيح cpu_دننه_واټن,
 				 bool emulated_zicntr, bool *disable,
-				 bool *add_zicntr)
+				 bool *جمع_کړه_zicntr)
 {
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	const char *mmu_type, *extensions;
+	بنية sbi_domain *dom = sbi_domain_thishart_ptr();
+	ثابت حرف *mmu_type, *extensions;
 	u32 hartid, hartindex;
-	int len;
+	صحيح len;
 
 	*disable = false;
-	*add_zicntr = false;
+	*جمع_کړه_zicntr = false;
 
-	if (fdt_parse_hart_id(fdt, cpu_offset, &hartid))
-		return;
+	إذا (fdt_parse_hart_id(fdt, cpu_دننه_واټن, &hartid))
+		أرجع;
 
-	if (!fdt_node_is_enabled(fdt, cpu_offset))
-		return;
+	إذا (!fdt_غوټه_is_enabled(fdt, cpu_دننه_واټن))
+		أرجع;
 
 	/*
 	 * Disable a HART DT node if one of the following is true:
@@ -134,224 +134,224 @@ static void fdt_cpu_fixup_needed(const void *fdt, int cpu_offset,
 	 * 2. MMU is not available for the HART
 	 */
 
-	hartindex = sbi_hartid_to_hartindex(hartid);
-	mmu_type = fdt_getprop(fdt, cpu_offset, "mmu-type", &len);
-	if (!sbi_domain_is_assigned_hart(dom, hartindex) || !mmu_type || !len)
+	hartindex = sbi_hartid_منزل_hartindex(hartid);
+	mmu_type = fdt_getprop(fdt, cpu_دننه_واټن, "mmu-type", &len);
+	إذا (!sbi_domain_is_assigned_hart(dom, hartindex) || !mmu_type || !len)
 		*disable = true;
 
-	if (!emulated_zicntr)
-		return;
+	إذا (!emulated_zicntr)
+		أرجع;
 
-	extensions = fdt_getprop(fdt, cpu_offset, "riscv,isa-extensions", &len);
+	extensions = fdt_getprop(fdt, cpu_دننه_واټن, "riscv,isa-extensions", &len);
 	/*
 	 * For legacy devicetrees, don't create riscv,isa-extensions
 	 * property if there hasn't been already one.
 	 */
-	if (extensions && !fdt_stringlist_contains(extensions, len, "zicntr"))
-		*add_zicntr = true;
+	إذا (extensions && !fdt_stringlist_لري(extensions, len, "zicntr"))
+		*جمع_کړه_zicntr = true;
 }
 
-void fdt_cpu_fixup(void *fdt)
+فراغ fdt_cpu_fixup(فراغ *fdt)
 {
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	bool emulated_zicntr, disable, add_zicntr;
-	int err, cpu_offset, cpus_offset;
-	int reserve = 0;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	bool emulated_zicntr, disable, جمع_کړه_zicntr;
+	صحيح err, cpu_دننه_واټن, cpus_دننه_واټن;
+	صحيح reserve = 0;
 	/*
 	 * A new "status" property costs a header, its tag-aligned value and its
 	 * name; appending "zicntr" only grows an existing tag-aligned value.
 	 */
-	const int status_size = sizeof(struct fdt_property) +
-				ROUNDUP(sizeof("disabled"), FDT_TAGSIZE) +
-				sizeof("status");
-	const int zicntr_size = ROUNDUP(sizeof("zicntr"), FDT_TAGSIZE);
+	ثابت صحيح حالت_اندازه = حجم(بنية fdt_property) +
+				ROUNDUP(حجم("disabled"), FDT_TAGSIZE) +
+				حجم("status");
+	ثابت صحيح zicntr_اندازه = ROUNDUP(حجم("zicntr"), FDT_TAGSIZE);
 
 	/*
 	 * Claim Zicntr extension in riscv,isa-extensions if
 	 *  1. OpenSBI can emulate time CSR with a timer
 	 *  2. The other two CSRs specified by Zicntr are available
 	 */
-	emulated_zicntr = sbi_timer_get_device() != NULL &&
-			  sbi_hart_has_csr(scratch, SBI_HART_CSR_CYCLE) &&
+	emulated_zicntr = sbi_timer_get_device() != عدم &&
+			  sbi_hart_has_csr(scratch, SBI_HART_CSR_دوره) &&
 			  sbi_hart_has_csr(scratch, SBI_HART_CSR_INSTRET);
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return;
+	cpus_دننه_واټن = fdt_لار_دننه_واټن(fdt, "/cpus");
+	إذا (cpus_دننه_واټن < 0)
+		أرجع;
 
 	/*
 	 * fdt_open_into() trusts the size it is given, so reserve only what is
 	 * really needed instead of a fixed worst case for every possible HART.
 	 */
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		fdt_cpu_fixup_needed(fdt, cpu_offset, emulated_zicntr,
-				     &disable, &add_zicntr);
-		if (disable)
-			reserve += status_size;
-		if (add_zicntr)
-			reserve += zicntr_size;
+	fdt_for_each_subnode(cpu_دننه_واټن, fdt, cpus_دننه_واټن) {
+		fdt_cpu_fixup_needed(fdt, cpu_دننه_واټن, emulated_zicntr,
+				     &disable, &جمع_کړه_zicntr);
+		إذا (disable)
+			reserve += حالت_اندازه;
+		إذا (جمع_کړه_zicntr)
+			reserve += zicntr_اندازه;
 	}
 
-	if (!reserve)
-		return;
+	إذا (!reserve)
+		أرجع;
 
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + reserve);
-	if (err < 0)
-		return;
+	إذا (err < 0)
+		أرجع;
 
 	/* fdt_open_into() may have reordered the blocks, so look up again. */
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return;
+	cpus_دننه_واټن = fdt_لار_دننه_واټن(fdt, "/cpus");
+	إذا (cpus_دننه_واټن < 0)
+		أرجع;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		fdt_cpu_fixup_needed(fdt, cpu_offset, emulated_zicntr,
-				     &disable, &add_zicntr);
+	fdt_for_each_subnode(cpu_دننه_واټن, fdt, cpus_دننه_واټن) {
+		fdt_cpu_fixup_needed(fdt, cpu_دننه_واټن, emulated_zicntr,
+				     &disable, &جمع_کړه_zicntr);
 
-		if (disable) {
-			err = fdt_setprop_string(fdt, cpu_offset, "status",
+		إذا (disable) {
+			err = fdt_setprop_string(fdt, cpu_دننه_واټن, "status",
 						 "disabled");
-			if (err)
+			إذا (err)
 				sbi_printf("%s: failed to disable %s (%d)\n",
 					   __func__,
-					   fdt_get_name(fdt, cpu_offset, NULL),
+					   fdt_get_name(fdt, cpu_دننه_واټن, عدم),
 					   err);
 		}
 
-		if (add_zicntr) {
-			err = fdt_appendprop_string(fdt, cpu_offset,
+		إذا (جمع_کړه_zicntr) {
+			err = fdt_appendprop_string(fdt, cpu_دننه_واټن,
 						    "riscv,isa-extensions",
 						    "zicntr");
-			if (err)
+			إذا (err)
 				sbi_printf("%s: failed to add zicntr to %s (%d)\n",
 					   __func__,
-					   fdt_get_name(fdt, cpu_offset, NULL),
+					   fdt_get_name(fdt, cpu_دننه_واټن, عدم),
 					   err);
 		}
 	}
 }
 
-static void fdt_domain_based_fixup_one(void *fdt, int nodeoff)
+ساكن فراغ fdt_domain_based_fixup_one(فراغ *fdt, صحيح nodeoff)
 {
-	int rc;
-	uint64_t reg_addr, reg_size;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	صحيح rc;
+	uint64_t reg_addr, reg_اندازه;
+	بنية sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return;
+	rc = fdt_get_غوټه_addr_اندازه(fdt, nodeoff, 0, &reg_addr, &reg_اندازه);
+	إذا (rc < 0 || !reg_addr || !reg_اندازه)
+		أرجع;
 
-	if (!sbi_domain_check_addr(dom, reg_addr, dom->next_mode,
+	إذا (!sbi_domain_check_addr(dom, reg_addr, dom->بل_ډېرپېښ,
 				    SBI_DOMAIN_READ | SBI_DOMAIN_WRITE | SBI_DOMAIN_MMIO)) {
 		rc = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 32);
-		if (rc < 0)
-			return;
+		إذا (rc < 0)
+			أرجع;
 		fdt_setprop_string(fdt, nodeoff, "status", "disabled");
 	}
 }
 
-static void fdt_fixup_node(void *fdt, const char *compatible)
+ساكن فراغ fdt_fixup_غوټه(فراغ *fdt, ثابت حرف *compatible)
 {
-	int noff = 0;
+	صحيح noff = 0;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	طالما ((noff = fdt_غوټه_دننه_واټن_by_compatible(fdt, noff,
 						     compatible)) >= 0)
 		fdt_domain_based_fixup_one(fdt, noff);
 }
 
-void fdt_aplic_fixup(void *fdt)
+فراغ fdt_aplic_fixup(فراغ *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,aplic");
+	fdt_fixup_غوټه(fdt, "riscv,aplic");
 }
 
-void fdt_imsic_fixup(void *fdt)
+فراغ fdt_imsic_fixup(فراغ *fdt)
 {
-	fdt_fixup_node(fdt, "riscv,imsics");
+	fdt_fixup_غوټه(fdt, "riscv,imsics");
 }
 
-void fdt_plic_fixup(void *fdt)
+فراغ fdt_plic_fixup(فراغ *fdt)
 {
 	u32 *cells;
-	int i, cells_count;
-	int plic_off;
+	صحيح i, cells_شمېر;
+	صحيح plic_off;
 
-	plic_off = fdt_node_offset_by_compatible(fdt, 0, "sifive,plic-1.0.0");
-	if (plic_off < 0) {
-		plic_off = fdt_node_offset_by_compatible(fdt, 0, "riscv,plic0");
-		if (plic_off < 0)
-			return;
+	plic_off = fdt_غوټه_دننه_واټن_by_compatible(fdt, 0, "sifive,plic-1.0.0");
+	إذا (plic_off < 0) {
+		plic_off = fdt_غوټه_دننه_واټن_by_compatible(fdt, 0, "riscv,plic0");
+		إذا (plic_off < 0)
+			أرجع;
 	}
 
 	cells = (u32 *)fdt_getprop(fdt, plic_off,
-				   "interrupts-extended", &cells_count);
-	if (!cells)
-		return;
+				   "interrupts-extended", &cells_شمېر);
+	إذا (!cells)
+		أرجع;
 
-	cells_count = cells_count / sizeof(u32);
-	if (!cells_count)
-		return;
+	cells_شمېر = cells_شمېر / حجم(u32);
+	إذا (!cells_شمېر)
+		أرجع;
 
-	for (i = 0; i < (cells_count / 2); i++) {
-		if (fdt32_to_cpu(cells[2 * i + 1]) == IRQ_M_EXT)
-			cells[2 * i + 1] = cpu_to_fdt32(0xffffffff);
+	لكل (i = 0; i < (cells_شمېر / 2); i++) {
+		إذا (fdt32_منزل_cpu(cells[2 * i + 1]) == IRQ_M_EXT)
+			cells[2 * i + 1] = cpu_منزل_fdt32(0xffffffff);
 	}
 }
 
-static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
-				       unsigned long size, int index,
-				       int parent)
+ساكن صحيح fdt_resv_حافظه_update_غوټه(فراغ *fdt, بینښه اوږد addr,
+				       بینښه اوږد اندازه, صحيح شاخص_2,
+				       صحيح پلار)
 {
-	int na = fdt_address_cells(fdt, 0);
-	int ns = fdt_size_cells(fdt, 0);
-	fdt32_t addr_high, addr_low;
-	fdt32_t size_high, size_low;
-	int subnode, err;
+	صحيح na = fdt_پته_cells(fdt, 0);
+	صحيح ns = fdt_اندازه_cells(fdt, 0);
+	fdt32_t addr_لوړ, addr_ټیټ;
+	fdt32_t اندازه_لوړ, اندازه_ټیټ;
+	صحيح subnode, err;
 	fdt32_t reg[4];
 	fdt32_t *val;
-	char name[32];
+	حرف name[32];
 
-	addr_high = (u64)addr >> 32;
-	addr_low = addr;
-	size_high = (u64)size >> 32;
-	size_low = size;
+	addr_لوړ = (u64)addr >> 32;
+	addr_ټیټ = addr;
+	اندازه_لوړ = (u64)اندازه >> 32;
+	اندازه_ټیټ = اندازه;
 
-	if (na > 1 && addr_high)
-		sbi_snprintf(name, sizeof(name),
-			     "mmode_resv%d@%x,%x", index,
-			     addr_high, addr_low);
-	else
-		sbi_snprintf(name, sizeof(name),
-			     "mmode_resv%d@%x", index,
-			     addr_low);
+	إذا (na > 1 && addr_لوړ)
+		sbi_snprintf(name, حجم(name),
+			     "mmode_resv%d@%x,%x", شاخص_2,
+			     addr_لوړ, addr_ټیټ);
+	وإلا
+		sbi_snprintf(name, حجم(name),
+			     "mmode_resv%d@%x", شاخص_2,
+			     addr_ټیټ);
 
-	subnode = fdt_add_subnode(fdt, parent, name);
-	if (subnode < 0)
-		return subnode;
+	subnode = fdt_جمع_کړه_subnode(fdt, پلار, name);
+	إذا (subnode < 0)
+		أرجع subnode;
 
 	/*
 	 * Tell operating system not to create a virtual
 	 * mapping of the region as part of its standard
 	 * mapping of system memory.
 	 */
-	err = fdt_setprop_empty(fdt, subnode, "no-map");
-	if (err < 0)
-		return err;
+	err = fdt_setprop_تشه(fdt, subnode, "no-map");
+	إذا (err < 0)
+		أرجع err;
 
 	/* encode the <reg> property value */
 	val = reg;
-	if (na > 1)
-		*val++ = cpu_to_fdt32(addr_high);
-	*val++ = cpu_to_fdt32(addr_low);
-	if (ns > 1)
-		*val++ = cpu_to_fdt32(size_high);
-	*val++ = cpu_to_fdt32(size_low);
+	إذا (na > 1)
+		*val++ = cpu_منزل_fdt32(addr_لوړ);
+	*val++ = cpu_منزل_fdt32(addr_ټیټ);
+	إذا (ns > 1)
+		*val++ = cpu_منزل_fdt32(اندازه_لوړ);
+	*val++ = cpu_منزل_fdt32(اندازه_ټیټ);
 
 	err = fdt_setprop(fdt, subnode, "reg", reg,
-			  (na + ns) * sizeof(fdt32_t));
-	if (err < 0)
-		return err;
+			  (na + ns) * حجم(fdt32_t));
+	إذا (err < 0)
+		أرجع err;
 
-	return 0;
+	أرجع 0;
 }
 
 /**
@@ -369,16 +369,16 @@ static int fdt_resv_memory_update_node(void *fdt, unsigned long addr,
  * Some additional memory spaces may be protected by platform codes via PMP as
  * well, and corresponding child nodes will be inserted.
  */
-int fdt_reserved_memory_fixup(void *fdt)
+صحيح fdt_reserved_حافظه_fixup(فراغ *fdt)
 {
-	struct sbi_domain_memregion *reg;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	unsigned long filtered_base[PMP_COUNT] = { 0 };
-	unsigned char filtered_order[PMP_COUNT] = { 0 };
-	unsigned long addr, size;
-	int err, parent, i, j;
-	int na = fdt_address_cells(fdt, 0);
-	int ns = fdt_size_cells(fdt, 0);
+	بنية sbi_domain_memregion *reg;
+	بنية sbi_domain *dom = sbi_domain_thishart_ptr();
+	بینښه اوږد filtered_بنسټ[PMP_شمېر] = { 0 };
+	بینښه حرف filtered_ترتیب[PMP_شمېر] = { 0 };
+	بینښه اوږد addr, اندازه;
+	صحيح err, پلار, i, j;
+	صحيح na = fdt_پته_cells(fdt, 0);
+	صحيح ns = fdt_اندازه_cells(fdt, 0);
 
 	/*
 	 * Expand the device tree to accommodate new node
@@ -388,16 +388,16 @@ int fdt_reserved_memory_fixup(void *fdt)
 	 * With 16 PMP memory regions we need 64 * 16 = 1024 bytes.
 	 */
 	err = fdt_open_into(fdt, fdt, fdt_totalsize(fdt) + 1024);
-	if (err < 0)
-		return err;
+	إذا (err < 0)
+		أرجع err;
 
 	/* try to locate the reserved memory node */
-	parent = fdt_path_offset(fdt, "/reserved-memory");
-	if (parent < 0) {
+	پلار = fdt_لار_دننه_واټن(fdt, "/reserved-memory");
+	إذا (پلار < 0) {
 		/* if such node does not exist, create one */
-		parent = fdt_add_subnode(fdt, 0, "reserved-memory");
-		if (parent < 0)
-			return parent;
+		پلار = fdt_جمع_کړه_subnode(fdt, 0, "reserved-memory");
+		إذا (پلار < 0)
+			أرجع پلار;
 
 		/*
 		 * reserved-memory node has 3 required properties:
@@ -406,17 +406,17 @@ int fdt_reserved_memory_fixup(void *fdt)
 		 * - ranges: should be empty
 		 */
 
-		err = fdt_setprop_empty(fdt, parent, "ranges");
-		if (err < 0)
-			return err;
+		err = fdt_setprop_تشه(fdt, پلار, "ranges");
+		إذا (err < 0)
+			أرجع err;
 
-		err = fdt_setprop_u32(fdt, parent, "#size-cells", ns);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_u32(fdt, پلار, "#size-cells", ns);
+		إذا (err < 0)
+			أرجع err;
 
-		err = fdt_setprop_u32(fdt, parent, "#address-cells", na);
-		if (err < 0)
-			return err;
+		err = fdt_setprop_u32(fdt, پلار, "#address-cells", na);
+		إذا (err < 0)
+			أرجع err;
 	}
 
 	/*
@@ -432,93 +432,93 @@ int fdt_reserved_memory_fixup(void *fdt)
 	i = 0;
 	sbi_domain_for_each_memregion(dom, reg) {
 		/* Ignore MMIO or READABLE or WRITABLE or EXECUTABLE regions */
-		if (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
-			continue;
-		if (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
-			continue;
+		إذا (reg->flags & SBI_DOMAIN_MEMREGION_MMIO)
+			استمر;
+		إذا (reg->flags & SBI_DOMAIN_MEMREGION_SU_READABLE)
+			استمر;
+		إذا (reg->flags & SBI_DOMAIN_MEMREGION_SU_WRITABLE)
+			استمر;
+		إذا (reg->flags & SBI_DOMAIN_MEMREGION_SU_EXECUTABLE)
+			استمر;
 
-		if (i >= PMP_COUNT) {
+		إذا (i >= PMP_شمېر) {
 			sbi_printf("%s: Too many memory regions to fixup.\n",
 				   __func__);
-			return SBI_ENOSPC;
+			أرجع SBI_ENOSPC;
 		}
 
 		bool overlap = false;
-		addr = reg->base;
-		for (j = 0; j < i; j++) {
-			if (addr == filtered_base[j]
-			    && filtered_order[j] < reg->order) {
+		addr = reg->بنسټ_2;
+		لكل (j = 0; j < i; j++) {
+			إذا (addr == filtered_بنسټ[j]
+			    && filtered_ترتیب[j] < reg->ترتیب) {
 				overlap = true;
-				filtered_order[j] = reg->order;
-				break;
+				filtered_ترتیب[j] = reg->ترتیب;
+				اكسر;
 			}
 		}
 
-		if (!overlap) {
-			filtered_base[i] = reg->base;
-			filtered_order[i] = reg->order;
+		إذا (!overlap) {
+			filtered_بنسټ[i] = reg->بنسټ_2;
+			filtered_ترتیب[i] = reg->ترتیب;
 			i++;
 		}
 	}
 
-	for (j = 0; j < i; j++) {
-		addr = filtered_base[j];
-		size = 1UL << filtered_order[j];
-		fdt_resv_memory_update_node(fdt, addr, size, j, parent);
+	لكل (j = 0; j < i; j++) {
+		addr = filtered_بنسټ[j];
+		اندازه = 1UL << filtered_ترتیب[j];
+		fdt_resv_حافظه_update_غوټه(fdt, addr, اندازه, j, پلار);
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-void fdt_config_fixup(void *fdt)
+فراغ fdt_config_fixup(فراغ *fdt)
 {
-	int chosen_offset, config_offset;
+	صحيح chosen_دننه_واټن, config_دننه_واټن;
 
-	chosen_offset = fdt_path_offset(fdt, "/chosen");
-	if (chosen_offset < 0)
-		return;
+	chosen_دننه_واټن = fdt_لار_دننه_واټن(fdt, "/chosen");
+	إذا (chosen_دننه_واټن < 0)
+		أرجع;
 
-	config_offset = fdt_node_offset_by_compatible(fdt, chosen_offset, "opensbi,config");
-	if (config_offset < 0)
-		return;
+	config_دننه_واټن = fdt_غوټه_دننه_واټن_by_compatible(fdt, chosen_دننه_واټن, "opensbi,config");
+	إذا (config_دننه_واټن < 0)
+		أرجع;
 
-	fdt_nop_node(fdt, config_offset);
+	fdt_nop_غوټه(fdt, config_دننه_واټن);
 }
 
-static SBI_LIST_HEAD(fixup_list);
+ساكن SBI_LIST_سر(fixup_list);
 
-int fdt_register_general_fixup(struct fdt_general_fixup *fixup)
+صحيح fdt_ثبتوونکی_general_fixup(بنية fdt_general_fixup *fixup)
 {
-	struct fdt_general_fixup *f;
+	بنية fdt_general_fixup *f;
 
-	if (!fixup || !fixup->name || !fixup->do_fixup)
-		return SBI_EINVAL;
+	إذا (!fixup || !fixup->name || !fixup->do_fixup)
+		أرجع SBI_EINVAL;
 
-	sbi_list_for_each_entry(f, &fixup_list, head) {
-		if (f == fixup)
-			return SBI_EALREADY;
+	sbi_list_for_each_ثبت(f, &fixup_list, سر) {
+		إذا (f == fixup)
+			أرجع SBI_EALREADY;
 	}
 
-	sbi_list_add_tail(&fixup->head, &fixup_list);
+	sbi_list_جمع_کړه_لکۍ(&fixup->سر, &fixup_list);
 
-	return 0;
+	أرجع 0;
 }
 
-void fdt_unregister_general_fixup(struct fdt_general_fixup *fixup)
+فراغ fdt_unregister_general_fixup(بنية fdt_general_fixup *fixup)
 {
-	if (!fixup)
-		return;
+	إذا (!fixup)
+		أرجع;
 
-	sbi_list_del(&fixup->head);
+	sbi_list_del(&fixup->سر);
 }
 
-void fdt_fixups(void *fdt)
+فراغ fdt_fixups(فراغ *fdt)
 {
-	struct fdt_general_fixup *f;
+	بنية fdt_general_fixup *f;
 
 	fdt_aplic_fixup(fdt);
 
@@ -526,14 +526,14 @@ void fdt_fixups(void *fdt)
 
 	fdt_plic_fixup(fdt);
 
-	fdt_reserved_memory_fixup(fdt);
+	fdt_reserved_حافظه_fixup(fdt);
 
-#ifndef CONFIG_FDT_FIXUPS_PRESERVE_PMU_NODE
+#که_نه_تعریف_شوی CONFIG_FDT_FIXUPS_PRESERVE_PMU_غوټه
 	fdt_pmu_fixup(fdt);
-#endif
+#د_که_پای
 
 	fdt_config_fixup(fdt);
 
-	sbi_list_for_each_entry(f, &fixup_list, head)
+	sbi_list_for_each_ثبت(f, &fixup_list, سر)
 		f->do_fixup(f, fdt);
 }

@@ -7,99 +7,99 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_pmp.h>
 
-static unsigned long ctz(unsigned long x)
+ساكن بینښه اوږد ctz(بینښه اوږد x)
 {
-	unsigned long ret = 0;
+	بینښه اوږد ret = 0;
 
-	if (x == 0)
-		return 8 * sizeof(x);
+	إذا (x == 0)
+		أرجع 8 * حجم(x);
 
-	while (!(x & 1UL)) {
+	طالما (!(x & 1UL)) {
 		ret++;
 		x = x >> 1;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
 bool sbi_pmp_is_enabled(pmp_t *pmp)
 {
 	/* If address matching bits are non-zero, the entry is enable */
-	if (pmp->cfg & PMP_A)
-		return true;
+	إذا (pmp->cfg & PMP_A)
+		أرجع true;
 
-	return false;
+	أرجع false;
 }
 
-int sbi_pmp_encode(pmp_t *pmp, unsigned long prot, unsigned long addr,
-		    unsigned long log2len)
+صحيح sbi_pmp_encode(pmp_t *pmp, بینښه اوږد prot, بینښه اوږد addr,
+		    بینښه اوږد log2len)
 {
 	/* check parameters */
-	if (log2len > __riscv_xlen || log2len < PMP_SHIFT)
-		return SBI_EINVAL;
+	إذا (log2len > __riscv_xlen || log2len < PMP_ښويدنه)
+		أرجع SBI_EINVAL;
 
 	/* encode PMP config */
 	prot &= ~PMP_A;
-	prot |= (log2len == PMP_SHIFT) ? PMP_A_NA4 : PMP_A_NAPOT;
+	prot |= (log2len == PMP_ښويدنه) ? PMP_A_NA4 : PMP_A_NAPOT;
 	pmp->cfg = prot;
 
 	/* encode PMP address */
-	if (log2len == PMP_SHIFT) {
-		pmp->addr = (addr >> PMP_SHIFT);
-	} else {
-		if (log2len == __riscv_xlen) {
+	إذا (log2len == PMP_ښويدنه) {
+		pmp->addr = (addr >> PMP_ښويدنه);
+	} وإلا {
+		إذا (log2len == __riscv_xlen) {
 			pmp->addr = -1UL;
-		} else {
-			unsigned long addrmask;
-			addrmask = (1UL << (log2len - PMP_SHIFT)) - 1;
-			pmp->addr = ((addr >> PMP_SHIFT) & ~addrmask);
+		} وإلا {
+			بینښه اوږد addrmask;
+			addrmask = (1UL << (log2len - PMP_ښويدنه)) - 1;
+			pmp->addr = ((addr >> PMP_ښويدنه) & ~addrmask);
 			pmp->addr |= (addrmask >> 1);
 		}
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-int sbi_pmp_decode(pmp_t *pmp, unsigned long *prot_out, unsigned long *addr_out,
-		    unsigned long *log2len)
+صحيح sbi_pmp_decode(pmp_t *pmp, بینښه اوږد *prot_بهر, بینښه اوږد *addr_بهر,
+		    بینښه اوږد *log2len)
 {
-	unsigned long prot;
-	unsigned long t1, addr, len;
+	بینښه اوږد prot;
+	بینښه اوږد t1, addr, len;
 
 	/* check parameters */
-	if (!prot_out || !addr_out || !log2len)
-		return SBI_EINVAL;
-	*prot_out = *addr_out = *log2len = 0;
+	إذا (!prot_بهر || !addr_بهر || !log2len)
+		أرجع SBI_EINVAL;
+	*prot_بهر = *addr_بهر = *log2len = 0;
 
 	/* decode PMP config */
 	prot = pmp->cfg;
 
 	/* decode PMP address */
-	if ((prot & PMP_A) == PMP_A_NAPOT) {
+	إذا ((prot & PMP_A) == PMP_A_NAPOT) {
 		addr = pmp->addr;
-		if (addr == -1UL) {
+		إذا (addr == -1UL) {
 			addr	= 0;
 			len	= __riscv_xlen;
-		} else {
+		} وإلا {
 			t1	= ctz(~addr);
-			addr	= (addr & ~((1UL << t1) - 1)) << PMP_SHIFT;
-			len	= (t1 + PMP_SHIFT + 1);
+			addr	= (addr & ~((1UL << t1) - 1)) << PMP_ښويدنه;
+			len	= (t1 + PMP_ښويدنه + 1);
 		}
-	} else {
-		addr	= pmp->addr << PMP_SHIFT;
-		len	= PMP_SHIFT;
+	} وإلا {
+		addr	= pmp->addr << PMP_ښويدنه;
+		len	= PMP_ښويدنه;
 	}
 
 	/* return details */
-	*prot_out    = prot;
-	*addr_out    = addr;
+	*prot_بهر    = prot;
+	*addr_بهر    = addr;
 	*log2len     = len;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }

@@ -7,35 +7,35 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_encoding.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_pmp.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_encoding.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_pmp.h>
 
 /* determine CPU extension, return non-zero support */
-int misa_extension_imp(char ext)
+صحيح misa_extension_imp(حرف ext)
 {
-	unsigned long misa = csr_read(CSR_MISA);
+	بینښه اوږد misa = csr_read(CSR_MISA);
 
-	if (misa) {
-		if ('A' <= ext && ext <= 'Z')
-			return misa & (1 << (ext - 'A'));
-		if ('a' <= ext && ext <= 'z')
-			return misa & (1 << (ext - 'a'));
-		return 0;
+	إذا (misa) {
+		إذا ('A' <= ext && ext <= 'Z')
+			أرجع misa & (1 << (ext - 'A'));
+		إذا ('a' <= ext && ext <= 'z')
+			أرجع misa & (1 << (ext - 'a'));
+		أرجع 0;
 	}
 
-	return sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
+	أرجع sbi_platform_misa_extension(sbi_platform_thishart_ptr(), ext);
 }
 
-int misa_xlen(void)
+صحيح misa_xlen(فراغ)
 {
-	long r;
+	اوږد r;
 
-	if (csr_read(CSR_MISA) == 0)
-		return sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
+	إذا (csr_read(CSR_MISA) == 0)
+		أرجع sbi_platform_misa_xlen(sbi_platform_thishart_ptr());
 
 	__asm__ __volatile__(
 		"csrr   t0, misa\n\t"
@@ -48,81 +48,81 @@ int misa_xlen(void)
 		:
 		: "t0", "t1");
 
-	return r ? r : -1;
+	أرجع r ? r : -1;
 }
 
-void misa_string(int xlen, char *out, unsigned int out_sz)
+فراغ misa_string(صحيح xlen, حرف *بهر, بینښه صحيح بهر_sz)
 {
-	unsigned int i, pos = 0;
-	const char valid_isa_order[] = "iemafdqclbjtpvnhkorwxyzg";
+	بینښه صحيح i, pos = 0;
+	ثابت حرف valid_isa_ترتیب[] = "iemafdqclbjtpvnhkorwxyzg";
 
-	if (!out)
-		return;
+	إذا (!بهر)
+		أرجع;
 
-	if (5 <= (out_sz - pos)) {
-		out[pos++] = 'r';
-		out[pos++] = 'v';
-		switch (xlen) {
-		case 1:
-			out[pos++] = '3';
-			out[pos++] = '2';
-			break;
-		case 2:
-			out[pos++] = '6';
-			out[pos++] = '4';
-			break;
-		case 3:
-			out[pos++] = '1';
-			out[pos++] = '2';
-			out[pos++] = '8';
-			break;
-		default:
+	إذا (5 <= (بهر_sz - pos)) {
+		بهر[pos++] = 'r';
+		بهر[pos++] = 'v';
+		بدل (xlen) {
+		حالة 1:
+			بهر[pos++] = '3';
+			بهر[pos++] = '2';
+			اكسر;
+		حالة 2:
+			بهر[pos++] = '6';
+			بهر[pos++] = '4';
+			اكسر;
+		حالة 3:
+			بهر[pos++] = '1';
+			بهر[pos++] = '2';
+			بهر[pos++] = '8';
+			اكسر;
+		افتراضي:
 			sbi_panic("%s: Unknown misa.MXL encoding %d",
 				   __func__, xlen);
-			return;
+			أرجع;
 		}
 	}
 
-	for (i = 0; i < array_size(valid_isa_order) && (pos < out_sz); i++) {
-		if (misa_extension_imp(valid_isa_order[i]))
-			out[pos++] = valid_isa_order[i];
+	لكل (i = 0; i < array_اندازه(valid_isa_ترتیب) && (pos < بهر_sz); i++) {
+		إذا (misa_extension_imp(valid_isa_ترتیب[i]))
+			بهر[pos++] = valid_isa_ترتیب[i];
 	}
 
-	if (pos < out_sz)
-		out[pos++] = '\0';
+	إذا (pos < بهر_sz)
+		بهر[pos++] = '\0';
 }
 
-unsigned long csr_read_num(int csr_num)
+بینښه اوږد csr_read_عدد(صحيح csr_عدد)
 {
-#define switchcase_csr_read(__csr_num)			\
-	case __csr_num:					\
-		return csr_read(__csr_num);
-#define switchcase_csr_read_2(__csr_num)		\
+#تعریف_کړه switchcase_csr_read(__csr_num)			\
+	حالة __csr_num:					\
+		أرجع csr_read(__csr_num);
+#تعریف_کړه switchcase_csr_read_2(__csr_num)		\
 	switchcase_csr_read(__csr_num + 0)		\
 	switchcase_csr_read(__csr_num + 1)
-#define switchcase_csr_read_4(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_4(__csr_num)		\
 	switchcase_csr_read_2(__csr_num + 0)		\
 	switchcase_csr_read_2(__csr_num + 2)
-#define switchcase_csr_read_8(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_8(__csr_num)		\
 	switchcase_csr_read_4(__csr_num + 0)		\
 	switchcase_csr_read_4(__csr_num + 4)
-#define switchcase_csr_read_16(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_16(__csr_num)		\
 	switchcase_csr_read_8(__csr_num + 0)		\
 	switchcase_csr_read_8(__csr_num + 8)
-#define switchcase_csr_read_32(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_32(__csr_num)		\
 	switchcase_csr_read_16(__csr_num + 0)		\
 	switchcase_csr_read_16(__csr_num + 16)
-#define switchcase_csr_read_64(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_64(__csr_num)		\
 	switchcase_csr_read_32(__csr_num + 0)		\
 	switchcase_csr_read_32(__csr_num + 32)
-#define switchcase_csr_read_128(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_128(__csr_num)		\
 	switchcase_csr_read_64(__csr_num + 0)		\
 	switchcase_csr_read_64(__csr_num + 64)
-#define switchcase_csr_read_256(__csr_num)		\
+#تعریف_کړه switchcase_csr_read_256(__csr_num)		\
 	switchcase_csr_read_128(__csr_num + 0)		\
 	switchcase_csr_read_128(__csr_num + 128)
 
-	switch (csr_num) {
+	بدل (csr_عدد) {
 	switchcase_csr_read_16(CSR_PMPCFG0)
 	switchcase_csr_read_64(CSR_PMPADDR0)
 	switchcase_csr_read(CSR_MCYCLE)
@@ -138,7 +138,7 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4)
 	switchcase_csr_read_8(CSR_MHPMEVENT8)
 	switchcase_csr_read_16(CSR_MHPMEVENT16)
-#if __riscv_xlen == 32
+#إذا __riscv_xlen == 32
 	switchcase_csr_read(CSR_MCYCLEH)
 	switchcase_csr_read(CSR_MINSTRETH)
 	switchcase_csr_read(CSR_MHPMCOUNTER3H)
@@ -159,67 +159,67 @@ unsigned long csr_read_num(int csr_num)
 	switchcase_csr_read_4(CSR_MHPMEVENT4H)
 	switchcase_csr_read_8(CSR_MHPMEVENT8H)
 	switchcase_csr_read_16(CSR_MHPMEVENT16H)
-#endif
-	switchcase_csr_read_256(CSR_CUSTOM0_U_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM1_U_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM2_S_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM3_S_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM4_S_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM5_HS_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM6_HS_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM7_HS_RO_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM8_M_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM9_M_RW_BASE)
-	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_BASE)
+#د_که_پای
+	switchcase_csr_read_256(CSR_CUSTOM0_U_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM1_U_RO_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM2_S_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM3_S_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM4_S_RO_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM5_HS_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM6_HS_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM7_HS_RO_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM8_M_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM9_M_RW_بنسټ)
+	switchcase_csr_read_64(CSR_CUSTOM10_M_RO_بنسټ)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		return 0;
+	افتراضي:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_عدد);
+		أرجع 0;
 	}
 
-#undef switchcase_csr_read_256
-#undef switchcase_csr_read_128
-#undef switchcase_csr_read_64
-#undef switchcase_csr_read_32
-#undef switchcase_csr_read_16
-#undef switchcase_csr_read_8
-#undef switchcase_csr_read_4
-#undef switchcase_csr_read_2
-#undef switchcase_csr_read
+#تعریف_لغوه switchcase_csr_read_256
+#تعریف_لغوه switchcase_csr_read_128
+#تعریف_لغوه switchcase_csr_read_64
+#تعریف_لغوه switchcase_csr_read_32
+#تعریف_لغوه switchcase_csr_read_16
+#تعریف_لغوه switchcase_csr_read_8
+#تعریف_لغوه switchcase_csr_read_4
+#تعریف_لغوه switchcase_csr_read_2
+#تعریف_لغوه switchcase_csr_read
 }
 
-void csr_write_num(int csr_num, unsigned long val)
+فراغ csr_write_عدد(صحيح csr_عدد, بینښه اوږد val)
 {
-#define switchcase_csr_write(__csr_num, __val)		\
-	case __csr_num:					\
+#تعریف_کړه switchcase_csr_write(__csr_num, __val)		\
+	حالة __csr_num:					\
 		csr_write(__csr_num, __val);		\
-		break;
-#define switchcase_csr_write_2(__csr_num, __val)	\
+		اكسر;
+#تعریف_کړه switchcase_csr_write_2(__csr_num, __val)	\
 	switchcase_csr_write(__csr_num + 0, __val)	\
 	switchcase_csr_write(__csr_num + 1, __val)
-#define switchcase_csr_write_4(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_4(__csr_num, __val)	\
 	switchcase_csr_write_2(__csr_num + 0, __val)	\
 	switchcase_csr_write_2(__csr_num + 2, __val)
-#define switchcase_csr_write_8(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_8(__csr_num, __val)	\
 	switchcase_csr_write_4(__csr_num + 0, __val)	\
 	switchcase_csr_write_4(__csr_num + 4, __val)
-#define switchcase_csr_write_16(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_16(__csr_num, __val)	\
 	switchcase_csr_write_8(__csr_num + 0, __val)	\
 	switchcase_csr_write_8(__csr_num + 8, __val)
-#define switchcase_csr_write_32(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_32(__csr_num, __val)	\
 	switchcase_csr_write_16(__csr_num + 0, __val)	\
 	switchcase_csr_write_16(__csr_num + 16, __val)
-#define switchcase_csr_write_64(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_64(__csr_num, __val)	\
 	switchcase_csr_write_32(__csr_num + 0, __val)	\
 	switchcase_csr_write_32(__csr_num + 32, __val)
-#define switchcase_csr_write_128(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_128(__csr_num, __val)	\
 	switchcase_csr_write_64(__csr_num + 0, __val)	\
 	switchcase_csr_write_64(__csr_num + 64, __val)
-#define switchcase_csr_write_256(__csr_num, __val)	\
+#تعریف_کړه switchcase_csr_write_256(__csr_num, __val)	\
 	switchcase_csr_write_128(__csr_num + 0, __val)	\
 	switchcase_csr_write_128(__csr_num + 128, __val)
 
-	switch (csr_num) {
+	بدل (csr_عدد) {
 	switchcase_csr_write_16(CSR_PMPCFG0, val)
 	switchcase_csr_write_64(CSR_PMPADDR0, val)
 	switchcase_csr_write(CSR_MCYCLE, val)
@@ -228,7 +228,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMCOUNTER4, val)
 	switchcase_csr_write_8(CSR_MHPMCOUNTER8, val)
 	switchcase_csr_write_16(CSR_MHPMCOUNTER16, val)
-#if __riscv_xlen == 32
+#إذا __riscv_xlen == 32
 	switchcase_csr_write(CSR_MCYCLEH, val)
 	switchcase_csr_write(CSR_MINSTRETH, val)
 	switchcase_csr_write(CSR_MHPMCOUNTER3H, val)
@@ -241,7 +241,7 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMEVENT4H, val)
 	switchcase_csr_write_8(CSR_MHPMEVENT8H, val)
 	switchcase_csr_write_16(CSR_MHPMEVENT16H, val)
-#endif
+#د_که_پای
 	switchcase_csr_write(CSR_MCOUNTINHIBIT, val)
 	switchcase_csr_write(CSR_MCYCLECFG, val)
 	switchcase_csr_write(CSR_MINSTRETCFG, val)
@@ -249,26 +249,26 @@ void csr_write_num(int csr_num, unsigned long val)
 	switchcase_csr_write_4(CSR_MHPMEVENT4, val)
 	switchcase_csr_write_8(CSR_MHPMEVENT8, val)
 	switchcase_csr_write_16(CSR_MHPMEVENT16, val)
-	switchcase_csr_write_256(CSR_CUSTOM0_U_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM2_S_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM3_S_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM5_HS_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM6_HS_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM8_M_RW_BASE, val)
-	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_BASE, val)
+	switchcase_csr_write_256(CSR_CUSTOM0_U_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM2_S_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM3_S_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM5_HS_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM6_HS_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM8_M_RW_بنسټ, val)
+	switchcase_csr_write_64(CSR_CUSTOM9_M_RW_بنسټ, val)
 
-	default:
-		sbi_panic("%s: Unknown CSR %#x", __func__, csr_num);
-		break;
+	افتراضي:
+		sbi_panic("%s: Unknown CSR %#x", __func__, csr_عدد);
+		اكسر;
 	}
 
-#undef switchcase_csr_write_256
-#undef switchcase_csr_write_128
-#undef switchcase_csr_write_64
-#undef switchcase_csr_write_32
-#undef switchcase_csr_write_16
-#undef switchcase_csr_write_8
-#undef switchcase_csr_write_4
-#undef switchcase_csr_write_2
-#undef switchcase_csr_write
+#تعریف_لغوه switchcase_csr_write_256
+#تعریف_لغوه switchcase_csr_write_128
+#تعریف_لغوه switchcase_csr_write_64
+#تعریف_لغوه switchcase_csr_write_32
+#تعریف_لغوه switchcase_csr_write_16
+#تعریف_لغوه switchcase_csr_write_8
+#تعریف_لغوه switchcase_csr_write_4
+#تعریف_لغوه switchcase_csr_write_2
+#تعریف_لغوه switchcase_csr_write
 }

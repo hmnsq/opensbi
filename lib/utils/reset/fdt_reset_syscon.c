@@ -7,161 +7,161 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/regmap/fdt_regmap.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/regmap/fdt_regmap.h>
 
-struct syscon_reset {
-	struct regmap *rmap;
-	u32 priority;
-	u32 offset;
-	u32 value;
-	u32 mask;
+بنية syscon_reset {
+	بنية regmap *rmap;
+	u32 لومړیتوب;
+	u32 دننه_واټن;
+	u32 ارزښت;
+	u32 ماسک;
 };
 
-static struct syscon_reset poweroff;
-static struct syscon_reset reboot;
+ساكن بنية syscon_reset poweroff;
+ساكن بنية syscon_reset reboot;
 
-static struct syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
+ساكن بنية syscon_reset *syscon_reset_get(bool is_reboot, u32 type)
 {
-	struct syscon_reset *reset = NULL;
+	بنية syscon_reset *reset = عدم;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		if (!is_reboot)
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+		إذا (!is_reboot)
 			reset = &poweroff;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		if (is_reboot)
+		اكسر;
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		إذا (is_reboot)
 			reset = &reboot;
-		break;
+		اكسر;
 	}
 
-	if (reset && !reset->rmap)
-		reset = NULL;
+	إذا (reset && !reset->rmap)
+		reset = عدم;
 
-	return reset;
+	أرجع reset;
 }
 
-static void syscon_reset_exec(struct syscon_reset *reset)
+ساكن فراغ syscon_reset_exec(بنية syscon_reset *reset)
 {
 	/* Issue the reset through regmap */
-	if (reset)
-		regmap_update_bits(reset->rmap, reset->offset,
-				   reset->mask, reset->value);
+	إذا (reset)
+		regmap_update_بټونه(reset->rmap, reset->دننه_واټن,
+				   reset->ماسک, reset->ارزښت);
 
 	/* hang !!! */
 	sbi_hart_hang();
 }
 
-static int syscon_poweroff_check(u32 type, u32 reason)
+ساكن صحيح syscon_poweroff_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(false, type);
+	بنية syscon_reset *reset = syscon_reset_get(false, type);
 
-	return (reset) ? reset->priority : 0;
+	أرجع (reset) ? reset->لومړیتوب : 0;
 }
 
-static void syscon_do_poweroff(u32 type, u32 reason)
+ساكن فراغ syscon_do_poweroff(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(false, type));
 }
 
-static struct sbi_system_reset_device syscon_poweroff = {
+ساكن بنية sbi_system_reset_device syscon_poweroff = {
 	.name = "syscon-poweroff",
 	.system_reset_check = syscon_poweroff_check,
 	.system_reset = syscon_do_poweroff
 };
 
-static int syscon_reboot_check(u32 type, u32 reason)
+ساكن صحيح syscon_reboot_check(u32 type, u32 reason)
 {
-	struct syscon_reset *reset = syscon_reset_get(true, type);
+	بنية syscon_reset *reset = syscon_reset_get(true, type);
 
-	return (reset) ? reset->priority : 0;
+	أرجع (reset) ? reset->لومړیتوب : 0;
 }
 
-static void syscon_do_reboot(u32 type, u32 reason)
+ساكن فراغ syscon_do_reboot(u32 type, u32 reason)
 {
 	syscon_reset_exec(syscon_reset_get(true, type));
 }
 
-static struct sbi_system_reset_device syscon_reboot = {
+ساكن بنية sbi_system_reset_device syscon_reboot = {
 	.name = "syscon-reboot",
 	.system_reset_check = syscon_reboot_check,
 	.system_reset = syscon_do_reboot
 };
 
-static int syscon_reset_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ساكن صحيح syscon_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_سمون *سمون)
 {
-	int rc, len;
-	const fdt32_t *val, *mask;
-	bool is_reboot = (ulong)match->data;
-	struct syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
+	صحيح rc, len;
+	ثابت fdt32_t *val, *ماسک;
+	bool is_reboot = (ulong)سمون->معلومات;
+	بنية syscon_reset *reset = (is_reboot) ? &reboot : &poweroff;
 
-	if (reset->rmap)
-		return SBI_EALREADY;
+	إذا (reset->rmap)
+		أرجع SBI_EALREADY;
 
 	rc = fdt_regmap_get(fdt, nodeoff, &reset->rmap);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
 	val = fdt_getprop(fdt, nodeoff, "priority", &len);
-	reset->priority = (val && len > 0) ? fdt32_to_cpu(*val) : 192;
+	reset->لومړیتوب = (val && len > 0) ? fdt32_منزل_cpu(*val) : 192;
 
 	val = fdt_getprop(fdt, nodeoff, "offset", &len);
-	if (val && len > 0)
-		reset->offset = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	إذا (val && len > 0)
+		reset->دننه_واټن = fdt32_منزل_cpu(*val);
+	وإلا
+		أرجع SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "value", &len);
-	mask = fdt_getprop(fdt, nodeoff, "mask", &len);
-	if (!val && !mask)
-		return SBI_EINVAL;
+	ماسک = fdt_getprop(fdt, nodeoff, "mask", &len);
+	إذا (!val && !ماسک)
+		أرجع SBI_EINVAL;
 
-	if (!val) {
+	إذا (!val) {
 		/* support old binding */
-		reset->value = fdt32_to_cpu(*mask);
-		reset->mask = 0xFFFFFFFF;
-	} else if (!mask) {
+		reset->ارزښت = fdt32_منزل_cpu(*ماسک);
+		reset->ماسک = 0xFFFFFFFF;
+	} وإلا إذا (!ماسک) {
 		/* support value without mask */
-		reset->value = fdt32_to_cpu(*val);
-		reset->mask = 0xFFFFFFFF;
-	} else {
-		reset->value = fdt32_to_cpu(*val);
-		reset->mask = fdt32_to_cpu(*mask);
+		reset->ارزښت = fdt32_منزل_cpu(*val);
+		reset->ماسک = 0xFFFFFFFF;
+	} وإلا {
+		reset->ارزښت = fdt32_منزل_cpu(*val);
+		reset->ماسک = fdt32_منزل_cpu(*ماسک);
 	}
 
-	if (is_reboot)
-		sbi_system_reset_add_device(&syscon_reboot);
-	else
-		sbi_system_reset_add_device(&syscon_poweroff);
+	إذا (is_reboot)
+		sbi_system_reset_جمع_کړه_device(&syscon_reboot);
+	وإلا
+		sbi_system_reset_جمع_کړه_device(&syscon_poweroff);
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match syscon_poweroff_match[] = {
-	{ .compatible = "syscon-poweroff", .data = (const void *)false },
+ساكن ثابت بنية fdt_سمون syscon_poweroff_سمون[] = {
+	{ .compatible = "syscon-poweroff", .معلومات = (ثابت فراغ *)false },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_poweroff = {
-	.match_table = syscon_poweroff_match,
+ثابت بنية fdt_driver fdt_syscon_poweroff = {
+	.سمون_جدول = syscon_poweroff_سمون,
 	.init = syscon_reset_init,
 };
 
-static const struct fdt_match syscon_reboot_match[] = {
-	{ .compatible = "syscon-reboot", .data = (const void *)true },
+ساكن ثابت بنية fdt_سمون syscon_reboot_سمون[] = {
+	{ .compatible = "syscon-reboot", .معلومات = (ثابت فراغ *)true },
 	{ },
 };
 
-const struct fdt_driver fdt_syscon_reboot = {
-	.match_table = syscon_reboot_match,
+ثابت بنية fdt_driver fdt_syscon_reboot = {
+	.سمون_جدول = syscon_reboot_سمون,
 	.init = syscon_reset_init,
 };

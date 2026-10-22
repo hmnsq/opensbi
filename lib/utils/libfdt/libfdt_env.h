@@ -1,85 +1,85 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause */
-#ifndef LIBFDT_ENV_H
-#define LIBFDT_ENV_H
+#که_نه_تعریف_شوی LIBFDT_ENV_H
+#تعریف_کړه LIBFDT_ENV_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_byteorder.h>
+#ضمن <sbi/sbi_string.h>
+#ضمن <sbi/sbi_types.h>
+#ضمن <sbi/sbi_byteorder.h>
 
-#define INT_MAX		((int)(~0U >> 1))
-#define UINT_MAX	((unsigned int)~0U)
-#define INT32_MAX	INT_MAX
-#define UINT32_MAX	UINT_MAX
+#تعریف_کړه لوی_عدد		((صحيح)(~0U >> 1))
+#تعریف_کړه UINT_MAX	((بینښه صحيح)~0U)
+#تعریف_کړه INT32_MAX	لوی_عدد
+#تعریف_کړه UINT32_MAX	UINT_MAX
 
-#ifdef __CHECKER__
-#define FDT_FORCE __attribute__((force))
-#define FDT_BITWISE __attribute__((bitwise))
-#else
-#define FDT_FORCE
-#define FDT_BITWISE
-#endif
+#که_تعریف_شوی __CHECKER__
+#تعریف_کړه FDT_FORCE __attribute__((force))
+#تعریف_کړه FDT_BITWISE __attribute__((bitwise))
+#وإلا
+#تعریف_کړه FDT_FORCE
+#تعریف_کړه FDT_BITWISE
+#د_که_پای
 
-#define memmove		sbi_memmove
-#define memcpy		sbi_memcpy
-#define memcmp		sbi_memcmp
-#define memchr		sbi_memchr
-#define memset		sbi_memset
-#define strchr		sbi_strchr
-#define strrchr		sbi_strrchr
-#define strcpy		sbi_strcpy
-#define strncpy		sbi_strncpy
-#define strcmp		sbi_strcmp
-#define strncmp		sbi_strncmp
-#define strlen		sbi_strlen
-#define strnlen		sbi_strnlen
+#تعریف_کړه memmove		sbi_memmove
+#تعریف_کړه حافظه_نقل		sbi_memcpy
+#تعریف_کړه memcmp		sbi_memcmp
+#تعریف_کړه memchr		sbi_memchr
+#تعریف_کړه memset		sbi_memset
+#تعریف_کړه strchr		sbi_strchr
+#تعریف_کړه strrchr		sbi_strrchr
+#تعریف_کړه strcpy		sbi_strcpy
+#تعریف_کړه strncpy		sbi_strncpy
+#تعریف_کړه strcmp		sbi_strcmp
+#تعریف_کړه مزي_پرتله		sbi_strncmp
+#تعریف_کړه مزي_اوږدوالی		sbi_strlen
+#تعریف_کړه strnlen		sbi_strnlen
 
-typedef be16_t FDT_BITWISE fdt16_t;
-typedef be32_t FDT_BITWISE fdt32_t;
-typedef be64_t FDT_BITWISE fdt64_t;
+تعريفنوع be16_t FDT_BITWISE fdt16_t;
+تعريفنوع be32_t FDT_BITWISE fdt32_t;
+تعريفنوع be64_t FDT_BITWISE fdt64_t;
 
-static inline uint16_t fdt16_to_cpu(fdt16_t x)
+ساكن مضمن uint16_t fdt16_منزل_cpu(fdt16_t x)
 {
-	return (FDT_FORCE uint16_t)be16_to_cpu(x);
+	أرجع (FDT_FORCE uint16_t)be16_منزل_cpu(x);
 }
 
-static inline fdt16_t cpu_to_fdt16(uint16_t x)
+ساكن مضمن fdt16_t cpu_منزل_fdt16(uint16_t x)
 {
-	return (FDT_FORCE fdt16_t)cpu_to_be16(x);
+	أرجع (FDT_FORCE fdt16_t)cpu_منزل_be16(x);
 }
 
-static inline uint32_t fdt32_to_cpu(fdt32_t x)
+ساكن مضمن uint32_t fdt32_منزل_cpu(fdt32_t x)
 {
-	return (FDT_FORCE uint32_t)be32_to_cpu(x);
+	أرجع (FDT_FORCE uint32_t)be32_منزل_cpu(x);
 }
 
-static inline fdt32_t cpu_to_fdt32(uint32_t x)
+ساكن مضمن fdt32_t cpu_منزل_fdt32(uint32_t x)
 {
-	return (FDT_FORCE fdt32_t)cpu_to_be32(x);
+	أرجع (FDT_FORCE fdt32_t)cpu_منزل_be32(x);
 }
 
-static inline uint64_t fdt64_to_cpu(fdt64_t x)
+ساكن مضمن uint64_t fdt64_منزل_cpu(fdt64_t x)
 {
-	return (FDT_FORCE uint64_t)be64_to_cpu(x);
+	أرجع (FDT_FORCE uint64_t)be64_منزل_cpu(x);
 }
 
-static inline fdt64_t cpu_to_fdt64(uint64_t x)
+ساكن مضمن fdt64_t cpu_منزل_fdt64(uint64_t x)
 {
-	return (FDT_FORCE fdt64_t)cpu_to_be64(x);
+	أرجع (FDT_FORCE fdt64_t)cpu_منزل_be64(x);
 }
 
-#ifdef __APPLE__
-#include <AvailabilityMacros.h>
+#که_تعریف_شوی __APPLE__
+#ضمن <AvailabilityMacros.h>
 
 /* strnlen() is not available on Mac OS < 10.7 */
-# if !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
-                                         MAC_OS_X_VERSION_10_7)
+# إذا !defined(MAC_OS_X_نسخه_10_7) || (MAC_OS_X_نسخه_MAX_ALLOWED < \
+                                         MAC_OS_X_نسخه_10_7)
 
-#define strnlen fdt_strnlen
+#تعریف_کړه strnlen fdt_strnlen
 
 /*
  * fdt_strnlen: returns the length of a string or max_count - which ever is
@@ -88,15 +88,15 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+ساكن مضمن size_t fdt_strnlen(ثابت حرف *string, size_t max_شمېر)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    ثابت حرف *p = memchr(string, 0, max_شمېر);
+    أرجع p ? p - string : max_شمېر;
 }
 
-#endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
+#د_که_پای /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
           MAC_OS_X_VERSION_10_7) */
 
-#endif /* __APPLE__ */
+#د_که_پای /* __APPLE__ */
 
-#endif /* LIBFDT_ENV_H */
+#د_که_پای /* LIBFDT_ENV_H */

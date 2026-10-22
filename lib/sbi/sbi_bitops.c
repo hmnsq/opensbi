@@ -8,9 +8,9 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_bitops.h>
+#ضمن <sbi/sbi_bitops.h>
 
-#define BITOP_WORD(nr)		((nr) / BITS_PER_LONG)
+#تعریف_کړه BITOP_کلمه(nr)		((nr) / بټونه_فی_LONG)
 
 /**
  * find_first_bit - find the first set bit in a memory region
@@ -19,27 +19,27 @@
  *
  * Returns the bit number of the first set bit.
  */
-unsigned long find_first_bit(const unsigned long *addr,
-			     unsigned long size)
+بینښه اوږد پیدا_کړه_لومړی_بټ(ثابت بینښه اوږد *addr,
+			     بینښه اوږد اندازه)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ثابت بینښه اوږد *p = addr;
+	بینښه اوږد پایله = 0;
+	بینښه اوږد tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	طالما (اندازه & ~(بټونه_فی_LONG-1)) {
+		إذا ((tmp = *(p++)))
+			اذهب وموندل;
+		پایله += بټونه_فی_LONG;
+		اندازه -= بټونه_فی_LONG;
 	}
-	if (!size)
-		return result;
+	إذا (!اندازه)
+		أرجع پایله;
 
-	tmp = (*p) & (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffs(tmp);
+	tmp = (*p) & (~0UL >> (بټونه_فی_LONG - اندازه));
+	إذا (tmp == 0UL)		/* Are any bits set? */
+		أرجع پایله + اندازه;	/* Nope. */
+وموندل:
+	أرجع پایله + sbi_ffs(tmp);
 }
 
 /**
@@ -49,27 +49,27 @@ found:
  *
  * Returns the bit number of the first cleared bit.
  */
-unsigned long find_first_zero_bit(const unsigned long *addr,
-				  unsigned long size)
+بینښه اوږد پیدا_کړه_لومړی_zero_بټ(ثابت بینښه اوږد *addr,
+				  بینښه اوږد اندازه)
 {
-	const unsigned long *p = addr;
-	unsigned long result = 0;
-	unsigned long tmp;
+	ثابت بینښه اوږد *p = addr;
+	بینښه اوږد پایله = 0;
+	بینښه اوږد tmp;
 
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	طالما (اندازه & ~(بټونه_فی_LONG-1)) {
+		إذا (~(tmp = *(p++)))
+			اذهب وموندل;
+		پایله += بټونه_فی_LONG;
+		اندازه -= بټونه_فی_LONG;
 	}
-	if (!size)
-		return result;
+	إذا (!اندازه)
+		أرجع پایله;
 
-	tmp = (*p) | (~0UL << size);
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found:
-	return result + sbi_ffz(tmp);
+	tmp = (*p) | (~0UL << اندازه);
+	إذا (tmp == ~0UL)	/* Are any bits zero? */
+		أرجع پایله + اندازه;	/* Nope. */
+وموندل:
+	أرجع پایله + sbi_ffz(tmp);
 }
 
 /**
@@ -79,33 +79,33 @@ found:
  *
  * Returns the bit number of the first set bit, or size.
  */
-unsigned long find_last_bit(const unsigned long *addr,
-			    unsigned long size)
+بینښه اوږد پیدا_کړه_وروستی_بټ(ثابت بینښه اوږد *addr,
+			    بینښه اوږد اندازه)
 {
-	unsigned long words;
-	unsigned long tmp;
+	بینښه اوږد ټکي;
+	بینښه اوږد tmp;
 
 	/* Start at final word. */
-	words = size / BITS_PER_LONG;
+	ټکي = اندازه / بټونه_فی_LONG;
 
 	/* Partial final word? */
-	if (size & (BITS_PER_LONG-1)) {
-		tmp = (addr[words] & (~0UL >> (BITS_PER_LONG
-					 - (size & (BITS_PER_LONG-1)))));
-		if (tmp)
-			goto found;
+	إذا (اندازه & (بټونه_فی_LONG-1)) {
+		tmp = (addr[ټکي] & (~0UL >> (بټونه_فی_LONG
+					 - (اندازه & (بټونه_فی_LONG-1)))));
+		إذا (tmp)
+			اذهب وموندل;
 	}
 
-	while (words) {
-		tmp = addr[--words];
-		if (tmp) {
-found:
-			return words * BITS_PER_LONG + sbi_fls(tmp);
+	طالما (ټکي) {
+		tmp = addr[--ټکي];
+		إذا (tmp) {
+وموندل:
+			أرجع ټکي * بټونه_فی_LONG + sbi_fls(tmp);
 		}
 	}
 
 	/* Not found */
-	return size;
+	أرجع اندازه;
 }
 
 /**
@@ -114,43 +114,43 @@ found:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_bit(const unsigned long *addr,
-			    unsigned long size, unsigned long offset)
+بینښه اوږد پیدا_کړه_بل_بټ(ثابت بینښه اوږد *addr,
+			    بینښه اوږد اندازه, بینښه اوږد دننه_واټن)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ثابت بینښه اوږد *p = addr + BITOP_کلمه(دننه_واټن);
+	بینښه اوږد پایله = دننه_واټن & ~(بټونه_فی_LONG-1);
+	بینښه اوږد tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	إذا (دننه_واټن >= اندازه)
+		أرجع اندازه;
+	اندازه -= پایله;
+	دننه_واټن %= بټونه_فی_LONG;
+	إذا (دننه_واټن) {
 		tmp = *(p++);
-		tmp &= (~0UL << offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp &= (~0UL << دننه_واټن);
+		إذا (اندازه < بټونه_فی_LONG)
+			اذهب وموندل_لومړی;
+		إذا (tmp)
+			اذهب وموندل_منځ;
+		اندازه -= بټونه_فی_LONG;
+		پایله += بټونه_فی_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if ((tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	طالما (اندازه & ~(بټونه_فی_LONG-1)) {
+		إذا ((tmp = *(p++)))
+			اذهب وموندل_منځ;
+		پایله += بټونه_فی_LONG;
+		اندازه -= بټونه_فی_LONG;
 	}
-	if (!size)
-		return result;
+	إذا (!اندازه)
+		أرجع پایله;
 	tmp = *p;
 
-found_first:
-	tmp &= (~0UL >> (BITS_PER_LONG - size));
-	if (tmp == 0UL)		/* Are any bits set? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffs(tmp);
+وموندل_لومړی:
+	tmp &= (~0UL >> (بټونه_فی_LONG - اندازه));
+	إذا (tmp == 0UL)		/* Are any bits set? */
+		أرجع پایله + اندازه;	/* Nope. */
+وموندل_منځ:
+	أرجع پایله + sbi_ffs(tmp);
 }
 
 /**
@@ -159,42 +159,42 @@ found_middle:
  * @offset: The bitnumber to start searching at
  * @size: The bitmap size in bits
  */
-unsigned long find_next_zero_bit(const unsigned long *addr,
-				 unsigned long size,
-				 unsigned long offset)
+بینښه اوږد پیدا_کړه_بل_zero_بټ(ثابت بینښه اوږد *addr,
+				 بینښه اوږد اندازه,
+				 بینښه اوږد دننه_واټن)
 {
-	const unsigned long *p = addr + BITOP_WORD(offset);
-	unsigned long result = offset & ~(BITS_PER_LONG-1);
-	unsigned long tmp;
+	ثابت بینښه اوږد *p = addr + BITOP_کلمه(دننه_واټن);
+	بینښه اوږد پایله = دننه_واټن & ~(بټونه_فی_LONG-1);
+	بینښه اوږد tmp;
 
-	if (offset >= size)
-		return size;
-	size -= result;
-	offset %= BITS_PER_LONG;
-	if (offset) {
+	إذا (دننه_واټن >= اندازه)
+		أرجع اندازه;
+	اندازه -= پایله;
+	دننه_واټن %= بټونه_فی_LONG;
+	إذا (دننه_واټن) {
 		tmp = *(p++);
-		tmp |= ~0UL >> (BITS_PER_LONG - offset);
-		if (size < BITS_PER_LONG)
-			goto found_first;
-		if (~tmp)
-			goto found_middle;
-		size -= BITS_PER_LONG;
-		result += BITS_PER_LONG;
+		tmp |= ~0UL >> (بټونه_فی_LONG - دننه_واټن);
+		إذا (اندازه < بټونه_فی_LONG)
+			اذهب وموندل_لومړی;
+		إذا (~tmp)
+			اذهب وموندل_منځ;
+		اندازه -= بټونه_فی_LONG;
+		پایله += بټونه_فی_LONG;
 	}
-	while (size & ~(BITS_PER_LONG-1)) {
-		if (~(tmp = *(p++)))
-			goto found_middle;
-		result += BITS_PER_LONG;
-		size -= BITS_PER_LONG;
+	طالما (اندازه & ~(بټونه_فی_LONG-1)) {
+		إذا (~(tmp = *(p++)))
+			اذهب وموندل_منځ;
+		پایله += بټونه_فی_LONG;
+		اندازه -= بټونه_فی_LONG;
 	}
-	if (!size)
-		return result;
+	إذا (!اندازه)
+		أرجع پایله;
 	tmp = *p;
 
-found_first:
-	tmp |= ~0UL << size;
-	if (tmp == ~0UL)	/* Are any bits zero? */
-		return result + size;	/* Nope. */
-found_middle:
-	return result + sbi_ffz(tmp);
+وموندل_لومړی:
+	tmp |= ~0UL << اندازه;
+	إذا (tmp == ~0UL)	/* Are any bits zero? */
+		أرجع پایله + اندازه;	/* Nope. */
+وموندل_منځ:
+	أرجع پایله + sbi_ffz(tmp);
 }

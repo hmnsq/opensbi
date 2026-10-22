@@ -7,155 +7,155 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/serial/uart8250.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi_utils/serial/uart8250.h>
 
 /* clang-format off */
 
-#define UART_RBR_OFFSET		0	/* In:  Receive Buffer Register */
-#define UART_THR_OFFSET		0	/* Out: Transmitter Holding Register */
-#define UART_DLL_OFFSET		0	/* Out: Divisor Latch Low */
-#define UART_IER_OFFSET		1	/* I/O: Interrupt Enable Register */
-#define UART_DLM_OFFSET		1	/* Out: Divisor Latch High */
-#define UART_FCR_OFFSET		2	/* Out: FIFO Control Register */
-#define UART_IIR_OFFSET		2	/* I/O: Interrupt Identification Register */
-#define UART_LCR_OFFSET		3	/* Out: Line Control Register */
-#define UART_MCR_OFFSET		4	/* Out: Modem Control Register */
-#define UART_LSR_OFFSET		5	/* In:  Line Status Register */
-#define UART_MSR_OFFSET		6	/* In:  Modem Status Register */
-#define UART_SCR_OFFSET		7	/* I/O: Scratch Register */
-#define UART_MDR1_OFFSET	8	/* I/O:  Mode Register */
+#تعریف_کړه UART_RBR_دننه_واټن		0	/* In:  Receive Buffer Register */
+#تعریف_کړه UART_THR_دننه_واټن		0	/* Out: Transmitter Holding Register */
+#تعریف_کړه UART_DLL_دننه_واټن		0	/* Out: Divisor Latch Low */
+#تعریف_کړه UART_IER_دننه_واټن		1	/* I/O: Interrupt Enable Register */
+#تعریف_کړه UART_DLM_دننه_واټن		1	/* Out: Divisor Latch High */
+#تعریف_کړه UART_FCR_دننه_واټن		2	/* Out: FIFO Control Register */
+#تعریف_کړه UART_IIR_دننه_واټن		2	/* I/O: Interrupt Identification Register */
+#تعریف_کړه UART_LCR_دننه_واټن		3	/* Out: Line Control Register */
+#تعریف_کړه UART_MCR_دننه_واټن		4	/* Out: Modem Control Register */
+#تعریف_کړه UART_LSR_دننه_واټن		5	/* In:  Line Status Register */
+#تعریف_کړه UART_MSR_دننه_واټن		6	/* In:  Modem Status Register */
+#تعریف_کړه UART_SCR_دننه_واټن		7	/* I/O: Scratch Register */
+#تعریف_کړه UART_MDR1_دننه_واټن	8	/* I/O:  Mode Register */
 
-#define UART_LSR_FIFOE		0x80	/* Fifo error */
-#define UART_LSR_TEMT		0x40	/* Transmitter empty */
-#define UART_LSR_THRE		0x20	/* Transmit-hold-register empty */
-#define UART_LSR_BI		0x10	/* Break interrupt indicator */
-#define UART_LSR_FE		0x08	/* Frame error indicator */
-#define UART_LSR_PE		0x04	/* Parity error indicator */
-#define UART_LSR_OE		0x02	/* Overrun error indicator */
-#define UART_LSR_DR		0x01	/* Receiver data ready */
-#define UART_LSR_BRK_ERROR_BITS	0x1E	/* BI, FE, PE, OE bits */
+#تعریف_کړه UART_LSR_FIFOE		0x80	/* Fifo error */
+#تعریف_کړه UART_LSR_TEMT		0x40	/* Transmitter empty */
+#تعریف_کړه UART_LSR_THRE		0x20	/* Transmit-hold-register empty */
+#تعریف_کړه UART_LSR_BI		0x10	/* Break interrupt indicator */
+#تعریف_کړه UART_LSR_FE		0x08	/* Frame error indicator */
+#تعریف_کړه UART_LSR_PE		0x04	/* Parity error indicator */
+#تعریف_کړه UART_LSR_OE		0x02	/* Overrun error indicator */
+#تعریف_کړه UART_LSR_DR		0x01	/* Receiver data ready */
+#تعریف_کړه UART_LSR_BRK_ERROR_بټونه	0x1E	/* BI, FE, PE, OE bits */
 
 /* The XScale PXA UARTs define these bits */
-#define UART_IER_DMAE		0x80	/* DMA Requests Enable */
-#define UART_IER_UUE		0x40	/* UART Unit Enable */
-#define UART_IER_NRZE		0x20	/* NRZ coding Enable */
-#define UART_IER_RTOIE		0x10	/* Receiver Time Out Interrupt Enable */
+#تعریف_کړه UART_IER_DMAE		0x80	/* DMA Requests Enable */
+#تعریف_کړه UART_IER_UUE		0x40	/* UART Unit Enable */
+#تعریف_کړه UART_IER_NRZE		0x20	/* NRZ coding Enable */
+#تعریف_کړه UART_IER_RTOIE		0x10	/* Receiver Time Out Interrupt Enable */
 
 /* clang-format on */
 
-static struct uart8250_device uart8250_dev;
+ساكن بنية uart8250_device uart8250_dev;
 
-static u32 get_reg(struct uart8250_device *dev, u32 num)
+ساكن u32 get_reg(بنية uart8250_device *dev, u32 عدد)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 دننه_واټن = عدد << dev->reg_ښويدنه;
 
-	if (dev->reg_width == 1)
-		return readb(dev->base + offset);
-	else if (dev->reg_width == 2)
-		return readw(dev->base + offset);
-	else
-		return readl(dev->base + offset);
+	إذا (dev->reg_پلنوالی == 1)
+		أرجع readb(dev->بنسټ_2 + دننه_واټن);
+	وإلا إذا (dev->reg_پلنوالی == 2)
+		أرجع readw(dev->بنسټ_2 + دننه_واټن);
+	وإلا
+		أرجع readl(dev->بنسټ_2 + دننه_واټن);
 }
 
-static void set_reg(struct uart8250_device *dev, u32 num, u32 val)
+ساكن فراغ سېټ_reg(بنية uart8250_device *dev, u32 عدد, u32 val)
 {
-	u32 offset = num << dev->reg_shift;
+	u32 دننه_واټن = عدد << dev->reg_ښويدنه;
 
-	if (dev->reg_width == 1)
-		writeb(val, dev->base + offset);
-	else if (dev->reg_width == 2)
-		writew(val, dev->base + offset);
-	else
-		writel(val, dev->base + offset);
+	إذا (dev->reg_پلنوالی == 1)
+		writeb(val, dev->بنسټ_2 + دننه_واټن);
+	وإلا إذا (dev->reg_پلنوالی == 2)
+		writew(val, dev->بنسټ_2 + دننه_واټن);
+	وإلا
+		writel(val, dev->بنسټ_2 + دننه_واټن);
 }
 
-void uart8250_device_putc(struct uart8250_device *dev, char ch)
+فراغ uart8250_device_putc(بنية uart8250_device *dev, حرف ch)
 {
-	while ((get_reg(dev, UART_LSR_OFFSET) & UART_LSR_THRE) == 0)
+	طالما ((get_reg(dev, UART_LSR_دننه_واټن) & UART_LSR_THRE) == 0)
 		;
 
-	set_reg(dev, UART_THR_OFFSET, ch);
+	سېټ_reg(dev, UART_THR_دننه_واټن, ch);
 }
 
-static void uart8250_putc(char ch)
+ساكن فراغ uart8250_putc(حرف ch)
 {
-	return uart8250_device_putc(&uart8250_dev, ch);
+	أرجع uart8250_device_putc(&uart8250_dev, ch);
 }
 
-int uart8250_device_getc(struct uart8250_device *dev)
+صحيح uart8250_device_getc(بنية uart8250_device *dev)
 {
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		return get_reg(dev, UART_RBR_OFFSET);
-	return -1;
+	إذا (get_reg(dev, UART_LSR_دننه_واټن) & UART_LSR_DR)
+		أرجع get_reg(dev, UART_RBR_دننه_واټن);
+	أرجع -1;
 }
 
-static int uart8250_getc(void)
+ساكن صحيح uart8250_getc(فراغ)
 {
-	return uart8250_device_getc(&uart8250_dev);
+	أرجع uart8250_device_getc(&uart8250_dev);
 }
 
-static struct sbi_console_device uart8250_console = {
+ساكن بنية sbi_console_device uart8250_console = {
 	.name = "uart8250",
 	.console_putc = uart8250_putc,
 	.console_getc = uart8250_getc
 };
 
-void uart8250_device_init(struct uart8250_device *dev, unsigned long base,
-			  u32 in_freq, u32 baudrate, u32 reg_shift,
-			  u32 reg_width, u32 reg_offset, u32 caps)
+فراغ uart8250_device_init(بنية uart8250_device *dev, بینښه اوږد بنسټ_2,
+			  u32 دننه_freq, u32 baudrate, u32 reg_ښويدنه,
+			  u32 reg_پلنوالی, u32 reg_دننه_واټن, u32 caps)
 {
 	u16 bdiv = 0;
 
-	dev->base      = (volatile char *)base + reg_offset;
-	dev->reg_shift = reg_shift;
-	dev->reg_width = reg_width;
-	dev->in_freq   = in_freq;
+	dev->بنسټ_2      = (متطاير حرف *)بنسټ_2 + reg_دننه_واټن;
+	dev->reg_ښويدنه = reg_ښويدنه;
+	dev->reg_پلنوالی = reg_پلنوالی;
+	dev->دننه_freq   = دننه_freq;
 	dev->baudrate  = baudrate;
 
-	if (dev->baudrate) {
-		bdiv = (dev->in_freq + 8 * dev->baudrate) /
+	إذا (dev->baudrate) {
+		bdiv = (dev->دننه_freq + 8 * dev->baudrate) /
 		       (16 * dev->baudrate);
 	}
 
 	/* Disable all interrupts */
-	set_reg(dev, UART_IER_OFFSET, (caps & UART_CAP_UUE) ?
+	سېټ_reg(dev, UART_IER_دننه_واټن, (caps & UART_CAP_UUE) ?
 				 UART_IER_UUE : 0x00);
 	/* Enable DLAB */
-	set_reg(dev, UART_LCR_OFFSET, 0x80);
+	سېټ_reg(dev, UART_LCR_دننه_واټن, 0x80);
 
-	if (bdiv) {
+	إذا (bdiv) {
 		/* Set divisor low byte */
-		set_reg(dev, UART_DLL_OFFSET, bdiv & 0xff);
+		سېټ_reg(dev, UART_DLL_دننه_واټن, bdiv & 0xff);
 		/* Set divisor high byte */
-		set_reg(dev, UART_DLM_OFFSET, (bdiv >> 8) & 0xff);
+		سېټ_reg(dev, UART_DLM_دننه_واټن, (bdiv >> 8) & 0xff);
 	}
 
 	/* 8 bits, no parity, one stop bit */
-	set_reg(dev, UART_LCR_OFFSET, 0x03);
+	سېټ_reg(dev, UART_LCR_دننه_واټن, 0x03);
 	/* Enable FIFO */
-	set_reg(dev, UART_FCR_OFFSET, 0x01);
+	سېټ_reg(dev, UART_FCR_دننه_واټن, 0x01);
 	/* No modem control DTR RTS */
-	set_reg(dev, UART_MCR_OFFSET, 0x00);
+	سېټ_reg(dev, UART_MCR_دننه_واټن, 0x00);
 	/* Clear line status and read receive buffer */
-	if (get_reg(dev, UART_LSR_OFFSET) & UART_LSR_DR)
-		get_reg(dev, UART_RBR_OFFSET);
+	إذا (get_reg(dev, UART_LSR_دننه_واټن) & UART_LSR_DR)
+		get_reg(dev, UART_RBR_دننه_واټن);
 	/* Set scratchpad */
-	set_reg(dev, UART_SCR_OFFSET, 0x00);
+	سېټ_reg(dev, UART_SCR_دننه_واټن, 0x00);
 }
 
-int uart8250_init(unsigned long base, u32 in_freq, u32 baudrate, u32 reg_shift,
-		  u32 reg_width, u32 reg_offset, u32 caps)
+صحيح uart8250_init(بینښه اوږد بنسټ_2, u32 دننه_freq, u32 baudrate, u32 reg_ښويدنه,
+		  u32 reg_پلنوالی, u32 reg_دننه_واټن, u32 caps)
 {
-	uart8250_device_init(&uart8250_dev, base, in_freq, baudrate,
-			     reg_shift, reg_width, reg_offset, caps);
+	uart8250_device_init(&uart8250_dev, بنسټ_2, دننه_freq, baudrate,
+			     reg_ښويدنه, reg_پلنوالی, reg_دننه_واټن, caps);
 
-	sbi_console_set_device(&uart8250_console);
+	sbi_console_سېټ_device(&uart8250_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	أرجع sbi_domain_ریښه_جمع_کړه_memrange(بنسټ_2, پاڼه_اندازه, پاڼه_اندازه,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

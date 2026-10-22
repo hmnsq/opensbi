@@ -7,63 +7,63 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_ecall.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_trap.h>
+#ضمن <sbi/sbi_hsm.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/riscv_asm.h>
 
-static int sbi_ecall_hsm_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+ساكن صحيح sbi_ecall_hsm_handler(بینښه اوږد extid, بینښه اوږد funcid,
+				 بنية sbi_trap_regs *regs,
+				 بنية sbi_ecall_return *بهر)
 {
-	int ret = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	صحيح ret = 0;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 	ulong smode = (csr_read(CSR_MSTATUS) & MSTATUS_MPP) >>
-			MSTATUS_MPP_SHIFT;
+			MSTATUS_MPP_ښويدنه;
 
-	switch (funcid) {
-	case SBI_EXT_HSM_HART_START:
-		ret = sbi_hsm_hart_start(scratch, sbi_domain_thishart_ptr(),
+	بدل (funcid) {
+	حالة SBI_EXT_HSM_HART_پیل:
+		ret = sbi_hsm_hart_پیل(scratch, sbi_domain_thishart_ptr(),
 					 regs->a0, regs->a1, smode, regs->a2);
-		break;
-	case SBI_EXT_HSM_HART_STOP:
+		اكسر;
+	حالة SBI_EXT_HSM_HART_STOP:
 		ret = sbi_hsm_hart_stop(scratch, true);
-		break;
-	case SBI_EXT_HSM_HART_GET_STATUS:
+		اكسر;
+	حالة SBI_EXT_HSM_HART_GET_حالت:
 		ret = sbi_hsm_hart_get_state(sbi_domain_thishart_ptr(),
 					     regs->a0);
-		break;
-	case SBI_EXT_HSM_HART_SUSPEND:
+		اكسر;
+	حالة SBI_EXT_HSM_HART_SUSPEND:
 		ret = sbi_hsm_hart_suspend(scratch, regs->a0, regs->a1,
 					   smode, regs->a2);
-		break;
-	default:
+		اكسر;
+	افتراضي:
 		ret = SBI_ENOTSUPP;
 	}
 
-	if (ret >= 0) {
-		out->value = ret;
+	إذا (ret >= 0) {
+		بهر->ارزښت = ret;
 		ret = 0;
 	}
 
-	return ret;
+	أرجع ret;
 }
 
-struct sbi_ecall_extension ecall_hsm;
+بنية sbi_ecall_extension ecall_hsm;
 
-static int sbi_ecall_hsm_register_extensions(void)
+ساكن صحيح sbi_ecall_hsm_ثبتوونکی_extensions(فراغ)
 {
-	return sbi_ecall_register_extension(&ecall_hsm);
+	أرجع sbi_ecall_ثبتوونکی_extension(&ecall_hsm);
 }
 
-struct sbi_ecall_extension ecall_hsm = {
+بنية sbi_ecall_extension ecall_hsm = {
 	.name			= "hsm",
-	.extid_start		= SBI_EXT_HSM,
-	.extid_end		= SBI_EXT_HSM,
-	.register_extensions	= sbi_ecall_hsm_register_extensions,
+	.extid_پیل		= SBI_EXT_HSM,
+	.extid_پای_ټکی		= SBI_EXT_HSM,
+	.ثبتوونکی_extensions	= sbi_ecall_hsm_ثبتوونکی_extensions,
 	.handle			= sbi_ecall_hsm_handler,
 };

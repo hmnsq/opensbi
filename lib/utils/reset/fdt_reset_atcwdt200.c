@@ -4,64 +4,64 @@
  * Copyright (c) 2025 Andes Technology Corporation
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_ecall_interface.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/hsm/fdt_hsm_andes_atcsmu.h>
 
-#define ATCWDT200_WP_NUM 0x5aa5
-#define WREN_REG 0x18
-#define CTRL_REG 0x10
-#define RST_TIME_OFF 8
-#define RST_TIME_MSK (0x3 << RST_TIME_OFF)
-#define RST_CLK_128 (0 << RST_TIME_OFF)
-#define RST_CLK_256 (1 << RST_TIME_OFF)
-#define RST_CLK_512 (2 << RST_TIME_OFF)
-#define RST_CLK_1024 (3 << RST_TIME_OFF)
-#define INT_TIME_OFF 4
-#define INT_TIME_MSK (0xf << INT_TIME_OFF)
-#define INT_CLK_64 (0 << INT_TIME_OFF)
-#define INT_CLK_256 (1 << INT_TIME_OFF)
-#define INT_CLK_1024 (2 << INT_TIME_OFF)
-#define INT_CLK_2048 (3 << INT_TIME_OFF)
-#define INT_CLK_4096 (4 << INT_TIME_OFF)
-#define INT_CLK_8192 (5 << INT_TIME_OFF)
-#define INT_CLK_16384 (6 << INT_TIME_OFF)
-#define INT_CLK_32768 (7 << INT_TIME_OFF)
-#define RST_EN (1 << 3)
-#define INT_EN (1 << 2)
-#define CLK_PCLK (1 << 1)
-#define WDT_EN (1 << 0)
+#تعریف_کړه ATCWDT200_WP_عدد 0x5aa5
+#تعریف_کړه WREN_REG 0x18
+#تعریف_کړه CTRL_REG 0x10
+#تعریف_کړه RST_وخت_OFF 8
+#تعریف_کړه RST_وخت_MSK (0x3 << RST_وخت_OFF)
+#تعریف_کړه RST_CLK_128 (0 << RST_وخت_OFF)
+#تعریف_کړه RST_CLK_256 (1 << RST_وخت_OFF)
+#تعریف_کړه RST_CLK_512 (2 << RST_وخت_OFF)
+#تعریف_کړه RST_CLK_1024 (3 << RST_وخت_OFF)
+#تعریف_کړه INT_وخت_OFF 4
+#تعریف_کړه INT_وخت_MSK (0xf << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_64 (0 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_256 (1 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_1024 (2 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_2048 (3 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_4096 (4 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_8192 (5 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_16384 (6 << INT_وخت_OFF)
+#تعریف_کړه INT_CLK_32768 (7 << INT_وخت_OFF)
+#تعریف_کړه RST_EN (1 << 3)
+#تعریف_کړه INT_EN (1 << 2)
+#تعریف_کړه CLK_PCLK (1 << 1)
+#تعریف_کړه WDT_EN (1 << 0)
 
-#define AE350_FLASH_BASE 0x80000000
+#تعریف_کړه AE350_FLASH_بنسټ 0x80000000
 
-static volatile char *wdt_addr = NULL;
+ساكن متطاير حرف *wdt_addr = عدم;
 
-static int ae350_system_reset_check(u32 type, u32 reason)
+ساكن صحيح ae350_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	default:
-		return 0;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		أرجع 1;
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	افتراضي:
+		أرجع 0;
 	}
 }
 
-static void ae350_system_reset(u32 type, u32 reason)
+ساكن فراغ ae350_system_reset(u32 type, u32 reason)
 {
 	sbi_for_each_hartindex(i)
-		if (atcsmu_set_reset_vector(AE350_FLASH_BASE, i))
-			goto fail;
+		إذا (atcsmu_سېټ_reset_ویکټور(AE350_FLASH_بنسټ, i))
+			اذهب fail;
 
 	/* Program WDT control register  */
-	writew(ATCWDT200_WP_NUM, wdt_addr + WREN_REG);
+	writew(ATCWDT200_WP_عدد, wdt_addr + WREN_REG);
 	writel(INT_CLK_32768 | INT_EN | RST_CLK_128 | RST_EN | WDT_EN,
 	       wdt_addr + CTRL_REG);
 
@@ -69,34 +69,34 @@ fail:
 	sbi_hart_hang();
 }
 
-static struct sbi_system_reset_device atcwdt200_reset = {
+ساكن بنية sbi_system_reset_device atcwdt200_reset = {
 	.name		    = "atcwdt200",
 	.system_reset_check = ae350_system_reset_check,
 	.system_reset	    = ae350_system_reset,
 };
 
-static int atcwdt200_reset_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ساكن صحيح atcwdt200_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+				ثابت بنية fdt_سمون *سمون)
 {
 	uint64_t reg_addr;
-	int rc;
+	صحيح rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_غوټه_addr_اندازه(fdt, nodeoff, 0, &reg_addr, عدم);
+	إذا (rc < 0 || !reg_addr)
+		أرجع SBI_ENODEV;
 
-	wdt_addr = (volatile char *)(unsigned long)reg_addr;
-	sbi_system_reset_add_device(&atcwdt200_reset);
+	wdt_addr = (متطاير حرف *)(بینښه اوږد)reg_addr;
+	sbi_system_reset_جمع_کړه_device(&atcwdt200_reset);
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match atcwdt200_reset_match[] = {
+ساكن ثابت بنية fdt_سمون atcwdt200_reset_سمون[] = {
 	{ .compatible = "andestech,atcwdt200" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_atcwdt200 = {
-	.match_table = atcwdt200_reset_match,
+ثابت بنية fdt_driver fdt_reset_atcwdt200 = {
+	.سمون_جدول = atcwdt200_reset_سمون,
 	.init	     = atcwdt200_reset_init,
 };

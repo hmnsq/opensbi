@@ -4,134 +4,134 @@
  * Copyright (c) 2025 SiFive Inc.
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/cache/fdt_cache.h>
-#include <sbi_utils/cache/fdt_cmo_helper.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi_utils/cache/fdt_cache.h>
+#ضمن <sbi_utils/cache/fdt_cmo_helper.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
 
-static unsigned long flc_offset;
+ساكن بینښه اوږد flc_دننه_واټن;
 
-#define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
-#define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+#تعریف_کړه get_hart_flc(_s) \
+	sbi_scratch_read_type(_s, بنية cache_device *, flc_دننه_واټن)
+#تعریف_کړه سېټ_hart_flc(_s, _p) \
+	sbi_scratch_write_type(_s, بنية cache_device *, flc_دننه_واټن, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+صحيح fdt_cmo_شخصي_flc_flush_all(فراغ)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	بنية cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	إذا (!flc || !flc->cpu_شخصي)
+		أرجع SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	أرجع cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+صحيح fdt_cmo_llc_flush_all(فراغ)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	بنية cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	إذا (!llc)
+		أرجع SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	طالما (llc->بل)
+		llc = llc->بل;
 
-	return cache_flush_all(llc);
+	أرجع cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+صحيح fdt_cmo_شخصي_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	بنية cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	إذا (!flc || !flc->cpu_شخصي)
+		أرجع SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	أرجع cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+صحيح fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	بنية cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	إذا (!llc)
+		أرجع SBI_ENODEV;
 
-	while (llc->next)
-		llc = llc->next;
+	طالما (llc->بل)
+		llc = llc->بل;
 
-	return cache_enable(llc, enable);
+	أرجع cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+ساكن صحيح fdt_cmo_cold_init(ثابت فراغ *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	بنية sbi_scratch *scratch;
+	بنية cache_device *dev;
+	صحيح cpu_دننه_واټن, cpus_دننه_واټن, rc;
 	u32 hartid;
 
-	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	cpus_دننه_واټن = fdt_لار_دننه_واټن(fdt, "/cpus");
+	إذا (cpus_دننه_واټن < 0)
+		أرجع SBI_EINVAL;
 
-	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
-		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+	fdt_for_each_subnode(cpu_دننه_واټن, fdt, cpus_دننه_واټن) {
+		rc = fdt_parse_hart_id(fdt, cpu_دننه_واټن, &hartid);
+		إذا (rc)
+			استمر;
 
-		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			continue;
+		scratch = sbi_hartid_منزل_scratch(hartid);
+		إذا (!scratch)
+			استمر;
 
-		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
-			dev = NULL;
+		rc = fdt_بل_cache_get(fdt, cpu_دننه_واټن, &dev);
+		إذا (rc && rc != SBI_ENOENT)
+			أرجع rc;
+		إذا (rc == SBI_ENOENT)
+			dev = عدم;
 
-		set_hart_flc(scratch, dev);
+		سېټ_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+ساكن صحيح fdt_cmo_warm_init(فراغ)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	بنية cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	صحيح rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	طالما (cur) {
+		إذا (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			إذا (rc)
+				أرجع rc;
 		}
 
-		cur = cur->next;
+		cur = cur->بل;
 	}
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+صحيح fdt_cmo_init(bool cold_boot)
 {
-	const void *fdt = fdt_get_address();
-	int rc;
+	ثابت فراغ *fdt = fdt_get_پته();
+	صحيح rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	إذا (cold_boot) {
+		flc_دننه_واټن = sbi_scratch_alloc_type_دننه_واټن(بنية cache_device *);
+		إذا (!flc_دننه_واټن)
+			أرجع SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }

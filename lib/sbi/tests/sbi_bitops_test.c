@@ -6,130 +6,130 @@
 * Author: Dongdong Zhang <zhangdongdong@eswincomputing.com>
 */
 
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_unit_test.h>
+#ضمن <sbi/sbi_bitops.h>
+#ضمن <sbi/sbi_unit_test.h>
 
-#define BPL BITS_PER_LONG
+#تعریف_کړه BPL بټونه_فی_LONG
 
-unsigned long bits_to_search = 64;
+بینښه اوږد بټونه_منزل_پلټنه = 64;
 
-static unsigned long ffb1[] = {};
-static unsigned long ffb2[] = { 0 };
-static unsigned long ffb3[] = { 1 };
-static unsigned long ffb4[] = { 1UL << (BPL - 1) };
-static unsigned long ffb5[] = { 0, 0x10 };
-static unsigned long ffb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long ffb7[] = { 0, 0, 0, 0x01 };
+ساكن بینښه اوږد ffb1[] = {};
+ساكن بینښه اوږد ffb2[] = { 0 };
+ساكن بینښه اوږد ffb3[] = { 1 };
+ساكن بینښه اوږد ffb4[] = { 1UL << (BPL - 1) };
+ساكن بینښه اوږد ffb5[] = { 0, 0x10 };
+ساكن بینښه اوږد ffb6[] = { 0, 0, 1UL << (BPL - 1) };
+ساكن بینښه اوږد ffb7[] = { 0, 0, 0, 0x01 };
 
-static void find_first_bit_test(struct sbiunit_test_case *test)
+ساكن فراغ پیدا_کړه_لومړی_بټ_test(بنية sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb1, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb2, BPL), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb3, BPL), 0);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb4, BPL), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb5, 2 * BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb6, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb1, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb2, BPL), BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb3, BPL), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb4, BPL), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb5, 2 * BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_first_bit(ffb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_لومړی_بټ(ffb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long ffzb1[] = {};
-static unsigned long ffzb2[] = { ~0UL };
-static unsigned long ffzb3[] = { ~1UL };
-static unsigned long ffzb4[] = { ~(1UL << (BPL - 1)) };
-static unsigned long ffzb5[] = { ~0UL, ~0x10UL };
-static unsigned long ffzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
-static unsigned long ffzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
+ساكن بینښه اوږد ffzb1[] = {};
+ساكن بینښه اوږد ffzb2[] = { ~0UL };
+ساكن بینښه اوږد ffzb3[] = { ~1UL };
+ساكن بینښه اوږد ffzb4[] = { ~(1UL << (BPL - 1)) };
+ساكن بینښه اوږد ffzb5[] = { ~0UL, ~0x10UL };
+ساكن بینښه اوږد ffzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
+ساكن بینښه اوږد ffzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
 
-static void find_first_zero_bit_test(struct sbiunit_test_case *test)
+ساكن فراغ پیدا_کړه_لومړی_zero_بټ_test(بنية sbiunit_test_case *test)
 {
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb1, 0), 0);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb2, BPL), BPL);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb3, BPL), 0);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb4, BPL), BPL - 1);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb5, 2 * BPL), BPL + 4);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb6, 3 * BPL),
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb1, 0), 0);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb2, BPL), BPL);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb3, BPL), 0);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb4, BPL), BPL - 1);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb5, 2 * BPL), BPL + 4);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_ASSERT_EQ(test, find_first_zero_bit(ffzb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_ASSERT_EQ(test, پیدا_کړه_لومړی_zero_بټ(ffzb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long flb1[] = {};
-static unsigned long flb2[] = { 0 };
-static unsigned long flb3[] = { 1 };
-static unsigned long flb4[] = { 1UL << (BPL - 1) };
-static unsigned long flb5[] = { 0, 0x10 };
-static unsigned long flb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long flb7[] = { 0, 0, 0, 0x01 };
+ساكن بینښه اوږد flb1[] = {};
+ساكن بینښه اوږد flb2[] = { 0 };
+ساكن بینښه اوږد flb3[] = { 1 };
+ساكن بینښه اوږد flb4[] = { 1UL << (BPL - 1) };
+ساكن بینښه اوږد flb5[] = { 0, 0x10 };
+ساكن بینښه اوږد flb6[] = { 0, 0, 1UL << (BPL - 1) };
+ساكن بینښه اوږد flb7[] = { 0, 0, 0, 0x01 };
 
-static void find_last_bit_test(struct sbiunit_test_case *test)
+ساكن فراغ پیدا_کړه_وروستی_بټ_test(بنية sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb1, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb2, BPL), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb3, BPL), 0);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb4, BPL), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb5, 2 * BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb6, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb1, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb2, BPL), BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb3, BPL), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb4, BPL), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb5, 2 * BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb6, 3 * BPL),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_last_bit(flb7, 4 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_وروستی_بټ(flb7, 4 * BPL), 3 * BPL);
 }
 
-static unsigned long fnb1[] = {};
-static unsigned long fnb2[] = { 0 };
-static unsigned long fnb3[] = { 1 };
-static unsigned long fnb4[] = { 1UL << (BPL - 1) };
-static unsigned long fnb5[] = { 0, 0x10 };
-static unsigned long fnb6[] = { 0, 0, 1UL << (BPL - 1) };
-static unsigned long fnb7[] = { 0, 0, 0, 0x01 };
+ساكن بینښه اوږد fnb1[] = {};
+ساكن بینښه اوږد fnb2[] = { 0 };
+ساكن بینښه اوږد fnb3[] = { 1 };
+ساكن بینښه اوږد fnb4[] = { 1UL << (BPL - 1) };
+ساكن بینښه اوږد fnb5[] = { 0, 0x10 };
+ساكن بینښه اوږد fnb6[] = { 0, 0, 1UL << (BPL - 1) };
+ساكن بینښه اوږد fnb7[] = { 0, 0, 0, 0x01 };
 
-static void find_next_bit_test(struct sbiunit_test_case *test)
+ساكن فراغ پیدا_کړه_بل_بټ_test(بنية sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb1, 0, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb2, BPL, 0), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb3, BPL, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb4, BPL, 0), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb5, 2 * BPL, 0), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb6, 3 * BPL, 0),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb1, 0, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb2, BPL, 0), BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb3, BPL, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb4, BPL, 0), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb5, 2 * BPL, 0), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb6, 3 * BPL, 0),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb7, 4 * BPL, 0), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb5, 2 * BPL, BPL), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb7, 4 * BPL, 3 * BPL), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_bit(fnb6, 3 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb7, 4 * BPL, 0), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb5, 2 * BPL, BPL), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb7, 4 * BPL, 3 * BPL), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_بټ(fnb6, 3 * BPL, BPL),
 			  2 * BPL + BPL - 1);
 }
 
-static unsigned long fnzb1[] = {};
-static unsigned long fnzb2[] = { ~0UL };
-static unsigned long fnzb3[] = { ~1UL };
-static unsigned long fnzb4[] = { ~(1UL << (BPL - 1)) };
-static unsigned long fnzb5[] = { ~0UL, ~0x10UL };
-static unsigned long fnzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
-static unsigned long fnzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
+ساكن بینښه اوږد fnzb1[] = {};
+ساكن بینښه اوږد fnzb2[] = { ~0UL };
+ساكن بینښه اوږد fnzb3[] = { ~1UL };
+ساكن بینښه اوږد fnzb4[] = { ~(1UL << (BPL - 1)) };
+ساكن بینښه اوږد fnzb5[] = { ~0UL, ~0x10UL };
+ساكن بینښه اوږد fnzb6[] = { ~0UL, ~0UL, ~(1UL << (BPL - 1)) };
+ساكن بینښه اوږد fnzb7[] = { ~0UL, ~0UL, ~0UL, ~0x01UL };
 
-static void find_next_zero_bit_test(struct sbiunit_test_case *test)
+ساكن فراغ پیدا_کړه_بل_zero_بټ_test(بنية sbiunit_test_case *test)
 {
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb1, 0, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb2, BPL, 0), BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb3, BPL, 0), 0);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb4, BPL, 0), BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb5, 2 * BPL, 0), BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb6, 3 * BPL, 0),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb1, 0, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb2, BPL, 0), BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb3, BPL, 0), 0);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb4, BPL, 0), BPL - 1);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb5, 2 * BPL, 0), BPL + 4);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb6, 3 * BPL, 0),
 			  2 * BPL + BPL - 1);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb7, 4 * BPL, 0), 3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb5, 2 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb7, 4 * BPL, 0), 3 * BPL);
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb5, 2 * BPL, BPL),
 			  BPL + 4);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb7, 4 * BPL, 3 * BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb7, 4 * BPL, 3 * BPL),
 			  3 * BPL);
-	SBIUNIT_EXPECT_EQ(test, find_next_zero_bit(fnzb6, 3 * BPL, BPL),
+	SBIUNIT_EXPECT_EQ(test, پیدا_کړه_بل_zero_بټ(fnzb6, 3 * BPL, BPL),
 			  2 * BPL + BPL - 1);
 }
 
-static struct sbiunit_test_case bitops_test_cases[] = {
-	SBIUNIT_TEST_CASE(find_first_bit_test),
-	SBIUNIT_TEST_CASE(find_first_zero_bit_test),
-	SBIUNIT_TEST_CASE(find_last_bit_test),
-	SBIUNIT_TEST_CASE(find_next_bit_test),
-	SBIUNIT_TEST_CASE(find_next_zero_bit_test),
-	SBIUNIT_END_CASE,
+ساكن بنية sbiunit_test_case bitops_test_cases[] = {
+	SBIUNIT_TEST_CASE(پیدا_کړه_لومړی_بټ_test),
+	SBIUNIT_TEST_CASE(پیدا_کړه_لومړی_zero_بټ_test),
+	SBIUNIT_TEST_CASE(پیدا_کړه_وروستی_بټ_test),
+	SBIUNIT_TEST_CASE(پیدا_کړه_بل_بټ_test),
+	SBIUNIT_TEST_CASE(پیدا_کړه_بل_zero_بټ_test),
+	SBIUNIT_پای_ټکی_CASE,
 };
 
 SBIUNIT_TEST_SUITE(bitops_test_suite, bitops_test_cases);

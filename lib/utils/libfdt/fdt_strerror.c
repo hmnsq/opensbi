@@ -4,21 +4,21 @@
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-struct fdt_errtabent {
-	const char *str;
+بنية fdt_errtabent {
+	ثابت حرف *str;
 };
 
-#define FDT_ERRTABENT(val) \
+#تعریف_کړه FDT_ERRTABENT(val) \
 	[(val)] = { .str = #val, }
 
-static struct fdt_errtabent fdt_errtable[] = {
+ساكن بنية fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_NOTFOUND),
 	FDT_ERRTABENT(FDT_ERR_EXISTS),
 	FDT_ERRTABENT(FDT_ERR_NOSPACE),
@@ -33,27 +33,27 @@ static struct fdt_errtabent fdt_errtable[] = {
 	FDT_ERRTABENT(FDT_ERR_BADVERSION),
 	FDT_ERRTABENT(FDT_ERR_BADSTRUCTURE),
 	FDT_ERRTABENT(FDT_ERR_BADLAYOUT),
-	FDT_ERRTABENT(FDT_ERR_INTERNAL),
+	FDT_ERRTABENT(FDT_ERR_دننی),
 	FDT_ERRTABENT(FDT_ERR_BADNCELLS),
 	FDT_ERRTABENT(FDT_ERR_BADVALUE),
 	FDT_ERRTABENT(FDT_ERR_BADOVERLAY),
 	FDT_ERRTABENT(FDT_ERR_NOPHANDLES),
 	FDT_ERRTABENT(FDT_ERR_BADFLAGS),
 };
-#define FDT_ERRTABSIZE	((int)(sizeof(fdt_errtable) / sizeof(fdt_errtable[0])))
+#تعریف_کړه FDT_ERRTABSIZE	((صحيح)(حجم(fdt_errtable) / حجم(fdt_errtable[0])))
 
-const char *fdt_strerror(int errval)
+ثابت حرف *fdt_strerror(صحيح errval)
 {
-	if (errval > 0)
-		return "<valid offset/length>";
-	else if (errval == 0)
-		return "<no error>";
-	else if (-errval < FDT_ERRTABSIZE) {
-		const char *s = fdt_errtable[-errval].str;
+	إذا (errval > 0)
+		أرجع "<valid offset/length>";
+	وإلا إذا (errval == 0)
+		أرجع "<no error>";
+	وإلا إذا (-errval < FDT_ERRTABSIZE) {
+		ثابت حرف *s = fdt_errtable[-errval].str;
 
-		if (s)
-			return s;
+		إذا (s)
+			أرجع s;
 	}
 
-	return "<unknown error>";
+	أرجع "<unknown error>";
 }

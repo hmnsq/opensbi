@@ -7,85 +7,85 @@
  *   Minda.chen <Minda.chen@starfivetech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/gpio/fdt_gpio.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/gpio/fdt_gpio.h>
 
-#define STARFIVE_GPIO_PINS_DEF		64
-#define STARFIVE_GPIO_OUTVAL		0x40
-#define STARFIVE_GPIO_MASK		0xff
-#define STARFIVE_GPIO_REG_SHIFT_MASK	0x3
-#define STARFIVE_GPIO_SHIFT_BITS	0x3
+#تعریف_کړه STARFIVE_GPIO_PINS_DEF		64
+#تعریف_کړه STARFIVE_GPIO_OUTVAL		0x40
+#تعریف_کړه STARFIVE_GPIO_ماسک		0xff
+#تعریف_کړه STARFIVE_GPIO_REG_ښويدنه_ماسک	0x3
+#تعریف_کړه STARFIVE_GPIO_ښويدنه_بټونه	0x3
 
-struct starfive_gpio_chip {
-	unsigned long addr;
-	struct gpio_chip chip;
+بنية starfive_gpio_chip {
+	بینښه اوږد addr;
+	بنية gpio_chip chip;
 };
 
-static int starfive_gpio_direction_output(struct gpio_pin *gp, int value)
+ساكن صحيح starfive_gpio_direction_output(بنية gpio_pin *gp, صحيح ارزښت)
 {
 	u32 val;
-	unsigned long reg_addr;
-	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	بینښه اوږد reg_addr;
+	u32 بټ_ماسک_2, ښويدنه_بټونه;
+	بنية starfive_gpio_chip *chip =
+		container_د(gp->chip, بنية starfive_gpio_chip, chip);
 
 	/* set out en*/
-	reg_addr = chip->addr + gp->offset;
-	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
+	reg_addr = chip->addr + gp->دننه_واټن;
+	reg_addr &= ~(STARFIVE_GPIO_REG_ښويدنه_ماسک);
 
-	shift_bits = (gp->offset & STARFIVE_GPIO_REG_SHIFT_MASK)
-		<< STARFIVE_GPIO_SHIFT_BITS;
-	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
+	ښويدنه_بټونه = (gp->دننه_واټن & STARFIVE_GPIO_REG_ښويدنه_ماسک)
+		<< STARFIVE_GPIO_ښويدنه_بټونه;
+	بټ_ماسک_2 = STARFIVE_GPIO_ماسک << ښويدنه_بټونه;
 
-	val = readl((void *)reg_addr);
-	val &= ~bit_mask;
-	writel(val, (void *)reg_addr);
+	val = readl((فراغ *)reg_addr);
+	val &= ~بټ_ماسک_2;
+	writel(val, (فراغ *)reg_addr);
 
-	return 0;
+	أرجع 0;
 }
 
-static void starfive_gpio_set(struct gpio_pin *gp, int value)
+ساكن فراغ starfive_gpio_سېټ(بنية gpio_pin *gp, صحيح ارزښت)
 {
 	u32 val;
-	unsigned long reg_addr;
-	u32 bit_mask, shift_bits;
-	struct starfive_gpio_chip *chip =
-		container_of(gp->chip, struct starfive_gpio_chip, chip);
+	بینښه اوږد reg_addr;
+	u32 بټ_ماسک_2, ښويدنه_بټونه;
+	بنية starfive_gpio_chip *chip =
+		container_د(gp->chip, بنية starfive_gpio_chip, chip);
 
-	reg_addr = chip->addr + gp->offset;
-	reg_addr &= ~(STARFIVE_GPIO_REG_SHIFT_MASK);
+	reg_addr = chip->addr + gp->دننه_واټن;
+	reg_addr &= ~(STARFIVE_GPIO_REG_ښويدنه_ماسک);
 
-	shift_bits = (gp->offset & STARFIVE_GPIO_REG_SHIFT_MASK)
-		<< STARFIVE_GPIO_SHIFT_BITS;
-	bit_mask = STARFIVE_GPIO_MASK << shift_bits;
+	ښويدنه_بټونه = (gp->دننه_واټن & STARFIVE_GPIO_REG_ښويدنه_ماسک)
+		<< STARFIVE_GPIO_ښويدنه_بټونه;
+	بټ_ماسک_2 = STARFIVE_GPIO_ماسک << ښويدنه_بټونه;
 	/* set output value */
-	val = readl((void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
-	val &= ~bit_mask;
-	val |= value << shift_bits;
-	writel(val, (void *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val = readl((فراغ *)(reg_addr + STARFIVE_GPIO_OUTVAL));
+	val &= ~بټ_ماسک_2;
+	val |= ارزښت << ښويدنه_بټونه;
+	writel(val, (فراغ *)(reg_addr + STARFIVE_GPIO_OUTVAL));
 }
 
-const struct fdt_gpio fdt_gpio_starfive;
+ثابت بنية fdt_gpio fdt_gpio_starfive;
 
-static int starfive_gpio_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ساكن صحيح starfive_gpio_init(ثابت فراغ *fdt, صحيح nodeoff,
+			      ثابت بنية fdt_سمون *سمون)
 {
-	int rc;
-	struct starfive_gpio_chip *chip;
+	صحيح rc;
+	بنية starfive_gpio_chip *chip;
 	u64 addr;
 
-	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	chip = sbi_zalloc(حجم(*chip));
+	إذا (!chip)
+		أرجع SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	rc = fdt_get_غوټه_addr_اندازه(fdt, nodeoff, 0, &addr, عدم);
+	إذا (rc) {
 		sbi_free(chip);
-		return rc;
+		أرجع rc;
 	}
 
 	chip->addr = addr;
@@ -93,25 +93,25 @@ static int starfive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.id = nodeoff;
 	chip->chip.ngpio = STARFIVE_GPIO_PINS_DEF;
 	chip->chip.direction_output = starfive_gpio_direction_output;
-	chip->chip.set = starfive_gpio_set;
-	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	chip->chip.سېټ = starfive_gpio_سېټ;
+	rc = gpio_chip_جمع_کړه(&chip->chip);
+	إذا (rc) {
 		sbi_free(chip);
-		return rc;
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match starfive_gpio_match[] = {
+ساكن ثابت بنية fdt_سمون starfive_gpio_سمون[] = {
 	{ .compatible = "starfive,jh7110-sys-pinctrl" },
 	{ .compatible = "starfive,iomux-pinctrl" },
 	{ },
 };
 
-const struct fdt_gpio fdt_gpio_starfive = {
+ثابت بنية fdt_gpio fdt_gpio_starfive = {
 	.driver = {
-		.match_table = starfive_gpio_match,
+		.سمون_جدول = starfive_gpio_سمون,
 		.init = starfive_gpio_init,
 	},
 	.xlate = fdt_gpio_simple_xlate,
