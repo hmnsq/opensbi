@@ -26,17 +26,17 @@
 static struct i2c_adapter *mcu_adapter = NULL;
 static uint32_t mcu_reg = 0;
 
-static int sg2042_mcu_reset_check(u32 type, u32 reason)
+static цео sg2042_mcu_reset_check(u32 type, u32 reason)
 {
 	switch (type) {
 	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
+		врати 1;
 	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
 	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+		врати 255;
 	}
 
-	return 0;
+	врати 0;
 }
 
 static void sg2042_mcu_reset(u32 type, u32 reason)
@@ -60,47 +60,47 @@ static struct sbi_system_reset_device sg2042_mcu_reset_device = {
 	.system_reset = sg2042_mcu_reset
 };
 
-static int sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
+static цео sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
 {
 	static uint8_t val;
-	int ret;
+	цео ret;
 
 	/* check board type */
 	ret = i2c_adapter_reg_read(adap, reg, REG_BOARD_TYPE, &val);
-	if (ret)
-		return ret;
+	ако (ret)
+		врати ret;
 
-	if (!(val & MANGO_BOARD_TYPE_MASK))
-		return SBI_ENODEV;
+	ако (!(val & MANGO_BOARD_TYPE_MASK))
+		врати SBI_ENODEV;
 
-	return 0;
+	врати 0;
 }
 
-static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
+static цео sg2042_mcu_reset_init(const void *fdt, цео nodeoff,
 				 const struct fdt_match *match)
 {
-	int ret, i2c_bus;
+	цео ret, i2c_bus;
 	uint64_t addr;
 
 	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (ret)
-		return ret;
+	ако (ret)
+		врати ret;
 
 	mcu_reg = addr;
 
 	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	ако (i2c_bus < 0)
+		врати i2c_bus;
 
 	ret = fdt_i2c_adapter_get(fdt, i2c_bus, &mcu_adapter);
-	if (ret)
-		return ret;
+	ако (ret)
+		врати ret;
 
 	ret = sg2042_mcu_reset_check_board(mcu_adapter, mcu_reg);
 
 	sbi_system_reset_add_device(&sg2042_mcu_reset_device);
 
-	return 0;
+	врати 0;
 }
 
 static const struct fdt_match sg2042_mcu_reset_match[] = {

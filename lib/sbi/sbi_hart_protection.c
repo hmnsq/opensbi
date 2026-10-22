@@ -17,26 +17,26 @@ static struct sbi_hart_protection *__hart_memory_protection_best(void)
 	struct sbi_hart_protection *pos;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
-			return pos;
+		ако (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY)
+			врати pos;
 	}
 
-	return NULL;
+	врати NULL;
 }
 
-void sbi_hart_protection_get_str(char *out_str, int out_str_size)
+void sbi_hart_protection_get_str(char *out_str, цео out_str_size)
 {
 	bool memory_protect_done = false;
 	struct sbi_hart_protection *pos;
-	int offset = 0;
+	цео offset = 0;
 
-	if (!out_str || out_str_size <= 0)
-		return;
+	ако (!out_str || out_str_size <= 0)
+		врати;
 	sbi_memset(out_str, 0, out_str_size);
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
-			if (memory_protect_done)
+		ако (pos->type == SBI_HART_PROTECTION_TYPE_MEMORY) {
+			ако (memory_protect_done)
 				continue;
 			memory_protect_done = true;
 		}
@@ -44,73 +44,73 @@ void sbi_hart_protection_get_str(char *out_str, int out_str_size)
 		offset = offset + sbi_strlen(pos->name) + 1;
 	}
 
-	if (offset)
+	ако (offset)
 		out_str[offset - 1] = '\0';
-	else
+	инако
 		sbi_strncpy(out_str, "none", out_str_size);
 }
 
-int sbi_hart_protection_register(struct sbi_hart_protection *hprot)
+цео sbi_hart_protection_register(struct sbi_hart_protection *hprot)
 {
 	struct sbi_hart_protection *pos = NULL;
 	bool found_pos = false;
 
-	if (!hprot)
-		return SBI_EINVAL;
-	if (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
-		return SBI_EINVAL;
+	ако (!hprot)
+		врати SBI_EINVAL;
+	ако (hprot->type >= SBI_HART_PROTECTION_TYPE_MAX)
+		врати SBI_EINVAL;
 
 	sbi_list_for_each_entry(pos, &hart_protection_list, head) {
-		if (hprot->rating > pos->rating) {
+		ако (hprot->rating > pos->rating) {
 			found_pos = true;
 			break;
 		}
 	}
 
-	if (found_pos)
+	ако (found_pos)
 		sbi_list_add_tail(&hprot->head, &pos->head);
-	else
+	инако
 		sbi_list_add_tail(&hprot->head, &hart_protection_list);
 
-	return 0;
+	врати 0;
 }
 
 void sbi_hart_protection_unregister(struct sbi_hart_protection *hprot)
 {
-	if (!hprot)
-		return;
+	ако (!hprot)
+		врати;
 
 	sbi_list_del(&hprot->head);
 }
 
-static int __hart_protection_configure(struct sbi_scratch *scratch,
+static цео __hart_protection_configure(struct sbi_scratch *scratch,
 				       struct sbi_hart_protection *hprot,
 				       struct sbi_domain *dom)
 {
-	if (!hprot)
-		return 0;
-	if (!hprot->configure)
-		return SBI_ENOSYS;
+	ако (!hprot)
+		врати 0;
+	ако (!hprot->configure)
+		врати SBI_ENOSYS;
 
-	return hprot->configure(scratch, dom);
+	врати hprot->configure(scratch, dom);
 }
 
 static void __hart_protection_unconfigure(struct sbi_scratch *scratch,
 					  struct sbi_hart_protection *hprot,
 					  struct sbi_domain *dom)
 {
-	if (!hprot || !hprot->unconfigure)
-		return;
+	ако (!hprot || !hprot->unconfigure)
+		врати;
 
 	hprot->unconfigure(scratch, dom);
 }
 
-int sbi_hart_protection_configure(struct sbi_scratch *scratch,
+цео sbi_hart_protection_configure(struct sbi_scratch *scratch,
 				  struct sbi_domain *dom)
 {
 	bool do_configure, memory_protect_done = false;
 	struct sbi_hart_protection *hprot;
-	int ret;
+	цео ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_configure = false;
@@ -125,15 +125,15 @@ int sbi_hart_protection_configure(struct sbi_scratch *scratch,
 		default:
 			break;
 		}
-		if (!do_configure)
+		ако (!do_configure)
 			continue;
 
 		ret = __hart_protection_configure(scratch, hprot, dom);
-		if (ret)
-			return ret;
+		ако (ret)
+			врати ret;
 	}
 
-	return 0;
+	врати 0;
 }
 
 void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
@@ -156,20 +156,20 @@ void sbi_hart_protection_unconfigure(struct sbi_scratch *scratch,
 		default:
 			break;
 		}
-		if (!do_unconfigure)
+		ако (!do_unconfigure)
 			continue;
 
 		__hart_protection_unconfigure(scratch, hprot, dom);
 	}
 }
 
-int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
+цео sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
 				    struct sbi_domain *current_dom,
 				    struct sbi_domain *next_dom)
 {
 	bool do_reconfigure, memory_protect_done = false;
 	struct sbi_hart_protection *hprot;
-	int ret;
+	цео ret;
 
 	sbi_list_for_each_entry(hprot, &hart_protection_list, head) {
 		do_reconfigure = false;
@@ -184,34 +184,34 @@ int sbi_hart_protection_reconfigure(struct sbi_scratch *scratch,
 		default:
 			break;
 		}
-		if (!do_reconfigure)
+		ако (!do_reconfigure)
 			continue;
 
 		__hart_protection_unconfigure(scratch, hprot, current_dom);
 		ret = __hart_protection_configure(scratch, hprot, next_dom);
-		if (ret)
-			return ret;
+		ако (ret)
+			врати ret;
 	}
 
-	return 0;
+	врати 0;
 }
 
-int sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
+цео sbi_hart_protection_temp_map_range(unsigned long base, unsigned long size)
 {
 	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_map_range)
-		return 0;
+	ако (!hprot || !hprot->temp_map_range)
+		врати 0;
 
-	return hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
+	врати hprot->temp_map_range(sbi_scratch_thishart_ptr(), base, size);
 }
 
-int sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
+цео sbi_hart_protection_temp_unmap_range(unsigned long base, unsigned long size)
 {
 	struct sbi_hart_protection *hprot = __hart_memory_protection_best();
 
-	if (!hprot || !hprot->temp_unmap_range)
-		return 0;
+	ако (!hprot || !hprot->temp_unmap_range)
+		врати 0;
 
-	return hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
+	врати hprot->temp_unmap_range(sbi_scratch_thishart_ptr(), base, size);
 }

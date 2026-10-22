@@ -28,8 +28,8 @@ static void string_strcmp_test(struct sbiunit_test_case *test)
 	SBIUNIT_EXPECT_EQ(test, sbi_strcmp(test_str_empty, test_str_empty), 0);
 
 	/* One empty, one not */
-	int result1 = sbi_strcmp(test_str1, test_str_empty);
-	int result2 = sbi_strcmp(test_str_empty, test_str1);
+	цео result1 = sbi_strcmp(test_str1, test_str_empty);
+	цео result2 = sbi_strcmp(test_str_empty, test_str1);
 	SBIUNIT_EXPECT_NE(test, result1, 0);
 	SBIUNIT_EXPECT_NE(test, result2, 0);
 	SBIUNIT_EXPECT_EQ(test, result1, -result2);
@@ -160,21 +160,21 @@ static void string_strchr_test(struct sbiunit_test_case *test)
 	/* Find existing character */
 	pos = sbi_strchr(test_str1, 'W');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 7);  /* 'W' is at index 7 */
 	}
 
 	/* Find first character */
 	pos = sbi_strchr(test_str1, 'H');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 0);  /* 'H' is at index 0 */
 	}
 
 	/* Find last character */
 	pos = sbi_strchr(test_str1, '!');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 12);  /* '!' is at index 12 */
 	}
 
@@ -185,7 +185,7 @@ static void string_strchr_test(struct sbiunit_test_case *test)
 	/* Find null terminator - according to standard, strchr should find null terminator */
 	pos = sbi_strchr(test_str1, '\0');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 13);  /* Null terminator at index 13 */
 	}
 
@@ -201,21 +201,21 @@ static void string_strrchr_test(struct sbiunit_test_case *test)
 	/* Find last occurrence of character */
 	pos = sbi_strrchr(test_str_with_char, 't');  /* Multiple 't's: "Test"ing charac"t"er search -> last 't' is at index 14 */
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str_with_char, 14);  /* Last 't' at index 14 */
 	}
 
 	/* Find single occurrence */
 	pos = sbi_strrchr(test_str1, 'W');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 7);  /* 'W' at index 7 */
 	}
 
 	/* Find last character */
 	pos = sbi_strrchr(test_str1, '!');
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, pos - test_str1, 12);  /* '!' at index 12 */
 	}
 
@@ -234,7 +234,7 @@ static void memory_memset_test(struct sbiunit_test_case *test)
 
 	/* Set all to 'A' */
 	sbi_memset(buffer, 'A', 10);
-	for (int i = 0; i < 10; i++) {
+	за (цео i = 0; i < 10; i++) {
 		SBIUNIT_EXPECT_EQ(test, buffer[i], 'A');
 	}
 
@@ -244,7 +244,7 @@ static void memory_memset_test(struct sbiunit_test_case *test)
 
 	/* Set with different value */
 	sbi_memset(buffer, 0, 5);  /* Null out first 5 bytes */
-	for (int i = 0; i < 5; i++) {
+	за (цео i = 0; i < 5; i++) {
 		SBIUNIT_EXPECT_EQ(test, buffer[i], 0);
 	}
 }
@@ -325,21 +325,21 @@ static void memory_memchr_test(struct sbiunit_test_case *test)
 	/* Find existing character */
 	pos = sbi_memchr(str, 's', sbi_strlen(str));
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, (char*)pos - str, 7);  /* First 's' at index 7 */
 	}
 
 	/* Find character at specific position */
 	pos = sbi_memchr(str, 'm', sbi_strlen(str));
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, (char*)pos - str, 0);  /* 'm' at index 0 */
 	}
 
 	/* Find first occurrence of 't' character */
 	pos = sbi_memchr(str, 't', sbi_strlen(str));
 	SBIUNIT_EXPECT_NE(test, pos, NULL);
-	if (pos != NULL) {
+	ако (pos != NULL) {
 		SBIUNIT_EXPECT_EQ(test, (char*)pos - str, 14);  /* First 't' at index 14 */
 	}
 

@@ -14,25 +14,25 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_ipi.h>
 
-static int sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
+static цео sbi_ecall_ipi_handler(unsigned long extid, unsigned long funcid,
 				 struct sbi_trap_regs *regs,
 				 struct sbi_ecall_return *out)
 {
-	int ret = 0;
+	цео ret = 0;
 
-	if (funcid == SBI_EXT_IPI_SEND_IPI)
+	ако (funcid == SBI_EXT_IPI_SEND_IPI)
 		ret = sbi_ipi_send_smode(regs->a0, regs->a1);
-	else
+	инако
 		ret = SBI_ENOTSUPP;
 
-	return ret;
+	врати ret;
 }
 
 struct sbi_ecall_extension ecall_ipi;
 
-static int sbi_ecall_ipi_register_extensions(void)
+static цео sbi_ecall_ipi_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_ipi);
+	врати sbi_ecall_register_extension(&ecall_ipi);
 }
 
 struct sbi_ecall_extension ecall_ipi = {

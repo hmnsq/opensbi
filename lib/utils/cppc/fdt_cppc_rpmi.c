@@ -51,10 +51,10 @@ static struct rpmi_cppc *rpmi_cppc_get_pointer(u32 hartid)
 	struct sbi_scratch *scratch;
 
 	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch || !rpmi_cppc_offset)
-		return NULL;
+	ако (!scratch || !rpmi_cppc_offset)
+		врати NULL;
 
-	return sbi_scratch_offset_ptr(scratch, rpmi_cppc_offset);
+	врати sbi_scratch_offset_ptr(scratch, rpmi_cppc_offset);
 }
 
 static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
@@ -87,13 +87,13 @@ static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
 		writel(db_val_u32, (void *)cppc->fc_db_addr);
 		break;
 	case RPMI_CPPC_FAST_CHANNEL_DB_WIDTH_64:
-#if __riscv_xlen != 32
+#ако __riscv_xlen != 32
 		db_val_u64 = readq((void *)cppc->fc_db_addr);
 		db_val_u64 = cppc->fc_db_setmask |
 				(db_val_u64 & cppc->fc_db_preservemask);
 
 		writeq(db_val_u64, (void *)cppc->fc_db_addr);
-#else
+#инако
 		db_val_u64 = readl((void *)(cppc->fc_db_addr + 4));
 		db_val_u64 <<= 32;
 		db_val_u64 |= readl((void *)cppc->fc_db_addr);
@@ -108,10 +108,10 @@ static void rpmi_cppc_fc_db_trigger(struct rpmi_cppc *cppc)
 	}
 }
 
-static int rpmi_cppc_read(unsigned long reg, u64 *val)
+static цео rpmi_cppc_read(unsigned long reg, u64 *val)
 {
 	u64 curr_freq, curr_time_csr, time_csr_delta, freq;
-	int rc = SBI_SUCCESS;
+	цео rc = SBI_SUCCESS;
 	struct rpmi_cppc_read_reg_req req;
 	struct rpmi_cppc_read_reg_resp resp;
 	struct rpmi_cppc *cppc;
@@ -120,10 +120,10 @@ static int rpmi_cppc_read(unsigned long reg, u64 *val)
 	req.reg_id = reg;
 	cppc = rpmi_cppc_get_pointer(req.hart_id);
 
-	if ((reg == SBI_CPPC_DELIVERED_CTR) && cppc->fc_supported) {
-#if __riscv_xlen != 32
+	ако ((reg == SBI_CPPC_DELIVERED_CTR) && cppc->fc_supported) {
+#ако __riscv_xlen != 32
 		curr_freq = readq((void *)cppc->fc_perf_feedback_addr);
-#else
+#инако
 		curr_freq = readl((void *)cppc->fc_perf_feedback_addr + 4);
 		curr_freq <<= 32;
 		curr_freq |= readl((void *)cppc->fc_perf_feedback_addr);
@@ -133,43 +133,43 @@ static int rpmi_cppc_read(unsigned long reg, u64 *val)
 		cppc->prev_time_csr = curr_time_csr;
 
 		freq = sbi_timer_frequency();
-		if (freq)
+		ако (freq)
 			cppc->prev_delivered_counter +=
 				curr_freq * (time_csr_delta / freq) +
 				(curr_freq * (time_csr_delta % freq)) / freq;
 
 		resp.data_lo = cpu_to_le32(cppc->prev_delivered_counter & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(cppc->prev_delivered_counter >> 32);
-	} else if (reg == SBI_CPPC_REFERENCE_CTR) {
+	} инако ако (reg == SBI_CPPC_REFERENCE_CTR) {
 		curr_time_csr = sbi_timer_value();
 		resp.data_lo = cpu_to_le32(curr_time_csr & UINT32_MAX);
 		resp.data_hi = cpu_to_le32(curr_time_csr >> 32);
-	} else {
+	} инако {
 		rc = rpmi_normal_request_with_status(
 				cppc->chan, RPMI_CPPC_SRV_READ_REG,
 				&req, rpmi_u32_count(req), rpmi_u32_count(req),
 				&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+		ако (rc)
+			врати rc;
 	}
 
-#if __riscv_xlen == 32
+#ако __riscv_xlen == 32
 	*val = resp.data_lo;
-#else
+#инако
 	*val = (u64)resp.data_hi << 32 | resp.data_lo;
 #endif
-	return rc;
+	врати rc;
 }
 
-static int rpmi_cppc_write(unsigned long reg, u64 val)
+static цео rpmi_cppc_write(unsigned long reg, u64 val)
 {
-	int rc = SBI_SUCCESS;
+	цео rc = SBI_SUCCESS;
 	u32 hart_id = current_hartid();
 	struct rpmi_cppc_write_reg_req req;
 	struct rpmi_cppc_write_reg_resp resp;
 	struct rpmi_cppc *cppc = rpmi_cppc_get_pointer(hart_id);
 
-	if (reg != SBI_CPPC_DESIRED_PERF || !cppc->fc_supported) {
+	ако (reg != SBI_CPPC_DESIRED_PERF || !cppc->fc_supported) {
 		req.hart_id = hart_id;
 		req.reg_id = reg;
 		req.data_lo = val & 0xFFFFFFFF;
@@ -179,20 +179,20 @@ static int rpmi_cppc_write(unsigned long reg, u64 val)
 			cppc->chan, RPMI_CPPC_SRV_WRITE_REG,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	} else {
+	} инако {
 		/* use fast path writes for desired_perf in passive mode */
 		writel((u32)val, (void *)cppc->fc_perf_request_addr);
 
-		if (cppc->fc_db_supported)
+		ако (cppc->fc_db_supported)
 			rpmi_cppc_fc_db_trigger(cppc);
 	}
 
-	return rc;
+	врати rc;
 }
 
-static int rpmi_cppc_probe(unsigned long reg)
+static цео rpmi_cppc_probe(unsigned long reg)
 {
-	int rc;
+	цео rc;
 	struct rpmi_cppc *cppc;
 	struct rpmi_cppc_probe_resp resp;
 	struct rpmi_cppc_probe_req req;
@@ -201,17 +201,17 @@ static int rpmi_cppc_probe(unsigned long reg)
 	req.reg_id = reg;
 
 	cppc = rpmi_cppc_get_pointer(req.hart_id);
-	if (!cppc)
-		return SBI_ENOSYS;
+	ако (!cppc)
+		врати SBI_ENOSYS;
 
 	rc = rpmi_normal_request_with_status(
 			cppc->chan, RPMI_CPPC_SRV_PROBE_REG,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
-	return resp.reg_len;
+	врати resp.reg_len;
 }
 
 static struct sbi_cppc_device sbi_rpmi_cppc = {
@@ -221,9 +221,9 @@ static struct sbi_cppc_device sbi_rpmi_cppc = {
 	.cppc_probe	= rpmi_cppc_probe,
 };
 
-static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
+static цео rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 {
-	int rc, i;
+	цео rc, i;
 	bool fc_supported = false;
 	bool fc_db_supported = false;
 	struct rpmi_cppc_hart_list_req req;
@@ -244,8 +244,8 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 		chan, RPMI_CPPC_SRV_GET_FAST_CHANNEL_REGION,
 		NULL, 0, 0,
 		&fresp, rpmi_u32_count(fresp), rpmi_u32_count(fresp));
-	if (rc && rc != SBI_ENOTSUPP)
-		return rc;
+	ако (rc && rc != SBI_ENOTSUPP)
+		врати rc;
 
 	/* At this point fast channel availability is confirmed */
 	fc_supported = (rc != SBI_ENOTSUPP)? true : false;
@@ -253,12 +253,12 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 	/* If fast channel is supported, add the fast channel
 	 * region in root domain as MMIO RW. And, get the doorbell
 	 * information from the response */
-	if (fc_supported) {
-#if __riscv_xlen == 32
+	ако (fc_supported) {
+#ако __riscv_xlen == 32
 		fc_region_addr = fresp.region_addr_lo;
 		fc_region_size = fresp.region_size_lo;
 		fc_db_addr = fresp.db_addr_lo;
-#else
+#инако
 		fc_region_addr = (ulong)fresp.region_addr_hi << 32 |
 							fresp.region_addr_lo;
 		fc_region_size = (ulong)fresp.region_size_hi << 32 |
@@ -272,8 +272,8 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 					(SBI_DOMAIN_MEMREGION_MMIO |
 					SBI_DOMAIN_MEMREGION_M_READABLE |
 					SBI_DOMAIN_MEMREGION_M_WRITABLE));
-		if (rc)
-			return rc;
+		ако (rc)
+			врати rc;
 
 		cppc_mode = (fresp.flags & RPMI_CPPC_FAST_CHANNEL_CPPC_MODE_MASK) >>
 					RPMI_CPPC_FAST_CHANNEL_CPPC_MODE_POS;
@@ -296,15 +296,15 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			chan, RPMI_CPPC_SRV_GET_HART_LIST,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+		ако (rc)
+			врати rc;
 
 		/* For each returned harts, get their fastchan offset and
 		 * complete the initialization of per hart cppc structure */
-		for (i = 0; i < resp.returned; i++) {
+		за (i = 0; i < resp.returned; i++) {
 			cppc = rpmi_cppc_get_pointer(resp.hartid[i]);
-			if (!cppc)
-				return SBI_ENOSYS;
+			ако (!cppc)
+				врати SBI_ENOSYS;
 
 			cppc->prev_time_csr = 0;
 			cppc->prev_delivered_counter = 0;
@@ -312,7 +312,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			cppc->mode = cppc_mode;
 			cppc->fc_supported = fc_supported;
 
-			if (fc_supported) {
+			ако (fc_supported) {
 				hfreq.hart_id = resp.hartid[i];
 				rc = rpmi_normal_request_with_status(
 						chan,
@@ -323,15 +323,15 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 						&hfresp,
 						rpmi_u32_count(hfresp),
 						rpmi_u32_count(hfresp));
-				if (rc)
+				ако (rc)
 					continue;
 
-#if __riscv_xlen == 32
+#ако __riscv_xlen == 32
 				cppc->fc_perf_request_addr = fc_region_addr +
 							hfresp.fc_perf_request_offset_lo;
 				cppc->fc_perf_feedback_addr = fc_region_addr +
 							hfresp.fc_perf_feedback_offset_lo;
-#else
+#инако
 				cppc->fc_perf_request_addr = fc_region_addr +
 					((ulong)hfresp.fc_perf_request_offset_hi << 32 |
 					hfresp.fc_perf_request_offset_lo);
@@ -347,7 +347,7 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 				cppc->fc_db_setmask = fc_db_setmask;
 				cppc->fc_db_preservemask = fc_db_preservemask;
 			}
-			else {
+			инако {
 				cppc->fc_perf_request_addr = 0;
 				cppc->fc_perf_feedback_addr = 0;
 				cppc->fc_db_supported = 0;
@@ -358,22 +358,22 @@ static int rpmi_cppc_update_hart_scratch(struct mbox_chan *chan)
 			}
 		}
 		req.start_index += resp.returned;
-	} while (resp.remaining);
+	} док (resp.remaining);
 
-	return 0;
+	врати 0;
 }
 
-static int rpmi_cppc_cold_init(const void *fdt, int nodeoff,
+static цео rpmi_cppc_cold_init(const void *fdt, цео nodeoff,
 			       const struct fdt_match *match)
 {
-	int rc;
+	цео rc;
 	struct mbox_chan *chan;
 
-	if (!rpmi_cppc_offset) {
+	ако (!rpmi_cppc_offset) {
 		rpmi_cppc_offset =
 			sbi_scratch_alloc_type_offset(struct rpmi_cppc);
-		if (!rpmi_cppc_offset)
-			return SBI_ENOMEM;
+		ако (!rpmi_cppc_offset)
+			врати SBI_ENOMEM;
 	}
 
 	/*
@@ -381,17 +381,17 @@ static int rpmi_cppc_cold_init(const void *fdt, int nodeoff,
 	 * CPPC service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &chan);
-	if (rc)
-		return SBI_ENODEV;
+	ако (rc)
+		врати SBI_ENODEV;
 
 	/* Update per-HART scratch space */
 	rc = rpmi_cppc_update_hart_scratch(chan);
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
 	sbi_cppc_set_device(&sbi_rpmi_cppc);
 
-	return 0;
+	врати 0;
 }
 
 static const struct fdt_match rpmi_cppc_match[] = {

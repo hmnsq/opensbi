@@ -20,9 +20,9 @@
 #define SYSREADC    0x07
 #define SYSERRNO	0x13
 
-static long semihosting_trap(int sysnum, void *addr)
+static long semihosting_trap(цео sysnum, void *addr)
 {
-	register int ret asm ("a0") = sysnum;
+	register цео ret asm ("a0") = sysnum;
 	register void *param0 asm ("a1") = addr;
 
 	asm volatile (
@@ -37,7 +37,7 @@ static long semihosting_trap(int sysnum, void *addr)
 		"	.option pop\n"
 		: "+r" (ret) : "r" (param0) : "memory");
 
-	return ret;
+	врати ret;
 }
 
 static bool _semihosting_enabled = true;
@@ -45,12 +45,12 @@ static bool try_semihosting = true;
 
 bool semihosting_enabled(void)
 {
-	register int ret asm ("a0") = SYSERRNO;
+	register цео ret asm ("a0") = SYSERRNO;
 	register void *param0 asm ("a1") = NULL;
 	unsigned long tmp = 0;
 
-	if (!try_semihosting)
-		return _semihosting_enabled;
+	ако (!try_semihosting)
+		врати _semihosting_enabled;
 
 	asm volatile (
 		"	.align 4\n"
@@ -81,20 +81,20 @@ bool semihosting_enabled(void)
 		: "r" (param0) : "memory");
 
 	try_semihosting = false;
-	return _semihosting_enabled;
+	врати _semihosting_enabled;
 }
 
-static int semihosting_errno(void)
+static цео semihosting_errno(void)
 {
 	long ret = semihosting_trap(SYSERRNO, NULL);
 
-	if (ret > 0)
-		return -ret;
-	return SBI_EIO;
+	ако (ret > 0)
+		врати -ret;
+	врати SBI_EIO;
 }
 
-static int semihosting_infd = SBI_ENODEV;
-static int semihosting_outfd = SBI_ENODEV;
+static цео semihosting_infd = SBI_ENODEV;
+static цео semihosting_outfd = SBI_ENODEV;
 
 static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
 {
@@ -111,9 +111,9 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
 
 	/* Open the file on the host */
 	fd = semihosting_trap(SYSOPEN, &open);
-	if (fd == -1)
-		return semihosting_errno();
-	return fd;
+	ако (fd == -1)
+		врати semihosting_errno();
+	врати fd;
 }
 
 /**
@@ -138,9 +138,9 @@ static long semihosting_read(long fd, void *memp, size_t len)
 	read.len = len;
 
 	ret = semihosting_trap(SYSREAD, &read);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ако (ret < 0)
+		врати semihosting_errno();
+	врати len - ret;
 }
 
 static long semihosting_write(long fd, const void *memp, size_t len)
@@ -153,9 +153,9 @@ static long semihosting_write(long fd, const void *memp, size_t len)
 	write.len = len;
 
 	ret = semihosting_trap(SYSWRITE, &write);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ако (ret < 0)
+		врати semihosting_errno();
+	врати len - ret;
 }
 
 /* clang-format on */
@@ -166,30 +166,30 @@ static unsigned long semihosting_puts(const char *str, unsigned long len)
 	long ret;
 	unsigned long i;
 
-	if (semihosting_outfd < 0) {
-		for (i = 0; i < len; i++) {
+	ако (semihosting_outfd < 0) {
+		за (i = 0; i < len; i++) {
 			ch = str[i];
 			semihosting_trap(SYSWRITEC, &ch);
 		}
 		ret = len;
-	} else
+	} инако
 		ret = semihosting_write(semihosting_outfd, str, len);
 
-	return (ret < 0) ? 0 : ret;
+	врати (ret < 0) ? 0 : ret;
 }
 
-static int semihosting_getc(void)
+static цео semihosting_getc(void)
 {
 	char ch = 0;
-	int ret;
+	цео ret;
 
-	if (semihosting_infd < 0)  {
+	ако (semihosting_infd < 0)  {
 		ret = semihosting_trap(SYSREADC, NULL);
 		ret = ret < 0 ? -1 : ret;
-	} else
+	} инако
 		ret = semihosting_read(semihosting_infd, &ch, 1) > 0 ? ch : -1;
 
-	return ret;
+	врати ret;
 }
 
 static struct sbi_console_device semihosting_console = {
@@ -198,12 +198,12 @@ static struct sbi_console_device semihosting_console = {
 	.console_getc = semihosting_getc
 };
 
-int semihosting_init(void)
+цео semihosting_init(void)
 {
 	semihosting_infd = semihosting_open(":tt", MODE_READ);
 	semihosting_outfd = semihosting_open(":tt", MODE_WRITE);
 
 	sbi_console_set_device(&semihosting_console);
 
-	return 0;
+	врати 0;
 }

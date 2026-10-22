@@ -45,13 +45,13 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 	struct heap_node *n, *new = NULL;
 
 	/* alloc_with_align() requires at most two free nodes */
-	if (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
-		return true;
+	ако (hpctrl->free_node_list.next != hpctrl->free_node_list.prev)
+		врати true;
 
 	sbi_list_for_each_entry_reverse(n, &hpctrl->free_space_list, head) {
-		if (n->size >= size) {
+		ако (n->size >= size) {
 			n->size -= size;
-			if (!n->size) {
+			ако (!n->size) {
 				sbi_list_del(&n->head);
 				sbi_list_add_tail(&n->head, &hpctrl->free_node_list);
 			}
@@ -59,14 +59,14 @@ static bool alloc_nodes(struct sbi_heap_control *hpctrl) MUST_HOLD(&hpctrl->lock
 			break;
 		}
 	}
-	if (!new)
-		return false;
+	ако (!new)
+		врати false;
 
-	for (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
+	за (size_t i = 0; i < HEAP_NODE_BATCH_SIZE; i++)
 		sbi_list_add_tail(&new[i].head, &hpctrl->free_node_list);
 	hpctrl->resv += size;
 
-	return true;
+	врати true;
 }
 
 static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
@@ -78,8 +78,8 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	unsigned long lowest_aligned;
 	size_t pad;
 
-	if (!size)
-		return NULL;
+	ако (!size)
+		врати NULL;
 
 	size += align - 1;
 	size &= ~((unsigned long)align - 1);
@@ -87,7 +87,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 	spin_lock(&hpctrl->lock);
 
 	/* Ensure at least two free nodes are available for use below */
-	if (!alloc_nodes(hpctrl))
+	ако (!alloc_nodes(hpctrl))
 		goto out;
 
 	np = NULL;
@@ -95,15 +95,15 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		lowest_aligned = ROUNDUP(n->addr, align);
 		pad = lowest_aligned - n->addr;
 
-		if (size + pad <= n->size) {
+		ако (size + pad <= n->size) {
 			np = n;
 			break;
 		}
 	}
-	if (!np)
+	ако (!np)
 		goto out;
 
-	if (pad) {
+	ако (pad) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
 					 struct heap_node, head);
 		sbi_list_del(&n->head);
@@ -116,7 +116,7 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 		np->size -= pad;
 	}
 
-	if (size < np->size) {
+	ако (size < np->size) {
 		n = sbi_list_first_entry(&hpctrl->free_node_list,
 					 struct heap_node, head);
 		sbi_list_del(&n->head);
@@ -135,83 +135,83 @@ static void *alloc_with_align(struct sbi_heap_control *hpctrl, size_t align,
 out:
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	врати ret;
 }
 
 void *sbi_malloc_from(struct sbi_heap_control *hpctrl, size_t size)
 {
-	return alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
+	врати alloc_with_align(hpctrl, HEAP_ALLOC_ALIGN, size);
 }
 
 void *sbi_aligned_alloc_from(struct sbi_heap_control *hpctrl,
 			     size_t alignment, size_t size)
 {
-	if (alignment < HEAP_ALLOC_ALIGN)
+	ако (alignment < HEAP_ALLOC_ALIGN)
 		alignment = HEAP_ALLOC_ALIGN;
 
 	/* Make sure alignment is power of two */
-	if ((alignment & (alignment - 1)) != 0)
-		return NULL;
+	ако ((alignment & (alignment - 1)) != 0)
+		врати NULL;
 
 	/* Make sure size is multiple of alignment */
-	if (size % alignment != 0)
-		return NULL;
+	ако (size % alignment != 0)
+		врати NULL;
 
-	return alloc_with_align(hpctrl, alignment, size);
+	врати alloc_with_align(hpctrl, alignment, size);
 }
 
 void *sbi_zalloc_from(struct sbi_heap_control *hpctrl, size_t size)
 {
 	void *ret = sbi_malloc_from(hpctrl, size);
 
-	if (ret)
+	ако (ret)
 		sbi_memset(ret, 0, size);
-	return ret;
+	врати ret;
 }
 
 void sbi_free_from(struct sbi_heap_control *hpctrl, void *ptr)
 {
 	struct heap_node *n, *np;
 
-	if (!ptr)
-		return;
+	ако (!ptr)
+		врати;
 
 	spin_lock(&hpctrl->lock);
 
 	np = NULL;
 	sbi_list_for_each_entry(n, &hpctrl->used_space_list, head) {
-		if ((n->addr <= (unsigned long)ptr) &&
+		ако ((n->addr <= (unsigned long)ptr) &&
 		    ((unsigned long)ptr < (n->addr + n->size))) {
 			np = n;
 			break;
 		}
 	}
-	if (!np) {
+	ако (!np) {
 		spin_unlock(&hpctrl->lock);
-		return;
+		врати;
 	}
 
 	sbi_list_del(&np->head);
 
 	sbi_list_for_each_entry(n, &hpctrl->free_space_list, head) {
-		if ((np->addr + np->size) == n->addr) {
+		ако ((np->addr + np->size) == n->addr) {
 			n->addr = np->addr;
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
 			break;
-		} else if (np->addr == (n->addr + n->size)) {
+		} инако ако (np->addr == (n->addr + n->size)) {
 			n->size += np->size;
 			sbi_list_add_tail(&np->head, &hpctrl->free_node_list);
 			np = NULL;
 			break;
-		} else if ((n->addr + n->size) < np->addr) {
+		} инако ако ((n->addr + n->size) < np->addr) {
 			sbi_list_add(&np->head, &n->head);
 			np = NULL;
 			break;
 		}
 	}
-	if (np)
+	ако (np)
 		sbi_list_add_tail(&np->head, &hpctrl->free_space_list);
 
 	spin_unlock(&hpctrl->lock);
@@ -227,22 +227,22 @@ unsigned long sbi_heap_free_space_from(struct sbi_heap_control *hpctrl)
 		ret += n->size;
 	spin_unlock(&hpctrl->lock);
 
-	return ret;
+	врати ret;
 }
 
 unsigned long sbi_heap_used_space_from(struct sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->size - hpctrl->resv - sbi_heap_free_space();
+	врати hpctrl->size - hpctrl->resv - sbi_heap_free_space();
 }
 
 unsigned long sbi_heap_reserved_space_from(struct sbi_heap_control *hpctrl)
 	NO_THREAD_SAFETY_ANALYSIS
 {
-	return hpctrl->resv;
+	врати hpctrl->resv;
 }
 
-int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
+цео sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 		      unsigned long size) NO_THREAD_SAFETY_ANALYSIS
 {
 	struct heap_node *n;
@@ -262,26 +262,26 @@ int sbi_heap_init_new(struct sbi_heap_control *hpctrl, unsigned long base,
 	n->size = size;
 	sbi_list_add_tail(&n->head, &hpctrl->free_space_list);
 
-	return 0;
+	врати 0;
 }
 
-int sbi_heap_init(struct sbi_scratch *scratch)
+цео sbi_heap_init(struct sbi_scratch *scratch)
 {
 	/* Sanity checks on heap offset and size */
-	if (!scratch->fw_heap_size ||
+	ако (!scratch->fw_heap_size ||
 	    (scratch->fw_heap_size & (HEAP_BASE_ALIGN - 1)) ||
 	    (scratch->fw_heap_offset < scratch->fw_rw_offset) ||
 	    (scratch->fw_size < (scratch->fw_heap_offset + scratch->fw_heap_size)) ||
 	    (scratch->fw_heap_offset & (HEAP_BASE_ALIGN - 1)))
-		return SBI_EINVAL;
+		врати SBI_EINVAL;
 
-	return sbi_heap_init_new(&global_hpctrl,
+	врати sbi_heap_init_new(&global_hpctrl,
 				  scratch->fw_start + scratch->fw_heap_offset,
 				  scratch->fw_heap_size);
 }
 
-int sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
+цео sbi_heap_alloc_new(struct sbi_heap_control **hpctrl)
 {
 	*hpctrl = sbi_calloc(1, sizeof(struct sbi_heap_control));
-	return 0;
+	врати 0;
 }

@@ -15,57 +15,57 @@
 /* List of FDT regmap drivers generated at compile time */
 extern const struct fdt_driver *const fdt_regmap_drivers[];
 
-static int fdt_regmap_find(const void *fdt, int nodeoff,
+static цео fdt_regmap_find(const void *fdt, цео nodeoff,
 			   struct regmap **out_rmap)
 {
-	int rc;
+	цео rc;
 	struct regmap *rmap = regmap_find(nodeoff);
 
-	if (!rmap) {
+	ако (!rmap) {
 		/* Regmap not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_regmap_drivers);
-		if (rc)
-			return rc;
+		ако (rc)
+			врати rc;
 
 		/* Try to find regmap again */
 		rmap = regmap_find(nodeoff);
-		if (!rmap)
-			return SBI_ENOSYS;
+		ако (!rmap)
+			врати SBI_ENOSYS;
 	}
 
-	if (out_rmap)
+	ако (out_rmap)
 		*out_rmap = rmap;
 
-	return 0;
+	врати 0;
 }
 
-int fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
+цео fdt_regmap_get_by_phandle(const void *fdt, u32 phandle,
 			      struct regmap **out_rmap)
 {
-	int pnodeoff;
+	цео pnodeoff;
 
-	if (!fdt || !out_rmap)
-		return SBI_EINVAL;
+	ако (!fdt || !out_rmap)
+		врати SBI_EINVAL;
 
 	pnodeoff = fdt_node_offset_by_phandle(fdt, phandle);
-	if (pnodeoff < 0)
-		return pnodeoff;
+	ако (pnodeoff < 0)
+		врати pnodeoff;
 
-	return fdt_regmap_find(fdt, pnodeoff, out_rmap);
+	врати fdt_regmap_find(fdt, pnodeoff, out_rmap);
 }
 
-int fdt_regmap_get(const void *fdt, int nodeoff, struct regmap **out_rmap)
+цео fdt_regmap_get(const void *fdt, цео nodeoff, struct regmap **out_rmap)
 {
-	int len;
+	цео len;
 	const fdt32_t *val;
 
-	if (!fdt || (nodeoff < 0) || !out_rmap)
-		return SBI_EINVAL;
+	ако (!fdt || (nodeoff < 0) || !out_rmap)
+		врати SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "regmap", &len);
-	if (!val)
-		return SBI_ENOENT;
+	ако (!val)
+		врати SBI_ENOENT;
 
-	return fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
+	врати fdt_regmap_get_by_phandle(fdt, fdt32_to_cpu(*val), out_rmap);
 }

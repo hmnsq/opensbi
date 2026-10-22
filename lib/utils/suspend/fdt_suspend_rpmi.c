@@ -24,9 +24,9 @@ struct rpmi_syssusp {
 
 static struct rpmi_syssusp syssusp_ctx;
 
-static int rpmi_syssusp_attrs(uint32_t *attrs)
+static цео rpmi_syssusp_attrs(uint32_t *attrs)
 {
-	int rc;
+	цео rc;
 	struct rpmi_syssusp_get_attr_resp resp;
 	struct rpmi_syssusp_get_attr_req req;
 
@@ -36,17 +36,17 @@ static int rpmi_syssusp_attrs(uint32_t *attrs)
 		syssusp_ctx.chan, RPMI_SYSSUSP_SRV_GET_ATTRIBUTES,
 		&req, rpmi_u32_count(req), rpmi_u32_count(req),
 		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
 	*attrs = resp.flags;
 
-	return 0;
+	врати 0;
 }
 
-static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
+static цео rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 {
-	int rc;
+	цео rc;
 	struct rpmi_syssusp_suspend_req req;
 	struct rpmi_syssusp_suspend_resp resp;
 
@@ -59,33 +59,33 @@ static int rpmi_syssusp(uint32_t suspend_type, ulong resume_addr)
 			syssusp_ctx.chan, RPMI_SYSSUSP_SRV_SYSTEM_SUSPEND,
 			&req, rpmi_u32_count(req), rpmi_u32_count(req),
 			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	врати 0;
 }
 
-static int rpmi_system_suspend_check(u32 sleep_type)
+static цео rpmi_system_suspend_check(u32 sleep_type)
 {
-	return ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
+	врати ((sleep_type == SBI_SUSP_SLEEP_TYPE_SUSPEND) &&
 		syssusp_ctx.suspend_supported) ? 0 : SBI_EINVAL;
 }
 
-static int rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
+static цео rpmi_system_suspend(u32 sleep_type, ulong resume_addr)
 {
-	int rc;
+	цео rc;
 
-	if (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
-		return SBI_ENOTSUPP;
+	ако (sleep_type != SBI_SUSP_SLEEP_TYPE_SUSPEND)
+		врати SBI_ENOTSUPP;
 
 	rc = rpmi_syssusp(sleep_type, resume_addr);
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
-	return 0;
+	врати 0;
 }
 
 static struct sbi_system_suspend_device rpmi_suspend_dev = {
@@ -94,28 +94,28 @@ static struct sbi_system_suspend_device rpmi_suspend_dev = {
 	.system_suspend = rpmi_system_suspend,
 };
 
-static int rpmi_suspend_init(const void *fdt, int nodeoff,
+static цео rpmi_suspend_init(const void *fdt, цео nodeoff,
 			     const struct fdt_match *match)
 {
-	int rc;
+	цео rc;
 	uint32_t attrs = 0;
 
 	/* If channel already available then do nothing. */
-	if (syssusp_ctx.chan)
-		return 0;
+	ако (syssusp_ctx.chan)
+		врати 0;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * suspend service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &syssusp_ctx.chan);
-	if (rc)
-		return SBI_ENODEV;
+	ако (rc)
+		врати SBI_ENODEV;
 
 	/* Get suspend attributes */
 	rc = rpmi_syssusp_attrs(&attrs);
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
 	syssusp_ctx.suspend_supported =
 			attrs & RPMI_SYSSUSP_ATTRS_FLAGS_SUSPENDTYPE;
@@ -124,7 +124,7 @@ static int rpmi_suspend_init(const void *fdt, int nodeoff,
 
 	sbi_system_suspend_set_device(&rpmi_suspend_dev);
 
-	return 0;
+	врати 0;
 }
 
 static const struct fdt_match rpmi_suspend_match[] = {

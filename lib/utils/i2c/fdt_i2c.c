@@ -17,45 +17,45 @@
 /* List of FDT i2c adapter drivers generated at compile time */
 extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
+static цео fdt_i2c_adapter_find(const void *fdt, цео nodeoff,
 				struct i2c_adapter **out_adapter)
 {
-	int rc;
+	цео rc;
 	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	ако (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		ако (rc)
+			врати rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		ако (!adapter)
+			врати SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	ако (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	врати 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
+цео fdt_i2c_adapter_get(const void *fdt, цео nodeoff,
 			struct i2c_adapter **out_adapter)
 {
-	int rc;
+	цео rc;
 	struct i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	ако (!fdt || (nodeoff < 0) || !out_adapter)
+		врати SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	ако (rc)
+		врати rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	врати 0;
 }

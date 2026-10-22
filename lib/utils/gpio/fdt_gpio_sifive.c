@@ -26,9 +26,9 @@ struct sifive_gpio_chip {
 	struct gpio_chip chip;
 };
 
-static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
+static цео sifive_gpio_direction_output(struct gpio_pin *gp, цео value)
 {
-	unsigned int v;
+	unsigned цео v;
 	struct sifive_gpio_chip *chip =
 		container_of(gp->chip, struct sifive_gpio_chip, chip);
 
@@ -37,46 +37,46 @@ static int sifive_gpio_direction_output(struct gpio_pin *gp, int value)
 	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTEN));
 
 	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	ако (!value)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	инако
 		v |= SIFIVE_GPIO_BIT(gp->offset);
 	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 
-	return 0;
+	врати 0;
 }
 
-static void sifive_gpio_set(struct gpio_pin *gp, int value)
+static void sifive_gpio_set(struct gpio_pin *gp, цео value)
 {
-	unsigned int v;
+	unsigned цео v;
 	struct sifive_gpio_chip *chip =
 		container_of(gp->chip, struct sifive_gpio_chip, chip);
 
 	v = readl((volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
-	if (!value)
+	ако (!value)
 		v &= ~SIFIVE_GPIO_BIT(gp->offset);
-	else
+	инако
 		v |= SIFIVE_GPIO_BIT(gp->offset);
 	writel(v, (volatile void *)(chip->addr + SIFIVE_GPIO_OUTVAL));
 }
 
 const struct fdt_gpio fdt_gpio_sifive;
 
-static int sifive_gpio_init(const void *fdt, int nodeoff,
+static цео sifive_gpio_init(const void *fdt, цео nodeoff,
 			    const struct fdt_match *match)
 {
-	int rc;
+	цео rc;
 	struct sifive_gpio_chip *chip;
 	uint64_t addr;
 
 	chip = sbi_zalloc(sizeof(*chip));
-	if (!chip)
-		return SBI_ENOMEM;
+	ако (!chip)
+		врати SBI_ENOMEM;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (rc) {
+	ако (rc) {
 		sbi_free(chip);
-		return rc;
+		врати rc;
 	}
 
 	chip->addr = addr;
@@ -86,12 +86,12 @@ static int sifive_gpio_init(const void *fdt, int nodeoff,
 	chip->chip.direction_output = sifive_gpio_direction_output;
 	chip->chip.set = sifive_gpio_set;
 	rc = gpio_chip_add(&chip->chip);
-	if (rc) {
+	ако (rc) {
 		sbi_free(chip);
-		return rc;
+		врати rc;
 	}
 
-	return 0;
+	врати 0;
 }
 
 static const struct fdt_match sifive_gpio_match[] = {

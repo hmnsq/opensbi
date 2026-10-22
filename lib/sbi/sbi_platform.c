@@ -15,8 +15,8 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 {
 	char *fstr = NULL;
 
-	if (!feature)
-		return NULL;
+	ако (!feature)
+		врати NULL;
 
 	switch (feature) {
 	case SBI_PLATFORM_HAS_MFAULTS_DELEGATION:
@@ -26,48 +26,48 @@ static inline char *sbi_platform_feature_id2string(unsigned long feature)
 		break;
 	}
 
-	return fstr;
+	врати fstr;
 }
 
 void sbi_platform_get_features_str(const struct sbi_platform *plat,
-				   char *features_str, int nfstr)
+				   char *features_str, цео nfstr)
 {
 	unsigned long features, feat = 1UL;
 	char *temp;
-	int offset = 0;
+	цео offset = 0;
 
-	if (!plat || !features_str || !nfstr)
-		return;
+	ако (!plat || !features_str || !nfstr)
+		врати;
 	sbi_memset(features_str, 0, nfstr);
 
 	features = sbi_platform_get_features(plat);
-	if (!features)
+	ако (!features)
 		goto done;
 
 	do {
-		if (features & feat) {
+		ако (features & feat) {
 			temp = sbi_platform_feature_id2string(feat);
-			if (temp) {
-				int len = sbi_snprintf(features_str + offset,
+			ако (temp) {
+				цео len = sbi_snprintf(features_str + offset,
 						       nfstr - offset,
 						       "%s,", temp);
-				if (len < 0)
+				ако (len < 0)
 					break;
 
-				if (offset + len >= nfstr) {
+				ако (offset + len >= nfstr) {
 					/* No more space for features */
 					offset = nfstr;
 					break;
-				} else
+				} инако
 					offset = offset + len;
 			}
 		}
 		feat = feat << 1;
-	} while (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
+	} док (feat <= SBI_PLATFORM_HAS_LAST_FEATURE);
 
 done:
-	if (offset)
+	ако (offset)
 		features_str[offset - 1] = '\0';
-	else
+	инако
 		sbi_strncpy(features_str, "none", nfstr);
 }
