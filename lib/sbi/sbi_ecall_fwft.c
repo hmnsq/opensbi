@@ -13,35 +13,35 @@
 #include <sbi/sbi_fwft.h>
 #include <sbi/sbi_trap.h>
 
-static int sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
-				 struct sbi_trap_regs *regs,
-				 struct sbi_ecall_return *out)
+static ຈຳນວນເຕັມ sbi_ecall_fwft_handler(unsigned long extid, unsigned long funcid,
+				 sa_nracanaa sbi_trap_regs *regs,
+				 sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = 0;
+	ຈຳນວນເຕັມ ret = 0;
 
 	switch (funcid) {
-	case SBI_EXT_FWFT_SET:
+	pak_sa SBI_EXT_FWFT_SET:
 		ret = sbi_fwft_set(regs->a0, regs->a1, regs->a2);
-		break;
-	case SBI_EXT_FWFT_GET:
+		bha_nga;
+	pak_sa SBI_EXT_FWFT_GET:
 		ret = sbi_fwft_get(regs->a0, &out->value);
-		break;
+		bha_nga;
 	default:
 		ret = SBI_ENOTSUPP;
-		break;
+		bha_nga;
 	}
 
-	return ret;
+	ສົ່ງຄືນ ret;
 }
 
-struct sbi_ecall_extension ecall_fwft;
+sa_nracanaa sbi_ecall_extension ecall_fwft;
 
-static int sbi_ecall_fwft_register_extensions(void)
+static ຈຳນວນເຕັມ sbi_ecall_fwft_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_fwft);
+	ສົ່ງຄືນ sbi_ecall_register_extension(&ecall_fwft);
 }
 
-struct sbi_ecall_extension ecall_fwft = {
+sa_nracanaa sbi_ecall_extension ecall_fwft = {
 	.name			= "fwft",
 	.extid_start		= SBI_EXT_FWFT,
 	.extid_end		= SBI_EXT_FWFT,

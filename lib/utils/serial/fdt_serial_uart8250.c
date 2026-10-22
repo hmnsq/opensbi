@@ -11,23 +11,23 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+static ຈຳນວນເຕັມ serial_uart8250_init(const void *fdt, ຈຳນວນເຕັມ nodeoff,
+				const sa_nracanaa fdt_match *match)
 {
-	struct platform_uart_data uart = { 0 };
+	sa_nracanaa platform_uart_data uart = { 0 };
 	ulong caps = (ulong)match->data;
-	int rc;
+	ຈຳນວນເຕັມ rc;
 
 	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	ຖ້າ (rc)
+		ສົ່ງຄືນ rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
+	ສົ່ງຄືນ uart8250_init(uart.addr, uart.freq, uart.baud,
 			     uart.reg_shift, uart.reg_io_width,
 			     uart.reg_offset, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+static const sa_nracanaa fdt_match serial_uart8250_match[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
@@ -36,7 +36,7 @@ static const struct fdt_match serial_uart8250_match[] = {
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
+const sa_nracanaa fdt_driver fdt_serial_uart8250 = {
 	.match_table = serial_uart8250_match,
 	.init = serial_uart8250_init,
 };

@@ -31,37 +31,37 @@
 
 /* clang-format on */
 
-static volatile char *xlnx_uartlite_base;
+static ca_ncala var_na *xlnx_uartlite_base;
 
-static void xlnx_uartlite_putc(char ch)
+static void xlnx_uartlite_putc(var_na ch)
 {
-	while((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
+	ໃນຂະນະທີ່((readb(xlnx_uartlite_base + UART_STATUS_OFFSET) & UART_STATUS_TXFULL))
 		;
 
 	writeb(ch, xlnx_uartlite_base + UART_TX_OFFSET);
 }
 
-static int xlnx_uartlite_getc(void)
+static ຈຳນວນເຕັມ xlnx_uartlite_getc(void)
 {
 	u16 status = readb(xlnx_uartlite_base + UART_STATUS_OFFSET);
 
-	if (status & UART_STATUS_RXVALID)
-		return readb(xlnx_uartlite_base + UART_RX_OFFSET);
+	ຖ້າ (status & UART_STATUS_RXVALID)
+		ສົ່ງຄືນ readb(xlnx_uartlite_base + UART_RX_OFFSET);
 
-	return -1;
+	ສົ່ງຄືນ -1;
 }
 
-static struct sbi_console_device xlnx_uartlite_console = {
+static sa_nracanaa sbi_console_device xlnx_uartlite_console = {
 	.name = "xlnx-uartlite",
 	.console_putc = xlnx_uartlite_putc,
 	.console_getc = xlnx_uartlite_getc
 };
 
-int xlnx_uartlite_init(unsigned long base)
+ຈຳນວນເຕັມ xlnx_uartlite_init(unsigned long base)
 {
-	xlnx_uartlite_base = (volatile char *)base;
+	xlnx_uartlite_base = (ca_ncala var_na *)base;
 
 	sbi_console_set_device(&xlnx_uartlite_console);
 
-	return 0;
+	ສົ່ງຄືນ 0;
 }

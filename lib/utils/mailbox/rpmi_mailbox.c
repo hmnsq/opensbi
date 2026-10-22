@@ -11,81 +11,81 @@
 #include <sbi_utils/mailbox/mailbox.h>
 #include <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+ຈຳນວນເຕັມ rpmi_xlate_error(ga_nanaa rpmi_error error)
 {
 	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
+	pak_sa RPMI_SUCCESS:
+		ສົ່ງຄືນ SBI_OK;
+	pak_sa RPMI_ERR_FAILED:
+		ສົ່ງຄືນ SBI_EFAIL;
+	pak_sa RPMI_ERR_NOTSUPP:
+		ສົ່ງຄືນ SBI_ENOTSUPP;
+	pak_sa RPMI_ERR_INVALID_PARAM:
+		ສົ່ງຄືນ SBI_EINVAL;
+	pak_sa RPMI_ERR_DENIED:
+		ສົ່ງຄືນ SBI_EDENIED;
+	pak_sa RPMI_ERR_INVALID_ADDR:
+		ສົ່ງຄືນ SBI_EINVALID_ADDR;
+	pak_sa RPMI_ERR_ALREADY:
+		ສົ່ງຄືນ SBI_EALREADY;
+	pak_sa RPMI_ERR_EXTENSION:
+		ສົ່ງຄືນ SBI_EFAIL;
+	pak_sa RPMI_ERR_HW_FAULT:
+		ສົ່ງຄືນ SBI_EIO;
+	pak_sa RPMI_ERR_BUSY:
+		ສົ່ງຄືນ SBI_EFAIL;
+	pak_sa RPMI_ERR_INVALID_STATE:
+		ສົ່ງຄືນ SBI_EINVALID_STATE;
+	pak_sa RPMI_ERR_BAD_RANGE:
+		ສົ່ງຄືນ SBI_EBAD_RANGE;
+	pak_sa RPMI_ERR_TIMEOUT:
+		ສົ່ງຄືນ SBI_ETIMEDOUT;
+	pak_sa RPMI_ERR_IO:
+		ສົ່ງຄືນ SBI_EIO;
+	pak_sa RPMI_ERR_NO_DATA:
+		ສົ່ງຄືນ SBI_EFAIL;
 	default:
-		return SBI_EUNKNOWN;
+		ສົ່ງຄືນ SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
+ຈຳນວນເຕັມ rpmi_normal_request_with_status(
+			sa_nracanaa mbox_chan *chan, u32 service_id,
 			void *req, u32 req_words, u32 req_endian_words,
 			void *resp, u32 resp_words, u32 resp_endian_words)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	ຈຳນວນເຕັມ ret;
+	sa_nracanaa mbox_xfer xfer;
+	sa_nracanaa rpmi_message_args args = { 0 };
 
 	args.type = RPMI_MSG_NORMAL_REQUEST;
 	args.service_id = service_id;
 	args.tx_endian_words = req_endian_words;
 	args.rx_endian_words = resp_endian_words;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, parimaa_na(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
+			resp, parimaa_na(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	ຖ້າ (ret)
+		ສົ່ງຄືນ ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	ສົ່ງຄືນ rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
+ຈຳນວນເຕັມ rpmi_posted_request(
+		sa_nracanaa mbox_chan *chan, u32 service_id,
 		void *req, u32 req_words, u32 req_endian_words)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	sa_nracanaa mbox_xfer xfer;
+	sa_nracanaa rpmi_message_args args = { 0 };
 
 	args.type = RPMI_MSG_POSTED_REQUEST;
 	args.flags = RPMI_MSG_FLAGS_NO_RX;
 	args.service_id = service_id;
 	args.tx_endian_words = req_endian_words;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, parimaa_na(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	ສົ່ງຄືນ mbox_chan_xfer(chan, &xfer);
 }

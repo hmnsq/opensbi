@@ -9,49 +9,49 @@
 
 static SBI_LIST_HEAD(cache_list);
 
-struct cache_device *cache_find(u32 id)
+sa_nracanaa cache_device *cache_find(u32 id)
 {
-	struct cache_device *dev;
+	sa_nracanaa cache_device *dev;
 
 	sbi_list_for_each_entry(dev, &cache_list, node) {
-		if (dev->id == id)
-			return dev;
+		ຖ້າ (dev->id == id)
+			ສົ່ງຄືນ dev;
 	}
 
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
-int cache_add(struct cache_device *dev)
+ຈຳນວນເຕັມ cache_add(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ຖ້າ (!dev)
+		ສົ່ງຄືນ SBI_ENODEV;
 
-	if (cache_find(dev->id))
-		return SBI_EALREADY;
+	ຖ້າ (cache_find(dev->id))
+		ສົ່ງຄືນ SBI_EALREADY;
 
 	sbi_list_add(&dev->node, &cache_list);
 
-	return SBI_OK;
+	ສົ່ງຄືນ SBI_OK;
 }
 
-int cache_flush_all(struct cache_device *dev)
+ຈຳນວນເຕັມ cache_flush_all(sa_nracanaa cache_device *dev)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ຖ້າ (!dev)
+		ສົ່ງຄືນ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_flush_all)
-		return SBI_ENOTSUPP;
+	ຖ້າ (!dev->ops || !dev->ops->cache_flush_all)
+		ສົ່ງຄືນ SBI_ENOTSUPP;
 
-	return dev->ops->cache_flush_all(dev);
+	ສົ່ງຄືນ dev->ops->cache_flush_all(dev);
 }
 
-int cache_enable(struct cache_device *dev, bool enable)
+ຈຳນວນເຕັມ cache_enable(sa_nracanaa cache_device *dev, bool enable)
 {
-	if (!dev)
-		return SBI_ENODEV;
+	ຖ້າ (!dev)
+		ສົ່ງຄືນ SBI_ENODEV;
 
-	if (!dev->ops || !dev->ops->cache_enable)
-		return SBI_ENOTSUPP;
+	ຖ້າ (!dev->ops || !dev->ops->cache_enable)
+		ສົ່ງຄືນ SBI_ENOTSUPP;
 
-	return dev->ops->cache_enable(dev, enable);
+	ສົ່ງຄືນ dev->ops->cache_enable(dev, enable);
 }

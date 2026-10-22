@@ -10,561 +10,561 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_nodename_eq_(const void *fdt, int offset,
-			    const char *s, int len)
+static ຈຳນວນເຕັມ fdt_nodename_eq_(const void *fdt, ຈຳນວນເຕັມ offset,
+			    const var_na *s, ຈຳນວນເຕັມ len)
 {
-	int olen;
-	const char *p = fdt_get_name(fdt, offset, &olen);
+	ຈຳນວນເຕັມ olen;
+	const var_na *p = fdt_get_name(fdt, offset, &olen);
 
-	if (!p || olen < len)
+	ຖ້າ (!p || olen < len)
 		/* short match */
-		return 0;
+		ສົ່ງຄືນ 0;
 
-	if (memcmp(p, s, len) != 0)
-		return 0;
+	ຖ້າ (memcmp(p, s, len) != 0)
+		ສົ່ງຄືນ 0;
 
-	if (p[len] == '\0')
-		return 1;
-	else if (!memchr(s, '@', len) && (p[len] == '@'))
-		return 1;
-	else
-		return 0;
+	ຖ້າ (p[len] == '\0')
+		ສົ່ງຄືນ 1;
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (!memchr(s, '@', len) && (p[len] == '@'))
+		ສົ່ງຄືນ 1;
+	ບໍ່ດັ່ງນັ້ນ
+		ສົ່ງຄືນ 0;
 }
 
-const char *fdt_get_string(const void *fdt, int stroffset, int *lenp)
+const var_na *fdt_get_string(const void *fdt, ຈຳນວນເຕັມ stroffset, ຈຳນວນເຕັມ *lenp)
 {
 	int32_t totalsize;
 	uint32_t absoffset;
 	size_t len;
-	int err;
-	const char *s, *n;
+	ຈຳນວນເຕັມ err;
+	const var_na *s, *n;
 
-	if (can_assume(VALID_INPUT)) {
-		s = (const char *)fdt + fdt_off_dt_strings(fdt) + stroffset;
+	ຖ້າ (can_assume(VALID_INPUT)) {
+		s = (const var_na *)fdt + fdt_off_dt_strings(fdt) + stroffset;
 
-		if (lenp)
+		ຖ້າ (lenp)
 			*lenp = strlen(s);
-		return s;
+		ສົ່ງຄືນ s;
 	}
 	totalsize = fdt_ro_probe_(fdt);
 	err = totalsize;
-	if (totalsize < 0)
+	ຖ້າ (totalsize < 0)
 		goto fail;
 
 	err = -FDT_ERR_BADOFFSET;
 	absoffset = stroffset + fdt_off_dt_strings(fdt);
-	if (absoffset >= (unsigned)totalsize)
+	ຖ້າ (absoffset >= (unsigned)totalsize)
 		goto fail;
 	len = totalsize - absoffset;
 
-	if (fdt_magic(fdt) == FDT_MAGIC) {
-		if (stroffset < 0)
+	ຖ້າ (fdt_magic(fdt) == FDT_MAGIC) {
+		ຖ້າ (stroffset < 0)
 			goto fail;
-		if (can_assume(LATEST) || fdt_version(fdt) >= 17) {
-			if ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
+		ຖ້າ (can_assume(LATEST) || fdt_version(fdt) >= 17) {
+			ຖ້າ ((unsigned)stroffset >= fdt_size_dt_strings(fdt))
 				goto fail;
-			if ((fdt_size_dt_strings(fdt) - stroffset) < len)
+			ຖ້າ ((fdt_size_dt_strings(fdt) - stroffset) < len)
 				len = fdt_size_dt_strings(fdt) - stroffset;
 		}
-	} else if (fdt_magic(fdt) == FDT_SW_MAGIC) {
-		unsigned int sw_stroffset = -stroffset;
+	} ບໍ່ດັ່ງນັ້ນ ຖ້າ (fdt_magic(fdt) == FDT_SW_MAGIC) {
+		unsigned ຈຳນວນເຕັມ sw_stroffset = -stroffset;
 
-		if ((stroffset >= 0) ||
+		ຖ້າ ((stroffset >= 0) ||
 		    (sw_stroffset > fdt_size_dt_strings(fdt)))
 			goto fail;
-		if (sw_stroffset < len)
+		ຖ້າ (sw_stroffset < len)
 			len = sw_stroffset;
-	} else {
+	} ບໍ່ດັ່ງນັ້ນ {
 		err = -FDT_ERR_INTERNAL;
 		goto fail;
 	}
 
-	s = (const char *)fdt + absoffset;
+	s = (const var_na *)fdt + absoffset;
 	n = memchr(s, '\0', len);
-	if (!n) {
+	ຖ້າ (!n) {
 		/* missing terminating NULL */
 		err = -FDT_ERR_TRUNCATED;
 		goto fail;
 	}
 
-	if (lenp)
+	ຖ້າ (lenp)
 		*lenp = n - s;
-	return s;
+	ສົ່ງຄືນ s;
 
 fail:
-	if (lenp)
+	ຖ້າ (lenp)
 		*lenp = err;
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
-const char *fdt_string(const void *fdt, int stroffset)
+const var_na *fdt_string(const void *fdt, ຈຳນວນເຕັມ stroffset)
 {
-	return fdt_get_string(fdt, stroffset, NULL);
+	ສົ່ງຄືນ fdt_get_string(fdt, stroffset, NULL);
 }
 
-static int fdt_string_eq_(const void *fdt, int stroffset,
-			  const char *s, int len)
+static ຈຳນວນເຕັມ fdt_string_eq_(const void *fdt, ຈຳນວນເຕັມ stroffset,
+			  const var_na *s, ຈຳນວນເຕັມ len)
 {
-	int slen;
-	const char *p = fdt_get_string(fdt, stroffset, &slen);
+	ຈຳນວນເຕັມ slen;
+	const var_na *p = fdt_get_string(fdt, stroffset, &slen);
 
-	return p && (slen == len) && (memcmp(p, s, len) == 0);
+	ສົ່ງຄືນ p && (slen == len) && (memcmp(p, s, len) == 0);
 }
 
-int fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
+ຈຳນວນເຕັມ fdt_find_max_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max = 0;
-	int offset = -1;
+	ຈຳນວນເຕັມ offset = -1;
 
-	while (true) {
+	ໃນຂະນະທີ່ (true) {
 		uint32_t value;
 
 		offset = fdt_next_node(fdt, offset, NULL);
-		if (offset < 0) {
-			if (offset == -FDT_ERR_NOTFOUND)
-				break;
+		ຖ້າ (offset < 0) {
+			ຖ້າ (offset == -FDT_ERR_NOTFOUND)
+				bha_nga;
 
-			return offset;
+			ສົ່ງຄືນ offset;
 		}
 
 		value = fdt_get_phandle(fdt, offset);
 
-		if (value > max)
+		ຖ້າ (value > max)
 			max = value;
 	}
 
-	if (phandle)
+	ຖ້າ (phandle)
 		*phandle = max;
 
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
-int fdt_generate_phandle(const void *fdt, uint32_t *phandle)
+ຈຳນວນເຕັມ fdt_generate_phandle(const void *fdt, uint32_t *phandle)
 {
 	uint32_t max;
-	int err;
+	ຈຳນວນເຕັມ err;
 
 	err = fdt_find_max_phandle(fdt, &max);
-	if (err < 0)
-		return err;
+	ຖ້າ (err < 0)
+		ສົ່ງຄືນ err;
 
-	if (max == FDT_MAX_PHANDLE)
-		return -FDT_ERR_NOPHANDLES;
+	ຖ້າ (max == FDT_MAX_PHANDLE)
+		ສົ່ງຄືນ -FDT_ERR_NOPHANDLES;
 
-	if (phandle)
+	ຖ້າ (phandle)
 		*phandle = max + 1;
 
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
-static const struct fdt_reserve_entry *fdt_mem_rsv(const void *fdt, int n)
+static const sa_nracanaa fdt_reserve_entry *fdt_mem_rsv(const void *fdt, ຈຳນວນເຕັມ n)
 {
-	unsigned int offset = n * sizeof(struct fdt_reserve_entry);
-	unsigned int absoffset = fdt_off_mem_rsvmap(fdt) + offset;
+	unsigned ຈຳນວນເຕັມ offset = n * parimaa_na(sa_nracanaa fdt_reserve_entry);
+	unsigned ຈຳນວນເຕັມ absoffset = fdt_off_mem_rsvmap(fdt) + offset;
 
-	if (!can_assume(VALID_INPUT)) {
-		if (absoffset < fdt_off_mem_rsvmap(fdt))
-			return NULL;
-		if (absoffset > fdt_totalsize(fdt) -
-		    sizeof(struct fdt_reserve_entry))
-			return NULL;
+	ຖ້າ (!can_assume(VALID_INPUT)) {
+		ຖ້າ (absoffset < fdt_off_mem_rsvmap(fdt))
+			ສົ່ງຄືນ NULL;
+		ຖ້າ (absoffset > fdt_totalsize(fdt) -
+		    parimaa_na(sa_nracanaa fdt_reserve_entry))
+			ສົ່ງຄືນ NULL;
 	}
-	return fdt_mem_rsv_(fdt, n);
+	ສົ່ງຄືນ fdt_mem_rsv_(fdt, n);
 }
 
-int fdt_get_mem_rsv(const void *fdt, int n, uint64_t *address, uint64_t *size)
+ຈຳນວນເຕັມ fdt_get_mem_rsv(const void *fdt, ຈຳນວນເຕັມ n, uint64_t *address, uint64_t *size)
 {
-	const struct fdt_reserve_entry *re;
+	const sa_nracanaa fdt_reserve_entry *re;
 
 	FDT_RO_PROBE(fdt);
 	re = fdt_mem_rsv(fdt, n);
-	if (!can_assume(VALID_INPUT) && !re)
-		return -FDT_ERR_BADOFFSET;
+	ຖ້າ (!can_assume(VALID_INPUT) && !re)
+		ສົ່ງຄືນ -FDT_ERR_BADOFFSET;
 
 	*address = fdt64_ld_(&re->address);
 	*size = fdt64_ld_(&re->size);
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
-int fdt_num_mem_rsv(const void *fdt)
+ຈຳນວນເຕັມ fdt_num_mem_rsv(const void *fdt)
 {
-	int i;
-	const struct fdt_reserve_entry *re;
+	ຈຳນວນເຕັມ i;
+	const sa_nracanaa fdt_reserve_entry *re;
 
-	for (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
-		if (fdt64_ld_(&re->size) == 0)
-			return i;
+	ສຳລັບ (i = 0; (re = fdt_mem_rsv(fdt, i)) != NULL; i++) {
+		ຖ້າ (fdt64_ld_(&re->size) == 0)
+			ສົ່ງຄືນ i;
 	}
-	return -FDT_ERR_TRUNCATED;
+	ສົ່ງຄືນ -FDT_ERR_TRUNCATED;
 }
 
-static int nextprop_(const void *fdt, int offset)
+static ຈຳນວນເຕັມ nextprop_(const void *fdt, ຈຳນວນເຕັມ offset)
 {
 	uint32_t tag;
-	int nextoffset;
+	ຈຳນວນເຕັມ nextoffset;
 
 	do {
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
 		switch (tag) {
-		case FDT_END:
-			if (nextoffset >= 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			else
-				return nextoffset;
+		pak_sa FDT_END:
+			ຖ້າ (nextoffset >= 0)
+				ສົ່ງຄືນ -FDT_ERR_BADSTRUCTURE;
+			ບໍ່ດັ່ງນັ້ນ
+				ສົ່ງຄືນ nextoffset;
 
-		case FDT_PROP:
-			return offset;
+		pak_sa FDT_PROP:
+			ສົ່ງຄືນ offset;
 		}
 		offset = nextoffset;
-	} while (tag == FDT_NOP);
+	} ໃນຂະນະທີ່ (tag == FDT_NOP);
 
-	return -FDT_ERR_NOTFOUND;
+	ສົ່ງຄືນ -FDT_ERR_NOTFOUND;
 }
 
-int fdt_subnode_offset_namelen(const void *fdt, int offset,
-			       const char *name, int namelen)
+ຈຳນວນເຕັມ fdt_subnode_offset_namelen(const void *fdt, ຈຳນວນເຕັມ offset,
+			       const var_na *name, ຈຳນວນເຕັມ namelen)
 {
-	int depth;
+	ຈຳນວນເຕັມ depth;
 
 	FDT_RO_PROBE(fdt);
 
-	for (depth = 0;
+	ສຳລັບ (depth = 0;
 	     (offset >= 0) && (depth >= 0);
 	     offset = fdt_next_node(fdt, offset, &depth))
-		if ((depth == 1)
+		ຖ້າ ((depth == 1)
 		    && fdt_nodename_eq_(fdt, offset, name, namelen))
-			return offset;
+			ສົ່ງຄືນ offset;
 
-	if (depth < 0)
-		return -FDT_ERR_NOTFOUND;
-	return offset; /* error */
+	ຖ້າ (depth < 0)
+		ສົ່ງຄືນ -FDT_ERR_NOTFOUND;
+	ສົ່ງຄືນ offset; /* error */
 }
 
-int fdt_subnode_offset(const void *fdt, int parentoffset,
-		       const char *name)
+ຈຳນວນເຕັມ fdt_subnode_offset(const void *fdt, ຈຳນວນເຕັມ parentoffset,
+		       const var_na *name)
 {
-	return fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
+	ສົ່ງຄືນ fdt_subnode_offset_namelen(fdt, parentoffset, name, strlen(name));
 }
 
-int fdt_path_offset_namelen(const void *fdt, const char *path, int namelen)
+ຈຳນວນເຕັມ fdt_path_offset_namelen(const void *fdt, const var_na *path, ຈຳນວນເຕັມ namelen)
 {
-	const char *end = path + namelen;
-	const char *p = path;
-	int offset = 0;
+	const var_na *end = path + namelen;
+	const var_na *p = path;
+	ຈຳນວນເຕັມ offset = 0;
 
 	FDT_RO_PROBE(fdt);
 
 	/* see if we have an alias */
-	if (*path != '/') {
-		const char *q = memchr(path, '/', end - p);
+	ຖ້າ (*path != '/') {
+		const var_na *q = memchr(path, '/', end - p);
 
-		if (!q)
+		ຖ້າ (!q)
 			q = end;
 
 		p = fdt_get_alias_namelen(fdt, p, q - p);
-		if (!p)
-			return -FDT_ERR_BADPATH;
+		ຖ້າ (!p)
+			ສົ່ງຄືນ -FDT_ERR_BADPATH;
 		offset = fdt_path_offset(fdt, p);
 
 		p = q;
 	}
 
-	while (p < end) {
-		const char *q;
+	ໃນຂະນະທີ່ (p < end) {
+		const var_na *q;
 
-		while (*p == '/') {
+		ໃນຂະນະທີ່ (*p == '/') {
 			p++;
-			if (p == end)
-				return offset;
+			ຖ້າ (p == end)
+				ສົ່ງຄືນ offset;
 		}
 		q = memchr(p, '/', end - p);
-		if (! q)
+		ຖ້າ (! q)
 			q = end;
 
 		offset = fdt_subnode_offset_namelen(fdt, offset, p, q-p);
-		if (offset < 0)
-			return offset;
+		ຖ້າ (offset < 0)
+			ສົ່ງຄືນ offset;
 
 		p = q;
 	}
 
-	return offset;
+	ສົ່ງຄືນ offset;
 }
 
-int fdt_path_offset(const void *fdt, const char *path)
+ຈຳນວນເຕັມ fdt_path_offset(const void *fdt, const var_na *path)
 {
-	return fdt_path_offset_namelen(fdt, path, strlen(path));
+	ສົ່ງຄືນ fdt_path_offset_namelen(fdt, path, strlen(path));
 }
 
-const char *fdt_get_name(const void *fdt, int nodeoffset, int *len)
+const var_na *fdt_get_name(const void *fdt, ຈຳນວນເຕັມ nodeoffset, ຈຳນວນເຕັມ *len)
 {
-	const struct fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
-	const char *nameptr;
-	int err;
+	const sa_nracanaa fdt_node_header *nh = fdt_offset_ptr_(fdt, nodeoffset);
+	const var_na *nameptr;
+	ຈຳນວນເຕັມ err;
 
-	if (((err = fdt_ro_probe_(fdt)) < 0)
+	ຖ້າ (((err = fdt_ro_probe_(fdt)) < 0)
 	    || ((err = fdt_check_node_offset_(fdt, nodeoffset)) < 0))
 			goto fail;
 
 	nameptr = nh->name;
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+	ຖ້າ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
 		/*
 		 * For old FDT versions, match the naming conventions of V16:
 		 * give only the leaf name (after all /). The actual tree
 		 * contents are loosely checked.
 		 */
-		const char *leaf;
+		const var_na *leaf;
 		leaf = strrchr(nameptr, '/');
-		if (leaf == NULL) {
+		ຖ້າ (leaf == NULL) {
 			err = -FDT_ERR_BADSTRUCTURE;
 			goto fail;
 		}
 		nameptr = leaf+1;
 	}
 
-	if (len)
+	ຖ້າ (len)
 		*len = strlen(nameptr);
 
-	return nameptr;
+	ສົ່ງຄືນ nameptr;
 
  fail:
-	if (len)
+	ຖ້າ (len)
 		*len = err;
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
-int fdt_first_property_offset(const void *fdt, int nodeoffset)
+ຈຳນວນເຕັມ fdt_first_property_offset(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
-	int offset;
+	ຈຳນວນເຕັມ offset;
 
-	if ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
-		return offset;
+	ຖ້າ ((offset = fdt_check_node_offset_(fdt, nodeoffset)) < 0)
+		ສົ່ງຄືນ offset;
 
-	return nextprop_(fdt, offset);
+	ສົ່ງຄືນ nextprop_(fdt, offset);
 }
 
-int fdt_next_property_offset(const void *fdt, int offset)
+ຈຳນວນເຕັມ fdt_next_property_offset(const void *fdt, ຈຳນວນເຕັມ offset)
 {
-	if ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
-		return offset;
+	ຖ້າ ((offset = fdt_check_prop_offset_(fdt, offset)) < 0)
+		ສົ່ງຄືນ offset;
 
-	return nextprop_(fdt, offset);
+	ສົ່ງຄືນ nextprop_(fdt, offset);
 }
 
-static const struct fdt_property *fdt_get_property_by_offset_(const void *fdt,
-						              int offset,
-						              int *lenp)
+static const sa_nracanaa fdt_property *fdt_get_property_by_offset_(const void *fdt,
+						              ຈຳນວນເຕັມ offset,
+						              ຈຳນວນເຕັມ *lenp)
 {
-	int err;
-	const struct fdt_property *prop;
+	ຈຳນວນເຕັມ err;
+	const sa_nracanaa fdt_property *prop;
 
-	if (!can_assume(VALID_INPUT) &&
+	ຖ້າ (!can_assume(VALID_INPUT) &&
 	    (err = fdt_check_prop_offset_(fdt, offset)) < 0) {
-		if (lenp)
+		ຖ້າ (lenp)
 			*lenp = err;
-		return NULL;
+		ສົ່ງຄືນ NULL;
 	}
 
 	prop = fdt_offset_ptr_(fdt, offset);
 
-	if (lenp)
+	ຖ້າ (lenp)
 		*lenp = fdt32_ld_(&prop->len);
 
-	return prop;
+	ສົ່ງຄືນ prop;
 }
 
-const struct fdt_property *fdt_get_property_by_offset(const void *fdt,
-						      int offset,
-						      int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_by_offset(const void *fdt,
+						      ຈຳນວນເຕັມ offset,
+						      ຈຳນວນເຕັມ *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
 
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ຖ້າ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		ຖ້າ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ສົ່ງຄືນ NULL;
 	}
 
-	return fdt_get_property_by_offset_(fdt, offset, lenp);
+	ສົ່ງຄືນ fdt_get_property_by_offset_(fdt, offset, lenp);
 }
 
-static const struct fdt_property *fdt_get_property_namelen_(const void *fdt,
-						            int offset,
-						            const char *name,
-						            int namelen,
-							    int *lenp,
-							    int *poffset)
+static const sa_nracanaa fdt_property *fdt_get_property_namelen_(const void *fdt,
+						            ຈຳນວນເຕັມ offset,
+						            const var_na *name,
+						            ຈຳນວນເຕັມ namelen,
+							    ຈຳນວນເຕັມ *lenp,
+							    ຈຳນວນເຕັມ *poffset)
 {
-	for (offset = fdt_first_property_offset(fdt, offset);
+	ສຳລັບ (offset = fdt_first_property_offset(fdt, offset);
 	     (offset >= 0);
 	     (offset = fdt_next_property_offset(fdt, offset))) {
-		const struct fdt_property *prop;
+		const sa_nracanaa fdt_property *prop;
 
 		prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-		if (!can_assume(LIBFDT_FLAWLESS) && !prop) {
+		ຖ້າ (!can_assume(LIBFDT_FLAWLESS) && !prop) {
 			offset = -FDT_ERR_INTERNAL;
-			break;
+			bha_nga;
 		}
-		if (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
+		ຖ້າ (fdt_string_eq_(fdt, fdt32_ld_(&prop->nameoff),
 				   name, namelen)) {
-			if (poffset)
+			ຖ້າ (poffset)
 				*poffset = offset;
-			return prop;
+			ສົ່ງຄືນ prop;
 		}
 	}
 
-	if (lenp)
+	ຖ້າ (lenp)
 		*lenp = offset;
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
 
-const struct fdt_property *fdt_get_property_namelen(const void *fdt,
-						    int offset,
-						    const char *name,
-						    int namelen, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property_namelen(const void *fdt,
+						    ຈຳນວນເຕັມ offset,
+						    const var_na *name,
+						    ຈຳນວນເຕັມ namelen, ຈຳນວນເຕັມ *lenp)
 {
 	/* Prior to version 16, properties may need realignment
 	 * and this API does not work. fdt_getprop_*() will, however. */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
-		if (lenp)
+	ຖ້າ (!can_assume(LATEST) && fdt_version(fdt) < 0x10) {
+		ຖ້າ (lenp)
 			*lenp = -FDT_ERR_BADVERSION;
-		return NULL;
+		ສົ່ງຄືນ NULL;
 	}
 
-	return fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
+	ສົ່ງຄືນ fdt_get_property_namelen_(fdt, offset, name, namelen, lenp,
 					 NULL);
 }
 
 
-const struct fdt_property *fdt_get_property(const void *fdt,
-					    int nodeoffset,
-					    const char *name, int *lenp)
+const sa_nracanaa fdt_property *fdt_get_property(const void *fdt,
+					    ຈຳນວນເຕັມ nodeoffset,
+					    const var_na *name, ຈຳນວນເຕັມ *lenp)
 {
-	return fdt_get_property_namelen(fdt, nodeoffset, name,
+	ສົ່ງຄືນ fdt_get_property_namelen(fdt, nodeoffset, name,
 					strlen(name), lenp);
 }
 
-const void *fdt_getprop_namelen(const void *fdt, int nodeoffset,
-				const char *name, int namelen, int *lenp)
+const void *fdt_getprop_namelen(const void *fdt, ຈຳນວນເຕັມ nodeoffset,
+				const var_na *name, ຈຳນວນເຕັມ namelen, ຈຳນວນເຕັມ *lenp)
 {
-	int poffset;
-	const struct fdt_property *prop;
+	ຈຳນວນເຕັມ poffset;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_namelen_(fdt, nodeoffset, name, namelen, lenp,
 					 &poffset);
-	if (!prop)
-		return NULL;
+	ຖ້າ (!prop)
+		ສົ່ງຄືນ NULL;
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (poffset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ຖ້າ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (poffset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ສົ່ງຄືນ prop->data + 4;
+	ສົ່ງຄືນ prop->data;
 }
 
-const void *fdt_getprop_by_offset(const void *fdt, int offset,
-				  const char **namep, int *lenp)
+const void *fdt_getprop_by_offset(const void *fdt, ຈຳນວນເຕັມ offset,
+				  const var_na **namep, ຈຳນວນເຕັມ *lenp)
 {
-	const struct fdt_property *prop;
+	const sa_nracanaa fdt_property *prop;
 
 	prop = fdt_get_property_by_offset_(fdt, offset, lenp);
-	if (!prop)
-		return NULL;
-	if (namep) {
-		const char *name;
-		int namelen;
+	ຖ້າ (!prop)
+		ສົ່ງຄືນ NULL;
+	ຖ້າ (namep) {
+		const var_na *name;
+		ຈຳນວນເຕັມ namelen;
 
-		if (!can_assume(VALID_INPUT)) {
+		ຖ້າ (!can_assume(VALID_INPUT)) {
 			name = fdt_get_string(fdt, fdt32_ld_(&prop->nameoff),
 					      &namelen);
-			if (!name) {
-				if (lenp)
+			ຖ້າ (!name) {
+				ຖ້າ (lenp)
 					*lenp = namelen;
-				return NULL;
+				ສົ່ງຄືນ NULL;
 			}
 			*namep = name;
-		} else {
+		} ບໍ່ດັ່ງນັ້ນ {
 			*namep = fdt_string(fdt, fdt32_ld_(&prop->nameoff));
 		}
 	}
 
 	/* Handle realignment */
-	if (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
-	    (offset + sizeof(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
-		return prop->data + 4;
-	return prop->data;
+	ຖ້າ (!can_assume(LATEST) && fdt_version(fdt) < 0x10 &&
+	    (offset + parimaa_na(*prop)) % 8 && fdt32_ld_(&prop->len) >= 8)
+		ສົ່ງຄືນ prop->data + 4;
+	ສົ່ງຄືນ prop->data;
 }
 
-const void *fdt_getprop(const void *fdt, int nodeoffset,
-			const char *name, int *lenp)
+const void *fdt_getprop(const void *fdt, ຈຳນວນເຕັມ nodeoffset,
+			const var_na *name, ຈຳນວນເຕັມ *lenp)
 {
-	return fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
+	ສົ່ງຄືນ fdt_getprop_namelen(fdt, nodeoffset, name, strlen(name), lenp);
 }
 
-uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
+uint32_t fdt_get_phandle(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
 	const fdt32_t *php;
-	int len;
+	ຈຳນວນເຕັມ len;
 
 	/* FIXME: This is a bit sub-optimal, since we potentially scan
 	 * over all the properties twice. */
 	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
-	if (!php || (len != sizeof(*php))) {
+	ຖ້າ (!php || (len != parimaa_na(*php))) {
 		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-		if (!php || (len != sizeof(*php)))
-			return 0;
+		ຖ້າ (!php || (len != parimaa_na(*php)))
+			ສົ່ງຄືນ 0;
 	}
 
-	return fdt32_ld_(php);
+	ສົ່ງຄືນ fdt32_ld_(php);
 }
 
-const char *fdt_get_alias_namelen(const void *fdt,
-				  const char *name, int namelen)
+const var_na *fdt_get_alias_namelen(const void *fdt,
+				  const var_na *name, ຈຳນວນເຕັມ namelen)
 {
-	int aliasoffset;
+	ຈຳນວນເຕັມ aliasoffset;
 
 	aliasoffset = fdt_path_offset(fdt, "/aliases");
-	if (aliasoffset < 0)
-		return NULL;
+	ຖ້າ (aliasoffset < 0)
+		ສົ່ງຄືນ NULL;
 
-	return fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
+	ສົ່ງຄືນ fdt_getprop_namelen(fdt, aliasoffset, name, namelen, NULL);
 }
 
-const char *fdt_get_alias(const void *fdt, const char *name)
+const var_na *fdt_get_alias(const void *fdt, const var_na *name)
 {
-	return fdt_get_alias_namelen(fdt, name, strlen(name));
+	ສົ່ງຄືນ fdt_get_alias_namelen(fdt, name, strlen(name));
 }
 
-int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
+ຈຳນວນເຕັມ fdt_get_path(const void *fdt, ຈຳນວນເຕັມ nodeoffset, var_na *buf, ຈຳນວນເຕັມ buflen)
 {
-	int pdepth = 0, p = 0;
-	int offset, depth, namelen;
-	const char *name;
+	ຈຳນວນເຕັມ pdepth = 0, p = 0;
+	ຈຳນວນເຕັມ offset, depth, namelen;
+	const var_na *name;
 
 	FDT_RO_PROBE(fdt);
 
-	if (buflen < 2)
-		return -FDT_ERR_NOSPACE;
+	ຖ້າ (buflen < 2)
+		ສົ່ງຄືນ -FDT_ERR_NOSPACE;
 
-	for (offset = 0, depth = 0;
+	ສຳລັບ (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		while (pdepth > depth) {
+		ໃນຂະນະທີ່ (pdepth > depth) {
 			do {
 				p--;
-			} while (buf[p-1] != '/');
+			} ໃນຂະນະທີ່ (buf[p-1] != '/');
 			pdepth--;
 		}
 
-		if (pdepth >= depth) {
+		ຖ້າ (pdepth >= depth) {
 			name = fdt_get_name(fdt, offset, &namelen);
-			if (!name)
-				return namelen;
-			if ((p + namelen + 1) <= buflen) {
+			ຖ້າ (!name)
+				ສົ່ງຄືນ namelen;
+			ຖ້າ ((p + namelen + 1) <= buflen) {
 				memcpy(buf + p, name, namelen);
 				p += namelen;
 				buf[p++] = '/';
@@ -572,92 +572,92 @@ int fdt_get_path(const void *fdt, int nodeoffset, char *buf, int buflen)
 			}
 		}
 
-		if (offset == nodeoffset) {
-			if (pdepth < (depth + 1))
-				return -FDT_ERR_NOSPACE;
+		ຖ້າ (offset == nodeoffset) {
+			ຖ້າ (pdepth < (depth + 1))
+				ສົ່ງຄືນ -FDT_ERR_NOSPACE;
 
-			if (p > 1) /* special case so that root path is "/", not "" */
+			ຖ້າ (p > 1) /* special case so that root path is "/", not "" */
 				p--;
 			buf[p] = '\0';
-			return 0;
+			ສົ່ງຄືນ 0;
 		}
 	}
 
-	if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-		return -FDT_ERR_BADOFFSET;
-	else if (offset == -FDT_ERR_BADOFFSET)
-		return -FDT_ERR_BADSTRUCTURE;
+	ຖ້າ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+		ສົ່ງຄືນ -FDT_ERR_BADOFFSET;
+	ບໍ່ດັ່ງນັ້ນ ຖ້າ (offset == -FDT_ERR_BADOFFSET)
+		ສົ່ງຄືນ -FDT_ERR_BADSTRUCTURE;
 
-	return offset; /* error from fdt_next_node() */
+	ສົ່ງຄືນ offset; /* error from fdt_next_node() */
 }
 
-int fdt_supernode_atdepth_offset(const void *fdt, int nodeoffset,
-				 int supernodedepth, int *nodedepth)
+ຈຳນວນເຕັມ fdt_supernode_atdepth_offset(const void *fdt, ຈຳນວນເຕັມ nodeoffset,
+				 ຈຳນວນເຕັມ supernodedepth, ຈຳນວນເຕັມ *nodedepth)
 {
-	int offset, depth;
-	int supernodeoffset = -FDT_ERR_INTERNAL;
+	ຈຳນວນເຕັມ offset, depth;
+	ຈຳນວນເຕັມ supernodeoffset = -FDT_ERR_INTERNAL;
 
 	FDT_RO_PROBE(fdt);
 
-	if (supernodedepth < 0)
-		return -FDT_ERR_NOTFOUND;
+	ຖ້າ (supernodedepth < 0)
+		ສົ່ງຄືນ -FDT_ERR_NOTFOUND;
 
-	for (offset = 0, depth = 0;
+	ສຳລັບ (offset = 0, depth = 0;
 	     (offset >= 0) && (offset <= nodeoffset);
 	     offset = fdt_next_node(fdt, offset, &depth)) {
-		if (depth == supernodedepth)
+		ຖ້າ (depth == supernodedepth)
 			supernodeoffset = offset;
 
-		if (offset == nodeoffset) {
-			if (nodedepth)
+		ຖ້າ (offset == nodeoffset) {
+			ຖ້າ (nodedepth)
 				*nodedepth = depth;
 
-			if (supernodedepth > depth)
-				return -FDT_ERR_NOTFOUND;
-			else
-				return supernodeoffset;
+			ຖ້າ (supernodedepth > depth)
+				ສົ່ງຄືນ -FDT_ERR_NOTFOUND;
+			ບໍ່ດັ່ງນັ້ນ
+				ສົ່ງຄືນ supernodeoffset;
 		}
 	}
 
-	if (!can_assume(VALID_INPUT)) {
-		if ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
-			return -FDT_ERR_BADOFFSET;
-		else if (offset == -FDT_ERR_BADOFFSET)
-			return -FDT_ERR_BADSTRUCTURE;
+	ຖ້າ (!can_assume(VALID_INPUT)) {
+		ຖ້າ ((offset == -FDT_ERR_NOTFOUND) || (offset >= 0))
+			ສົ່ງຄືນ -FDT_ERR_BADOFFSET;
+		ບໍ່ດັ່ງນັ້ນ ຖ້າ (offset == -FDT_ERR_BADOFFSET)
+			ສົ່ງຄືນ -FDT_ERR_BADSTRUCTURE;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ສົ່ງຄືນ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_depth(const void *fdt, int nodeoffset)
+ຈຳນວນເຕັມ fdt_node_depth(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
-	int nodedepth;
-	int err;
+	ຈຳນວນເຕັມ nodedepth;
+	ຈຳນວນເຕັມ err;
 
 	err = fdt_supernode_atdepth_offset(fdt, nodeoffset, 0, &nodedepth);
-	if (err)
-		return (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
+	ຖ້າ (err)
+		ສົ່ງຄືນ (can_assume(LIBFDT_FLAWLESS) || err < 0) ? err :
 			-FDT_ERR_INTERNAL;
-	return nodedepth;
+	ສົ່ງຄືນ nodedepth;
 }
 
-int fdt_parent_offset(const void *fdt, int nodeoffset)
+ຈຳນວນເຕັມ fdt_parent_offset(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
-	int nodedepth = fdt_node_depth(fdt, nodeoffset);
+	ຈຳນວນເຕັມ nodedepth = fdt_node_depth(fdt, nodeoffset);
 
-	if (nodedepth < 0)
-		return nodedepth;
-	return fdt_supernode_atdepth_offset(fdt, nodeoffset,
+	ຖ້າ (nodedepth < 0)
+		ສົ່ງຄືນ nodedepth;
+	ສົ່ງຄືນ fdt_supernode_atdepth_offset(fdt, nodeoffset,
 					    nodedepth - 1, NULL);
 }
 
-int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
-				  const char *propname,
-				  const void *propval, int proplen)
+ຈຳນວນເຕັມ fdt_node_offset_by_prop_value(const void *fdt, ຈຳນວນເຕັມ startoffset,
+				  const var_na *propname,
+				  const void *propval, ຈຳນວນເຕັມ proplen)
 {
-	int offset;
+	ຈຳນວນເຕັມ offset;
 	const void *val;
-	int len;
+	ຈຳນວນເຕັມ len;
 
 	FDT_RO_PROBE(fdt);
 
@@ -666,24 +666,24 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 	 * find what we want, we scan over them again making our way
 	 * to the next node.  Still it's the easiest to implement
 	 * approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	ສຳລັບ (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		val = fdt_getprop(fdt, offset, propname, &len);
-		if (val && (len == proplen)
+		ຖ້າ (val && (len == proplen)
 		    && (memcmp(val, propval, len) == 0))
-			return offset;
+			ສົ່ງຄືນ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ສົ່ງຄືນ offset; /* error from fdt_next_node() */
 }
 
-int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
+ຈຳນວນເຕັມ fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
-	int offset;
+	ຈຳນວນເຕັມ offset;
 
-	if ((phandle == 0) || (phandle == ~0U))
-		return -FDT_ERR_BADPHANDLE;
+	ຖ້າ ((phandle == 0) || (phandle == ~0U))
+		ສົ່ງຄືນ -FDT_ERR_BADPHANDLE;
 
 	FDT_RO_PROBE(fdt);
 
@@ -693,150 +693,150 @@ int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 	 * we want, we scan over them again making our way to the next
 	 * node.  Still it's the easiest to implement approach;
 	 * performance can come later. */
-	for (offset = fdt_next_node(fdt, -1, NULL);
+	ສຳລັບ (offset = fdt_next_node(fdt, -1, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
-		if (fdt_get_phandle(fdt, offset) == phandle)
-			return offset;
+		ຖ້າ (fdt_get_phandle(fdt, offset) == phandle)
+			ສົ່ງຄືນ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ສົ່ງຄືນ offset; /* error from fdt_next_node() */
 }
 
-int fdt_stringlist_contains(const char *strlist, int listlen, const char *str)
+ຈຳນວນເຕັມ fdt_stringlist_contains(const var_na *strlist, ຈຳນວນເຕັມ listlen, const var_na *str)
 {
-	int len = strlen(str);
-	const char *p;
+	ຈຳນວນເຕັມ len = strlen(str);
+	const var_na *p;
 
-	while (listlen >= len) {
-		if (memcmp(str, strlist, len+1) == 0)
-			return 1;
+	ໃນຂະນະທີ່ (listlen >= len) {
+		ຖ້າ (memcmp(str, strlist, len+1) == 0)
+			ສົ່ງຄືນ 1;
 		p = memchr(strlist, '\0', listlen);
-		if (!p)
-			return 0; /* malformed strlist.. */
+		ຖ້າ (!p)
+			ສົ່ງຄືນ 0; /* malformed strlist.. */
 		listlen -= (p-strlist) + 1;
 		strlist = p + 1;
 	}
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
-int fdt_stringlist_count(const void *fdt, int nodeoffset, const char *property)
+ຈຳນວນເຕັມ fdt_stringlist_count(const void *fdt, ຈຳນວນເຕັມ nodeoffset, const var_na *property)
 {
-	const char *list, *end;
-	int length, count = 0;
+	const var_na *list, *end;
+	ຈຳນວນເຕັມ length, count = 0;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	ຖ້າ (!list)
+		ສົ່ງຄືນ length;
 
 	end = list + length;
 
-	while (list < end) {
+	ໃນຂະນະທີ່ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ຖ້າ (list + length > end)
+			ສົ່ງຄືນ -FDT_ERR_BADVALUE;
 
 		list += length;
 		count++;
 	}
 
-	return count;
+	ສົ່ງຄືນ count;
 }
 
-int fdt_stringlist_search(const void *fdt, int nodeoffset, const char *property,
-			  const char *string)
+ຈຳນວນເຕັມ fdt_stringlist_search(const void *fdt, ຈຳນວນເຕັມ nodeoffset, const var_na *property,
+			  const var_na *string)
 {
-	int length, len, idx = 0;
-	const char *list, *end;
+	ຈຳນວນເຕັມ length, len, idx = 0;
+	const var_na *list, *end;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list)
-		return length;
+	ຖ້າ (!list)
+		ສົ່ງຄືນ length;
 
 	len = strlen(string) + 1;
 	end = list + length;
 
-	while (list < end) {
+	ໃນຂະນະທີ່ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end)
-			return -FDT_ERR_BADVALUE;
+		ຖ້າ (list + length > end)
+			ສົ່ງຄືນ -FDT_ERR_BADVALUE;
 
-		if (length == len && memcmp(list, string, length) == 0)
-			return idx;
+		ຖ້າ (length == len && memcmp(list, string, length) == 0)
+			ສົ່ງຄືນ idx;
 
 		list += length;
 		idx++;
 	}
 
-	return -FDT_ERR_NOTFOUND;
+	ສົ່ງຄືນ -FDT_ERR_NOTFOUND;
 }
 
-const char *fdt_stringlist_get(const void *fdt, int nodeoffset,
-			       const char *property, int idx,
-			       int *lenp)
+const var_na *fdt_stringlist_get(const void *fdt, ຈຳນວນເຕັມ nodeoffset,
+			       const var_na *property, ຈຳນວນເຕັມ idx,
+			       ຈຳນວນເຕັມ *lenp)
 {
-	const char *list, *end;
-	int length;
+	const var_na *list, *end;
+	ຈຳນວນເຕັມ length;
 
 	list = fdt_getprop(fdt, nodeoffset, property, &length);
-	if (!list) {
-		if (lenp)
+	ຖ້າ (!list) {
+		ຖ້າ (lenp)
 			*lenp = length;
 
-		return NULL;
+		ສົ່ງຄືນ NULL;
 	}
 
 	end = list + length;
 
-	while (list < end) {
+	ໃນຂະນະທີ່ (list < end) {
 		length = strnlen(list, end - list) + 1;
 
 		/* Abort if the last string isn't properly NUL-terminated. */
-		if (list + length > end) {
-			if (lenp)
+		ຖ້າ (list + length > end) {
+			ຖ້າ (lenp)
 				*lenp = -FDT_ERR_BADVALUE;
 
-			return NULL;
+			ສົ່ງຄືນ NULL;
 		}
 
-		if (idx == 0) {
-			if (lenp)
+		ຖ້າ (idx == 0) {
+			ຖ້າ (lenp)
 				*lenp = length - 1;
 
-			return list;
+			ສົ່ງຄືນ list;
 		}
 
 		list += length;
 		idx--;
 	}
 
-	if (lenp)
+	ຖ້າ (lenp)
 		*lenp = -FDT_ERR_NOTFOUND;
 
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
-int fdt_node_check_compatible(const void *fdt, int nodeoffset,
-			      const char *compatible)
+ຈຳນວນເຕັມ fdt_node_check_compatible(const void *fdt, ຈຳນວນເຕັມ nodeoffset,
+			      const var_na *compatible)
 {
 	const void *prop;
-	int len;
+	ຈຳນວນເຕັມ len;
 
 	prop = fdt_getprop(fdt, nodeoffset, "compatible", &len);
-	if (!prop)
-		return len;
+	ຖ້າ (!prop)
+		ສົ່ງຄືນ len;
 
-	return !fdt_stringlist_contains(prop, len, compatible);
+	ສົ່ງຄືນ !fdt_stringlist_contains(prop, len, compatible);
 }
 
-int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
-				  const char *compatible)
+ຈຳນວນເຕັມ fdt_node_offset_by_compatible(const void *fdt, ຈຳນວນເຕັມ startoffset,
+				  const var_na *compatible)
 {
-	int offset, err;
+	ຈຳນວນເຕັມ offset, err;
 
 	FDT_RO_PROBE(fdt);
 
@@ -845,15 +845,15 @@ int fdt_node_offset_by_compatible(const void *fdt, int startoffset,
 	 * that didn't find what we want, we scan over them again
 	 * making our way to the next node.  Still it's the easiest to
 	 * implement approach; performance can come later. */
-	for (offset = fdt_next_node(fdt, startoffset, NULL);
+	ສຳລັບ (offset = fdt_next_node(fdt, startoffset, NULL);
 	     offset >= 0;
 	     offset = fdt_next_node(fdt, offset, NULL)) {
 		err = fdt_node_check_compatible(fdt, offset, compatible);
-		if ((err < 0) && (err != -FDT_ERR_NOTFOUND))
-			return err;
-		else if (err == 0)
-			return offset;
+		ຖ້າ ((err < 0) && (err != -FDT_ERR_NOTFOUND))
+			ສົ່ງຄືນ err;
+		ບໍ່ດັ່ງນັ້ນ ຖ້າ (err == 0)
+			ສົ່ງຄືນ offset;
 	}
 
-	return offset; /* error from fdt_next_node() */
+	ສົ່ງຄືນ offset; /* error from fdt_next_node() */
 }

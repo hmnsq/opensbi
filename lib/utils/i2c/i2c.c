@@ -16,60 +16,60 @@
 
 static SBI_LIST_HEAD(i2c_adapters_list);
 
-struct i2c_adapter *i2c_adapter_find(int id)
+sa_nracanaa i2c_adapter *i2c_adapter_find(ຈຳນວນເຕັມ id)
 {
-	struct sbi_dlist *pos;
+	sa_nracanaa sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(i2c_adapters_list)) {
-		struct i2c_adapter *adap = to_i2c_adapter(pos);
+		sa_nracanaa i2c_adapter *adap = to_i2c_adapter(pos);
 
-		if (adap->id == id)
-			return adap;
+		ຖ້າ (adap->id == id)
+			ສົ່ງຄືນ adap;
 	}
 
-	return NULL;
+	ສົ່ງຄືນ NULL;
 }
 
-int i2c_adapter_add(struct i2c_adapter *ia)
+ຈຳນວນເຕັມ i2c_adapter_add(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return SBI_EINVAL;
+	ຖ້າ (!ia)
+		ສົ່ງຄືນ SBI_EINVAL;
 
-	if (i2c_adapter_find(ia->id))
-		return SBI_EALREADY;
+	ຖ້າ (i2c_adapter_find(ia->id))
+		ສົ່ງຄືນ SBI_EALREADY;
 
 	sbi_list_add(&(ia->node), &(i2c_adapters_list));
 
-	return 0;
+	ສົ່ງຄືນ 0;
 }
 
-void i2c_adapter_remove(struct i2c_adapter *ia)
+void i2c_adapter_remove(sa_nracanaa i2c_adapter *ia)
 {
-	if (!ia)
-		return;
+	ຖ້າ (!ia)
+		ສົ່ງຄືນ;
 
 	sbi_list_del(&(ia->node));
 }
 
-int i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ຈຳນວນເຕັມ i2c_adapter_write(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, ຈຳນວນເຕັມ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->write)
-		return SBI_ENOSYS;
+	ຖ້າ (!ia)
+		ສົ່ງຄືນ SBI_EINVAL;
+	ຖ້າ (!ia->write)
+		ສົ່ງຄືນ SBI_ENOSYS;
 
-	return ia->write(ia, addr, reg, buffer, len);
+	ສົ່ງຄືນ ia->write(ia, addr, reg, buffer, len);
 }
 
 
-int i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr, uint8_t reg,
-		     uint8_t *buffer, int len)
+ຈຳນວນເຕັມ i2c_adapter_read(sa_nracanaa i2c_adapter *ia, uint8_t addr, uint8_t reg,
+		     uint8_t *buffer, ຈຳນວນເຕັມ len)
 {
-	if (!ia)
-		return SBI_EINVAL;
-	if (!ia->read)
-		return SBI_ENOSYS;
+	ຖ້າ (!ia)
+		ສົ່ງຄືນ SBI_EINVAL;
+	ຖ້າ (!ia->read)
+		ສົ່ງຄືນ SBI_ENOSYS;
 
-	return ia->read(ia, addr, reg, buffer, len);
+	ສົ່ງຄືນ ia->read(ia, addr, reg, buffer, len);
 }

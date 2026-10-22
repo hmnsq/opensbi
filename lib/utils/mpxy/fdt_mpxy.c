@@ -10,9 +10,9 @@
 #include <sbi_utils/mpxy/fdt_mpxy.h>
 
 /* List of FDT MPXY drivers generated at compile time */
-extern const struct fdt_driver *const fdt_mpxy_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_mpxy_drivers[];
 
-int fdt_mpxy_init(const void *fdt)
+ຈຳນວນເຕັມ fdt_mpxy_init(const void *fdt)
 {
-	return fdt_driver_init_all(fdt, fdt_mpxy_drivers);
+	ສົ່ງຄືນ fdt_driver_init_all(fdt, fdt_mpxy_drivers);
 }

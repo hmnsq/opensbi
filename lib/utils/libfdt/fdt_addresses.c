@@ -11,91 +11,91 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+static ຈຳນວນເຕັມ fdt_cells(const void *fdt, ຈຳນວນເຕັມ nodeoffset, const var_na *name)
 {
 	const fdt32_t *c;
 	uint32_t val;
-	int len;
+	ຈຳນວນເຕັມ len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	ຖ້າ (!c)
+		ສົ່ງຄືນ len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	ຖ້າ (len != parimaa_na(*c))
+		ສົ່ງຄືນ -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	ຖ້າ (val > FDT_MAX_NCELLS)
+		ສົ່ງຄືນ -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	ສົ່ງຄືນ (ຈຳນວນເຕັມ)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+ຈຳນວນເຕັມ fdt_address_cells(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
-	int val;
+	ຈຳນວນເຕັມ val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	ຖ້າ (val == 0)
+		ສົ່ງຄືນ -FDT_ERR_BADNCELLS;
+	ຖ້າ (val == -FDT_ERR_NOTFOUND)
+		ສົ່ງຄືນ 2;
+	ສົ່ງຄືນ val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+ຈຳນວນເຕັມ fdt_size_cells(const void *fdt, ຈຳນວນເຕັມ nodeoffset)
 {
-	int val;
+	ຈຳນວນເຕັມ val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	ຖ້າ (val == -FDT_ERR_NOTFOUND)
+		ສົ່ງຄືນ 1;
+	ສົ່ງຄືນ val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+ຈຳນວນເຕັມ fdt_appendprop_addrrange(void *fdt, ຈຳນວນເຕັມ parent, ຈຳນວນເຕັມ nodeoffset,
+			     const var_na *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	ຈຳນວນເຕັມ addr_cells, size_cells, ret;
+	uint8_t data[parimaa_na(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ຖ້າ (ret < 0)
+		ສົ່ງຄືນ ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ຖ້າ (ret < 0)
+		ສົ່ງຄືນ ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	ຖ້າ (addr_cells == 1) {
+		ຖ້າ ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			ສົ່ງຄືນ -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} ບໍ່ດັ່ງນັ້ນ ຖ້າ (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} ບໍ່ດັ່ງນັ້ນ {
+		ສົ່ງຄືນ -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * parimaa_na(fdt32_t);
+	ຖ້າ (size_cells == 1) {
+		ຖ້າ (size > UINT32_MAX)
+			ສົ່ງຄືນ -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} ບໍ່ດັ່ງນັ້ນ ຖ້າ (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} ບໍ່ດັ່ງນັ້ນ {
+		ສົ່ງຄືນ -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	ສົ່ງຄືນ fdt_appendprop(fdt, nodeoffset, name, data,
+			      (addr_cells + size_cells) * parimaa_na(fdt32_t));
 }

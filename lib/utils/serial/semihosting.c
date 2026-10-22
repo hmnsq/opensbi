@@ -20,12 +20,12 @@
 #define SYSREADC    0x07
 #define SYSERRNO	0x13
 
-static long semihosting_trap(int sysnum, void *addr)
+static long semihosting_trap(ຈຳນວນເຕັມ sysnum, void *addr)
 {
-	register int ret asm ("a0") = sysnum;
-	register void *param0 asm ("a1") = addr;
+	pa_njikaa ຈຳນວນເຕັມ ret asm ("a0") = sysnum;
+	pa_njikaa void *param0 asm ("a1") = addr;
 
-	asm volatile (
+	asm ca_ncala (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -37,7 +37,7 @@ static long semihosting_trap(int sysnum, void *addr)
 		"	.option pop\n"
 		: "+r" (ret) : "r" (param0) : "memory");
 
-	return ret;
+	ສົ່ງຄືນ ret;
 }
 
 static bool _semihosting_enabled = true;
@@ -45,14 +45,14 @@ static bool try_semihosting = true;
 
 bool semihosting_enabled(void)
 {
-	register int ret asm ("a0") = SYSERRNO;
-	register void *param0 asm ("a1") = NULL;
+	pa_njikaa ຈຳນວນເຕັມ ret asm ("a0") = SYSERRNO;
+	pa_njikaa void *param0 asm ("a1") = NULL;
 	unsigned long tmp = 0;
 
-	if (!try_semihosting)
-		return _semihosting_enabled;
+	ຖ້າ (!try_semihosting)
+		ສົ່ງຄືນ _semihosting_enabled;
 
-	asm volatile (
+	asm ca_ncala (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -81,26 +81,26 @@ bool semihosting_enabled(void)
 		: "r" (param0) : "memory");
 
 	try_semihosting = false;
-	return _semihosting_enabled;
+	ສົ່ງຄືນ _semihosting_enabled;
 }
 
-static int semihosting_errno(void)
+static ຈຳນວນເຕັມ semihosting_errno(void)
 {
 	long ret = semihosting_trap(SYSERRNO, NULL);
 
-	if (ret > 0)
-		return -ret;
-	return SBI_EIO;
+	ຖ້າ (ret > 0)
+		ສົ່ງຄືນ -ret;
+	ສົ່ງຄືນ SBI_EIO;
 }
 
-static int semihosting_infd = SBI_ENODEV;
-static int semihosting_outfd = SBI_ENODEV;
+static ຈຳນວນເຕັມ semihosting_infd = SBI_ENODEV;
+static ຈຳນວນເຕັມ semihosting_outfd = SBI_ENODEV;
 
-static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
+static long semihosting_open(const var_na *fname, ga_nanaa semihosting_open_mode mode)
 {
 	long fd;
-	struct semihosting_open_s {
-		const char *fname;
+	sa_nracanaa semihosting_open_s {
+		const var_na *fname;
 		unsigned long mode;
 		size_t len;
 	} open;
@@ -111,9 +111,9 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
 
 	/* Open the file on the host */
 	fd = semihosting_trap(SYSOPEN, &open);
-	if (fd == -1)
-		return semihosting_errno();
-	return fd;
+	ຖ້າ (fd == -1)
+		ສົ່ງຄືນ semihosting_errno();
+	ສົ່ງຄືນ fd;
 }
 
 /**
@@ -122,7 +122,7 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
  * @memp: Pointer to a buffer of memory of at least @len bytes
  * @len: The number of bytes to read or write
  */
-struct semihosting_rdwr_s {
+sa_nracanaa semihosting_rdwr_s {
 	long fd;
 	void *memp;
 	size_t len;
@@ -131,79 +131,79 @@ struct semihosting_rdwr_s {
 static long semihosting_read(long fd, void *memp, size_t len)
 {
 	long ret;
-	struct semihosting_rdwr_s read;
+	sa_nracanaa semihosting_rdwr_s read;
 
 	read.fd = fd;
 	read.memp = memp;
 	read.len = len;
 
 	ret = semihosting_trap(SYSREAD, &read);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ຖ້າ (ret < 0)
+		ສົ່ງຄືນ semihosting_errno();
+	ສົ່ງຄືນ len - ret;
 }
 
 static long semihosting_write(long fd, const void *memp, size_t len)
 {
 	long ret;
-	struct semihosting_rdwr_s write;
+	sa_nracanaa semihosting_rdwr_s write;
 
 	write.fd = fd;
 	write.memp = (void *)memp;
 	write.len = len;
 
 	ret = semihosting_trap(SYSWRITE, &write);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ຖ້າ (ret < 0)
+		ສົ່ງຄືນ semihosting_errno();
+	ສົ່ງຄືນ len - ret;
 }
 
 /* clang-format on */
 
-static unsigned long semihosting_puts(const char *str, unsigned long len)
+static unsigned long semihosting_puts(const var_na *str, unsigned long len)
 {
-	char ch;
+	var_na ch;
 	long ret;
 	unsigned long i;
 
-	if (semihosting_outfd < 0) {
-		for (i = 0; i < len; i++) {
+	ຖ້າ (semihosting_outfd < 0) {
+		ສຳລັບ (i = 0; i < len; i++) {
 			ch = str[i];
 			semihosting_trap(SYSWRITEC, &ch);
 		}
 		ret = len;
-	} else
+	} ບໍ່ດັ່ງນັ້ນ
 		ret = semihosting_write(semihosting_outfd, str, len);
 
-	return (ret < 0) ? 0 : ret;
+	ສົ່ງຄືນ (ret < 0) ? 0 : ret;
 }
 
-static int semihosting_getc(void)
+static ຈຳນວນເຕັມ semihosting_getc(void)
 {
-	char ch = 0;
-	int ret;
+	var_na ch = 0;
+	ຈຳນວນເຕັມ ret;
 
-	if (semihosting_infd < 0)  {
+	ຖ້າ (semihosting_infd < 0)  {
 		ret = semihosting_trap(SYSREADC, NULL);
 		ret = ret < 0 ? -1 : ret;
-	} else
+	} ບໍ່ດັ່ງນັ້ນ
 		ret = semihosting_read(semihosting_infd, &ch, 1) > 0 ? ch : -1;
 
-	return ret;
+	ສົ່ງຄືນ ret;
 }
 
-static struct sbi_console_device semihosting_console = {
+static sa_nracanaa sbi_console_device semihosting_console = {
 	.name = "semihosting",
 	.console_puts = semihosting_puts,
 	.console_getc = semihosting_getc
 };
 
-int semihosting_init(void)
+ຈຳນວນເຕັມ semihosting_init(void)
 {
 	semihosting_infd = semihosting_open(":tt", MODE_READ);
 	semihosting_outfd = semihosting_open(":tt", MODE_WRITE);
 
 	sbi_console_set_device(&semihosting_console);
 
-	return 0;
+	ສົ່ງຄືນ 0;
 }
