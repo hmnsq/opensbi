@@ -6,17 +6,17 @@
  * Copyright (C) 2020 Bin Meng <bmeng.cn@gmail.com>
  */
 
-#include <libfdt.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_hart.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/irqchip/aplic.h>
-#include <sbi_utils/irqchip/imsic.h>
-#include <sbi_utils/irqchip/plic.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_hartmask.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/irqchip/aplic.h>
+#ضمن <sbi_utils/irqchip/imsic.h>
+#ضمن <sbi_utils/irqchip/plic.h>
 
 #define DEFAULT_UART_FREQ		0
 #define DEFAULT_UART_BAUD		115200
@@ -33,336 +33,336 @@
 #define DEFAULT_SHAKTI_UART_FREQ		50000000
 #define DEFAULT_SHAKTI_UART_BAUD		115200
 
-int fdt_parse_phandle_with_args(const void *fdt, int nodeoff,
-				const char *prop, const char *cells_prop,
-				int index, struct fdt_phandle_args *out_args)
+صحيح fdt_parse_phandle_with_args(ثابت فراغ *fdt, صحيح nodeoff,
+				ثابت حرف *prop, ثابت حرف *cells_prop,
+				صحيح index, بنية fdt_phandle_args *out_args)
 {
 	u32 i, pcells;
-	int len, pnodeoff;
-	const fdt32_t *list, *list_end, *val;
+	صحيح len, pnodeoff;
+	ثابت fdt32_t *list, *list_end, *val;
 
-	if (!fdt || (nodeoff < 0) || !prop || !cells_prop || !out_args)
-		return SBI_EINVAL;
+	אם (!fdt || (nodeoff < 0) || !prop || !cells_prop || !out_args)
+		החזר SBI_EINVAL;
 
 	list = fdt_getprop(fdt, nodeoff, prop, &len);
-	if (!list)
-		return SBI_ENOENT;
-	list_end = list + (len / sizeof(*list));
+	אם (!list)
+		החזר SBI_ENOENT;
+	list_end = list + (len / حجم(*list));
 
-	while (list < list_end) {
+	כלעוד (list < list_end) {
 		pnodeoff = fdt_node_offset_by_phandle(fdt,
 						fdt32_to_cpu(*list));
-		if (pnodeoff < 0)
-			return pnodeoff;
+		אם (pnodeoff < 0)
+			החזר pnodeoff;
 		list++;
 
 		val = fdt_getprop(fdt, pnodeoff, cells_prop, &len);
-		if (!val)
-			return SBI_ENOENT;
+		אם (!val)
+			החזר SBI_ENOENT;
 		pcells = fdt32_to_cpu(*val);
-		if (FDT_MAX_PHANDLE_ARGS < pcells)
-			return SBI_EINVAL;
-		if (list + pcells > list_end)
-			return SBI_ENOENT;
+		אם (FDT_MAX_PHANDLE_ARGS < pcells)
+			החזר SBI_EINVAL;
+		אם (list + pcells > list_end)
+			החזר SBI_ENOENT;
 
-		if (index > 0) {
+		אם (index > 0) {
 			list += pcells;
 			index--;
-		} else {
+		} אחרת {
 			out_args->node_offset = pnodeoff;
 			out_args->args_count = pcells;
-			for (i = 0; i < pcells; i++)
+			עבור (i = 0; i < pcells; i++)
 				out_args->args[i] = fdt32_to_cpu(list[i]);
-			return 0;
+			החזר 0;
 		}
 	}
 
-	return SBI_ENOENT;
+	החזר SBI_ENOENT;
 }
 
-static int fdt_translate_address(const void *fdt, uint64_t reg, int parent,
+ساكن صحيح fdt_translate_address(ثابت فراغ *fdt, uint64_t reg, صحيح parent,
 				 uint64_t *addr)
 {
-	int i, rlen;
-	int cell_parent_addr, cell_child_addr, cell_size;
-	const fdt32_t *ranges;
+	صحيح i, rlen;
+	صحيح cell_parent_addr, cell_child_addr, cell_size;
+	ثابت fdt32_t *ranges;
 	uint64_t offset, caddr = 0, paddr = 0, rsize = 0;
 
 	ranges = fdt_getprop(fdt, parent, "ranges", &rlen);
-	if (ranges && rlen > 0) {
+	אם (ranges && rlen > 0) {
 		cell_child_addr = fdt_address_cells(fdt, parent);
-		if (cell_child_addr < 1)
-			return SBI_ENODEV;
+		אם (cell_child_addr < 1)
+			החזר SBI_ENODEV;
 
 		cell_parent_addr = fdt_address_cells(fdt, fdt_parent_offset(fdt, parent));
-		if (cell_parent_addr < 1)
-			return SBI_ENODEV;
+		אם (cell_parent_addr < 1)
+			החזר SBI_ENODEV;
 
 		cell_size = fdt_size_cells(fdt, parent);
-		if (cell_size < 0)
-			return SBI_ENODEV;
+		אם (cell_size < 0)
+			החזר SBI_ENODEV;
 
-		for (i = 0; i < cell_child_addr; i++)
+		עבור (i = 0; i < cell_child_addr; i++)
 			caddr = (caddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_parent_addr; i++)
+		עבור (i = 0; i < cell_parent_addr; i++)
 			paddr = (paddr << 32) | fdt32_to_cpu(*ranges++);
-		for (i = 0; i < cell_size; i++)
+		עבור (i = 0; i < cell_size; i++)
 			rsize = (rsize << 32) | fdt32_to_cpu(*ranges++);
-		if (reg < caddr || caddr >= (reg + rsize )) {
+		אם (reg < caddr || caddr >= (reg + rsize )) {
 			sbi_printf("invalid address translation\n");
-			return SBI_ENODEV;
+			החזר SBI_ENODEV;
 		}
 		offset = reg - caddr;
 		*addr = paddr + offset;
-	} else {
+	} אחרת {
 		/* No translation required */
 		*addr = reg;
 	}
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_get_node_addr_size(const void *fdt, int node, int index,
+صحيح fdt_get_node_addr_size(ثابت فراغ *fdt, صحيح node, صحيح index,
 			   uint64_t *addr, uint64_t *size)
 {
-	int parent, len, i, rc;
-	int cell_addr, cell_size;
-	const fdt32_t *prop_addr, *prop_size;
+	صحيح parent, len, i, rc;
+	صحيح cell_addr, cell_size;
+	ثابت fdt32_t *prop_addr, *prop_size;
 	uint64_t temp = 0;
 
-	if (!fdt || node < 0 || index < 0)
-		return SBI_EINVAL;
+	אם (!fdt || node < 0 || index < 0)
+		החזר SBI_EINVAL;
 
 	parent = fdt_parent_offset(fdt, node);
-	if (parent < 0)
-		return parent;
+	אם (parent < 0)
+		החזר parent;
 	cell_addr = fdt_address_cells(fdt, parent);
-	if (cell_addr < 1)
-		return SBI_ENODEV;
+	אם (cell_addr < 1)
+		החזר SBI_ENODEV;
 
 	cell_size = fdt_size_cells(fdt, parent);
-	if (cell_size < 0)
-		return SBI_ENODEV;
+	אם (cell_size < 0)
+		החזר SBI_ENODEV;
 
 	prop_addr = fdt_getprop(fdt, node, "reg", &len);
-	if (!prop_addr)
-		return SBI_ENODEV;
+	אם (!prop_addr)
+		החזר SBI_ENODEV;
 
-	if ((len / sizeof(u32)) <= (index * (cell_addr + cell_size)))
-		return SBI_EINVAL;
+	אם ((len / حجم(u32)) <= (index * (cell_addr + cell_size)))
+		החזר SBI_EINVAL;
 
 	prop_addr = prop_addr + (index * (cell_addr + cell_size));
 	prop_size = prop_addr + cell_addr;
 
-	if (addr) {
-		for (i = 0; i < cell_addr; i++)
+	אם (addr) {
+		עבור (i = 0; i < cell_addr; i++)
 			temp = (temp << 32) | fdt32_to_cpu(*prop_addr++);
-		do {
-			if (parent < 0)
-				break;
+		עשה {
+			אם (parent < 0)
+				اكسر;
 			rc  = fdt_translate_address(fdt, temp, parent, addr);
-			if (rc)
-				break;
+			אם (rc)
+				اكسر;
 			parent = fdt_parent_offset(fdt, parent);
 			temp = *addr;
-		} while (1);
+		} כלעוד (1);
 	}
 	temp = 0;
 
-	if (size) {
-		for (i = 0; i < cell_size; i++)
+	אם (size) {
+		עבור (i = 0; i < cell_size; i++)
 			temp = (temp << 32) | fdt32_to_cpu(*prop_size++);
 		*size = temp;
 	}
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_get_node_addr_size_by_name(const void *fdt, int node, const char *name,
+صحيح fdt_get_node_addr_size_by_name(ثابت فراغ *fdt, صحيح node, ثابت حرف *name,
 				   uint64_t *addr, uint64_t *size)
 {
-	int i, j, count;
-	const char *val;
-	const char *regname;
+	صحيح i, j, count;
+	ثابت حرف *val;
+	ثابت حرف *regname;
 
-	if (!fdt || node < 0 || !name)
-		return SBI_EINVAL;
+	אם (!fdt || node < 0 || !name)
+		החזר SBI_EINVAL;
 
 	val = fdt_getprop(fdt, node, "reg-names", &count);
-	if (!val)
-		return SBI_ENODEV;
+	אם (!val)
+		החזר SBI_ENODEV;
 
-	for (i = 0, j = 0; i < count; i++, j++) {
+	עבור (i = 0, j = 0; i < count; i++, j++) {
 		regname = val + i;
 
-		if (strcmp(name, regname) == 0)
-			return fdt_get_node_addr_size(fdt, node, j, addr, size);
+		אם (strcmp(name, regname) == 0)
+			החזר fdt_get_node_addr_size(fdt, node, j, addr, size);
 
 		i += strlen(regname);
 	}
 
-	return SBI_ENODEV;
+	החזר SBI_ENODEV;
 }
 
-bool fdt_node_is_enabled(const void *fdt, int nodeoff)
+bool fdt_node_is_enabled(ثابت فراغ *fdt, صحيح nodeoff)
 {
-	int len;
-	const void *prop;
+	صحيح len;
+	ثابت فراغ *prop;
 
 	prop = fdt_getprop(fdt, nodeoff, "status", &len);
-	if (!prop)
-		return true;
+	אם (!prop)
+		החזר true;
 
-	if (!strncmp(prop, "okay", strlen("okay")))
-		return true;
+	אם (!strncmp(prop, "okay", strlen("okay")))
+		החזר true;
 
-	if (!strncmp(prop, "ok", strlen("ok")))
-		return true;
+	אם (!strncmp(prop, "ok", strlen("ok")))
+		החזר true;
 
-	return false;
+	החזר false;
 }
 
-int fdt_parse_hart_id(const void *fdt, int cpu_offset, u32 *hartid)
+صحيح fdt_parse_hart_id(ثابت فراغ *fdt, صحيح cpu_offset, u32 *hartid)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	صحيح len;
+	ثابت فراغ *prop;
+	ثابت fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	אם (!fdt || cpu_offset < 0)
+		החזר SBI_EINVAL;
 
 	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	אם (!prop || !len)
+		החזר SBI_EINVAL;
+	אם (strncmp (prop, "cpu", strlen ("cpu")))
+		החזר SBI_EINVAL;
 
 	val = fdt_getprop(fdt, cpu_offset, "reg", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	אם (!val || len < حجم(fdt32_t))
+		החזר SBI_EINVAL;
 
-	if (len > sizeof(fdt32_t))
+	אם (len > حجم(fdt32_t))
 		val++;
 
-	if (hartid)
+	אם (hartid)
 		*hartid = fdt32_to_cpu(*val);
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_cbom_block_size(const void *fdt, int cpu_offset, unsigned long *cbom_block_size)
+صحيح fdt_parse_cbom_block_size(ثابت فراغ *fdt, صحيح cpu_offset, unsigned long *cbom_block_size)
 {
-	int len;
-	const void *prop;
-	const fdt32_t *val;
+	صحيح len;
+	ثابت فراغ *prop;
+	ثابت fdt32_t *val;
 
-	if (!fdt || cpu_offset < 0)
-		return SBI_EINVAL;
+	אם (!fdt || cpu_offset < 0)
+		החזר SBI_EINVAL;
 
 	prop = fdt_getprop(fdt, cpu_offset, "device_type", &len);
-	if (!prop || !len)
-		return SBI_EINVAL;
-	if (strncmp (prop, "cpu", strlen ("cpu")))
-		return SBI_EINVAL;
+	אם (!prop || !len)
+		החזר SBI_EINVAL;
+	אם (strncmp (prop, "cpu", strlen ("cpu")))
+		החזר SBI_EINVAL;
 
 	val = fdt_getprop(fdt, cpu_offset, "riscv,cbom-block-size", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_EINVAL;
+	אם (!val || len < حجم(fdt32_t))
+		החזר SBI_EINVAL;
 
-	if (cbom_block_size)
+	אם (cbom_block_size)
 		*cbom_block_size = fdt32_to_cpu(*val);
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_max_enabled_hart_id(const void *fdt, u32 *max_hartid)
+صحيح fdt_parse_max_enabled_hart_id(ثابت فراغ *fdt, u32 *max_hartid)
 {
 	u32 hartid;
-	int err, cpu_offset, cpus_offset;
+	صحيح err, cpu_offset, cpus_offset;
 
-	if (!fdt)
-		return SBI_EINVAL;
-	if (!max_hartid)
-		return 0;
+	אם (!fdt)
+		החזר SBI_EINVAL;
+	אם (!max_hartid)
+		החזר 0;
 
 	*max_hartid = 0;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	אם (cpus_offset < 0)
+		החזר cpus_offset;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		אם (err)
+			استمر;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		אם (!fdt_node_is_enabled(fdt, cpu_offset))
+			استمر;
 
-		if (hartid > *max_hartid)
+		אם (hartid > *max_hartid)
 			*max_hartid = hartid;
 	}
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_timebase_frequency(const void *fdt, unsigned long *freq)
+صحيح fdt_parse_timebase_frequency(ثابت فراغ *fdt, unsigned long *freq)
 {
-	const fdt32_t *val;
-	int len, cpus_offset;
+	ثابت fdt32_t *val;
+	صحيح len, cpus_offset;
 
-	if (!fdt || !freq)
-		return SBI_EINVAL;
+	אם (!fdt || !freq)
+		החזר SBI_EINVAL;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	אם (cpus_offset < 0)
+		החזר cpus_offset;
 
 	val = fdt_getprop(fdt, cpus_offset, "timebase-frequency", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		*freq = fdt32_to_cpu(*val);
-	else
-		return SBI_ENOENT;
+	אחרת
+		החזר SBI_ENOENT;
 
-	return 0;
+	החזר 0;
 }
 
 #define RISCV_ISA_EXT_NAME_LEN_MAX	32
 
-static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
+ساكن صحيح fdt_parse_isa_one_hart(ثابت حرف *isa, unsigned long *extensions)
 {
 	size_t i, j, isa_len;
-	char mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
+	حرف mstr[RISCV_ISA_EXT_NAME_LEN_MAX];
 
 	i = 0;
 	isa_len = strlen(isa);
 
-	if (isa[i] == 'r' || isa[i] == 'R')
+	אם (isa[i] == 'r' || isa[i] == 'R')
 		i++;
-	else
-		return SBI_EINVAL;
+	אחרת
+		החזר SBI_EINVAL;
 
-	if (isa[i] == 'v' || isa[i] == 'V')
+	אם (isa[i] == 'v' || isa[i] == 'V')
 		i++;
-	else
-		return SBI_EINVAL;
+	אחרת
+		החזר SBI_EINVAL;
 
-	if (isa[i] == '3' || isa[i+1] == '2')
+	אם (isa[i] == '3' || isa[i+1] == '2')
 		i += 2;
-	else if (isa[i] == '6' || isa[i+1] == '4')
+	אחרת אם (isa[i] == '6' || isa[i+1] == '4')
 		i += 2;
-	else
-		return SBI_EINVAL;
+	אחרת
+		החזר SBI_EINVAL;
 
 	/* Skip base ISA extensions */
-	for (; i < isa_len; i++) {
-		if (isa[i] == '_')
-			break;
+	עבור (; i < isa_len; i++) {
+		אם (isa[i] == '_')
+			اكسر;
 	}
 
-	while (i < isa_len) {
-		if (isa[i] != '_') {
+	כלעוד (i < isa_len) {
+		אם (isa[i] != '_') {
 			i++;
-			continue;
+			استمر;
 		}
 
 		/* Skip the '_' character */
@@ -370,109 +370,109 @@ static int fdt_parse_isa_one_hart(const char *isa, unsigned long *extensions)
 
 		/* Extract the multi-letter extension name */
 		j = 0;
-		while ((i < isa_len) && (isa[i] != '_') &&
-		       (j < (sizeof(mstr) - 1)))
+		כלעוד ((i < isa_len) && (isa[i] != '_') &&
+		       (j < (حجم(mstr) - 1)))
 			mstr[j++] = isa[i++];
 		mstr[j] = '\0';
 
 		/* Skip empty multi-letter extension name */
-		if (!j)
-			continue;
+		אם (!j)
+			استمر;
 
 #define set_multi_letter_ext(name, bit)				\
-			if (!strcmp(mstr, name)) {		\
+			אם (!strcmp(mstr, name)) {		\
 				__set_bit(bit, extensions);	\
-				continue;			\
+				استمر;			\
 			}
 
-		for (j = 0; j < SBI_HART_EXT_MAX; j++) {
+		עבור (j = 0; j < SBI_HART_EXT_MAX; j++) {
 			set_multi_letter_ext(sbi_hart_ext[j].name,
 					     sbi_hart_ext[j].id);
 		}
 #undef set_multi_letter_ext
 	}
 
-	return 0;
+	החזר 0;
 }
 
-static void fdt_parse_isa_extensions_one_hart(const char *isa,
+ساكن فراغ fdt_parse_isa_extensions_one_hart(ثابت حرف *isa,
 					      unsigned long *extensions,
-					      int len)
+					      صحيح len)
 {
 	size_t i;
 
-	for (i = 0; i < SBI_HART_EXT_MAX; i++) {
-		if (fdt_stringlist_contains(isa, len, sbi_hart_ext[i].name))
+	עבור (i = 0; i < SBI_HART_EXT_MAX; i++) {
+		אם (fdt_stringlist_contains(isa, len, sbi_hart_ext[i].name))
 			__set_bit(sbi_hart_ext[i].id, extensions);
 	}
 }
 
-int fdt_parse_isa_extensions_all_harts(const void *fdt)
+صحيح fdt_parse_isa_extensions_all_harts(ثابت فراغ *fdt)
 {
 	u32 hartid;
-	const fdt32_t *val;
-	struct sbi_scratch *scratch;
-	struct sbi_hart_features *hfeatures;
-	int err, cpu_offset, cpus_offset, len;
+	ثابت fdt32_t *val;
+	بنية sbi_scratch *scratch;
+	بنية sbi_hart_features *hfeatures;
+	صحيح err, cpu_offset, cpus_offset, len;
 
-	if (!fdt)
-		return SBI_EINVAL;
+	אם (!fdt)
+		החזר SBI_EINVAL;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return cpus_offset;
+	אם (cpus_offset < 0)
+		החזר cpus_offset;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		err = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (err)
-			continue;
+		אם (err)
+			استمر;
 
-		if (!fdt_node_is_enabled(fdt, cpu_offset))
-			continue;
+		אם (!fdt_node_is_enabled(fdt, cpu_offset))
+			استمر;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
-			return SBI_ENOENT;
+		אם (!scratch)
+			החזר SBI_ENOENT;
 
 		hfeatures = sbi_hart_features_ptr(scratch);
-		if (!hfeatures)
-			return SBI_ENOENT;
+		אם (!hfeatures)
+			החזר SBI_ENOENT;
 
 		val = fdt_getprop(fdt, cpu_offset, "riscv,isa-extensions", &len);
-		if (val && len > 0) {
-			fdt_parse_isa_extensions_one_hart((const char *)val,
+		אם (val && len > 0) {
+			fdt_parse_isa_extensions_one_hart((ثابت حرف *)val,
 							  hfeatures->extensions, len);
-			continue;
+			استمر;
 		}
 
 		val = fdt_getprop(fdt, cpu_offset, "riscv,isa", &len);
-		if (!val || len <= 0)
-			return SBI_ENOENT;
+		אם (!val || len <= 0)
+			החזר SBI_ENOENT;
 
-		err = fdt_parse_isa_one_hart((const char *)val, hfeatures->extensions);
-		if (err)
-			return err;
+		err = fdt_parse_isa_one_hart((ثابت حرف *)val, hfeatures->extensions);
+		אם (err)
+			החזר err;
 	}
 
-	return 0;
+	החזר 0;
 }
 
-static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
-				      struct platform_uart_data *uart,
+ساكن صحيح fdt_parse_uart_node_common(ثابت فراغ *fdt, صحيح nodeoffset,
+				      بنية platform_uart_data *uart,
 				      unsigned long default_freq,
 				      unsigned long default_baud)
 {
-	int len, rc;
-	const fdt32_t *val;
+	صحيح len, rc;
+	ثابت fdt32_t *val;
 	uint64_t reg_addr, reg_size;
 
-	if (nodeoffset < 0 || !uart || !fdt)
-		return SBI_ENODEV;
+	אם (nodeoffset < 0 || !uart || !fdt)
+		החזר SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
 				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	אם (rc < 0 || !reg_size)
+		החזר SBI_ENODEV;
 	uart->addr = reg_addr;
 
 	/**
@@ -480,190 +480,190 @@ static int fdt_parse_uart_node_common(const void *fdt, int nodeoffset,
 	 * may not be present. Don't return error.
 	 */
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "clock-frequency", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		uart->freq = fdt32_to_cpu(*val);
-	else
+	אחרת
 		uart->freq = default_freq;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "current-speed", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		uart->baud = fdt32_to_cpu(*val);
-	else
+	אחרת
 		uart->baud = default_baud;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_gaisler_uart_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+صحيح fdt_parse_gaisler_uart_node(ثابت فراغ *fdt, صحيح nodeoffset,
+				بنية platform_uart_data *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	החזר fdt_parse_uart_node_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
 }
 
-int fdt_parse_renesas_scif_node(const void *fdt, int nodeoffset,
-				struct platform_uart_data *uart)
+صحيح fdt_parse_renesas_scif_node(ثابت فراغ *fdt, صحيح nodeoffset,
+				بنية platform_uart_data *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	החזר fdt_parse_uart_node_common(fdt, nodeoffset, uart,
 					  DEFAULT_RENESAS_SCIF_FREQ,
 					  DEFAULT_RENESAS_SCIF_BAUD);
 }
 
-int fdt_parse_shakti_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+صحيح fdt_parse_shakti_uart_node(ثابت فراغ *fdt, صحيح nodeoffset,
+			       بنية platform_uart_data *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	החזר fdt_parse_uart_node_common(fdt, nodeoffset, uart,
 					DEFAULT_SHAKTI_UART_FREQ,
 					DEFAULT_SHAKTI_UART_BAUD);
 }
 
-int fdt_parse_sifive_uart_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+صحيح fdt_parse_sifive_uart_node(ثابت فراغ *fdt, صحيح nodeoffset,
+			       بنية platform_uart_data *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart,
+	החזר fdt_parse_uart_node_common(fdt, nodeoffset, uart,
 					DEFAULT_SIFIVE_UART_FREQ,
 					DEFAULT_SIFIVE_UART_BAUD);
 }
 
-int fdt_parse_uart_node(const void *fdt, int nodeoffset,
-			struct platform_uart_data *uart)
+صحيح fdt_parse_uart_node(ثابت فراغ *fdt, صحيح nodeoffset,
+			بنية platform_uart_data *uart)
 {
-	int len, rc;
-	const fdt32_t *val;
+	صحيح len, rc;
+	ثابت fdt32_t *val;
 
 	rc = fdt_parse_uart_node_common(fdt, nodeoffset, uart,
 					DEFAULT_UART_FREQ,
 					DEFAULT_UART_BAUD);
-	if (rc)
-		return rc;
+	אם (rc)
+		החזר rc;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-shift", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		uart->reg_shift = fdt32_to_cpu(*val);
-	else
+	אחרת
 		uart->reg_shift = DEFAULT_UART_REG_SHIFT;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-io-width", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		uart->reg_io_width = fdt32_to_cpu(*val);
-	else
+	אחרת
 		uart->reg_io_width = DEFAULT_UART_REG_IO_WIDTH;
 
 	val = (fdt32_t *)fdt_getprop(fdt, nodeoffset, "reg-offset", &len);
-	if (len > 0 && val)
+	אם (len > 0 && val)
 		uart->reg_offset = fdt32_to_cpu(*val);
-	else
+	אחרת
 		uart->reg_offset = DEFAULT_UART_REG_OFFSET;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_uart8250(const void *fdt, struct platform_uart_data *uart,
-		   const char *compatible)
+صحيح fdt_parse_uart8250(ثابت فراغ *fdt, بنية platform_uart_data *uart,
+		   ثابت حرف *compatible)
 {
-	int nodeoffset;
+	صحيح nodeoffset;
 
-	if (!compatible || !uart || !fdt)
-		return SBI_ENODEV;
+	אם (!compatible || !uart || !fdt)
+		החזר SBI_ENODEV;
 
 	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	אם (nodeoffset < 0)
+		החזר nodeoffset;
 
-	return fdt_parse_uart_node(fdt, nodeoffset, uart);
+	החזר fdt_parse_uart_node(fdt, nodeoffset, uart);
 }
 
-int fdt_parse_xlnx_uartlite_node(const void *fdt, int nodeoffset,
-			       struct platform_uart_data *uart)
+صحيح fdt_parse_xlnx_uartlite_node(ثابت فراغ *fdt, صحيح nodeoffset,
+			       بنية platform_uart_data *uart)
 {
-	return fdt_parse_uart_node_common(fdt, nodeoffset, uart, 0, 0);
+	החזר fdt_parse_uart_node_common(fdt, nodeoffset, uart, 0, 0);
 }
 
-static int fdt_aplic_find_imsic_node(const void *fdt, int nodeoff,
-				     struct imsic_data *imsic, bool mmode)
+ساكن صحيح fdt_aplic_find_imsic_node(ثابت فراغ *fdt, صحيح nodeoff,
+				     بنية imsic_data *imsic, bool mmode)
 {
-	const fdt32_t *val;
-	int i, len, noff, rc;
+	ثابت fdt32_t *val;
+	صحيح i, len, noff, rc;
 
 	val = fdt_getprop(fdt, nodeoff, "msi-parent", &len);
-	if (val && len >= sizeof(fdt32_t)) {
+	אם (val && len >= حجم(fdt32_t)) {
 		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*val));
-		if (noff < 0)
-			return noff;
+		אם (noff < 0)
+			החזר noff;
 
 		rc = fdt_parse_imsic_node(fdt, noff, imsic);
-		if (rc)
-			return rc;
+		אם (rc)
+			החזר rc;
 
 		rc = imsic_data_check(imsic);
-		if (rc)
-			return rc;
+		אם (rc)
+			החזר rc;
 
-		if (imsic->targets_mmode == mmode) {
-			return 0;
+		אם (imsic->targets_mmode == mmode) {
+			החזר 0;
 		}
-	} else {
-		return SBI_ENODEV;
+	} אחרת {
+		החזר SBI_ENODEV;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-	if (!val || len < sizeof(fdt32_t))
-		return SBI_ENODEV;
+	אם (!val || len < حجم(fdt32_t))
+		החזר SBI_ENODEV;
 
-	len /= sizeof(fdt32_t);
+	len /= حجم(fdt32_t);
 
-	for (i = 0; i < len; i++) {
+	עבור (i = 0; i < len; i++) {
 		noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[i]));
-		if (noff < 0)
-			return noff;
+		אם (noff < 0)
+			החזר noff;
 
 		rc = fdt_aplic_find_imsic_node(fdt, noff, imsic, mmode);
-		if (!rc)
-			break;
+		אם (!rc)
+			اكسر;
 	}
 
-	return rc;
+	החזר rc;
 }
 
-int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
+صحيح fdt_parse_aplic_node(ثابت فراغ *fdt, صحيح nodeoff, بنية aplic_data *aplic)
 {
 	bool child_found;
-	const fdt32_t *val;
-	const fdt32_t *del;
-	struct imsic_data imsic = { 0 };
-	int i, j, d, dcnt, len, rc;
+	ثابت fdt32_t *val;
+	ثابت fdt32_t *del;
+	بنية imsic_data imsic = { 0 };
+	صحيح i, j, d, dcnt, len, rc;
 	uint64_t reg_addr, reg_size;
-	struct aplic_delegate_data *deleg;
+	بنية aplic_delegate_data *deleg;
 
-	if (nodeoff < 0 || !aplic || !fdt)
-		return SBI_ENODEV;
+	אם (nodeoff < 0 || !aplic || !fdt)
+		החזר SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	אם (rc < 0 || !reg_size)
+		החזר SBI_ENODEV;
 	aplic->unique_id = nodeoff;
 	aplic->addr = reg_addr;
 	aplic->size = reg_size;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-sources", &len);
-	if (len > 0)
+	אם (len > 0)
 		aplic->num_source = fdt32_to_cpu(*val);
 
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+	אם (val && len > حجم(fdt32_t)) {
+		len = len / حجم(fdt32_t);
+		עבור (i = 0; i < len; i += 2) {
+			אם (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
 				aplic->targets_mmode = true;
-				break;
+				اكسر;
 			}
 		}
 		aplic->num_idc = len / 2;
 	}
 
 	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, true);
-	if (!rc) {
+	אם (!rc) {
 		aplic->parent_unique_id = imsic.unique_id;
 		aplic->targets_mmode = true;
 		aplic->has_msicfg_mmode = true;
@@ -671,26 +671,26 @@ int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
 		aplic->msicfg_mmode.lhxw = imsic.hart_index_bits;
 		aplic->msicfg_mmode.hhxw = imsic.group_index_bits;
 		aplic->msicfg_mmode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		אם (aplic->msicfg_mmode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
+			החזר SBI_EINVAL;
 		aplic->msicfg_mmode.hhxs -= 24;
 		aplic->msicfg_mmode.base_addr = imsic.regs[0].addr;
 	}
 
 	rc = fdt_aplic_find_imsic_node(fdt, nodeoff, &imsic, false);
-	if (!rc) {
+	אם (!rc) {
 		aplic->has_msicfg_smode = true;
 		aplic->msicfg_smode.lhxs = imsic.guest_index_bits;
 		aplic->msicfg_smode.lhxw = imsic.hart_index_bits;
 		aplic->msicfg_smode.hhxw = imsic.group_index_bits;
 		aplic->msicfg_smode.hhxs = imsic.group_index_shift;
-		if (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
-			return SBI_EINVAL;
+		אם (aplic->msicfg_smode.hhxs < (2 * IMSIC_MMIO_PAGE_SHIFT))
+			החזר SBI_EINVAL;
 		aplic->msicfg_smode.hhxs -= 24;
 		aplic->msicfg_smode.base_addr = imsic.regs[0].addr;
 	}
 
-	for (d = 0; d < APLIC_MAX_DELEGATE; d++) {
+	עבור (d = 0; d < APLIC_MAX_DELEGATE; d++) {
 		deleg = &aplic->delegate[d];
 		deleg->first_irq = 0;
 		deleg->last_irq = 0;
@@ -698,15 +698,15 @@ int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
 	}
 
 	del = fdt_getprop(fdt, nodeoff, "riscv,delegation", &len);
-	if (!del)
+	אם (!del)
 		del = fdt_getprop(fdt, nodeoff, "riscv,delegate", &len);
-	if (!del || len < (3 * sizeof(fdt32_t)))
-		goto skip_delegate_parse;
+	אם (!del || len < (3 * حجم(fdt32_t)))
+		اذهب skip_delegate_parse;
 	d = 0;
-	dcnt = len / sizeof(fdt32_t);
-	for (i = 0; i < dcnt; i += 3) {
-		if (d >= APLIC_MAX_DELEGATE)
-			break;
+	dcnt = len / حجم(fdt32_t);
+	עבור (i = 0; i < dcnt; i += 3) {
+		אם (d >= APLIC_MAX_DELEGATE)
+			اكسر;
 		deleg = &aplic->delegate[d];
 
 		deleg->first_irq = fdt32_to_cpu(del[i + 1]);
@@ -715,24 +715,24 @@ int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
 
 		child_found = false;
 		val = fdt_getprop(fdt, nodeoff, "riscv,children", &len);
-		if (!val || len < sizeof(fdt32_t)) {
+		אם (!val || len < حجم(fdt32_t)) {
 			deleg->first_irq = 0;
 			deleg->last_irq = 0;
 			deleg->child_index = 0;
-			continue;
+			استمر;
 		}
-		len = len / sizeof(fdt32_t);
-		for (j = 0; j < len; j++) {
-			if (del[i] != val[j])
-				continue;
+		len = len / حجم(fdt32_t);
+		עבור (j = 0; j < len; j++) {
+			אם (del[i] != val[j])
+				استمر;
 			deleg->child_index = j;
 			child_found = true;
-			break;
+			اكسر;
 		}
 
-		if (child_found) {
+		אם (child_found) {
 			d++;
-		} else {
+		} אחרת {
 			deleg->first_irq = 0;
 			deleg->last_irq = 0;
 			deleg->child_index = 0;
@@ -740,397 +740,397 @@ int fdt_parse_aplic_node(const void *fdt, int nodeoff, struct aplic_data *aplic)
 	}
 skip_delegate_parse:
 
-	return 0;
+	החזר 0;
 }
 
-bool fdt_check_imsic_mlevel(const void *fdt)
+bool fdt_check_imsic_mlevel(ثابت فراغ *fdt)
 {
-	const fdt32_t *val;
-	int i, len, noff = 0;
+	ثابت fdt32_t *val;
+	صحيح i, len, noff = 0;
 
-	if (!fdt)
-		return false;
+	אם (!fdt)
+		החזר false;
 
-	while ((noff = fdt_node_offset_by_compatible(fdt, noff,
+	כלעוד ((noff = fdt_node_offset_by_compatible(fdt, noff,
 						     "riscv,imsics")) >= 0) {
 		val = fdt_getprop(fdt, noff, "interrupts-extended", &len);
-		if (val && len > sizeof(fdt32_t)) {
-			len = len / sizeof(fdt32_t);
-			for (i = 0; i < len; i += 2) {
-				if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT)
-					return true;
+		אם (val && len > حجم(fdt32_t)) {
+			len = len / حجم(fdt32_t);
+			עבור (i = 0; i < len; i += 2) {
+				אם (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT)
+					החזר true;
 			}
 		}
 	}
 
-	return false;
+	החזר false;
 }
 
-int fdt_parse_imsic_node(const void *fdt, int nodeoff, struct imsic_data *imsic)
+صحيح fdt_parse_imsic_node(ثابت فراغ *fdt, صحيح nodeoff, بنية imsic_data *imsic)
 {
-	const fdt32_t *val;
-	struct imsic_regs *regs;
+	ثابت fdt32_t *val;
+	بنية imsic_regs *regs;
 	uint64_t reg_addr, reg_size;
-	int i, rc, len, nr_parent_irqs;
+	صحيح i, rc, len, nr_parent_irqs;
 
-	if (nodeoff < 0 || !imsic || !fdt)
-		return SBI_ENODEV;
+	אם (nodeoff < 0 || !imsic || !fdt)
+		החזר SBI_ENODEV;
 
 	imsic->unique_id = nodeoff;
 	imsic->targets_mmode = false;
 	val = fdt_getprop(fdt, nodeoff, "interrupts-extended", &len);
-	if (val && len > sizeof(fdt32_t)) {
-		len = len / sizeof(fdt32_t);
+	אם (val && len > حجم(fdt32_t)) {
+		len = len / حجم(fdt32_t);
 		nr_parent_irqs = len / 2;
-		for (i = 0; i < len; i += 2) {
-			if (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
+		עבור (i = 0; i < len; i += 2) {
+			אם (fdt32_to_cpu(val[i + 1]) == IRQ_M_EXT) {
 				imsic->targets_mmode = true;
-				break;
+				اكسر;
 			}
 		}
-	} else
-		return SBI_EINVAL;
+	} אחרת
+		החזר SBI_EINVAL;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,guest-index-bits", &len);
-	if (val && len > 0)
+	אם (val && len > 0)
 		imsic->guest_index_bits = fdt32_to_cpu(*val);
-	else
+	אחרת
 		imsic->guest_index_bits = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,hart-index-bits", &len);
-	if (val && len > 0) {
+	אם (val && len > 0) {
 		imsic->hart_index_bits = fdt32_to_cpu(*val);
-	} else {
+	} אחרת {
 		imsic->hart_index_bits = sbi_fls(nr_parent_irqs);
-		if ((1UL << imsic->hart_index_bits) < nr_parent_irqs)
+		אם ((1UL << imsic->hart_index_bits) < nr_parent_irqs)
 			imsic->hart_index_bits++;
 	}
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-bits", &len);
-	if (val && len > 0)
+	אם (val && len > 0)
 		imsic->group_index_bits = fdt32_to_cpu(*val);
-	else
+	אחרת
 		imsic->group_index_bits = 0;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,group-index-shift", &len);
-	if (val && len > 0)
+	אם (val && len > 0)
 		imsic->group_index_shift = fdt32_to_cpu(*val);
-	else
+	אחרת
 		imsic->group_index_shift = 2 * IMSIC_MMIO_PAGE_SHIFT;
 
 	val = fdt_getprop(fdt, nodeoff, "riscv,num-ids", &len);
-	if (val && len > 0)
+	אם (val && len > 0)
 		imsic->num_ids = fdt32_to_cpu(*val);
-	else
-		return SBI_EINVAL;
+	אחרת
+		החזר SBI_EINVAL;
 
-	for (i = 0; i < IMSIC_MAX_REGS; i++) {
+	עבור (i = 0; i < IMSIC_MAX_REGS; i++) {
 		regs = &imsic->regs[i];
 		regs->addr = 0;
 		regs->size = 0;
 	}
 
-	for (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
+	עבור (i = 0; i < (IMSIC_MAX_REGS - 1); i++) {
 		regs = &imsic->regs[i];
 
 		rc = fdt_get_node_addr_size(fdt, nodeoff, i,
 					    &reg_addr, &reg_size);
-		if (rc < 0 || !reg_size)
-			break;
+		אם (rc < 0 || !reg_size)
+			اكسر;
 		regs->addr = reg_addr;
 		regs->size = reg_size;
 	}
-	if (!imsic->regs[0].size)
-		return SBI_EINVAL;
+	אם (!imsic->regs[0].size)
+		החזר SBI_EINVAL;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_plic_node(const void *fdt, int nodeoffset, struct plic_data *plic)
+صحيح fdt_parse_plic_node(ثابت فراغ *fdt, صحيح nodeoffset, بنية plic_data *plic)
 {
-	int len, rc;
-	const fdt32_t *val;
+	صحيح len, rc;
+	ثابت fdt32_t *val;
 	uint64_t reg_addr, reg_size;
 
-	if (nodeoffset < 0 || !plic || !fdt)
-		return SBI_ENODEV;
+	אם (nodeoffset < 0 || !plic || !fdt)
+		החזר SBI_ENODEV;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
 				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	אם (rc < 0 || !reg_size)
+		החזר SBI_ENODEV;
 	plic->unique_id = nodeoffset;
 	plic->addr = reg_addr;
 	plic->size = reg_size;
 
 	val = fdt_getprop(fdt, nodeoffset, "riscv,ndev", &len);
-	if (len > 0)
+	אם (len > 0)
 		plic->num_src = fdt32_to_cpu(*val);
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_plic(const void *fdt, struct plic_data *plic, const char *compat)
+صحيح fdt_parse_plic(ثابت فراغ *fdt, بنية plic_data *plic, ثابت حرف *compat)
 {
-	int nodeoffset;
+	صحيح nodeoffset;
 
-	if (!compat || !plic || !fdt)
-		return SBI_ENODEV;
+	אם (!compat || !plic || !fdt)
+		החזר SBI_ENODEV;
 
 	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compat);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	אם (nodeoffset < 0)
+		החזר nodeoffset;
 
-	return fdt_parse_plic_node(fdt, nodeoffset, plic);
+	החזר fdt_parse_plic_node(fdt, nodeoffset, plic);
 }
 
-static int fdt_get_aclint_addr_size_by_name(const void *fdt, int nodeoffset,
+ساكن صحيح fdt_get_aclint_addr_size_by_name(ثابت فراغ *fdt, صحيح nodeoffset,
 					    unsigned long *out_addr1,
 					    unsigned long *out_size1,
 					    unsigned long *out_addr2,
 					    unsigned long *out_size2)
 {
-	int rc;
+	صحيح rc;
 	uint64_t reg_addr, reg_size;
 
 	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtime",
 					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
+	אם (rc < 0 || !reg_size)
 		reg_addr = reg_size = 0;
 	*out_addr1 = reg_addr;
 	*out_size1 = reg_size;
 
 	rc = fdt_get_node_addr_size_by_name(fdt, nodeoffset, "mtimecmp",
 					    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	אם (rc < 0 || !reg_size)
+		החזר SBI_ENODEV;
 	*out_addr2 = reg_addr;
 	*out_size2 = reg_size;
 
-	return 0;
+	החזר 0;
 }
 
-static int fdt_get_aclint_addr_size(const void *fdt, int nodeoffset,
+ساكن صحيح fdt_get_aclint_addr_size(ثابت فراغ *fdt, صحيح nodeoffset,
 				    unsigned long *out_addr1,
 				    unsigned long *out_size1,
 				    unsigned long *out_addr2,
 				    unsigned long *out_size2)
 {
-	int rc;
+	صحيح rc;
 	uint64_t reg_addr, reg_size;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
 				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
-		return SBI_ENODEV;
+	אם (rc < 0 || !reg_size)
+		החזר SBI_ENODEV;
 	*out_addr1 = reg_addr;
 	*out_size1 = reg_size;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 1,
 				    &reg_addr, &reg_size);
-	if (rc < 0 || !reg_size)
+	אם (rc < 0 || !reg_size)
 		reg_addr = reg_size = 0;
-	if (out_addr2)
+	אם (out_addr2)
 		*out_addr2 = reg_addr;
-	if (out_size2)
+	אם (out_size2)
 		*out_size2 = reg_size;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_aclint_node(const void *fdt, int nodeoffset,
+صحيح fdt_parse_aclint_node(ثابت فراغ *fdt, صحيح nodeoffset,
 			  bool for_timer, bool allow_regname,
 			  unsigned long *out_addr1, unsigned long *out_size1,
 			  unsigned long *out_addr2, unsigned long *out_size2,
 			  u32 *out_first_hartid, u32 *out_hart_count)
 {
-	const fdt32_t *val;
-	int i, rc, count, cpu_offset, cpu_intc_offset;
+	ثابت fdt32_t *val;
+	صحيح i, rc, count, cpu_offset, cpu_intc_offset;
 	u32 phandle, hwirq, hartid, first_hartid, last_hartid;
 	u32 match_hwirq = (for_timer) ? IRQ_M_TIMER : IRQ_M_SOFT;
 
-	if (nodeoffset < 0 || !fdt ||
+	אם (nodeoffset < 0 || !fdt ||
 	    !out_addr1 || !out_size1 ||
 	    !out_first_hartid || !out_hart_count)
-		return SBI_EINVAL;
+		החזר SBI_EINVAL;
 
-	if (for_timer && allow_regname && out_addr2 && out_size2 &&
-	    fdt_getprop(fdt, nodeoffset, "reg-names", NULL))
+	אם (for_timer && allow_regname && out_addr2 && out_size2 &&
+	    fdt_getprop(fdt, nodeoffset, "reg-names", عدم))
 		rc = fdt_get_aclint_addr_size_by_name(fdt, nodeoffset,
 						      out_addr1, out_size1,
 						      out_addr2, out_size2);
-	else
+	אחרת
 		rc = fdt_get_aclint_addr_size(fdt, nodeoffset,
 					      out_addr1, out_size1,
 					      out_addr2, out_size2);
-	if (rc)
-		return rc;
+	אם (rc)
+		החזר rc;
 
 	*out_first_hartid = 0;
 	*out_hart_count = 0;
 
 	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	אם (!val || count < حجم(fdt32_t))
+		החזר 0;
+	count = count / حجم(fdt32_t);
 
 	first_hartid = -1U;
 	last_hartid = 0;
-	for (i = 0; i < (count / 2); i++) {
+	עבור (i = 0; i < (count / 2); i++) {
 		phandle = fdt32_to_cpu(val[2 * i]);
 		hwirq = fdt32_to_cpu(val[(2 * i) + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		אם (cpu_intc_offset < 0)
+			استمر;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		אם (cpu_offset < 0)
+			استمر;
 
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
-			continue;
+		אם (rc)
+			استمر;
 
-		if (match_hwirq == hwirq) {
-			if (hartid < first_hartid)
+		אם (match_hwirq == hwirq) {
+			אם (hartid < first_hartid)
 				first_hartid = hartid;
-			if (hartid > last_hartid)
+			אם (hartid > last_hartid)
 				last_hartid = hartid;
 		}
 	}
 
-	if ((last_hartid >= first_hartid) && first_hartid != -1U) {
+	אם ((last_hartid >= first_hartid) && first_hartid != -1U) {
 		*out_first_hartid = first_hartid;
 		*out_hart_count = last_hartid - first_hartid + 1;
 	}
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_plmt_node(const void *fdt, int nodeoffset, unsigned long *plmt_base,
+صحيح fdt_parse_plmt_node(ثابت فراغ *fdt, صحيح nodeoffset, unsigned long *plmt_base,
 			  unsigned long *plmt_size, u32 *hart_count)
 {
-	const fdt32_t *val;
-	int rc, i, count;
+	ثابت fdt32_t *val;
+	صحيح rc, i, count;
 	uint64_t reg_addr, reg_size;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plmt_base ||
+	אם (nodeoffset < 0 || !fdt || !plmt_base ||
 	    !hart_count || !plmt_size)
-		return SBI_EINVAL;
+		החזר SBI_EINVAL;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
 				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
+	אם (rc < 0)
+		החזר SBI_ENODEV;
 	*plmt_base = reg_addr;
 	*plmt_size = reg_size;
 
 	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	אם (!val || count < حجم(fdt32_t))
+		החזר 0;
+	count = count / حجم(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	עבור (i = 0; i < (count / 2); i++) {
+		صحيح cpu_offset, cpu_intc_offset;
 
 		phandle = fdt32_to_cpu(val[2 * i]);
 		hwirq = fdt32_to_cpu(val[2 * i + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		אם (cpu_intc_offset < 0)
+			استمر;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		אם (cpu_offset < 0)
+			استمر;
 
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
 
-		if (rc)
-			continue;
+		אם (rc)
+			استمر;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		אם (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
+			استمر;
 
-		if (hwirq == IRQ_M_TIMER)
+		אם (hwirq == IRQ_M_TIMER)
 			hcount++;
 	}
 
 	*hart_count = hcount;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_plicsw_node(const void *fdt, int nodeoffset, unsigned long *plicsw_base,
+صحيح fdt_parse_plicsw_node(ثابت فراغ *fdt, صحيح nodeoffset, unsigned long *plicsw_base,
 			  unsigned long *size, u32 *hart_count)
 {
-	const fdt32_t *val;
-	int rc, i, count;
+	ثابت fdt32_t *val;
+	صحيح rc, i, count;
 	uint64_t reg_addr, reg_size;
 	u32 phandle, hwirq, hartid, hcount;
 
-	if (nodeoffset < 0 || !fdt || !plicsw_base ||
+	אם (nodeoffset < 0 || !fdt || !plicsw_base ||
 	    !hart_count || !size)
-		return SBI_EINVAL;
+		החזר SBI_EINVAL;
 
 	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0,
 				    &reg_addr, &reg_size);
-	if (rc < 0)
-		return SBI_ENODEV;
+	אם (rc < 0)
+		החזר SBI_ENODEV;
 	*plicsw_base = reg_addr;
 	*size = reg_size;
 
 	val = fdt_getprop(fdt, nodeoffset, "interrupts-extended", &count);
-	if (!val || count < sizeof(fdt32_t))
-		return 0;
-	count = count / sizeof(fdt32_t);
+	אם (!val || count < حجم(fdt32_t))
+		החזר 0;
+	count = count / حجم(fdt32_t);
 
 	hcount = 0;
-	for (i = 0; i < (count / 2); i++) {
-		int cpu_offset, cpu_intc_offset;
+	עבור (i = 0; i < (count / 2); i++) {
+		صحيح cpu_offset, cpu_intc_offset;
 
 		phandle = fdt32_to_cpu(val[2 * i]);
 		hwirq = fdt32_to_cpu(val[2 * i + 1]);
 
 		cpu_intc_offset = fdt_node_offset_by_phandle(fdt, phandle);
-		if (cpu_intc_offset < 0)
-			continue;
+		אם (cpu_intc_offset < 0)
+			استمر;
 
 		cpu_offset = fdt_parent_offset(fdt, cpu_intc_offset);
-		if (cpu_offset < 0)
-			continue;
+		אם (cpu_offset < 0)
+			استمر;
 
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
 
-		if (rc)
-			continue;
+		אם (rc)
+			استمر;
 
-		if (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
-			continue;
+		אם (SBI_HARTMASK_MAX_BITS <= sbi_hartid_to_hartindex(hartid))
+			استمر;
 
-		if (hwirq == IRQ_M_SOFT)
+		אם (hwirq == IRQ_M_SOFT)
 			hcount++;
 	}
 
 	*hart_count = hcount;
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_parse_compat_addr(const void *fdt, uint64_t *addr,
-			  const char *compatible)
+صحيح fdt_parse_compat_addr(ثابت فراغ *fdt, uint64_t *addr,
+			  ثابت حرف *compatible)
 {
-	int nodeoffset, rc;
+	صحيح nodeoffset, rc;
 
 	nodeoffset = fdt_node_offset_by_compatible(fdt, -1, compatible);
-	if (nodeoffset < 0)
-		return nodeoffset;
+	אם (nodeoffset < 0)
+		החזר nodeoffset;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0, addr, NULL);
-	if (rc < 0 || !addr)
-		return SBI_ENODEV;
+	rc = fdt_get_node_addr_size(fdt, nodeoffset, 0, addr, عدم);
+	אם (rc < 0 || !addr)
+		החזר SBI_ENODEV;
 
-	return 0;
+	החזר 0;
 }

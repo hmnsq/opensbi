@@ -4,101 +4,101 @@
  * Author: Marcos Oduardo <marcos.oduardo@gmail.com>
  */
 
-#include <sbi/sbi_unit_test.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_ubsan.h>
+#ضمن <sbi/sbi_unit_test.h>
+#ضمن <sbi/sbi_types.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_ubsan.h>
 
 #define UBSAN_EXPECT_FIRES(test, stmt)                                    \
-	do {                                                              \
+	עשה {                                                              \
 		unsigned long _before = sbi_ubsan_report_count;           \
 		stmt;                                                     \
 		SBIUNIT_EXPECT_NE(test, sbi_ubsan_report_count, _before); \
-	} while (0)
+	} כלעוד (0)
 
-static void test_ubsan_add_overflow(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_add_overflow(بنية sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF; //INT_MAx
-	volatile int b = 1;
-	volatile int c;
+	متطاير صحيح a = 0x7FFFFFFF; //INT_MAx
+	متطاير صحيح b = 1;
+	متطاير صحيح c;
 	UBSAN_EXPECT_FIRES(test, c = a + b);
-	(void)c;
+	(فراغ)c;
 }
 
-static void test_ubsan_sub_overflow(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_sub_overflow(بنية sbiunit_test_case *test)
 {
-	volatile int a = 0x80000000; //INT_MIN
-	volatile int b = 1;
-	volatile int c;
+	متطاير صحيح a = 0x80000000; //INT_MIN
+	متطاير صحيح b = 1;
+	متطاير صحيح c;
 	UBSAN_EXPECT_FIRES(test, c = a - b);
-	(void)c;
+	(فراغ)c;
 }
 
-static void test_ubsan_mul_overflow(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_mul_overflow(بنية sbiunit_test_case *test)
 {
-	volatile int a = 0x7FFFFFFF;
-	volatile int b = 2;
-	volatile int c;
+	متطاير صحيح a = 0x7FFFFFFF;
+	متطاير صحيح b = 2;
+	متطاير صحيح c;
 	UBSAN_EXPECT_FIRES(test, c = a * b);
-	(void)c;
+	(فراغ)c;
 }
 
-static void test_ubsan_divrem(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_divrem(بنية sbiunit_test_case *test)
 {
-	volatile int a = 10;
-	volatile int b = 0;
-	volatile int c;
+	متطاير صحيح a = 10;
+	متطاير صحيح b = 0;
+	متطاير صحيح c;
 	UBSAN_EXPECT_FIRES(test, c = a / b);
-	(void)c;
+	(فراغ)c;
 }
 
-static void test_ubsan_oob(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_oob(بنية sbiunit_test_case *test)
 {
-	volatile int idx = 5;
-	int arr[3]	 = { 1, 2, 3 };
-	volatile int val;
+	متطاير صحيح idx = 5;
+	صحيح arr[3]	 = { 1, 2, 3 };
+	متطاير صحيح val;
 	UBSAN_EXPECT_FIRES(test, val = arr[idx]);
-	(void)val;
+	(فراغ)val;
 }
 
-static void test_ubsan_shift_too_large(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_shift_too_large(بنية sbiunit_test_case *test)
 {
-	volatile unsigned long val = 1;
-	volatile int shift	   = 64;
-	volatile unsigned long res;
+	متطاير unsigned long val = 1;
+	متطاير صحيح shift	   = 64;
+	متطاير unsigned long res;
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
-	(void)res;
+	(فراغ)res;
 }
 
-static void test_ubsan_shift_negative(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_shift_negative(بنية sbiunit_test_case *test)
 {
-	volatile int val   = 1;
-	volatile int shift = -1;
-	volatile int res;
+	متطاير صحيح val   = 1;
+	متطاير صحيح shift = -1;
+	متطاير صحيح res;
 
 	UBSAN_EXPECT_FIRES(test, res = val << shift);
-	(void)res;
+	(فراغ)res;
 }
 
-static void test_ubsan_load_invalid_bool(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_load_invalid_bool(بنية sbiunit_test_case *test)
 {
-	volatile char bool_val = 5;
-	volatile bool *b_ptr   = (bool *)&bool_val;
-	volatile int taken     = 0;
-	UBSAN_EXPECT_FIRES(test, if (*b_ptr) taken = 1);
-	(void)taken;
+	متطاير حرف bool_val = 5;
+	متطاير bool *b_ptr   = (bool *)&bool_val;
+	متطاير صحيح taken     = 0;
+	UBSAN_EXPECT_FIRES(test, אם (*b_ptr) taken = 1);
+	(فراغ)taken;
 }
 
-static void test_ubsan_pointer_overflow(struct sbiunit_test_case *test)
+ساكن فراغ test_ubsan_pointer_overflow(بنية sbiunit_test_case *test)
 {
-	volatile uintptr_t base = 0xFFFFFFFFFFFFFFFEUL;
-	volatile char *ptr	= (char *)base;
-	volatile char *res;
+	متطاير uintptr_t base = 0xFFFFFFFFFFFFFFFEUL;
+	متطاير حرف *ptr	= (حرف *)base;
+	متطاير حرف *res;
 	UBSAN_EXPECT_FIRES(test, res = ptr + 5);
-	(void)res;
+	(فراغ)res;
 }
 
-static struct sbiunit_test_case ubsan_tests[] = {
+ساكن بنية sbiunit_test_case ubsan_tests[] = {
 	SBIUNIT_TEST_CASE(test_ubsan_add_overflow),
 	SBIUNIT_TEST_CASE(test_ubsan_sub_overflow),
 	SBIUNIT_TEST_CASE(test_ubsan_mul_overflow),

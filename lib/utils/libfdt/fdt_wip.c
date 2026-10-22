@@ -3,92 +3,92 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
-					uint32_t idx, const void *val,
-					int len)
+صحيح fdt_setprop_inplace_namelen_partial(فراغ *fdt, صحيح nodeoffset,
+					ثابت حرف *name, صحيح namelen,
+					uint32_t idx, ثابت فراغ *val,
+					صحيح len)
 {
-	void *propval;
-	int proplen;
+	فراغ *propval;
+	صحيح proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	אם (!propval)
+		החזר proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	אם ((unsigned)proplen < (len + idx))
+		החזר -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	memcpy((حرف *)propval + idx, val, len);
+	החזר 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+صحيح fdt_setprop_inplace(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name,
+			ثابت فراغ *val, صحيح len)
 {
-	const void *propval;
-	int proplen;
+	ثابت فراغ *propval;
+	صحيح proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	אם (!propval)
+		החזר proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	אם (proplen != len)
+		החזר -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	החזר fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+ساكن فراغ fdt_nop_region_(فراغ *start, صحيح len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	עבור (p = start; (حرف *)p < ((حرف *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+صحيح fdt_nop_property(فراغ *fdt, صحيح nodeoffset, ثابت حرف *name)
 {
-	struct fdt_property *prop;
-	int len;
+	بنية fdt_property *prop;
+	صحيح len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	אם (!prop)
+		החזר len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + حجم(*prop));
 
-	return 0;
+	החזר 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+صحيح fdt_node_end_offset_(فراغ *fdt, صحيح offset)
 {
-	int depth = 0;
+	صحيح depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
+	כלעוד ((offset >= 0) && (depth >= 0))
 		offset = fdt_next_node(fdt, offset, &depth);
 
-	return offset;
+	החזר offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+صحيح fdt_nop_node(فراغ *fdt, صحيح nodeoffset)
 {
-	int endoffset;
+	صحيح endoffset;
 
 	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	אם (endoffset < 0)
+		החזר endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	החזר 0;
 }
