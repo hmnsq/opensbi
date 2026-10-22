@@ -11,25 +11,25 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/serial/gaisler-uart.h>
 
-static int serial_gaisler_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+static ཧྲིལ serial_gaisler_init(const void *fdt, ཧྲིལ nodeoff,
+			       const sa_nracanaa fdt_match *match)
 {
-	int rc;
-	struct platform_uart_data uart = { 0 };
+	ཧྲིལ rc;
+	sa_nracanaa platform_uart_data uart = { 0 };
 
 	rc = fdt_parse_gaisler_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	གལ་ཏེ (rc)
+		ཕྱིར rc;
 
-	return gaisler_uart_init(uart.addr, uart.freq, uart.baud);
+	ཕྱིར gaisler_uart_init(uart.addr, uart.freq, uart.baud);
 }
 
-static const struct fdt_match serial_gaisler_match[] = {
+static const sa_nracanaa fdt_match serial_gaisler_match[] = {
 	{ .compatible = "gaisler,apbuart" },
 	{},
 };
 
-const struct fdt_driver fdt_serial_gaisler = {
+const sa_nracanaa fdt_driver fdt_serial_gaisler = {
 	.match_table = serial_gaisler_match,
 	.init = serial_gaisler_init
 };

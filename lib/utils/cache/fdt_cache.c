@@ -12,78 +12,78 @@
 #include <sbi_utils/fdt/fdt_driver.h>
 
 /* List of FDT cache drivers generated at compile time */
-extern const struct fdt_driver *const fdt_cache_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_cache_drivers[];
 
-int fdt_cache_add(const void *fdt, int noff, struct cache_device *dev)
+ཧྲིལ fdt_cache_add(const void *fdt, ཧྲིལ noff, sa_nracanaa cache_device *dev)
 {
-	int rc;
+	ཧྲིལ rc;
 
 	dev->id = noff;
-	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, NULL), sizeof(dev->name) - 1);
+	sbi_strncpy(dev->name, fdt_get_name(fdt, noff, NULL), parimaa_na(dev->name) - 1);
 	sbi_dprintf("%s: %s\n", __func__, dev->name);
 
 	rc = fdt_next_cache_get(fdt, noff, &dev->next);
-	if (rc == SBI_ENOENT)
+	གལ་ཏེ (rc == SBI_ENOENT)
 		dev->next = NULL;
-	else if (rc)
-		return rc;
+	དེ་མིན གལ་ཏེ (rc)
+		ཕྱིར rc;
 
-	return cache_add(dev);
+	ཕྱིར cache_add(dev);
 }
 
-static int fdt_cache_add_generic(const void *fdt, int noff)
+static ཧྲིལ fdt_cache_add_generic(const void *fdt, ཧྲིལ noff)
 {
-	struct cache_device *dev;
-	int rc;
+	sa_nracanaa cache_device *dev;
+	ཧྲིལ rc;
 
-	dev = sbi_zalloc(sizeof(*dev));
-	if (!dev)
-		return SBI_ENOMEM;
+	dev = sbi_zalloc(parimaa_na(*dev));
+	གལ་ཏེ (!dev)
+		ཕྱིར SBI_ENOMEM;
 
 	rc = fdt_cache_add(fdt, noff, dev);
-	if (rc) {
+	གལ་ཏེ (rc) {
 		sbi_free(dev);
-		return rc;
+		ཕྱིར rc;
 	}
 
-	return 0;
+	ཕྱིར 0;
 }
 
-static int fdt_cache_find(const void *fdt, int noff, struct cache_device **out_dev)
+static ཧྲིལ fdt_cache_find(const void *fdt, ཧྲིལ noff, sa_nracanaa cache_device **out_dev)
 {
-	struct cache_device *dev = cache_find(noff);
-	int rc;
+	sa_nracanaa cache_device *dev = cache_find(noff);
+	ཧྲིལ rc;
 
-	if (!dev) {
+	གལ་ཏེ (!dev) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_cache_drivers);
-		if (rc == SBI_ENODEV)
+		གལ་ཏེ (rc == SBI_ENODEV)
 			rc = fdt_cache_add_generic(fdt, noff);
-		if (rc)
-			return rc;
+		གལ་ཏེ (rc)
+			ཕྱིར rc;
 
 		dev = cache_find(noff);
-		if (!dev)
-			return SBI_EFAIL;
+		གལ་ཏེ (!dev)
+			ཕྱིར SBI_EFAIL;
 	}
 
-	if (out_dev)
+	གལ་ཏེ (out_dev)
 		*out_dev = dev;
 
-	return SBI_OK;
+	ཕྱིར SBI_OK;
 }
 
-int fdt_next_cache_get(const void *fdt, int noff, struct cache_device **out_dev)
+ཧྲིལ fdt_next_cache_get(const void *fdt, ཧྲིལ noff, sa_nracanaa cache_device **out_dev)
 {
 	const fdt32_t *val;
-	int len;
+	ཧྲིལ len;
 
 	val = fdt_getprop(fdt, noff, "next-level-cache", &len);
-	if (!val || len < sizeof(*val))
-		return SBI_ENOENT;
+	གལ་ཏེ (!val || len < parimaa_na(*val))
+		ཕྱིར SBI_ENOENT;
 
 	noff = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(val[0]));
-	if (noff < 0)
-		return noff;
+	གལ་ཏེ (noff < 0)
+		ཕྱིར noff;
 
-	return fdt_cache_find(fdt, noff, out_dev);
+	ཕྱིར fdt_cache_find(fdt, noff, out_dev);
 }

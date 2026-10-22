@@ -14,37 +14,37 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_system.h>
 
-static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+static ཧྲིལ sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
+				  sa_nracanaa sbi_trap_regs *regs,
+				  sa_nracanaa sbi_ecall_return *out)
 {
-	if (funcid == SBI_EXT_SRST_RESET) {
-		if ((((u32)-1U) <= ((u64)regs->a0)) ||
+	གལ་ཏེ (funcid == SBI_EXT_SRST_RESET) {
+		གལ་ཏེ ((((u32)-1U) <= ((u64)regs->a0)) ||
 		    (((u32)-1U) <= ((u64)regs->a1)))
-			return SBI_EINVAL;
+			ཕྱིར SBI_EINVAL;
 
 		switch (regs->a0) {
-		case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-			break;
+		pak_sa SBI_SRST_RESET_TYPE_SHUTDOWN:
+		pak_sa SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		pak_sa SBI_SRST_RESET_TYPE_WARM_REBOOT:
+			bha_nga;
 		default:
-			return SBI_EINVAL;
+			ཕྱིར SBI_EINVAL;
 		}
 
 		switch (regs->a1) {
-		case SBI_SRST_RESET_REASON_NONE:
-		case SBI_SRST_RESET_REASON_SYSFAIL:
-			break;
+		pak_sa SBI_SRST_RESET_REASON_NONE:
+		pak_sa SBI_SRST_RESET_REASON_SYSFAIL:
+			bha_nga;
 		default:
-			return SBI_EINVAL;
+			ཕྱིར SBI_EINVAL;
 		}
 
-		if (sbi_system_reset_supported(regs->a0, regs->a1))
+		གལ་ཏེ (sbi_system_reset_supported(regs->a0, regs->a1))
 			sbi_system_reset(regs->a0, regs->a1);
 	}
 
-	return SBI_ENOTSUPP;
+	ཕྱིར SBI_ENOTSUPP;
 }
 
 static bool srst_available(void)
@@ -55,26 +55,26 @@ static bool srst_available(void)
 	 * At least one standard reset types should be supported by
 	 * the platform for SBI SRST extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
-		if (sbi_system_reset_supported(type,
+	ཆེད་དུ (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
+		གལ་ཏེ (sbi_system_reset_supported(type,
 					SBI_SRST_RESET_REASON_NONE))
-			return true;
+			ཕྱིར true;
 	}
 
-	return false;
+	ཕྱིར false;
 }
 
-struct sbi_ecall_extension ecall_srst;
+sa_nracanaa sbi_ecall_extension ecall_srst;
 
-static int sbi_ecall_srst_register_extensions(void)
+static ཧྲིལ sbi_ecall_srst_register_extensions(void)
 {
-	if (!srst_available())
-		return 0;
+	གལ་ཏེ (!srst_available())
+		ཕྱིར 0;
 
-	return sbi_ecall_register_extension(&ecall_srst);
+	ཕྱིར sbi_ecall_register_extension(&ecall_srst);
 }
 
-struct sbi_ecall_extension ecall_srst = {
+sa_nracanaa sbi_ecall_extension ecall_srst = {
 	.name			= "srst",
 	.extid_start		= SBI_EXT_SRST,
 	.extid_end		= SBI_EXT_SRST,

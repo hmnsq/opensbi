@@ -10,84 +10,84 @@
 
 #include "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+ཧྲིལ fdt_check_full(const void *fdt, size_t bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	ཧྲིལ err;
+	ཧྲིལ num_memrsv;
+	ཧྲིལ offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
+	unsigned ཧྲིལ depth = 0;
 	const void *prop;
-	const char *propname;
+	const var_na *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	གལ་ཏེ (bufsize < FDT_V1_SIZE)
+		ཕྱིར -FDT_ERR_TRUNCATED;
+	གལ་ཏེ (bufsize < fdt_header_size(fdt))
+		ཕྱིར -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	གལ་ཏེ (err != 0)
+		ཕྱིར err;
+	གལ་ཏེ (bufsize < fdt_totalsize(fdt))
+		ཕྱིར -FDT_ERR_TRUNCATED;
 
 	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	གལ་ཏེ (num_memrsv < 0)
+		ཕྱིར num_memrsv;
 
-	while (1) {
+	སྐབས (1) {
 		offset = nextoffset;
 		tag = fdt_next_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		གལ་ཏེ (nextoffset < 0)
+			ཕྱིར nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		གལ་ཏེ (expect_end && tag != FDT_END)
+			ཕྱིར -FDT_ERR_BADSTRUCTURE;
 
 		switch (tag) {
-		case FDT_NOP:
-			break;
+		pak_sa FDT_NOP:
+			bha_nga;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		pak_sa FDT_END:
+			གལ་ཏེ (depth != 0)
+				ཕྱིར -FDT_ERR_BADSTRUCTURE;
+			ཕྱིར 0;
 
-		case FDT_BEGIN_NODE:
+		pak_sa FDT_BEGIN_NODE:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			གལ་ཏེ (depth > INT_MAX)
+				ཕྱིར -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			གལ་ཏེ (depth == 1) {
+				const var_na *name;
+				ཧྲིལ len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				གལ་ཏེ (*name || len)
+					ཕྱིར -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			bha_nga;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		pak_sa FDT_END_NODE:
+			གལ་ཏེ (depth == 0)
+				ཕྱིར -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			གལ་ཏེ (depth == 0)
 				expect_end = true;
-			break;
+			bha_nga;
 
-		case FDT_PROP:
+		pak_sa FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			གལ་ཏེ (!prop)
+				ཕྱིར err;
+			bha_nga;
 
 		default:
-			return -FDT_ERR_INTERNAL;
+			ཕྱིར -FDT_ERR_INTERNAL;
 		}
 	}
 }

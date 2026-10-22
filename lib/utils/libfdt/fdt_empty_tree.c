@@ -10,29 +10,29 @@
 
 #include "libfdt_internal.h"
 
-int fdt_create_empty_tree(void *buf, int bufsize)
+ཧྲིལ fdt_create_empty_tree(void *buf, ཧྲིལ bufsize)
 {
-	int err;
+	ཧྲིལ err;
 
 	err = fdt_create(buf, bufsize);
-	if (err)
-		return err;
+	གལ་ཏེ (err)
+		ཕྱིར err;
 
 	err = fdt_finish_reservemap(buf);
-	if (err)
-		return err;
+	གལ་ཏེ (err)
+		ཕྱིར err;
 
 	err = fdt_begin_node(buf, "");
-	if (err)
-		return err;
+	གལ་ཏེ (err)
+		ཕྱིར err;
 
 	err =  fdt_end_node(buf);
-	if (err)
-		return err;
+	གལ་ཏེ (err)
+		ཕྱིར err;
 
 	err = fdt_finish(buf);
-	if (err)
-		return err;
+	གལ་ཏེ (err)
+		ཕྱིར err;
 
-	return fdt_open_into(buf, buf, bufsize);
+	ཕྱིར fdt_open_into(buf, buf, bufsize);
 }
