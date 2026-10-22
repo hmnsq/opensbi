@@ -7,33 +7,33 @@
  *   Gabriel Somlo <gsomlo@gmail.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/litex-uart.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
+#समावेश <sbi_utils/serial/fdt_serial.h>
+#समावेश <sbi_utils/serial/litex-uart.h>
 
-static int serial_litex_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+अटल पूर्णांक serial_litex_init(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+			     स्थिर काष्ठा fdt_match *match)
 {
-	uint64_t reg_addr, reg_size;
-	int rc;
+	uint64_t reg_addr, reg_आकार;
+	पूर्णांक rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	अगर (nodeoff < 0 || !fdt)
+		वापस SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
-	if (rc < 0 || !reg_addr || !reg_size)
-		return SBI_ENODEV;
+	rc = fdt_get_गाँठ_addr_आकार(fdt, nodeoff, 0, &reg_addr, &reg_आकार);
+	अगर (rc < 0 || !reg_addr || !reg_आकार)
+		वापस SBI_ENODEV;
 
-	return litex_uart_init(reg_addr);
+	वापस litex_uart_init(reg_addr);
 }
 
-static const struct fdt_match serial_litex_match[] = {
+अटल स्थिर काष्ठा fdt_match serial_litex_match[] = {
 	{ .compatible = "litex,liteuart" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_litex = {
+स्थिर काष्ठा fdt_driver fdt_serial_litex = {
 	.match_table = serial_litex_match,
 	.init = serial_litex_init
 };

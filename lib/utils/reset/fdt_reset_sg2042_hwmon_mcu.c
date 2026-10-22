@@ -4,111 +4,111 @@
  * Copyright (c) 2023 Lin Chunzhi <chunzhi.lin@sophgo.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#समावेश <libfdt.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_types.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi/sbi_system.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi_utils/fdt/fdt_driver.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
+#समावेश <sbi_utils/i2c/fdt_i2c.h>
 
-#define MANGO_BOARD_TYPE_MASK		0x80
+#घोषणा MANGO_BOARD_TYPE_MASK		0x80
 
-#define REG_BOARD_TYPE			0x00
-#define REG_CMD				0x03
+#घोषणा REG_BOARD_TYPE			0x00
+#घोषणा REG_CMD				0x03
 
-#define CMD_POWEROFF			0x02
-#define CMD_RESET			0x03
-#define CMD_REBOOT			0x07
+#घोषणा CMD_POWEROFF			0x02
+#घोषणा CMD_RESET			0x03
+#घोषणा CMD_REBOOT			0x07
 
-static struct i2c_adapter *mcu_adapter = NULL;
-static uint32_t mcu_reg = 0;
+अटल काष्ठा i2c_adapter *mcu_adapter = शून्य;
+अटल uint32_t mcu_reg = 0;
 
-static int sg2042_mcu_reset_check(u32 type, u32 reason)
+अटल पूर्णांक sg2042_mcu_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		return 1;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return 255;
+	चयन (type) {
+	हाल SBI_SRST_RESET_TYPE_SHUTDOWN:
+		वापस 1;
+	हाल SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	हाल SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		वापस 255;
 	}
 
-	return 0;
+	वापस 0;
 }
 
-static void sg2042_mcu_reset(u32 type, u32 reason)
+अटल व्योम sg2042_mcu_reset(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	चयन (type) {
+	हाल SBI_SRST_RESET_TYPE_SHUTDOWN:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_POWEROFF);
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		अवरोध;
+	हाल SBI_SRST_RESET_TYPE_COLD_REBOOT:
+	हाल SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		i2c_adapter_reg_write(mcu_adapter, mcu_reg,
 				      REG_CMD, CMD_REBOOT);
-		break;
+		अवरोध;
 	}
 }
 
-static struct sbi_system_reset_device sg2042_mcu_reset_device = {
+अटल काष्ठा sbi_system_reset_device sg2042_mcu_reset_device = {
 	.name = "sg2042-mcu-reset",
 	.system_reset_check = sg2042_mcu_reset_check,
 	.system_reset = sg2042_mcu_reset
 };
 
-static int sg2042_mcu_reset_check_board(struct i2c_adapter *adap, uint32_t reg)
+अटल पूर्णांक sg2042_mcu_reset_check_board(काष्ठा i2c_adapter *adap, uint32_t reg)
 {
-	static uint8_t val;
-	int ret;
+	अटल uint8_t val;
+	पूर्णांक ret;
 
 	/* check board type */
 	ret = i2c_adapter_reg_read(adap, reg, REG_BOARD_TYPE, &val);
-	if (ret)
-		return ret;
+	अगर (ret)
+		वापस ret;
 
-	if (!(val & MANGO_BOARD_TYPE_MASK))
-		return SBI_ENODEV;
+	अगर (!(val & MANGO_BOARD_TYPE_MASK))
+		वापस SBI_ENODEV;
 
-	return 0;
+	वापस 0;
 }
 
-static int sg2042_mcu_reset_init(const void *fdt, int nodeoff,
-				 const struct fdt_match *match)
+अटल पूर्णांक sg2042_mcu_reset_init(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+				 स्थिर काष्ठा fdt_match *match)
 {
-	int ret, i2c_bus;
+	पूर्णांक ret, i2c_bus;
 	uint64_t addr;
 
-	ret = fdt_get_node_addr_size(fdt, nodeoff, 0, &addr, NULL);
-	if (ret)
-		return ret;
+	ret = fdt_get_गाँठ_addr_आकार(fdt, nodeoff, 0, &addr, शून्य);
+	अगर (ret)
+		वापस ret;
 
 	mcu_reg = addr;
 
 	i2c_bus = fdt_parent_offset(fdt, nodeoff);
-	if (i2c_bus < 0)
-		return i2c_bus;
+	अगर (i2c_bus < 0)
+		वापस i2c_bus;
 
 	ret = fdt_i2c_adapter_get(fdt, i2c_bus, &mcu_adapter);
-	if (ret)
-		return ret;
+	अगर (ret)
+		वापस ret;
 
 	ret = sg2042_mcu_reset_check_board(mcu_adapter, mcu_reg);
 
 	sbi_system_reset_add_device(&sg2042_mcu_reset_device);
 
-	return 0;
+	वापस 0;
 }
 
-static const struct fdt_match sg2042_mcu_reset_match[] = {
+अटल स्थिर काष्ठा fdt_match sg2042_mcu_reset_match[] = {
 	{ .compatible = "sophgo,sg2042-hwmon-mcu" },
 	{ },
 };
 
-const struct fdt_driver fdt_reset_sg2042_mcu = {
+स्थिर काष्ठा fdt_driver fdt_reset_sg2042_mcu = {
 	.match_table = sg2042_mcu_reset_match,
 	.init = sg2042_mcu_reset_init,
 };

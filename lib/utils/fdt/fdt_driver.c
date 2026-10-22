@@ -4,85 +4,85 @@
  * Copyright (c) 2024 SiFive
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
+#समावेश <libfdt.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/fdt/fdt_driver.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+पूर्णांक fdt_driver_init_by_offset(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+			      स्थिर काष्ठा fdt_driver *स्थिर *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	स्थिर काष्ठा fdt_driver *driver;
+	स्थिर काष्ठा fdt_match *match;
+	पूर्णांक compat_len, prop_len, rc;
+	स्थिर अक्षर *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	अगर (!fdt_गाँठ_is_enabled(fdt, nodeoff))
+		वापस SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	अगर (!compat_str)
+		वापस SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
-					goto found;
+	जबतक ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		क्रम (पूर्णांक i = 0; (driver = drivers[i]); i++)
+			क्रम (match = driver->match_table; match->compatible; match++)
+				अगर (!स_भेद(match->compatible, compat_str, compat_len))
+					जाओ found;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	वापस SBI_ENODEV;
 
 found:
-	if (driver->experimental)
+	अगर (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
 			   match->compatible);
 
 	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	अगर (rc < 0) {
+		स्थिर अक्षर *name;
 
-		name = fdt_get_name(fdt, nodeoff, NULL);
+		name = fdt_get_name(fdt, nodeoff, शून्य);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
 			   __func__, name, match->compatible, rc);
 	}
 
-	return rc;
+	वापस rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+अटल पूर्णांक fdt_driver_init_scan(स्थिर व्योम *fdt,
+				स्थिर काष्ठा fdt_driver *स्थिर *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	पूर्णांक nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	क्रम (nodeoff = fdt_अग्र_गाँठ(fdt, -1, शून्य);
 	     nodeoff >= 0;
-	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
+	     nodeoff = fdt_अग्र_गाँठ(fdt, nodeoff, शून्य)) {
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
-			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+		अगर (rc == SBI_ENODEV)
+			जारी;
+		अगर (rc < 0)
+			वापस rc;
+		अगर (one)
+			वापस 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	वापस one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+पूर्णांक fdt_driver_init_all(स्थिर व्योम *fdt,
+			स्थिर काष्ठा fdt_driver *स्थिर *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	वापस fdt_driver_init_scan(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+पूर्णांक fdt_driver_init_one(स्थिर व्योम *fdt,
+			स्थिर काष्ठा fdt_driver *स्थिर *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	वापस fdt_driver_init_scan(fdt, drivers, true);
 }

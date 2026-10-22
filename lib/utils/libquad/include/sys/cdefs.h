@@ -4,9 +4,9 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __SYS_CDEFS_H__
-#define __SYS_CDEFS_H__
+#अगर_अघोषित __SYS_CDEFS_H__
+#घोषणा __SYS_CDEFS_H__
 
-#define __FBSDID(s) struct __hack
+#घोषणा __FBSDID(s) काष्ठा __hack
 
-#endif
+#पूर्ण_अगर

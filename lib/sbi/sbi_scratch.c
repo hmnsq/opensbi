@@ -7,56 +7,56 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#समावेश <sbi/riscv_locks.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_hartmask.h>
+#समावेश <sbi/sbi_platform.h>
+#समावेश <sbi/sbi_scratch.h>
+#समावेश <sbi/sbi_string.h>
 
-#define DEFAULT_SCRATCH_ALLOC_ALIGN __SIZEOF_POINTER__
+#घोषणा DEFAULT_SCRATCH_ALLOC_ALIGN __SIZEOF_POINTER__
 
-u32 sbi_scratch_hart_count;
+u32 sbi_scratch_hart_गिनती;
 u32 hartindex_to_hartid_table[SBI_HARTMASK_MAX_BITS] = { [0 ... SBI_HARTMASK_MAX_BITS-1] = -1U };
-struct sbi_scratch *hartindex_to_scratch_table[SBI_HARTMASK_MAX_BITS];
+काष्ठा sbi_scratch *hartindex_to_scratch_table[SBI_HARTMASK_MAX_BITS];
 
-static spinlock_t extra_lock = SPIN_LOCK_INITIALIZER;
-static unsigned long
+अटल spinlock_t extra_lock = SPIN_LOCK_INITIALIZER;
+अटल अचिन्हित दीर्घ
 	extra_offset GUARDED_BY(&extra_lock) = SBI_SCRATCH_EXTRA_SPACE_OFFSET;
 
 /*
  * Get the alignment size.
  * Return DEFAULT_SCRATCH_ALLOC_ALIGNMENT or riscv,cbom_block_size
  */
-static unsigned long sbi_get_scratch_alloc_align(void)
+अटल अचिन्हित दीर्घ sbi_get_scratch_alloc_align(व्योम)
 {
-	const struct sbi_platform *plat = sbi_platform_thishart_ptr();
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_thishart_ptr();
 
-	if (!plat || !plat->cbom_block_size)
-		return DEFAULT_SCRATCH_ALLOC_ALIGN;
-	return plat->cbom_block_size;
+	अगर (!plat || !plat->cbom_block_आकार)
+		वापस DEFAULT_SCRATCH_ALLOC_ALIGN;
+	वापस plat->cbom_block_आकार;
 }
 
 u32 sbi_hartid_to_hartindex(u32 hartid)
 {
 	sbi_for_each_hartindex(i)
-		if (hartindex_to_hartid_table[i] == hartid)
-			return i;
+		अगर (hartindex_to_hartid_table[i] == hartid)
+			वापस i;
 
-	return -1U;
+	वापस -1U;
 }
 
-typedef struct sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
+प्रकार काष्ठा sbi_scratch *(*hartid2scratch)(ulong hartid, ulong hartindex);
 
-int sbi_scratch_init(struct sbi_scratch *scratch)
+पूर्णांक sbi_scratch_init(काष्ठा sbi_scratch *scratch)
 {
-	u32 h, hart_count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	u32 h, hart_गिनती;
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	hart_count = plat->hart_count;
-	if (hart_count > SBI_HARTMASK_MAX_BITS)
-		hart_count = SBI_HARTMASK_MAX_BITS;
-	sbi_scratch_hart_count = hart_count;
+	hart_गिनती = plat->hart_गिनती;
+	अगर (hart_गिनती > SBI_HARTMASK_MAX_BITS)
+		hart_गिनती = SBI_HARTMASK_MAX_BITS;
+	sbi_scratch_hart_गिनती = hart_गिनती;
 
 	sbi_for_each_hartindex(i) {
 		h = (plat->hart_index2id) ? plat->hart_index2id[i] : i;
@@ -65,15 +65,15 @@ int sbi_scratch_init(struct sbi_scratch *scratch)
 			((hartid2scratch)scratch->hartid_to_scratch)(h, i);
 	}
 
-	return 0;
+	वापस 0;
 }
 
-unsigned long sbi_scratch_alloc_offset(unsigned long size)
+अचिन्हित दीर्घ sbi_scratch_alloc_offset(अचिन्हित दीर्घ आकार)
 {
-	void *ptr;
-	unsigned long ret = 0;
-	struct sbi_scratch *rscratch;
-	unsigned long scratch_alloc_align = 0;
+	व्योम *ptr;
+	अचिन्हित दीर्घ ret = 0;
+	काष्ठा sbi_scratch *rscratch;
+	अचिन्हित दीर्घ scratch_alloc_align = 0;
 
 	/*
 	 * We have a simple brain-dead allocator which never expects
@@ -84,8 +84,8 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 	 * will allow us to re-claim free-ed space.
 	 */
 
-	if (!size)
-		return 0;
+	अगर (!आकार)
+		वापस 0;
 
 	scratch_alloc_align = sbi_get_scratch_alloc_align();
 
@@ -93,38 +93,38 @@ unsigned long sbi_scratch_alloc_offset(unsigned long size)
 	 * We let the allocation align to cacheline bytes to avoid livelock on
 	 * certain platforms due to atomic variables from the same cache line.
 	 */
-	size += scratch_alloc_align - 1;
-	size &= ~(scratch_alloc_align - 1);
+	आकार += scratch_alloc_align - 1;
+	आकार &= ~(scratch_alloc_align - 1);
 
 	spin_lock(&extra_lock);
 
-	if (SBI_SCRATCH_SIZE < (extra_offset + size))
-		goto done;
+	अगर (SBI_SCRATCH_आकार < (extra_offset + आकार))
+		जाओ done;
 
 	ret = extra_offset;
-	extra_offset += size;
+	extra_offset += आकार;
 
 done:
 	spin_unlock(&extra_lock);
 
-	if (ret) {
+	अगर (ret) {
 		sbi_for_each_hartindex(i) {
 			rscratch = sbi_hartindex_to_scratch(i);
-			if (!rscratch)
-				continue;
+			अगर (!rscratch)
+				जारी;
 			ptr = sbi_scratch_offset_ptr(rscratch, ret);
-			sbi_memset(ptr, 0, size);
+			sbi_memset(ptr, 0, आकार);
 		}
 	}
 
-	return ret;
+	वापस ret;
 }
 
-void sbi_scratch_free_offset(unsigned long offset)
+व्योम sbi_scratch_free_offset(अचिन्हित दीर्घ offset)
 {
-	if ((offset < SBI_SCRATCH_EXTRA_SPACE_OFFSET) ||
-	    (SBI_SCRATCH_SIZE <= offset))
-		return;
+	अगर ((offset < SBI_SCRATCH_EXTRA_SPACE_OFFSET) ||
+	    (SBI_SCRATCH_आकार <= offset))
+		वापस;
 
 	/*
 	 * We don't actually free-up because it's a simple
@@ -132,13 +132,13 @@ void sbi_scratch_free_offset(unsigned long offset)
 	 */
 }
 
-unsigned long sbi_scratch_used_space(void)
+अचिन्हित दीर्घ sbi_scratch_used_space(व्योम)
 {
-	unsigned long ret = 0;
+	अचिन्हित दीर्घ ret = 0;
 
 	spin_lock(&extra_lock);
 	ret = extra_offset;
 	spin_unlock(&extra_lock);
 
-	return ret;
+	वापस ret;
 }

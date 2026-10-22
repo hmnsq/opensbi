@@ -33,13 +33,13 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char sccsid[] = "@(#)umoddi3.c	8.1 (Berkeley) 6/4/93";
-#endif /* LIBC_SCCS and not lint */
-#include <sys/cdefs.h>
+#अगर defined(LIBC_SCCS) && !defined(lint)
+अटल अक्षर sccsid[] = "@(#)umoddi3.c	8.1 (Berkeley) 6/4/93";
+#पूर्ण_अगर /* LIBC_SCCS and not lint */
+#समावेश <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
-#include "quad.h"
+#समावेश "quad.h"
 
 /*
  * Return remainder after dividing two unsigned quads.
@@ -49,6 +49,6 @@ __umoddi3(u_quad_t a, u_quad_t b)
 {
 	u_quad_t r;
 
-	(void)__qdivrem(a, b, &r);
-	return (r);
+	(व्योम)__qdivrem(a, b, &r);
+	वापस (r);
 }

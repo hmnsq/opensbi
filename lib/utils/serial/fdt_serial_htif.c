@@ -7,41 +7,41 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_domain.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/sys/htif.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/sbi_domain.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
+#समावेश <sbi_utils/serial/fdt_serial.h>
+#समावेश <sbi_utils/sys/htif.h>
 
-static const struct fdt_match serial_htif_match[] = {
+अटल स्थिर काष्ठा fdt_match serial_htif_match[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-static int serial_htif_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+अटल पूर्णांक serial_htif_init(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+			    स्थिर काष्ठा fdt_match *match)
 {
-	int rc;
+	पूर्णांक rc;
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	अगर (!fdt_get_गाँठ_addr_आकार(fdt, nodeoff, 0, &fromhost_addr, शून्य)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + माप(uint64_t);
 	}
 
-	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
+	fdt_get_गाँठ_addr_आकार(fdt, nodeoff, 1, &tohost_addr, शून्य);
 
-	rc = sbi_domain_root_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
+	rc = sbi_domain_मूल_add_memrange(fromhost_addr, PAGE_आकार, PAGE_आकार,
 					  (SBI_DOMAIN_MEMREGION_MMIO |
 					   SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		return rc;
+	अगर (rc)
+		वापस rc;
 
-	return htif_serial_init(custom, fromhost_addr, tohost_addr);
+	वापस htif_serial_init(custom, fromhost_addr, tohost_addr);
 }
 
-const struct fdt_driver fdt_serial_htif = {
+स्थिर काष्ठा fdt_driver fdt_serial_htif = {
 	.match_table = serial_htif_match,
 	.init = serial_htif_init
 };

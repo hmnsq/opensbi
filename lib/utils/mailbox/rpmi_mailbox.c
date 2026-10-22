@@ -7,85 +7,85 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/mailbox/mailbox.h>
+#समावेश <sbi_utils/mailbox/rpmi_mailbox.h>
 
-int rpmi_xlate_error(enum rpmi_error error)
+पूर्णांक rpmi_xlate_error(क्रमागत rpmi_error error)
 {
-	switch(error) {
-	case RPMI_SUCCESS:
-		return SBI_OK;
-	case RPMI_ERR_FAILED:
-		return SBI_EFAIL;
-	case RPMI_ERR_NOTSUPP:
-		return SBI_ENOTSUPP;
-	case RPMI_ERR_INVALID_PARAM:
-		return SBI_EINVAL;
-	case RPMI_ERR_DENIED:
-		return SBI_EDENIED;
-	case RPMI_ERR_INVALID_ADDR:
-		return SBI_EINVALID_ADDR;
-	case RPMI_ERR_ALREADY:
-		return SBI_EALREADY;
-	case RPMI_ERR_EXTENSION:
-		return SBI_EFAIL;
-	case RPMI_ERR_HW_FAULT:
-		return SBI_EIO;
-	case RPMI_ERR_BUSY:
-		return SBI_EFAIL;
-	case RPMI_ERR_INVALID_STATE:
-		return SBI_EINVALID_STATE;
-	case RPMI_ERR_BAD_RANGE:
-		return SBI_EBAD_RANGE;
-	case RPMI_ERR_TIMEOUT:
-		return SBI_ETIMEDOUT;
-	case RPMI_ERR_IO:
-		return SBI_EIO;
-	case RPMI_ERR_NO_DATA:
-		return SBI_EFAIL;
-	default:
-		return SBI_EUNKNOWN;
+	चयन(error) {
+	हाल RPMI_SUCCESS:
+		वापस SBI_OK;
+	हाल RPMI_ERR_FAILED:
+		वापस SBI_EFAIL;
+	हाल RPMI_ERR_NOTSUPP:
+		वापस SBI_ENOTSUPP;
+	हाल RPMI_ERR_INVALID_PARAM:
+		वापस SBI_EINVAL;
+	हाल RPMI_ERR_DENIED:
+		वापस SBI_EDENIED;
+	हाल RPMI_ERR_INVALID_ADDR:
+		वापस SBI_EINVALID_ADDR;
+	हाल RPMI_ERR_ALREADY:
+		वापस SBI_EALREADY;
+	हाल RPMI_ERR_EXTENSION:
+		वापस SBI_EFAIL;
+	हाल RPMI_ERR_HW_FAULT:
+		वापस SBI_EIO;
+	हाल RPMI_ERR_BUSY:
+		वापस SBI_EFAIL;
+	हाल RPMI_ERR_INVALID_STATE:
+		वापस SBI_EINVALID_STATE;
+	हाल RPMI_ERR_BAD_RANGE:
+		वापस SBI_EBAD_RANGE;
+	हाल RPMI_ERR_TIMEOUT:
+		वापस SBI_ETIMEDOUT;
+	हाल RPMI_ERR_IO:
+		वापस SBI_EIO;
+	हाल RPMI_ERR_NO_तथ्य:
+		वापस SBI_EFAIL;
+	शेष:
+		वापस SBI_EUNKNOWN;
 	}
 }
 
-int rpmi_normal_request_with_status(
-			struct mbox_chan *chan, u32 service_id,
-			void *req, u32 req_words, u32 req_endian_words,
-			void *resp, u32 resp_words, u32 resp_endian_words)
+पूर्णांक rpmi_normal_request_with_status(
+			काष्ठा mbox_chan *chan, u32 service_id,
+			व्योम *req, u32 req_शब्दगण, u32 req_endian_शब्दगण,
+			व्योम *resp, u32 resp_शब्दगण, u32 resp_endian_शब्दगण)
 {
-	int ret;
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	पूर्णांक ret;
+	काष्ठा mbox_xfer xfer;
+	काष्ठा rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_NORMAL_REQUEST;
+	args.type = RPMI_संदेश_NORMAL_REQUEST;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
-	args.rx_endian_words = resp_endian_words;
+	args.tx_endian_शब्दगण = req_endian_शब्दगण;
+	args.rx_endian_शब्दगण = resp_endian_शब्दगण;
 	mbox_xfer_init_txrx(&xfer, &args,
-			req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT,
-			resp, sizeof(u32) * resp_words, RPMI_DEF_RX_TIMEOUT);
+			req, माप(u32) * req_शब्दगण, RPMI_DEF_TX_TIMEOUT,
+			resp, माप(u32) * resp_शब्दगण, RPMI_DEF_RX_TIMEOUT);
 
 	ret = mbox_chan_xfer(chan, &xfer);
-	if (ret)
-		return ret;
+	अगर (ret)
+		वापस ret;
 
-	return rpmi_xlate_error(((u32 *)resp)[0]);
+	वापस rpmi_xlate_error(((u32 *)resp)[0]);
 }
 
-int rpmi_posted_request(
-		struct mbox_chan *chan, u32 service_id,
-		void *req, u32 req_words, u32 req_endian_words)
+पूर्णांक rpmi_posted_request(
+		काष्ठा mbox_chan *chan, u32 service_id,
+		व्योम *req, u32 req_शब्दगण, u32 req_endian_शब्दगण)
 {
-	struct mbox_xfer xfer;
-	struct rpmi_message_args args = { 0 };
+	काष्ठा mbox_xfer xfer;
+	काष्ठा rpmi_message_args args = { 0 };
 
-	args.type = RPMI_MSG_POSTED_REQUEST;
-	args.flags = RPMI_MSG_FLAGS_NO_RX;
+	args.type = RPMI_संदेश_POSTED_REQUEST;
+	args.flags = RPMI_संदेश_FLAGS_NO_RX;
 	args.service_id = service_id;
-	args.tx_endian_words = req_endian_words;
+	args.tx_endian_शब्दगण = req_endian_शब्दगण;
 	mbox_xfer_init_tx(&xfer, &args,
-			  req, sizeof(u32) * req_words, RPMI_DEF_TX_TIMEOUT);
+			  req, माप(u32) * req_शब्दगण, RPMI_DEF_TX_TIMEOUT);
 
-	return mbox_chan_xfer(chan, &xfer);
+	वापस mbox_chan_xfer(chan, &xfer);
 }

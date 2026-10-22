@@ -7,107 +7,107 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/riscv_atomic.h>
+#समावेश <sbi/riscv_io.h>
+#समावेश <sbi/sbi_domain.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi/sbi_ipi.h>
+#समावेश <sbi/sbi_scratch.h>
+#समावेश <sbi/sbi_timer.h>
+#समावेश <sbi_utils/ipi/aclint_mswi.h>
 
-static unsigned long mswi_ptr_offset;
+अटल अचिन्हित दीर्घ mswi_ptr_offset;
 
-#define mswi_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, mswi_ptr_offset)
+#घोषणा mswi_get_hart_तथ्य_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), व्योम *, mswi_ptr_offset)
 
-#define mswi_set_hart_data_ptr(__scratch, __mswi)			\
-	sbi_scratch_write_type((__scratch), void *, mswi_ptr_offset, (__mswi))
+#घोषणा mswi_set_hart_तथ्य_ptr(__scratch, __mswi)			\
+	sbi_scratch_write_type((__scratch), व्योम *, mswi_ptr_offset, (__mswi))
 
-static void mswi_ipi_send(u32 hart_index)
+अटल व्योम mswi_ipi_send(u32 hart_सूचकांक)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch;
-	struct aclint_mswi_data *mswi;
+	काष्ठा sbi_scratch *scratch;
+	काष्ठा aclint_mswi_तथ्य *mswi;
 
-	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	scratch = sbi_hartindex_to_scratch(hart_सूचकांक);
+	अगर (!scratch)
+		वापस;
 
-	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	mswi = mswi_get_hart_तथ्य_ptr(scratch);
+	अगर (!mswi)
+		वापस;
 
 	/* Set ACLINT IPI */
-	msip = (void *)mswi->addr;
-	writel_relaxed(1, &msip[sbi_hartindex_to_hartid(hart_index) -
+	msip = (व्योम *)mswi->addr;
+	writel_relaxed(1, &msip[sbi_hartindex_to_hartid(hart_सूचकांक) -
 			mswi->first_hartid]);
 }
 
-static void mswi_ipi_clear(void)
+अटल व्योम mswi_ipi_clear(व्योम)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mswi_data *mswi;
+	काष्ठा sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	काष्ठा aclint_mswi_तथ्य *mswi;
 
-	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	mswi = mswi_get_hart_तथ्य_ptr(scratch);
+	अगर (!mswi)
+		वापस;
 
 	/* Clear ACLINT IPI */
-	msip = (void *)mswi->addr;
+	msip = (व्योम *)mswi->addr;
 	writel_relaxed(0, &msip[current_hartid() - mswi->first_hartid]);
 }
 
-static struct sbi_ipi_device aclint_mswi = {
+अटल काष्ठा sbi_ipi_device aclint_mswi = {
 	.name = "aclint-mswi",
 	.rating = 100,
 	.ipi_send = mswi_ipi_send,
 	.ipi_clear = mswi_ipi_clear
 };
 
-int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+पूर्णांक aclint_mswi_cold_init(काष्ठा aclint_mswi_तथ्य *mswi)
 {
 	u32 i;
-	int rc;
-	struct sbi_scratch *scratch;
+	पूर्णांक rc;
+	काष्ठा sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
-	    (mswi->size < (mswi->hart_count * sizeof(u32))) ||
-	    (!mswi->hart_count || mswi->hart_count > ACLINT_MSWI_MAX_HARTS))
-		return SBI_EINVAL;
+	अगर (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
+	    (mswi->आकार < (mswi->hart_गिनती * माप(u32))) ||
+	    (!mswi->hart_गिनती || mswi->hart_गिनती > ACLINT_MSWI_MAX_HARTS))
+		वापस SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mswi_ptr_offset) {
-		mswi_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mswi_ptr_offset)
-			return SBI_ENOMEM;
+	अगर (!mswi_ptr_offset) {
+		mswi_ptr_offset = sbi_scratch_alloc_type_offset(व्योम *);
+		अगर (!mswi_ptr_offset)
+			वापस SBI_ENOMEM;
 	}
 
 	/* Update MSWI pointer in scratch space */
-	for (i = 0; i < mswi->hart_count; i++) {
+	क्रम (i = 0; i < mswi->hart_गिनती; i++) {
 		scratch = sbi_hartid_to_scratch(mswi->first_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
-			continue;
-		mswi_set_hart_data_ptr(scratch, mswi);
+		अगर (!scratch)
+			जारी;
+		mswi_set_hart_तथ्य_ptr(scratch, mswi);
 	}
 
 	/* Add MSWI regions to the root domain */
-	rc = sbi_domain_root_add_memrange(mswi->addr, mswi->size, ACLINT_MSWI_ALIGN,
+	rc = sbi_domain_मूल_add_memrange(mswi->addr, mswi->आकार, ACLINT_MSWI_ALIGN,
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	अगर (rc)
+		वापस rc;
 
 	sbi_ipi_add_device(&aclint_mswi);
 
-	return 0;
+	वापस 0;
 }

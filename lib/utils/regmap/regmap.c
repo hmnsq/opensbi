@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+अटल SBI_LIST_शीर्ष(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+काष्ठा regmap *regmap_find(अचिन्हित पूर्णांक id)
 {
-	struct sbi_dlist *pos;
+	काष्ठा sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		काष्ठा regmap *rmap = to_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		अगर (rmap->id == id)
+			वापस rmap;
 	}
 
-	return NULL;
+	वापस शून्य;
 }
 
-int regmap_add(struct regmap *rmap)
+पूर्णांक regmap_add(काष्ठा regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	अगर (!rmap)
+		वापस SBI_EINVAL;
+	अगर (regmap_find(rmap->id))
+		वापस SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_add(&(rmap->गाँठ), &(regmap_list));
 
-	return 0;
+	वापस 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+व्योम regmap_remove(काष्ठा regmap *rmap)
 {
-	if (!rmap)
-		return;
+	अगर (!rmap)
+		वापस;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->गाँठ));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+अटल bool regmap_reg_valid(काष्ठा regmap *rmap, अचिन्हित पूर्णांक reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	अगर ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		वापस false;
+	वापस true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+अटल अचिन्हित पूर्णांक regmap_reg_addr(काष्ठा regmap *rmap, अचिन्हित पूर्णांक reg)
 {
 	reg += rmap->reg_base;
 
-	if (rmap->reg_shift > 0)
+	अगर (rmap->reg_shift > 0)
 		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
+	अन्यथा अगर (rmap->reg_shift < 0)
 		reg <<= -(rmap->reg_shift);
 
-	return reg;
+	वापस reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+पूर्णांक regmap_read(काष्ठा regmap *rmap, अचिन्हित पूर्णांक reg, अचिन्हित पूर्णांक *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	अगर (!rmap || !regmap_reg_valid(rmap, reg))
+		वापस SBI_EINVAL;
+	अगर (!rmap->reg_read)
+		वापस SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	वापस rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+पूर्णांक regmap_write(काष्ठा regmap *rmap, अचिन्हित पूर्णांक reg, अचिन्हित पूर्णांक val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	अगर (!rmap || !regmap_reg_valid(rmap, reg))
+		वापस SBI_EINVAL;
+	अगर (!rmap->reg_write)
+		वापस SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	वापस rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+पूर्णांक regmap_update_bits(काष्ठा regmap *rmap, अचिन्हित पूर्णांक reg,
+		       अचिन्हित पूर्णांक mask, अचिन्हित पूर्णांक val)
 {
-	int rc;
-	unsigned int reg_val;
+	पूर्णांक rc;
+	अचिन्हित पूर्णांक reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	अगर (!rmap || !regmap_reg_valid(rmap, reg))
+		वापस SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
+	अगर (rmap->reg_update_bits) {
+		वापस rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
 					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	} अन्यथा अगर (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		अगर (rc)
+			वापस rc;
 
 		reg_val &= ~mask;
 		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		वापस rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	वापस SBI_ENOSYS;
 }

@@ -11,51 +11,51 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/i2c/fdt_i2c.h>
 
 /* List of FDT i2c adapter drivers generated at compile time */
-extern const struct fdt_driver *const fdt_i2c_adapter_drivers[];
+बाह्य स्थिर काष्ठा fdt_driver *स्थिर fdt_i2c_adapter_drivers[];
 
-static int fdt_i2c_adapter_find(const void *fdt, int nodeoff,
-				struct i2c_adapter **out_adapter)
+अटल पूर्णांक fdt_i2c_adapter_find(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+				काष्ठा i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter = i2c_adapter_find(nodeoff);
+	पूर्णांक rc;
+	काष्ठा i2c_adapter *adapter = i2c_adapter_find(nodeoff);
 
-	if (!adapter) {
+	अगर (!adapter) {
 		/* I2C adapter not found so initialize matching driver */
 		rc = fdt_driver_init_by_offset(fdt, nodeoff,
 					       fdt_i2c_adapter_drivers);
-		if (rc)
-			return rc;
+		अगर (rc)
+			वापस rc;
 
 		/* Try to find I2C adapter again */
 		adapter = i2c_adapter_find(nodeoff);
-		if (!adapter)
-			return SBI_ENOSYS;
+		अगर (!adapter)
+			वापस SBI_ENOSYS;
 	}
 
-	if (out_adapter)
+	अगर (out_adapter)
 		*out_adapter = adapter;
 
-	return 0;
+	वापस 0;
 }
 
-int fdt_i2c_adapter_get(const void *fdt, int nodeoff,
-			struct i2c_adapter **out_adapter)
+पूर्णांक fdt_i2c_adapter_get(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+			काष्ठा i2c_adapter **out_adapter)
 {
-	int rc;
-	struct i2c_adapter *adapter;
+	पूर्णांक rc;
+	काष्ठा i2c_adapter *adapter;
 
-	if (!fdt || (nodeoff < 0) || !out_adapter)
-		return SBI_EINVAL;
+	अगर (!fdt || (nodeoff < 0) || !out_adapter)
+		वापस SBI_EINVAL;
 
 	rc = fdt_i2c_adapter_find(fdt, nodeoff, &adapter);
-	if (rc)
-		return rc;
+	अगर (rc)
+		वापस rc;
 
 	*out_adapter = adapter;
 
-	return 0;
+	वापस 0;
 }

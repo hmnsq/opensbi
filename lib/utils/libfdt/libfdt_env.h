@@ -1,85 +1,85 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause */
-#ifndef LIBFDT_ENV_H
-#define LIBFDT_ENV_H
+#अगर_अघोषित LIBFDT_ENV_H
+#घोषणा LIBFDT_ENV_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  * Copyright 2012 Kim Phillips, Freescale Semiconductor.
  */
 
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_byteorder.h>
+#समावेश <sbi/sbi_string.h>
+#समावेश <sbi/sbi_types.h>
+#समावेश <sbi/sbi_byteorder.h>
 
-#define INT_MAX		((int)(~0U >> 1))
-#define UINT_MAX	((unsigned int)~0U)
-#define INT32_MAX	INT_MAX
-#define UINT32_MAX	UINT_MAX
+#घोषणा पूर्णांक_उच्च		((पूर्णांक)(~0U >> 1))
+#घोषणा अच_पूर्णांक_उच्च	((अचिन्हित पूर्णांक)~0U)
+#घोषणा INT32_MAX	पूर्णांक_उच्च
+#घोषणा UINT32_MAX	अच_पूर्णांक_उच्च
 
-#ifdef __CHECKER__
-#define FDT_FORCE __attribute__((force))
-#define FDT_BITWISE __attribute__((bitwise))
-#else
-#define FDT_FORCE
-#define FDT_BITWISE
-#endif
+#अगर_घोषित __CHECKER__
+#घोषणा FDT_FORCE __attribute__((force))
+#घोषणा FDT_BITWISE __attribute__((bitwise))
+#अन्यथा
+#घोषणा FDT_FORCE
+#घोषणा FDT_BITWISE
+#पूर्ण_अगर
 
-#define memmove		sbi_memmove
-#define memcpy		sbi_memcpy
-#define memcmp		sbi_memcmp
-#define memchr		sbi_memchr
-#define memset		sbi_memset
-#define strchr		sbi_strchr
-#define strrchr		sbi_strrchr
-#define strcpy		sbi_strcpy
-#define strncpy		sbi_strncpy
-#define strcmp		sbi_strcmp
-#define strncmp		sbi_strncmp
-#define strlen		sbi_strlen
-#define strnlen		sbi_strnlen
+#घोषणा स_हटाओ		sbi_memmove
+#घोषणा स_नकल		sbi_memcpy
+#घोषणा स_भेद		sbi_memcmp
+#घोषणा स_प्रथम		sbi_memchr
+#घोषणा स_रखो		sbi_memset
+#घोषणा म_अक्षर		sbi_strchr
+#घोषणा म_खोजप		sbi_strrchr
+#घोषणा म_नकल		sbi_strcpy
+#घोषणा म_नकलन		sbi_strncpy
+#घोषणा म_भेद		sbi_strcmp
+#घोषणा म_भेदन		sbi_strncmp
+#घोषणा म_माप		sbi_strlen
+#घोषणा strnlen		sbi_strnlen
 
-typedef be16_t FDT_BITWISE fdt16_t;
-typedef be32_t FDT_BITWISE fdt32_t;
-typedef be64_t FDT_BITWISE fdt64_t;
+प्रकार be16_t FDT_BITWISE fdt16_t;
+प्रकार be32_t FDT_BITWISE fdt32_t;
+प्रकार be64_t FDT_BITWISE fdt64_t;
 
-static inline uint16_t fdt16_to_cpu(fdt16_t x)
+अटल अंतरभूत uint16_t fdt16_to_cpu(fdt16_t x)
 {
-	return (FDT_FORCE uint16_t)be16_to_cpu(x);
+	वापस (FDT_FORCE uint16_t)be16_to_cpu(x);
 }
 
-static inline fdt16_t cpu_to_fdt16(uint16_t x)
+अटल अंतरभूत fdt16_t cpu_to_fdt16(uint16_t x)
 {
-	return (FDT_FORCE fdt16_t)cpu_to_be16(x);
+	वापस (FDT_FORCE fdt16_t)cpu_to_be16(x);
 }
 
-static inline uint32_t fdt32_to_cpu(fdt32_t x)
+अटल अंतरभूत uint32_t fdt32_to_cpu(fdt32_t x)
 {
-	return (FDT_FORCE uint32_t)be32_to_cpu(x);
+	वापस (FDT_FORCE uint32_t)be32_to_cpu(x);
 }
 
-static inline fdt32_t cpu_to_fdt32(uint32_t x)
+अटल अंतरभूत fdt32_t cpu_to_fdt32(uint32_t x)
 {
-	return (FDT_FORCE fdt32_t)cpu_to_be32(x);
+	वापस (FDT_FORCE fdt32_t)cpu_to_be32(x);
 }
 
-static inline uint64_t fdt64_to_cpu(fdt64_t x)
+अटल अंतरभूत uint64_t fdt64_to_cpu(fdt64_t x)
 {
-	return (FDT_FORCE uint64_t)be64_to_cpu(x);
+	वापस (FDT_FORCE uint64_t)be64_to_cpu(x);
 }
 
-static inline fdt64_t cpu_to_fdt64(uint64_t x)
+अटल अंतरभूत fdt64_t cpu_to_fdt64(uint64_t x)
 {
-	return (FDT_FORCE fdt64_t)cpu_to_be64(x);
+	वापस (FDT_FORCE fdt64_t)cpu_to_be64(x);
 }
 
-#ifdef __APPLE__
-#include <AvailabilityMacros.h>
+#अगर_घोषित __APPLE__
+#समावेश <AvailabilityMacros.h>
 
 /* strnlen() is not available on Mac OS < 10.7 */
-# if !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
+# अगर !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED < \
                                          MAC_OS_X_VERSION_10_7)
 
-#define strnlen fdt_strnlen
+#घोषणा strnlen fdt_strnlen
 
 /*
  * fdt_strnlen: returns the length of a string or max_count - which ever is
@@ -88,15 +88,15 @@ static inline fdt64_t cpu_to_fdt64(uint64_t x)
  * Input 2 max_count: the maximum value returned by this function
  * Output: length of the string or max_count (the smallest of the two)
  */
-static inline size_t fdt_strnlen(const char *string, size_t max_count)
+अटल अंतरभूत माप_प्रकार fdt_strnlen(स्थिर अक्षर *string, माप_प्रकार max_गिनती)
 {
-    const char *p = memchr(string, 0, max_count);
-    return p ? p - string : max_count;
+    स्थिर अक्षर *p = स_प्रथम(string, 0, max_गिनती);
+    वापस p ? p - string : max_गिनती;
 }
 
-#endif /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
+#पूर्ण_अगर /* !defined(MAC_OS_X_VERSION_10_7) || (MAC_OS_X_VERSION_MAX_ALLOWED <
           MAC_OS_X_VERSION_10_7) */
 
-#endif /* __APPLE__ */
+#पूर्ण_अगर /* __APPLE__ */
 
-#endif /* LIBFDT_ENV_H */
+#पूर्ण_अगर /* LIBFDT_ENV_H */

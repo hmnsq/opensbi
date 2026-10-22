@@ -8,46 +8,46 @@
  *   Atish Patra <atish.patra@wdc.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_ecall_interface.h>
-#include <sbi/sbi_trap.h>
-#include <sbi/sbi_system.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi/sbi_ecall.h>
+#समावेश <sbi/sbi_ecall_interface.h>
+#समावेश <sbi/sbi_trap.h>
+#समावेश <sbi/sbi_system.h>
 
-static int sbi_ecall_srst_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+अटल पूर्णांक sbi_ecall_srst_handler(अचिन्हित दीर्घ extid, अचिन्हित दीर्घ funcid,
+				  काष्ठा sbi_trap_regs *regs,
+				  काष्ठा sbi_ecall_return *out)
 {
-	if (funcid == SBI_EXT_SRST_RESET) {
-		if ((((u32)-1U) <= ((u64)regs->a0)) ||
+	अगर (funcid == SBI_EXT_SRST_RESET) {
+		अगर ((((u32)-1U) <= ((u64)regs->a0)) ||
 		    (((u32)-1U) <= ((u64)regs->a1)))
-			return SBI_EINVAL;
+			वापस SBI_EINVAL;
 
-		switch (regs->a0) {
-		case SBI_SRST_RESET_TYPE_SHUTDOWN:
-		case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-			break;
-		default:
-			return SBI_EINVAL;
+		चयन (regs->a0) {
+		हाल SBI_SRST_RESET_TYPE_SHUTDOWN:
+		हाल SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		हाल SBI_SRST_RESET_TYPE_WARM_REBOOT:
+			अवरोध;
+		शेष:
+			वापस SBI_EINVAL;
 		}
 
-		switch (regs->a1) {
-		case SBI_SRST_RESET_REASON_NONE:
-		case SBI_SRST_RESET_REASON_SYSFAIL:
-			break;
-		default:
-			return SBI_EINVAL;
+		चयन (regs->a1) {
+		हाल SBI_SRST_RESET_REASON_NONE:
+		हाल SBI_SRST_RESET_REASON_SYSFAIL:
+			अवरोध;
+		शेष:
+			वापस SBI_EINVAL;
 		}
 
-		if (sbi_system_reset_supported(regs->a0, regs->a1))
+		अगर (sbi_system_reset_supported(regs->a0, regs->a1))
 			sbi_system_reset(regs->a0, regs->a1);
 	}
 
-	return SBI_ENOTSUPP;
+	वापस SBI_ENOTSUPP;
 }
 
-static bool srst_available(void)
+अटल bool srst_available(व्योम)
 {
 	u32 type;
 
@@ -55,26 +55,26 @@ static bool srst_available(void)
 	 * At least one standard reset types should be supported by
 	 * the platform for SBI SRST extension to be usable.
 	 */
-	for (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
-		if (sbi_system_reset_supported(type,
+	क्रम (type = 0; type <= SBI_SRST_RESET_TYPE_LAST; type++) {
+		अगर (sbi_system_reset_supported(type,
 					SBI_SRST_RESET_REASON_NONE))
-			return true;
+			वापस true;
 	}
 
-	return false;
+	वापस false;
 }
 
-struct sbi_ecall_extension ecall_srst;
+काष्ठा sbi_ecall_extension ecall_srst;
 
-static int sbi_ecall_srst_register_extensions(void)
+अटल पूर्णांक sbi_ecall_srst_register_extensions(व्योम)
 {
-	if (!srst_available())
-		return 0;
+	अगर (!srst_available())
+		वापस 0;
 
-	return sbi_ecall_register_extension(&ecall_srst);
+	वापस sbi_ecall_register_extension(&ecall_srst);
 }
 
-struct sbi_ecall_extension ecall_srst = {
+काष्ठा sbi_ecall_extension ecall_srst = {
 	.name			= "srst",
 	.extid_start		= SBI_EXT_SRST,
 	.extid_end		= SBI_EXT_SRST,

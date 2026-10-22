@@ -7,43 +7,43 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
+#समावेश <libfdt.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
+#समावेश <sbi_utils/serial/fdt_serial.h>
 
 /* List of FDT serial drivers generated at compile time */
-extern const struct fdt_driver *const fdt_serial_drivers[];
+बाह्य स्थिर काष्ठा fdt_driver *स्थिर fdt_serial_drivers[];
 
-int fdt_serial_init(const void *fdt)
+पूर्णांक fdt_serial_init(स्थिर व्योम *fdt)
 {
-	const void *prop;
-	int noff = -1, len, coff, rc;
+	स्थिर व्योम *prop;
+	पूर्णांक noff = -1, len, coff, rc;
 
 	/* Find offset of node pointed to by stdout-path */
 	coff = fdt_path_offset(fdt, "/chosen");
-	if (-1 < coff) {
+	अगर (-1 < coff) {
 		prop = fdt_getprop(fdt, coff, "stdout-path", &len);
-		if (prop && len) {
-			const char *sep, *start = prop;
+		अगर (prop && len) {
+			स्थिर अक्षर *sep, *start = prop;
 
 			/* The device path may be followed by ':' */
-			sep = strchr(start, ':');
-			if (sep)
+			sep = म_अक्षर(start, ':');
+			अगर (sep)
 				noff = fdt_path_offset_namelen(fdt, prop,
 							       sep - start);
-			else
+			अन्यथा
 				noff = fdt_path_offset(fdt, prop);
 		}
 	}
 
 	/* First check DT node pointed by stdout-path */
-	if (-1 < noff) {
+	अगर (-1 < noff) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_serial_drivers);
-		if (rc != SBI_ENODEV)
-			return rc;
+		अगर (rc != SBI_ENODEV)
+			वापस rc;
 	}
 
 	/* Lastly check all DT nodes */
-	return fdt_driver_init_one(fdt, fdt_serial_drivers);
+	वापस fdt_driver_init_one(fdt, fdt_serial_drivers);
 }

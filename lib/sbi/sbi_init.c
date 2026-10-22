@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_cppc.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_double_trap.h>
-#include <sbi/sbi_ecall.h>
-#include <sbi/sbi_fwft.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_hartmask.h>
-#include <sbi/sbi_hart_pmp.h>
-#include <sbi/sbi_hart_protection.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_dbtr.h>
-#include <sbi/sbi_mpxy.h>
-#include <sbi/sbi_sse.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_timer.h>
-#include <sbi/sbi_tlb.h>
-#include <sbi/sbi_version.h>
-#include <sbi/sbi_unit_test.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/riscv_atomic.h>
+#समावेश <sbi/riscv_barrier.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi/sbi_cppc.h>
+#समावेश <sbi/sbi_domain.h>
+#समावेश <sbi/sbi_double_trap.h>
+#समावेश <sbi/sbi_ecall.h>
+#समावेश <sbi/sbi_fwft.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_hartmask.h>
+#समावेश <sbi/sbi_hart_pmp.h>
+#समावेश <sbi/sbi_hart_protection.h>
+#समावेश <sbi/sbi_heap.h>
+#समावेश <sbi/sbi_hsm.h>
+#समावेश <sbi/sbi_ipi.h>
+#समावेश <sbi/sbi_irqchip.h>
+#समावेश <sbi/sbi_platform.h>
+#समावेश <sbi/sbi_pmu.h>
+#समावेश <sbi/sbi_dbtr.h>
+#समावेश <sbi/sbi_mpxy.h>
+#समावेश <sbi/sbi_sse.h>
+#समावेश <sbi/sbi_system.h>
+#समावेश <sbi/sbi_string.h>
+#समावेश <sbi/sbi_timer.h>
+#समावेश <sbi/sbi_tlb.h>
+#समावेश <sbi/sbi_version.h>
+#समावेश <sbi/sbi_unit_test.h>
 
-#define BANNER                                              \
+#घोषणा BANNER                                              \
 	"   ____                    _____ ____ _____\n"     \
 	"  / __ \\                  / ____|  _ \\_   _|\n"  \
 	" | |  | |_ __   ___ _ __ | (___ | |_) || |\n"      \
@@ -46,53 +46,53 @@
 	"        | |\n"                                     \
 	"        |_|\n\n"
 
-static void sbi_boot_print_banner(struct sbi_scratch *scratch)
+अटल व्योम sbi_boot_print_banner(काष्ठा sbi_scratch *scratch)
 {
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	अगर (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		वापस;
 
-#ifdef OPENSBI_VERSION_GIT
+#अगर_घोषित OPENSBI_VERSION_GIT
 	sbi_printf("\nOpenSBI %s\n", OPENSBI_VERSION_GIT);
-#else
+#अन्यथा
 	sbi_printf("\nOpenSBI v%d.%d\n", OPENSBI_VERSION_MAJOR,
 		   OPENSBI_VERSION_MINOR);
-#endif
+#पूर्ण_अगर
 
-#ifdef OPENSBI_BUILD_TIME_STAMP
+#अगर_घोषित OPENSBI_BUILD_TIME_STAMP
 	sbi_printf("Build time: %s\n", OPENSBI_BUILD_TIME_STAMP);
-#endif
+#पूर्ण_अगर
 
-#ifdef OPENSBI_BUILD_COMPILER_VERSION
+#अगर_घोषित OPENSBI_BUILD_COMPILER_VERSION
 	sbi_printf("Build compiler: %s\n", OPENSBI_BUILD_COMPILER_VERSION);
-#endif
+#पूर्ण_अगर
 
 	sbi_printf(BANNER);
 }
 
-static void sbi_boot_print_general(struct sbi_scratch *scratch)
+अटल व्योम sbi_boot_print_general(काष्ठा sbi_scratch *scratch)
 {
-	char str[128];
-	const struct sbi_pmu_device *pdev;
-	const struct sbi_hsm_device *hdev;
-	const struct sbi_ipi_device *idev;
-	const struct sbi_timer_device *tdev;
-	const struct sbi_console_device *cdev;
-	const struct sbi_system_reset_device *srdev;
-	const struct sbi_system_suspend_device *susp_dev;
-	const struct sbi_cppc_device *cppc_dev;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	अक्षर str[128];
+	स्थिर काष्ठा sbi_pmu_device *pdev;
+	स्थिर काष्ठा sbi_hsm_device *hdev;
+	स्थिर काष्ठा sbi_ipi_device *idev;
+	स्थिर काष्ठा sbi_timer_device *tdev;
+	स्थिर काष्ठा sbi_console_device *cdev;
+	स्थिर काष्ठा sbi_system_reset_device *srdev;
+	स्थिर काष्ठा sbi_system_suspend_device *susp_dev;
+	स्थिर काष्ठा sbi_cppc_device *cppc_dev;
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	अगर (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		वापस;
 
 	/* Platform details */
 	sbi_printf("Platform Name               : %s\n",
 		   sbi_platform_name(plat));
-	sbi_platform_get_features_str(plat, str, sizeof(str));
+	sbi_platform_get_features_str(plat, str, माप(str));
 	sbi_printf("Platform Features           : %s\n", str);
 	sbi_printf("Platform HART Count         : %u\n",
-		   sbi_platform_hart_count(plat));
-	sbi_hart_protection_get_str(str, sizeof(str));
+		   sbi_platform_hart_गिनती(plat));
+	sbi_hart_protection_get_str(str, माप(str));
 	sbi_printf("Platform HART Protection    : %s\n", str);
 	idev = sbi_ipi_get_device();
 	sbi_printf("Platform IPI Device         : %s\n",
@@ -126,54 +126,54 @@ static void sbi_boot_print_general(struct sbi_scratch *scratch)
 	/* Firmware details */
 	sbi_printf("Firmware Base               : 0x%lx\n", scratch->fw_start);
 	sbi_printf("Firmware Size               : %d KB\n",
-		   (u32)(scratch->fw_size / 1024));
+		   (u32)(scratch->fw_आकार / 1024));
 	sbi_printf("Firmware RW Offset          : 0x%lx\n", scratch->fw_rw_offset);
 	sbi_printf("Firmware RW Size            : %d KB\n",
-		   (u32)((scratch->fw_size - scratch->fw_rw_offset) / 1024));
+		   (u32)((scratch->fw_आकार - scratch->fw_rw_offset) / 1024));
 	sbi_printf("Firmware Heap Offset        : 0x%lx\n", scratch->fw_heap_offset);
 	sbi_printf("Firmware Heap Size          : "
 		   "%d KB (total), %d KB (reserved), %d KB (used), %d KB (free)\n",
-		   (u32)(scratch->fw_heap_size / 1024),
+		   (u32)(scratch->fw_heap_आकार / 1024),
 		   (u32)(sbi_heap_reserved_space() / 1024),
 		   (u32)(sbi_heap_used_space() / 1024),
 		   (u32)(sbi_heap_free_space() / 1024));
 	sbi_printf("Firmware Scratch Size       : "
 		   "%d B (total), %d B (used), %d B (free)\n",
-		   SBI_SCRATCH_SIZE,
+		   SBI_SCRATCH_आकार,
 		   (u32)sbi_scratch_used_space(),
-		   (u32)(SBI_SCRATCH_SIZE - sbi_scratch_used_space()));
+		   (u32)(SBI_SCRATCH_आकार - sbi_scratch_used_space()));
 
 	/* SBI details */
 	sbi_printf("Runtime SBI Version         : %d.%d\n",
 		   sbi_ecall_version_major(), sbi_ecall_version_minor());
-	sbi_ecall_get_extensions_str(str, sizeof(str), false);
+	sbi_ecall_get_extensions_str(str, माप(str), false);
 	sbi_printf("Standard SBI Extensions     : %s\n", str);
-	sbi_ecall_get_extensions_str(str, sizeof(str), true);
+	sbi_ecall_get_extensions_str(str, माप(str), true);
 	sbi_printf("Experimental SBI Extensions : %s\n", str);
 	sbi_printf("\n");
 }
 
-static void sbi_boot_print_domains(struct sbi_scratch *scratch)
+अटल व्योम sbi_boot_print_domains(काष्ठा sbi_scratch *scratch)
 {
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	अगर (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		वापस;
 
 	/* Domain details */
 	sbi_domain_dump_all("        ");
 }
 
-static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
+अटल व्योम sbi_boot_print_hart(काष्ठा sbi_scratch *scratch, u32 hartid)
 {
-	int xlen;
-	char str[256];
-	const struct sbi_domain *dom = sbi_domain_thishart_ptr();
+	पूर्णांक xlen;
+	अक्षर str[256];
+	स्थिर काष्ठा sbi_domain *dom = sbi_domain_thishart_ptr();
 
-	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
-		return;
+	अगर (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		वापस;
 
 	/* Determine MISA XLEN and MISA string */
 	xlen = misa_xlen();
-	if (xlen < 1) {
+	अगर (xlen < 1) {
 		sbi_printf("Error %d getting MISA XLEN\n", xlen);
 		sbi_hart_hang();
 	}
@@ -181,14 +181,14 @@ static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
 	/* Boot HART details */
 	sbi_printf("Boot HART ID                : %u\n", hartid);
 	sbi_printf("Boot HART Domain            : %s\n", dom->name);
-	sbi_hart_get_priv_version_str(scratch, str, sizeof(str));
+	sbi_hart_get_priv_version_str(scratch, str, माप(str));
 	sbi_printf("Boot HART Priv Version      : %s\n", str);
-	misa_string(xlen, str, sizeof(str));
+	misa_string(xlen, str, माप(str));
 	sbi_printf("Boot HART Base ISA          : %s\n", str);
-	sbi_hart_get_extensions_str(scratch, str, sizeof(str));
+	sbi_hart_get_extensions_str(scratch, str, माप(str));
 	sbi_printf("Boot HART ISA Extensions    : %s\n", str);
 	sbi_printf("Boot HART PMP Count         : %d\n",
-		   sbi_hart_pmp_count(scratch));
+		   sbi_hart_pmp_गिनती(scratch));
 	sbi_printf("Boot HART PMP Granularity   : %u bits\n",
 		   sbi_hart_pmp_log2gran(scratch));
 	sbi_printf("Boot HART PMP Address Bits  : %d\n",
@@ -197,64 +197,64 @@ static void sbi_boot_print_hart(struct sbi_scratch *scratch, u32 hartid)
 		   sbi_popcount(sbi_hart_mhpm_mask(scratch)),
 		   sbi_hart_mhpm_mask(scratch));
 	sbi_printf("Boot HART Debug Triggers    : %d triggers\n",
-		   sbi_dbtr_get_total_triggers());
+		   sbi_dbtr_get_योग_triggers());
 	sbi_hart_delegation_dump(scratch, "Boot HART ", "           ");
 }
 
-static unsigned long coldboot_done;
+अटल अचिन्हित दीर्घ coldboot_done;
 
-static void wait_for_coldboot(struct sbi_scratch *scratch)
+अटल व्योम wait_for_coldboot(काष्ठा sbi_scratch *scratch)
 {
 	/* Wait for coldboot to finish */
-	while (!__smp_load_acquire(&coldboot_done))
+	जबतक (!__smp_load_acquire(&coldboot_done))
 		cpu_relax();
 }
 
-static void wake_coldboot_harts(struct sbi_scratch *scratch)
+अटल व्योम wake_coldboot_harts(काष्ठा sbi_scratch *scratch)
 {
 	/* Mark coldboot done */
 	__smp_store_release(&coldboot_done, 1);
 }
 
-unsigned long __attribute__((weak)) __stack_chk_guard = 0x95B5FF5A;
+अचिन्हित दीर्घ __attribute__((weak)) __stack_chk_guard = 0x95B5FF5A;
 
-static unsigned long entry_count_offset;
-static unsigned long init_count_offset;
+अटल अचिन्हित दीर्घ entry_गिनती_offset;
+अटल अचिन्हित दीर्घ init_गिनती_offset;
 
-static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
+अटल व्योम __noreturn init_coldboot(काष्ठा sbi_scratch *scratch, u32 hartid)
 {
-	int rc;
-	unsigned long *count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	पूर्णांक rc;
+	अचिन्हित दीर्घ *गिनती;
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
 	/* Note: This has to be first thing in coldboot init sequence */
 	rc = sbi_scratch_init(scratch);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	/* Note: This has to be second thing in coldboot init sequence */
 	rc = sbi_heap_init(scratch);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	/* Note: This has to be the third thing in coldboot init sequence */
 	rc = sbi_domain_init(scratch, hartid);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
-	entry_count_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
-	if (!entry_count_offset)
+	entry_गिनती_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
+	अगर (!entry_गिनती_offset)
 		sbi_hart_hang();
 
-	init_count_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
-	if (!init_count_offset)
+	init_गिनती_offset = sbi_scratch_alloc_offset(__SIZEOF_POINTER__);
+	अगर (!init_गिनती_offset)
 		sbi_hart_hang();
 
-	count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
-	(*count)++;
+	गिनती = sbi_scratch_offset_ptr(scratch, entry_गिनती_offset);
+	(*गिनती)++;
 
 	rc = sbi_hsm_init(scratch, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	/*
@@ -266,7 +266,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	wake_coldboot_harts(scratch);
 
 	rc = sbi_hart_init(scratch, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	/*
@@ -275,24 +275,24 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * to __stack_chk_guard is safe here because function doesn't
 	 * return and no check against value on entry will be done.
 	 */
-	if (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
-		unsigned long guard_val = 0;
-		int chunks = sizeof(unsigned long) / sizeof(uint16_t);
-#ifndef CONFIG_ZKR_POLL_BUDGET
-#define CONFIG_ZKR_POLL_BUDGET		1000
-#endif
-		unsigned int tries = CONFIG_ZKR_POLL_BUDGET;
+	अगर (sbi_hart_has_extension(scratch, SBI_HART_EXT_ZKR)) {
+		अचिन्हित दीर्घ guard_val = 0;
+		पूर्णांक chunks = माप(अचिन्हित दीर्घ) / माप(uint16_t);
+#अगर_अघोषित CONFIG_ZKR_POLL_BUDGET
+#घोषणा CONFIG_ZKR_POLL_BUDGET		1000
+#पूर्ण_अगर
+		अचिन्हित पूर्णांक tries = CONFIG_ZKR_POLL_BUDGET;
 		bool res = false;
 
-		while (chunks && tries) {
-			unsigned long seed = csr_swap(CSR_SEED, 0);
-			unsigned long opst = seed & SEED_OPTS_MASK;
+		जबतक (chunks && tries) {
+			अचिन्हित दीर्घ seed = csr_swap(CSR_SEED, 0);
+			अचिन्हित दीर्घ opst = seed & SEED_OPTS_MASK;
 			res = false;
 
-			if (opst == SEED_OPTS_DEAD) {
-				break;
+			अगर (opst == SEED_OPTS_DEAD) {
+				अवरोध;
 			}
-			if (opst == SEED_OPTS_ES16) {
+			अगर (opst == SEED_OPTS_ES16) {
 				guard_val = (guard_val << 16) | (seed & SEED_ENTROPY_MASK);
 				chunks--;
 				res = true;
@@ -301,33 +301,33 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 			}
 
 			tries--;
-			continue;
+			जारी;
 		}
-		if (res)
+		अगर (res)
 			__stack_chk_guard = guard_val;
 	}
 
 	rc = sbi_trap_init(scratch, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_timer_init(scratch, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_early_init(plat, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_pmu_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: pmu init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_dbtr_init(scratch, true);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	sbi_boot_print_banner(scratch);
@@ -335,32 +335,32 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	sbi_double_trap_init(scratch);
 
 	rc = sbi_irqchip_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: irqchip init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_ipi_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: ipi init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_tlb_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: tlb init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_fwft_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: fwft init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
 
 	rc = sbi_mpxy_init(scratch);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: mpxy init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -371,7 +371,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * that we use correct domain for configuring PMP.
 	 */
 	rc = sbi_domain_finalize(scratch);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: domain finalize failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -383,7 +383,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * configuration for FDT fixups.
 	 */
 	rc = sbi_platform_final_init(plat, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: platform final init failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -394,7 +394,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * sbi_sse_init() needs to be called after all drivers have been probed.
 	 */
 	rc = sbi_sse_init(scratch, true);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: sse init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -405,7 +405,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * already registered.
 	 */
 	rc = sbi_ecall_init();
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: ecall init failed (error %d)\n", __func__, rc);
 		sbi_hart_hang();
 	}
@@ -423,7 +423,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * otherwise boot HART of non-root domain can crash.
 	 */
 	rc = sbi_domain_startup(scratch, hartid);
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: domain startup failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
@@ -434,82 +434,82 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	 * detected, M-mode access to the S/U space will be rescinded.
 	 */
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc) {
+	अगर (rc) {
 		sbi_printf("%s: hart protection configure failed (error %d)\n",
 			   __func__, rc);
 		sbi_hart_hang();
 	}
 
-	count = sbi_scratch_offset_ptr(scratch, init_count_offset);
-	(*count)++;
+	गिनती = sbi_scratch_offset_ptr(scratch, init_गिनती_offset);
+	(*गिनती)++;
 
 	sbi_hsm_hart_start_finish(scratch, hartid);
 }
 
-static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
+अटल व्योम __noreturn init_warm_startup(काष्ठा sbi_scratch *scratch,
 					 u32 hartid)
 {
-	int rc;
-	unsigned long *count;
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	पूर्णांक rc;
+	अचिन्हित दीर्घ *गिनती;
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (!entry_count_offset || !init_count_offset)
+	अगर (!entry_गिनती_offset || !init_गिनती_offset)
 		sbi_hart_hang();
 
-	count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
-	(*count)++;
+	गिनती = sbi_scratch_offset_ptr(scratch, entry_गिनती_offset);
+	(*गिनती)++;
 
 	/* Note: This has to be first thing in warmboot init sequence */
 	rc = sbi_hsm_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_hart_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_trap_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_timer_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_early_init(plat, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_pmu_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_dbtr_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_irqchip_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_ipi_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_tlb_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_fwft_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_platform_final_init(plat, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_sse_init(scratch, false);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	/*
@@ -517,52 +517,52 @@ static void __noreturn init_warm_startup(struct sbi_scratch *scratch,
 	 * detected, M-mode access to the S/U space will be rescinded.
 	 */
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
-	count = sbi_scratch_offset_ptr(scratch, init_count_offset);
-	(*count)++;
+	गिनती = sbi_scratch_offset_ptr(scratch, init_गिनती_offset);
+	(*गिनती)++;
 
 	sbi_hsm_hart_start_finish(scratch, hartid);
 }
 
-static void __noreturn init_warm_resume(struct sbi_scratch *scratch,
+अटल व्योम __noreturn init_warm_resume(काष्ठा sbi_scratch *scratch,
 					u32 hartid)
 {
-	int rc;
+	पूर्णांक rc;
 
 	sbi_hsm_hart_resume_start(scratch);
 
 	rc = sbi_hart_reinit(scratch);
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	rc = sbi_hart_protection_configure(scratch, sbi_domain_thishart_ptr());
-	if (rc)
+	अगर (rc)
 		sbi_hart_hang();
 
 	sbi_hsm_hart_resume_finish(scratch, hartid);
 }
 
-static void __noreturn init_warmboot(struct sbi_scratch *scratch, u32 hartid)
+अटल व्योम __noreturn init_warmboot(काष्ठा sbi_scratch *scratch, u32 hartid)
 {
-	int hstate;
+	पूर्णांक hstate;
 
 	wait_for_coldboot(scratch);
 
 	hstate = sbi_hsm_hart_get_state(sbi_domain_thishart_ptr(), hartid);
-	if (hstate < 0)
+	अगर (hstate < 0)
 		sbi_hart_hang();
 
-	if (hstate == SBI_HSM_STATE_SUSPENDED) {
+	अगर (hstate == SBI_HSM_STATE_SUSPENDED) {
 		init_warm_resume(scratch, hartid);
-	} else {
+	} अन्यथा {
 		sbi_ipi_raw_clear(true);
 		init_warm_startup(scratch, hartid);
 	}
 }
 
-static atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
+अटल atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
 
 /**
  * Initialize OpenSBI library for current HART and jump to next
@@ -576,26 +576,26 @@ static atomic_t coldboot_lottery = ATOMIC_INITIALIZER(0);
  *
  * @param scratch pointer to sbi_scratch of current HART
  */
-void __noreturn sbi_init(struct sbi_scratch *scratch)
+व्योम __noreturn sbi_init(काष्ठा sbi_scratch *scratch)
 {
-	bool next_mode_supported	= false;
+	bool अग्र_mode_supported	= false;
 	bool coldboot			= false;
 	u32 hartid			= current_hartid();
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	switch (scratch->next_mode) {
-	case PRV_M:
-		next_mode_supported = true;
-		break;
-	case PRV_S:
-		if (misa_extension('S'))
-			next_mode_supported = true;
-		break;
-	case PRV_U:
-		if (misa_extension('U'))
-			next_mode_supported = true;
-		break;
-	default:
+	चयन (scratch->अग्र_mode) {
+	हाल PRV_M:
+		अग्र_mode_supported = true;
+		अवरोध;
+	हाल PRV_S:
+		अगर (misa_extension('S'))
+			अग्र_mode_supported = true;
+		अवरोध;
+	हाल PRV_U:
+		अगर (misa_extension('U'))
+			अग्र_mode_supported = true;
+		अवरोध;
+	शेष:
 		sbi_hart_hang();
 	}
 
@@ -609,8 +609,8 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
 	 * HARTs which satisfy above condition.
 	 */
 
-	if (sbi_platform_cold_boot_allowed(plat, hartid)) {
-		if (next_mode_supported &&
+	अगर (sbi_platform_cold_boot_allowed(plat, hartid)) {
+		अगर (अग्र_mode_supported &&
 		    atomic_xchg(&coldboot_lottery, 1) == 0)
 			coldboot = true;
 	}
@@ -620,60 +620,60 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
 	 * that platform can initialize platform specific per-HART CSRs
 	 * or per-HART devices.
 	 */
-	if (sbi_platform_nascent_init(plat))
+	अगर (sbi_platform_nascent_init(plat))
 		sbi_hart_hang();
 
-	if (coldboot)
+	अगर (coldboot)
 		init_coldboot(scratch, hartid);
-	else
+	अन्यथा
 		init_warmboot(scratch, hartid);
 }
 
-void sbi_revert_entry_count(struct sbi_scratch *scratch)
+व्योम sbi_revert_entry_गिनती(काष्ठा sbi_scratch *scratch)
 {
-	unsigned long *entry_count, *init_count;
+	अचिन्हित दीर्घ *entry_गिनती, *init_गिनती;
 
-	if (!entry_count_offset || !init_count_offset)
+	अगर (!entry_गिनती_offset || !init_गिनती_offset)
 		sbi_hart_hang();
 
-	entry_count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
-	init_count = sbi_scratch_offset_ptr(scratch, init_count_offset);
+	entry_गिनती = sbi_scratch_offset_ptr(scratch, entry_गिनती_offset);
+	init_गिनती = sbi_scratch_offset_ptr(scratch, init_गिनती_offset);
 
-	*entry_count = *init_count;
+	*entry_गिनती = *init_गिनती;
 }
 
-unsigned long sbi_entry_count(u32 hartindex)
+अचिन्हित दीर्घ sbi_entry_गिनती(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
-	unsigned long *entry_count;
+	काष्ठा sbi_scratch *scratch;
+	अचिन्हित दीर्घ *entry_गिनती;
 
-	if (!entry_count_offset)
-		return 0;
+	अगर (!entry_गिनती_offset)
+		वापस 0;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return 0;
+	अगर (!scratch)
+		वापस 0;
 
-	entry_count = sbi_scratch_offset_ptr(scratch, entry_count_offset);
+	entry_गिनती = sbi_scratch_offset_ptr(scratch, entry_गिनती_offset);
 
-	return *entry_count;
+	वापस *entry_गिनती;
 }
 
-unsigned long sbi_init_count(u32 hartindex)
+अचिन्हित दीर्घ sbi_init_गिनती(u32 hartindex)
 {
-	struct sbi_scratch *scratch;
-	unsigned long *init_count;
+	काष्ठा sbi_scratch *scratch;
+	अचिन्हित दीर्घ *init_गिनती;
 
-	if (!init_count_offset)
-		return 0;
+	अगर (!init_गिनती_offset)
+		वापस 0;
 
 	scratch = sbi_hartindex_to_scratch(hartindex);
-	if (!scratch)
-		return 0;
+	अगर (!scratch)
+		वापस 0;
 
-	init_count = sbi_scratch_offset_ptr(scratch, init_count_offset);
+	init_गिनती = sbi_scratch_offset_ptr(scratch, init_गिनती_offset);
 
-	return *init_count;
+	वापस *init_गिनती;
 }
 
 /**
@@ -685,12 +685,12 @@ unsigned long sbi_init_count(u32 hartindex)
  *
  * @param scratch pointer to sbi_scratch of current HART
  */
-void __noreturn sbi_exit(struct sbi_scratch *scratch)
+व्योम __noreturn sbi_exit(काष्ठा sbi_scratch *scratch)
 {
 	u32 hartid			= current_hartid();
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
+	स्थिर काष्ठा sbi_platform *plat = sbi_platform_ptr(scratch);
 
-	if (!sbi_hartid_valid(hartid))
+	अगर (!sbi_hartid_valid(hartid))
 		sbi_hart_hang();
 
 	sbi_platform_early_exit(plat);

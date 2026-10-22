@@ -3,91 +3,91 @@
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
  */
-#include "libfdt_env.h"
+#समावेश "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#समावेश <fdt.h>
+#समावेश <libfdt.h>
 
-#include "libfdt_internal.h"
+#समावेश "libfdt_internal.h"
 
-int fdt_check_full(const void *fdt, size_t bufsize)
+पूर्णांक fdt_check_full(स्थिर व्योम *fdt, माप_प्रकार bufsize)
 {
-	int err;
-	int num_memrsv;
-	int offset, nextoffset = 0;
+	पूर्णांक err;
+	पूर्णांक अंक_memrsv;
+	पूर्णांक offset, nextoffset = 0;
 	uint32_t tag;
-	unsigned int depth = 0;
-	const void *prop;
-	const char *propname;
+	अचिन्हित पूर्णांक depth = 0;
+	स्थिर व्योम *prop;
+	स्थिर अक्षर *propname;
 	bool expect_end = false;
 
-	if (bufsize < FDT_V1_SIZE)
-		return -FDT_ERR_TRUNCATED;
-	if (bufsize < fdt_header_size(fdt))
-		return -FDT_ERR_TRUNCATED;
+	अगर (bufsize < FDT_V1_आकार)
+		वापस -FDT_ERR_TRUNCATED;
+	अगर (bufsize < fdt_header_आकार_2(fdt))
+		वापस -FDT_ERR_TRUNCATED;
 	err = fdt_check_header(fdt);
-	if (err != 0)
-		return err;
-	if (bufsize < fdt_totalsize(fdt))
-		return -FDT_ERR_TRUNCATED;
+	अगर (err != 0)
+		वापस err;
+	अगर (bufsize < fdt_totalsize(fdt))
+		वापस -FDT_ERR_TRUNCATED;
 
-	num_memrsv = fdt_num_mem_rsv(fdt);
-	if (num_memrsv < 0)
-		return num_memrsv;
+	अंक_memrsv = fdt_अंक_mem_rsv(fdt);
+	अगर (अंक_memrsv < 0)
+		वापस अंक_memrsv;
 
-	while (1) {
+	जबतक (1) {
 		offset = nextoffset;
-		tag = fdt_next_tag(fdt, offset, &nextoffset);
+		tag = fdt_अग्र_tag(fdt, offset, &nextoffset);
 
-		if (nextoffset < 0)
-			return nextoffset;
+		अगर (nextoffset < 0)
+			वापस nextoffset;
 
 		/* If we see two root nodes, something is wrong */
-		if (expect_end && tag != FDT_END)
-			return -FDT_ERR_BADSTRUCTURE;
+		अगर (expect_end && tag != FDT_END)
+			वापस -FDT_ERR_BADSTRUCTURE;
 
-		switch (tag) {
-		case FDT_NOP:
-			break;
+		चयन (tag) {
+		हाल FDT_NOP:
+			अवरोध;
 
-		case FDT_END:
-			if (depth != 0)
-				return -FDT_ERR_BADSTRUCTURE;
-			return 0;
+		हाल FDT_END:
+			अगर (depth != 0)
+				वापस -FDT_ERR_BADSTRUCTURE;
+			वापस 0;
 
-		case FDT_BEGIN_NODE:
+		हाल FDT_BEGIN_गाँठ:
 			depth++;
-			if (depth > INT_MAX)
-				return -FDT_ERR_BADSTRUCTURE;
+			अगर (depth > पूर्णांक_उच्च)
+				वापस -FDT_ERR_BADSTRUCTURE;
 
 			/* The root node must have an empty name */
-			if (depth == 1) {
-				const char *name;
-				int len;
+			अगर (depth == 1) {
+				स्थिर अक्षर *name;
+				पूर्णांक len;
 
 				name = fdt_get_name(fdt, offset, &len);
-				if (*name || len)
-					return -FDT_ERR_BADSTRUCTURE;
+				अगर (*name || len)
+					वापस -FDT_ERR_BADSTRUCTURE;
 			}
-			break;
+			अवरोध;
 
-		case FDT_END_NODE:
-			if (depth == 0)
-				return -FDT_ERR_BADSTRUCTURE;
+		हाल FDT_END_गाँठ:
+			अगर (depth == 0)
+				वापस -FDT_ERR_BADSTRUCTURE;
 			depth--;
-			if (depth == 0)
+			अगर (depth == 0)
 				expect_end = true;
-			break;
+			अवरोध;
 
-		case FDT_PROP:
+		हाल FDT_PROP:
 			prop = fdt_getprop_by_offset(fdt, offset, &propname,
 						     &err);
-			if (!prop)
-				return err;
-			break;
+			अगर (!prop)
+				वापस err;
+			अवरोध;
 
-		default:
-			return -FDT_ERR_INTERNAL;
+		शेष:
+			वापस -FDT_ERR_INTERNAL;
 		}
 	}
 }

@@ -7,38 +7,38 @@
  *   Rahul Pathak <rpathak@ventanamicro.com>
  */
 
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/rpmi_msgprot.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi/sbi_system.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi_utils/fdt/fdt_driver.h>
+#समावेश <sbi_utils/fdt/fdt_helper.h>
+#समावेश <sbi_utils/mailbox/fdt_mailbox.h>
+#समावेश <sbi_utils/mailbox/rpmi_msgprot.h>
+#समावेश <sbi_utils/mailbox/rpmi_mailbox.h>
 
 /* struct rpmi_sysreset: RPMI System Reset Context */
-struct rpmi_sysreset {
-	int warm_reset_support;
-	struct mbox_chan *chan;
+काष्ठा rpmi_sysreset {
+	पूर्णांक warm_reset_support;
+	काष्ठा mbox_chan *chan;
 };
 
-static struct rpmi_sysreset sysreset_ctx;
+अटल काष्ठा rpmi_sysreset sysreset_ctx;
 
-static int rpmi_system_reset_type_check(u32 reset_type)
+अटल पूर्णांक rpmi_system_reset_type_check(u32 reset_type)
 {
-	int ret;
-	struct rpmi_sysrst_get_reset_attributes_resp resp;
+	पूर्णांक ret;
+	काष्ठा rpmi_sysrst_get_reset_attributes_resp resp;
 
 	ret = rpmi_normal_request_with_status(sysreset_ctx.chan,
 		RPMI_SYSRST_SRV_GET_ATTRIBUTES, &reset_type,
-		rpmi_u32_count(reset_type), rpmi_u32_count(reset_type),
-		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (ret) {
-		return 0;
+		rpmi_u32_गिनती(reset_type), rpmi_u32_गिनती(reset_type),
+		&resp, rpmi_u32_गिनती(resp), rpmi_u32_गिनती(resp));
+	अगर (ret) {
+		वापस 0;
 	}
 
-	return (resp.flags & RPMI_SYSRST_ATTRS_FLAGS_RESETTYPE_MASK) ? 1 : 0;
+	वापस (resp.flags & RPMI_SYSRST_ATTRS_FLAGS_RESETTYPE_MASK) ? 1 : 0;
 }
 
 /**
@@ -46,15 +46,15 @@ static int rpmi_system_reset_type_check(u32 reset_type)
  *
  * @reset_type: RPMI System Reset Type
  */
-static void rpmi_do_system_reset(u32 reset_type)
+अटल व्योम rpmi_do_system_reset(u32 reset_type)
 {
-	int ret;
+	पूर्णांक ret;
 
 	ret = rpmi_posted_request(sysreset_ctx.chan,
 				  RPMI_SYSRST_SRV_SYSTEM_RESET,
-				  &reset_type, rpmi_u32_count(reset_type),
-				  rpmi_u32_count(reset_type));
-	if (ret)
+				  &reset_type, rpmi_u32_गिनती(reset_type),
+				  rpmi_u32_गिनती(reset_type));
+	अगर (ret)
 		sbi_printf("system reset failed [type: %d]: ret: %d\n",
 			   reset_type, ret);
 
@@ -68,77 +68,77 @@ static void rpmi_do_system_reset(u32 reset_type)
  * @type: SBI System Reset Type
  * @reason: Reason for system reset
  */
-static int rpmi_system_reset_check(u32 type, u32 reason)
+अटल पूर्णांक rpmi_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return sysreset_ctx.warm_reset_support;
-	default:
-		return 0;
+	चयन (type) {
+	हाल SBI_SRST_RESET_TYPE_SHUTDOWN:
+	हाल SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		वापस 1;
+	हाल SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		वापस sysreset_ctx.warm_reset_support;
+	शेष:
+		वापस 0;
 	}
 }
 
-static void rpmi_system_reset(u32 type, u32 reason)
+अटल व्योम rpmi_system_reset(u32 type, u32 reason)
 {
 	u32 reset_type;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	चयन (type) {
+	हाल SBI_SRST_RESET_TYPE_SHUTDOWN:
 		reset_type = RPMI_SYSRST_TYPE_SHUTDOWN;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		अवरोध;
+	हाल SBI_SRST_RESET_TYPE_COLD_REBOOT:
 		reset_type = RPMI_SYSRST_TYPE_COLD_REBOOT;
-		break;
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		अवरोध;
+	हाल SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		reset_type = RPMI_SYSRST_TYPE_WARM_REBOOT;
-		break;
-	default:
-		return;
+		अवरोध;
+	शेष:
+		वापस;
 	}
 
 	rpmi_do_system_reset(reset_type);
 }
 
-static struct sbi_system_reset_device rpmi_reset_dev = {
+अटल काष्ठा sbi_system_reset_device rpmi_reset_dev = {
 	.name = "rpmi-system-reset",
 	.system_reset_check = rpmi_system_reset_check,
 	.system_reset = rpmi_system_reset,
 };
 
-static int rpmi_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+अटल पूर्णांक rpmi_reset_init(स्थिर व्योम *fdt, पूर्णांक nodeoff,
+			   स्थिर काष्ठा fdt_match *match)
 {
-	int ret;
+	पूर्णांक ret;
 
 	/* If channel already available then do nothing. */
-	if (sysreset_ctx.chan)
-		return 0;
+	अगर (sysreset_ctx.chan)
+		वापस 0;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * system reset group so do nothing.
 	 */
 	ret = fdt_mailbox_request_chan(fdt, nodeoff, 0, &sysreset_ctx.chan);
-	if (ret)
-		return SBI_ENODEV;
+	अगर (ret)
+		वापस SBI_ENODEV;
 
 	sysreset_ctx.warm_reset_support =
 			rpmi_system_reset_type_check(RPMI_SYSRST_TYPE_WARM_REBOOT);
 
 	sbi_system_reset_add_device(&rpmi_reset_dev);
 
-	return SBI_OK;
+	वापस SBI_OK;
 }
 
-static const struct fdt_match rpmi_reset_match[] = {
+अटल स्थिर काष्ठा fdt_match rpmi_reset_match[] = {
 	{ .compatible = "riscv,rpmi-system-reset" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_rpmi = {
+स्थिर काष्ठा fdt_driver fdt_reset_rpmi = {
 	.match_table = rpmi_reset_match,
 	.init = rpmi_reset_init,
 };

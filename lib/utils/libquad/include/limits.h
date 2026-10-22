@@ -4,9 +4,9 @@
  * Copyright (c) 2021 Jessica Clarke <jrtc27@jrtc27.com>
  */
 
-#ifndef __LIMITS_H__
-#define __LIMITS_H__
+#अगर_अघोषित __LIMITS_H__
+#घोषणा __LIMITS_H__
 
-#define CHAR_BIT 8
+#घोषणा अक्षर_बिट 8
 
-#endif
+#पूर्ण_अगर

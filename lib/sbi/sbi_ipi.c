@@ -8,74 +8,74 @@
  *   Nick Kossifidis <mick@ics.forth.gr>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_barrier.h>
-#include <sbi/sbi_bitops.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_init.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_pmu.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_tlb.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/riscv_atomic.h>
+#समावेश <sbi/riscv_barrier.h>
+#समावेश <sbi/sbi_bitops.h>
+#समावेश <sbi/sbi_domain.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_heap.h>
+#समावेश <sbi/sbi_hsm.h>
+#समावेश <sbi/sbi_init.h>
+#समावेश <sbi/sbi_ipi.h>
+#समावेश <sbi/sbi_list.h>
+#समावेश <sbi/sbi_platform.h>
+#समावेश <sbi/sbi_pmu.h>
+#समावेश <sbi/sbi_string.h>
+#समावेश <sbi/sbi_tlb.h>
 
-struct sbi_ipi_data {
-	unsigned long ipi_type;
+काष्ठा sbi_ipi_तथ्य {
+	अचिन्हित दीर्घ ipi_type;
 };
 
 _Static_assert(
-	8 * sizeof(((struct sbi_ipi_data*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
+	8 * माप(((काष्ठा sbi_ipi_तथ्य*)0)->ipi_type) == SBI_IPI_EVENT_MAX,
 	"type of sbi_ipi_data.ipi_type has changed, please redefine SBI_IPI_EVENT_MAX"
 	);
 
-struct sbi_ipi_device_node {
-	struct sbi_dlist head;
-	const struct sbi_ipi_device *dev;
+काष्ठा sbi_ipi_device_गाँठ {
+	काष्ठा sbi_dlist शीर्ष;
+	स्थिर काष्ठा sbi_ipi_device *dev;
 };
 
-static unsigned long ipi_data_off;
-static const struct sbi_ipi_device *ipi_dev = NULL;
-static SBI_LIST_HEAD(ipi_dev_node_list);
-static const struct sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
+अटल अचिन्हित दीर्घ ipi_तथ्य_off;
+अटल स्थिर काष्ठा sbi_ipi_device *ipi_dev = शून्य;
+अटल SBI_LIST_शीर्ष(ipi_dev_गाँठ_list);
+अटल स्थिर काष्ठा sbi_ipi_event_ops *ipi_ops_array[SBI_IPI_EVENT_MAX];
 
-static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
-			u32 event, void *data)
+अटल पूर्णांक sbi_ipi_send(काष्ठा sbi_scratch *scratch, u32 remote_hartindex,
+			u32 event, व्योम *तथ्य)
 {
-	int ret = 0;
-	struct sbi_scratch *remote_scratch = NULL;
-	struct sbi_ipi_data *ipi_data;
-	const struct sbi_ipi_event_ops *ipi_ops;
+	पूर्णांक ret = 0;
+	काष्ठा sbi_scratch *remote_scratch = शून्य;
+	काष्ठा sbi_ipi_तथ्य *ipi_तथ्य;
+	स्थिर काष्ठा sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	अगर ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		वापस SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
 	remote_scratch = sbi_hartindex_to_scratch(remote_hartindex);
-	if (!remote_scratch)
-		return SBI_EINVAL;
+	अगर (!remote_scratch)
+		वापस SBI_EINVAL;
 
-	ipi_data = sbi_scratch_offset_ptr(remote_scratch, ipi_data_off);
+	ipi_तथ्य = sbi_scratch_offset_ptr(remote_scratch, ipi_तथ्य_off);
 
-	if (ipi_ops->update) {
+	अगर (ipi_ops->update) {
 		ret = ipi_ops->update(scratch, remote_scratch,
-				      remote_hartindex, data);
-		if (ret != SBI_IPI_UPDATE_SUCCESS)
-			return ret;
-	} else if (scratch == remote_scratch) {
+				      remote_hartindex, तथ्य);
+		अगर (ret != SBI_IPI_UPDATE_SUCCESS)
+			वापस ret;
+	} अन्यथा अगर (scratch == remote_scratch) {
 		/*
 		 * IPI events with an update() callback are expected to return
 		 * SBI_IPI_UPDATE_BREAK for self-IPIs. For other events, check
 		 * for self-IPI and execute the callback directly here.
 		 */
 		ipi_ops->process(scratch);
-		return 0;
+		वापस 0;
 	}
 
 	/*
@@ -86,28 +86,28 @@ static int sbi_ipi_send(struct sbi_scratch *scratch, u32 remote_hartindex,
 	 * remote hart so call sbi_ipi_raw_send() only when
 	 * the ipi_type was previously zero.
 	 */
-	if (!__atomic_fetch_or(&ipi_data->ipi_type,
+	अगर (!__atomic_fetch_or(&ipi_तथ्य->ipi_type,
 				BIT(event), __ATOMIC_RELAXED))
 		ret = sbi_ipi_raw_send(remote_hartindex, false);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_SENT);
 
-	return ret;
+	वापस ret;
 }
 
-static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
+अटल पूर्णांक sbi_ipi_sync(काष्ठा sbi_scratch *scratch, u32 event)
 {
-	const struct sbi_ipi_event_ops *ipi_ops;
+	स्थिर काष्ठा sbi_ipi_event_ops *ipi_ops;
 
-	if ((SBI_IPI_EVENT_MAX <= event) ||
+	अगर ((SBI_IPI_EVENT_MAX <= event) ||
 	    !ipi_ops_array[event])
-		return SBI_EINVAL;
+		वापस SBI_EINVAL;
 	ipi_ops = ipi_ops_array[event];
 
-	if (ipi_ops->sync)
+	अगर (ipi_ops->sync)
 		ipi_ops->sync(scratch);
 
-	return 0;
+	वापस 0;
 }
 
 /**
@@ -115,162 +115,162 @@ static int sbi_ipi_sync(struct sbi_scratch *scratch, u32 event)
  * set to all online harts if the intention is to send IPIs to all the harts.
  * If hmask is zero, no IPIs will be sent.
  */
-int sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, void *data)
+पूर्णांक sbi_ipi_send_many(ulong hmask, ulong hbase, u32 event, व्योम *तथ्य)
 {
-	int rc = 0;
+	पूर्णांक rc = 0;
 	bool retry_needed;
 	ulong i;
-	struct sbi_hartmask target_mask;
-	struct sbi_domain *dom = sbi_domain_thishart_ptr();
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	काष्ठा sbi_hartmask target_mask;
+	काष्ठा sbi_domain *dom = sbi_domain_thishart_ptr();
+	काष्ठा sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	if (hmask == 0 && hbase != -1UL) {
+	अगर (hmask == 0 && hbase != -1UL) {
 		/* Nothing to do, but it's not an error either. */
-		return 0;
+		वापस 0;
 	}
 
 	/* Find the target harts */
 	rc = sbi_hsm_hart_interruptible_mask(dom, &target_mask);
-	if (rc)
-		return rc;
+	अगर (rc)
+		वापस rc;
 
-	if (hbase != -1UL) {
-		struct sbi_hartmask tmp_mask = { 0 };
-		struct sbi_hartmask domain_mask;
-		int count = sbi_popcount(hmask);
+	अगर (hbase != -1UL) {
+		काष्ठा sbi_hartmask tmp_mask = { 0 };
+		काष्ठा sbi_hartmask domain_mask;
+		पूर्णांक गिनती = sbi_popcount(hmask);
 
-		for (i = hbase; hmask; i++, hmask >>= 1) {
-			if (hmask & 1UL)
+		क्रम (i = hbase; hmask; i++, hmask >>= 1) {
+			अगर (hmask & 1UL)
 				sbi_hartmask_set_hartid(i, &tmp_mask);
 		}
 
 		/* Validate hartids against domain assignment, not HSM state */
 		rc = sbi_domain_get_assigned_hartmask(dom, &domain_mask);
-		if (rc)
-			return rc;
+		अगर (rc)
+			वापस rc;
 
 		sbi_hartmask_and(&domain_mask, &domain_mask, &tmp_mask);
-		if (sbi_hartmask_weight(&domain_mask) != count)
-			return SBI_EINVAL;
+		अगर (sbi_hartmask_weight(&domain_mask) != गिनती)
+			वापस SBI_EINVAL;
 
 		sbi_hartmask_and(&target_mask, &target_mask, &tmp_mask);
 	}
 
 	/* Send IPIs */
-	do {
+	करो {
 		retry_needed = false;
 		sbi_hartmask_for_each_hartindex(i, &target_mask) {
-			rc = sbi_ipi_send(scratch, i, event, data);
-			if (rc < 0)
-				goto done;
-			if (rc == SBI_IPI_UPDATE_RETRY)
+			rc = sbi_ipi_send(scratch, i, event, तथ्य);
+			अगर (rc < 0)
+				जाओ done;
+			अगर (rc == SBI_IPI_UPDATE_RETRY)
 				retry_needed = true;
-			else
+			अन्यथा
 				sbi_hartmask_clear_hartindex(i, &target_mask);
 			rc = 0;
 		}
-	} while (retry_needed);
+	} जबतक (retry_needed);
 
 done:
 	/* Sync IPIs */
 	sbi_ipi_sync(scratch, event);
 
-	return rc;
+	वापस rc;
 }
 
-int sbi_ipi_event_create(const struct sbi_ipi_event_ops *ops)
+पूर्णांक sbi_ipi_event_create(स्थिर काष्ठा sbi_ipi_event_ops *ops)
 {
-	int i, ret = SBI_ENOSPC;
+	पूर्णांक i, ret = SBI_ENOSPC;
 
-	if (!ops || !ops->process)
-		return SBI_EINVAL;
+	अगर (!ops || !ops->process)
+		वापस SBI_EINVAL;
 
-	for (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
-		if (!ipi_ops_array[i]) {
+	क्रम (i = 0; i < SBI_IPI_EVENT_MAX; i++) {
+		अगर (!ipi_ops_array[i]) {
 			ret = i;
 			ipi_ops_array[i] = ops;
-			break;
+			अवरोध;
 		}
 	}
 
-	return ret;
+	वापस ret;
 }
 
-void sbi_ipi_event_destroy(u32 event)
+व्योम sbi_ipi_event_destroy(u32 event)
 {
-	if (SBI_IPI_EVENT_MAX <= event)
-		return;
+	अगर (SBI_IPI_EVENT_MAX <= event)
+		वापस;
 
-	ipi_ops_array[event] = NULL;
+	ipi_ops_array[event] = शून्य;
 }
 
-static void sbi_ipi_process_smode(struct sbi_scratch *scratch)
+अटल व्योम sbi_ipi_process_smode(काष्ठा sbi_scratch *scratch)
 {
 	csr_set(CSR_MIP, MIP_SSIP);
 }
 
-static struct sbi_ipi_event_ops ipi_smode_ops = {
+अटल काष्ठा sbi_ipi_event_ops ipi_smode_ops = {
 	.name = "IPI_SMODE",
 	.process = sbi_ipi_process_smode,
 };
 
-static u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
+अटल u32 ipi_smode_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_smode(ulong hmask, ulong hbase)
+पूर्णांक sbi_ipi_send_smode(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_smode_event, NULL);
+	वापस sbi_ipi_send_many(hmask, hbase, ipi_smode_event, शून्य);
 }
 
-void sbi_ipi_clear_smode(void)
+व्योम sbi_ipi_clear_smode(व्योम)
 {
 	csr_clear(CSR_MIP, MIP_SSIP);
 }
 
-static int sbi_ipi_update_halt(struct sbi_scratch *scratch,
-			       struct sbi_scratch *remote_scratch,
-			       u32 remote_hartindex, void *data)
+अटल पूर्णांक sbi_ipi_update_halt(काष्ठा sbi_scratch *scratch,
+			       काष्ठा sbi_scratch *remote_scratch,
+			       u32 remote_hartindex, व्योम *तथ्य)
 {
 	/* Never send a halt IPI to the local hart. */
-	return scratch == remote_scratch ?
+	वापस scratch == remote_scratch ?
 		SBI_IPI_UPDATE_BREAK : SBI_IPI_UPDATE_SUCCESS;
 }
 
-static void sbi_ipi_process_halt(struct sbi_scratch *scratch)
+अटल व्योम sbi_ipi_process_halt(काष्ठा sbi_scratch *scratch)
 {
 	sbi_hsm_hart_stop(scratch, true);
 }
 
-static struct sbi_ipi_event_ops ipi_halt_ops = {
+अटल काष्ठा sbi_ipi_event_ops ipi_halt_ops = {
 	.name = "IPI_HALT",
 	.update = sbi_ipi_update_halt,
 	.process = sbi_ipi_process_halt,
 };
 
-static u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
+अटल u32 ipi_halt_event = SBI_IPI_EVENT_MAX;
 
-int sbi_ipi_send_halt(ulong hmask, ulong hbase)
+पूर्णांक sbi_ipi_send_halt(ulong hmask, ulong hbase)
 {
-	return sbi_ipi_send_many(hmask, hbase, ipi_halt_event, NULL);
+	वापस sbi_ipi_send_many(hmask, hbase, ipi_halt_event, शून्य);
 }
 
-void sbi_ipi_process(void)
+व्योम sbi_ipi_process(व्योम)
 {
-	unsigned long ipi_type;
-	unsigned int ipi_event;
-	const struct sbi_ipi_event_ops *ipi_ops;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct sbi_ipi_data *ipi_data =
-			sbi_scratch_offset_ptr(scratch, ipi_data_off);
+	अचिन्हित दीर्घ ipi_type;
+	अचिन्हित पूर्णांक ipi_event;
+	स्थिर काष्ठा sbi_ipi_event_ops *ipi_ops;
+	काष्ठा sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	काष्ठा sbi_ipi_तथ्य *ipi_तथ्य =
+			sbi_scratch_offset_ptr(scratch, ipi_तथ्य_off);
 
 	sbi_pmu_ctr_incr_fw(SBI_PMU_FW_IPI_RECVD);
 	sbi_ipi_raw_clear(false);
 
-	ipi_type = atomic_raw_xchg_ulong(&ipi_data->ipi_type, 0);
+	ipi_type = atomic_raw_xchg_ulong(&ipi_तथ्य->ipi_type, 0);
 	ipi_event = 0;
-	while (ipi_type) {
-		if (ipi_type & 1UL) {
+	जबतक (ipi_type) {
+		अगर (ipi_type & 1UL) {
 			ipi_ops = ipi_ops_array[ipi_event];
-			if (ipi_ops)
+			अगर (ipi_ops)
 				ipi_ops->process(scratch);
 		}
 		ipi_type = ipi_type >> 1;
@@ -278,12 +278,12 @@ void sbi_ipi_process(void)
 	}
 }
 
-int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
+पूर्णांक sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	काष्ठा sbi_ipi_device_गाँठ *entry;
 
-	if (!ipi_dev || !ipi_dev->ipi_send)
-		return SBI_EINVAL;
+	अगर (!ipi_dev || !ipi_dev->ipi_send)
+		वापस SBI_EINVAL;
 
 	/*
 	 * Ensure that memory or MMIO writes done before
@@ -296,29 +296,29 @@ int sbi_ipi_raw_send(u32 hartindex, bool all_devices)
 	 */
 	wmb();
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_send)
+	अगर (all_devices) {
+		sbi_list_for_each_entry(entry, &ipi_dev_गाँठ_list, शीर्ष) {
+			अगर (entry->dev->ipi_send)
 				entry->dev->ipi_send(hartindex);
 		}
-	} else {
+	} अन्यथा {
 		ipi_dev->ipi_send(hartindex);
 	}
 
-	return 0;
+	वापस 0;
 }
 
-void sbi_ipi_raw_clear(bool all_devices)
+व्योम sbi_ipi_raw_clear(bool all_devices)
 {
-	struct sbi_ipi_device_node *entry;
+	काष्ठा sbi_ipi_device_गाँठ *entry;
 
-	if (all_devices) {
-		sbi_list_for_each_entry(entry, &ipi_dev_node_list, head) {
-			if (entry->dev->ipi_clear)
+	अगर (all_devices) {
+		sbi_list_for_each_entry(entry, &ipi_dev_गाँठ_list, शीर्ष) {
+			अगर (entry->dev->ipi_clear)
 				entry->dev->ipi_clear();
 		}
-	} else {
-		if (ipi_dev && ipi_dev->ipi_clear)
+	} अन्यथा {
+		अगर (ipi_dev && ipi_dev->ipi_clear)
 			ipi_dev->ipi_clear();
 	}
 
@@ -334,56 +334,56 @@ void sbi_ipi_raw_clear(bool all_devices)
 	wmb();
 }
 
-const struct sbi_ipi_device *sbi_ipi_get_device(void)
+स्थिर काष्ठा sbi_ipi_device *sbi_ipi_get_device(व्योम)
 {
-	return ipi_dev;
+	वापस ipi_dev;
 }
 
-void sbi_ipi_add_device(const struct sbi_ipi_device *dev)
+व्योम sbi_ipi_add_device(स्थिर काष्ठा sbi_ipi_device *dev)
 {
-	struct sbi_ipi_device_node *entry;
+	काष्ठा sbi_ipi_device_गाँठ *entry;
 
-	if (!dev)
-		return;
+	अगर (!dev)
+		वापस;
 
-	entry = sbi_zalloc(sizeof(*entry));
-	if (!entry)
-		return;
-	SBI_INIT_LIST_HEAD(&entry->head);
+	entry = sbi_zalloc(माप(*entry));
+	अगर (!entry)
+		वापस;
+	SBI_INIT_LIST_शीर्ष(&entry->शीर्ष);
 	entry->dev = dev;
-	sbi_list_add_tail(&entry->head, &ipi_dev_node_list);
+	sbi_list_add_पुच्छ(&entry->शीर्ष, &ipi_dev_गाँठ_list);
 
-	if (!ipi_dev || ipi_dev->rating < dev->rating)
+	अगर (!ipi_dev || ipi_dev->rating < dev->rating)
 		ipi_dev = dev;
 }
 
-int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
+पूर्णांक sbi_ipi_init(काष्ठा sbi_scratch *scratch, bool cold_boot)
 {
-	int ret;
-	struct sbi_ipi_data *ipi_data;
+	पूर्णांक ret;
+	काष्ठा sbi_ipi_तथ्य *ipi_तथ्य;
 
-	if (cold_boot) {
-		ipi_data_off = sbi_scratch_alloc_offset(sizeof(*ipi_data));
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
+	अगर (cold_boot) {
+		ipi_तथ्य_off = sbi_scratch_alloc_offset(माप(*ipi_तथ्य));
+		अगर (!ipi_तथ्य_off)
+			वापस SBI_ENOMEM;
 		ret = sbi_ipi_event_create(&ipi_smode_ops);
-		if (ret < 0)
-			return ret;
+		अगर (ret < 0)
+			वापस ret;
 		ipi_smode_event = ret;
 		ret = sbi_ipi_event_create(&ipi_halt_ops);
-		if (ret < 0)
-			return ret;
+		अगर (ret < 0)
+			वापस ret;
 		ipi_halt_event = ret;
-	} else {
-		if (!ipi_data_off)
-			return SBI_ENOMEM;
-		if (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
+	} अन्यथा {
+		अगर (!ipi_तथ्य_off)
+			वापस SBI_ENOMEM;
+		अगर (SBI_IPI_EVENT_MAX <= ipi_smode_event ||
 		    SBI_IPI_EVENT_MAX <= ipi_halt_event)
-			return SBI_ENOSPC;
+			वापस SBI_ENOSPC;
 	}
 
-	ipi_data = sbi_scratch_offset_ptr(scratch, ipi_data_off);
-	ipi_data->ipi_type = 0x00;
+	ipi_तथ्य = sbi_scratch_offset_ptr(scratch, ipi_तथ्य_off);
+	ipi_तथ्य->ipi_type = 0x00;
 
 	/* Clear any pending IPIs for the current hart */
 	sbi_ipi_raw_clear(true);
@@ -391,10 +391,10 @@ int sbi_ipi_init(struct sbi_scratch *scratch, bool cold_boot)
 	/* Enable software interrupts */
 	csr_set(CSR_MIE, MIP_MSIP);
 
-	return 0;
+	वापस 0;
 }
 
-void sbi_ipi_exit(struct sbi_scratch *scratch)
+व्योम sbi_ipi_exit(काष्ठा sbi_scratch *scratch)
 {
 	/* Disable software interrupts */
 	csr_clear(CSR_MIE, MIP_MSIP);

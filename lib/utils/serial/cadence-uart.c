@@ -6,95 +6,95 @@
  * Author: Jun Liang Tan <junliang.tan@linux.starfivetech.com>
  */
 
-#include <sbi/sbi_domain.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/serial/cadence-uart.h>
+#समावेश <sbi/sbi_domain.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/riscv_io.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi_utils/serial/cadence-uart.h>
 
 /* clang-format off */
 
-#define UART_REG_CTRL		0x00
-#define UART_REG_MODE		0x04
-#define UART_REG_IDR		0x0C
-#define UART_REG_BRGR		0x18
-#define UART_REG_CSR		0x2C
-#define UART_REG_RFIFO_TFIFO	0x30
-#define UART_REG_BDIVR		0x34
+#घोषणा UART_REG_CTRL		0x00
+#घोषणा UART_REG_MODE		0x04
+#घोषणा UART_REG_IDR		0x0C
+#घोषणा UART_REG_BRGR		0x18
+#घोषणा UART_REG_CSR		0x2C
+#घोषणा UART_REG_RFIFO_TFIFO	0x30
+#घोषणा UART_REG_BDIVR		0x34
 
-#define UART_CTRL_RXRES		0x00000001
-#define UART_CTRL_TXRES		0x00000002
-#define UART_CTRL_RXEN		0x00000004
-#define UART_CTRL_RXDIS		0x00000008
-#define UART_CTRL_TXEN		0x00000010
-#define UART_CTRL_TXDIS		0x00000020
+#घोषणा UART_CTRL_RXRES		0x00000001
+#घोषणा UART_CTRL_TXRES		0x00000002
+#घोषणा UART_CTRL_RXEN		0x00000004
+#घोषणा UART_CTRL_RXDIS		0x00000008
+#घोषणा UART_CTRL_TXEN		0x00000010
+#घोषणा UART_CTRL_TXDIS		0x00000020
 
-#define UART_MODE_PAR_NONE	0x00000020	/* No parity set */
+#घोषणा UART_MODE_PAR_NONE	0x00000020	/* No parity set */
 
-#define UART_BRGR_CD_CLKDIVISOR	0x00000001	/* baud_sample = sel_clk */
+#घोषणा UART_BRGR_CD_CLKDIVISOR	0x00000001	/* baud_sample = sel_clk */
 
-#define	UART_CSR_REMPTY		0x00000002
-#define	UART_CSR_TFUL		0x00000010
+#घोषणा	UART_CSR_REMPTY		0x00000002
+#घोषणा	UART_CSR_TFUL		0x00000010
 
 /* clang-format on */
 
-static volatile void *uart_base;
-static u32 uart_in_freq;
-static u32 uart_baudrate;
+अटल अस्थिर व्योम *uart_base;
+अटल u32 uart_in_freq;
+अटल u32 uart_baudrate;
 
 /*
  * Find minimum divisor divides in_freq to max_target_hz;
  * Based on SiFive UART driver (sifive-uart.c)
  */
-static inline unsigned int uart_min_clk_divisor(uint64_t in_freq,
+अटल अंतरभूत अचिन्हित पूर्णांक uart_min_clk_भाजक(uint64_t in_freq,
 						uint64_t max_target_hz)
 {
 	uint64_t quotient = (in_freq + max_target_hz - 1) / (max_target_hz);
 
 	/* Avoid underflow */
-	if (quotient == 0)
-		return 0;
-	else
-		return quotient - 1;
+	अगर (quotient == 0)
+		वापस 0;
+	अन्यथा
+		वापस quotient - 1;
 }
 
-static u32 get_reg(u32 offset)
+अटल u32 get_reg(u32 offset)
 {
-	return readl(uart_base + offset);
+	वापस readl(uart_base + offset);
 }
 
-static void set_reg(u32 offset, u32 val)
+अटल व्योम set_reg(u32 offset, u32 val)
 {
 	writel(val, uart_base + offset);
 }
 
-static void cadence_uart_putc(char ch)
+अटल व्योम cadence_uart_putc(अक्षर ch)
 {
-	while (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
+	जबतक (get_reg(UART_REG_CSR) & UART_CSR_TFUL)
 		;
 
 	set_reg(UART_REG_RFIFO_TFIFO, ch);
 }
 
-static int cadence_uart_getc(void)
+अटल पूर्णांक cadence_uart_getc(व्योम)
 {
 	u32 ret = get_reg(UART_REG_CSR);
 
-	if (!(ret & UART_CSR_REMPTY))
-		return get_reg(UART_REG_RFIFO_TFIFO);
+	अगर (!(ret & UART_CSR_REMPTY))
+		वापस get_reg(UART_REG_RFIFO_TFIFO);
 
-	return -1;
+	वापस -1;
 }
 
-static struct sbi_console_device cadence_console = {
+अटल काष्ठा sbi_console_device cadence_console = {
 	.name = "cadence_uart",
 	.console_putc = cadence_uart_putc,
 	.console_getc = cadence_uart_getc
 };
 
-int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
+पूर्णांक cadence_uart_init(अचिन्हित दीर्घ base, u32 in_freq, u32 baudrate)
 {
-	uart_base     = (volatile void *)base;
+	uart_base     = (अस्थिर व्योम *)base;
 	uart_in_freq  = in_freq;
 	uart_baudrate = baudrate;
 
@@ -105,10 +105,10 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 	set_reg(UART_REG_CTRL, UART_CTRL_TXDIS | UART_CTRL_RXDIS);
 
 	/* Configure baudrate */
-	if (in_freq && baudrate) {
+	अगर (in_freq && baudrate) {
 		set_reg(UART_REG_BRGR, UART_BRGR_CD_CLKDIVISOR);
 		set_reg(UART_REG_BDIVR,
-			uart_min_clk_divisor(in_freq, baudrate));
+			uart_min_clk_भाजक(in_freq, baudrate));
 	}
 
 	/* Software reset TX RX data path and enable TX RX */
@@ -126,7 +126,7 @@ int cadence_uart_init(unsigned long base, u32 in_freq, u32 baudrate)
 
 	sbi_console_set_device(&cadence_console);
 
-	return sbi_domain_root_add_memrange(base, PAGE_SIZE, PAGE_SIZE,
+	वापस sbi_domain_मूल_add_memrange(base, PAGE_आकार, PAGE_आकार,
 					    (SBI_DOMAIN_MEMREGION_MMIO |
 					    SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
 }

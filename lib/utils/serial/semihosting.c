@@ -8,24 +8,24 @@
  *   Kautuk Consul <kconsul@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_string.h>
-#include <sbi/sbi_error.h>
-#include <sbi_utils/serial/semihosting.h>
+#समावेश <sbi/sbi_console.h>
+#समावेश <sbi/sbi_string.h>
+#समावेश <sbi/sbi_error.h>
+#समावेश <sbi_utils/serial/semihosting.h>
 
-#define SYSOPEN     0x01
-#define SYSWRITEC   0x03
-#define SYSWRITE    0x05
-#define SYSREAD     0x06
-#define SYSREADC    0x07
-#define SYSERRNO	0x13
+#घोषणा SYSOPEN     0x01
+#घोषणा SYSWRITEC   0x03
+#घोषणा SYSWRITE    0x05
+#घोषणा SYSREAD     0x06
+#घोषणा SYSREADC    0x07
+#घोषणा SYSERRNO	0x13
 
-static long semihosting_trap(int sysnum, void *addr)
+अटल दीर्घ semihosting_trap(पूर्णांक sysnum, व्योम *addr)
 {
-	register int ret asm ("a0") = sysnum;
-	register void *param0 asm ("a1") = addr;
+	रेजिस्टर पूर्णांक ret यंत्र ("a0") = sysnum;
+	रेजिस्टर व्योम *param0 यंत्र ("a1") = addr;
 
-	asm volatile (
+	यंत्र अस्थिर (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -37,22 +37,22 @@ static long semihosting_trap(int sysnum, void *addr)
 		"	.option pop\n"
 		: "+r" (ret) : "r" (param0) : "memory");
 
-	return ret;
+	वापस ret;
 }
 
-static bool _semihosting_enabled = true;
-static bool try_semihosting = true;
+अटल bool _semihosting_enabled = true;
+अटल bool try_semihosting = true;
 
-bool semihosting_enabled(void)
+bool semihosting_enabled(व्योम)
 {
-	register int ret asm ("a0") = SYSERRNO;
-	register void *param0 asm ("a1") = NULL;
-	unsigned long tmp = 0;
+	रेजिस्टर पूर्णांक ret यंत्र ("a0") = SYSERRNO;
+	रेजिस्टर व्योम *param0 यंत्र ("a1") = शून्य;
+	अचिन्हित दीर्घ tmp = 0;
 
-	if (!try_semihosting)
-		return _semihosting_enabled;
+	अगर (!try_semihosting)
+		वापस _semihosting_enabled;
 
-	asm volatile (
+	यंत्र अस्थिर (
 		"	.align 4\n"
 		"	.option push\n"
 		"	.option norvc\n"
@@ -81,39 +81,39 @@ bool semihosting_enabled(void)
 		: "r" (param0) : "memory");
 
 	try_semihosting = false;
-	return _semihosting_enabled;
+	वापस _semihosting_enabled;
 }
 
-static int semihosting_errno(void)
+अटल पूर्णांक semihosting_errno(व्योम)
 {
-	long ret = semihosting_trap(SYSERRNO, NULL);
+	दीर्घ ret = semihosting_trap(SYSERRNO, शून्य);
 
-	if (ret > 0)
-		return -ret;
-	return SBI_EIO;
+	अगर (ret > 0)
+		वापस -ret;
+	वापस SBI_EIO;
 }
 
-static int semihosting_infd = SBI_ENODEV;
-static int semihosting_outfd = SBI_ENODEV;
+अटल पूर्णांक semihosting_infd = SBI_ENODEV;
+अटल पूर्णांक semihosting_outfd = SBI_ENODEV;
 
-static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
+अटल दीर्घ semihosting_open(स्थिर अक्षर *fname, क्रमागत semihosting_open_mode mode)
 {
-	long fd;
-	struct semihosting_open_s {
-		const char *fname;
-		unsigned long mode;
-		size_t len;
-	} open;
+	दीर्घ fd;
+	काष्ठा semihosting_open_s {
+		स्थिर अक्षर *fname;
+		अचिन्हित दीर्घ mode;
+		माप_प्रकार len;
+	} खोलो;
 
-	open.fname = fname;
-	open.len = sbi_strlen(fname);
-	open.mode = mode;
+	खोलो.fname = fname;
+	खोलो.len = sbi_strlen(fname);
+	खोलो.mode = mode;
 
 	/* Open the file on the host */
-	fd = semihosting_trap(SYSOPEN, &open);
-	if (fd == -1)
-		return semihosting_errno();
-	return fd;
+	fd = semihosting_trap(SYSOPEN, &खोलो);
+	अगर (fd == -1)
+		वापस semihosting_errno();
+	वापस fd;
 }
 
 /**
@@ -122,88 +122,88 @@ static long semihosting_open(const char *fname, enum semihosting_open_mode mode)
  * @memp: Pointer to a buffer of memory of at least @len bytes
  * @len: The number of bytes to read or write
  */
-struct semihosting_rdwr_s {
-	long fd;
-	void *memp;
-	size_t len;
+काष्ठा semihosting_rdwr_s {
+	दीर्घ fd;
+	व्योम *memp;
+	माप_प्रकार len;
 };
 
-static long semihosting_read(long fd, void *memp, size_t len)
+अटल दीर्घ semihosting_read(दीर्घ fd, व्योम *memp, माप_प्रकार len)
 {
-	long ret;
-	struct semihosting_rdwr_s read;
+	दीर्घ ret;
+	काष्ठा semihosting_rdwr_s पढ़ो;
 
-	read.fd = fd;
-	read.memp = memp;
-	read.len = len;
+	पढ़ो.fd = fd;
+	पढ़ो.memp = memp;
+	पढ़ो.len = len;
 
-	ret = semihosting_trap(SYSREAD, &read);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ret = semihosting_trap(SYSREAD, &पढ़ो);
+	अगर (ret < 0)
+		वापस semihosting_errno();
+	वापस len - ret;
 }
 
-static long semihosting_write(long fd, const void *memp, size_t len)
+अटल दीर्घ semihosting_write(दीर्घ fd, स्थिर व्योम *memp, माप_प्रकार len)
 {
-	long ret;
-	struct semihosting_rdwr_s write;
+	दीर्घ ret;
+	काष्ठा semihosting_rdwr_s ग_लिखो;
 
-	write.fd = fd;
-	write.memp = (void *)memp;
-	write.len = len;
+	ग_लिखो.fd = fd;
+	ग_लिखो.memp = (व्योम *)memp;
+	ग_लिखो.len = len;
 
-	ret = semihosting_trap(SYSWRITE, &write);
-	if (ret < 0)
-		return semihosting_errno();
-	return len - ret;
+	ret = semihosting_trap(SYSWRITE, &ग_लिखो);
+	अगर (ret < 0)
+		वापस semihosting_errno();
+	वापस len - ret;
 }
 
 /* clang-format on */
 
-static unsigned long semihosting_puts(const char *str, unsigned long len)
+अटल अचिन्हित दीर्घ semihosting_puts(स्थिर अक्षर *str, अचिन्हित दीर्घ len)
 {
-	char ch;
-	long ret;
-	unsigned long i;
+	अक्षर ch;
+	दीर्घ ret;
+	अचिन्हित दीर्घ i;
 
-	if (semihosting_outfd < 0) {
-		for (i = 0; i < len; i++) {
+	अगर (semihosting_outfd < 0) {
+		क्रम (i = 0; i < len; i++) {
 			ch = str[i];
 			semihosting_trap(SYSWRITEC, &ch);
 		}
 		ret = len;
-	} else
+	} अन्यथा
 		ret = semihosting_write(semihosting_outfd, str, len);
 
-	return (ret < 0) ? 0 : ret;
+	वापस (ret < 0) ? 0 : ret;
 }
 
-static int semihosting_getc(void)
+अटल पूर्णांक semihosting_getc(व्योम)
 {
-	char ch = 0;
-	int ret;
+	अक्षर ch = 0;
+	पूर्णांक ret;
 
-	if (semihosting_infd < 0)  {
-		ret = semihosting_trap(SYSREADC, NULL);
+	अगर (semihosting_infd < 0)  {
+		ret = semihosting_trap(SYSREADC, शून्य);
 		ret = ret < 0 ? -1 : ret;
-	} else
+	} अन्यथा
 		ret = semihosting_read(semihosting_infd, &ch, 1) > 0 ? ch : -1;
 
-	return ret;
+	वापस ret;
 }
 
-static struct sbi_console_device semihosting_console = {
+अटल काष्ठा sbi_console_device semihosting_console = {
 	.name = "semihosting",
 	.console_puts = semihosting_puts,
 	.console_getc = semihosting_getc
 };
 
-int semihosting_init(void)
+पूर्णांक semihosting_init(व्योम)
 {
 	semihosting_infd = semihosting_open(":tt", MODE_READ);
 	semihosting_outfd = semihosting_open(":tt", MODE_WRITE);
 
 	sbi_console_set_device(&semihosting_console);
 
-	return 0;
+	वापस 0;
 }

@@ -7,24 +7,24 @@
  *	 Dave Patel <dave.patel@riscstar.com>
  */
 
-#include <sbi/riscv_encoding.h>
-#include <sbi/riscv_asm.h>
-#include <sbi/sbi_vector.h>
-#include <sbi/sbi_types.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
+#समावेश <sbi/riscv_encoding.h>
+#समावेश <sbi/riscv_asm.h>
+#समावेश <sbi/sbi_vector.h>
+#समावेश <sbi/sbi_types.h>
+#समावेश <sbi/sbi_hart.h>
+#समावेश <sbi/sbi_error.h>
 
-size_t sbi_vector_context_size(void)
+माप_प्रकार sbi_vector_context_आकार(व्योम)
 {
-	return sizeof(struct sbi_vector_context) + (32 * csr_read(CSR_VLENB));
+	वापस माप(काष्ठा sbi_vector_context) + (32 * csr_read(CSR_VLENB));
 }
 
-void sbi_vector_save(struct sbi_vector_context *dst)
+व्योम sbi_vector_save(काष्ठा sbi_vector_context *dst)
 {
-	unsigned long vlenb, mstatus_orig;
+	अचिन्हित दीर्घ vlenb, mstatus_orig;
 
-	if (!dst)
-		return;
+	अगर (!dst)
+		वापस;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
@@ -35,9 +35,9 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	dst->vstart = csr_read(vstart);
 
 	/* Step 3: Save vector registers */
-#define SAVE_VREG(i)							\
+#घोषणा SAVE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	यंत्र अस्थिर(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vs8r.v v" #i ", (%0)\n\t"			\
@@ -50,27 +50,27 @@ void sbi_vector_save(struct sbi_vector_context *dst)
 	SAVE_VREG(16);
 	SAVE_VREG(24);
 
-#undef SAVE_VREG
+#अघोषित SAVE_VREG
 
 	/* Step 4. Restore original mstatus LAST */
 	csr_write(CSR_MSTATUS, mstatus_orig);
 }
 
-void sbi_vector_restore(const struct sbi_vector_context *src)
+व्योम sbi_vector_restore(स्थिर काष्ठा sbi_vector_context *src)
 {
-	unsigned long vlenb, mstatus_orig;
+	अचिन्हित दीर्घ vlenb, mstatus_orig;
 
-	if (!src)
-		return;
+	अगर (!src)
+		वापस;
 
 	/* Step 1. Save original mstatus and Enable VS */
 	mstatus_orig = csr_read_set(CSR_MSTATUS, MSTATUS_VS);
 	vlenb = csr_read(CSR_VLENB);
 
 	/* Step 2: Restore vector registers */
-#define RESTORE_VREG(i)							\
+#घोषणा RESTORE_VREG(i)							\
 	({								\
-	asm volatile(							\
+	यंत्र अस्थिर(							\
 		"	.option push\n\t"				\
 		"	.option arch, +v\n\t"				\
 		"	vl8r.v v" #i ", (%0)\n\t"			\
@@ -82,7 +82,7 @@ void sbi_vector_restore(const struct sbi_vector_context *src)
 	RESTORE_VREG(8);
 	RESTORE_VREG(16);
 	RESTORE_VREG(24);
-#undef RESTORE_VREG
+#अघोषित RESTORE_VREG
 
 	/* Step 3: Restore CSR's last */
 	/* Restore CSRs first */
