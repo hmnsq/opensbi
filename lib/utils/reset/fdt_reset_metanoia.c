@@ -5,68 +5,68 @@
  *
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_system.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
 
-#define SWRSTREQ_CTRL_REG_OFFSET 0x00
-#define SWRSTREQ_REG_OFFSET 0x04
+#تعریف_کن SWRSTREQ_CTRL_REG_جابه_جایی 0x00
+#تعریف_کن SWRSTREQ_REG_جابه_جایی 0x04
 
-struct reset_metanoia_data {
-	u8 *reg_base;
+بنية reset_metanoia_داده {
+	u8 *reg_پایه;
 };
 
-static struct reset_metanoia_data reset_data;
+ساكن بنية reset_metanoia_داده reset_داده;
 
-static int metanoia_system_reset_check(u32 type, u32 reason)
+ساكن صحيح metanoia_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	default:
-		return 0;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		أرجع 1;
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+	افتراضي:
+		أرجع 0;
 	}
 }
 
-static void metanoia_system_reset(u32 type, u32 reason)
+ساكن فراغ metanoia_system_reset(u32 type, u32 reason)
 {
-	writew(0x1, reset_data.reg_base + SWRSTREQ_CTRL_REG_OFFSET);
-	writew(0x1, reset_data.reg_base + SWRSTREQ_REG_OFFSET);
+	writew(0x1, reset_داده.reg_پایه + SWRSTREQ_CTRL_REG_جابه_جایی);
+	writew(0x1, reset_داده.reg_پایه + SWRSTREQ_REG_جابه_جایی);
 }
 
-static struct sbi_system_reset_device metanoia_reset = {
+ساكن بنية sbi_system_reset_device metanoia_reset = {
 	.name		    = "metanoia-mt2824-reboot",
 	.system_reset_check = metanoia_system_reset_check,
 	.system_reset	    = metanoia_system_reset,
 };
 
-static int metanoia_reset_init(const void *fdt, int nodeoff,
-			       const struct fdt_match *match)
+ساكن صحيح metanoia_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			       ثابت بنية fdt_تطابق *تطابق)
 {
 	u64 reg_addr;
-	int rc;
+	صحيح rc;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, NULL);
-	if (rc < 0 || !reg_addr)
-		return SBI_ENODEV;
+	rc = fdt_get_گره_addr_اندازه(fdt, nodeoff, 0, &reg_addr, عدم);
+	إذا (rc < 0 || !reg_addr)
+		أرجع SBI_ENODEV;
 
-	reset_data.reg_base = (u8 *)(ulong)reg_addr;
+	reset_داده.reg_پایه = (u8 *)(ulong)reg_addr;
 
-	sbi_system_reset_add_device(&metanoia_reset);
+	sbi_system_reset_جمع_کن_device(&metanoia_reset);
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match metanoia_reset_match[] = {
+ساكن ثابت بنية fdt_تطابق metanoia_reset_تطابق[] = {
 	{ .compatible = "metanoia,mt2824-reboot" },
 	{ /* sentinel */ }
 };
 
-const struct fdt_driver fdt_reset_metanoia = {
-	.match_table = metanoia_reset_match,
+ثابت بنية fdt_driver fdt_reset_metanoia = {
+	.تطابق_جدول = metanoia_reset_تطابق,
 	.init	     = metanoia_reset_init,
 };

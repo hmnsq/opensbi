@@ -7,108 +7,108 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/regmap/regmap.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi_utils/regmap/regmap.h>
 
-static SBI_LIST_HEAD(regmap_list);
+ساكن SBI_LIST_سر(regmap_list);
 
-struct regmap *regmap_find(unsigned int id)
+بنية regmap *regmap_پیدا_کن(بیعلامت صحيح id)
 {
-	struct sbi_dlist *pos;
+	بنية sbi_dlist *pos;
 
 	sbi_list_for_each(pos, &(regmap_list)) {
-		struct regmap *rmap = to_regmap(pos);
+		بنية regmap *rmap = مقصد_regmap(pos);
 
-		if (rmap->id == id)
-			return rmap;
+		إذا (rmap->id == id)
+			أرجع rmap;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-int regmap_add(struct regmap *rmap)
+صحيح regmap_جمع_کن(بنية regmap *rmap)
 {
-	if (!rmap)
-		return SBI_EINVAL;
-	if (regmap_find(rmap->id))
-		return SBI_EALREADY;
+	إذا (!rmap)
+		أرجع SBI_EINVAL;
+	إذا (regmap_پیدا_کن(rmap->id))
+		أرجع SBI_EALREADY;
 
-	sbi_list_add(&(rmap->node), &(regmap_list));
+	sbi_list_جمع_کن(&(rmap->گره), &(regmap_list));
 
-	return 0;
+	أرجع 0;
 }
 
-void regmap_remove(struct regmap *rmap)
+فراغ regmap_remove(بنية regmap *rmap)
 {
-	if (!rmap)
-		return;
+	إذا (!rmap)
+		أرجع;
 
-	sbi_list_del(&(rmap->node));
+	sbi_list_del(&(rmap->گره));
 }
 
-static bool regmap_reg_valid(struct regmap *rmap, unsigned int reg)
+ساكن bool regmap_reg_valid(بنية regmap *rmap, بیعلامت صحيح reg)
 {
-	if ((reg >= rmap->reg_max) ||
+	إذا ((reg >= rmap->reg_max) ||
 	    (reg & (rmap->reg_stride - 1)))
-		return false;
-	return true;
+		أرجع false;
+	أرجع true;
 }
 
-static unsigned int regmap_reg_addr(struct regmap *rmap, unsigned int reg)
+ساكن بیعلامت صحيح regmap_reg_addr(بنية regmap *rmap, بیعلامت صحيح reg)
 {
-	reg += rmap->reg_base;
+	reg += rmap->reg_پایه;
 
-	if (rmap->reg_shift > 0)
-		reg >>= rmap->reg_shift;
-	else if (rmap->reg_shift < 0)
-		reg <<= -(rmap->reg_shift);
+	إذا (rmap->reg_لغزش > 0)
+		reg >>= rmap->reg_لغزش;
+	وإلا إذا (rmap->reg_لغزش < 0)
+		reg <<= -(rmap->reg_لغزش);
 
-	return reg;
+	أرجع reg;
 }
 
-int regmap_read(struct regmap *rmap, unsigned int reg, unsigned int *val)
+صحيح regmap_read(بنية regmap *rmap, بیعلامت صحيح reg, بیعلامت صحيح *val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_read)
-		return SBI_ENOSYS;
+	إذا (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
+	إذا (!rmap->reg_read)
+		أرجع SBI_ENOSYS;
 
-	return rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
+	أرجع rmap->reg_read(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_write(struct regmap *rmap, unsigned int reg, unsigned int val)
+صحيح regmap_write(بنية regmap *rmap, بیعلامت صحيح reg, بیعلامت صحيح val)
 {
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
-	if (!rmap->reg_write)
-		return SBI_ENOSYS;
+	إذا (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
+	إذا (!rmap->reg_write)
+		أرجع SBI_ENOSYS;
 
-	return rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
+	أرجع rmap->reg_write(rmap, regmap_reg_addr(rmap, reg), val);
 }
 
-int regmap_update_bits(struct regmap *rmap, unsigned int reg,
-		       unsigned int mask, unsigned int val)
+صحيح regmap_update_بیتها(بنية regmap *rmap, بیعلامت صحيح reg,
+		       بیعلامت صحيح ماسک, بیعلامت صحيح val)
 {
-	int rc;
-	unsigned int reg_val;
+	صحيح rc;
+	بیعلامت صحيح reg_val;
 
-	if (!rmap || !regmap_reg_valid(rmap, reg))
-		return SBI_EINVAL;
+	إذا (!rmap || !regmap_reg_valid(rmap, reg))
+		أرجع SBI_EINVAL;
 
-	if (rmap->reg_update_bits) {
-		return rmap->reg_update_bits(rmap, regmap_reg_addr(rmap, reg),
-					     mask, val);
-	} else if (rmap->reg_read && rmap->reg_write) {
+	إذا (rmap->reg_update_بیتها) {
+		أرجع rmap->reg_update_بیتها(rmap, regmap_reg_addr(rmap, reg),
+					     ماسک, val);
+	} وإلا إذا (rmap->reg_read && rmap->reg_write) {
 		reg = regmap_reg_addr(rmap, reg);
 
 		rc = rmap->reg_read(rmap, reg, &reg_val);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 
-		reg_val &= ~mask;
-		reg_val |= val & mask;
-		return rmap->reg_write(rmap, reg, reg_val);
+		reg_val &= ~ماسک;
+		reg_val |= val & ماسک;
+		أرجع rmap->reg_write(rmap, reg, reg_val);
 	}
 
-	return SBI_ENOSYS;
+	أرجع SBI_ENOSYS;
 }

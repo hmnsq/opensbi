@@ -7,268 +7,268 @@
  *   Subrahmanya Lingappa <slingappa@ventanamicro.com>
  */
 
-#include <libfdt.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_fixup.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/mailbox.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#ضمن <libfdt.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_hsm.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_fixup.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/mailbox/fdt_mailbox.h>
+#ضمن <sbi_utils/mailbox/mailbox.h>
+#ضمن <sbi_utils/mailbox/rpmi_mailbox.h>
 
-#define MAX_HSM_SUPSEND_STATE_NAMELEN		16
+#تعریف_کن MAX_HSM_SUPSEND_STATE_NAMELEN		16
 
-struct rpmi_hsm_suspend {
-	u32 num_states;
-	struct sbi_cpu_idle_state *states;
+بنية rpmi_hsm_suspend {
+	u32 رقم_حالتها;
+	بنية sbi_cpu_idle_state *حالتها;
 };
 
-struct rpmi_hsm {
-	struct mbox_chan *chan;
-	struct rpmi_hsm_suspend *susp;
+بنية rpmi_hsm {
+	بنية mbox_chan *chan;
+	بنية rpmi_hsm_suspend *susp;
 };
 
-static unsigned long rpmi_hsm_offset;
+ساكن بیعلامت دراز rpmi_hsm_جابه_جایی;
 
-static struct rpmi_hsm *rpmi_hsm_get_pointer(u32 hartid)
+ساكن بنية rpmi_hsm *rpmi_hsm_get_اشاره_گر(u32 hartid)
 {
-	struct sbi_scratch *scratch;
+	بنية sbi_scratch *scratch;
 
-	scratch = sbi_hartid_to_scratch(hartid);
-	if (!scratch || !rpmi_hsm_offset)
-		return NULL;
+	scratch = sbi_hartid_مقصد_scratch(hartid);
+	إذا (!scratch || !rpmi_hsm_جابه_جایی)
+		أرجع عدم;
 
-	return sbi_scratch_offset_ptr(scratch, rpmi_hsm_offset);
+	أرجع sbi_scratch_جابه_جایی_ptr(scratch, rpmi_hsm_جابه_جایی);
 }
 
-static int rpmi_hsm_start(u32 hartid, ulong resume_addr)
+ساكن صحيح rpmi_hsm_شروع(u32 hartid, ulong resume_addr)
 {
-	struct rpmi_hsm_hart_start_req req;
-	struct rpmi_hsm_hart_start_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(hartid);
+	بنية rpmi_hsm_hart_شروع_req req;
+	بنية rpmi_hsm_hart_شروع_resp resp;
+	بنية rpmi_hsm *rpmi = rpmi_hsm_get_اشاره_گر(hartid);
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	إذا (!rpmi)
+		أرجع SBI_ENOSYS;
 
 	req.hartid = hartid;
-	req.start_addr_lo = resume_addr;
-	req.start_addr_hi = (u64)resume_addr  >> 32;
+	req.شروع_addr_lo = resume_addr;
+	req.شروع_addr_hi = (u64)resume_addr  >> 32;
 
-	return rpmi_normal_request_with_status(
-			rpmi->chan, RPMI_HSM_SRV_HART_START,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
+	أرجع rpmi_نرمال_request_with_وضعیت(
+			rpmi->chan, RPMI_HSM_SRV_HART_شروع,
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
 }
 
-static int rpmi_hsm_stop(void)
+ساكن صحيح rpmi_hsm_stop(فراغ)
 {
-	int rc;
-	struct rpmi_hsm_hart_stop_req req;
-	struct rpmi_hsm_hart_stop_resp resp;
-	void (*jump_warmboot)(void) =
-		(void (*)(void))sbi_scratch_thishart_ptr()->warmboot_addr;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	صحيح rc;
+	بنية rpmi_hsm_hart_stop_req req;
+	بنية rpmi_hsm_hart_stop_resp resp;
+	فراغ (*jump_warmboot)(فراغ) =
+		(فراغ (*)(فراغ))sbi_scratch_thishart_ptr()->warmboot_addr;
+	بنية rpmi_hsm *rpmi = rpmi_hsm_get_اشاره_گر(current_hartid());
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	إذا (!rpmi)
+		أرجع SBI_ENOSYS;
 
 	req.hartid = current_hartid();
 
-	rc = rpmi_normal_request_with_status(
+	rc = rpmi_نرمال_request_with_وضعیت(
 			rpmi->chan, RPMI_HSM_SRV_HART_STOP,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+	إذا (rc)
+		أرجع rc;
 
 	/* Wait for interrupt */
 	wfi();
 
 	jump_warmboot();
 
-	return 0;
+	أرجع 0;
 }
 
-static bool is_rpmi_hsm_susp_supported(struct rpmi_hsm_suspend *susp, u32 type)
+ساكن bool is_rpmi_hsm_susp_supported(بنية rpmi_hsm_suspend *susp, u32 type)
 {
-	int i;
+	صحيح i;
 
-	for (i = 0; i < susp->num_states; i++)
-		if (type == susp->states[i].suspend_param)
-			return true;
+	لكل (i = 0; i < susp->رقم_حالتها; i++)
+		إذا (type == susp->حالتها[i].suspend_param)
+			أرجع true;
 
-	return false;
+	أرجع false;
 }
 
-static int rpmi_hsm_suspend(u32 type, ulong resume_addr)
+ساكن صحيح rpmi_hsm_suspend(u32 type, ulong resume_addr)
 {
-	int rc;
-	struct rpmi_hsm_hart_susp_req req;
-	struct rpmi_hsm_hart_susp_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	صحيح rc;
+	بنية rpmi_hsm_hart_susp_req req;
+	بنية rpmi_hsm_hart_susp_resp resp;
+	بنية rpmi_hsm *rpmi = rpmi_hsm_get_اشاره_گر(current_hartid());
 
-	if (!rpmi)
-		return SBI_ENOSYS;
+	إذا (!rpmi)
+		أرجع SBI_ENOSYS;
 
 	/* check if harts support this suspend type */
-	if (!is_rpmi_hsm_susp_supported(rpmi->susp, type))
-		return SBI_EINVAL;
+	إذا (!is_rpmi_hsm_susp_supported(rpmi->susp, type))
+		أرجع SBI_EINVAL;
 
 	req.hartid = current_hartid();
 	req.suspend_type = type;
 	req.resume_addr_lo = resume_addr;
 	req.resume_addr_hi = (u64)resume_addr  >> 32;
 
-	rc = rpmi_normal_request_with_status(
+	rc = rpmi_نرمال_request_with_وضعیت(
 			rpmi->chan, RPMI_HSM_SRV_HART_SUSPEND,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+	إذا (rc)
+		أرجع rc;
 
 	/* Wait for interrupt */
 	wfi();
 
-	return 0;
+	أرجع 0;
 }
 
-static struct sbi_hsm_device sbi_hsm_rpmi = {
+ساكن بنية sbi_hsm_device sbi_hsm_rpmi = {
 	.name		= "rpmi-hsm",
-	.hart_start	= rpmi_hsm_start,
+	.hart_شروع	= rpmi_hsm_شروع,
 	.hart_stop	= rpmi_hsm_stop,
 	.hart_suspend	= rpmi_hsm_suspend,
 };
 
-static void rpmi_hsm_do_fixup(struct fdt_general_fixup *f, void *fdt)
+ساكن فراغ rpmi_hsm_do_fixup(بنية fdt_general_fixup *f, فراغ *fdt)
 {
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	بنية rpmi_hsm *rpmi = rpmi_hsm_get_اشاره_گر(current_hartid());
 
-	if (!rpmi || !rpmi->susp || !rpmi->susp->num_states)
-		return;
+	إذا (!rpmi || !rpmi->susp || !rpmi->susp->رقم_حالتها)
+		أرجع;
 
-	fdt_add_cpu_idle_states(fdt, rpmi->susp->states);
+	fdt_جمع_کن_cpu_idle_حالتها(fdt, rpmi->susp->حالتها);
 }
 
-static struct fdt_general_fixup rpmi_hsm_fixup = {
+ساكن بنية fdt_general_fixup rpmi_hsm_fixup = {
 	.name = "rpmi-hsm-fixup",
 	.do_fixup = rpmi_hsm_do_fixup,
 };
 
-static int rpmi_hsm_get_num_suspend_states(struct mbox_chan *chan,
-					   struct rpmi_hsm_suspend *susp)
+ساكن صحيح rpmi_hsm_get_رقم_suspend_حالتها(بنية mbox_chan *chan,
+					   بنية rpmi_hsm_suspend *susp)
 {
-	int rc;
-	struct rpmi_hsm_get_susp_types_req req;
-	struct rpmi_hsm_get_susp_types_resp resp;
+	صحيح rc;
+	بنية rpmi_hsm_get_susp_types_req req;
+	بنية rpmi_hsm_get_susp_types_resp resp;
 
-	req.start_index = 0;
-	rc = rpmi_normal_request_with_status(
+	req.شروع_شاخص = 0;
+	rc = rpmi_نرمال_request_with_وضعیت(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (rc)
-		return rc;
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+	إذا (rc)
+		أرجع rc;
 
-	susp->num_states = resp.returned + resp.remaining;
-	return 0;
+	susp->رقم_حالتها = resp.returned + resp.مانده;
+	أرجع 0;
 }
 
-static int rpmi_hsm_get_suspend_states(struct mbox_chan *chan,
-					struct rpmi_hsm_suspend *susp)
+ساكن صحيح rpmi_hsm_get_suspend_حالتها(بنية mbox_chan *chan,
+					بنية rpmi_hsm_suspend *susp)
 {
-	int rc, i, cnt = 0;
-	struct rpmi_hsm_get_susp_types_req req;
-	struct rpmi_hsm_get_susp_types_resp resp;
-	struct rpmi_hsm_get_susp_info_req dreq;
-	struct rpmi_hsm_get_susp_info_resp dresp;
-	struct sbi_cpu_idle_state *state;
+	صحيح rc, i, cnt = 0;
+	بنية rpmi_hsm_get_susp_types_req req;
+	بنية rpmi_hsm_get_susp_types_resp resp;
+	بنية rpmi_hsm_get_susp_info_req dreq;
+	بنية rpmi_hsm_get_susp_info_resp dresp;
+	بنية sbi_cpu_idle_state *state;
 
-	if (!susp->num_states)
-		return 0;
+	إذا (!susp->رقم_حالتها)
+		أرجع 0;
 
-	req.start_index = 0;
-	do {
-		rc = rpmi_normal_request_with_status(
+	req.شروع_شاخص = 0;
+	افعل {
+		rc = rpmi_نرمال_request_with_وضعیت(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_TYPES,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+		إذا (rc)
+			أرجع rc;
 
-		for (i = 0; i < resp.returned && cnt < susp->num_states; i++)
-			susp->states[cnt++].suspend_param = resp.types[i];
-		req.start_index = i;
-	} while (resp.remaining);
+		لكل (i = 0; i < resp.returned && cnt < susp->رقم_حالتها; i++)
+			susp->حالتها[cnt++].suspend_param = resp.types[i];
+		req.شروع_شاخص = i;
+	} طالما (resp.مانده);
 
-	for (i = 0; i < susp->num_states; i++) {
-		state = &susp->states[i];
+	لكل (i = 0; i < susp->رقم_حالتها; i++) {
+		state = &susp->حالتها[i];
 
 		dreq.suspend_type = state->suspend_param;
-		rc = rpmi_normal_request_with_status(
+		rc = rpmi_نرمال_request_with_وضعیت(
 			chan, RPMI_HSM_SRV_GET_SUSPEND_INFO,
-			&dreq, rpmi_u32_count(dreq), rpmi_u32_count(dreq),
-			&dresp, rpmi_u32_count(dresp), rpmi_u32_count(dresp));
-		if (rc)
-			return rc;
+			&dreq, rpmi_u32_شمار(dreq), rpmi_u32_شمار(dreq),
+			&dresp, rpmi_u32_شمار(dresp), rpmi_u32_شمار(dresp));
+		إذا (rc)
+			أرجع rc;
 
 		state->local_timer_stop =
 			(dresp.flags & RPMI_HSM_SUSPEND_INFO_FLAGS_TIMER_STOP) ? true : false;
-		state->entry_latency_us = dresp.entry_latency_us;
+		state->مدخل_latency_us = dresp.مدخل_latency_us;
 		state->exit_latency_us = dresp.exit_latency_us;
 		state->wakeup_latency_us = dresp.wakeup_latency_us;
 		state->min_residency_us = dresp.min_residency_us;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int rpmi_hsm_update_hart_scratch(struct mbox_chan *chan,
-					struct rpmi_hsm_suspend *susp)
+ساكن صحيح rpmi_hsm_update_hart_scratch(بنية mbox_chan *chan,
+					بنية rpmi_hsm_suspend *susp)
 {
-	int rc, i;
-	struct rpmi_hsm_get_hart_list_req req;
-	struct rpmi_hsm_get_hart_list_resp resp;
-	struct rpmi_hsm *rpmi = rpmi_hsm_get_pointer(current_hartid());
+	صحيح rc, i;
+	بنية rpmi_hsm_get_hart_list_req req;
+	بنية rpmi_hsm_get_hart_list_resp resp;
+	بنية rpmi_hsm *rpmi = rpmi_hsm_get_اشاره_گر(current_hartid());
 
-	req.start_index = 0;
-	do {
-		rc = rpmi_normal_request_with_status(
+	req.شروع_شاخص = 0;
+	افعل {
+		rc = rpmi_نرمال_request_with_وضعیت(
 			chan, RPMI_HSM_SRV_GET_HART_LIST,
-			&req, rpmi_u32_count(req), rpmi_u32_count(req),
-			&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-		if (rc)
-			return rc;
+			&req, rpmi_u32_شمار(req), rpmi_u32_شمار(req),
+			&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+		إذا (rc)
+			أرجع rc;
 
-		for (i = 0; i < resp.returned; i++) {
-			rpmi = rpmi_hsm_get_pointer(resp.hartid[i]);
-			if (!rpmi)
-				return SBI_ENOSYS;
+		لكل (i = 0; i < resp.returned; i++) {
+			rpmi = rpmi_hsm_get_اشاره_گر(resp.hartid[i]);
+			إذا (!rpmi)
+				أرجع SBI_ENOSYS;
 
 			rpmi->chan = chan;
 			rpmi->susp = susp;
 		}
 
-		req.start_index += resp.returned;
-	} while (resp.remaining);
+		req.شروع_شاخص += resp.returned;
+	} طالما (resp.مانده);
 
-	return 0;
+	أرجع 0;
 }
 
-static int rpmi_hsm_cold_init(const void *fdt, int nodeoff,
-			      const struct fdt_match *match)
+ساكن صحيح rpmi_hsm_cold_init(ثابت فراغ *fdt, صحيح nodeoff,
+			      ثابت بنية fdt_تطابق *تطابق)
 {
-	int rc, i;
-	struct mbox_chan *chan;
-	struct rpmi_hsm_suspend *susp;
+	صحيح rc, i;
+	بنية mbox_chan *chan;
+	بنية rpmi_hsm_suspend *susp;
 
-	if (!rpmi_hsm_offset) {
-		rpmi_hsm_offset =
-			sbi_scratch_alloc_type_offset(struct rpmi_hsm);
-		if (!rpmi_hsm_offset)
-			return SBI_ENOMEM;
+	إذا (!rpmi_hsm_جابه_جایی) {
+		rpmi_hsm_جابه_جایی =
+			sbi_scratch_alloc_type_جابه_جایی(بنية rpmi_hsm);
+		إذا (!rpmi_hsm_جابه_جایی)
+			أرجع SBI_ENOMEM;
 	}
 
 	/*
@@ -276,87 +276,87 @@ static int rpmi_hsm_cold_init(const void *fdt, int nodeoff,
 	 * HSM service group so do nothing.
 	 */
 	rc = fdt_mailbox_request_chan(fdt, nodeoff, 0, &chan);
-	if (rc)
-		return SBI_ENODEV;
+	إذا (rc)
+		أرجع SBI_ENODEV;
 
 	/* Allocate context for HART suspend states */
-	susp = sbi_zalloc(sizeof(*susp));
-	if (!susp)
-		return SBI_ENOMEM;
+	susp = sbi_zalloc(حجم(*susp));
+	إذا (!susp)
+		أرجع SBI_ENOMEM;
 
 	/* Get number of HART suspend states */
-	rc = rpmi_hsm_get_num_suspend_states(chan, susp);
-	if (rc)
-		goto fail_free_susp;
+	rc = rpmi_hsm_get_رقم_suspend_حالتها(chan, susp);
+	إذا (rc)
+		اذهب fail_free_susp;
 
 	/* Skip HART suspend state discovery for zero HART suspend states */
-	if (!susp->num_states)
-		goto skip_suspend_states;
+	إذا (!susp->رقم_حالتها)
+		اذهب skip_suspend_حالتها;
 
 	/* Allocate array of HART suspend states */
-	susp->states = sbi_calloc(susp->num_states + 1, sizeof(*susp->states));
-	if (!susp->states) {
+	susp->حالتها = sbi_calloc(susp->رقم_حالتها + 1, حجم(*susp->حالتها));
+	إذا (!susp->حالتها) {
 		rc = SBI_ENOMEM;
-		goto fail_free_susp;
+		اذهب fail_free_susp;
 	}
 
 	/* Allocate name of each HART suspend state */
-	for (i = 0; i < susp->num_states; i++) {
-		susp->states[i].name =
+	لكل (i = 0; i < susp->رقم_حالتها; i++) {
+		susp->حالتها[i].name =
 			sbi_zalloc(MAX_HSM_SUPSEND_STATE_NAMELEN);
-		if (!susp->states[i].name) {
-			do {
+		إذا (!susp->حالتها[i].name) {
+			افعل {
 				i--;
-				sbi_free((void *)susp->states[i].name);
-			} while (i > 0);
+				sbi_free((فراغ *)susp->حالتها[i].name);
+			} طالما (i > 0);
 
 			rc = SBI_ENOMEM;
-			goto fail_free_susp_states;
+			اذهب fail_free_susp_حالتها;
 		}
-		sbi_snprintf((char *)susp->states[i].name,
+		sbi_snprintf((حرف *)susp->حالتها[i].name,
 			     MAX_HSM_SUPSEND_STATE_NAMELEN, "cpu-susp%d", i);
 	}
 
 	/* Get details about each HART suspend state */
-	rc = rpmi_hsm_get_suspend_states(chan, susp);
-	if (rc)
-		goto fail_free_susp_state_names;
+	rc = rpmi_hsm_get_suspend_حالتها(chan, susp);
+	إذا (rc)
+		اذهب fail_free_susp_state_نامها;
 
-skip_suspend_states:
+skip_suspend_حالتها:
 	/* Update per-HART scratch space */
 	rc = rpmi_hsm_update_hart_scratch(chan, susp);
-	if (rc)
-		goto fail_free_susp_state_names;
+	إذا (rc)
+		اذهب fail_free_susp_state_نامها;
 
 	/* Register HSM fixup callback */
-	rc = fdt_register_general_fixup(&rpmi_hsm_fixup);
-	if (rc && rc != SBI_EALREADY)
-		goto fail_free_susp_state_names;
+	rc = fdt_ثبات_general_fixup(&rpmi_hsm_fixup);
+	إذا (rc && rc != SBI_EALREADY)
+		اذهب fail_free_susp_state_نامها;
 
 	/* Register HSM device */
-	if (!susp->num_states)
-		sbi_hsm_rpmi.hart_suspend = NULL;
-	sbi_hsm_set_device(&sbi_hsm_rpmi);
+	إذا (!susp->رقم_حالتها)
+		sbi_hsm_rpmi.hart_suspend = عدم;
+	sbi_hsm_مجموعه_device(&sbi_hsm_rpmi);
 
-	return 0;
+	أرجع 0;
 
-fail_free_susp_state_names:
-	for (i = 0; i < susp->num_states; i++)
-		sbi_free((void *)susp->states[i].name);
-fail_free_susp_states:
-	if (susp->num_states)
-		sbi_free(susp->states);
+fail_free_susp_state_نامها:
+	لكل (i = 0; i < susp->رقم_حالتها; i++)
+		sbi_free((فراغ *)susp->حالتها[i].name);
+fail_free_susp_حالتها:
+	إذا (susp->رقم_حالتها)
+		sbi_free(susp->حالتها);
 fail_free_susp:
 	sbi_free(susp);
-	return rc;
+	أرجع rc;
 }
 
-static const struct fdt_match rpmi_hsm_match[] = {
+ساكن ثابت بنية fdt_تطابق rpmi_hsm_تطابق[] = {
 	{ .compatible = "riscv,rpmi-hsm" },
 	{},
 };
 
-const struct fdt_driver fdt_hsm_rpmi = {
-	.match_table = rpmi_hsm_match,
+ثابت بنية fdt_driver fdt_hsm_rpmi = {
+	.تطابق_جدول = rpmi_hsm_تطابق,
 	.init = rpmi_hsm_cold_init,
 };

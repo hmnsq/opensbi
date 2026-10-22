@@ -7,107 +7,107 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_asm.h>
-#include <sbi/riscv_atomic.h>
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_domain.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_ipi.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/ipi/aclint_mswi.h>
+#ضمن <sbi/riscv_asm.h>
+#ضمن <sbi/riscv_atomic.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_domain.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_ipi.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi_utils/ipi/aclint_mswi.h>
 
-static unsigned long mswi_ptr_offset;
+ساكن بیعلامت دراز mswi_ptr_جابه_جایی;
 
-#define mswi_get_hart_data_ptr(__scratch)				\
-	sbi_scratch_read_type((__scratch), void *, mswi_ptr_offset)
+#تعریف_کن mswi_get_hart_داده_ptr(__scratch)				\
+	sbi_scratch_read_type((__scratch), فراغ *, mswi_ptr_جابه_جایی)
 
-#define mswi_set_hart_data_ptr(__scratch, __mswi)			\
-	sbi_scratch_write_type((__scratch), void *, mswi_ptr_offset, (__mswi))
+#تعریف_کن mswi_مجموعه_hart_داده_ptr(__scratch, __mswi)			\
+	sbi_scratch_write_type((__scratch), فراغ *, mswi_ptr_جابه_جایی, (__mswi))
 
-static void mswi_ipi_send(u32 hart_index)
+ساكن فراغ mswi_ipi_send(u32 hart_شاخص)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch;
-	struct aclint_mswi_data *mswi;
+	بنية sbi_scratch *scratch;
+	بنية aclint_mswi_داده *mswi;
 
-	scratch = sbi_hartindex_to_scratch(hart_index);
-	if (!scratch)
-		return;
+	scratch = sbi_hartindex_مقصد_scratch(hart_شاخص);
+	إذا (!scratch)
+		أرجع;
 
-	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	mswi = mswi_get_hart_داده_ptr(scratch);
+	إذا (!mswi)
+		أرجع;
 
 	/* Set ACLINT IPI */
-	msip = (void *)mswi->addr;
-	writel_relaxed(1, &msip[sbi_hartindex_to_hartid(hart_index) -
-			mswi->first_hartid]);
+	msip = (فراغ *)mswi->addr;
+	writel_relaxed(1, &msip[sbi_hartindex_مقصد_hartid(hart_شاخص) -
+			mswi->اولی_hartid]);
 }
 
-static void mswi_ipi_clear(void)
+ساكن فراغ mswi_ipi_clear(فراغ)
 {
 	u32 *msip;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
-	struct aclint_mswi_data *mswi;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	بنية aclint_mswi_داده *mswi;
 
-	mswi = mswi_get_hart_data_ptr(scratch);
-	if (!mswi)
-		return;
+	mswi = mswi_get_hart_داده_ptr(scratch);
+	إذا (!mswi)
+		أرجع;
 
 	/* Clear ACLINT IPI */
-	msip = (void *)mswi->addr;
-	writel_relaxed(0, &msip[current_hartid() - mswi->first_hartid]);
+	msip = (فراغ *)mswi->addr;
+	writel_relaxed(0, &msip[current_hartid() - mswi->اولی_hartid]);
 }
 
-static struct sbi_ipi_device aclint_mswi = {
+ساكن بنية sbi_ipi_device aclint_mswi = {
 	.name = "aclint-mswi",
 	.rating = 100,
 	.ipi_send = mswi_ipi_send,
 	.ipi_clear = mswi_ipi_clear
 };
 
-int aclint_mswi_cold_init(struct aclint_mswi_data *mswi)
+صحيح aclint_mswi_cold_init(بنية aclint_mswi_داده *mswi)
 {
 	u32 i;
-	int rc;
-	struct sbi_scratch *scratch;
+	صحيح rc;
+	بنية sbi_scratch *scratch;
 
 	/* Sanity checks */
-	if (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
-	    (mswi->size < (mswi->hart_count * sizeof(u32))) ||
-	    (!mswi->hart_count || mswi->hart_count > ACLINT_MSWI_MAX_HARTS))
-		return SBI_EINVAL;
+	إذا (!mswi || (mswi->addr & (ACLINT_MSWI_ALIGN - 1)) ||
+	    (mswi->اندازه < (mswi->hart_شمار * حجم(u32))) ||
+	    (!mswi->hart_شمار || mswi->hart_شمار > ACLINT_MSWI_MAX_HARTS))
+		أرجع SBI_EINVAL;
 
 	/* Allocate scratch space pointer */
-	if (!mswi_ptr_offset) {
-		mswi_ptr_offset = sbi_scratch_alloc_type_offset(void *);
-		if (!mswi_ptr_offset)
-			return SBI_ENOMEM;
+	إذا (!mswi_ptr_جابه_جایی) {
+		mswi_ptr_جابه_جایی = sbi_scratch_alloc_type_جابه_جایی(فراغ *);
+		إذا (!mswi_ptr_جابه_جایی)
+			أرجع SBI_ENOMEM;
 	}
 
 	/* Update MSWI pointer in scratch space */
-	for (i = 0; i < mswi->hart_count; i++) {
-		scratch = sbi_hartid_to_scratch(mswi->first_hartid + i);
+	لكل (i = 0; i < mswi->hart_شمار; i++) {
+		scratch = sbi_hartid_مقصد_scratch(mswi->اولی_hartid + i);
 		/*
 		 * We don't need to fail if scratch pointer is not available
 		 * because we might be dealing with hartid of a HART disabled
 		 * in the device tree.
 		 */
-		if (!scratch)
-			continue;
-		mswi_set_hart_data_ptr(scratch, mswi);
+		إذا (!scratch)
+			استمر;
+		mswi_مجموعه_hart_داده_ptr(scratch, mswi);
 	}
 
 	/* Add MSWI regions to the root domain */
-	rc = sbi_domain_root_add_memrange(mswi->addr, mswi->size, ACLINT_MSWI_ALIGN,
+	rc = sbi_domain_ریشه_جمع_کن_memrange(mswi->addr, mswi->اندازه, ACLINT_MSWI_ALIGN,
 					  SBI_DOMAIN_MEMREGION_MMIO |
 					  SBI_DOMAIN_MEMREGION_M_READABLE |
 					  SBI_DOMAIN_MEMREGION_M_WRITABLE);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	sbi_ipi_add_device(&aclint_mswi);
+	sbi_ipi_جمع_کن_device(&aclint_mswi);
 
-	return 0;
+	أرجع 0;
 }

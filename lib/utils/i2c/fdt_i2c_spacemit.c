@@ -7,214 +7,214 @@
  *   Aurelien Jarno <aurelien@aurel32.net>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_timer.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/i2c/fdt_i2c.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_timer.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/i2c/fdt_i2c.h>
 
 /* Controller registers */
-#define ICR_OFFSET	0x00		/* I2C control register */
-#define IDBR_OFFSET	0x0c		/* I2C data buffer register */
+#تعریف_کن ICR_جابه_جایی	0x00		/* I2C control register */
+#تعریف_کن IDBR_جابه_جایی	0x0c		/* I2C data buffer register */
 
 /* Control register bits */
-#define ICR_START	BIT(0)		/* start */
-#define ICR_STOP	BIT(1)		/* stop */
-#define ICR_ACKNAK	BIT(2)		/* ACK(0) or NAK(1) */
-#define ICR_TB		BIT(3)		/* transfer byte */
-#define ICR_UR		BIT(10)		/* unit reset */
-#define ICR_SCLE	BIT(13)		/* SCL enable  */
-#define ICR_IUE		BIT(14)		/* unit enable */
+#تعریف_کن ICR_شروع	بیت(0)		/*شروع*/
+#تعریف_کن ICR_STOP	بیت(1)		/* stop */
+#تعریف_کن ICR_ACKNAK	بیت(2)		/* ACK(0) or NAK(1) */
+#تعریف_کن ICR_TB		بیت(3)		/* transfer byte */
+#تعریف_کن ICR_UR		بیت(10)		/* unit reset */
+#تعریف_کن ICR_SCLE	بیت(13)		/* SCL enable  */
+#تعریف_کن ICR_IUE		بیت(14)		/* unit enable */
 
 /* Timing */
-#define I2C_RESET_US	10
-#define I2C_TIMEOUT_US	1000
+#تعریف_کن I2C_RESET_US	10
+#تعریف_کن I2C_TIMEOUT_US	1000
 
-struct spacemit_i2c_adapter {
-	unsigned long base;
-	struct i2c_adapter adapter;
+بنية spacemit_i2c_adapter {
+	بیعلامت دراز پایه_2;
+	بنية i2c_adapter adapter;
 };
 
-static inline void spacemit_i2c_set_reg(struct spacemit_i2c_adapter *adap,
+ساكن مضمن فراغ spacemit_i2c_مجموعه_reg(بنية spacemit_i2c_adapter *adap,
 					uint8_t reg, uint32_t val)
 {
-	writel(val, (void *)adap->base + reg);
+	writel(val, (فراغ *)adap->پایه_2 + reg);
 }
 
-static inline uint32_t spacemit_i2c_get_reg(struct spacemit_i2c_adapter *adap,
+ساكن مضمن uint32_t spacemit_i2c_get_reg(بنية spacemit_i2c_adapter *adap,
 					    uint32_t reg)
 {
-	return readl((void *)adap->base + reg);
+	أرجع readl((فراغ *)adap->پایه_2 + reg);
 }
 
-static void spacemit_i2c_reset(struct spacemit_i2c_adapter *adap)
+ساكن فراغ spacemit_i2c_reset(بنية spacemit_i2c_adapter *adap)
 {
 	/* disable unit */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, 0);
+	spacemit_i2c_مجموعه_reg(adap, ICR_جابه_جایی, 0);
 	sbi_timer_udelay(I2C_RESET_US);
 
 	/* reset unit */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_UR);
+	spacemit_i2c_مجموعه_reg(adap, ICR_جابه_جایی, ICR_UR);
 	sbi_timer_udelay(I2C_RESET_US);
 
 	/* clear reset and enable unit and SCL */
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, ICR_IUE | ICR_SCLE);
+	spacemit_i2c_مجموعه_reg(adap, ICR_جابه_جایی, ICR_IUE | ICR_SCLE);
 }
 
-static int spacemit_i2c_wait_xfer_done(struct spacemit_i2c_adapter *adap)
+ساكن صحيح spacemit_i2c_wait_xfer_انجامشده(بنية spacemit_i2c_adapter *adap)
 {
-	for (int i = 0; i < I2C_TIMEOUT_US; i++) {
-		uint32_t val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
+	لكل (صحيح i = 0; i < I2C_TIMEOUT_US; i++) {
+		uint32_t val = spacemit_i2c_get_reg(adap, ICR_جابه_جایی);
 
-		if (!(val & ICR_TB))
-			return 0;
+		إذا (!(val & ICR_TB))
+			أرجع 0;
 
 		sbi_timer_udelay(1);
 	};
 
-	return SBI_ETIMEDOUT;
+	أرجع SBI_ETIMEDOUT;
 }
 
-static void spacemit_i2c_start_xfer(struct spacemit_i2c_adapter *adap,
+ساكن فراغ spacemit_i2c_شروع_xfer(بنية spacemit_i2c_adapter *adap,
 				    uint32_t ctrl)
 {
-	const uint32_t ctrl_mask = ICR_START | ICR_STOP | ICR_ACKNAK;
+	ثابت uint32_t ctrl_ماسک = ICR_شروع | ICR_STOP | ICR_ACKNAK;
 	uint32_t val;
 
-	val = spacemit_i2c_get_reg(adap, ICR_OFFSET);
-	val &= ~ctrl_mask;
-	val |= (ctrl & ctrl_mask);
+	val = spacemit_i2c_get_reg(adap, ICR_جابه_جایی);
+	val &= ~ctrl_ماسک;
+	val |= (ctrl & ctrl_ماسک);
 	val |= ICR_TB;
 
-	spacemit_i2c_set_reg(adap, ICR_OFFSET, val);
+	spacemit_i2c_مجموعه_reg(adap, ICR_جابه_جایی, val);
 }
 
-static int spacemit_i2c_xfer_write(struct spacemit_i2c_adapter *adap,
+ساكن صحيح spacemit_i2c_xfer_write(بنية spacemit_i2c_adapter *adap,
 				   uint8_t byte, uint32_t ctrl)
 {
-	spacemit_i2c_set_reg(adap, IDBR_OFFSET, byte);
-	spacemit_i2c_start_xfer(adap, ctrl);
+	spacemit_i2c_مجموعه_reg(adap, IDBR_جابه_جایی, byte);
+	spacemit_i2c_شروع_xfer(adap, ctrl);
 
-	return spacemit_i2c_wait_xfer_done(adap);
+	أرجع spacemit_i2c_wait_xfer_انجامشده(adap);
 }
 
-static int spacemit_i2c_xfer_read(struct spacemit_i2c_adapter *adap,
+ساكن صحيح spacemit_i2c_xfer_read(بنية spacemit_i2c_adapter *adap,
 				  uint8_t *byte, uint32_t ctrl)
 {
-	int rc;
+	صحيح rc;
 
-	spacemit_i2c_start_xfer(adap, ctrl);
+	spacemit_i2c_شروع_xfer(adap, ctrl);
 
-	rc = spacemit_i2c_wait_xfer_done(adap);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_wait_xfer_انجامشده(adap);
+	إذا (rc)
+		أرجع rc;
 
-	*byte = spacemit_i2c_get_reg(adap, IDBR_OFFSET);
-	return 0;
+	*byte = spacemit_i2c_get_reg(adap, IDBR_جابه_جایی);
+	أرجع 0;
 }
 
-static int spacemit_i2c_adapter_write(struct i2c_adapter *ia, uint8_t addr,
-				      uint8_t reg, uint8_t *buffer, int len)
+ساكن صحيح spacemit_i2c_adapter_write(بنية i2c_adapter *ia, uint8_t addr,
+				      uint8_t reg, uint8_t *میانگیر, صحيح len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	بنية spacemit_i2c_adapter *adap =
+		container_از(ia, بنية spacemit_i2c_adapter, adapter);
+	صحيح rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
-	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_شروع);
+	إذا (rc)
+		أرجع rc;
 
 	/* send register + data bytes */
-	for (int i = 0; i < len + 1; i++) {
+	لكل (صحيح i = 0; i < len + 1; i++) {
 		uint32_t ctrl = (i == len) ? ICR_STOP : 0;
-		uint8_t byte = (i == 0) ? reg : buffer[i - 1];
+		uint8_t byte = (i == 0) ? reg : میانگیر[i - 1];
 
 		rc = spacemit_i2c_xfer_write(adap, byte, ctrl);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int spacemit_i2c_adapter_read(struct i2c_adapter *ia, uint8_t addr,
-				     uint8_t reg, uint8_t *buffer, int len)
+ساكن صحيح spacemit_i2c_adapter_read(بنية i2c_adapter *ia, uint8_t addr,
+				     uint8_t reg, uint8_t *میانگیر, صحيح len)
 {
-	struct spacemit_i2c_adapter *adap =
-		container_of(ia, struct spacemit_i2c_adapter, adapter);
-	int rc;
+	بنية spacemit_i2c_adapter *adap =
+		container_از(ia, بنية spacemit_i2c_adapter, adapter);
+	صحيح rc;
 
 	/* reset controller to a known state */
 	spacemit_i2c_reset(adap);
 
 	/* send device address (in write mode) */
-	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, addr << 1, ICR_شروع);
+	إذا (rc)
+		أرجع rc;
 
 	/* send register */
 	rc = spacemit_i2c_xfer_write(adap, reg, 0);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
 	/* repeated start and send device address (in read mode) */
-	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_START);
-	if (rc)
-		return rc;
+	rc = spacemit_i2c_xfer_write(adap, (addr << 1) | 1, ICR_شروع);
+	إذا (rc)
+		أرجع rc;
 
 	/* read data bytes */
-	for (int i = 0; i < len; i++) {
+	لكل (صحيح i = 0; i < len; i++) {
 		uint32_t ctrl = (i == len - 1) ? (ICR_ACKNAK | ICR_STOP) : 0;
 
-		rc = spacemit_i2c_xfer_read(adap, &buffer[i], ctrl);
-		if (rc)
-			return rc;
+		rc = spacemit_i2c_xfer_read(adap, &میانگیر[i], ctrl);
+		إذا (rc)
+			أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int spacemit_i2c_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+ساكن صحيح spacemit_i2c_init(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_تطابق *تطابق)
 {
-	struct spacemit_i2c_adapter *adapter;
-	uint64_t base;
-	int rc;
+	بنية spacemit_i2c_adapter *adapter;
+	uint64_t پایه_2;
+	صحيح rc;
 
-	adapter = sbi_zalloc(sizeof(*adapter));
-	if (!adapter)
-		return SBI_ENOMEM;
+	adapter = sbi_zalloc(حجم(*adapter));
+	إذا (!adapter)
+		أرجع SBI_ENOMEM;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &base, NULL);
-	if (rc) {
+	rc = fdt_get_گره_addr_اندازه(fdt, nodeoff, 0, &پایه_2, عدم);
+	إذا (rc) {
 		sbi_free(adapter);
-		return rc;
+		أرجع rc;
 	}
 
-	adapter->base = base;
+	adapter->پایه_2 = پایه_2;
 	adapter->adapter.id = nodeoff;
-	adapter->adapter.write = spacemit_i2c_adapter_write;
-	adapter->adapter.read = spacemit_i2c_adapter_read;
-	rc = i2c_adapter_add(&adapter->adapter);
-	if (rc) {
+	adapter->adapter.اكتب = spacemit_i2c_adapter_write;
+	adapter->adapter.اقرأ = spacemit_i2c_adapter_read;
+	rc = i2c_adapter_جمع_کن(&adapter->adapter);
+	إذا (rc) {
 		sbi_free(adapter);
-		return rc;
+		أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match spacemit_i2c_match[] = {
+ساكن ثابت بنية fdt_تطابق spacemit_i2c_تطابق[] = {
 	{ .compatible = "spacemit,k1-i2c" },
 	{ },
 };
 
-const struct fdt_driver fdt_i2c_adapter_spacemit = {
-	.match_table = spacemit_i2c_match,
+ثابت بنية fdt_driver fdt_i2c_adapter_spacemit = {
+	.تطابق_جدول = spacemit_i2c_تطابق,
 	.init = spacemit_i2c_init,
 };

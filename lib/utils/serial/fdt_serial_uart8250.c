@@ -7,36 +7,36 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/uart8250.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/serial/fdt_serial.h>
+#ضمن <sbi_utils/serial/uart8250.h>
 
-static int serial_uart8250_init(const void *fdt, int nodeoff,
-				const struct fdt_match *match)
+ساكن صحيح serial_uart8250_init(ثابت فراغ *fdt, صحيح nodeoff,
+				ثابت بنية fdt_تطابق *تطابق)
 {
-	struct platform_uart_data uart = { 0 };
-	ulong caps = (ulong)match->data;
-	int rc;
+	بنية platform_uart_داده uart = { 0 };
+	ulong caps = (ulong)تطابق->داده;
+	صحيح rc;
 
-	rc = fdt_parse_uart_node(fdt, nodeoff, &uart);
-	if (rc)
-		return rc;
+	rc = fdt_parse_uart_گره(fdt, nodeoff, &uart);
+	إذا (rc)
+		أرجع rc;
 
-	return uart8250_init(uart.addr, uart.freq, uart.baud,
-			     uart.reg_shift, uart.reg_io_width,
-			     uart.reg_offset, caps);
+	أرجع uart8250_init(uart.addr, uart.freq, uart.baud,
+			     uart.reg_لغزش, uart.reg_io_عرض,
+			     uart.reg_جابه_جایی, caps);
 }
 
-static const struct fdt_match serial_uart8250_match[] = {
+ساكن ثابت بنية fdt_تطابق serial_uart8250_تطابق[] = {
 	{ .compatible = "ns16550" },
 	{ .compatible = "ns16550a" },
 	{ .compatible = "snps,dw-apb-uart" },
 	{ .compatible = "intel,xscale-uart",
-	  .data = (void *)UART_CAP_UUE },
+	  .داده = (فراغ *)UART_CAP_UUE },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_uart8250 = {
-	.match_table = serial_uart8250_match,
+ثابت بنية fdt_driver fdt_serial_uart8250 = {
+	.تطابق_جدول = serial_uart8250_تطابق,
 	.init = serial_uart8250_init,
 };

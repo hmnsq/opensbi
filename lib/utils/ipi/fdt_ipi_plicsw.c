@@ -10,36 +10,36 @@
  *   Yu Chien Peter Lin <peterlin@andestech.com>
  */
 
-#include <sbi/riscv_io.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/ipi/andes_plicsw.h>
+#ضمن <sbi/riscv_io.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/ipi/andes_plicsw.h>
 
-extern struct plicsw_data plicsw;
+خارجي بنية plicsw_داده plicsw;
 
-int fdt_plicsw_cold_ipi_init(const void *fdt, int nodeoff,
-			     const struct fdt_match *match)
+صحيح fdt_plicsw_cold_ipi_init(ثابت فراغ *fdt, صحيح nodeoff,
+			     ثابت بنية fdt_تطابق *تطابق)
 {
-	int rc;
+	صحيح rc;
 
-	rc = fdt_parse_plicsw_node(fdt, nodeoff, &plicsw.addr, &plicsw.size,
-				   &plicsw.hart_count);
-	if (rc)
-		return rc;
+	rc = fdt_parse_plicsw_گره(fdt, nodeoff, &plicsw.addr, &plicsw.اندازه,
+				   &plicsw.hart_شمار);
+	إذا (rc)
+		أرجع rc;
 
 	rc = plicsw_cold_ipi_init(&plicsw);
-	if (rc)
-		return rc;
+	إذا (rc)
+		أرجع rc;
 
-	return 0;
+	أرجع 0;
 }
 
-static const struct fdt_match ipi_plicsw_match[] = {
+ساكن ثابت بنية fdt_تطابق ipi_plicsw_تطابق[] = {
 	{ .compatible = "andestech,plicsw" },
 	{},
 };
 
-const struct fdt_driver fdt_ipi_plicsw = {
-	.match_table = ipi_plicsw_match,
+ثابت بنية fdt_driver fdt_ipi_plicsw = {
+	.تطابق_جدول = ipi_plicsw_تطابق,
 	.init = fdt_plicsw_cold_ipi_init,
 };

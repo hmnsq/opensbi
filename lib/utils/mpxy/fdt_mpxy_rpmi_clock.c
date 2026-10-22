@@ -8,79 +8,79 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
+#ضمن <sbi_utils/mpxy/fdt_mpxy_rpmi_mbox.h>
 
-static struct mpxy_rpmi_service_data clock_services[] = {
+ساكن بنية mpxy_rpmi_service_داده clock_services[] = {
 {
 	.id = RPMI_CLOCK_SRV_ENABLE_NOTIFICATION,
-	.min_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.max_tx_len = sizeof(struct rpmi_enable_notification_req),
-	.min_rx_len = sizeof(struct rpmi_enable_notification_resp),
-	.max_rx_len = sizeof(struct rpmi_enable_notification_resp),
+	.min_tx_len = حجم(بنية rpmi_enable_notification_req),
+	.max_tx_len = حجم(بنية rpmi_enable_notification_req),
+	.min_rx_len = حجم(بنية rpmi_enable_notification_resp),
+	.max_rx_len = حجم(بنية rpmi_enable_notification_resp),
 },
 {
-	.id = RPMI_CLOCK_SRV_GET_NUM_CLOCKS,
+	.id = RPMI_CLOCK_SRV_GET_رقم_CLOCKS,
 	.min_tx_len = 0,
 	.max_tx_len = 0,
-	.min_rx_len = sizeof(struct rpmi_clock_get_num_clocks_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_get_num_clocks_resp),
+	.min_rx_len = حجم(بنية rpmi_clock_get_رقم_clocks_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_get_رقم_clocks_resp),
 },
 {
-	.id = RPMI_CLOCK_SRV_GET_ATTRIBUTES,
-	.min_tx_len = sizeof(struct rpmi_clock_get_attributes_req),
-	.max_tx_len = sizeof(struct rpmi_clock_get_attributes_req),
-	.min_rx_len = sizeof(struct rpmi_clock_get_attributes_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_get_attributes_resp),
+	.id = RPMI_CLOCK_SRV_GET_صفات,
+	.min_tx_len = حجم(بنية rpmi_clock_get_صفات_req),
+	.max_tx_len = حجم(بنية rpmi_clock_get_صفات_req),
+	.min_rx_len = حجم(بنية rpmi_clock_get_صفات_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_get_صفات_resp),
 },
 {
 	.id = RPMI_CLOCK_SRV_GET_SUPPORTED_RATES,
-	.min_tx_len = sizeof(struct rpmi_clock_get_supported_rates_req),
-	.max_tx_len = sizeof(struct rpmi_clock_get_supported_rates_req),
-	.min_rx_len = sizeof(struct rpmi_clock_get_supported_rates_resp),
+	.min_tx_len = حجم(بنية rpmi_clock_get_supported_rates_req),
+	.max_tx_len = حجم(بنية rpmi_clock_get_supported_rates_req),
+	.min_rx_len = حجم(بنية rpmi_clock_get_supported_rates_resp),
 	.max_rx_len = -1U,
 },
 {
-	.id = RPMI_CLOCK_SRV_SET_CONFIG,
-	.min_tx_len = sizeof(struct rpmi_clock_set_config_req),
-	.max_tx_len = sizeof(struct rpmi_clock_set_config_req),
-	.min_rx_len = sizeof(struct rpmi_clock_set_config_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_set_config_resp),
+	.id = RPMI_CLOCK_SRV_مجموعه_CONFIG,
+	.min_tx_len = حجم(بنية rpmi_clock_مجموعه_config_req),
+	.max_tx_len = حجم(بنية rpmi_clock_مجموعه_config_req),
+	.min_rx_len = حجم(بنية rpmi_clock_مجموعه_config_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_مجموعه_config_resp),
 },
 {
 	.id = RPMI_CLOCK_SRV_GET_CONFIG,
-	.min_tx_len = sizeof(struct rpmi_clock_get_config_req),
-	.max_tx_len = sizeof(struct rpmi_clock_get_config_req),
-	.min_rx_len = sizeof(struct rpmi_clock_get_config_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_get_config_resp),
+	.min_tx_len = حجم(بنية rpmi_clock_get_config_req),
+	.max_tx_len = حجم(بنية rpmi_clock_get_config_req),
+	.min_rx_len = حجم(بنية rpmi_clock_get_config_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_get_config_resp),
 },
 {
-	.id = RPMI_CLOCK_SRV_SET_RATE,
-	.min_tx_len = sizeof(struct rpmi_clock_set_rate_req),
-	.max_tx_len = sizeof(struct rpmi_clock_set_rate_req),
-	.min_rx_len = sizeof(struct rpmi_clock_set_rate_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_set_rate_resp),
+	.id = RPMI_CLOCK_SRV_مجموعه_نرخ,
+	.min_tx_len = حجم(بنية rpmi_clock_مجموعه_نرخ_req),
+	.max_tx_len = حجم(بنية rpmi_clock_مجموعه_نرخ_req),
+	.min_rx_len = حجم(بنية rpmi_clock_مجموعه_نرخ_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_مجموعه_نرخ_resp),
 },
 {
-	.id = RPMI_CLOCK_SRV_GET_RATE,
-	.min_tx_len = sizeof(struct rpmi_clock_get_rate_req),
-	.max_tx_len = sizeof(struct rpmi_clock_get_rate_req),
-	.min_rx_len = sizeof(struct rpmi_clock_get_rate_resp),
-	.max_rx_len = sizeof(struct rpmi_clock_get_rate_resp),
+	.id = RPMI_CLOCK_SRV_GET_نرخ,
+	.min_tx_len = حجم(بنية rpmi_clock_get_نرخ_req),
+	.max_tx_len = حجم(بنية rpmi_clock_get_نرخ_req),
+	.min_rx_len = حجم(بنية rpmi_clock_get_نرخ_resp),
+	.max_rx_len = حجم(بنية rpmi_clock_get_نرخ_resp),
 },
 };
 
-static const struct mpxy_rpmi_mbox_data clock_data = {
+ساكن ثابت بنية mpxy_rpmi_mbox_داده clock_داده = {
 	.servicegrp_id = RPMI_SRVGRP_CLOCK,
-	.num_services = RPMI_CLOCK_SRV_MAX_COUNT,
-	.service_data = clock_services,
+	.رقم_services = RPMI_CLOCK_SRV_MAX_شمار,
+	.service_داده = clock_services,
 };
 
-static const struct fdt_match clock_match[] = {
-	{ .compatible = "riscv,rpmi-mpxy-clock", .data = &clock_data },
+ساكن ثابت بنية fdt_تطابق clock_تطابق[] = {
+	{ .compatible = "riscv,rpmi-mpxy-clock", .داده = &clock_داده },
 	{ },
 };
 
-const struct fdt_driver fdt_mpxy_rpmi_clock = {
-	.match_table = clock_match,
+ثابت بنية fdt_driver fdt_mpxy_rpmi_clock = {
+	.تطابق_جدول = clock_تطابق,
 	.init = mpxy_rpmi_mbox_init,
 };

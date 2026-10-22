@@ -4,98 +4,98 @@
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
  * Copyright (C) 2018 embedded brains GmbH
  */
-#include "libfdt_env.h"
+#ضمن "libfdt_env.h"
 
-#include <fdt.h>
-#include <libfdt.h>
+#ضمن <fdt.h>
+#ضمن <libfdt.h>
 
-#include "libfdt_internal.h"
+#ضمن "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+ساكن صحيح fdt_cells(ثابت فراغ *fdt, صحيح nodeoffset, ثابت حرف *name)
 {
-	const fdt32_t *c;
+	ثابت fdt32_t *c;
 	uint32_t val;
-	int len;
+	صحيح len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	إذا (!c)
+		أرجع len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	إذا (len != حجم(*c))
+		أرجع -FDT_ERR_BADNCELLS;
 
-	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	val = fdt32_مقصد_cpu(*c);
+	إذا (val > FDT_MAX_NCELLS)
+		أرجع -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	أرجع (صحيح)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+صحيح fdt_آدرس_cells(ثابت فراغ *fdt, صحيح nodeoffset)
 {
-	int val;
+	صحيح val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	إذا (val == 0)
+		أرجع -FDT_ERR_BADNCELLS;
+	إذا (val == -FDT_ERR_NOTFOUND)
+		أرجع 2;
+	أرجع val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+صحيح fdt_اندازه_cells(ثابت فراغ *fdt, صحيح nodeoffset)
 {
-	int val;
+	صحيح val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	إذا (val == -FDT_ERR_NOTFOUND)
+		أرجع 1;
+	أرجع val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+صحيح fdt_appendprop_addrrange(فراغ *fdt, صحيح والد, صحيح nodeoffset,
+			     ثابت حرف *name, uint64_t addr, uint64_t اندازه)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	صحيح addr_cells, اندازه_cells, ret;
+	uint8_t داده[حجم(fdt64_t) * 2], *prop;
 
-	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	ret = fdt_آدرس_cells(fdt, والد);
+	إذا (ret < 0)
+		أرجع ret;
 	addr_cells = ret;
 
-	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
-	size_cells = ret;
+	ret = fdt_اندازه_cells(fdt, والد);
+	إذا (ret < 0)
+		أرجع ret;
+	اندازه_cells = ret;
 
 	/* check validity of address */
-	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	prop = داده;
+	إذا (addr_cells == 1) {
+		إذا ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < اندازه))
+			أرجع -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} وإلا إذا (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} وإلا {
+		أرجع -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * حجم(fdt32_t);
+	إذا (اندازه_cells == 1) {
+		إذا (اندازه > UINT32_MAX)
+			أرجع -FDT_ERR_BADVALUE;
 
-		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
-		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+		fdt32_st(prop, (uint32_t)اندازه);
+	} وإلا إذا (اندازه_cells == 2) {
+		fdt64_st(prop, اندازه);
+	} وإلا {
+		أرجع -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	أرجع fdt_appendprop(fdt, nodeoffset, name, داده,
+			      (addr_cells + اندازه_cells) * حجم(fdt32_t));
 }

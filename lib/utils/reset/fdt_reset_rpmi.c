@@ -7,38 +7,38 @@
  *   Rahul Pathak <rpathak@ventanamicro.com>
  */
 
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_error.h>
-#include <sbi/sbi_system.h>
-#include <sbi/sbi_console.h>
-#include <sbi_utils/fdt/fdt_driver.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/mailbox/fdt_mailbox.h>
-#include <sbi_utils/mailbox/rpmi_msgprot.h>
-#include <sbi_utils/mailbox/rpmi_mailbox.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi/sbi_system.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi_utils/fdt/fdt_driver.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/mailbox/fdt_mailbox.h>
+#ضمن <sbi_utils/mailbox/rpmi_msgprot.h>
+#ضمن <sbi_utils/mailbox/rpmi_mailbox.h>
 
 /* struct rpmi_sysreset: RPMI System Reset Context */
-struct rpmi_sysreset {
-	int warm_reset_support;
-	struct mbox_chan *chan;
+بنية rpmi_sysreset {
+	صحيح warm_reset_support;
+	بنية mbox_chan *chan;
 };
 
-static struct rpmi_sysreset sysreset_ctx;
+ساكن بنية rpmi_sysreset sysreset_ctx;
 
-static int rpmi_system_reset_type_check(u32 reset_type)
+ساكن صحيح rpmi_system_reset_type_check(u32 reset_type)
 {
-	int ret;
-	struct rpmi_sysrst_get_reset_attributes_resp resp;
+	صحيح ret;
+	بنية rpmi_sysrst_get_reset_صفات_resp resp;
 
-	ret = rpmi_normal_request_with_status(sysreset_ctx.chan,
-		RPMI_SYSRST_SRV_GET_ATTRIBUTES, &reset_type,
-		rpmi_u32_count(reset_type), rpmi_u32_count(reset_type),
-		&resp, rpmi_u32_count(resp), rpmi_u32_count(resp));
-	if (ret) {
-		return 0;
+	ret = rpmi_نرمال_request_with_وضعیت(sysreset_ctx.chan,
+		RPMI_SYSRST_SRV_GET_صفات, &reset_type,
+		rpmi_u32_شمار(reset_type), rpmi_u32_شمار(reset_type),
+		&resp, rpmi_u32_شمار(resp), rpmi_u32_شمار(resp));
+	إذا (ret) {
+		أرجع 0;
 	}
 
-	return (resp.flags & RPMI_SYSRST_ATTRS_FLAGS_RESETTYPE_MASK) ? 1 : 0;
+	أرجع (resp.flags & RPMI_SYSRST_ATTRS_FLAGS_RESETTYPE_ماسک) ? 1 : 0;
 }
 
 /**
@@ -46,15 +46,15 @@ static int rpmi_system_reset_type_check(u32 reset_type)
  *
  * @reset_type: RPMI System Reset Type
  */
-static void rpmi_do_system_reset(u32 reset_type)
+ساكن فراغ rpmi_do_system_reset(u32 reset_type)
 {
-	int ret;
+	صحيح ret;
 
 	ret = rpmi_posted_request(sysreset_ctx.chan,
 				  RPMI_SYSRST_SRV_SYSTEM_RESET,
-				  &reset_type, rpmi_u32_count(reset_type),
-				  rpmi_u32_count(reset_type));
-	if (ret)
+				  &reset_type, rpmi_u32_شمار(reset_type),
+				  rpmi_u32_شمار(reset_type));
+	إذا (ret)
 		sbi_printf("system reset failed [type: %d]: ret: %d\n",
 			   reset_type, ret);
 
@@ -68,77 +68,77 @@ static void rpmi_do_system_reset(u32 reset_type)
  * @type: SBI System Reset Type
  * @reason: Reason for system reset
  */
-static int rpmi_system_reset_check(u32 type, u32 reason)
+ساكن صحيح rpmi_system_reset_check(u32 type, u32 reason)
 {
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
-		return 1;
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
-		return sysreset_ctx.warm_reset_support;
-	default:
-		return 0;
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		أرجع 1;
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		أرجع sysreset_ctx.warm_reset_support;
+	افتراضي:
+		أرجع 0;
 	}
 }
 
-static void rpmi_system_reset(u32 type, u32 reason)
+ساكن فراغ rpmi_system_reset(u32 type, u32 reason)
 {
 	u32 reset_type;
 
-	switch (type) {
-	case SBI_SRST_RESET_TYPE_SHUTDOWN:
+	بدل (type) {
+	حالة SBI_SRST_RESET_TYPE_SHUTDOWN:
 		reset_type = RPMI_SYSRST_TYPE_SHUTDOWN;
-		break;
-	case SBI_SRST_RESET_TYPE_COLD_REBOOT:
+		اكسر;
+	حالة SBI_SRST_RESET_TYPE_COLD_REBOOT:
 		reset_type = RPMI_SYSRST_TYPE_COLD_REBOOT;
-		break;
-	case SBI_SRST_RESET_TYPE_WARM_REBOOT:
+		اكسر;
+	حالة SBI_SRST_RESET_TYPE_WARM_REBOOT:
 		reset_type = RPMI_SYSRST_TYPE_WARM_REBOOT;
-		break;
-	default:
-		return;
+		اكسر;
+	افتراضي:
+		أرجع;
 	}
 
 	rpmi_do_system_reset(reset_type);
 }
 
-static struct sbi_system_reset_device rpmi_reset_dev = {
+ساكن بنية sbi_system_reset_device rpmi_reset_dev = {
 	.name = "rpmi-system-reset",
 	.system_reset_check = rpmi_system_reset_check,
 	.system_reset = rpmi_system_reset,
 };
 
-static int rpmi_reset_init(const void *fdt, int nodeoff,
-			   const struct fdt_match *match)
+ساكن صحيح rpmi_reset_init(ثابت فراغ *fdt, صحيح nodeoff,
+			   ثابت بنية fdt_تطابق *تطابق)
 {
-	int ret;
+	صحيح ret;
 
 	/* If channel already available then do nothing. */
-	if (sysreset_ctx.chan)
-		return 0;
+	إذا (sysreset_ctx.chan)
+		أرجع 0;
 
 	/*
 	 * If channel request failed then other end does not support
 	 * system reset group so do nothing.
 	 */
 	ret = fdt_mailbox_request_chan(fdt, nodeoff, 0, &sysreset_ctx.chan);
-	if (ret)
-		return SBI_ENODEV;
+	إذا (ret)
+		أرجع SBI_ENODEV;
 
 	sysreset_ctx.warm_reset_support =
 			rpmi_system_reset_type_check(RPMI_SYSRST_TYPE_WARM_REBOOT);
 
-	sbi_system_reset_add_device(&rpmi_reset_dev);
+	sbi_system_reset_جمع_کن_device(&rpmi_reset_dev);
 
-	return SBI_OK;
+	أرجع SBI_OK;
 }
 
-static const struct fdt_match rpmi_reset_match[] = {
+ساكن ثابت بنية fdt_تطابق rpmi_reset_تطابق[] = {
 	{ .compatible = "riscv,rpmi-system-reset" },
 	{},
 };
 
-const struct fdt_driver fdt_reset_rpmi = {
-	.match_table = rpmi_reset_match,
+ثابت بنية fdt_driver fdt_reset_rpmi = {
+	.تطابق_جدول = rpmi_reset_تطابق,
 	.init = rpmi_reset_init,
 };

@@ -7,203 +7,203 @@
  *   Anup Patel <anup.patel@wdc.com>
  */
 
-#include <sbi/riscv_locks.h>
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_fifo.h>
-#include <sbi/sbi_hart.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
-#include <sbi/sbi_string.h>
+#ضمن <sbi/riscv_locks.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_fifo.h>
+#ضمن <sbi/sbi_hart.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_string.h>
 
-#define CONSOLE_TBUF_MAX 256
+#تعریف_کن CONSOLE_TBUF_MAX 256
 
-static const struct sbi_console_device *console_dev = NULL;
-static char console_tbuf[CONSOLE_TBUF_MAX];
-static u32 console_tbuf_len;
-static spinlock_t console_out_lock	       = SPIN_LOCK_INITIALIZER;
+ساكن ثابت بنية sbi_console_device *console_dev = عدم;
+ساكن حرف console_tbuf[CONSOLE_TBUF_MAX];
+ساكن u32 console_tbuf_len;
+ساكن spinlock_t console_بیرون_قفل	       = SPIN_قفل_INITIALIZER;
 
-#ifdef CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#define CONSOLE_EARLY_BUFFER_SIZE	CONFIG_CONSOLE_EARLY_BUFFER_SIZE
-#else
-#define CONSOLE_EARLY_BUFFER_SIZE	256
-#endif
-static char console_early_buffer[CONSOLE_EARLY_BUFFER_SIZE] = { 0 };
-static SBI_FIFO_DEFINE(console_early_fifo, console_early_buffer, \
-		       CONSOLE_EARLY_BUFFER_SIZE, sizeof(char));
+#اگر_تعریف_شده CONFIG_CONSOLE_EARLY_میانگیر_اندازه
+#تعریف_کن CONSOLE_EARLY_میانگیر_اندازه	CONFIG_CONSOLE_EARLY_میانگیر_اندازه
+#وإلا
+#تعریف_کن CONSOLE_EARLY_میانگیر_اندازه	256
+#پایان_اگر
+ساكن حرف console_early_میانگیر[CONSOLE_EARLY_میانگیر_اندازه] = { 0 };
+ساكن SBI_FIFO_DEFINE(console_early_fifo, console_early_میانگیر, \
+		       CONSOLE_EARLY_میانگیر_اندازه, حجم(حرف));
 
-bool sbi_isprintable(char c)
+bool sbi_isprintable(حرف c)
 {
-	if (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
+	إذا (((31 < c) && (c < 127)) || (c == '\f') || (c == '\r') ||
 	    (c == '\n') || (c == '\t')) {
-		return true;
+		أرجع true;
 	}
-	return false;
+	أرجع false;
 }
 
-int sbi_getc(void)
+صحيح sbi_getc(فراغ)
 {
-	if (console_dev && console_dev->console_getc)
-		return console_dev->console_getc();
-	return -1;
+	إذا (console_dev && console_dev->console_getc)
+		أرجع console_dev->console_getc();
+	أرجع -1;
 }
 
-static unsigned long nputs(const char *str, unsigned long len)
+ساكن بیعلامت دراز nputs(ثابت حرف *str, بیعلامت دراز len)
 {
-	char ch;
-	unsigned long i;
+	حرف ch;
+	بیعلامت دراز i;
 
-	if (console_dev) {
-		if (console_dev->console_puts)
-			return console_dev->console_puts(str, len);
-		else if (console_dev->console_putc) {
-			for (i = 0; i < len; i++) {
-				if (str[i] == '\n')
+	إذا (console_dev) {
+		إذا (console_dev->console_puts)
+			أرجع console_dev->console_puts(str, len);
+		وإلا إذا (console_dev->console_putc) {
+			لكل (i = 0; i < len; i++) {
+				إذا (str[i] == '\n')
 					console_dev->console_putc('\r');
 				console_dev->console_putc(str[i]);
 			}
 		}
-	} else {
-		for (i = 0; i < len; i++) {
+	} وإلا {
+		لكل (i = 0; i < len; i++) {
 			ch = str[i];
-			sbi_fifo_enqueue(&console_early_fifo, &ch, true);
+			sbi_fifo_افزودن_به_صف(&console_early_fifo, &ch, true);
 		}
 	}
-	return len;
+	أرجع len;
 }
 
-static void nputs_all(const char *str, unsigned long len)
+ساكن فراغ nputs_all(ثابت حرف *str, بیعلامت دراز len)
 {
-	unsigned long p = 0;
+	بیعلامت دراز p = 0;
 
-	while (p < len)
+	طالما (p < len)
 		p += nputs(&str[p], len - p);
 }
 
-void sbi_putc(char ch)
+فراغ sbi_putc(حرف ch)
 {
 	nputs_all(&ch, 1);
 }
 
-void sbi_puts(const char *str)
+فراغ sbi_puts(ثابت حرف *str)
 {
-	unsigned long len = sbi_strlen(str);
+	بیعلامت دراز len = sbi_strlen(str);
 
-	spin_lock(&console_out_lock);
+	spin_قفل(&console_بیرون_قفل);
 	nputs_all(str, len);
-	spin_unlock(&console_out_lock);
+	spin_unlock(&console_بیرون_قفل);
 }
 
-unsigned long sbi_nputs(const char *str, unsigned long len)
+بیعلامت دراز sbi_nputs(ثابت حرف *str, بیعلامت دراز len)
 {
-	unsigned long ret;
+	بیعلامت دراز ret;
 
-	spin_lock(&console_out_lock);
+	spin_قفل(&console_بیرون_قفل);
 	ret = nputs(str, len);
-	spin_unlock(&console_out_lock);
+	spin_unlock(&console_بیرون_قفل);
 
-	return ret;
+	أرجع ret;
 }
 
-void sbi_gets(char *s, int maxwidth, char endchar)
+فراغ sbi_gets(حرف *s, صحيح maxwidth, حرف endchar)
 {
-	int ch;
-	char *retval = s;
+	صحيح ch;
+	حرف *retval = s;
 
-	while ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
-		*retval = (char)ch;
+	طالما ((ch = sbi_getc()) != endchar && ch >= 0 && maxwidth > 1) {
+		*retval = (حرف)ch;
 		retval++;
 		maxwidth--;
 	}
 	*retval = '\0';
 }
 
-unsigned long sbi_ngets(char *str, unsigned long len)
+بیعلامت دراز sbi_ngets(حرف *str, بیعلامت دراز len)
 {
-	int ch;
-	unsigned long i;
+	صحيح ch;
+	بیعلامت دراز i;
 
-	for (i = 0; i < len; i++) {
+	لكل (i = 0; i < len; i++) {
 		ch = sbi_getc();
-		if (ch < 0)
-			break;
+		إذا (ch < 0)
+			اكسر;
 		str[i] = ch;
 	}
 
-	return i;
+	أرجع i;
 }
 
-#define PAD_RIGHT 1
-#define PAD_ZERO 2
-#define PAD_ALTERNATE 4
-#define PAD_SIGN 8
-#define USE_TBUF 16
-#define PRINT_BUF_LEN 64
+#تعریف_کن PAD_راست 1
+#تعریف_کن PAD_ZERO 2
+#تعریف_کن PAD_ALTERNATE 4
+#تعریف_کن PAD_SIGN 8
+#تعریف_کن USE_TBUF 16
+#تعریف_کن PRINT_BUF_LEN 64
 
-#define va_start(v, l) __builtin_va_start((v), l)
-#define va_end __builtin_va_end
-#define va_arg __builtin_va_arg
-typedef __builtin_va_list va_list;
+#تعریف_کن va_شروع(v, l) __builtin_va_start((v), l)
+#تعریف_کن va_انتها __builtin_va_end
+#تعریف_کن va_arg __builtin_va_arg
+تعريفنوع __builtin_va_list va_list;
 
-static void printc(char **out, u32 *out_len, char ch, int flags)
+ساكن فراغ printc(حرف **بیرون, u32 *بیرون_len, حرف ch, صحيح flags)
 {
-	if (!out) {
+	إذا (!بیرون) {
 		sbi_putc(ch);
-		return;
+		أرجع;
 	}
 
 	/*
 	 * The *printf entry point functions have enforced that (*out) can
 	 * only be null when out_len is non-null and its value is zero.
 	 */
-	if (!out_len || *out_len > 1) {
-		*(*out)++ = ch;
-		**out = '\0';
-		if (out_len) {
-			--(*out_len);
-			if ((flags & USE_TBUF) && *out_len == 1) {
-				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *out_len);
-				*out = console_tbuf;
-				*out_len = CONSOLE_TBUF_MAX;
+	إذا (!بیرون_len || *بیرون_len > 1) {
+		*(*بیرون)++ = ch;
+		**بیرون = '\0';
+		إذا (بیرون_len) {
+			--(*بیرون_len);
+			إذا ((flags & USE_TBUF) && *بیرون_len == 1) {
+				nputs_all(console_tbuf, CONSOLE_TBUF_MAX - *بیرون_len);
+				*بیرون = console_tbuf;
+				*بیرون_len = CONSOLE_TBUF_MAX;
 			}
 		}
 	}
 }
 
-static int prints(char **out, u32 *out_len, const char *string, int width,
-		  int flags)
+ساكن صحيح prints(حرف **بیرون, u32 *بیرون_len, ثابت حرف *string, صحيح عرض,
+		  صحيح flags)
 {
-	int pc = 0;
-	width -= sbi_strlen(string);
-	if (!(flags & PAD_RIGHT)) {
-		for (; width > 0; --width) {
-			printc(out, out_len, flags & PAD_ZERO ? '0' : ' ', flags);
+	صحيح pc = 0;
+	عرض -= sbi_strlen(string);
+	إذا (!(flags & PAD_راست)) {
+		لكل (; عرض > 0; --عرض) {
+			printc(بیرون, بیرون_len, flags & PAD_ZERO ? '0' : ' ', flags);
 			++pc;
 		}
 	}
-	for (; *string; ++string) {
-		printc(out, out_len, *string, flags);
+	لكل (; *string; ++string) {
+		printc(بیرون, بیرون_len, *string, flags);
 		++pc;
 	}
-	for (; width > 0; --width) {
-		printc(out, out_len, ' ', flags);
+	لكل (; عرض > 0; --عرض) {
+		printc(بیرون, بیرون_len, ' ', flags);
 		++pc;
 	}
 
-	return pc;
+	أرجع pc;
 }
 
-static int printi(char **out, u32 *out_len, long long i,
-		  int width, int flags, int type)
+ساكن صحيح printi(حرف **بیرون, u32 *بیرون_len, دراز دراز i,
+		  صحيح عرض, صحيح flags, صحيح type)
 {
-	int pc = 0;
-	char *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
-	unsigned long long u, b, t;
+	صحيح pc = 0;
+	حرف *s, sign = 0, letbase, print_buf[PRINT_BUF_LEN];
+	بیعلامت دراز دراز u, b, t;
 
 	b = 10;
 	letbase = 'a';
-	if (type == 'o')
+	إذا (type == 'o')
 		b = 8;
-	else if (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
+	وإلا إذا (type == 'x' || type == 'X' || type == 'p' || type == 'P') {
 		b = 16;
 		letbase &= ~0x20;
 		letbase |= type & 0x20;
@@ -211,10 +211,10 @@ static int printi(char **out, u32 *out_len, long long i,
 
 	u = i;
 	sign = 0;
-	if (type == 'i' || type == 'd') {
-		if ((flags & PAD_SIGN) && i > 0)
+	إذا (type == 'i' || type == 'd') {
+		إذا ((flags & PAD_SIGN) && i > 0)
 			sign = '+';
-		if (i < 0) {
+		إذا (i < 0) {
 			sign = '-';
 			u = -i;
 		}
@@ -223,284 +223,284 @@ static int printi(char **out, u32 *out_len, long long i,
 	s  = print_buf + PRINT_BUF_LEN - 1;
 	*s = '\0';
 
-	if (!u) {
+	إذا (!u) {
 		*--s = '0';
-	} else {
-		while (u) {
+	} وإلا {
+		طالما (u) {
 			t = u % b;
 			u = u / b;
-			if (t >= 10)
+			إذا (t >= 10)
 				t += letbase - '0' - 10;
 			*--s = t + '0';
 		}
 	}
 
-	if (flags & PAD_ZERO) {
-		if (sign) {
-			printc(out, out_len, sign, flags);
+	إذا (flags & PAD_ZERO) {
+		إذا (sign) {
+			printc(بیرون, بیرون_len, sign, flags);
 			++pc;
-			--width;
+			--عرض;
 		}
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16 || b == 8) {
-				printc(out, out_len, '0', flags);
+		إذا (i && (flags & PAD_ALTERNATE)) {
+			إذا (b == 16 || b == 8) {
+				printc(بیرون, بیرون_len, '0', flags);
 				++pc;
-				--width;
+				--عرض;
 			}
-			if (b == 16) {
-				printc(out, out_len, 'x' - 'a' + letbase, flags);
+			إذا (b == 16) {
+				printc(بیرون, بیرون_len, 'x' - 'a' + letbase, flags);
 				++pc;
-				--width;
+				--عرض;
 			}
 		}
-	} else {
-		if (i && (flags & PAD_ALTERNATE)) {
-			if (b == 16)
+	} وإلا {
+		إذا (i && (flags & PAD_ALTERNATE)) {
+			إذا (b == 16)
 				*--s = 'x' - 'a' + letbase;
-			if (b == 16 || b == 8)
+			إذا (b == 16 || b == 8)
 				*--s = '0';
 		}
-		if (sign)
+		إذا (sign)
 			*--s = sign;
 	}
 
-	return pc + prints(out, out_len, s, width, flags);
+	أرجع pc + prints(بیرون, بیرون_len, s, عرض, flags);
 }
 
-static int print(char **out, u32 *out_len, const char *format, va_list args)
+ساكن صحيح print(حرف **بیرون, u32 *بیرون_len, ثابت حرف *format, va_list آرگومانها)
 {
-	bool flags_done;
-	int width, flags, pc = 0;
-	char type, scr[2], *tout;
-	bool use_tbuf = (!out) ? true : false;
+	bool flags_انجامشده;
+	صحيح عرض, flags, pc = 0;
+	حرف type, scr[2], *tout;
+	bool use_tbuf = (!بیرون) ? true : false;
 
 	/*
 	 * The console_tbuf is protected by console_out_lock and
 	 * print() is always called with console_out_lock held
 	 * when out == NULL.
 	 */
-	if (use_tbuf) {
+	إذا (use_tbuf) {
 		console_tbuf_len = CONSOLE_TBUF_MAX;
 		tout = console_tbuf;
-		out = &tout;
-		out_len = &console_tbuf_len;
+		بیرون = &tout;
+		بیرون_len = &console_tbuf_len;
 	}
 
 	/* handle special case: *out_len == 1*/
-	if (out) {
-		if(!out_len || *out_len)
-			**out = '\0';
+	إذا (بیرون) {
+		إذا(!بیرون_len || *بیرون_len)
+			**بیرون = '\0';
 	}
 
-	for (; *format != 0; ++format) {
-		width = flags = 0;
-		if (use_tbuf)
+	لكل (; *format != 0; ++format) {
+		عرض = flags = 0;
+		إذا (use_tbuf)
 			flags |= USE_TBUF;
-		if (*format == '%') {
+		إذا (*format == '%') {
 			++format;
-			if (*format == '\0')
-				break;
-			if (*format == '%')
-				goto literal;
+			إذا (*format == '\0')
+				اكسر;
+			إذا (*format == '%')
+				اذهب literal;
 			/* Get flags */
-			flags_done = false;
-			while (!flags_done) {
-				switch (*format) {
-				case '-':
-					flags |= PAD_RIGHT;
-					break;
-				case '+':
+			flags_انجامشده = false;
+			طالما (!flags_انجامشده) {
+				بدل (*format) {
+				حالة '-':
+					flags |= PAD_راست;
+					اكسر;
+				حالة '+':
 					flags |= PAD_SIGN;
-					break;
-				case '#':
+					اكسر;
+				حالة '#':
 					flags |= PAD_ALTERNATE;
-					break;
-				case '0':
+					اكسر;
+				حالة '0':
 					flags |= PAD_ZERO;
-					break;
-				case ' ':
-				case '\'':
+					اكسر;
+				حالة ' ':
+				حالة '\'':
 					/* Ignored flags, do nothing */
-					break;
-				default:
-					flags_done = true;
-					break;
+					اكسر;
+				افتراضي:
+					flags_انجامشده = true;
+					اكسر;
 				}
-				if (!flags_done)
+				إذا (!flags_انجامشده)
 					++format;
 			}
-			if (flags & PAD_RIGHT)
+			إذا (flags & PAD_راست)
 				flags &= ~PAD_ZERO;
 			/* Get width */
-			for (; *format >= '0' && *format <= '9'; ++format) {
-				width *= 10;
-				width += *format - '0';
+			لكل (; *format >= '0' && *format <= '9'; ++format) {
+				عرض *= 10;
+				عرض += *format - '0';
 			}
-			if (*format == 's') {
-				char *s = va_arg(args, char *);
-				pc += prints(out, out_len, s ? s : "(null)",
-					     width, flags);
-				continue;
+			إذا (*format == 's') {
+				حرف *s = va_arg(آرگومانها, حرف *);
+				pc += prints(بیرون, بیرون_len, s ? s : "(null)",
+					     عرض, flags);
+				استمر;
 			}
-			if ((*format == 'd') || (*format == 'i')) {
-				pc += printi(out, out_len, va_arg(args, int),
-					     width, flags, *format);
-				continue;
+			إذا ((*format == 'd') || (*format == 'i')) {
+				pc += printi(بیرون, بیرون_len, va_arg(آرگومانها, صحيح),
+					     عرض, flags, *format);
+				استمر;
 			}
-			if ((*format == 'u') || (*format == 'o')
+			إذا ((*format == 'u') || (*format == 'o')
 					 || (*format == 'x') || (*format == 'X')) {
-				pc += printi(out, out_len, va_arg(args, unsigned int),
-					     width, flags, *format);
-				continue;
+				pc += printi(بیرون, بیرون_len, va_arg(آرگومانها, بیعلامت صحيح),
+					     عرض, flags, *format);
+				استمر;
 			}
-			if ((*format == 'p') || (*format == 'P')) {
-				pc += printi(out, out_len, (uintptr_t)va_arg(args, void*),
-					     width, flags, *format);
-				continue;
+			إذا ((*format == 'p') || (*format == 'P')) {
+				pc += printi(بیرون, بیرون_len, (uintptr_t)va_arg(آرگومانها, فراغ*),
+					     عرض, flags, *format);
+				استمر;
 			}
-			if (*format == 'l') {
+			إذا (*format == 'l') {
 				type = 'i';
-				if (format[1] == 'l') {
+				إذا (format[1] == 'l') {
 					++format;
-					if ((format[1] == 'u') || (format[1] == 'o')
+					إذا ((format[1] == 'u') || (format[1] == 'o')
 							|| (format[1] == 'd') || (format[1] == 'i')
 							|| (format[1] == 'x') || (format[1] == 'X')) {
 						++format;
 						type = *format;
 					}
-					pc += printi(out, out_len, va_arg(args, long long),
-						width, flags, type);
-					continue;
+					pc += printi(بیرون, بیرون_len, va_arg(آرگومانها, دراز دراز),
+						عرض, flags, type);
+					استمر;
 				}
-				if ((format[1] == 'u') || (format[1] == 'o')
+				إذا ((format[1] == 'u') || (format[1] == 'o')
 						|| (format[1] == 'd') || (format[1] == 'i')
 						|| (format[1] == 'x') || (format[1] == 'X')) {
 					++format;
 					type = *format;
 				}
-				if ((type == 'd') || (type == 'i'))
-					pc += printi(out, out_len, va_arg(args, long),
-					     width, flags, type);
-				else
-					pc += printi(out, out_len, va_arg(args, unsigned long),
-					     width, flags, type);
-				continue;
+				إذا ((type == 'd') || (type == 'i'))
+					pc += printi(بیرون, بیرون_len, va_arg(آرگومانها, دراز),
+					     عرض, flags, type);
+				وإلا
+					pc += printi(بیرون, بیرون_len, va_arg(آرگومانها, بیعلامت دراز),
+					     عرض, flags, type);
+				استمر;
 			}
-			if (*format == 'c') {
+			إذا (*format == 'c') {
 				/* char are converted to int then pushed on the stack */
-				scr[0] = va_arg(args, int);
+				scr[0] = va_arg(آرگومانها, صحيح);
 				scr[1] = '\0';
-				pc += prints(out, out_len, scr, width, flags);
-				continue;
+				pc += prints(بیرون, بیرون_len, scr, عرض, flags);
+				استمر;
 			}
-		} else {
+		} وإلا {
 literal:
-			printc(out, out_len, *format, flags);
+			printc(بیرون, بیرون_len, *format, flags);
 			++pc;
 		}
 	}
 
-	if (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
+	إذا (use_tbuf && console_tbuf_len < CONSOLE_TBUF_MAX)
 		nputs_all(console_tbuf, CONSOLE_TBUF_MAX - console_tbuf_len);
 
-	return pc;
+	أرجع pc;
 }
 
-int sbi_sprintf(char *out, const char *format, ...)
+صحيح sbi_sprintf(حرف *بیرون, ثابت حرف *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list آرگومانها;
+	صحيح retval;
 
-	if (unlikely(!out))
+	إذا (unlikely(!بیرون))
 		sbi_panic("sbi_sprintf called with NULL output string\n");
 
-	va_start(args, format);
-	retval = print(&out, NULL, format, args);
-	va_end(args);
+	va_شروع(آرگومانها, format);
+	retval = print(&بیرون, عدم, format, آرگومانها);
+	va_انتها(آرگومانها);
 
-	return retval;
+	أرجع retval;
 }
 
-int sbi_snprintf(char *out, u32 out_sz, const char *format, ...)
+صحيح sbi_snprintf(حرف *بیرون, u32 بیرون_sz, ثابت حرف *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list آرگومانها;
+	صحيح retval;
 
-	if (unlikely(!out && out_sz != 0))
+	إذا (unlikely(!بیرون && بیرون_sz != 0))
 		sbi_panic("sbi_snprintf called with NULL output string and "
 			  "output size is not zero\n");
 
-	va_start(args, format);
-	retval = print(&out, &out_sz, format, args);
-	va_end(args);
+	va_شروع(آرگومانها, format);
+	retval = print(&بیرون, &بیرون_sz, format, آرگومانها);
+	va_انتها(آرگومانها);
 
-	return retval;
+	أرجع retval;
 }
 
-int sbi_printf(const char *format, ...)
+صحيح sbi_printf(ثابت حرف *format, ...)
 {
-	va_list args;
-	int retval;
+	va_list آرگومانها;
+	صحيح retval;
 
-	spin_lock(&console_out_lock);
-	va_start(args, format);
-	retval = print(NULL, NULL, format, args);
-	va_end(args);
-	spin_unlock(&console_out_lock);
+	spin_قفل(&console_بیرون_قفل);
+	va_شروع(آرگومانها, format);
+	retval = print(عدم, عدم, format, آرگومانها);
+	va_انتها(آرگومانها);
+	spin_unlock(&console_بیرون_قفل);
 
-	return retval;
+	أرجع retval;
 }
 
-int sbi_dprintf(const char *format, ...)
+صحيح sbi_dprintf(ثابت حرف *format, ...)
 {
-	va_list args;
-	int retval = 0;
-	struct sbi_scratch *scratch = sbi_scratch_thishart_ptr();
+	va_list آرگومانها;
+	صحيح retval = 0;
+	بنية sbi_scratch *scratch = sbi_scratch_thishart_ptr();
 
-	va_start(args, format);
-	if (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
-		spin_lock(&console_out_lock);
-		retval = print(NULL, NULL, format, args);
-		spin_unlock(&console_out_lock);
+	va_شروع(آرگومانها, format);
+	إذا (scratch->options & SBI_SCRATCH_DEBUG_PRINTS) {
+		spin_قفل(&console_بیرون_قفل);
+		retval = print(عدم, عدم, format, آرگومانها);
+		spin_unlock(&console_بیرون_قفل);
 	}
-	va_end(args);
+	va_انتها(آرگومانها);
 
-	return retval;
+	أرجع retval;
 }
 
-void sbi_panic(const char *format, ...)
+فراغ sbi_panic(ثابت حرف *format, ...)
 {
-	va_list args;
+	va_list آرگومانها;
 
-	spin_lock(&console_out_lock);
-	va_start(args, format);
-	print(NULL, NULL, format, args);
-	va_end(args);
-	spin_unlock(&console_out_lock);
+	spin_قفل(&console_بیرون_قفل);
+	va_شروع(آرگومانها, format);
+	print(عدم, عدم, format, آرگومانها);
+	va_انتها(آرگومانها);
+	spin_unlock(&console_بیرون_قفل);
 
 	sbi_hart_hang();
 }
 
-const struct sbi_console_device *sbi_console_get_device(void)
+ثابت بنية sbi_console_device *sbi_console_get_device(فراغ)
 {
-	return console_dev;
+	أرجع console_dev;
 }
 
-void sbi_console_set_device(const struct sbi_console_device *dev)
+فراغ sbi_console_مجموعه_device(ثابت بنية sbi_console_device *dev)
 {
-	char ch;
+	حرف ch;
 	bool flush_early_fifo = false;
 
-	if (!dev)
-		return;
+	إذا (!dev)
+		أرجع;
 
-	if (!console_dev)
+	إذا (!console_dev)
 		flush_early_fifo = true;
 
 	console_dev = dev;
 
-	if (flush_early_fifo) {
-		while (!sbi_fifo_dequeue(&console_early_fifo, &ch))
+	إذا (flush_early_fifo) {
+		طالما (!sbi_fifo_خارج_از_صف(&console_early_fifo, &ch))
 			sbi_putc(ch);
 	}
 }

@@ -7,614 +7,614 @@
  *   Anup Patel <apatel@ventanamicro.com>
  */
 
-#include <sbi/sbi_console.h>
-#include <sbi/sbi_heap.h>
-#include <sbi/sbi_hsm.h>
-#include <sbi/sbi_irqchip.h>
-#include <sbi/sbi_list.h>
-#include <sbi/sbi_platform.h>
-#include <sbi/sbi_scratch.h>
+#ضمن <sbi/sbi_console.h>
+#ضمن <sbi/sbi_heap.h>
+#ضمن <sbi/sbi_hsm.h>
+#ضمن <sbi/sbi_irqchip.h>
+#ضمن <sbi/sbi_list.h>
+#ضمن <sbi/sbi_platform.h>
+#ضمن <sbi/sbi_scratch.h>
 
 /** Internal irqchip hardware interrupt data */
-struct sbi_irqchip_hwirq_data {
+بنية sbi_irqchip_hwirq_داده {
 	/** raw hardware interrupt handler */
-	int (*raw_handler)(struct sbi_irqchip_device *chip, u32 hwirq);
+	صحيح (*raw_handler)(بنية sbi_irqchip_device *chip, u32 hwirq);
 
-#define IRQ_ENABLED	BIT(0)
+#تعریف_کن IRQ_ENABLED	بیت(0)
 	/** interrupt state
 	 * bit 0 - 1: enabled, 0: disabled */
 	u32 irq_state;
 
 	/** target hart index */
-	u32 hart_index;
+	u32 hart_شاخص;
 
 	/** chip's private data */
-	void *priv;
+	فراغ *priv;
 };
 
 /** Internal irqchip interrupt handler */
-struct sbi_irqchip_handler {
+بنية sbi_irqchip_handler {
 	/** Node in the list of irqchip handlers (private) */
-	struct sbi_dlist node;
+	بنية sbi_dlist گره;
 
 	/** First hardware IRQ handled by this handler */
-	u32 first_hwirq;
+	u32 اولی_hwirq;
 
 	/** Number of consecutive hardware IRQs handled by this handler */
-	u32 num_hwirq;
+	u32 رقم_hwirq;
 
 	/** Write MSI function of this handler */
-	void (*write_msi)(u32 hwirq, const struct sbi_irqchip_msi_msg *msg, void *priv);
+	فراغ (*write_msi)(u32 hwirq, ثابت بنية sbi_irqchip_msi_پیام *پیام, فراغ *priv);
 
 	/** Callback function of this handler */
-	int (*callback)(u32 hwirq, void *priv);
+	صحيح (*callback)(u32 hwirq, فراغ *priv);
 
 	/** Callback private data */
-	void *priv;
+	فراغ *priv;
 };
 
-struct sbi_irqchip_hart_data {
-	struct sbi_irqchip_device *chip;
+بنية sbi_irqchip_hart_داده {
+	بنية sbi_irqchip_device *chip;
 };
 
-static unsigned long irqchip_hart_data_off;
-static SBI_LIST_HEAD(irqchip_list);
+ساكن بیعلامت دراز irqchip_hart_داده_off;
+ساكن SBI_LIST_سر(irqchip_list);
 
-int sbi_irqchip_process(void)
+صحيح sbi_irqchip_process(فراغ)
 {
-	struct sbi_irqchip_hart_data *hd;
+	بنية sbi_irqchip_hart_داده *hd;
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (!hd || !hd->chip || !hd->chip->process_hwirqs)
-		return SBI_ENODEV;
+	hd = sbi_scratch_thishart_جابه_جایی_ptr(irqchip_hart_داده_off);
+	إذا (!hd || !hd->chip || !hd->chip->process_hwirqs)
+		أرجع SBI_ENODEV;
 
-	return hd->chip->process_hwirqs(hd->chip);
+	أرجع hd->chip->process_hwirqs(hd->chip);
 }
 
-int sbi_irqchip_process_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+صحيح sbi_irqchip_process_hwirq(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	بنية sbi_irqchip_hwirq_داده *داده;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (!data->raw_handler)
-		return SBI_ENOENT;
+	داده = &chip->hwirqs[hwirq];
+	إذا (!داده->raw_handler)
+		أرجع SBI_ENOENT;
 
-	return data->raw_handler(chip, hwirq);
+	أرجع داده->raw_handler(chip, hwirq);
 }
 
-static inline u32 sbi_irqchip_get_irq_state(struct sbi_irqchip_device *chip,
+ساكن مضمن u32 sbi_irqchip_get_irq_state(بنية sbi_irqchip_device *chip,
 					     u32 hwirq)
 {
-	if (!chip || !chip->hwirqs || hwirq >= chip->num_hwirq)
-		return 0;
+	إذا (!chip || !chip->hwirqs || hwirq >= chip->رقم_hwirq)
+		أرجع 0;
 
-	return chip->hwirqs[hwirq].irq_state;
+	أرجع chip->hwirqs[hwirq].irq_state;
 }
 
-bool sbi_irqchip_is_hwirq_enabled(struct sbi_irqchip_device *chip,
+bool sbi_irqchip_is_hwirq_enabled(بنية sbi_irqchip_device *chip,
 				   u32 hwirq)
 {
-	return !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
+	أرجع !!(sbi_irqchip_get_irq_state(chip, hwirq) & IRQ_ENABLED);
 }
 
-int sbi_irqchip_unmask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+صحيح sbi_irqchip_unmask_hwirq(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	بنية sbi_irqchip_hwirq_داده *داده;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	if (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	داده = &chip->hwirqs[hwirq];
+	إذا (sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		أرجع SBI_EALREADY;
 
-	if (chip->hwirq_unmask)
+	إذا (chip->hwirq_unmask)
 		chip->hwirq_unmask(chip, hwirq);
 
-	data->irq_state |= IRQ_ENABLED;
-	return 0;
+	داده->irq_state |= IRQ_ENABLED;
+	أرجع 0;
 }
 
-int sbi_irqchip_mask_hwirq(struct sbi_irqchip_device *chip, u32 hwirq)
+صحيح sbi_irqchip_ماسک_hwirq(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	بنية sbi_irqchip_hwirq_داده *داده;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
-	if (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
-		return SBI_EALREADY;
+	إذا (!sbi_irqchip_is_hwirq_enabled(chip, hwirq))
+		أرجع SBI_EALREADY;
 
-	if (chip->hwirq_mask)
-		chip->hwirq_mask(chip, hwirq);
+	إذا (chip->hwirq_ماسک)
+		chip->hwirq_ماسک(chip, hwirq);
 
-	data = &chip->hwirqs[hwirq];
-	data->irq_state &= ~IRQ_ENABLED;
-	return 0;
+	داده = &chip->hwirqs[hwirq];
+	داده->irq_state &= ~IRQ_ENABLED;
+	أرجع 0;
 }
 
-static struct sbi_irqchip_handler *sbi_irqchip_find_handler(struct sbi_irqchip_device *chip,
+ساكن بنية sbi_irqchip_handler *sbi_irqchip_پیدا_کن_handler(بنية sbi_irqchip_device *chip,
 							    u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
+	بنية sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return NULL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع عدم;
 
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq))
-			return h;
+	sbi_list_for_each_مدخل(h, &chip->handler_list, گره) {
+		إذا (h->اولی_hwirq <= hwirq && hwirq < (h->اولی_hwirq + h->رقم_hwirq))
+			أرجع h;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-int sbi_irqchip_set_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq, void *priv)
+صحيح sbi_irqchip_مجموعه_hwirq_priv(بنية sbi_irqchip_device *chip, u32 hwirq, فراغ *priv)
 {
-	struct sbi_irqchip_hwirq_data *data;
+	بنية sbi_irqchip_hwirq_داده *داده;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-	     return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+	     أرجع SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->priv = priv;
+	داده = &chip->hwirqs[hwirq];
+	داده->priv = priv;
 
-	return 0;
+	أرجع 0;
 }
 
-void *sbi_irqchip_get_hwirq_priv(struct sbi_irqchip_device *chip, u32 hwirq)
+فراغ *sbi_irqchip_get_hwirq_priv(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	if (!chip || chip->num_hwirq <= hwirq)
-	    return NULL;
+	بنية sbi_irqchip_hwirq_داده *داده;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+	    أرجع عدم;
 
-	data = &chip->hwirqs[hwirq];
+	داده = &chip->hwirqs[hwirq];
 
-	return data->priv;
+	أرجع داده->priv;
 }
 
-int sbi_irqchip_raw_handler_default(struct sbi_irqchip_device *chip, u32 hwirq)
+صحيح sbi_irqchip_raw_handler_default(بنية sbi_irqchip_device *chip, u32 hwirq)
 {
-	struct sbi_irqchip_handler *h;
-	int rc = SBI_OK;
+	بنية sbi_irqchip_handler *h;
+	صحيح rc = SBI_OK;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
-	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EINVAL;
+	h = sbi_irqchip_پیدا_کن_handler(chip, hwirq);
+	إذا (!h)
+		أرجع SBI_EINVAL;
 
-	if (h->callback)
+	إذا (h->callback)
 		rc = h->callback(hwirq, h->priv);
 
-	if (chip->hwirq_eoi)
+	إذا (chip->hwirq_eoi)
 		chip->hwirq_eoi(chip, hwirq);
 
-	return rc;
+	أرجع rc;
 }
 
-int sbi_irqchip_set_raw_handler(struct sbi_irqchip_device *chip, u32 hwirq,
-				int (*raw_hndl)(struct sbi_irqchip_device *, u32))
+صحيح sbi_irqchip_مجموعه_raw_handler(بنية sbi_irqchip_device *chip, u32 hwirq,
+				صحيح (*raw_hndl)(بنية sbi_irqchip_device *, u32))
 {
-	struct sbi_irqchip_hwirq_data *data;
+	بنية sbi_irqchip_hwirq_داده *داده;
 
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
-	data = &chip->hwirqs[hwirq];
-	data->raw_handler = raw_hndl;
-	return 0;
+	داده = &chip->hwirqs[hwirq];
+	داده->raw_handler = raw_hndl;
+	أرجع 0;
 }
 
-int sbi_irqchip_write_msi(struct sbi_irqchip_device *chip, u32 hwirq,
-			  const struct sbi_irqchip_msi_msg *msg)
+صحيح sbi_irqchip_write_msi(بنية sbi_irqchip_device *chip, u32 hwirq,
+			  ثابت بنية sbi_irqchip_msi_پیام *پیام)
 {
-	struct sbi_irqchip_handler *h;
+	بنية sbi_irqchip_handler *h;
 
-	if (!chip || chip->num_hwirq <= hwirq || !msg)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq || !پیام)
+		أرجع SBI_EINVAL;
 
-	h = sbi_irqchip_find_handler(chip, hwirq);
-	if (!h)
-		return SBI_EFAIL;
-	if (!h->write_msi)
-		return SBI_ENOTSUPP;
+	h = sbi_irqchip_پیدا_کن_handler(chip, hwirq);
+	إذا (!h)
+		أرجع SBI_EFAIL;
+	إذا (!h->write_msi)
+		أرجع SBI_ENOTSUPP;
 
-	h->write_msi(hwirq, msg, h->priv);
-	return 0;
+	h->write_msi(hwirq, پیام, h->priv);
+	أرجع 0;
 }
 
-int sbi_irqchip_get_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 *out_hart_index)
+صحيح sbi_irqchip_get_affinity(بنية sbi_irqchip_device *chip, u32 hwirq,
+			     u32 *بیرون_hart_شاخص)
 {
-	if (!chip || chip->num_hwirq <= hwirq)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq)
+		أرجع SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	إذا (!sbi_irqchip_پیدا_کن_handler(chip, hwirq))
+		أرجع SBI_ENOTSUPP;
 
-	*out_hart_index = chip->hwirqs[hwirq].hart_index;
-	return 0;
+	*بیرون_hart_شاخص = chip->hwirqs[hwirq].hart_شاخص;
+	أرجع 0;
 }
 
-int sbi_irqchip_set_affinity(struct sbi_irqchip_device *chip, u32 hwirq,
-			     u32 hart_index)
+صحيح sbi_irqchip_مجموعه_affinity(بنية sbi_irqchip_device *chip, u32 hwirq,
+			     u32 hart_شاخص)
 {
-	struct sbi_irqchip_hwirq_data *data;
-	int rc;
+	بنية sbi_irqchip_hwirq_داده *داده;
+	صحيح rc;
 
-	if (!chip || chip->num_hwirq <= hwirq || sbi_hart_count() <= hart_index)
-		return SBI_EINVAL;
+	إذا (!chip || chip->رقم_hwirq <= hwirq || sbi_hart_شمار() <= hart_شاخص)
+		أرجع SBI_EINVAL;
 
 	/*
 	 * If no handler registered for hwirq then hwirq
 	 * is not being used so return failure
 	 */
-	if (!sbi_irqchip_find_handler(chip, hwirq))
-		return SBI_ENOTSUPP;
+	إذا (!sbi_irqchip_پیدا_کن_handler(chip, hwirq))
+		أرجع SBI_ENOTSUPP;
 
-	data = &chip->hwirqs[hwirq];
-	if (data->hart_index != hart_index) {
-		if (chip->hwirq_set_affinity) {
-			rc = chip->hwirq_set_affinity(chip, hwirq, hart_index);
-			if (rc)
-				return rc;
+	داده = &chip->hwirqs[hwirq];
+	إذا (داده->hart_شاخص != hart_شاخص) {
+		إذا (chip->hwirq_مجموعه_affinity) {
+			rc = chip->hwirq_مجموعه_affinity(chip, hwirq, hart_شاخص);
+			إذا (rc)
+				أرجع rc;
 		}
-		data->hart_index = hart_index;
+		داده->hart_شاخص = hart_شاخص;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int __sbi_irqchip_handler_set_affinity(struct sbi_irqchip_device *chip,
-					      struct sbi_irqchip_handler *h,
-					      u32 compare_hart_index,
-					      u32 hart_index)
+ساكن صحيح __sbi_irqchip_handler_set_affinity(بنية sbi_irqchip_device *chip,
+					      بنية sbi_irqchip_handler *h,
+					      u32 compare_hart_شاخص,
+					      u32 hart_شاخص)
 {
-	u32 i, current_hart_index;
-	int rc;
+	u32 i, current_hart_شاخص;
+	صحيح rc;
 
-	for (i = 0; i < h->num_hwirq; i++) {
-		rc = sbi_irqchip_get_affinity(chip, h->first_hwirq + i,
-					      &current_hart_index);
-		if (rc)
-			return rc;
+	لكل (i = 0; i < h->رقم_hwirq; i++) {
+		rc = sbi_irqchip_get_affinity(chip, h->اولی_hwirq + i,
+					      &current_hart_شاخص);
+		إذا (rc)
+			أرجع rc;
 
-		if (compare_hart_index != -1U &&
-		    current_hart_index != compare_hart_index)
-			continue;
+		إذا (compare_hart_شاخص != -1U &&
+		    current_hart_شاخص != compare_hart_شاخص)
+			استمر;
 
-		rc = sbi_irqchip_set_affinity(chip, h->first_hwirq + i, hart_index);
-		if (rc)
-			return rc;
+		rc = sbi_irqchip_مجموعه_affinity(chip, h->اولی_hwirq + i, hart_شاخص);
+		إذا (rc)
+			أرجع rc;
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-static int __sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-					  u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-					  void (*write_msi)(u32 hwirq,
-							    const struct sbi_irqchip_msi_msg *msg,
-							    void *priv),
-					  int (*callback)(u32 hwirq, void *priv), void *priv)
+ساكن صحيح __sbi_irqchip_register_handler(بنية sbi_irqchip_device *chip,
+					  u32 اولی_hwirq, u32 رقم_hwirq, u32 hwirq_flags,
+					  فراغ (*write_msi)(u32 hwirq,
+							    ثابت بنية sbi_irqchip_msi_پیام *پیام,
+							    فراغ *priv),
+					  صحيح (*callback)(u32 hwirq, فراغ *priv), فراغ *priv)
 {
-	struct sbi_irqchip_handler *h, *th, *nh;
+	بنية sbi_irqchip_handler *h, *th, *nh;
 	u32 i, j;
-	int rc;
+	صحيح rc;
 
-	for (i = first_hwirq; i < (first_hwirq + num_hwirq); i++) {
-		h = sbi_irqchip_find_handler(chip, i);
-		if (h)
-			return SBI_EALREADY;
+	لكل (i = اولی_hwirq; i < (اولی_hwirq + رقم_hwirq); i++) {
+		h = sbi_irqchip_پیدا_کن_handler(chip, i);
+		إذا (h)
+			أرجع SBI_EALREADY;
 	}
 
-	h = sbi_zalloc(sizeof(*h));
-	if (!h)
-		return SBI_ENOMEM;
-	h->first_hwirq = first_hwirq;
-	h->num_hwirq = num_hwirq;
+	h = sbi_zalloc(حجم(*h));
+	إذا (!h)
+		أرجع SBI_ENOMEM;
+	h->اولی_hwirq = اولی_hwirq;
+	h->رقم_hwirq = رقم_hwirq;
 	h->write_msi = write_msi;
 	h->callback = callback;
 	h->priv = priv;
 
-	nh = NULL;
-	sbi_list_for_each_entry(th, &chip->handler_list, node) {
-		if (h->first_hwirq < th->first_hwirq) {
+	nh = عدم;
+	sbi_list_for_each_مدخل(th, &chip->handler_list, گره) {
+		إذا (h->اولی_hwirq < th->اولی_hwirq) {
 			nh = th;
-			break;
+			اكسر;
 		}
 	}
-	if (nh)
-		sbi_list_add(&h->node, &nh->node);
-	else
-		sbi_list_add_tail(&h->node, &chip->handler_list);
+	إذا (nh)
+		sbi_list_جمع_کن(&h->گره, &nh->گره);
+	وإلا
+		sbi_list_جمع_کن_دم(&h->گره, &chip->handler_list);
 
-	if (chip->hwirq_setup) {
-		for (i = 0; i < h->num_hwirq; i++) {
-			rc = chip->hwirq_setup(chip, h->first_hwirq + i, hwirq_flags);
-			if (rc) {
-				if (chip->hwirq_cleanup) {
-					for (j = 0; j < i; j++)
-						chip->hwirq_cleanup(chip, h->first_hwirq + j);
+	إذا (chip->hwirq_راهاندازی) {
+		لكل (i = 0; i < h->رقم_hwirq; i++) {
+			rc = chip->hwirq_راهاندازی(chip, h->اولی_hwirq + i, hwirq_flags);
+			إذا (rc) {
+				إذا (chip->hwirq_cleanup) {
+					لكل (j = 0; j < i; j++)
+						chip->hwirq_cleanup(chip, h->اولی_hwirq + j);
 				}
-				sbi_list_del(&h->node);
+				sbi_list_del(&h->گره);
 				sbi_free(h);
-				return rc;
+				أرجع rc;
 			}
 		}
 	}
 
 	rc = __sbi_irqchip_handler_set_affinity(chip, h, -1U, current_hartindex());
-	if (rc) {
-		if (chip->hwirq_cleanup) {
-			for (i = 0; i < h->num_hwirq; i++)
-				chip->hwirq_cleanup(chip, h->first_hwirq + i);
+	إذا (rc) {
+		إذا (chip->hwirq_cleanup) {
+			لكل (i = 0; i < h->رقم_hwirq; i++)
+				chip->hwirq_cleanup(chip, h->اولی_hwirq + i);
 		}
-		sbi_list_del(&h->node);
+		sbi_list_del(&h->گره);
 		sbi_free(h);
-		return rc;
+		أرجع rc;
 	}
 
-	if (chip->hwirq_unmask) {
-		for (i = 0; i < h->num_hwirq; i++)
-			chip->hwirq_unmask(chip, h->first_hwirq + i);
+	إذا (chip->hwirq_unmask) {
+		لكل (i = 0; i < h->رقم_hwirq; i++)
+			chip->hwirq_unmask(chip, h->اولی_hwirq + i);
 	}
 
-	return 0;
+	أرجع 0;
 }
 
-int sbi_irqchip_register_msi(struct sbi_irqchip_device *chip, u32 num_hwirq,
-			     void (*write_msi)(u32 hwirq,
-					       const struct sbi_irqchip_msi_msg *msg,
-					       void *priv),
-			     int (*callback)(u32 hwirq, void *priv), void *priv,
-			     u32 *out_first_hwirq)
+صحيح sbi_irqchip_ثبات_msi(بنية sbi_irqchip_device *chip, u32 رقم_hwirq,
+			     فراغ (*write_msi)(u32 hwirq,
+					       ثابت بنية sbi_irqchip_msi_پیام *پیام,
+					       فراغ *priv),
+			     صحيح (*callback)(u32 hwirq, فراغ *priv), فراغ *priv,
+			     u32 *بیرون_اولی_hwirq)
 {
-	struct sbi_irqchip_handler *h;
-	bool found;
+	بنية sbi_irqchip_handler *h;
+	bool یافت;
 	u32 hwirq;
 
-	if (!chip || !chip->hwirq_set_affinity || !num_hwirq ||
-	    !write_msi || !callback || !out_first_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq < num_hwirq)
-		return SBI_EBAD_RANGE;
+	إذا (!chip || !chip->hwirq_مجموعه_affinity || !رقم_hwirq ||
+	    !write_msi || !callback || !بیرون_اولی_hwirq)
+		أرجع SBI_EINVAL;
+	إذا (chip->رقم_hwirq < رقم_hwirq)
+		أرجع SBI_EBAD_RANGE;
 
 	hwirq = 0;
-	found = false;
-	sbi_list_for_each_entry(h, &chip->handler_list, node) {
-		if (h->first_hwirq <= hwirq && hwirq < (h->first_hwirq + h->num_hwirq)) {
-			hwirq = h->first_hwirq + h->num_hwirq;
-		} else if (hwirq < h->first_hwirq) {
-			if (h->first_hwirq - hwirq >= num_hwirq) {
-				found = true;
-				break;
-			} else {
-				hwirq = h->first_hwirq + h->num_hwirq;
+	یافت = false;
+	sbi_list_for_each_مدخل(h, &chip->handler_list, گره) {
+		إذا (h->اولی_hwirq <= hwirq && hwirq < (h->اولی_hwirq + h->رقم_hwirq)) {
+			hwirq = h->اولی_hwirq + h->رقم_hwirq;
+		} وإلا إذا (hwirq < h->اولی_hwirq) {
+			إذا (h->اولی_hwirq - hwirq >= رقم_hwirq) {
+				یافت = true;
+				اكسر;
+			} وإلا {
+				hwirq = h->اولی_hwirq + h->رقم_hwirq;
 			}
 		}
 	}
-	if (!found && (chip->num_hwirq - hwirq) >= num_hwirq)
-		found = true;
-	if (!found)
-		return SBI_ENOSPC;
-	*out_first_hwirq = hwirq;
+	إذا (!یافت && (chip->رقم_hwirq - hwirq) >= رقم_hwirq)
+		یافت = true;
+	إذا (!یافت)
+		أرجع SBI_ENOSPC;
+	*بیرون_اولی_hwirq = hwirq;
 
-	return __sbi_irqchip_register_handler(chip, *out_first_hwirq,
-					      num_hwirq, SBI_HWIRQ_FLAGS_NONE,
+	أرجع __sbi_irqchip_register_handler(chip, *بیرون_اولی_hwirq,
+					      رقم_hwirq, SBI_HWIRQ_FLAGS_NONE,
 					      write_msi, callback, priv);
 }
 
-int sbi_irqchip_register_handler(struct sbi_irqchip_device *chip,
-				 u32 first_hwirq, u32 num_hwirq, u32 hwirq_flags,
-				 int (*callback)(u32 hwirq, void *priv), void *priv)
+صحيح sbi_irqchip_ثبات_handler(بنية sbi_irqchip_device *chip,
+				 u32 اولی_hwirq, u32 رقم_hwirq, u32 hwirq_flags,
+				 صحيح (*callback)(u32 hwirq, فراغ *priv), فراغ *priv)
 {
-	if (!chip || !num_hwirq || !callback)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	إذا (!chip || !رقم_hwirq || !callback)
+		أرجع SBI_EINVAL;
+	إذا (chip->رقم_hwirq <= اولی_hwirq ||
+	    chip->رقم_hwirq <= (اولی_hwirq + رقم_hwirq - 1))
+		أرجع SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq, hwirq_flags,
-					      NULL, callback, priv);
+	أرجع __sbi_irqchip_register_handler(chip, اولی_hwirq, رقم_hwirq, hwirq_flags,
+					      عدم, callback, priv);
 }
 
-int sbi_irqchip_register_reserved(struct sbi_irqchip_device *chip,
-				  u32 first_hwirq, u32 num_hwirq)
+صحيح sbi_irqchip_ثبات_reserved(بنية sbi_irqchip_device *chip,
+				  u32 اولی_hwirq, u32 رقم_hwirq)
 {
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	إذا (!chip || !رقم_hwirq)
+		أرجع SBI_EINVAL;
+	إذا (chip->رقم_hwirq <= اولی_hwirq ||
+	    chip->رقم_hwirq <= (اولی_hwirq + رقم_hwirq - 1))
+		أرجع SBI_EBAD_RANGE;
 
-	return __sbi_irqchip_register_handler(chip, first_hwirq, num_hwirq,
-					      SBI_HWIRQ_FLAGS_NONE, NULL, NULL, NULL);
+	أرجع __sbi_irqchip_register_handler(chip, اولی_hwirq, رقم_hwirq,
+					      SBI_HWIRQ_FLAGS_NONE, عدم, عدم, عدم);
 }
 
-int sbi_irqchip_unregister_handler(struct sbi_irqchip_device *chip,
-				   u32 first_hwirq, u32 num_hwirq)
+صحيح sbi_irqchip_unregister_handler(بنية sbi_irqchip_device *chip,
+				   u32 اولی_hwirq, u32 رقم_hwirq)
 {
-	struct sbi_irqchip_handler *fh, *lh;
+	بنية sbi_irqchip_handler *fh, *lh;
 	u32 i;
 
-	if (!chip || !num_hwirq)
-		return SBI_EINVAL;
-	if (chip->num_hwirq <= first_hwirq ||
-	    chip->num_hwirq <= (first_hwirq + num_hwirq - 1))
-		return SBI_EBAD_RANGE;
+	إذا (!chip || !رقم_hwirq)
+		أرجع SBI_EINVAL;
+	إذا (chip->رقم_hwirq <= اولی_hwirq ||
+	    chip->رقم_hwirq <= (اولی_hwirq + رقم_hwirq - 1))
+		أرجع SBI_EBAD_RANGE;
 
-	fh = sbi_irqchip_find_handler(chip, first_hwirq);
-	if (!fh || fh->first_hwirq != first_hwirq || fh->num_hwirq != num_hwirq)
-		return SBI_ENODEV;
-	lh = sbi_irqchip_find_handler(chip, first_hwirq + num_hwirq - 1);
-	if (!lh || lh != fh)
-		return SBI_ENODEV;
+	fh = sbi_irqchip_پیدا_کن_handler(chip, اولی_hwirq);
+	إذا (!fh || fh->اولی_hwirq != اولی_hwirq || fh->رقم_hwirq != رقم_hwirq)
+		أرجع SBI_ENODEV;
+	lh = sbi_irqchip_پیدا_کن_handler(chip, اولی_hwirq + رقم_hwirq - 1);
+	إذا (!lh || lh != fh)
+		أرجع SBI_ENODEV;
 
-	if (chip->hwirq_mask) {
-		for (i = 0; i < fh->num_hwirq; i++)
-			chip->hwirq_mask(chip, fh->first_hwirq + i);
+	إذا (chip->hwirq_ماسک) {
+		لكل (i = 0; i < fh->رقم_hwirq; i++)
+			chip->hwirq_ماسک(chip, fh->اولی_hwirq + i);
 	}
 
-	if (chip->hwirq_cleanup) {
-		for (i = 0; i < fh->num_hwirq; i++)
-			chip->hwirq_cleanup(chip, fh->first_hwirq + i);
+	إذا (chip->hwirq_cleanup) {
+		لكل (i = 0; i < fh->رقم_hwirq; i++)
+			chip->hwirq_cleanup(chip, fh->اولی_hwirq + i);
 	}
 
-	sbi_list_del(&fh->node);
-	return 0;
+	sbi_list_del(&fh->گره);
+	أرجع 0;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device_by_caps(unsigned long caps,
-							   struct sbi_irqchip_device *first)
+بنية sbi_irqchip_device *sbi_irqchip_پیدا_کن_device_by_caps(بیعلامت دراز caps,
+							   بنية sbi_irqchip_device *اولی)
 {
-	struct sbi_irqchip_device *chip;
-	bool found = (first == NULL);
+	بنية sbi_irqchip_device *chip;
+	bool یافت = (اولی == عدم);
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!found) {
-			if (first == chip)
-				found = true;
-			continue;
+	sbi_list_for_each_مدخل(chip, &irqchip_list, گره) {
+		إذا (!یافت) {
+			إذا (اولی == chip)
+				یافت = true;
+			استمر;
 		}
-		if ((chip->caps & caps) == caps)
-			return chip;
+		إذا ((chip->caps & caps) == caps)
+			أرجع chip;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-struct sbi_irqchip_device *sbi_irqchip_find_device(u32 id)
+بنية sbi_irqchip_device *sbi_irqchip_پیدا_کن_device(u32 id)
 {
-	struct sbi_irqchip_device *chip;
+	بنية sbi_irqchip_device *chip;
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (chip->id == id)
-			return chip;
+	sbi_list_for_each_مدخل(chip, &irqchip_list, گره) {
+		إذا (chip->id == id)
+			أرجع chip;
 	}
 
-	return NULL;
+	أرجع عدم;
 }
 
-int sbi_irqchip_add_device(struct sbi_irqchip_device *chip)
+صحيح sbi_irqchip_جمع_کن_device(بنية sbi_irqchip_device *chip)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_scratch *scratch;
+	بنية sbi_irqchip_hart_داده *hd;
+	بنية sbi_scratch *scratch;
 	u32 i, h;
 
-	if (!chip || !chip->num_hwirq || !sbi_hartmask_weight(&chip->target_harts))
-		return SBI_EINVAL;
+	إذا (!chip || !chip->رقم_hwirq || !sbi_hartmask_وزن(&chip->هدف_harts))
+		أرجع SBI_EINVAL;
 
-	if (sbi_irqchip_find_device(chip->id))
-		return SBI_EALREADY;
+	إذا (sbi_irqchip_پیدا_کن_device(chip->id))
+		أرجع SBI_EALREADY;
 
-	if (chip->process_hwirqs) {
-		sbi_hartmask_for_each_hartindex(h, &chip->target_harts) {
-			scratch = sbi_hartindex_to_scratch(h);
-			if (!scratch)
-				continue;
+	إذا (chip->process_hwirqs) {
+		sbi_hartmask_for_each_hartindex(h, &chip->هدف_harts) {
+			scratch = sbi_hartindex_مقصد_scratch(h);
+			إذا (!scratch)
+				استمر;
 
-			hd = sbi_scratch_offset_ptr(scratch, irqchip_hart_data_off);
-			if (hd->chip && hd->chip != chip)
-				return SBI_EINVAL;
+			hd = sbi_scratch_جابه_جایی_ptr(scratch, irqchip_hart_داده_off);
+			إذا (hd->chip && hd->chip != chip)
+				أرجع SBI_EINVAL;
 
 			hd->chip = chip;
 		}
 	}
 
-	chip->hwirqs = sbi_zalloc(sizeof(*chip->hwirqs) * chip->num_hwirq);
-	if (!chip->hwirqs)
-		return SBI_ENOMEM;
-	for (i = 0; i < chip->num_hwirq; i++) {
-		sbi_irqchip_set_raw_handler(chip, i, sbi_irqchip_raw_handler_default);
-		chip->hwirqs[i].hart_index = -1U;
+	chip->hwirqs = sbi_zalloc(حجم(*chip->hwirqs) * chip->رقم_hwirq);
+	إذا (!chip->hwirqs)
+		أرجع SBI_ENOMEM;
+	لكل (i = 0; i < chip->رقم_hwirq; i++) {
+		sbi_irqchip_مجموعه_raw_handler(chip, i, sbi_irqchip_raw_handler_default);
+		chip->hwirqs[i].hart_شاخص = -1U;
 	}
 
-	SBI_INIT_LIST_HEAD(&chip->handler_list);
+	SBI_INIT_LIST_سر(&chip->handler_list);
 
-	sbi_list_add_tail(&chip->node, &irqchip_list);
-	return 0;
+	sbi_list_جمع_کن_دم(&chip->گره, &irqchip_list);
+	أرجع 0;
 }
 
-int sbi_irqchip_init(struct sbi_scratch *scratch, bool cold_boot)
+صحيح sbi_irqchip_init(بنية sbi_scratch *scratch, bool cold_boot)
 {
-	const struct sbi_platform *plat = sbi_platform_ptr(scratch);
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	int rc;
+	ثابت بنية sbi_platform *plat = sbi_platform_ptr(scratch);
+	بنية sbi_irqchip_hart_داده *hd;
+	بنية sbi_irqchip_device *chip;
+	صحيح rc;
 
-	if (cold_boot) {
-		irqchip_hart_data_off =
-			sbi_scratch_alloc_offset(sizeof(struct sbi_irqchip_hart_data));
-		if (!irqchip_hart_data_off)
-			return SBI_ENOMEM;
+	إذا (cold_boot) {
+		irqchip_hart_داده_off =
+			sbi_scratch_alloc_جابه_جایی(حجم(بنية sbi_irqchip_hart_داده));
+		إذا (!irqchip_hart_داده_off)
+			أرجع SBI_ENOMEM;
 		rc = sbi_platform_irqchip_init(plat);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		if (!chip->warm_init)
-			continue;
-		if (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->target_harts))
-			continue;
+	sbi_list_for_each_مدخل(chip, &irqchip_list, گره) {
+		إذا (!chip->warm_init)
+			استمر;
+		إذا (!sbi_hartmask_test_hartindex(current_hartindex(), &chip->هدف_harts))
+			استمر;
 		rc = chip->warm_init(chip);
-		if (rc)
-			return rc;
+		إذا (rc)
+			أرجع rc;
 	}
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
-		csr_set(CSR_MIE, MIP_MEIP);
+	hd = sbi_scratch_thishart_جابه_جایی_ptr(irqchip_hart_داده_off);
+	إذا (hd && hd->chip && hd->chip->process_hwirqs)
+		csr_مجموعه(CSR_MIE, MIP_MEIP);
 
-	return 0;
+	أرجع 0;
 }
 
-void sbi_irqchip_exit(struct sbi_scratch *scratch)
+فراغ sbi_irqchip_exit(بنية sbi_scratch *scratch)
 {
-	struct sbi_irqchip_hart_data *hd;
-	struct sbi_irqchip_device *chip;
-	struct sbi_irqchip_handler *h;
+	بنية sbi_irqchip_hart_داده *hd;
+	بنية sbi_irqchip_device *chip;
+	بنية sbi_irqchip_handler *h;
 	u32 migrate_hidx = -1U;
 	bool migrate = false;
-	int rc;
+	صحيح rc;
 
 	sbi_for_each_hartindex(i) {
-		if (i == current_hartindex())
-			continue;
-		if (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
+		إذا (i == current_hartindex())
+			استمر;
+		إذا (__sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOPPED ||
 		    __sbi_hsm_hart_get_state(i) == SBI_HSM_STATE_STOP_PENDING)
-			continue;
+			استمر;
 		migrate_hidx = i;
 		migrate = true;
-		break;
+		اكسر;
 	}
 
-	if (!migrate)
-		goto skip_migrate;
-	sbi_list_for_each_entry(chip, &irqchip_list, node) {
-		sbi_list_for_each_entry(h, &chip->handler_list, node) {
+	إذا (!migrate)
+		اذهب skip_migrate;
+	sbi_list_for_each_مدخل(chip, &irqchip_list, گره) {
+		sbi_list_for_each_مدخل(h, &chip->handler_list, گره) {
 			rc = __sbi_irqchip_handler_set_affinity(chip, h,
 								current_hartindex(),
 								migrate_hidx);
-			if (rc) {
+			إذا (rc) {
 				sbi_printf("%s: chip 0x%x handler 0x%x set affinity (err %d)\n",
-					   __func__, chip->id, h->first_hwirq, rc);
+					   __func__, chip->id, h->اولی_hwirq, rc);
 			}
 		}
 	}
 skip_migrate:
 
-	hd = sbi_scratch_thishart_offset_ptr(irqchip_hart_data_off);
-	if (hd && hd->chip && hd->chip->process_hwirqs)
+	hd = sbi_scratch_thishart_جابه_جایی_ptr(irqchip_hart_داده_off);
+	إذا (hd && hd->chip && hd->chip->process_hwirqs)
 		csr_clear(CSR_MIE, MIP_MEIP);
 }
