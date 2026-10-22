@@ -13,37 +13,37 @@
 #include <sbi_utils/serial/fdt_serial.h>
 
 /* List of FDT serial drivers generated at compile time */
-extern const struct fdt_driver *const fdt_serial_drivers[];
+extern const sa_nracanaa fdt_driver *const fdt_serial_drivers[];
 
-int fdt_serial_init(const void *fdt)
+ཧྲིལ fdt_serial_init(const void *fdt)
 {
 	const void *prop;
-	int noff = -1, len, coff, rc;
+	ཧྲིལ noff = -1, len, coff, rc;
 
 	/* Find offset of node pointed to by stdout-path */
 	coff = fdt_path_offset(fdt, "/chosen");
-	if (-1 < coff) {
+	གལ་སྲིད (-1 < coff) {
 		prop = fdt_getprop(fdt, coff, "stdout-path", &len);
-		if (prop && len) {
-			const char *sep, *start = prop;
+		གལ་སྲིད (prop && len) {
+			const var_na *sep, *start = prop;
 
 			/* The device path may be followed by ':' */
 			sep = strchr(start, ':');
-			if (sep)
+			གལ་སྲིད (sep)
 				noff = fdt_path_offset_namelen(fdt, prop,
 							       sep - start);
-			else
+			དེ་མིན
 				noff = fdt_path_offset(fdt, prop);
 		}
 	}
 
 	/* First check DT node pointed by stdout-path */
-	if (-1 < noff) {
+	གལ་སྲིད (-1 < noff) {
 		rc = fdt_driver_init_by_offset(fdt, noff, fdt_serial_drivers);
-		if (rc != SBI_ENODEV)
-			return rc;
+		གལ་སྲིད (rc != SBI_ENODEV)
+			ལོག rc;
 	}
 
 	/* Lastly check all DT nodes */
-	return fdt_driver_init_one(fdt, fdt_serial_drivers);
+	ལོག fdt_driver_init_one(fdt, fdt_serial_drivers);
 }

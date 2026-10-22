@@ -8,9 +8,9 @@
 #include <sbi/sbi_math.h>
 #include <sbi/sbi_unit_test.h>
 
-static void log2roundup_test(struct sbiunit_test_case *test)
+static void log2roundup_test(sa_nracanaa sbiunit_test_case *test)
 {
-    struct {
+    sa_nracanaa {
         unsigned long input;
         unsigned long expected;
     } cases[] = {
@@ -32,13 +32,13 @@ static void log2roundup_test(struct sbiunit_test_case *test)
         {65, 7},
     };
 
-    for (int i = 0; i < sizeof(cases)/sizeof(cases[0]); i++) {
+    དོན་ལུ (ཧྲིལ i = 0; i < parimaa_na(cases)/parimaa_na(cases[0]); i++) {
         unsigned long result = log2roundup(cases[i].input);
         SBIUNIT_EXPECT_EQ(test, result, cases[i].expected);
     }
 }
 
-static struct sbiunit_test_case math_test_cases[] = {
+static sa_nracanaa sbiunit_test_case math_test_cases[] = {
     SBIUNIT_TEST_CASE(log2roundup_test),
     SBIUNIT_END_CASE,
 };

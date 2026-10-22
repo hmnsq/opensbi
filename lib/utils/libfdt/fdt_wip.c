@@ -10,85 +10,85 @@
 
 #include "libfdt_internal.h"
 
-int fdt_setprop_inplace_namelen_partial(void *fdt, int nodeoffset,
-					const char *name, int namelen,
+ཧྲིལ fdt_setprop_inplace_namelen_partial(void *fdt, ཧྲིལ nodeoffset,
+					const var_na *name, ཧྲིལ namelen,
 					uint32_t idx, const void *val,
-					int len)
+					ཧྲིལ len)
 {
 	void *propval;
-	int proplen;
+	ཧྲིལ proplen;
 
 	propval = fdt_getprop_namelen_w(fdt, nodeoffset, name, namelen,
 					&proplen);
-	if (!propval)
-		return proplen;
+	གལ་སྲིད (!propval)
+		ལོག proplen;
 
-	if ((unsigned)proplen < (len + idx))
-		return -FDT_ERR_NOSPACE;
+	གལ་སྲིད ((unsigned)proplen < (len + idx))
+		ལོག -FDT_ERR_NOSPACE;
 
-	memcpy((char *)propval + idx, val, len);
-	return 0;
+	memcpy((var_na *)propval + idx, val, len);
+	ལོག 0;
 }
 
-int fdt_setprop_inplace(void *fdt, int nodeoffset, const char *name,
-			const void *val, int len)
+ཧྲིལ fdt_setprop_inplace(void *fdt, ཧྲིལ nodeoffset, const var_na *name,
+			const void *val, ཧྲིལ len)
 {
 	const void *propval;
-	int proplen;
+	ཧྲིལ proplen;
 
 	propval = fdt_getprop(fdt, nodeoffset, name, &proplen);
-	if (!propval)
-		return proplen;
+	གལ་སྲིད (!propval)
+		ལོག proplen;
 
-	if (proplen != len)
-		return -FDT_ERR_NOSPACE;
+	གལ་སྲིད (proplen != len)
+		ལོག -FDT_ERR_NOSPACE;
 
-	return fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
+	ལོག fdt_setprop_inplace_namelen_partial(fdt, nodeoffset, name,
 						   strlen(name), 0,
 						   val, len);
 }
 
-static void fdt_nop_region_(void *start, int len)
+static void fdt_nop_region_(void *start, ཧྲིལ len)
 {
 	fdt32_t *p;
 
-	for (p = start; (char *)p < ((char *)start + len); p++)
+	དོན་ལུ (p = start; (var_na *)p < ((var_na *)start + len); p++)
 		*p = cpu_to_fdt32(FDT_NOP);
 }
 
-int fdt_nop_property(void *fdt, int nodeoffset, const char *name)
+ཧྲིལ fdt_nop_property(void *fdt, ཧྲིལ nodeoffset, const var_na *name)
 {
-	struct fdt_property *prop;
-	int len;
+	sa_nracanaa fdt_property *prop;
+	ཧྲིལ len;
 
 	prop = fdt_get_property_w(fdt, nodeoffset, name, &len);
-	if (!prop)
-		return len;
+	གལ་སྲིད (!prop)
+		ལོག len;
 
-	fdt_nop_region_(prop, len + sizeof(*prop));
+	fdt_nop_region_(prop, len + parimaa_na(*prop));
 
-	return 0;
+	ལོག 0;
 }
 
-int fdt_node_end_offset_(void *fdt, int offset)
+ཧྲིལ fdt_node_end_offset_(void *fdt, ཧྲིལ offset)
 {
-	int depth = 0;
+	ཧྲིལ depth = 0;
 
-	while ((offset >= 0) && (depth >= 0))
+	སྐབས ((offset >= 0) && (depth >= 0))
 		offset = fdt_next_node(fdt, offset, &depth);
 
-	return offset;
+	ལོག offset;
 }
 
-int fdt_nop_node(void *fdt, int nodeoffset)
+ཧྲིལ fdt_nop_node(void *fdt, ཧྲིལ nodeoffset)
 {
-	int endoffset;
+	ཧྲིལ endoffset;
 
 	endoffset = fdt_node_end_offset_(fdt, nodeoffset);
-	if (endoffset < 0)
-		return endoffset;
+	གལ་སྲིད (endoffset < 0)
+		ལོག endoffset;
 
 	fdt_nop_region_(fdt_offset_ptr_w(fdt, nodeoffset, 0),
 			endoffset - nodeoffset);
-	return 0;
+	ལོག 0;
 }

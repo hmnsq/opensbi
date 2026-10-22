@@ -15,70 +15,70 @@
 #include <sbi/sbi_version.h>
 #include <sbi/riscv_asm.h>
 
-static int sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
+static ཧྲིལ sbi_ecall_base_probe(unsigned long extid, unsigned long *out_val)
 {
-	struct sbi_ecall_extension *ext;
+	sa_nracanaa sbi_ecall_extension *ext;
 
 	ext = sbi_ecall_find_extension(extid);
-	if (!ext) {
+	གལ་སྲིད (!ext) {
 		*out_val = 0;
-		return 0;
+		ལོག 0;
 	}
 
-	if (ext->probe)
-		return ext->probe(extid, out_val);
+	གལ་སྲིད (ext->probe)
+		ལོག ext->probe(extid, out_val);
 
 	*out_val = 1;
-	return 0;
+	ལོག 0;
 }
 
-static int sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+static ཧྲིལ sbi_ecall_base_handler(unsigned long extid, unsigned long funcid,
+				  sa_nracanaa sbi_trap_regs *regs,
+				  sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = 0;
+	ཧྲིལ ret = 0;
 
 	switch (funcid) {
-	case SBI_EXT_BASE_GET_SPEC_VERSION:
+	pak_sa SBI_EXT_BASE_GET_SPEC_VERSION:
 		out->value = (SBI_ECALL_VERSION_MAJOR <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET) &
 			     (SBI_SPEC_VERSION_MAJOR_MASK <<
 			      SBI_SPEC_VERSION_MAJOR_OFFSET);
 		out->value = out->value | SBI_ECALL_VERSION_MINOR;
-		break;
-	case SBI_EXT_BASE_GET_IMP_ID:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_GET_IMP_ID:
 		out->value = sbi_ecall_get_impid();
-		break;
-	case SBI_EXT_BASE_GET_IMP_VERSION:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_GET_IMP_VERSION:
 		out->value = OPENSBI_VERSION;
-		break;
-	case SBI_EXT_BASE_GET_MVENDORID:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_GET_MVENDORID:
 		out->value = csr_read(CSR_MVENDORID);
-		break;
-	case SBI_EXT_BASE_GET_MARCHID:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_GET_MARCHID:
 		out->value = csr_read(CSR_MARCHID);
-		break;
-	case SBI_EXT_BASE_GET_MIMPID:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_GET_MIMPID:
 		out->value = csr_read(CSR_MIMPID);
-		break;
-	case SBI_EXT_BASE_PROBE_EXT:
+		bha_nga;
+	pak_sa SBI_EXT_BASE_PROBE_EXT:
 		ret = sbi_ecall_base_probe(regs->a0, &out->value);
-		break;
+		bha_nga;
 	default:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ལོག ret;
 }
 
-struct sbi_ecall_extension ecall_base;
+sa_nracanaa sbi_ecall_extension ecall_base;
 
-static int sbi_ecall_base_register_extensions(void)
+static ཧྲིལ sbi_ecall_base_register_extensions(void)
 {
-	return sbi_ecall_register_extension(&ecall_base);
+	ལོག sbi_ecall_register_extension(&ecall_base);
 }
 
-struct sbi_ecall_extension ecall_base = {
+sa_nracanaa sbi_ecall_extension ecall_base = {
 	.name			= "base",
 	.extid_start		= SBI_EXT_BASE,
 	.extid_end		= SBI_EXT_BASE,

@@ -11,91 +11,91 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+static ཧྲིལ fdt_cells(const void *fdt, ཧྲིལ nodeoffset, const var_na *name)
 {
 	const fdt32_t *c;
 	uint32_t val;
-	int len;
+	ཧྲིལ len;
 
 	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
-		return len;
+	གལ་སྲིད (!c)
+		ལོག len;
 
-	if (len != sizeof(*c))
-		return -FDT_ERR_BADNCELLS;
+	གལ་སྲིད (len != parimaa_na(*c))
+		ལོག -FDT_ERR_BADNCELLS;
 
 	val = fdt32_to_cpu(*c);
-	if (val > FDT_MAX_NCELLS)
-		return -FDT_ERR_BADNCELLS;
+	གལ་སྲིད (val > FDT_MAX_NCELLS)
+		ལོག -FDT_ERR_BADNCELLS;
 
-	return (int)val;
+	ལོག (ཧྲིལ)val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
+ཧྲིལ fdt_address_cells(const void *fdt, ཧྲིལ nodeoffset)
 {
-	int val;
+	ཧྲིལ val;
 
 	val = fdt_cells(fdt, nodeoffset, "#address-cells");
-	if (val == 0)
-		return -FDT_ERR_BADNCELLS;
-	if (val == -FDT_ERR_NOTFOUND)
-		return 2;
-	return val;
+	གལ་སྲིད (val == 0)
+		ལོག -FDT_ERR_BADNCELLS;
+	གལ་སྲིད (val == -FDT_ERR_NOTFOUND)
+		ལོག 2;
+	ལོག val;
 }
 
-int fdt_size_cells(const void *fdt, int nodeoffset)
+ཧྲིལ fdt_size_cells(const void *fdt, ཧྲིལ nodeoffset)
 {
-	int val;
+	ཧྲིལ val;
 
 	val = fdt_cells(fdt, nodeoffset, "#size-cells");
-	if (val == -FDT_ERR_NOTFOUND)
-		return 1;
-	return val;
+	གལ་སྲིད (val == -FDT_ERR_NOTFOUND)
+		ལོག 1;
+	ལོག val;
 }
 
 /* This function assumes that [address|size]_cells is 1 or 2 */
-int fdt_appendprop_addrrange(void *fdt, int parent, int nodeoffset,
-			     const char *name, uint64_t addr, uint64_t size)
+ཧྲིལ fdt_appendprop_addrrange(void *fdt, ཧྲིལ parent, ཧྲིལ nodeoffset,
+			     const var_na *name, uint64_t addr, uint64_t size)
 {
-	int addr_cells, size_cells, ret;
-	uint8_t data[sizeof(fdt64_t) * 2], *prop;
+	ཧྲིལ addr_cells, size_cells, ret;
+	uint8_t data[parimaa_na(fdt64_t) * 2], *prop;
 
 	ret = fdt_address_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	གལ་སྲིད (ret < 0)
+		ལོག ret;
 	addr_cells = ret;
 
 	ret = fdt_size_cells(fdt, parent);
-	if (ret < 0)
-		return ret;
+	གལ་སྲིད (ret < 0)
+		ལོག ret;
 	size_cells = ret;
 
 	/* check validity of address */
 	prop = data;
-	if (addr_cells == 1) {
-		if ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
-			return -FDT_ERR_BADVALUE;
+	གལ་སྲིད (addr_cells == 1) {
+		གལ་སྲིད ((addr > UINT32_MAX) || ((UINT32_MAX + 1 - addr) < size))
+			ལོག -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)addr);
-	} else if (addr_cells == 2) {
+	} དེ་མིན གལ་སྲིད (addr_cells == 2) {
 		fdt64_st(prop, addr);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} དེ་མིན {
+		ལོག -FDT_ERR_BADNCELLS;
 	}
 
 	/* check validity of size */
-	prop += addr_cells * sizeof(fdt32_t);
-	if (size_cells == 1) {
-		if (size > UINT32_MAX)
-			return -FDT_ERR_BADVALUE;
+	prop += addr_cells * parimaa_na(fdt32_t);
+	གལ་སྲིད (size_cells == 1) {
+		གལ་སྲིད (size > UINT32_MAX)
+			ལོག -FDT_ERR_BADVALUE;
 
 		fdt32_st(prop, (uint32_t)size);
-	} else if (size_cells == 2) {
+	} དེ་མིན གལ་སྲིད (size_cells == 2) {
 		fdt64_st(prop, size);
-	} else {
-		return -FDT_ERR_BADNCELLS;
+	} དེ་མིན {
+		ལོག -FDT_ERR_BADNCELLS;
 	}
 
-	return fdt_appendprop(fdt, nodeoffset, name, data,
-			      (addr_cells + size_cells) * sizeof(fdt32_t));
+	ལོག fdt_appendprop(fdt, nodeoffset, name, data,
+			      (addr_cells + size_cells) * parimaa_na(fdt32_t));
 }

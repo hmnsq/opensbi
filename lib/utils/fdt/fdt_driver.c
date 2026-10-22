@@ -10,79 +10,79 @@
 #include <sbi_utils/fdt/fdt_driver.h>
 #include <sbi_utils/fdt/fdt_helper.h>
 
-int fdt_driver_init_by_offset(const void *fdt, int nodeoff,
-			      const struct fdt_driver *const *drivers)
+ཧྲིལ fdt_driver_init_by_offset(const void *fdt, ཧྲིལ nodeoff,
+			      const sa_nracanaa fdt_driver *const *drivers)
 {
-	const struct fdt_driver *driver;
-	const struct fdt_match *match;
-	int compat_len, prop_len, rc;
-	const char *compat_str;
+	const sa_nracanaa fdt_driver *driver;
+	const sa_nracanaa fdt_match *match;
+	ཧྲིལ compat_len, prop_len, rc;
+	const var_na *compat_str;
 
-	if (!fdt_node_is_enabled(fdt, nodeoff))
-		return SBI_ENODEV;
+	གལ་སྲིད (!fdt_node_is_enabled(fdt, nodeoff))
+		ལོག SBI_ENODEV;
 
 	compat_str = fdt_getprop(fdt, nodeoff, "compatible", &prop_len);
-	if (!compat_str)
-		return SBI_ENODEV;
+	གལ་སྲིད (!compat_str)
+		ལོག SBI_ENODEV;
 
-	while ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
-		for (int i = 0; (driver = drivers[i]); i++)
-			for (match = driver->match_table; match->compatible; match++)
-				if (!memcmp(match->compatible, compat_str, compat_len))
+	སྐབས ((compat_len = strnlen(compat_str, prop_len) + 1) <= prop_len) {
+		དོན་ལུ (ཧྲིལ i = 0; (driver = drivers[i]); i++)
+			དོན་ལུ (match = driver->match_table; match->compatible; match++)
+				གལ་སྲིད (!memcmp(match->compatible, compat_str, compat_len))
 					goto found;
 
 		compat_str += compat_len;
 		prop_len -= compat_len;
 	}
 
-	return SBI_ENODEV;
+	ལོག SBI_ENODEV;
 
 found:
-	if (driver->experimental)
+	གལ་སྲིད (driver->experimental)
 		sbi_printf("WARNING: %s driver is experimental and may change\n",
 			   match->compatible);
 
 	rc = driver->init(fdt, nodeoff, match);
-	if (rc < 0) {
-		const char *name;
+	གལ་སྲིད (rc < 0) {
+		const var_na *name;
 
 		name = fdt_get_name(fdt, nodeoff, NULL);
 		sbi_printf("%s: %s (%s) init failed: %d\n",
 			   __func__, name, match->compatible, rc);
 	}
 
-	return rc;
+	ལོག rc;
 }
 
-static int fdt_driver_init_scan(const void *fdt,
-				const struct fdt_driver *const *drivers,
+static ཧྲིལ fdt_driver_init_scan(const void *fdt,
+				const sa_nracanaa fdt_driver *const *drivers,
 				bool one)
 {
-	int nodeoff, rc;
+	ཧྲིལ nodeoff, rc;
 
-	for (nodeoff = fdt_next_node(fdt, -1, NULL);
+	དོན་ལུ (nodeoff = fdt_next_node(fdt, -1, NULL);
 	     nodeoff >= 0;
 	     nodeoff = fdt_next_node(fdt, nodeoff, NULL)) {
 		rc = fdt_driver_init_by_offset(fdt, nodeoff, drivers);
-		if (rc == SBI_ENODEV)
+		གལ་སྲིད (rc == SBI_ENODEV)
 			continue;
-		if (rc < 0)
-			return rc;
-		if (one)
-			return 0;
+		གལ་སྲིད (rc < 0)
+			ལོག rc;
+		གལ་སྲིད (one)
+			ལོག 0;
 	}
 
-	return one ? SBI_ENODEV : 0;
+	ལོག one ? SBI_ENODEV : 0;
 }
 
-int fdt_driver_init_all(const void *fdt,
-			const struct fdt_driver *const *drivers)
+ཧྲིལ fdt_driver_init_all(const void *fdt,
+			const sa_nracanaa fdt_driver *const *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, false);
+	ལོག fdt_driver_init_scan(fdt, drivers, false);
 }
 
-int fdt_driver_init_one(const void *fdt,
-			const struct fdt_driver *const *drivers)
+ཧྲིལ fdt_driver_init_one(const void *fdt,
+			const sa_nracanaa fdt_driver *const *drivers)
 {
-	return fdt_driver_init_scan(fdt, drivers, true);
+	ལོག fdt_driver_init_scan(fdt, drivers, true);
 }

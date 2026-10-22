@@ -14,124 +14,124 @@
 static unsigned long flc_offset;
 
 #define get_hart_flc(_s) \
-	sbi_scratch_read_type(_s, struct cache_device *, flc_offset)
+	sbi_scratch_read_type(_s, sa_nracanaa cache_device *, flc_offset)
 #define set_hart_flc(_s, _p) \
-	sbi_scratch_write_type(_s, struct cache_device *, flc_offset, _p)
+	sbi_scratch_write_type(_s, sa_nracanaa cache_device *, flc_offset, _p)
 
-int fdt_cmo_private_flc_flush_all(void)
+ཧྲིལ fdt_cmo_private_flc_flush_all(void)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	གལ་སྲིད (!flc || !flc->cpu_private)
+		ལོག SBI_ENODEV;
 
-	return cache_flush_all(flc);
+	ལོག cache_flush_all(flc);
 }
 
-int fdt_cmo_llc_flush_all(void)
+ཧྲིལ fdt_cmo_llc_flush_all(void)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	གལ་སྲིད (!llc)
+		ལོག SBI_ENODEV;
 
-	while (llc->next)
+	སྐབས (llc->next)
 		llc = llc->next;
 
-	return cache_flush_all(llc);
+	ལོག cache_flush_all(llc);
 }
 
-int fdt_cmo_private_flc_enable(bool enable)
+ཧྲིལ fdt_cmo_private_flc_enable(bool enable)
 {
-	struct cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *flc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!flc || !flc->cpu_private)
-		return SBI_ENODEV;
+	གལ་སྲིད (!flc || !flc->cpu_private)
+		ལོག SBI_ENODEV;
 
-	return cache_enable(flc, enable);
+	ལོག cache_enable(flc, enable);
 }
 
-int fdt_cmo_llc_enable(bool enable)
+ཧྲིལ fdt_cmo_llc_enable(bool enable)
 {
-	struct cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
+	sa_nracanaa cache_device *llc = get_hart_flc(sbi_scratch_thishart_ptr());
 
-	if (!llc)
-		return SBI_ENODEV;
+	གལ་སྲིད (!llc)
+		ལོག SBI_ENODEV;
 
-	while (llc->next)
+	སྐབས (llc->next)
 		llc = llc->next;
 
-	return cache_enable(llc, enable);
+	ལོག cache_enable(llc, enable);
 }
 
-static int fdt_cmo_cold_init(const void *fdt)
+static ཧྲིལ fdt_cmo_cold_init(const void *fdt)
 {
-	struct sbi_scratch *scratch;
-	struct cache_device *dev;
-	int cpu_offset, cpus_offset, rc;
+	sa_nracanaa sbi_scratch *scratch;
+	sa_nracanaa cache_device *dev;
+	ཧྲིལ cpu_offset, cpus_offset, rc;
 	u32 hartid;
 
 	cpus_offset = fdt_path_offset(fdt, "/cpus");
-	if (cpus_offset < 0)
-		return SBI_EINVAL;
+	གལ་སྲིད (cpus_offset < 0)
+		ལོག SBI_EINVAL;
 
 	fdt_for_each_subnode(cpu_offset, fdt, cpus_offset) {
 		rc = fdt_parse_hart_id(fdt, cpu_offset, &hartid);
-		if (rc)
+		གལ་སྲིད (rc)
 			continue;
 
 		scratch = sbi_hartid_to_scratch(hartid);
-		if (!scratch)
+		གལ་སྲིད (!scratch)
 			continue;
 
 		rc = fdt_next_cache_get(fdt, cpu_offset, &dev);
-		if (rc && rc != SBI_ENOENT)
-			return rc;
-		if (rc == SBI_ENOENT)
+		གལ་སྲིད (rc && rc != SBI_ENOENT)
+			ལོག rc;
+		གལ་སྲིད (rc == SBI_ENOENT)
 			dev = NULL;
 
 		set_hart_flc(scratch, dev);
 	}
 
-	return SBI_OK;
+	ལོག SBI_OK;
 }
 
-static int fdt_cmo_warm_init(void)
+static ཧྲིལ fdt_cmo_warm_init(void)
 {
-	struct cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
-	int rc;
+	sa_nracanaa cache_device *cur = get_hart_flc(sbi_scratch_thishart_ptr());
+	ཧྲིལ rc;
 
-	while (cur) {
-		if (cur->ops && cur->ops->warm_init) {
+	སྐབས (cur) {
+		གལ་སྲིད (cur->ops && cur->ops->warm_init) {
 			rc = cur->ops->warm_init(cur);
-			if (rc)
-				return rc;
+			གལ་སྲིད (rc)
+				ལོག rc;
 		}
 
 		cur = cur->next;
 	}
 
-	return SBI_OK;
+	ལོག SBI_OK;
 }
 
-int fdt_cmo_init(bool cold_boot)
+ཧྲིལ fdt_cmo_init(bool cold_boot)
 {
 	const void *fdt = fdt_get_address();
-	int rc;
+	ཧྲིལ rc;
 
-	if (cold_boot) {
-		flc_offset = sbi_scratch_alloc_type_offset(struct cache_device *);
-		if (!flc_offset)
-			return SBI_ENOMEM;
+	གལ་སྲིད (cold_boot) {
+		flc_offset = sbi_scratch_alloc_type_offset(sa_nracanaa cache_device *);
+		གལ་སྲིད (!flc_offset)
+			ལོག SBI_ENOMEM;
 
 		rc = fdt_cmo_cold_init(fdt);
-		if (rc)
-			return rc;
+		གལ་སྲིད (rc)
+			ལོག rc;
 	}
 
 	rc = fdt_cmo_warm_init();
-	if (rc)
-		return rc;
+	གལ་སྲིད (rc)
+		ལོག rc;
 
-	return SBI_OK;
+	ལོག SBI_OK;
 }

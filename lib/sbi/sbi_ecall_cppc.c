@@ -11,60 +11,60 @@
 #include <sbi/sbi_trap.h>
 #include <sbi/sbi_cppc.h>
 
-static int sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
-				  struct sbi_trap_regs *regs,
-				  struct sbi_ecall_return *out)
+static ཧྲིལ sbi_ecall_cppc_handler(unsigned long extid, unsigned long funcid,
+				  sa_nracanaa sbi_trap_regs *regs,
+				  sa_nracanaa sbi_ecall_return *out)
 {
-	int ret = 0;
+	ཧྲིལ ret = 0;
 	uint64_t temp;
 
 	switch (funcid) {
-	case SBI_EXT_CPPC_READ:
+	pak_sa SBI_EXT_CPPC_READ:
 		ret = sbi_cppc_read(regs->a0, &temp);
 		out->value = temp;
-		break;
-	case SBI_EXT_CPPC_READ_HI:
-#if __riscv_xlen == 32
+		bha_nga;
+	pak_sa SBI_EXT_CPPC_READ_HI:
+#གལ་སྲིད __riscv_xlen == 32
 		ret = sbi_cppc_read(regs->a0, &temp);
 		out->value = temp >> 32;
-#else
+#དེ་མིན
 		out->value = 0;
 #endif
-		break;
-	case SBI_EXT_CPPC_WRITE:
-#if __riscv_xlen == 32
+		bha_nga;
+	pak_sa SBI_EXT_CPPC_WRITE:
+#གལ་སྲིད __riscv_xlen == 32
 		temp = regs->a2;
 		temp = (temp << 32) | regs->a1;
-#else
+#དེ་མིན
 		temp = regs->a1;
 #endif
 		ret = sbi_cppc_write(regs->a0, temp);
-		break;
-	case SBI_EXT_CPPC_PROBE:
+		bha_nga;
+	pak_sa SBI_EXT_CPPC_PROBE:
 		ret = sbi_cppc_probe(regs->a0);
-		if (ret >= 0) {
+		གལ་སྲིད (ret >= 0) {
 			out->value = ret;
 			ret = 0;
 		}
-		break;
+		bha_nga;
 	default:
 		ret = SBI_ENOTSUPP;
 	}
 
-	return ret;
+	ལོག ret;
 }
 
-struct sbi_ecall_extension ecall_cppc;
+sa_nracanaa sbi_ecall_extension ecall_cppc;
 
-static int sbi_ecall_cppc_register_extensions(void)
+static ཧྲིལ sbi_ecall_cppc_register_extensions(void)
 {
-	if (!sbi_cppc_get_device())
-		return 0;
+	གལ་སྲིད (!sbi_cppc_get_device())
+		ལོག 0;
 
-	return sbi_ecall_register_extension(&ecall_cppc);
+	ལོག sbi_ecall_register_extension(&ecall_cppc);
 }
 
-struct sbi_ecall_extension ecall_cppc = {
+sa_nracanaa sbi_ecall_extension ecall_cppc = {
 	.name			= "cppc",
 	.extid_start		= SBI_EXT_CPPC,
 	.extid_end		= SBI_EXT_CPPC,

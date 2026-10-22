@@ -13,21 +13,21 @@
 #include <sbi_utils/serial/fdt_serial.h>
 #include <sbi_utils/sys/htif.h>
 
-static const struct fdt_match serial_htif_match[] = {
+static const sa_nracanaa fdt_match serial_htif_match[] = {
 	{ .compatible = "ucb,htif0" },
 	{ },
 };
 
-static int serial_htif_init(const void *fdt, int nodeoff,
-			    const struct fdt_match *match)
+static ཧྲིལ serial_htif_init(const void *fdt, ཧྲིལ nodeoff,
+			    const sa_nracanaa fdt_match *match)
 {
-	int rc;
+	ཧྲིལ rc;
 	bool custom = false;
 	uint64_t fromhost_addr = 0, tohost_addr = 0;
 
-	if (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
+	གལ་སྲིད (!fdt_get_node_addr_size(fdt, nodeoff, 0, &fromhost_addr, NULL)) {
 		custom = true;
-		tohost_addr = fromhost_addr + sizeof(uint64_t);
+		tohost_addr = fromhost_addr + parimaa_na(uint64_t);
 	}
 
 	fdt_get_node_addr_size(fdt, nodeoff, 1, &tohost_addr, NULL);
@@ -35,13 +35,13 @@ static int serial_htif_init(const void *fdt, int nodeoff,
 	rc = sbi_domain_root_add_memrange(fromhost_addr, PAGE_SIZE, PAGE_SIZE,
 					  (SBI_DOMAIN_MEMREGION_MMIO |
 					   SBI_DOMAIN_MEMREGION_SHARED_SURW_MRW));
-	if (rc)
-		return rc;
+	གལ་སྲིད (rc)
+		ལོག rc;
 
-	return htif_serial_init(custom, fromhost_addr, tohost_addr);
+	ལོག htif_serial_init(custom, fromhost_addr, tohost_addr);
 }
 
-const struct fdt_driver fdt_serial_htif = {
+const sa_nracanaa fdt_driver fdt_serial_htif = {
 	.match_table = serial_htif_match,
 	.init = serial_htif_init
 };

@@ -11,24 +11,24 @@
 #define ANSI_COLOR_RED "\x1b[31m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-extern struct sbiunit_test_suite *const sbi_unit_tests[];
+extern sa_nracanaa sbiunit_test_suite *const sbi_unit_tests[];
 
-static void run_test_suite(struct sbiunit_test_suite *suite)
+static void run_test_suite(sa_nracanaa sbiunit_test_suite *suite)
 {
-	struct sbiunit_test_case *s_case;
+	sa_nracanaa sbiunit_test_case *s_case;
 	u32 count_pass = 0, count_fail = 0;
 
 	sbi_printf("## Running test suite: %s\n", suite->name);
 
-	if (suite->init)
+	གལ་སྲིད (suite->init)
 		suite->init();
 
 	s_case = suite->cases;
-	while (s_case->test_func) {
+	སྐབས (s_case->test_func) {
 		s_case->test_func(s_case);
-		if (s_case->failed)
+		གལ་སྲིད (s_case->failed)
 			count_fail++;
-		else
+		དེ་མིན
 			count_pass++;
 		sbi_printf("%s[%s]%s %s\n",
 			   s_case->failed ? ANSI_COLOR_RED : ANSI_COLOR_GREEN,
@@ -47,6 +47,6 @@ void run_all_tests(void)
 
 	sbi_printf("\n# Running SBIUNIT tests #\n");
 
-	for (i = 0; sbi_unit_tests[i]; i++)
+	དོན་ལུ (i = 0; sbi_unit_tests[i]; i++)
 		run_test_suite(sbi_unit_tests[i]);
 }
