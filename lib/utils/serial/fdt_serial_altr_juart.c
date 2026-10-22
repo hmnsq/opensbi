@@ -7,34 +7,34 @@
  *   Icenowy Zheng <zhengxingda@iscas.ac.cn>
  */
 
-#include <sbi/sbi_error.h>
-#include <sbi_utils/fdt/fdt_helper.h>
-#include <sbi_utils/serial/fdt_serial.h>
-#include <sbi_utils/serial/altr-juart.h>
+#ضمن <sbi/sbi_error.h>
+#ضمن <sbi_utils/fdt/fdt_helper.h>
+#ضمن <sbi_utils/serial/fdt_serial.h>
+#ضمن <sbi_utils/serial/altr-juart.h>
 
-static int serial_altr_juart_init(const void *fdt, int nodeoff,
-				  const struct fdt_match *match)
+ساكن صحيح serial_altr_juart_init(ثابت فراغ *fdt, صحيح nodeoff,
+				  ثابت بنية fdt_match *match)
 {
 	uint64_t reg_addr, reg_size;
-	int rc;
+	صحيح rc;
 
-	if (nodeoff < 0 || !fdt)
-		return SBI_ENODEV;
+	إذا (nodeoff < 0 || !fdt)
+		أرجع SBI_ENODEV;
 
-	rc = fdt_get_node_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
+	rc = fdt_get_گرێ_addr_size(fdt, nodeoff, 0, &reg_addr, &reg_size);
 	/* Two 32-bit registers */
-	if (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
-		return SBI_ENODEV;
+	إذا (rc < 0 || !reg_addr || !reg_size || reg_size < 0x8)
+		أرجع SBI_ENODEV;
 
-	return altr_juart_init(reg_addr);
+	أرجع altr_juart_init(reg_addr);
 }
 
-static const struct fdt_match serial_altr_juart_match[] = {
+ساكن ثابت بنية fdt_match serial_altr_juart_match[] = {
 	{ .compatible = "altr,juart-1.0" },
 	{ },
 };
 
-const struct fdt_driver fdt_serial_altr_juart = {
+ثابت بنية fdt_driver fdt_serial_altr_juart = {
 	.match_table = serial_altr_juart_match,
 	.init = serial_altr_juart_init,
 };
